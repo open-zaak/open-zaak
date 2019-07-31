@@ -1,0 +1,49 @@
+@mixin animate($delay: 0s)  {
+  transition: all 0.2s;
+  transition-delay: $delay;
+}
+
+@mixin center-hv {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin center-h {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+}
+
+@mixin center-v {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+
+}
+
+@mixin rotate {
+  animation: rotate 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+
+@keyframes rotate {
+  from {
+
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@mixin rounded {
+  border-radius: 5px;
+}
+
+@mixin shadow($h: 0px, $v: 2px, $color: rgba(0,0,0,0.20)) {
+  box-shadow: $h $v 8px 0 $color;
+}

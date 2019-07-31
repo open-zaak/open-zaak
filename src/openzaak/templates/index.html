@@ -1,0 +1,31 @@
+{% extends "vng_api_common/index.html" %}
+
+{% block docs_oas %}
+  <div class="col-sm-4">
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
+        <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
+        <a href="{% url 'zrc:schema-redoc' version=1 %}" class="btn btn-primary">API specificaties</a>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block extra_docs %}
+
+  {% include "vng_api_common/includes/kanalen_card.html" %}
+
+{% endblock %}
+
+{% block admin_link %}
+{{ block.super }}
+<p>
+    <a href="{% url 'view-config' %}" class="btn btn-sm btn-secondary">
+        <i class="fa fa-info-circle"></i>
+        Bekijk configuratie
+    </a>
+</p>
+{% endblock admin_link %}

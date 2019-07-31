@@ -1,0 +1,39 @@
+{
+  "name": "open_zaak",
+  "version": "1.0.0-rc1",
+  "description": "Open zaak",
+  "main": "src/index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "convert": "swagger2openapi src/swagger2.0.json -o src/openapi.yaml",
+    "build": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/open-zaak/open-zaak.git"
+  },
+  "author": "Maykin Media",
+  "license": "EUPL 1.2",
+  "homepage": "https://ref.tst.vng.cloud/",
+  "dependencies": {
+    "autoprefixer": "^9.5.1",
+    "font-awesome": "^4.7.0"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10",
+    "gulp": "^4.0.0",
+    "gulp-file": "^0.4.0",
+    "gulp-hub": "next",
+    "gulp-if": "^2.0.2",
+    "gulp-postcss": "^8.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "postcss-loader": "^0.11.1",
+    "postcss-selector-lint": "^1.0.0",
+    "sass-loader": "^7.0.3",
+    "swagger2openapi": "^2.11.16",
+    "yargs": "^9.0.1"
+  }
+}

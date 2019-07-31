@@ -1,0 +1,28 @@
+.scope {
+
+  &__label {
+    color: $color-code;
+    margin-bottom: 5px;
+
+    .fa-link {
+      font-size: 50%;
+      color: $color-black;
+      opacity: 0;
+    }
+
+    &:hover {
+      .fa-link {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &__description {
+    font-size: 120%;
+
+    // output by markdown
+    ul, li {
+      margin: 0;
+    }
+  }
+}
