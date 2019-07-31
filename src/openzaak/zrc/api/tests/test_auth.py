@@ -2,6 +2,7 @@
 Guarantee that the proper authorization machinery is in place.
 """
 import uuid
+from unittest import skip
 
 from django.test import override_settings
 
@@ -25,6 +26,8 @@ from .mixins import ZaakInformatieObjectSyncMixin
 
 INFORMATIEOBJECT = f'http://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}'
 
+
+@skip('Current implementation is without authentication')
 @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
 class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
 
@@ -53,6 +56,7 @@ class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method='get', request_kwargs=ZAAK_READ_KWARGS)
 
 
+@skip('Current implementation is without authentication')
 class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -147,6 +151,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 4)
 
 
+@skip('Current implementation is without authentication')
 class StatusReadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -181,6 +186,7 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         )
 
 
+@skip('Current implementation is without authentication')
 class ResultaatTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -230,6 +236,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@skip('Current implementation is without authentication')
 class ZaakObjectTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -285,6 +292,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@skip('Current implementation is without authentication')
 class ZaakInformatieObjectTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -321,6 +329,7 @@ class ZaakInformatieObjectTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, API
         self.assertEqual(response.data[0]['zaak'], f'http://testserver{zaak_url}')
 
 
+@skip('Current implementation is without authentication')
 class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -412,6 +421,7 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@skip('Current implementation is without authentication')
 class RolReadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
     zaaktype = 'https://zaaktype.nl/ok'
@@ -446,6 +456,7 @@ class RolReadTests(JWTAuthMixin, APITestCase):
         )
 
 
+@skip('Current implementation is without authentication')
 class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     zaaktype = 'https://zaaktype.nl/ok'

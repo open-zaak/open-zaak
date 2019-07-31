@@ -13,12 +13,13 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_operation_url
+    JWTAuthMixin, TypeCheckMixin
 )
 from zds_client.tests.mocks import mock_client
 
-from zrc.api.scopes import SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-from zrc.datamodel.tests.factories import RolFactory, ZaakFactory
+from openzaak.zrc.api.scopes import SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
+from openzaak.zrc.datamodel.tests.factories import RolFactory, ZaakFactory
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 WATERNET = f'https://waternet.nl/api/organisatorische-eenheid/{uuid.uuid4().hex}'
 ZAAKTYPE = f'https://example.com/api/v1/zaaktype/{uuid.uuid4().hex}'

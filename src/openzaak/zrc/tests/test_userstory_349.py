@@ -3,22 +3,23 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_operation_url, reverse
+from vng_api_common.tests import JWTAuthMixin, reverse
 
-from zrc.api.scopes import (
+from openzaak.zrc.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_ALLES_VERWIJDEREN
 )
-from zrc.api.tests.mixins import ZaakInformatieObjectSyncMixin
-from zrc.datamodel.models import (
+from openzaak.zrc.api.tests.mixins import ZaakInformatieObjectSyncMixin
+from openzaak.zrc.datamodel.models import (
     KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
     ZaakInformatieObject, ZaakObject
 )
-from zrc.datamodel.tests.factories import (
+from openzaak.zrc.datamodel.tests.factories import (
     KlantContactFactory, ResultaatFactory, RolFactory, StatusFactory,
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
-from zrc.tests.utils import ZAAK_READ_KWARGS
+from openzaak.zrc.tests.utils import ZAAK_READ_KWARGS
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .utils import ZAAK_WRITE_KWARGS
 

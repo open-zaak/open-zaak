@@ -13,7 +13,7 @@ from vng_api_common.constants import (
     Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding
 )
-from vng_api_common.tests import JWTAuthMixin, get_operation_url, reverse
+from vng_api_common.tests import JWTAuthMixin, reverse
 from zds_client.tests.mocks import mock_client
 
 from openzaak.zrc.datamodel.constants import BetalingsIndicatie
@@ -30,6 +30,7 @@ from ..scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE, SCOPEN_ZAKEN_HEROPENEN
 )
+from .utils import get_operation_url
 
 # ZTC
 ZTC_ROOT = 'https://example.com/ztc/api/v1'

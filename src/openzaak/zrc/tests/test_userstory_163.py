@@ -14,9 +14,10 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, get_operation_url
+from vng_api_common.tests import JWTAuthMixin
 
-from zrc.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.zrc.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .utils import ZAAK_WRITE_KWARGS
 

@@ -7,10 +7,11 @@ from urllib.parse import quote_plus, urlencode
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import Archiefnominatie, Archiefstatus
-from vng_api_common.tests import JWTAuthMixin, get_operation_url
+from vng_api_common.tests import JWTAuthMixin
 
-from zrc.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
-from zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .utils import ZAAK_WRITE_KWARGS
 

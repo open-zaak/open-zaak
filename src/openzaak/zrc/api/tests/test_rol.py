@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_operation_url, get_validation_errors
+    JWTAuthMixin, TypeCheckMixin, get_validation_errors, reverse
 )
 from zds_client.tests.mocks import mock_client
 
@@ -16,6 +16,8 @@ from openzaak.zrc.datamodel.models import (
     SubVerblijfBuitenland, Vestiging
 )
 from openzaak.zrc.datamodel.tests.factories import RolFactory, ZaakFactory
+from .utils import get_operation_url
+
 
 ZAAKTYPE = "https://ztc.nl/zaaktypen/123"
 BETROKKENE = 'http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd'

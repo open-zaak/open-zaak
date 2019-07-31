@@ -18,15 +18,16 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
-from vng_api_common.tests import JWTAuthMixin, get_operation_url
+from vng_api_common.tests import JWTAuthMixin
 from zds_client.tests.mocks import mock_client
 
-from zrc.api.scopes import (
+from openzaak.zrc.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
 )
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
-from zrc.datamodel.models import Zaak
-from zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.datamodel.models import Zaak
+from openzaak.zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .utils import ZAAK_WRITE_KWARGS, parse_isodatetime
 

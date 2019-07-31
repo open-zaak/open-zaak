@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.utils import timezone
 
-from zrc.utils import parse_isodatetime  # noqa
+from openzaak.utils import parse_isodatetime  # noqa
 
 ZAAK_READ_KWARGS = {
     'HTTP_ACCEPT_CRS': 'EPSG:4326',

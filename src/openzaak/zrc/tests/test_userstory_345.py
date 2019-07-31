@@ -12,18 +12,19 @@ from vng_api_common.constants import (
     Archiefnominatie, Archiefstatus, BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding
 )
-from vng_api_common.tests import JWTAuthMixin, get_operation_url
+from vng_api_common.tests import JWTAuthMixin
 from zds_client.tests.mocks import mock_client
 
-from zrc.api.scopes import (
+from openzaak.zrc.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE,
     SCOPEN_ZAKEN_HEROPENEN
 )
-from zrc.api.tests.mixins import ZaakInformatieObjectSyncMixin
-from zrc.datamodel.tests.factories import (
+from openzaak.zrc.api.tests.mixins import ZaakInformatieObjectSyncMixin
+from openzaak.zrc.datamodel.tests.factories import (
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 

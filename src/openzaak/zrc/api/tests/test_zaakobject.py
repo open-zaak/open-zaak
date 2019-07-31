@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import (
-    JWTAuthMixin, get_operation_url, get_validation_errors
+    JWTAuthMixin, get_validation_errors
 )
 
 from openzaak.zrc.datamodel.models import (
@@ -14,6 +14,7 @@ from openzaak.zrc.datamodel.models import (
     ZakelijkRechtHeeftAlsGerechtigde
 )
 from openzaak.zrc.datamodel.tests.factories import ZaakFactory, ZaakObjectFactory
+from .utils import get_operation_url
 
 OBJECT = 'http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd'
 

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.views.generic.base import TemplateView
 
 from vng_api_common.views import ViewConfigView
@@ -15,7 +15,8 @@ urlpatterns = [
     path('view-config/', ViewConfigView.as_view(), name='view-config'),
 
     # separate apps
-    path('zrc/', include('openzaak.zrc.urls', namespace='zrc')),
+    re_path(r'^(?P<component>zrc|brc|ztc|drc)/$', TemplateView.as_view(template_name='index.html'), name='main'),
+    path('zrc/api/', include('openzaak.zrc.api.urls')),
 
     # Simply show the master template.
     path('ref/', include('vng_api_common.urls')),

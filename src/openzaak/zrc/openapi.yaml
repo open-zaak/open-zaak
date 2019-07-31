@@ -6799,7 +6799,7 @@ paths:
         type: string
         format: uuid
 servers:
-- url: /api/v1
+- url: /zrc/api/v1
 components:
   requestBodies:
     Resultaat:

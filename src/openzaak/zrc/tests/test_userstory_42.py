@@ -9,11 +9,12 @@ from django.contrib.gis.geos import Point
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_operation_url
+    JWTAuthMixin, TypeCheckMixin
 )
 
-from zrc.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
-from zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .utils import ZAAK_WRITE_KWARGS

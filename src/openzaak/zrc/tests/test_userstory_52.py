@@ -11,12 +11,13 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_operation_url
+    JWTAuthMixin, TypeCheckMixin
 )
 from zds_client.tests.mocks import mock_client
 
-from zrc.datamodel.models import ZaakEigenschap
-from zrc.datamodel.tests.factories import ZaakEigenschapFactory, ZaakFactory
+from openzaak.zrc.datamodel.models import ZaakEigenschap
+from openzaak.zrc.datamodel.tests.factories import ZaakEigenschapFactory, ZaakFactory
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 EIGENSCHAP_OBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/zaaktypen/1/eigenschappen/1'
 EIGENSCHAP_NAAM_BOOT = 'https://example.com/ztc/api/v1/catalogus/1/zaaktypen/1/eigenschappen/2'

@@ -1,9 +1,10 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
-from vng_api_common.tests import JWTAuthMixin, get_operation_url
+from vng_api_common.tests import JWTAuthMixin
 
 from openzaak.zrc.datamodel.tests.factories import ZaakObjectFactory
+from .utils import get_operation_url
 
 
 class ZaakObjectFilterTestCase(JWTAuthMixin, APITestCase):

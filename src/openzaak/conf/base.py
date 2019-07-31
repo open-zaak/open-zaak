@@ -379,4 +379,10 @@ if SENTRY_DSN:
 #
 IS_HTTPS = os.getenv('IS_HTTPS', '1').lower() in ['true', '1', 'yes']
 
+# TODO decide what to to with notification channels
 NOTIFICATIONS_KANAAL = 'zaken'
+
+# urls for OAS3 specifivations
+SPEC_URL = {
+    'ZRC': os.path.join(BASE_DIR, 'src/openzaak/zrc/openapi.yaml')
+}

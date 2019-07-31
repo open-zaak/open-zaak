@@ -22,14 +22,3 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
         return http.HttpResponseServerError('<h1>Server Error (500)</h1>', content_type='text/html')
     context = {'request': request}
     return http.HttpResponseServerError(template.render(context))
-
-
-class ErrorDetailView(TemplateView):
-    template_name = 'index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context.update({
-        #     'type': exc_klass.__name__,
-        # })
-        return context

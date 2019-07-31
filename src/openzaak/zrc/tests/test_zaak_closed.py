@@ -7,16 +7,17 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import Archiefnominatie
-from vng_api_common.tests import JWTAuthMixin, get_operation_url, reverse
+from vng_api_common.tests import JWTAuthMixin, reverse
 from zds_client.tests.mocks import mock_client
 
-from zrc.api.scopes import (
+from openzaak.zrc.api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN, SCOPEN_ZAKEN_HEROPENEN
 )
-from zrc.datamodel.constants import BetalingsIndicatie
-from zrc.datamodel.tests.factories import ZaakFactory
-from zrc.tests.utils import ZAAK_WRITE_KWARGS
+from openzaak.zrc.datamodel.constants import BetalingsIndicatie
+from openzaak.zrc.datamodel.tests.factories import ZaakFactory
+from openzaak.zrc.tests.utils import ZAAK_WRITE_KWARGS
+from openzaak.zrc.api.tests.utils import get_operation_url
 
 CATALOGUS = 'https://example.com/ztc/api/v1/catalogus/878a3318-5950-4642-8715-189745f91b04'
 ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
