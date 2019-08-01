@@ -4,9 +4,9 @@ from django.db import migrations
 
 
 def rewrite_urls(apps, schema_editor):
-    Zaak = apps.get_model("datamodel.Zaak")
-    Status = apps.get_model("datamodel.Status")
-    ZaakEigenschap = apps.get_model("datamodel.ZaakEigenschap")
+    Zaak = apps.get_model("zrc_datamodel.Zaak")
+    Status = apps.get_model("zrc_datamodel.Status")
+    ZaakEigenschap = apps.get_model("zrc_datamodel.ZaakEigenschap")
 
     zaken = Zaak.objects.filter(zaaktype__regex=r"^https?://.*/catalogussen/[\w-]+/.*")
     for zaak in zaken:
@@ -43,7 +43,7 @@ def rewrite_urls(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0070_auto_20190627_1404'),
+        ('zrc_datamodel', '0070_auto_20190627_1404'),
     ]
 
     operations = [

@@ -64,5 +64,5 @@ text-unidecode==1.2       # via faker
 unidecode==1.0.22
 uritemplate==3.0.0
 urllib3==1.24.3
-vng-api-common==1.0.5
+vng-api-common==1.0.6
 wrapt==1.11.2             # via astroid

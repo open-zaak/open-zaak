@@ -9,7 +9,7 @@ SECURITY_DEFINITION_NAME = 'JWT-Claims'
 
 SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
 SWAGGER_SETTINGS.update({
-    'DEFAULT_INFO': 'openzaak.zrc.api.schema.info',
+    'DEFAULT_INFO': 'openzaak.zrc.api.schema.info', # TODO: fix it as parameter
 
     'SECURITY_DEFINITIONS': {
         SECURITY_DEFINITION_NAME: {

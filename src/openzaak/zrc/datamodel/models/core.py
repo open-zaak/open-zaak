@@ -255,7 +255,7 @@ class RelevanteZaakRelatie(models.Model):
     Registreer een ZAAK als relevant voor een andere ZAAK
     """
     zaak = models.ForeignKey(
-        'Zaak', on_delete=models.CASCADE, related_name='relevante_andere_zaken',
+        Zaak, on_delete=models.CASCADE, related_name='relevante_andere_zaken',
     )
     url = models.URLField(_("URL-referentie naar de ZAAK."), max_length=1000)
     aard_relatie = models.CharField(
@@ -277,7 +277,7 @@ class Status(models.Model):
     )
     # relaties
     zaak = models.ForeignKey(
-        'Zaak', on_delete=models.CASCADE,
+        Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
     statustype = models.URLField(
@@ -320,7 +320,7 @@ class Resultaat(models.Model):
     )
     # relaties
     zaak = models.OneToOneField(
-        'Zaak', on_delete=models.CASCADE,
+        Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
     resultaattype = models.URLField(
@@ -360,7 +360,7 @@ class Rol(models.Model):
         help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(
-        'Zaak', on_delete=models.CASCADE,
+        Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
     betrokkene = models.URLField(
@@ -444,7 +444,7 @@ class ZaakObject(models.Model):
         help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(
-        'Zaak', on_delete=models.CASCADE,
+        Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
     object = models.URLField(
@@ -516,7 +516,7 @@ class ZaakEigenschap(models.Model):
         unique=True, default=uuid.uuid4,
         help_text="Unieke resource identifier (UUID4)"
     )
-    zaak = models.ForeignKey('Zaak', on_delete=models.CASCADE)
+    zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
     eigenschap = models.URLField(
         help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
         max_length=1000
@@ -545,7 +545,7 @@ class ZaakKenmerk(models.Model):
     """
     Model representatie van de Groepattribuutsoort 'Kenmerk'
     """
-    zaak = models.ForeignKey('datamodel.Zaak', on_delete=models.CASCADE)
+    zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
     kenmerk = models.CharField(
         max_length=40,
         help_text='Identificeert uniek de zaak in een andere administratie.')
@@ -637,7 +637,7 @@ class KlantContact(models.Model):
         help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(
-        'Zaak', on_delete=models.CASCADE,
+        Zaak, on_delete=models.CASCADE,
         help_text=_('URL-referentie naar de ZAAK.')
     )
     identificatie = models.CharField(

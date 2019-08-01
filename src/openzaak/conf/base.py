@@ -70,10 +70,14 @@ INSTALLED_APPS = [
 
     # Project applications.
     'openzaak.accounts',
+    'openzaak.utils',
+
     'openzaak.zrc.api',
     'openzaak.zrc.datamodel',
     'openzaak.zrc.sync',
-    'openzaak.utils',
+    'openzaak.brc.api',
+    'openzaak.brc.datamodel',
+    'openzaak.brc.sync',
 ]
 
 MIDDLEWARE = [
@@ -379,10 +383,8 @@ if SENTRY_DSN:
 #
 IS_HTTPS = os.getenv('IS_HTTPS', '1').lower() in ['true', '1', 'yes']
 
-# TODO decide what to to with notification channels
-NOTIFICATIONS_KANAAL = 'zaken'
-
 # urls for OAS3 specifivations
 SPEC_URL = {
-    'ZRC': os.path.join(BASE_DIR, 'src/openzaak/zrc/openapi.yaml')
+    'ZRC': os.path.join(BASE_DIR, 'src/openzaak/zrc/openapi.yaml'),
+    'BRC': os.path.join(BASE_DIR, 'src/openzaak/brc/openapi.yaml'),
 }

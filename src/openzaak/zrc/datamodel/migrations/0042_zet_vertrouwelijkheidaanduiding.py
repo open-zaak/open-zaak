@@ -31,7 +31,7 @@ def _get_zaaktype(zaak) -> dict:
 
 
 def zet_aanduiding(apps, _):
-    Zaak = apps.get_model('datamodel', 'Zaak')
+    Zaak = apps.get_model('zrc_datamodel', 'Zaak')
 
     default = VertrouwelijkheidsAanduiding.openbaar
 
@@ -52,7 +52,7 @@ def zet_aanduiding(apps, _):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0041_zaak_vertrouwlijkheidaanduiding'),
+        ('zrc_datamodel', '0041_zaak_vertrouwlijkheidaanduiding'),
     ]
 
     operations = [

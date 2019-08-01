@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0065_merge_20190628_1222'),
+        ('zrc_datamodel', '0065_merge_20190628_1222'),
     ]
 
     operations = [
@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='relevantezaakrelatie',
             name='zaak',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='relevante_andere_zaken', to='datamodel.Zaak'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='relevante_andere_zaken', to='zrc_datamodel.Zaak'),
         ),
     ]

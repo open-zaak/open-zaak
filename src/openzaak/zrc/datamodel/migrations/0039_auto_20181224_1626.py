@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0038_auto_20181219_1027'),
+        ('zrc_datamodel', '0038_auto_20181219_1027'),
     ]
 
     operations = [
@@ -30,6 +30,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='zaakproductofdienst',
             name='zaak',
-            field=models.ForeignKey(help_text='hoort bij', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='hoort bij', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
     ]

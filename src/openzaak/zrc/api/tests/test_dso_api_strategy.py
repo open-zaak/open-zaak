@@ -11,7 +11,7 @@ from .utils import reverse
 class DSOApiStrategyTests(APITestCase):
 
     def test_api_19_documentation_version_json(self):
-        url = reverse('zrc-schema-json', kwargs={'format': '.json'})
+        url = reverse('schema-json-zrc', kwargs={'format': '.json'})
 
         response = self.client.get(url)
 
@@ -22,7 +22,7 @@ class DSOApiStrategyTests(APITestCase):
         self.assertGreaterEqual(doc['openapi'], '3.0.0')
 
     def test_api_19_documentation_version_yaml(self):
-        url = reverse('zrc-schema-json', kwargs={'format': '.yaml'})
+        url = reverse('schema-json-zrc', kwargs={'format': '.yaml'})
 
         response = self.client.get(url)
 

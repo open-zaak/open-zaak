@@ -7,7 +7,7 @@ import vng_api_common.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0031_auto_20180815_1525'),
+        ('zrc_datamodel', '0031_auto_20180815_1525'),
     ]
 
     operations = [

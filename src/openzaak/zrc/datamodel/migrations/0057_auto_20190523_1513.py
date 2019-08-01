@@ -8,7 +8,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0056_auto_20190311_1015'),
+        ('zrc_datamodel', '0056_auto_20190311_1015'),
     ]
 
     operations = [
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
                 ('besluit', models.URLField(help_text='URL-referentie naar het informatieobject in het BRC, waar ook de relatieinformatie opgevraagd kan worden.', max_length=1000, verbose_name='besluit')),
-                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak')),
+                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak')),
             ],
             options={
                 'verbose_name': 'zaakbesluit',

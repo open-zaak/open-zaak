@@ -24,35 +24,35 @@ class ZaakFilter(FilterSet):
 class RolFilter(FilterSet):
     betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name='natuurlijkpersoon__inp_bsn',
-        help_text=get_help_text('datamodel.NatuurlijkPersoon', 'inp_bsn')
+        help_text=get_help_text('zrc_datamodel.NatuurlijkPersoon', 'inp_bsn')
     )
     betrokkene_identificatie__natuurlijk_persoon__anp_identificatie = filters.CharFilter(
         field_name='natuurlijkpersoon__anp_identificatie',
-        help_text=get_help_text('datamodel.NatuurlijkPersoon', 'anp_identificatie')
+        help_text=get_help_text('zrc_datamodel.NatuurlijkPersoon', 'anp_identificatie')
     )
     betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer = filters.CharFilter(
         field_name='natuurlijkpersoon__inp_a_nummer',
-        help_text=get_help_text('datamodel.NatuurlijkPersoon', 'inp_a_nummer')
+        help_text=get_help_text('zrc_datamodel.NatuurlijkPersoon', 'inp_a_nummer')
     )
     betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id = filters.CharFilter(
         field_name='nietnatuurlijkpersoon__inn_nnp_id',
-        help_text=get_help_text('datamodel.NietNatuurlijkPersoon', 'inn_nnp_id')
+        help_text=get_help_text('zrc_datamodel.NietNatuurlijkPersoon', 'inn_nnp_id')
     )
     betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie = filters.CharFilter(
         field_name='nietnatuurlijkpersoon__ann_identificatie',
-        help_text=get_help_text('datamodel.NietNatuurlijkPersoon', 'ann_identificatie')
+        help_text=get_help_text('zrc_datamodel.NietNatuurlijkPersoon', 'ann_identificatie')
     )
     betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name='vestiging__vestigings_nummer',
-        help_text=get_help_text('datamodel.Vestiging', 'vestigings_nummer')
+        help_text=get_help_text('zrc_datamodel.Vestiging', 'vestigings_nummer')
     )
     betrokkene_identificatie__vestiging__identificatie = filters.CharFilter(
         field_name='organisatorischeeenheid__identificatie',
-        help_text=get_help_text('datamodel.OrganisatorischeEenheid', 'identificatie')
+        help_text=get_help_text('zrc_datamodel.OrganisatorischeEenheid', 'identificatie')
     )
     betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name='medewerker__identificatie',
-        help_text=get_help_text('datamodel.Medewerker', 'identificatie')
+        help_text=get_help_text('zrc_datamodel.Medewerker', 'identificatie')
     )
 
     class Meta:

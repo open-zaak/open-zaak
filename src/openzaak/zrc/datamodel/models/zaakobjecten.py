@@ -301,10 +301,10 @@ class ZakelijkRechtHeeftAlsGerechtigde(models.Model):
 class Adres(models.Model):
     zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
     natuurlijkpersoon = models.OneToOneField(
-        'datamodel.NatuurlijkPersoon', on_delete=models.CASCADE, null=True, related_name='verblijfsadres'
+        'zrc_datamodel.NatuurlijkPersoon', on_delete=models.CASCADE, null=True, related_name='verblijfsadres'
     )
     vestiging = models.OneToOneField(
-        'datamodel.Vestiging', on_delete=models.CASCADE, null=True, related_name='verblijfsadres'
+        'zrc_datamodel.Vestiging', on_delete=models.CASCADE, null=True, related_name='verblijfsadres'
     )
     wozobject = models.OneToOneField(
         WozObject, on_delete=models.CASCADE, null=True, related_name='aanduiding_woz_object'

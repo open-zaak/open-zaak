@@ -17,6 +17,7 @@ urlpatterns = [
     # separate apps
     re_path(r'^(?P<component>zrc|brc|ztc|drc)/$', TemplateView.as_view(template_name='index.html'), name='main'),
     path('zrc/api/', include('openzaak.zrc.api.urls')),
+    path('brc/api/', include('openzaak.brc.api.urls')),
 
     # Simply show the master template.
     path('ref/', include('vng_api_common.urls')),

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0072_auto_20190705_1146'),
+        ('zrc_datamodel', '0072_auto_20190705_1146'),
     ]
 
     operations = [
@@ -32,9 +32,9 @@ class Migration(migrations.Migration):
                 ('sub_adres_buitenland_1', models.CharField(blank=True, max_length=35)),
                 ('sub_adres_buitenland_2', models.CharField(blank=True, max_length=35)),
                 ('sub_adres_buitenland_3', models.CharField(blank=True, max_length=35)),
-                ('natuurlijkpersoon', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='datamodel.NatuurlijkPersoon')),
-                ('nietnatuurlijkpersoon', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='datamodel.NietNatuurlijkPersoon')),
-                ('vestiging', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='datamodel.Vestiging')),
+                ('natuurlijkpersoon', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='zrc_datamodel.NatuurlijkPersoon')),
+                ('nietnatuurlijkpersoon', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='zrc_datamodel.NietNatuurlijkPersoon')),
+                ('vestiging', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_verblijf_buitenland', to='zrc_datamodel.Vestiging')),
             ],
         ),
     ]

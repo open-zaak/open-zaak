@@ -38,10 +38,10 @@ urlpatterns = [
         # API documentation
         url(r'^schema/openapi(?P<format>\.json|\.yaml)$',
             SchemaView.without_ui(cache_timeout=None),
-            name='zrc-schema-json'),
+            name='schema-json-zrc'),
         url(r'^schema/$',
             SchemaView.with_ui('redoc', cache_timeout=None),
-            name='zrc-schema-redoc'),
+            name='schema-redoc-zrc'),
 
         # actual API
         url(r'^', include(router.urls)),

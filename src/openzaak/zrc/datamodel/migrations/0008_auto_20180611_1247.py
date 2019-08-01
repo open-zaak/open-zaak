@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0007_zaak_domein_data'),
+        ('zrc_datamodel', '0007_zaak_domein_data'),
     ]
 
     operations = [
@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='domeindata',
             name='zaak',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
     ]

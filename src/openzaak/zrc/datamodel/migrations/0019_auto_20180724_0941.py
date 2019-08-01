@@ -7,7 +7,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0018_auto_20180716_1259'),
+        ('zrc_datamodel', '0018_auto_20180716_1259'),
     ]
 
     operations = [

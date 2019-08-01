@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0042_zet_vertrouwelijkheidaanduiding'),
+        ('zrc_datamodel', '0042_zet_vertrouwelijkheidaanduiding'),
     ]
 
     operations = [

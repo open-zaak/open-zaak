@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0003_auto_20180608_1605'),
+        ('zrc_datamodel', '0003_auto_20180608_1605'),
     ]
 
     operations = [
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('object', models.URLField(help_text='URL naar de resource die het OBJECT beschrijft.')),
                 ('relatieomschrijving', models.CharField(blank=True, help_text='Omschrijving van de betrekking tussen de ZAAK en het OBJECT.', max_length=80)),
-                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak')),
+                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak')),
             ],
         ),
     ]

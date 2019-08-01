@@ -10,7 +10,7 @@ import vng_api_common.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0060_auto_20190605_0941'),
+        ('zrc_datamodel', '0060_auto_20190605_0941'),
     ]
 
     operations = [
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('handelsnaam', django.contrib.postgres.fields.ArrayField(base_field=models.TextField(blank=True, max_length=625), default=list, help_text='De naam van de vestiging waaronder gehandeld wordt.', size=None)),
                 ('verblijfsadres', models.CharField(blank=True, help_text='De gegevens over het verblijf en adres van de Vestiging', max_length=1000)),
                 ('sub_verblijf_buitenland', models.CharField(blank=True, help_text='De gegevens over het verblijf in het buitenland', max_length=1000)),
-                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol')),
+                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol')),
             ],
             options={
                 'verbose_name': 'vestiging',
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('identificatie', models.CharField(blank=True, help_text='Een korte identificatie van de organisatorische eenheid.', max_length=24)),
                 ('naam', models.CharField(blank=True, help_text='De feitelijke naam van de organisatorische eenheid.', max_length=50)),
                 ('is_gehuisvest_in', models.CharField(blank=True, max_length=24)),
-                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol')),
+                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol')),
             ],
             options={
                 'verbose_name': 'organisatorische eenheid',
@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                 ('rechtsvorm', models.CharField(blank=True, choices=[('Besloten Vennootschap', 'Besloten Vennootschap'), ('Cooperatie, Europees Economische Samenwerking', 'Cooperatie, Europees Economische Samenwerking'), ('Europese Cooperatieve Venootschap', 'Europese Cooperatieve Venootschap'), ('Europese Naamloze Vennootschap', 'Europese Naamloze Vennootschap'), ('Kerkelijke Organisatie', 'Kerkelijke Organisatie'), ('Naamloze Vennootschap', 'Naamloze Vennootschap'), ('Onderlinge Waarborg Maatschappij', 'Onderlinge Waarborg Maatschappij'), ('Overig privaatrechtelijke rechtspersoon', 'Overig privaatrechtelijke rechtspersoon'), ('Stichting', 'Stichting'), ('Vereniging', 'Vereniging'), ('Vereniging van Eigenaars', 'Vereniging van Eigenaars'), ('Publiekrechtelijke Rechtspersoon', 'Publiekrechtelijke Rechtspersoon'), ('Vennootschap onder Firma', 'Vennootschap onder Firma'), ('Maatschap', 'Maatschap'), ('Rederij', 'Rederij'), ('Commanditaire vennootschap', 'Commanditaire vennootschap'), ('Kapitaalvennootschap binnen EER', 'Kapitaalvennootschap binnen EER'), ('Overige buitenlandse rechtspersoon vennootschap', 'Overige buitenlandse rechtspersoon vennootschap'), ('Kapitaalvennootschap buiten EER', 'Kapitaalvennootschap buiten EER')], help_text='De juridische vorm van de NIET-NATUURLIJK PERSOON.', max_length=30)),
                 ('bezoekadres', models.CharField(blank=True, help_text='De gegevens over het adres van de NIET-NATUURLIJK PERSOON', max_length=1000)),
                 ('sub_verblijf_buitenland', models.CharField(blank=True, help_text='De gegevens over het verblijf in het buitenland', max_length=1000)),
-                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol')),
+                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol')),
             ],
             options={
                 'verbose_name': 'niet-natuurlijk persoon',
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                 ('geboortedatum', models.CharField(blank=True, max_length=18)),
                 ('verblijfsadres', models.CharField(blank=True, help_text='De gegevens over het verblijf en adres van de NATUURLIJK PERSOON', max_length=1000)),
                 ('sub_verblijf_buitenland', models.CharField(blank=True, help_text='De gegevens over het verblijf in het buitenland', max_length=1000)),
-                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol')),
+                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol')),
             ],
             options={
                 'verbose_name': 'natuurlijk persoon',
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
                 ('achternaam', models.CharField(blank=True, help_text='De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer gebruikt.', max_length=200)),
                 ('voorletters', models.CharField(blank=True, help_text='De verzameling letters die gevormd wordt door de eerste letter van alle in volgorde voorkomende voornamen.', max_length=20)),
                 ('voorvoegsel_achternaam', models.CharField(blank=True, help_text='Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA), voorvoegseltabel, en door een spatie van de geslachtsnaam is', max_length=10)),
-                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol')),
+                ('rol', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol')),
             ],
             options={
                 'verbose_name': 'medewerker',

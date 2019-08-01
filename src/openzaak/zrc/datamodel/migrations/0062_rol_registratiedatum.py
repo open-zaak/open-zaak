@@ -7,7 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0061_auto_20190617_1101'),
+        ('zrc_datamodel', '0061_auto_20190617_1101'),
     ]
 
     operations = [

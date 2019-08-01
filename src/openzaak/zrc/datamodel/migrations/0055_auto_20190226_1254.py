@@ -8,7 +8,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0054_auto_20190129_1204'),
+        ('zrc_datamodel', '0054_auto_20190129_1204'),
     ]
 
     operations = [
@@ -58,6 +58,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='resultaat',
             name='zaak',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
     ]

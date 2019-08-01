@@ -8,8 +8,8 @@ from ..constants import AardZaakRelatie
 
 
 def copy_to_relation(apps, schema_editor):
-    Zaak = apps.get_model("datamodel", "Zaak")
-    RelevanteZaakRelatie = apps.get_model("datamodel", "RelevanteZaakRelatie")
+    Zaak = apps.get_model("zrc_datamodel", "Zaak")
+    RelevanteZaakRelatie = apps.get_model("zrc_datamodel", "RelevanteZaakRelatie")
 
     default_aard = AardZaakRelatie.bijdrage
 
@@ -24,7 +24,7 @@ def copy_to_relation(apps, schema_editor):
 
 
 def copy_from_relation(apps, schema_editor):
-    RelevanteZaakRelatie = apps.get_model("datamodel", "RelevanteZaakRelatie")
+    RelevanteZaakRelatie = apps.get_model("zrc_datamodel", "RelevanteZaakRelatie")
 
     relaties = RelevanteZaakRelatie.objects.select_related("zaak").order_by("zaak__id")
     for zaak, _relaties in itertools.groupby(relaties, key=operator.itemgetter("zaak")):
@@ -35,7 +35,7 @@ def copy_from_relation(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0063_auto_20190628_0938'),
+        ('zrc_datamodel', '0063_auto_20190628_0938'),
     ]
 
     operations = [

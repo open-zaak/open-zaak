@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0027_delete_organisatorischeeenheid'),
+        ('zrc_datamodel', '0027_delete_organisatorischeeenheid'),
     ]
 
     operations = [

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0071_migrate_to_flattened_urls'),
+        ('zrc_datamodel', '0071_migrate_to_flattened_urls'),
     ]
 
     operations = [
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='adres',
             name='natuurlijkpersoon',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='verblijfsadres', to='datamodel.NatuurlijkPersoon'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='verblijfsadres', to='zrc_datamodel.NatuurlijkPersoon'),
         ),
         migrations.AddField(
             model_name='adres',
@@ -110,21 +110,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='adres',
             name='terreingebouwdobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='adres_aanduiding_grp', to='datamodel.TerreinGebouwdObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='adres_aanduiding_grp', to='zrc_datamodel.TerreinGebouwdObject'),
         ),
         migrations.AddField(
             model_name='adres',
             name='vestiging',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='verblijfsadres', to='datamodel.Vestiging'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='verblijfsadres', to='zrc_datamodel.Vestiging'),
         ),
         migrations.AddField(
             model_name='adres',
             name='wozobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='aanduiding_woz_object', to='datamodel.WozObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='aanduiding_woz_object', to='zrc_datamodel.WozObject'),
         ),
         migrations.AlterField(
             model_name='adres',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
     ]

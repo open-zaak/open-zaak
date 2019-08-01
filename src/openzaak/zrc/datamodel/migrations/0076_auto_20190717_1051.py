@@ -8,7 +8,7 @@ import vng_api_common.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0075_auto_20190711_1403'),
+        ('zrc_datamodel', '0075_auto_20190711_1403'),
     ]
 
     operations = [
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='klantcontact',
             name='zaak',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='relevantezaakrelatie',
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='resultaat',
             name='zaak',
-            field=models.OneToOneField(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.OneToOneField(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='rol',
@@ -75,17 +75,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rol',
             name='zaak',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='status',
             name='zaak',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='zaak',
             name='hoofdzaak',
-            field=models.ForeignKey(blank=True, help_text='URL-referentie naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is.', limit_choices_to={'hoofdzaak__isnull': True}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='deelzaken', to='datamodel.Zaak', verbose_name='is deelzaak van'),
+            field=models.ForeignKey(blank=True, help_text='URL-referentie naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is.', limit_choices_to={'hoofdzaak__isnull': True}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='deelzaken', to='zrc_datamodel.Zaak', verbose_name='is deelzaak van'),
         ),
         migrations.AlterField(
             model_name='zaak',
@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='zaakinformatieobject',
             name='zaak',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='zaakobject',
@@ -135,6 +135,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='zaakobject',
             name='zaak',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
     ]

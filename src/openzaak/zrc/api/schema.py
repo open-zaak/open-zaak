@@ -37,7 +37,7 @@ Deze API publiceert notificaties op het kanaal `{KANAAL_ZAKEN.label}`.
 """
 
 info = openapi.Info(
-    title=f"{settings.PROJECT_NAME} API",
+    title="ZRC API",
     default_version=settings.API_VERSION,
     description=description,
     contact=openapi.Contact(

@@ -16,7 +16,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
     verantwoordelijke_organisatie = factory.Faker('ssn', locale='nl_NL')
 
     class Meta:
-        model = 'datamodel.Zaak'
+        model = 'zrc_datamodel.Zaak'
 
 
 class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
@@ -24,7 +24,7 @@ class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.Faker('url')
 
     class Meta:
-        model = 'datamodel.ZaakInformatieObject'
+        model = 'zrc_datamodel.ZaakInformatieObject'
 
 
 class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
@@ -34,7 +34,7 @@ class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
     waarde = factory.Faker('word')
 
     class Meta:
-        model = 'datamodel.ZaakEigenschap'
+        model = 'zrc_datamodel.ZaakEigenschap'
 
 
 class ZaakObjectFactory(factory.django.DjangoModelFactory):
@@ -44,7 +44,7 @@ class ZaakObjectFactory(factory.django.DjangoModelFactory):
     object_type = factory.fuzzy.FuzzyChoice(choices=list(ZaakobjectTypes.values)[:-1])
 
     class Meta:
-        model = 'datamodel.ZaakObject'
+        model = 'zrc_datamodel.ZaakObject'
 
 
 class RolFactory(factory.django.DjangoModelFactory):
@@ -56,7 +56,7 @@ class RolFactory(factory.django.DjangoModelFactory):
     omschrijving_generiek = factory.fuzzy.FuzzyChoice(RolOmschrijving.values)
 
     class Meta:
-        model = 'datamodel.Rol'
+        model = 'zrc_datamodel.Rol'
 
 
 class StatusFactory(factory.django.DjangoModelFactory):
@@ -65,7 +65,7 @@ class StatusFactory(factory.django.DjangoModelFactory):
     datum_status_gezet = factory.Faker('date_time_this_month', tzinfo=timezone.utc)
 
     class Meta:
-        model = 'datamodel.Status'
+        model = 'zrc_datamodel.Status'
 
 
 class ResultaatFactory(factory.django.DjangoModelFactory):
@@ -73,7 +73,7 @@ class ResultaatFactory(factory.django.DjangoModelFactory):
     resultaattype = factory.Faker('url')
 
     class Meta:
-        model = 'datamodel.Resultaat'
+        model = 'zrc_datamodel.Resultaat'
 
 
 class KlantContactFactory(factory.django.DjangoModelFactory):
@@ -82,7 +82,7 @@ class KlantContactFactory(factory.django.DjangoModelFactory):
     datumtijd = factory.Faker('date_time_this_month', tzinfo=timezone.utc)
 
     class Meta:
-        model = 'datamodel.KlantContact'
+        model = 'zrc_datamodel.KlantContact'
 
 
 class ZaakBesluitFactory(factory.django.DjangoModelFactory):
@@ -90,4 +90,4 @@ class ZaakBesluitFactory(factory.django.DjangoModelFactory):
     besluit = factory.Faker('url')
 
     class Meta:
-        model = 'datamodel.ZaakBesluit'
+        model = 'zrc_datamodel.ZaakBesluit'

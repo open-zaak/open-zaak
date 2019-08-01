@@ -6,8 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0057_auto_20190523_1513'),
-        ('datamodel', '0057_auto_20190517_1351'),
+        ('zrc_datamodel', '0057_auto_20190523_1513'),
+        ('zrc_datamodel', '0057_auto_20190517_1351'),
     ]
 
     operations = [

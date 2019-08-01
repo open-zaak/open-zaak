@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0066_auto_20190628_1222'),
+        ('zrc_datamodel', '0066_auto_20190628_1222'),
     ]
 
     operations = [
@@ -38,52 +38,52 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='medewerker',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.AddField(
             model_name='natuurlijkpersoon',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.AddField(
             model_name='nietnatuurlijkpersoon',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.AddField(
             model_name='organisatorischeeenheid',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.AddField(
             model_name='vestiging',
             name='zaakobject',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.AlterField(
             model_name='medewerker',
             name='rol',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol'),
         ),
         migrations.AlterField(
             model_name='natuurlijkpersoon',
             name='rol',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol'),
         ),
         migrations.AlterField(
             model_name='nietnatuurlijkpersoon',
             name='rol',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol'),
         ),
         migrations.AlterField(
             model_name='organisatorischeeenheid',
             name='rol',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol'),
         ),
         migrations.AlterField(
             model_name='vestiging',
             name='rol',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.Rol'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Rol'),
         ),
         migrations.AlterField(
             model_name='zaakobject',
@@ -94,20 +94,20 @@ class Migration(migrations.Migration):
             name='ZakelijkRechtHeeftAlsGerechtigde',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('zakelijk_recht', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='heeft_als_gerechtigde', to='datamodel.ZakelijkRecht')),
+                ('zakelijk_recht', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='heeft_als_gerechtigde', to='zrc_datamodel.ZakelijkRecht')),
             ],
         ),
         migrations.AddField(
             model_name='zakelijkrecht',
             name='zaakobject',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.CreateModel(
             name='WozWaarde',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('waardepeildatum', models.CharField(help_text='De datum waarnaar de waarde van het WOZ-object wordt bepaald.', max_length=9)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -123,15 +123,15 @@ class Migration(migrations.Migration):
                 ('aoa_huisletter', models.CharField(blank=True, max_length=1)),
                 ('aoa_huisnummertoevoeging', models.CharField(blank=True, max_length=4)),
                 ('locatie_omschrijving', models.CharField(max_length=1000)),
-                ('woz_deelobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_onderdeel_van', to='datamodel.WozDeelobject')),
-                ('woz_warde', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_voor', to='datamodel.WozWaarde')),
-                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('woz_deelobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_onderdeel_van', to='zrc_datamodel.WozDeelobject')),
+                ('woz_warde', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_voor', to='zrc_datamodel.WozWaarde')),
+                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.AddField(
             model_name='wozdeelobject',
             name='zaakobject',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.CreateModel(
             name='Woonplaats',
@@ -139,7 +139,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('woonplaats_naam', models.CharField(help_text='De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS toegekende benaming.', max_length=80)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -149,7 +149,7 @@ class Migration(migrations.Migration):
                 ('wijk_code', models.CharField(help_text='De code behorende bij de naam van de wijk.', max_length=2)),
                 ('wijk_naam', models.CharField(help_text='De naam van de wijk, zoals die door het CBS wordt gebruikt.', max_length=40)),
                 ('gem_gemeente_code', models.CharField(help_text='Een numerieke aanduiding waarmee een Nederlandse gemeente uniek wordt aangeduid', max_length=4)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -159,7 +159,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=100)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.TextField(blank=True, help_text='De benaming van het OBJECT', max_length=500)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -169,7 +169,7 @@ class Migration(migrations.Migration):
                 ('type_waterdeel', models.CharField(help_text='Specificatie van het soort water', max_length=50)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.TextField(blank=True, help_text='De benaming van het OBJECT', max_length=500)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -186,8 +186,8 @@ class Migration(migrations.Migration):
                 ('aoa_huisletter', models.CharField(blank=True, max_length=1)),
                 ('aoa_huisnummertoevoeging', models.CharField(blank=True, max_length=4)),
                 ('ogo_locatie_aanduiding', models.CharField(max_length=100)),
-                ('huishouden', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_gehuisvest_in', to='datamodel.Huishouden')),
-                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('huishouden', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='is_gehuisvest_in', to='zrc_datamodel.Huishouden')),
+                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -197,7 +197,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=40)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.TextField(blank=True, help_text='De benaming van het OBJECT', max_length=500)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -207,7 +207,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(choices=[('breedspoor', 'breedspoor'), ('normaalspoor', 'normaalspoor'), ('smalspoor', 'smalspoor'), ('spoorbaan', 'spoorbaan')], help_text='Specificatie van het soort Spoorbaan', max_length=40)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.TextField(blank=True, help_text='De benaming van het OBJECT', max_length=500)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -215,7 +215,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -223,7 +223,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('overige_data', django.contrib.postgres.fields.jsonb.JSONField()),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -233,7 +233,7 @@ class Migration(migrations.Migration):
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('wpl_woonplaats_naam', models.CharField(max_length=80)),
                 ('gor_openbare_ruimte_naam', models.CharField(help_text='Een door het bevoegde gemeentelijke orgaan aan een OPENBARE RUIMTE toegekende benaming', max_length=80)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -242,7 +242,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('kvk_nummer', models.CharField(help_text='Landelijk uniek identificerend administratienummer van een MAATSCHAPPELIJKE ACTIVITEIT zoals toegewezen door de Kamer van Koophandel (KvK).', max_length=8)),
                 ('handelsnaam', models.CharField(help_text='De naam waaronder de onderneming handelt.', max_length=200)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -252,7 +252,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(help_text='Specificatie van het soort Kunstwerk waartoe het kunstwerkdeel behoort.', max_length=40)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.CharField(max_length=80)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -261,8 +261,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('kadastrale_identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('kadastrale_aanduiding', models.CharField(help_text='De typering van de kadastrale aanduiding van een onroerende zaak conform Kadaster', max_length=1000)),
-                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
-                ('zakelijk_recht', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='heeft_betrekking_op', to='datamodel.ZakelijkRecht')),
+                ('zaakobject', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
+                ('zakelijk_recht', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='heeft_betrekking_op', to='zrc_datamodel.ZakelijkRecht')),
             ],
         ),
         migrations.CreateModel(
@@ -272,13 +272,13 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(choices=[('Bak', 'Bak'), ('Bord', 'Bord'), ('Installatie', 'Installatie'), ('Kast', 'Kast'), ('Mast', 'Mast'), ('Paal', 'Paal'), ('Sensor', 'Sensor'), ('Straatmeubilair', 'Straatmeubilair'), ('Waterinrichtingselement', 'Waterinrichtingselement'), ('Weginrichtingselement', 'Weginrichtingselement')], help_text='Specificatie van de aard van het inrichtingselement.', max_length=30)),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('naam', models.TextField(blank=True, help_text='De benaming van het OBJECT', max_length=500)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.AddField(
             model_name='huishouden',
             name='zaakobject',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject'),
         ),
         migrations.CreateModel(
             name='GemeentelijkeOpenbareRuimte',
@@ -286,7 +286,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('identificatie', models.CharField(help_text='De unieke identificatie van het OBJECT', max_length=100)),
                 ('openbare_ruimte_naam', models.CharField(help_text='Een door het bevoegde gemeentelijke orgaan aan een OPENBARE RUIMTE toegekende benaming', max_length=80)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -295,7 +295,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('gemeente_naam', models.CharField(help_text='De officiële door de gemeente vastgestelde gemeentenaam.', max_length=80)),
                 ('gemeente_code', models.CharField(help_text='Een numerieke aanduiding waarmee een Nederlandse gemeente uniek wordt aangeduid', max_length=4)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.CreateModel(
@@ -309,18 +309,18 @@ class Migration(migrations.Migration):
                 ('huisletter', models.CharField(blank=True, max_length=1)),
                 ('huisnummertoevoeging', models.CharField(blank=True, max_length=4)),
                 ('postcode', models.CharField(blank=True, max_length=7)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
         ),
         migrations.AddField(
             model_name='natuurlijkpersoon',
             name='zakelijk_rechtHeeft_als_gerechtigde',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZakelijkRechtHeeftAlsGerechtigde'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZakelijkRechtHeeftAlsGerechtigde'),
         ),
         migrations.AddField(
             model_name='nietnatuurlijkpersoon',
             name='zakelijk_rechtHeeft_als_gerechtigde',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZakelijkRechtHeeftAlsGerechtigde'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZakelijkRechtHeeftAlsGerechtigde'),
         ),
         migrations.CreateModel(
             name='Buurt',
@@ -330,7 +330,7 @@ class Migration(migrations.Migration):
                 ('buurt_naam', models.CharField(help_text='De naam van de buurt, zoals die door het CBS wordt gebruikt.', max_length=40)),
                 ('gem_gemeente_code', models.CharField(help_text='Een numerieke aanduiding waarmee een Nederlandse gemeente uniek wordt aangeduid', max_length=4)),
                 ('wyk_wijk_code', models.CharField(help_text='De code behorende bij de naam van de wijk', max_length=2)),
-                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.ZaakObject')),
+                ('zaakobject', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.ZaakObject')),
             ],
             options={
                 'unique_together': {('buurt_code', 'wyk_wijk_code')},

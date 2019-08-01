@@ -90,13 +90,13 @@ class TyperingWaterUpdate(UpdateChoiceValues):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0081_auto_20190729_1013'),
+        ('zrc_datamodel', '0081_auto_20190729_1013'),
     ]
 
     operations = [
-        GeslachtsAanduidingUpdate("datamodel.NatuurlijkPersoon", "geslachtsaanduiding"),
-        SoortRechtsvormUpdate("datamodel.NietNatuurlijkPersoon", "inn_rechtsvorm"),
-        TyperingInrichtingselementUpdate("datamodel.Inrichtingselement", "type"),
-        TyperingKunstwerkUpdate("datamodel.Kunstwerkdeel", "type"),
-        TyperingWaterUpdate("datamodel.Waterdeel", "type_waterdeel"),
+        GeslachtsAanduidingUpdate("zrc_datamodel.NatuurlijkPersoon", "geslachtsaanduiding"),
+        SoortRechtsvormUpdate("zrc_datamodel.NietNatuurlijkPersoon", "inn_rechtsvorm"),
+        TyperingInrichtingselementUpdate("zrc_datamodel.Inrichtingselement", "type"),
+        TyperingKunstwerkUpdate("zrc_datamodel.Kunstwerkdeel", "type"),
+        TyperingWaterUpdate("zrc_datamodel.Waterdeel", "type_waterdeel"),
     ]

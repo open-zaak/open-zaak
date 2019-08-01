@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0044_zaak_resultaattoelichting'),
+        ('zrc_datamodel', '0044_zaak_resultaattoelichting'),
     ]
 
     operations = [

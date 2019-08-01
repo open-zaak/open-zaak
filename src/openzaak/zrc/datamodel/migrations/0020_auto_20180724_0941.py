@@ -6,13 +6,13 @@ from django.db import migrations
 
 
 def gen_uuid(apps, schema_editor):
-    Zaak = apps.get_model('datamodel', 'Zaak')
-    Status = apps.get_model('datamodel', 'Status')
-    Rol = apps.get_model('datamodel', 'Rol')
-    ZaakObject = apps.get_model('datamodel', 'ZaakObject')
-    ZaakEigenschap = apps.get_model('datamodel', 'ZaakEigenschap')
-    KlantContact = apps.get_model('datamodel', 'KlantContact')
-    OrganisatorischeEenheid = apps.get_model('datamodel', 'OrganisatorischeEenheid')
+    Zaak = apps.get_model('zrc_datamodel', 'Zaak')
+    Status = apps.get_model('zrc_datamodel', 'Status')
+    Rol = apps.get_model('zrc_datamodel', 'Rol')
+    ZaakObject = apps.get_model('zrc_datamodel', 'ZaakObject')
+    ZaakEigenschap = apps.get_model('zrc_datamodel', 'ZaakEigenschap')
+    KlantContact = apps.get_model('zrc_datamodel', 'KlantContact')
+    OrganisatorischeEenheid = apps.get_model('zrc_datamodel', 'OrganisatorischeEenheid')
 
     for Model in (Zaak, Status, Rol, ZaakObject, ZaakEigenschap, KlantContact, OrganisatorischeEenheid):
         for row in Model.objects.all():
@@ -23,7 +23,7 @@ def gen_uuid(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0019_auto_20180724_0941'),
+        ('zrc_datamodel', '0019_auto_20180724_0941'),
     ]
 
     operations = [

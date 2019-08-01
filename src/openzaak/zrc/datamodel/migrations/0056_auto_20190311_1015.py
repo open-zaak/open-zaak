@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0055_auto_20190226_1254'),
+        ('zrc_datamodel', '0055_auto_20190226_1254'),
     ]
 
     operations = [
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='resultaat',
             name='zaak',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak'),
         ),
         migrations.AlterField(
             model_name='rol',
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='zaak',
             name='hoofdzaak',
-            field=models.ForeignKey(blank=True, help_text='De verwijzing naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is.', limit_choices_to={'hoofdzaak__isnull': True}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='deelzaken', to='datamodel.Zaak', verbose_name='is deelzaak van'),
+            field=models.ForeignKey(blank=True, help_text='De verwijzing naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is.', limit_choices_to={'hoofdzaak__isnull': True}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='deelzaken', to='zrc_datamodel.Zaak', verbose_name='is deelzaak van'),
         ),
         migrations.AlterField(
             model_name='zaak',

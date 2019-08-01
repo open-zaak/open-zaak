@@ -8,7 +8,7 @@ import vng_api_common.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datamodel', '0012_zaak_zaakgeometrie'),
+        ('zrc_datamodel', '0012_zaak_zaakgeometrie'),
     ]
 
     operations = [
@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
                 ('rolomschrijving', models.CharField(choices=[('Adviseur', 'Adviseur'), ('Behandelaar', 'Behandelaar'), ('Belanghebbende', 'Belanghebbende'), ('Beslisser', 'Beslisser'), ('Initiator', 'Initiator'), ('Klantcontacter', 'Klantcontacter'), ('Zaakcoördinator', 'Zaakcoördinator')], help_text='Algemeen gehanteerde benaming van de aard van de ROL', max_length=80)),
                 ('rolomschrijving_generiek', models.CharField(choices=[('Adviseur', 'Adviseur'), ('Behandelaar', 'Behandelaar'), ('Belanghebbende', 'Belanghebbende'), ('Beslisser', 'Beslisser'), ('Initiator', 'Initiator'), ('Klantcontacter', 'Klantcontacter'), ('Zaakcoördinator', 'Zaakcoördinator'), ('Mede-initiator', 'Mede-initiator')], help_text='Algemeen gehanteerde benaming van de aard van de ROL', max_length=40)),
                 ('roltoelichting', models.TextField(max_length=1000)),
-                ('betrokkene', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='datamodel.OrganisatorischeEenheid')),
-                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='datamodel.Zaak')),
+                ('betrokkene', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='zrc_datamodel.OrganisatorischeEenheid')),
+                ('zaak', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='zrc_datamodel.Zaak')),
             ],
             options={
                 'verbose_name': 'Rol',
