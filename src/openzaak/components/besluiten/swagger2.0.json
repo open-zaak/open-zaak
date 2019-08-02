@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Besluiten API",
+        "title": "BESLUITEN API",
         "description": "Een API om een besluitregistratiecomponent (BRC) te benaderen.\n\nEen BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet\nnoodzakelijk. Omgekeerd kan het voorkomen dat in een INFORMATIEOBJECT meerdere\nbesluiten vastgelegd zijn. Vandaar de N:M-relatie naar INFORMATIEOBJECT. Een\nbesluit komt voort uit een zaak van de zaakbehandelende organisatie dan wel is\neen besluit van een andere organisatie dat het onderwerp (object) is van een\nzaak van de zaakbehandelende organisatie. BESLUIT heeft dan ook een optionele\nrelatie met de ZAAK waarvan het een uitkomst is.\n\nDe typering van BESLUITen is in de Catalogi API (ZTC) ondergebracht in de vorm \nvan BESLUITTYPEn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Documenten API *(optioneel)*\n* Zaken API *(optioneel)*\n* Autorisaties API *(optioneel)*\n\n**Autorisatie**\n\nDeze API vereist autorisatie. Je kan de\n[token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te\ngenereren.\n\n**Notificaties**\n\nDeze API publiceert notificaties op het kanaal `besluiten`.\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n",
         "contact": {
             "url": "https://zaakgerichtwerken.vng.cloud",
@@ -13,7 +13,7 @@
         },
         "version": "0.1.0"
     },
-    "basePath": "/api/v1",
+    "basePath": "/besluiten/api/v1",
     "consumes": [
         "application/json"
     ],
@@ -246,13 +246,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -441,13 +434,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -661,7 +647,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -839,7 +825,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -939,13 +925,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.lezen"
-                        ]
-                    }
                 ]
             },
             "put": {
@@ -1041,7 +1020,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -1141,13 +1120,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "patch": {
@@ -1243,7 +1215,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -1343,13 +1315,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -1420,7 +1385,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -1520,13 +1485,6 @@
                 },
                 "tags": [
                     "besluiten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1709,13 +1667,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -1904,13 +1855,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -1965,7 +1909,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -2065,13 +2009,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.lezen"
-                        ]
-                    }
                 ]
             },
             "put": {
@@ -2167,7 +2104,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -2267,13 +2204,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "patch": {
@@ -2369,7 +2299,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -2469,13 +2399,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -2546,7 +2469,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not_found",
+                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/Fout"
                         },
@@ -2646,13 +2569,6 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "besluiten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [

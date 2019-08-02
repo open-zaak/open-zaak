@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'solo',
 
     # Project applications.
+    'openzaak',
     'openzaak.accounts',
     'openzaak.utils',
 
