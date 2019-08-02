@@ -4,6 +4,6 @@ factory_boy
 freezegun
 isort
 pep8
-pylint<2.0
+pylint
 requests-mock
 tblib
