@@ -196,7 +196,7 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
 
         zaakinformatieobject_response = response.data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=zaak_data['url'])
+        audittrails = AuditTrail.objects.filter(hoofd_object=zaak_data['url']).order_by('pk')
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the ZaakInformatieObject creation

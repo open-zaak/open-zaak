@@ -18,6 +18,7 @@ urlpatterns = [
     re_path(r'^(?P<component>zaken|besluiten|catalogi|documenten)/$', TemplateView.as_view(template_name='index.html'), name='main'),
     path('zaken/api/', include('openzaak.components.zaken.api.urls')),
     path('besluiten/api/', include('openzaak.components.besluiten.api.urls')),
+    path('documenten/api/', include('openzaak.components.documenten.api.urls')),
 
     # Simply show the master template.
     path('ref/', include('vng_api_common.urls')),
@@ -27,6 +28,7 @@ urlpatterns = [
 # NOTE: The staticfiles_urlpatterns also discovers static files (ie. no need to run collectstatic). Both the static
 # folder and the media folder are only served via Django if DEBUG = True.
 urlpatterns += staticfiles_urlpatterns() + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.PRIVATE_MEDIA_URL, document_root=settings.PRIVATE_MEDIA_ROOT)
 
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar

@@ -7,7 +7,8 @@ os.environ.setdefault('DB_NAME', 'openzaak')
 os.environ.setdefault('DB_USER', 'openzaak')
 os.environ.setdefault('DB_PASSWORD', 'openzaak')
 
-# os.environ.setdefault('ZTC_JWT_SECRET', 'open-to-ztc')
+os.environ.setdefault('ZTC_JWT_SECRET', 'open-to-ztc')
+os.environ.setdefault('ZRC_JWT_SECRET', 'open-to-zrc')
 
 from .base import *  # noqa isort:skip
 

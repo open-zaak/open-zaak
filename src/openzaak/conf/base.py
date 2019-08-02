@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 import raven
 
 from .api import *  # noqa
+from .plugins import PLUGIN_INSTALLED_APPS
 
 SITE_ID = int(os.getenv('SITE_ID', 1))
 
@@ -65,20 +66,24 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'rest_framework_gis',
+    # 'rest_framework_filters',
     'django_markup',
     'solo',
+    'privates',
 
     # Project applications.
     'openzaak',
     'openzaak.accounts',
     'openzaak.utils',
-
     'openzaak.components.zaken',
     'openzaak.components.besluiten',
-]
+    'openzaak.components.documenten',
+
+] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'openzaak.utils.middleware.LogHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # 'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -260,12 +265,25 @@ LOGGING = {
             'maxBytes': 1024 * 1024 * 10,  # 10 MB
             'backupCount': 10
         },
+        'requests': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGGING_DIR, 'requests.log'),
+            'formatter': 'timestamped',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 10
+        }
     },
     'loggers': {
         'openzaak': {
             'handlers': ['project'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'openzaak.utils.middleware': {
+            'handlers': ['requests'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['django'],
@@ -380,10 +398,22 @@ if SENTRY_DSN:
 #
 IS_HTTPS = os.getenv('IS_HTTPS', '1').lower() in ['true', '1', 'yes']
 
-# urls for OAS3 specifivations
+# documenten settings
+# settings for private media files
+PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, 'private-media')
+PRIVATE_MEDIA_URL = '/private-media/'
+SENDFILE_BACKEND = 'sendfile.backends.simple'
+SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
+SENDFILE_URL = PRIVATE_MEDIA_URL
+
+# settings for uploading large files
+MIN_UPLOAD_SIZE = int(os.getenv('MIN_UPLOAD_SIZE', 4 * 2**30))
+
+# urls for OAS3 specifications
 SPEC_URL = {
     'zaken': os.path.join(BASE_DIR, 'src/openzaak/components/zaken/openapi.yaml'),
     'besluiten': os.path.join(BASE_DIR, 'src/openzaak/components/besluiten/openapi.yaml'),
+    'documenten': os.path.join(BASE_DIR, 'src/openzaak/components/documenten/openapi.yaml'),
 }
 
 # for generate_schema depending on the component

@@ -1,4 +1,5 @@
 # Shared between dev and jenkins requirements to run our tests
+django-webtest
 coverage
 factory_boy
 freezegun
@@ -7,3 +8,4 @@ pep8
 pylint<2.0
 requests-mock
 tblib
+webtest

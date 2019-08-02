@@ -29,3 +29,4 @@ local.py
 /log/*.log*
 /log/nginx/*.log*
 .env
+/private-media/

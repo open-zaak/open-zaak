@@ -1,3 +1,4 @@
+Pillow
 pip-tools
 psycopg2-binary
 python-dotenv
@@ -11,11 +12,14 @@ django-axes
 django-choices
 django-cors-middleware
 django-markup
+django-privates
 
 djangorestframework
 djangorestframework-gis
+django-extra-fields
 django-filter
 djangorestframework-camel-case
 drf-yasg
 drf-writable-nested
 vng-api-common
+humanize
