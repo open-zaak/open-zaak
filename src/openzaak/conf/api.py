@@ -1,6 +1,6 @@
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
-API_VERSION = "1.0.0-rc1"
+API_VERSION = "0.1.0"
 
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 REST_FRAMEWORK['PAGE_SIZE'] = 100
@@ -9,7 +9,7 @@ SECURITY_DEFINITION_NAME = 'JWT-Claims'
 
 SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
 SWAGGER_SETTINGS.update({
-    'DEFAULT_INFO': 'openzaak.zrc.api.schema.info', # TODO: fix it as parameter
+    'DEFAULT_INFO': 'openzaak.components.zaken.api.schema.info', # TODO: fix it as parameter
 
     'SECURITY_DEFINITIONS': {
         SECURITY_DEFINITION_NAME: {

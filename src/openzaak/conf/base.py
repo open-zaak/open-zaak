@@ -72,12 +72,8 @@ INSTALLED_APPS = [
     'openzaak.accounts',
     'openzaak.utils',
 
-    'openzaak.zrc.api',
-    'openzaak.zrc.datamodel',
-    'openzaak.zrc.sync',
-    'openzaak.brc.api',
-    'openzaak.brc.datamodel',
-    'openzaak.brc.sync',
+    'openzaak.components.zaken',
+    'openzaak.components.besluiten',
 ]
 
 MIDDLEWARE = [
@@ -385,6 +381,13 @@ IS_HTTPS = os.getenv('IS_HTTPS', '1').lower() in ['true', '1', 'yes']
 
 # urls for OAS3 specifivations
 SPEC_URL = {
-    'ZRC': os.path.join(BASE_DIR, 'src/openzaak/zrc/openapi.yaml'),
-    'BRC': os.path.join(BASE_DIR, 'src/openzaak/brc/openapi.yaml'),
+    'zaken': os.path.join(BASE_DIR, 'src/openzaak/components/zaken/openapi.yaml'),
+    'besluiten': os.path.join(BASE_DIR, 'src/openzaak/components/besluiten/openapi.yaml'),
 }
+
+# for generate_schema depending on the component
+subpath = os.getenv('SUBPATH')
+if subpath:
+    if not subpath.startswith('/'):
+        subpath = f'/{subpath}'
+    FORCE_SCRIPT_NAME = subpath
