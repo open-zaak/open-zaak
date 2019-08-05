@@ -6,16 +6,17 @@ from django.test import override_settings
 from django.urls import reverse, reverse_lazy
 
 from freezegun import freeze_time
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
-from vng_api_common.validators import IsImmutableValidator
-
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
+from openzaak.components.besluiten.models import (
+    Besluit, BesluitInformatieObject
+)
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
 from openzaak.components.besluiten.sync.signals import SyncError
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.validators import IsImmutableValidator
 
 from .mixins import MockSyncMixin
 

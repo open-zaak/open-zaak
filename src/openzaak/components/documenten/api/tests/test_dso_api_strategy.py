@@ -3,9 +3,9 @@ from django.utils.translation import ugettext as _
 
 import yaml
 from rest_framework.test import APIRequestFactory, APITestCase
+from vng_api_common.tests import reverse
 
 from . import views
-from vng_api_common.tests import reverse
 
 
 class DSOApiStrategyTests(APITestCase):

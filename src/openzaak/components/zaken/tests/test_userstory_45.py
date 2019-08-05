@@ -9,17 +9,18 @@ from unittest.mock import patch
 
 import requests_mock
 from freezegun import freeze_time
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
+)
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models.tests.factories import (
+    RolFactory, ZaakFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
-from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin
-)
+from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-from openzaak.components.zaken.models.tests.factories import RolFactory, ZaakFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
 
 WATERNET = f'https://waternet.nl/api/organisatorische-eenheid/{uuid.uuid4().hex}'
 ZAAKTYPE = f'https://example.com/api/v1/zaaktype/{uuid.uuid4().hex}'

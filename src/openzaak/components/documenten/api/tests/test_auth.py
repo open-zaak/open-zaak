@@ -2,17 +2,17 @@
 Guarantee that the proper authorization amchinery is in place.
 """
 from unittest import skip
-from django.test import override_settings
 
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
+from django.test import override_settings
 
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,
     ObjectInformatieObjectFactory
 )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 
 from ..scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 

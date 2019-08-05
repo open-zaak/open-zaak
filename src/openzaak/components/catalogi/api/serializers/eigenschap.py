@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
-from ...models.choices import FormaatChoices
 from ...models import Eigenschap, EigenschapSpecificatie
+from ...models.choices import FormaatChoices
 
 
 class EigenschapSpecificatieSerializer(serializers.ModelSerializer):

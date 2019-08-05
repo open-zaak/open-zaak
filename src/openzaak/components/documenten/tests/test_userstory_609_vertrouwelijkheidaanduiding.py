@@ -8,13 +8,12 @@ from base64 import b64encode
 
 from django.test import override_settings, tag
 
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 
 INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 

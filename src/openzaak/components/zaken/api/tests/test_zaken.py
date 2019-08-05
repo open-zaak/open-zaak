@@ -7,6 +7,15 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 from dateutil.relativedelta import relativedelta
+from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models.constants import BetalingsIndicatie
+from openzaak.components.zaken.models.tests.factories import (
+    StatusFactory, ZaakBesluitFactory, ZaakFactory
+)
+from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
+from openzaak.components.zaken.tests.utils import (
+    ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime, utcdatetime
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -15,16 +24,6 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import JWTAuthMixin, reverse
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.models.constants import BetalingsIndicatie
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import (
-    StatusFactory, ZaakBesluitFactory, ZaakFactory
-)
-from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
-from openzaak.components.zaken.tests.utils import (
-    ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime, utcdatetime
-)
 
 from ..scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN,

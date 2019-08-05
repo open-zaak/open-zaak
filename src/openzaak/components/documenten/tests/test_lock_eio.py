@@ -4,19 +4,16 @@ from base64 import b64encode
 
 from django.test import override_settings
 
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin, get_validation_errors
-)
-
-from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
 )
+from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory
 )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors
 
 INFORMATIEOBJECTTYPE = 'https://example.com/informatieobjecttype/foo'
 

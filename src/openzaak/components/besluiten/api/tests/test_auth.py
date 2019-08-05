@@ -1,19 +1,18 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
-from unittest.mock import patch
 from unittest import skip
+from unittest.mock import patch
 
 from django.test import override_settings
-
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 
 from ..scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 from .mixins import MockSyncMixin

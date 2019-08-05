@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
-from ...models.choices import RichtingChoices
 from ...models import ZaakInformatieobjectType
+from ...models.choices import RichtingChoices
 
 
 class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):

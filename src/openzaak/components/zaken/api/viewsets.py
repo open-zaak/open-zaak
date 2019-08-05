@@ -3,6 +3,10 @@ import logging
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
+from openzaak.components.zaken.models import (
+    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
+    ZaakInformatieObject, ZaakObject
+)
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -22,11 +26,6 @@ from vng_api_common.permissions import permission_class_factory
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
-
-from openzaak.components.zaken.models import (
-    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
-    ZaakInformatieObject, ZaakObject
-)
 
 from .audits import AUDIT_ZRC
 from .data_filtering import ListFilterByAuthorizationsMixin

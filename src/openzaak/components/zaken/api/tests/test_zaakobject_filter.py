@@ -1,9 +1,9 @@
+from openzaak.components.zaken.models.tests.factories import ZaakObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import JWTAuthMixin
 
-from openzaak.components.zaken.models.tests.factories import ZaakObjectFactory
 from .utils import get_operation_url
 
 

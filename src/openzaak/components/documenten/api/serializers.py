@@ -2,7 +2,6 @@
 Serializers of the Document Registratie Component REST API
 """
 import uuid
-from humanize import naturalsize
 
 from django.conf import settings
 from django.db import transaction
@@ -11,6 +10,14 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
+from humanize import naturalsize
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten, ObjectInformatieObject
+)
+from openzaak.components.documenten.models.constants import (
+    ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+)
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -21,14 +28,6 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
-
-from openzaak.components.documenten.models.constants import (
-    ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-)
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
-)
 
 from .auth import get_zrc_auth, get_ztc_auth
 from .validators import (

@@ -1,6 +1,7 @@
+from openzaak.components.besluiten.models import (
+    Besluit, BesluitInformatieObject
+)
 from vng_api_common.filtersets import FilterSet
-
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 
 
 class BesluitFilter(FilterSet):

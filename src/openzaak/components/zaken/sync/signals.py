@@ -7,10 +7,9 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 
+from openzaak.components.zaken.models import ZaakInformatieObject
 from vng_api_common.models import APICredential
 from zds_client import Client
-
-from openzaak.components.zaken.models import ZaakInformatieObject
 
 logger = logging.getLogger(__name__)
 

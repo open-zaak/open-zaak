@@ -10,8 +10,8 @@ from ...models.tests.factories import (
     InformatieObjectTypeFactory, ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory
 )
-from .utils import get_operation_url
 from .base import APITestCase
+from .utils import get_operation_url
 
 
 class InformatieObjectTypeAPITests(APITestCase):

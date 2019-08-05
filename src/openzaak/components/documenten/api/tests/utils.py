@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from vng_api_common.tests import get_operation_url as _get_operation_url
 
 

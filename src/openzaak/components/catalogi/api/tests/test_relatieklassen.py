@@ -1,14 +1,13 @@
 from unittest import skip
 
-from rest_framework import status
-from vng_api_common.tests import reverse, reverse_lazy
-
-from openzaak.components.catalogi.models.choices import RichtingChoices
 from openzaak.components.catalogi.models import ZaakInformatieobjectType
+from openzaak.components.catalogi.models.choices import RichtingChoices
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory, ZaakInformatieobjectTypeArchiefregimeFactory,
     ZaakInformatieobjectTypeFactory, ZaakTypeFactory
 )
+from rest_framework import status
+from vng_api_common.tests import reverse, reverse_lazy
 
 from .base import APITestCase
 

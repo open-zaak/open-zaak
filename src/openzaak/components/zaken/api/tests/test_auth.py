@@ -6,11 +6,6 @@ from unittest import skip
 
 from django.test import override_settings
 
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
-
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.models.tests.factories import (
     ResultaatFactory, RolFactory, StatusFactory, ZaakBesluitFactory,
@@ -18,6 +13,10 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakObjectFactory
 )
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 
 from ..scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE

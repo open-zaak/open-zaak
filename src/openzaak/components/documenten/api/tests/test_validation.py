@@ -2,14 +2,18 @@ from copy import deepcopy
 
 from django.test import override_settings
 
+from openzaak.components.documenten.models.constants import (
+    OndertekeningSoorten, Statussen
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import (
+    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+)
 from vng_api_common.validators import URLValidator
-
-from openzaak.components.documenten.models.constants import OndertekeningSoorten, Statussen
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
-
 
 INFORMATIEOBJECTTYPE = 'https://example.com/informatieobjecttype/foo'
 

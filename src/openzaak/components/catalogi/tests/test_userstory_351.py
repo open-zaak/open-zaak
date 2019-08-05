@@ -2,15 +2,14 @@
 Test zaak afsluiten
 Zie: https://github.com/VNG-Realisatie/gemma-zaken/issues/351
 """
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin
-
 from openzaak.components.catalogi.api.tests.base import ClientAPITestMixin
+from openzaak.components.catalogi.api.tests.utils import get_operation_url
 from openzaak.components.catalogi.models.tests.factories import (
     RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
 )
-from openzaak.components.catalogi.api.tests.utils import get_operation_url
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import TypeCheckMixin
 
 
 class US351TestCase(TypeCheckMixin, ClientAPITestMixin, APITestCase):

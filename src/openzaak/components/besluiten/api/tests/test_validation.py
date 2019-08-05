@@ -3,16 +3,17 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import (
+    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+)
 from vng_api_common.validators import (
     IsImmutableValidator, UniekeIdentificatieValidator, UntilTodayValidator,
     URLValidator
 )
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 
 from .mixins import BesluitSyncMixin
 

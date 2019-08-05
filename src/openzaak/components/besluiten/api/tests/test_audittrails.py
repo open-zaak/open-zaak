@@ -3,14 +3,15 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from openzaak.components.besluiten.models import (
+    Besluit, BesluitInformatieObject
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import JWTAuthMixin, reverse
 from vng_api_common.utils import get_uuid_from_path
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 
 from .mixins import MockSyncMixin
 

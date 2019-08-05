@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import EditInlineAdminMixin, ListObjectActionsAdminMixin
+from openzaak.utils.admin import (
+    EditInlineAdminMixin, ListObjectActionsAdminMixin
+)
+
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .besluittype import BesluitTypeAdmin
 from .informatieobjecttype import InformatieObjectTypeAdmin

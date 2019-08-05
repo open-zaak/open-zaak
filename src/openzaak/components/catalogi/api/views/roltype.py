@@ -1,6 +1,6 @@
 from rest_framework import mixins, viewsets
-from vng_api_common.viewsets import CheckQueryParamsMixin
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from ...models import RolType
 from ..filters import RolTypeFilter

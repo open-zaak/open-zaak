@@ -1,8 +1,9 @@
+from openzaak.components.catalogi.models import Catalogus
+from openzaak.components.catalogi.models.tests.factories import (
+    CatalogusFactory
+)
 from rest_framework import status
 from vng_api_common.tests import reverse
-
-from openzaak.components.catalogi.models import Catalogus
-from openzaak.components.catalogi.models.tests.factories import CatalogusFactory
 
 from .base import APITestCase
 

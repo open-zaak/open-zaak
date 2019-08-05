@@ -1,9 +1,8 @@
 from django.test import override_settings
 
+from openzaak.components.besluiten.api.tests.mixins import MockSyncMixin
 from rest_framework.test import APITestCase
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.besluiten.api.tests.mixins import MockSyncMixin
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 

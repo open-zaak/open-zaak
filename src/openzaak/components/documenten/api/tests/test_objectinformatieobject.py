@@ -3,16 +3,15 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from openzaak.components.documenten.models import ObjectInformatieObject
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory, ObjectInformatieObjectFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory, ObjectInformatieObjectFactory
-)
 
 ZAAK = 'https://zrc.nl/api/v1/zaken/1234'
 BESLUIT = 'https://brc.nl/api/v1/besluiten/4321'

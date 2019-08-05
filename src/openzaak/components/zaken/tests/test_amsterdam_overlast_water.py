@@ -3,6 +3,11 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from dateutil import parser
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
+)
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
@@ -10,12 +15,6 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import JWTAuthMixin
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-)
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.api.tests.utils import get_operation_url
 
 from .test_userstory_52 import EIGENSCHAP_NAAM_BOOT, EIGENSCHAP_OBJECTTYPE
 from .utils import ZAAK_WRITE_KWARGS, utcdatetime

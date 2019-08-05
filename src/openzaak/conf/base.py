@@ -1,8 +1,8 @@
 import os
 
+import django.db.models.options as options
 # Django-hijack (and Django-hijack-admin)
 from django.urls import reverse_lazy
-import django.db.models.options as options
 
 import raven
 
@@ -433,4 +433,3 @@ if subpath:
     if not subpath.startswith('/'):
         subpath = f'/{subpath}'
     FORCE_SCRIPT_NAME = subpath
-

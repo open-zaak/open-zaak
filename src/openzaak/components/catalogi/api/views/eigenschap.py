@@ -1,7 +1,6 @@
+from openzaak.components.catalogi.models import Eigenschap
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
-
-from openzaak.components.catalogi.models import Eigenschap
 
 from ..filters import EigenschapFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE

@@ -3,16 +3,15 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin
-
-from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.api.tests.mixins import MockSyncMixin
+from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin
 
 BESLUITTYPE = 'https://ztc.com/besluittypen/1234'
 

@@ -2,6 +2,14 @@ from unittest.mock import patch
 
 import requests_mock
 from freezegun import freeze_time
+from openzaak.components.zaken.models import (
+    Adres, NatuurlijkPersoon, NietNatuurlijkPersoon, Rol,
+    SubVerblijfBuitenland, Vestiging
+)
+from openzaak.components.zaken.models.constants import IndicatieMachtiging
+from openzaak.components.zaken.models.tests.factories import (
+    RolFactory, ZaakFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
@@ -10,14 +18,7 @@ from vng_api_common.tests import (
 )
 from zds_client.tests.mocks import mock_client
 
-from openzaak.components.zaken.models.constants import IndicatieMachtiging
-from openzaak.components.zaken.models import (
-    Adres, NatuurlijkPersoon, NietNatuurlijkPersoon, Rol,
-    SubVerblijfBuitenland, Vestiging
-)
-from openzaak.components.zaken.models.tests.factories import RolFactory, ZaakFactory
 from .utils import get_operation_url
-
 
 ZAAKTYPE = "https://ztc.nl/zaaktypen/123"
 BETROKKENE = 'http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd'

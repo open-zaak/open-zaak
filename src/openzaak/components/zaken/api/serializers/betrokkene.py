@@ -1,13 +1,12 @@
 import logging
 
-from rest_framework import serializers
-from vng_api_common.serializers import add_choice_values_help_text
-
-from openzaak.components.zaken.models.constants import GeslachtsAanduiding
 from openzaak.components.zaken.models import (
     Medewerker, NatuurlijkPersoon, NietNatuurlijkPersoon,
     OrganisatorischeEenheid, SubVerblijfBuitenland, Vestiging
 )
+from openzaak.components.zaken.models.constants import GeslachtsAanduiding
+from rest_framework import serializers
+from vng_api_common.serializers import add_choice_values_help_text
 
 from .address import VerblijfsAdresSerializer
 

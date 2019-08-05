@@ -3,16 +3,19 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
 from django.test import override_settings
 
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin
-
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
+)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject, Gebruiksrechten
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, Gebruiksrechten
+)
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory, GebruiksrechtenFactory
 )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin
 
 INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 

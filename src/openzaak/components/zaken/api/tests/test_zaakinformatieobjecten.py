@@ -6,18 +6,17 @@ from django.test import override_settings
 from django.utils import timezone
 
 from freezegun import freeze_time
+from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
+from openzaak.components.zaken.models.tests.factories import (
+    ZaakFactory, ZaakInformatieObjectFactory
+)
+from openzaak.components.zaken.sync.signals import SyncError
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakFactory, ZaakInformatieObjectFactory
-)
-from openzaak.components.zaken.sync.signals import SyncError
 
 from .mixins import ZaakInformatieObjectSyncMixin
 

@@ -1,11 +1,11 @@
 from django.test import override_settings
 
+from openzaak.components.zaken.models.tests.factories import (
+    ZaakBesluitFactory, ZaakFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
-
-from openzaak.components.zaken.models.tests.factories import ZaakBesluitFactory, ZaakFactory
-
 
 BESLUIT = 'https://brc.nl/api/v1/besluiten/1234'
 

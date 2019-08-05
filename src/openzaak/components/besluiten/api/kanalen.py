@@ -1,8 +1,7 @@
 from django.conf import settings
 
-from vng_api_common.notifications.kanalen import Kanaal
-
 from openzaak.components.besluiten.models import Besluit
+from vng_api_common.notifications.kanalen import Kanaal
 
 KANAAL_BESLUITEN = Kanaal(
     'besluiten',

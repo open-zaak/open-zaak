@@ -1,11 +1,10 @@
 from django.test import override_settings
 
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.components.zaken.models.tests.factories import StatusFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
-
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
-from openzaak.components.zaken.models.tests.factories import StatusFactory
 
 
 class StatusTests(JWTAuthMixin, APITestCase):

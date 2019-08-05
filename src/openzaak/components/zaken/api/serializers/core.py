@@ -8,6 +8,16 @@ from django.utils.translation import ugettext_lazy as _
 
 import requests
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
+from openzaak.components.zaken.models import (
+    KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
+    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
+)
+from openzaak.components.zaken.models.constants import (
+    AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+)
+from openzaak.components.zaken.models.utils import BrondatumCalculator
+from openzaak.components.zaken.sync.signals import SyncError
+from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
@@ -26,17 +36,6 @@ from vng_api_common.serializers import (
 from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, UntilNowValidator, URLValidator
 )
-
-from openzaak.components.zaken.models.constants import (
-    AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-)
-from openzaak.components.zaken.models import (
-    KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
-    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
-)
-from openzaak.components.zaken.models.utils import BrondatumCalculator
-from openzaak.components.zaken.sync.signals import SyncError
-from openzaak.utils.exceptions import DetermineProcessEndDateException
 
 from ..auth import get_auth
 from ..validators import (

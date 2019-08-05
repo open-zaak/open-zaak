@@ -25,9 +25,7 @@ from vng_api_common.utils import (
 )
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
-from .constants import (
-    AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-)
+from .constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 from .query import ZaakQuerySet, ZaakRelatedQuerySet
 
 logger = logging.getLogger(__name__)

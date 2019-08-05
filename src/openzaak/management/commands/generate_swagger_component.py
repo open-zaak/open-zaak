@@ -1,4 +1,5 @@
 import os
+
 from django.conf import settings
 
 from vng_api_common.management.commands import generate_swagger
@@ -32,5 +33,3 @@ class Command (generate_swagger.Command):
         # generate schema
         super().handle(output_file, overwrite, format, api_url, mock, user, private, info, urlconf,
                        *args, **options)
-
-

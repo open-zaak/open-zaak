@@ -1,9 +1,8 @@
+from openzaak.components.besluiten.api.tests.utils import get_operation_url
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin
-
-from openzaak.components.besluiten.api.tests.utils import get_operation_url
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 
 from .mixins import MockSyncMixin
 

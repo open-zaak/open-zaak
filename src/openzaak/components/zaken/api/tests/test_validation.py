@@ -5,6 +5,16 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
+from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.components.zaken.models.constants import (
+    AardZaakRelatie, BetalingsIndicatie
+)
+from openzaak.components.zaken.models.tests.factories import (
+    ResultaatFactory, StatusFactory, ZaakFactory
+)
+from openzaak.components.zaken.tests.utils import (
+    ZAAK_WRITE_KWARGS, isodatetime
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -13,13 +23,6 @@ from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, URLValidator
 )
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.models.constants import AardZaakRelatie, BetalingsIndicatie
-from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.components.zaken.models.tests.factories import (
-    ResultaatFactory, StatusFactory, ZaakFactory
-)
-from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS, isodatetime
 
 from ..scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE

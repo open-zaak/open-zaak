@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
-
-from openzaak.utils.admin import EditInlineAdminMixin, ListObjectActionsAdminMixin
+from openzaak.utils.admin import (
+    EditInlineAdminMixin, ListObjectActionsAdminMixin
+)
 
 from ..models import (
     BronCatalogus, BronZaakType, Eigenschap, Formulier, ResultaatType, RolType,

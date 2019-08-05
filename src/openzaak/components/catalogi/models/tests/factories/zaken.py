@@ -2,11 +2,10 @@ from datetime import date, timedelta
 
 import factory
 import factory.fuzzy
-
-from openzaak.components.catalogi.models.choices import InternExtern
 from openzaak.components.catalogi.models import (
     BronCatalogus, BronZaakType, Formulier, ZaakObjectType, ZaakType
 )
+from openzaak.components.catalogi.models.choices import InternExtern
 
 from .catalogus import CatalogusFactory
 from .relatieklassen import ZaakTypenRelatieFactory  # noqa

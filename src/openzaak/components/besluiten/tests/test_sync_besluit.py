@@ -2,17 +2,16 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from openzaak.components.besluiten.api.tests.mixins import BesluitSyncMixin
+from openzaak.components.besluiten.api.tests.utils import get_operation_url
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.besluiten.models.constants import VervalRedenen
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.besluiten.sync.signals import SyncError
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.besluiten.api.tests.utils import get_operation_url
-from openzaak.components.besluiten.api.tests.mixins import BesluitSyncMixin
-from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
-from openzaak.components.besluiten.sync.signals import SyncError
 
 ZAAK = 'https://zrc.com/zaken/1234'
 ZAAKTYPE = 'https://ztc.com/zaaktypen/1234'

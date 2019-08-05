@@ -6,13 +6,12 @@ from django.core.exceptions import ValidationError
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
+from openzaak.components.documenten.models import ObjectInformatieObject
+from openzaak.components.documenten.models.validators import validate_status
 from rest_framework import serializers
 from vng_api_common.models import APICredential
 from vng_api_common.tests.urls import reverse
 from zds_client import ClientError
-
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.models.validators import validate_status
 
 from .utils import get_absolute_url
 

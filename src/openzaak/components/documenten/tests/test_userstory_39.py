@@ -7,21 +7,20 @@ from urllib.parse import urlparse
 
 from django.test import override_settings
 
-from privates.test import temp_private_root
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin
-
-from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 )
+from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory
 )
+from privates.test import temp_private_root
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import JWTAuthMixin
 
 INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 

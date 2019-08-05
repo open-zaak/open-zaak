@@ -1,9 +1,10 @@
 from django.test import override_settings
 
+from openzaak.components.zaken.api.tests.mixins import (
+    ZaakInformatieObjectSyncMixin
+)
 from rest_framework.test import APITestCase
 from zds_client.tests.mocks import mock_client
-
-from openzaak.components.zaken.api.tests.mixins import ZaakInformatieObjectSyncMixin
 
 from .factories import (
     KlantContactFactory, ResultaatFactory, RolFactory, StatusFactory,

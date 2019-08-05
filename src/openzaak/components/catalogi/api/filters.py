@@ -1,13 +1,12 @@
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
-from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_resource_for_path
-
 from openzaak.components.catalogi.models import (
     BesluitType, Catalogus, Eigenschap, InformatieObjectType, ResultaatType,
     RolType, StatusType, ZaakInformatieobjectType, ZaakType
 )
+from vng_api_common.filtersets import FilterSet
+from vng_api_common.utils import get_resource_for_path
 
 # custom filter to show concept and non-concepts
 STATUS_HELP_TEXT = """filter objects depending on their concept status:

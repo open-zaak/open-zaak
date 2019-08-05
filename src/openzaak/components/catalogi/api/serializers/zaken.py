@@ -14,11 +14,11 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.validators import ResourceValidator
 
-from ...models.choices import AardRelatieChoices, RichtingChoices
 from ...models import (
     BesluitType, BronCatalogus, BronZaakType, Formulier, ZaakObjectType,
     ZaakType, ZaakTypenRelatie
 )
+from ...models.choices import AardRelatieChoices, RichtingChoices
 from ..utils.serializers import SourceMappingSerializerMixin
 from ..utils.validators import RelationCatalogValidator
 from ..validators import ZaaktypeGeldigheidValidator

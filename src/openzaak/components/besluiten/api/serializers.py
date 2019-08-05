@@ -3,6 +3,11 @@ Serializers of the Besluit Registratie Component REST API
 """
 from django.conf import settings
 
+from openzaak.components.besluiten.models import (
+    Besluit, BesluitInformatieObject
+)
+from openzaak.components.besluiten.models.constants import VervalRedenen
+from openzaak.components.besluiten.sync.signals import SyncError
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
@@ -10,10 +15,6 @@ from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, validate_rsin
 )
-
-from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
-from openzaak.components.besluiten.sync.signals import SyncError
 
 from .auth import get_drc_auth, get_zrc_auth, get_ztc_auth
 from .validators import (

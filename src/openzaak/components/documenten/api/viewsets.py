@@ -3,6 +3,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
+)
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -19,10 +22,6 @@ from vng_api_common.notifications.viewsets import (
 )
 from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
-
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
-)
 
 from .audits import AUDIT_DRC
 from .data_filtering import ListFilterByAuthorizationsMixin

@@ -4,10 +4,9 @@ from unittest.mock import patch
 from django.core.management import call_command
 from django.test import override_settings
 
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from rest_framework.test import APITestCase
 from vng_api_common.notifications.kanalen import Kanaal
-
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 
 @override_settings(IS_HTTPS=True)

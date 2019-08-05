@@ -8,17 +8,14 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import (
-    JWTAuthMixin, get_validation_errors
-)
-
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors
 
 from .utils import ZAAK_WRITE_KWARGS
 

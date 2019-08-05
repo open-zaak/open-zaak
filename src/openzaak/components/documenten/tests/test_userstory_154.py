@@ -5,15 +5,16 @@ See:
 * https://github.com/VNG-Realisatie/gemma-zaken/issues/154 (us)
 * https://github.com/VNG-Realisatie/gemma-zaken/issues/239 (mapping)
 """
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_ALLES_LEZEN
+)
+from openzaak.components.documenten.api.tests.utils import get_operation_url
+from openzaak.components.documenten.models.tests.factories import (
+    ObjectInformatieObjectFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin
-)
-
-from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
-from openzaak.components.documenten.models.tests.factories import ObjectInformatieObjectFactory
+from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin
 
 INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 

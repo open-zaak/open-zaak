@@ -7,10 +7,11 @@ from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 
+from openzaak.components.besluiten.models import (
+    Besluit, BesluitInformatieObject
+)
 from vng_api_common.models import APICredential
 from zds_client import Client, extract_params, get_operation_url
-
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 
 logger = logging.getLogger(__name__)
 

@@ -6,11 +6,10 @@ from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 import isodate
-from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
-from vng_api_common.models import APICredential
-
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
+from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+from vng_api_common.models import APICredential
 
 from ..models import Zaak
 
