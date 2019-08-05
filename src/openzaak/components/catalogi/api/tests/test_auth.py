@@ -5,9 +5,7 @@ import uuid
 from unittest import skip
 
 from rest_framework.test import APITestCase
-from vng_api_common.tests import AuthCheckMixin
-
-from .utils import reverse
+from vng_api_common.tests import AuthCheckMixin, reverse
 
 
 @skip('Current implementation is without authentication')

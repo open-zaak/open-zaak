@@ -5,7 +5,7 @@ import yaml
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from . import views
-from .utils import reverse
+from vng_api_common.tests import reverse
 
 
 class DSOApiStrategyTests(APITestCase):

@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_validation_errors, reverse
+    JWTAuthMixin, TypeCheckMixin, get_validation_errors
 )
 from zds_client.tests.mocks import mock_client
 

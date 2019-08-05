@@ -9,7 +9,7 @@ from openzaak.components.catalogi.models.tests.factories import (
 )
 
 from .base import APITestCase
-from .utils import reverse
+from vng_api_common.tests import reverse
 
 
 class EigenschapAPITests(APITestCase):

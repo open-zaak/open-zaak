@@ -5,7 +5,7 @@ from django.test import override_settings
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import (
     IsImmutableValidator, UniekeIdentificatieValidator, UntilTodayValidator,
     URLValidator
@@ -15,7 +15,6 @@ from zds_client.tests.mocks import mock_client
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 
 from .mixins import BesluitSyncMixin
-from .utils import reverse, reverse_lazy
 
 INFORMATIEOBJECT = 'https://drc.com/informatieobjecten/1234'
 INFORMATIEOBJECT_TYPE = 'https://ztc.com/informatieobjecttypen/1234'
