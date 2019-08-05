@@ -13,11 +13,8 @@ django-choices
 django-cors-middleware
 django-markup
 django-privates
-# django-hijack
-# django-hijack-admin
 django-choices
 django-rosetta
-# django-redis
 django_admin_index
 django-relativedelta
 django-better-admin-arrayfield
@@ -27,7 +24,6 @@ djangorestframework-gis
 django-extra-fields
 django-filter
 djangorestframework-camel-case
-# djangorestframework-filters
 drf-yasg
 drf-writable-nested
 vng-api-common
