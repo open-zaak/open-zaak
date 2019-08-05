@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Zaken API
+  title: ZAKEN API
   description: 'Een API om een zaakregistratiecomponent (ZRC) te benaderen.
 
 
@@ -180,9 +180,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - klantcontacten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: klantcontact_create
       summary: Maak een KLANTCONTACT bij een ZAAK aan.
@@ -338,9 +335,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - klantcontacten
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         content:
           application/json:
@@ -476,9 +470,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - klantcontacten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     parameters:
     - name: uuid
       in: path
@@ -632,9 +623,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: resultaat_create
       summary: Maak een RESULTAAT bij een ZAAK aan.
@@ -792,9 +780,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Resultaat'
     parameters: []
@@ -926,9 +911,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     put:
       operationId: resultaat_update
       summary: Werk een RESULTAAT in zijn geheel bij.
@@ -1093,9 +1075,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Resultaat'
     patch:
@@ -1262,9 +1241,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Resultaat'
     delete:
@@ -1411,9 +1387,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
     parameters:
     - name: uuid
       in: path
@@ -1660,9 +1633,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - rollen
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: rol_create
       summary: Maak een ROL aan bij een ZAAK.
@@ -1816,9 +1786,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - rollen
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         content:
           application/json:
@@ -1954,9 +1921,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - rollen
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     delete:
       operationId: rol_delete
       summary: Verwijder een ROL van een ZAAK.
@@ -2080,9 +2044,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - rollen
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
     parameters:
     - name: uuid
       in: path
@@ -2236,9 +2197,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - statussen
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: status_create
       summary: Maak een STATUS aan voor een ZAAK.
@@ -2397,9 +2355,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - statussen
-      security:
-      - JWT-Claims:
-        - (zaken.aanmaken | zaken.statussen.toevoegen | zaken.heropenen)
       requestBody:
         content:
           application/json:
@@ -2535,9 +2490,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - statussen
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     parameters:
     - name: uuid
       in: path
@@ -2692,9 +2644,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: zaakinformatieobject_create
       summary: Maak een ZAAK-INFORMATIEOBJECT relatie aan.
@@ -2855,9 +2804,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - (zaken.aanmaken | zaken.bijwerken)
       requestBody:
         $ref: '#/components/requestBodies/ZaakInformatieObject'
     parameters: []
@@ -2989,9 +2935,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     put:
       operationId: zaakinformatieobject_update
       summary: Werk een ZAAK-INFORMATIEOBJECT relatie in zijn geheel bij.
@@ -3159,9 +3102,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
       requestBody:
         $ref: '#/components/requestBodies/ZaakInformatieObject'
     patch:
@@ -3331,9 +3271,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
       requestBody:
         $ref: '#/components/requestBodies/ZaakInformatieObject'
     delete:
@@ -3481,9 +3418,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      security:
-      - JWT-Claims:
-        - (zaken.bijwerken | zaken.geforceerd-bijwerken | zaken.verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -3676,9 +3610,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakobjecten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: zaakobject_create
       summary: Maak een ZAAKOBJECT aan.
@@ -3832,9 +3763,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakobjecten
-      security:
-      - JWT-Claims:
-        - (zaken.aanmaken | zaken.bijwerken)
       requestBody:
         content:
           application/json:
@@ -3970,9 +3898,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakobjecten
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     parameters:
     - name: uuid
       in: path
@@ -4296,9 +4221,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: zaak_create
       summary: Maak een ZAAK aan.
@@ -4494,9 +4416,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.aanmaken
       requestBody:
         $ref: '#/components/requestBodies/Zaak'
     parameters: []
@@ -4695,9 +4614,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
       requestBody:
         content:
           application/json:
@@ -4874,9 +4790,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     put:
       operationId: zaak_update
       summary: Werk een ZAAK in zijn geheel bij.
@@ -5090,9 +5003,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
       requestBody:
         $ref: '#/components/requestBodies/Zaak'
     patch:
@@ -5308,9 +5218,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
       requestBody:
         $ref: '#/components/requestBodies/Zaak'
     delete:
@@ -5476,9 +5383,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -5880,9 +5784,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: zaakbesluit_create
       summary: Maak een ZAAKBESLUIT aan.
@@ -6046,9 +5947,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         content:
           application/json:
@@ -6191,9 +6089,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     delete:
       operationId: zaakbesluit_delete
       summary: Verwijder een ZAAKBESLUIT.
@@ -6343,9 +6238,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
     parameters:
     - name: uuid
       in: path
@@ -6479,9 +6371,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     post:
       operationId: zaakeigenschap_create
       summary: Maak een ZAAKEIGENSCHAP aan.
@@ -6635,9 +6524,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.bijwerken
       requestBody:
         content:
           application/json:
@@ -6780,9 +6666,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      security:
-      - JWT-Claims:
-        - zaken.lezen
     parameters:
     - name: uuid
       in: path

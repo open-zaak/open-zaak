@@ -15,21 +15,24 @@ if [ "$1" = "" ]; then
 fi
 
 export SUBPATH=/$1/api
+export SCHEMA_PATH=src/openzaak/components/$1
 
 echo "Generating Swagger schema"
 src/manage.py generate_swagger_component \
+    $SCHEMA_PATH/swagger2.0.json \
     --overwrite \
     --format=json \
     --mock-request \
     --url https://example.com/api/v1 \
     --component=$1
 
-#echo "Converting Swagger to OpenAPI 3.0..."
-#npm run convert
-#patch_content_types
+echo "Converting Swagger to OpenAPI 3.0..."
+npm run convert
+src/manage.py patch_error_contenttypes $SCHEMA_PATH/openapi.yaml
 
 echo "Generating resources document"
 src/manage.py generate_swagger_component \
+    $SCHEMA_PATH/resources.md \
     --overwrite \
     --mock-request \
     --url https://example.com/api/v1 \
