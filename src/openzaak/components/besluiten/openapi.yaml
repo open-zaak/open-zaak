@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Besluiten API
+  title: BESLUITEN API
   description: "Een API om een besluitregistratiecomponent (BRC) te benaderen.\n\n\
     Een BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet\nnoodzakelijk.\
     \ Omgekeerd kan het voorkomen dat in een INFORMATIEOBJECT meerdere\nbesluiten\
@@ -208,9 +208,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.lezen
     post:
       operationId: besluit_create
       summary: Maak een BESLUIT aan.
@@ -379,9 +376,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.aanmaken
       requestBody:
         $ref: '#/components/requestBodies/Besluit'
     parameters: []
@@ -557,7 +551,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -703,7 +697,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -788,9 +782,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.lezen
     put:
       operationId: besluit_update
       summary: Werk een BESLUIT in zijn geheel bij.
@@ -876,7 +867,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -961,9 +952,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Besluit'
     patch:
@@ -1051,7 +1039,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -1136,9 +1124,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Besluit'
     delete:
@@ -1208,7 +1193,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -1293,9 +1278,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
-      security:
-      - JWT-Claims:
-        - besluiten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -1449,9 +1431,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.lezen
     post:
       operationId: besluitinformatieobject_create
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
@@ -1611,9 +1590,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.aanmaken
       requestBody:
         $ref: '#/components/requestBodies/BesluitInformatieObject'
     parameters: []
@@ -1660,7 +1636,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -1745,9 +1721,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.lezen
     put:
       operationId: besluitinformatieobject_update
       summary: Werk een BESLUIT-INFORMATIEOBJECT relatie in zijn geheel bij.
@@ -1831,7 +1804,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -1916,9 +1889,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/BesluitInformatieObject'
     patch:
@@ -2004,7 +1974,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -2089,9 +2059,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/BesluitInformatieObject'
     delete:
@@ -2153,7 +2120,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -2238,9 +2205,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
-      security:
-      - JWT-Claims:
-        - besluiten.verwijderen
     parameters:
     - name: uuid
       in: path

@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Documenten API",
+        "title": "DOCUMENTEN API",
         "description": "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\nIn een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een \nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens. \nINFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden \ngerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben. \n\nGEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT\n(buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd\nof gehandhaafd.\n\nDe typering van INFORMATIEOBJECTen is in de Catalogi API (ZTC) ondergebracht in\nde vorm van INFORMATIEOBJECTTYPEn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n* Zaken API *(optioneel)*\n\n**Autorisatie**\n\nDeze API vereist autorisatie. Je kan de\n[token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te\ngenereren.\n\n**Notificaties**\n\nDeze API publiceert notificaties op het kanaal `documenten`.\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n",
         "contact": {
             "url": "https://zaakgerichtwerken.vng.cloud",
@@ -11,9 +11,9 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.0-rc1"
+        "version": "0.1.0"
     },
-    "basePath": "/api/v1",
+    "basePath": "/documenten/api/v1",
     "consumes": [
         "application/json"
     ],
@@ -230,13 +230,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -425,13 +418,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -936,13 +922,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "put": {
@@ -1138,13 +1117,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "patch": {
@@ -1340,13 +1312,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -1517,13 +1482,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1689,13 +1647,6 @@
                 ],
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1868,13 +1819,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lock"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -2044,13 +1988,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "(documenten.lock | documenten.geforceerd-unlock)"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -2281,13 +2218,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -2476,13 +2406,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -2637,13 +2560,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "put": {
@@ -2839,13 +2755,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "patch": {
@@ -3041,13 +2950,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -3218,13 +3120,6 @@
                 },
                 "tags": [
                     "gebruiksrechten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -3407,13 +3302,6 @@
                 },
                 "tags": [
                     "objectinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -3602,13 +3490,6 @@
                 },
                 "tags": [
                     "objectinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -3763,13 +3644,6 @@
                 },
                 "tags": [
                     "objectinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -3940,13 +3814,6 @@
                 },
                 "tags": [
                     "objectinformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -4841,7 +4708,7 @@
                 },
                 "lock": {
                     "title": "Lock",
-                    "description": "Tijdens het updaten van een document (PATCH, PUT) moet het `lock` veld opgegeven worden. Bij het aanmaken (POST) mag het geen waarde hebben.",
+                    "description": "Lock must be provided during updating the document (PATCH, PUT), not while creating it",
                     "type": "string",
                     "minLength": 1
                 }
@@ -4852,7 +4719,7 @@
             "properties": {
                 "lock": {
                     "title": "Lock",
-                    "description": "Hash string, wordt gebruikt als ID voor de lock",
+                    "description": "Hash string, which represents id of the lock",
                     "type": "string",
                     "readOnly": true,
                     "minLength": 1
@@ -4864,7 +4731,7 @@
             "properties": {
                 "lock": {
                     "title": "Lock",
-                    "description": "Hash string, wordt gebruikt als ID voor de lock",
+                    "description": "Hash string, which represents id of the lock",
                     "type": "string",
                     "maxLength": 100
                 }

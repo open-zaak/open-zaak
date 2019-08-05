@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Catalogi API",
+        "title": "Open zaak API",
         "description": "Een API om een zaaktypecatalogus (ZTC) te benaderen.\n\nDe zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een \nklant' (productaanvraag, melding, aangifte, informatieverzoek e.d.) tot en met \nhet leveren van een passend antwoord daarop in te richten, inclusief de \nbijbehorende informatievoorziening.\n\nEen CATALOGUS bestaat uit ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn en\nwordt typisch gebruikt om een ZAAK (in de Zaken API), INFORMATIEOBJECT (in de\nDocumenten API) en BESLUIT (in de Besluiten API) te voorzien van type, \nstandaardwaarden en processtructuur.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Gemeentelijke Selectielijst API\n* Autorisaties API *(optioneel)*\n\n**Autorisatie**\n\nDeze API vereist autorisatie. Je kan de\n[token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te\ngenereren.\n",
         "contact": {
             "url": "https://zaakgerichtwerken.vng.cloud",
@@ -11,9 +11,9 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.0-rc1"
+        "version": "0.1.0"
     },
-    "basePath": "/api/v1",
+    "basePath": "/catalogi/api/v1",
     "consumes": [
         "application/json"
     ],
@@ -245,13 +245,6 @@
                 },
                 "tags": [
                     "besluittypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -419,13 +412,6 @@
                 },
                 "tags": [
                     "besluittypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -580,13 +566,6 @@
                 },
                 "tags": [
                     "besluittypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -735,13 +714,6 @@
                 },
                 "tags": [
                     "besluittypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -786,13 +758,6 @@
                 },
                 "tags": [
                     "besluittypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1017,13 +982,6 @@
                 },
                 "tags": [
                     "catalogussen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -1191,13 +1149,6 @@
                 },
                 "tags": [
                     "catalogussen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -1352,13 +1303,6 @@
                 },
                 "tags": [
                     "catalogussen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1570,13 +1514,6 @@
                 },
                 "tags": [
                     "eigenschappen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -1744,13 +1681,6 @@
                 },
                 "tags": [
                     "eigenschappen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -1905,13 +1835,6 @@
                 },
                 "tags": [
                     "eigenschappen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -2060,13 +1983,6 @@
                 },
                 "tags": [
                     "eigenschappen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -2278,13 +2194,6 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -2452,13 +2361,6 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -2613,13 +2515,6 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -2768,13 +2663,6 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -2819,13 +2707,6 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -3037,13 +2918,6 @@
                 },
                 "tags": [
                     "resultaattypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -3211,13 +3085,6 @@
                 },
                 "tags": [
                     "resultaattypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -3372,13 +3239,6 @@
                 },
                 "tags": [
                     "resultaattypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -3527,13 +3387,6 @@
                 },
                 "tags": [
                     "resultaattypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -3762,13 +3615,6 @@
                 },
                 "tags": [
                     "roltypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -3936,13 +3782,6 @@
                 },
                 "tags": [
                     "roltypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -4097,13 +3936,6 @@
                 },
                 "tags": [
                     "roltypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -4252,13 +4084,6 @@
                 },
                 "tags": [
                     "roltypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -4469,13 +4294,6 @@
                 },
                 "tags": [
                     "statustypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -4643,13 +4461,6 @@
                 },
                 "tags": [
                     "statustypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -4804,13 +4615,6 @@
                 },
                 "tags": [
                     "statustypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -4959,13 +4763,6 @@
                 },
                 "tags": [
                     "statustypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -5197,13 +4994,6 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -5371,13 +5161,6 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -5532,13 +5315,6 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -5687,13 +5463,6 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -5919,13 +5688,6 @@
                 },
                 "tags": [
                     "zaaktypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
@@ -6093,13 +5855,6 @@
                 },
                 "tags": [
                     "zaaktypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -6254,13 +6009,6 @@
                 },
                 "tags": [
                     "zaaktypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.lezen"
-                        ]
-                    }
                 ]
             },
             "delete": {
@@ -6409,13 +6157,6 @@
                 },
                 "tags": [
                     "zaaktypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -6460,13 +6201,6 @@
                 },
                 "tags": [
                     "zaaktypen"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "zaaktypes.schrijven"
-                        ]
-                    }
                 ]
             },
             "parameters": [

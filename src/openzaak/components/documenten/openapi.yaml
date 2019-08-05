@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Documenten API
+  title: DOCUMENTEN API
   description: "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\n\
     In een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een\
     \ \nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens. \nINFORMATIEOBJECTen\
@@ -203,9 +203,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     post:
       operationId: enkelvoudiginformatieobject_create
       summary: Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.
@@ -361,9 +358,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.aanmaken
       requestBody:
         content:
           application/json:
@@ -793,9 +787,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     put:
       operationId: enkelvoudiginformatieobject_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
@@ -958,9 +949,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
     patch:
@@ -1125,9 +1113,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
     delete:
@@ -1286,9 +1271,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -1426,9 +1408,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     parameters:
     - name: uuid
       in: path
@@ -1571,9 +1550,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lock
       requestBody:
         content:
           application/json:
@@ -1714,9 +1690,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      security:
-      - JWT-Claims:
-        - (documenten.lock | documenten.geforceerd-unlock)
       requestBody:
         content:
           application/json:
@@ -1928,9 +1901,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     post:
       operationId: gebruiksrechten_create
       summary: Maak een GEBRUIKSRECHT aan.
@@ -2086,9 +2056,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.aanmaken
       requestBody:
         $ref: '#/components/requestBodies/Gebruiksrechten'
     parameters: []
@@ -2220,9 +2187,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     put:
       operationId: gebruiksrechten_update
       summary: Werk een GEBRUIKSRECHT in zijn geheel bij.
@@ -2383,9 +2347,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Gebruiksrechten'
     patch:
@@ -2548,9 +2509,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
       requestBody:
         $ref: '#/components/requestBodies/Gebruiksrechten'
     delete:
@@ -2699,9 +2657,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      security:
-      - JWT-Claims:
-        - documenten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -2855,9 +2810,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - objectinformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     post:
       operationId: objectinformatieobject_create
       summary: Maak een OBJECT-INFORMATIEOBJECT relatie aan.
@@ -3025,9 +2977,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - objectinformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.aanmaken
       requestBody:
         content:
           application/json:
@@ -3163,9 +3112,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - objectinformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.lezen
     delete:
       operationId: objectinformatieobject_delete
       summary: Verwijder een OBJECT-INFORMATIEOBJECT relatie.
@@ -3315,9 +3261,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - objectinformatieobjecten
-      security:
-      - JWT-Claims:
-        - documenten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -4370,9 +4313,8 @@ components:
           readOnly: true
         lock:
           title: Lock
-          description: Tijdens het updaten van een document (PATCH, PUT) moet het
-            `lock` veld opgegeven worden. Bij het aanmaken (POST) mag het geen waarde
-            hebben.
+          description: Lock must be provided during updating the document (PATCH,
+            PUT), not while creating it
           type: string
           minLength: 1
     LockEnkelvoudigInformatieObject:
@@ -4380,7 +4322,7 @@ components:
       properties:
         lock:
           title: Lock
-          description: Hash string, wordt gebruikt als ID voor de lock
+          description: Hash string, which represents id of the lock
           type: string
           readOnly: true
           minLength: 1
@@ -4389,7 +4331,7 @@ components:
       properties:
         lock:
           title: Lock
-          description: Hash string, wordt gebruikt als ID voor de lock
+          description: Hash string, which represents id of the lock
           type: string
           maxLength: 100
     Gebruiksrechten:
