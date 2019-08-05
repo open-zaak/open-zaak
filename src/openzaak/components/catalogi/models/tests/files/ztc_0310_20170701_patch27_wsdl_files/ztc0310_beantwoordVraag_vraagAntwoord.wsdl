@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:StUF="http://www.egem.nl/StUF/StUF0301" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ztc="http://www.kinggemeenten.nl/ztc0310" name="StUF-ZTC0310" targetNamespace="http://www.kinggemeenten.nl/ztc0310">
+	<import namespace="http://www.egem.nl/StUF/StUF0301" location="../../0301/stuf0301_types.wsdl"/>
+	<documentation>
+		<xs:documentation>
+			   Dit document definieert de webservices voor het portType BeantwoordVraag voor het sectormodel ZaakTypeCalagus 0310.
+		
+			   Versie 031001, wijzigingen t.b.v. patch 21 (1-4-2015) vergeleken met versie 010000 zijn de volgende wijzigingen doorgevoerd:			
+			   - ERR276: Operation 'Bv01' toegevoegd.		
+			   - ERR0353: Het documentation element is voorzien van een standaard 'appinfo' structuur met daarin informatie over het schema.
+			
+			   Versie 031002, wijzigingen t.b.v. patch 22 (1-7-2015) vergeleken met versie 031001 zijn de volgende wijzigingen doorgevoerd:			
+			   - ERR0383: Het annotation element aan het eind van het bestand is verwijderd.
+			   
+			   Versie 031003, wijzigingen t.b.v. patch 24 (1-4-2016) vergeleken met versie 031002 zijn de volgende wijzigingen doorgevoerd:			
+			   - ERR0410: De attributes 'elementFormDefault' en 'attributeFormDefault' zijn verwijderd.
+			
+		</xs:documentation>
+		<xs:appinfo>
+			<StUF:onderdeel>http://www.kinggemeenten.nl/ztc0310</StUF:onderdeel>
+			<StUF:patch>27</StUF:patch>
+			<StUF:patchdatum>20170701</StUF:patchdatum>
+			<StUF:schemaversie>3</StUF:schemaversie>
+		</xs:appinfo>
+	</documentation>
+	<types>
+		<xs:schema>
+			<xs:import namespace="http://www.kinggemeenten.nl/ztc0310" schemaLocation="ztc0310_msg_vraagAntwoord.xsd"/>
+		</xs:schema>
+	</types>
+	<message name="bstLa01">
+		<part name="body" element="ztc:bstLa01"/>
+	</message>
+	<message name="bstLa03">
+		<part name="body" element="ztc:bstLa03"/>
+	</message>
+	<message name="bstLa07">
+		<part name="body" element="ztc:bstLa07"/>
+	</message>
+	<message name="bstLv01">
+		<part name="body" element="ztc:bstLv01"/>
+	</message>
+	<message name="bstLv03">
+		<part name="body" element="ztc:bstLv03"/>
+	</message>
+	<message name="bstLv07">
+		<part name="body" element="ztc:bstLv07"/>
+	</message>
+	<message name="catLa01">
+		<part name="body" element="ztc:catLa01"/>
+	</message>
+	<message name="catLa03">
+		<part name="body" element="ztc:catLa03"/>
+	</message>
+	<message name="catLa07">
+		<part name="body" element="ztc:catLa07"/>
+	</message>
+	<message name="catLv01">
+		<part name="body" element="ztc:catLv01"/>
+	</message>
+	<message name="catLv03">
+		<part name="body" element="ztc:catLv03"/>
+	</message>
+	<message name="catLv07">
+		<part name="body" element="ztc:catLv07"/>
+	</message>
+	<message name="iotLa01">
+		<part name="body" element="ztc:iotLa01"/>
+	</message>
+	<message name="iotLa03">
+		<part name="body" element="ztc:iotLa03"/>
+	</message>
+	<message name="iotLa07">
+		<part name="body" element="ztc:iotLa07"/>
+	</message>
+	<message name="iotLv01">
+		<part name="body" element="ztc:iotLv01"/>
+	</message>
+	<message name="iotLv03">
+		<part name="body" element="ztc:iotLv03"/>
+	</message>
+	<message name="iotLv07">
+		<part name="body" element="ztc:iotLv07"/>
+	</message>
+	<message name="eigLa01">
+		<part name="body" element="ztc:eigLa01"/>
+	</message>
+	<message name="eigLa03">
+		<part name="body" element="ztc:eigLa03"/>
+	</message>
+	<message name="eigLa07">
+		<part name="body" element="ztc:eigLa07"/>
+	</message>
+	<message name="eigLv01">
+		<part name="body" element="ztc:eigLv01"/>
+	</message>
+	<message name="eigLv03">
+		<part name="body" element="ztc:eigLv03"/>
+	</message>
+	<message name="eigLv07">
+		<part name="body" element="ztc:eigLv07"/>
+	</message>
+	<message name="rltLa01">
+		<part name="body" element="ztc:rltLa01"/>
+	</message>
+	<message name="rltLa03">
+		<part name="body" element="ztc:rltLa03"/>
+	</message>
+	<message name="rltLa07">
+		<part name="body" element="ztc:rltLa07"/>
+	</message>
+	<message name="rltLv01">
+		<part name="body" element="ztc:rltLv01"/>
+	</message>
+	<message name="rltLv03">
+		<part name="body" element="ztc:rltLv03"/>
+	</message>
+	<message name="rltLv07">
+		<part name="body" element="ztc:rltLv07"/>
+	</message>
+	<message name="rstLa01">
+		<part name="body" element="ztc:rstLa01"/>
+	</message>
+	<message name="rstLa03">
+		<part name="body" element="ztc:rstLa03"/>
+	</message>
+	<message name="rstLa07">
+		<part name="body" element="ztc:rstLa07"/>
+	</message>
+	<message name="rstLv01">
+		<part name="body" element="ztc:rstLv01"/>
+	</message>
+	<message name="rstLv03">
+		<part name="body" element="ztc:rstLv03"/>
+	</message>
+	<message name="rstLv07">
+		<part name="body" element="ztc:rstLv07"/>
+	</message>
+	<message name="sttLa01">
+		<part name="body" element="ztc:sttLa01"/>
+	</message>
+	<message name="sttLa03">
+		<part name="body" element="ztc:sttLa03"/>
+	</message>
+	<message name="sttLa07">
+		<part name="body" element="ztc:sttLa07"/>
+	</message>
+	<message name="sttLv01">
+		<part name="body" element="ztc:sttLv01"/>
+	</message>
+	<message name="sttLv03">
+		<part name="body" element="ztc:sttLv03"/>
+	</message>
+	<message name="sttLv07">
+		<part name="body" element="ztc:sttLv07"/>
+	</message>
+	<message name="zotLa01">
+		<part name="body" element="ztc:zotLa01"/>
+	</message>
+	<message name="zotLa03">
+		<part name="body" element="ztc:zotLa03"/>
+	</message>
+	<message name="zotLa07">
+		<part name="body" element="ztc:zotLa07"/>
+	</message>
+	<message name="zotLv01">
+		<part name="body" element="ztc:zotLv01"/>
+	</message>
+	<message name="zotLv03">
+		<part name="body" element="ztc:zotLv03"/>
+	</message>
+	<message name="zotLv07">
+		<part name="body" element="ztc:zotLv07"/>
+	</message>
+	<message name="zktLa01">
+		<part name="body" element="ztc:zktLa01"/>
+	</message>
+	<message name="zktLa03">
+		<part name="body" element="ztc:zktLa03"/>
+	</message>
+	<message name="zktLa07">
+		<part name="body" element="ztc:zktLa07"/>
+	</message>
+	<message name="zktLv01">
+		<part name="body" element="ztc:zktLv01"/>
+	</message>
+	<message name="zktLv03">
+		<part name="body" element="ztc:zktLv03"/>
+	</message>
+	<message name="zktLv07">
+		<part name="body" element="ztc:zktLv07"/>
+	</message>
+	<portType name="BeantwoordVraag">
+		<documentation>Dit portType ondersteunt als operaties alle synchrone vraagberichten gedefinieerd binnen het sectormodel.</documentation>
+		<operation name="bstLv01">
+			<input message="ztc:bstLv01"/>
+			<output message="ztc:bstLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="bstLv03">
+			<input message="ztc:bstLv03"/>
+			<output message="ztc:bstLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="bstLv07">
+			<input message="ztc:bstLv07"/>
+			<output message="ztc:bstLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="catLv01">
+			<input message="ztc:catLv01"/>
+			<output message="ztc:catLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="catLv03">
+			<input message="ztc:catLv03"/>
+			<output message="ztc:catLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="catLv07">
+			<input message="ztc:catLv07"/>
+			<output message="ztc:catLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="iotLv01">
+			<input message="ztc:iotLv01"/>
+			<output message="ztc:iotLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="iotLv03">
+			<input message="ztc:iotLv03"/>
+			<output message="ztc:iotLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="iotLv07">
+			<input message="ztc:iotLv07"/>
+			<output message="ztc:iotLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="eigLv01">
+			<input message="ztc:eigLv01"/>
+			<output message="ztc:eigLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="eigLv03">
+			<input message="ztc:eigLv03"/>
+			<output message="ztc:eigLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="eigLv07">
+			<input message="ztc:eigLv07"/>
+			<output message="ztc:eigLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rltLv01">
+			<input message="ztc:rltLv01"/>
+			<output message="ztc:rltLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rltLv03">
+			<input message="ztc:rltLv03"/>
+			<output message="ztc:rltLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rltLv07">
+			<input message="ztc:rltLv07"/>
+			<output message="ztc:rltLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rstLv01">
+			<input message="ztc:rstLv01"/>
+			<output message="ztc:rstLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rstLv03">
+			<input message="ztc:rstLv03"/>
+			<output message="ztc:rstLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="rstLv07">
+			<input message="ztc:rstLv07"/>
+			<output message="ztc:rstLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="sttLv01">
+			<input message="ztc:sttLv01"/>
+			<output message="ztc:sttLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="sttLv03">
+			<input message="ztc:sttLv03"/>
+			<output message="ztc:sttLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="sttLv07">
+			<input message="ztc:sttLv07"/>
+			<output message="ztc:sttLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zotLv01">
+			<input message="ztc:zotLv01"/>
+			<output message="ztc:zotLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zotLv03">
+			<input message="ztc:zotLv03"/>
+			<output message="ztc:zotLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zotLv07">
+			<input message="ztc:zotLv07"/>
+			<output message="ztc:zotLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zktLv01">
+			<input message="ztc:zktLv01"/>
+			<output message="ztc:zktLa01"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zktLv03">
+			<input message="ztc:zktLv03"/>
+			<output message="ztc:zktLa03"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+		<operation name="zktLv07">
+			<input message="ztc:zktLv07"/>
+			<output message="ztc:zktLa07"/>
+			<fault name="fout" message="StUF:Fo02"/>
+		</operation>
+	</portType>
+	<binding name="SOAPBeantwoordVraag" type="ztc:BeantwoordVraag">
+		<documentation>Omdat de uit te wisselen berichten volledig gedefinieerd zijn in het sectormodel cq de StUF-standaard, kunnen we ze zonder verdere encoding (“literal”) opnemen in de body. Niet ondersteunde berichten kunnen uit de binding en portType worden verwijderd.</documentation>
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="bstLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/bstLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="bstLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/bstLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="bstLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/bstLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="catLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/catLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="catLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/catLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="catLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/catLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="iotLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/iotLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="iotLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/iotLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="iotLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/iotLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="eigLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/eigLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="eigLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/eigLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="eigLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/eigLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rltLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rltLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rltLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rltLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rltLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rltLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rstLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rstLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rstLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rstLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="rstLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/rstLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="sttLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/sttLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="sttLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/sttLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="sttLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/sttLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zotLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zotLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zotLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zotLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zotLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zotLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zktLv01">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zktLv01"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zktLv03">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zktLv03"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="zktLv07">
+			<soap:operation soapAction="http://www.kinggemeenten.nl/ztc0310/zktLv07"/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="fout">
+				<soap:fault name="fout" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+	<service name="BeantwoordVraag">
+		<documentation>Hieronder wordt de concreet aan te roepen service voor het ontvangen van synchrone ztc0310-vraagberichten gedefinieerd.</documentation>
+		<port name="BeantwoordVraag" binding="ztc:SOAPBeantwoordVraag">
+			<documentation>
+				<wsi:Claim conformsTo="http://ws-i.org/profiles/basic/1.1"/>
+			</documentation>
+			<soap:address location="http://example.com/BeantwoordVraag"/>
+		</port>
+	</service>
+</definitions>

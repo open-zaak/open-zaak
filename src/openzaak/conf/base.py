@@ -2,6 +2,7 @@ import os
 
 # Django-hijack (and Django-hijack-admin)
 from django.urls import reverse_lazy
+import django.db.models.options as options
 
 import raven
 
@@ -70,7 +71,7 @@ INSTALLED_APPS = [
     'django_markup',
     'solo',
     'privates',
-
+    'django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig',
     # Project applications.
     'openzaak',
     'openzaak.accounts',
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     'openzaak.components.zaken',
     'openzaak.components.besluiten',
     'openzaak.components.documenten',
+    'openzaak.components.catalogi',
 
 ] + PLUGIN_INSTALLED_APPS
 
@@ -398,6 +400,14 @@ if SENTRY_DSN:
 #
 IS_HTTPS = os.getenv('IS_HTTPS', '1').lower() in ['true', '1', 'yes']
 
+# catalogi settings
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
+    'mnemonic',
+    'filter_fields',
+    'ordering_fields',
+    'search_fields',
+)
+
 # documenten settings
 # settings for private media files
 PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, 'private-media')
@@ -414,6 +424,7 @@ SPEC_URL = {
     'zaken': os.path.join(BASE_DIR, 'src/openzaak/components/zaken/openapi.yaml'),
     'besluiten': os.path.join(BASE_DIR, 'src/openzaak/components/besluiten/openapi.yaml'),
     'documenten': os.path.join(BASE_DIR, 'src/openzaak/components/documenten/openapi.yaml'),
+    'catalogi': os.path.join(BASE_DIR, 'src/openzaak/components/catalogi/openapi.yaml'),
 }
 
 # for generate_schema depending on the component
@@ -422,3 +433,4 @@ if subpath:
     if not subpath.startswith('/'):
         subpath = f'/{subpath}'
     FORCE_SCRIPT_NAME = subpath
+

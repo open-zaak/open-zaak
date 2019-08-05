@@ -9,3 +9,4 @@ pylint<2.0
 requests-mock
 tblib
 webtest
+pyquery

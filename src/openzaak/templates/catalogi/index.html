@@ -1,0 +1,76 @@
+{% extends "vng_api_common/index.html" %}
+
+{% block docs %}
+
+  <h2>CATALOGI</h2>
+
+  <div class="row justify-content-md-center">
+
+    {% block docs_oas %}
+      <div class="col-sm-4">
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
+            <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
+            <a href="{% url "schema-redoc-catalogi" version=1 %}" class="btn btn-primary">API specificaties</a>
+          </div>
+        </div>
+
+      </div>
+    {% endblock %}
+
+    {% block docs_scopes %}
+      <div class="col-sm-4">
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
+            <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
+            <a href="{% url 'vng_api_common:scopes' %}" class="btn btn-primary">API scopes</a>
+          </div>
+        </div>
+
+      </div>
+   {% endblock %}
+
+    {% block extra_docs %}
+      {% include "vng_api_common/includes/kanalen_card.html" %}
+    {% endblock %}
+
+ </div>
+ <p></p>
+
+{% endblock %}
+
+{% block extra_content %}
+  <h2>Extra</h2>
+
+  <div class="row justify-content-md-center">
+
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fab fa-python"></i> Catalogus importeren</h5>
+          <p class="card-text">Catalogus data van vng.cloud importeren in eigen catalogus.</p>
+          <a href="{% url 'dumpdata' %}" class="btn btn-primary">Catalogus importeren</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <p></p>
+
+{% endblock %}
+
+
+{% block admin_link %}
+{{ block.super }}
+<p>
+    <a href="{% url 'view-config' %}" class="btn btn-sm btn-secondary">
+        <i class="fa fa-info-circle"></i>
+        Bekijk configuratie
+    </a>
+</p>
+{% endblock admin_link %}
