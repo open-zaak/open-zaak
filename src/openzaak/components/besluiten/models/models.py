@@ -162,6 +162,10 @@ class BesluitInformatieObject(models.Model):
         "aard relatie", max_length=20,
         choices=RelatieAarden.choices
     )
+    _objectinformatieobject = models.URLField(
+        'objectinformatieobject', blank=True,
+        help_text="Link to the related object in the DRC API"
+    )
 
     objects = BesluitRelatedQuerySet.as_manager()
 

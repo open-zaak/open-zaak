@@ -599,6 +599,10 @@ class ZaakInformatieObject(models.Model):
                   "Geldige waardes zijn datumtijden gelegen op of voor de "
                   "huidige datum en tijd."
     )
+    _objectinformatieobject = models.URLField(
+        'objectinformatieobject', blank=True,
+        help_text="Link to the related object in the DRC API"
+    )
 
     objects = ZaakRelatedQuerySet.as_manager()
 
