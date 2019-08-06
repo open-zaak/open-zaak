@@ -9,23 +9,12 @@ from vng_api_common.validators import (
 )
 
 
-def fetch_object(resource: str, url: str) -> dict:
-    Client = import_string(settings.ZDS_CLIENT_CLASS)
-    client = Client.from_url(url)
-    client.auth = APICredential.get_auth(url)
-    obj = client.retrieve(resource, url=url)
-    return obj
-
-
-class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
-    """
-    Valideer dat de combinatie van verantwoordelijke organisatie en
-    identificatie uniek is.
-    """
-    message = _('Deze identificatie bestaat al voor deze verantwoordelijke organisatie')
-
-    def __init__(self):
-        super().__init__('verantwoordelijke_organisatie', 'identificatie')
+# def fetch_object(resource: str, url: str) -> dict:
+#     Client = import_string(settings.ZDS_CLIENT_CLASS)
+#     client = Client.from_url(url)
+#     client.auth = APICredential.get_auth(url)
+#     obj = client.retrieve(resource, url=url)
+#     return obj
 
 
 class BesluittypeZaaktypeValidator:
@@ -43,9 +32,13 @@ class BesluittypeZaaktypeValidator:
         if not url or not zaak_url:
             return
 
-        besluittype = fetch_object(self.resource, url)
-        zaak = fetch_object(self.zaak_field, zaak_url)
-        if zaak['zaaktype'] not in besluittype['zaaktypes']:
+        # besluittype = fetch_object(self.resource, url)
+        # zaak = fetch_object(self.zaak_field, zaak_url)
+        # if zaak['zaaktype'] not in besluittype['zaaktypes']:
+        #     raise serializers.ValidationError(self.message, code=self.code)
+
+        # loose-fk keys
+        if zaak_url.zaaktype not in url.zaaktypes:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -66,8 +59,12 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
 
         # Only apply validation if the Besluit is linked to a Zaak
         if besluit.zaak:
-            zaak = fetch_object('zaak', besluit.zaak)
-            zaaktype = fetch_object('zaaktype', zaak['zaaktype'])
-            informatieobject = fetch_object(self.resource, informatieobject_url)
-            if informatieobject['informatieobjecttype'] not in zaaktype['informatieobjecttypen']:
+            # zaak = fetch_object('zaak', besluit.zaak)
+            # zaaktype = fetch_object('zaaktype', zaak['zaaktype'])
+            # informatieobject = fetch_object(self.resource, informatieobject_url)
+            # if informatieobject['informatieobjecttype'] not in zaaktype['informatieobjecttypen']:
+            #     raise serializers.ValidationError(self.message, code=self.code)
+
+            # loose-fk keys
+            if informatieobject_url.informatieobjecttype not in besluit.zaak.zaaktype.informatieobjecttypen:
                 raise serializers.ValidationError(self.message, code=self.code)

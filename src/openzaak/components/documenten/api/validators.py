@@ -13,7 +13,7 @@ from vng_api_common.models import APICredential
 from vng_api_common.tests.urls import reverse
 from zds_client import ClientError
 
-from .utils import get_absolute_url
+from openzaak.utils.urls import get_absolute_url
 
 
 class StatusValidator:

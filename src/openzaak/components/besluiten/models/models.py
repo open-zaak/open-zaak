@@ -3,6 +3,7 @@ import uuid as _uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django_loose_fk.fields import FkOrURLField
 
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
@@ -149,7 +150,7 @@ class BesluitInformatieObject(models.Model):
         help_text="Unieke resource identifier (UUID4)")
 
     besluit = models.ForeignKey(
-        'besluit', on_delete=models.CASCADE,
+        Besluit, on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUIT."
     )
     informatieobject = models.URLField(

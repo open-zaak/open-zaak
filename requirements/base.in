@@ -31,3 +31,5 @@ humanize
 drf-flex-fields
 django-cors-middleware
 drf-writable-nested
+django-loose-fk
+dataclasses

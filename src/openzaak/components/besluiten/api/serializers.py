@@ -13,13 +13,13 @@ from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import (
-    IsImmutableValidator, ResourceValidator, validate_rsin
+    IsImmutableValidator, validate_rsin
 )
 
-from .auth import get_drc_auth, get_zrc_auth, get_ztc_auth
+from openzaak.utils.auth import get_auth
+from openzaak.utils.validators import ResourceValidator
 from .validators import (
-    BesluittypeZaaktypeValidator, UniekeIdentificatieValidator,
-    ZaaktypeInformatieobjecttypeRelationValidator
+    BesluittypeZaaktypeValidator, ZaaktypeInformatieobjecttypeRelationValidator
 )
 
 
@@ -60,19 +60,23 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
                     ResourceValidator(
                         'Zaak',
                         settings.ZRC_API_SPEC,
-                        get_auth=get_zrc_auth,
+                        get_auth=get_auth,
                         headers={'Accept-Crs': 'EPSG:4326'}
                     )
                 ]
             },
             'besluittype': {
                 'validators': [
-                    ResourceValidator('BesluitType', settings.ZTC_API_SPEC, get_auth=get_ztc_auth)
+                    ResourceValidator(
+                        'BesluitType',
+                        settings.ZTC_API_SPEC,
+                        get_auth=get_auth
+                    )
                 ],
             },
         }
         validators = [
-            UniekeIdentificatieValidator(),
+            # UniekeIdentificatieValidator(), # this checi is on DB level
             BesluittypeZaaktypeValidator('besluittype')
         ]
 
@@ -107,10 +111,10 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             'besluit',
         )
         validators = [
-            UniqueTogetherValidator(
-                queryset=BesluitInformatieObject.objects.all(),
-                fields=['besluit', 'informatieobject']
-            ),
+            # UniqueTogetherValidator(
+            #     queryset=BesluitInformatieObject.objects.all(),
+            #     fields=['besluit', 'informatieobject']
+            # ),
             ZaaktypeInformatieobjecttypeRelationValidator("informatieobject"),
         ]
         extra_kwargs = {
@@ -119,7 +123,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             },
             'informatieobject': {
                 'validators': [
-                    ResourceValidator('EnkelvoudigInformatieObject', settings.DRC_API_SPEC, get_auth=get_drc_auth),
+                    ResourceValidator('EnkelvoudigInformatieObject', settings.DRC_API_SPEC, get_auth=get_auth),
                     IsImmutableValidator(),
                 ]
             },
@@ -129,17 +133,16 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             }
         }
 
-    def save(self, **kwargs):
-        # can't slap a transaction atomic on this, since ZRC/BRC query for the
-        # relation!
+    def create(self, validated_data):
+        informatieobject = validated_data.pop('informatieobject', '')
+        bio = super().create(validated_data)
         try:
-            return super().save(**kwargs)
+            bio.informatieobject = informatieobject
+            bio.save()
         except SyncError as sync_error:
-            # delete the object again
-            BesluitInformatieObject.objects.filter(
-                informatieobject=self.validated_data['informatieobject'],
-                besluit=self.validated_data['besluit']
-            )._raw_delete('default')
+            bio.delete()
             raise serializers.ValidationError({
                 api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]
             }) from sync_error
+        else:
+            return bio

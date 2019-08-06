@@ -19,6 +19,7 @@ class BesluitBaseAuthRequired(BaseAuthRequired):
     permission_fields = ('besluittype',)
     obj_path = 'besluit'
 
+
 class BesluitRelatedAuthScopesRequired(RelatedObjAuthScopesRequired):
     """
     Look at the scopes required for the current action and at besluittype

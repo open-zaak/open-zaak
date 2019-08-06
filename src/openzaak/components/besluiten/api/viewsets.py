@@ -12,7 +12,7 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from .audits import AUDIT_BRC
-from .data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
 from .permissions import (
