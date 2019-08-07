@@ -16,7 +16,7 @@ from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 )
 from openzaak.components.zaken.models.utils import BrondatumCalculator
-from openzaak.components.zaken.sync.signals import SyncError
+from openzaak.utils.signals import SyncError
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
 from rest_framework.settings import api_settings

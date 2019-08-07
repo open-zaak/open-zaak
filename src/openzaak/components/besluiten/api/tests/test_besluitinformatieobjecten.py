@@ -221,3 +221,22 @@ class BesluitInformatieObjectAPITests(MockSyncMixin, JWTAuthMixin, APITestCase):
         # Relation is gone, besluit still exists.
         self.assertFalse(BesluitInformatieObject.objects.exists())
         self.assertTrue(Besluit.objects.exists())
+
+    def test_opvragen_informatieobjecten_besluit(self):
+        besluit1, besluit2 = BesluitFactory.create_batch(2)
+
+        besluit1_uri = reverse(besluit1)
+        besluit2_uri = reverse(besluit2)
+
+        BesluitInformatieObjectFactory.create_batch(3, besluit=besluit1)
+        BesluitInformatieObjectFactory.create_batch(2, besluit=besluit2)
+
+        bio_list_url = reverse('besluitinformatieobject-list', kwargs={'version': '1'})
+
+        url1 = f'{bio_list_url}?besluit={besluit1_uri}'
+        response1 = self.client.get(url1)
+        self.assertEqual(len(response1.data), 3)
+
+        url2 = f'{bio_list_url}?besluit={besluit2_uri}'
+        response2 = self.client.get(url2)
+        self.assertEqual(len(response2.data), 2)

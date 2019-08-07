@@ -41,3 +41,5 @@ class BesluitPaginationTestCase(MockSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response_data['count'], 2)
         self.assertIsNone(response_data['previous'])
         self.assertIsNone(response_data['next'])
+
+

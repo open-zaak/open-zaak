@@ -7,7 +7,7 @@ from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )
 from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.besluiten.sync.signals import SyncError
+from openzaak.utils.signals import SyncError
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator

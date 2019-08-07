@@ -2,19 +2,18 @@ from datetime import date
 from unittest.mock import patch
 
 from django.test import override_settings
-
 from freezegun import freeze_time
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse, get_validation_errors
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.besluiten.api.tests.mixins import MockSyncMixin
 from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.besluiten.models.tests.factories import (
-    BesluitFactory, BesluitInformatieObjectFactory
-)
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
-from zds_client.tests.mocks import mock_client
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 
 ZAAK = 'https://zrc.com/zaken/1234'
 ZAAKTYPE = 'https://ztc.com/zaaktypen/1234'
@@ -54,16 +53,18 @@ class BesluitCreateTests(MockSyncMixin, TypeCheckMixin, JWTAuthMixin, APITestCas
 
     heeft_alle_autorisaties = True
 
+    def setUp(self):
+        super().setUp()
+        self.besluit_list_url = get_operation_url('besluit_create')
+
     @freeze_time('2018-09-06T12:08+0200')
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_us162_voeg_besluit_toe_aan_zaak(self, *mocks):
+    def test_create_fk_remote(self, *mocks):
         with self.subTest(part='besluit_create'):
-            url = get_operation_url('besluit_create')
-
             # see https://github.com/VNG-Realisatie/gemma-zaken/issues/162#issuecomment-416598476
             with mock_client(RESPONSES):
-                response = self.client.post(url, {
+                response = self.client.post(self.besluit_list_url, {
                     'verantwoordelijke_organisatie': '517439943',  # RSIN
                     'besluittype': BESLUITTYPE,
                     'zaak': ZAAK,
@@ -130,21 +131,88 @@ class BesluitCreateTests(MockSyncMixin, TypeCheckMixin, JWTAuthMixin, APITestCas
                 'https://drc.com/api/v1/enkelvoudigeinformatieobjecten/1234'
             )
 
-    def test_opvragen_informatieobjecten_besluit(self):
-        besluit1, besluit2 = BesluitFactory.create_batch(2, besluittype=BESLUITTYPE)
+    def test_create_fk_remote_invalid_resource(self):
+        response = self.client.post(self.besluit_list_url, {
+            'verantwoordelijke_organisatie': '517439943',
+            'besluittype': BESLUITTYPE,
+            'zaak': ZAAK,
+            'datum': '2018-09-06',
+            'toelichting': "Vergunning verleend.",
+            'ingangsdatum': '2018-10-01',
+            'vervaldatum': '2018-11-01',
+            'vervalreden': VervalRedenen.tijdelijk,
+        })
 
-        besluit1_uri = reverse(besluit1)
-        besluit2_uri = reverse(besluit2)
+        print('response=', response.json())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
-        BesluitInformatieObjectFactory.create_batch(3, besluit=besluit1)
-        BesluitInformatieObjectFactory.create_batch(2, besluit=besluit2)
+        validation_error = get_validation_errors(response, 'nonFieldErrors')
 
-        base_uri = get_operation_url('besluitinformatieobject_list')
+        self.assertEqual(validation_error['code'], 'invalid-betrokkene')
 
-        url1 = f'{base_uri}?besluit={besluit1_uri}'
-        response1 = self.client.get(url1)
-        self.assertEqual(len(response1.data), 3)
+    def test_create_fk_local(self):
+        zaak = ZaakFactory.create()
+        besluittype = BesluitTypeFactory.create()
+        zaak_url = reverse(zaak)
+        besluittype_url = reverse(besluittype)
 
-        url2 = f'{base_uri}?besluit={besluit2_uri}'
-        response2 = self.client.get(url2)
-        self.assertEqual(len(response2.data), 2)
+        data = {
+            'verantwoordelijke_organisatie': '517439943',  # RSIN
+            'besluittype': besluittype_url,
+            'zaak': zaak_url,
+            'datum': '2018-09-06',
+            'toelichting': "Vergunning verleend.",
+            'ingangsdatum': '2018-10-01',
+            'vervaldatum': '2018-11-01',
+            'vervalreden': VervalRedenen.tijdelijk,
+        }
+
+        response = self.client.post(self.besluit_list_url, data)
+
+        print('response=', response.json())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        besluit = Besluit.objects.get()
+
+        self.assertEqual(besluit.verantwoordelijke_organisatie, '517439943')
+        self.assertEqual(besluit.vervalreden, VervalRedenen.tijdelijk)
+        self.assertEqual(besluit.besluittype, besluittype)
+        self.assertEqual(besluit.zaak, zaak)
+
+    def test_create_fk_local_invalid_resource(self):
+        zaak = ZaakFactory.create()
+        besluittype = BesluitTypeFactory.create()
+        zaak_url = reverse(zaak)[:-1]
+        besluittype_url = reverse(besluittype)[:-1]
+
+        data = {
+            'verantwoordelijke_organisatie': '517439943',  # RSIN
+            'besluittype': besluittype_url,
+            'zaak': zaak_url,
+            'datum': '2018-09-06',
+            'toelichting': "Vergunning verleend.",
+            'ingangsdatum': '2018-10-01',
+            'vervaldatum': '2018-11-01',
+            'vervalreden': VervalRedenen.tijdelijk,
+        }
+
+        response = self.client.post(self.besluit_list_url, data)
+
+        print('data=', response.json())
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        validation_error = get_validation_errors(response, 'nonFieldErrors')
+        self.assertEqual(validation_error['code'], 'invalid-betrokkene')
+
+    def test_create_not_unique(self):
+        pass
+
+    def test_create_local_zaken_mismatch(self):
+        pass
+
+    def test_create_local_catalogi_mismatch(self):
+        pass
+
+    def test_create_local_zaken_catalogi_mismatch(self):
+        pass
