@@ -10,7 +10,7 @@ from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory, ZaakInformatieObjectFactory
 )
-from openzaak.components.zaken.sync.signals import SyncError
+from openzaak.utils.signals import SyncError
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
