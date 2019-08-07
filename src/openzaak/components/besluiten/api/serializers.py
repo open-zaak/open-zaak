@@ -55,25 +55,25 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             'verantwoordelijke_organisatie': {
                 'validators': [IsImmutableValidator(), validate_rsin],
             },
-            'zaak': {
-                'validators': [
-                    ResourceValidator(
-                        'Zaak',
-                        settings.ZRC_API_SPEC,
-                        get_auth=get_auth,
-                        headers={'Accept-Crs': 'EPSG:4326'}
-                    )
-                ]
-            },
-            'besluittype': {
-                'validators': [
-                    ResourceValidator(
-                        'BesluitType',
-                        settings.ZTC_API_SPEC,
-                        get_auth=get_auth
-                    )
-                ],
-            },
+            # 'zaak': {
+            #     'validators': [
+            #         ResourceValidator(
+            #             'Zaak',
+            #             settings.ZRC_API_SPEC,
+            #             get_auth=get_auth,
+            #             headers={'Accept-Crs': 'EPSG:4326'}
+            #         )
+            #     ]
+            # },
+            # 'besluittype': {
+            #     'validators': [
+            #         ResourceValidator(
+            #             'BesluitType',
+            #             settings.ZTC_API_SPEC,
+            #             get_auth=get_auth
+            #         )
+            #     ],
+            # },
         }
         validators = [
             # UniekeIdentificatieValidator(), # this checi is on DB level

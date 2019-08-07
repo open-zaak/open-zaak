@@ -40,14 +40,19 @@ class Besluit(APIMixin, models.Model):
         help_text="Het RSIN van de niet-natuurlijk persoon zijnde de "
                   "organisatie die het besluit heeft vastgesteld."
     )
-
-    besluittype = models.URLField(
-        'besluittype',
+    besluittype_local = models.ForeignKey('catalogi.BesluitType', on_delete=models.CASCADE, null=True, blank=True)
+    besluittype_remote = models.URLField(blank=True)
+    besluittype = FkOrURLField(
+        fk_field='besluittype_local', url_field='besluittype_remote',
+        verbose_name='besluittype', db_column='besluittype',
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API)."
     )
-    zaak = models.URLField(
-        'zaak', blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is."
+    zaak_local = models.ForeignKey('zaken.Zaak', on_delete=models.CASCADE, null=True, blank=True)
+    zaak_remote = models.URLField(blank=True)
+    zaak = FkOrURLField(
+        verbose_name='zaak', # blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
+        fk_field='zaak_local', url_field='zaak_remote', db_column='zaak',
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 
     datum = models.DateField(
@@ -153,11 +158,17 @@ class BesluitInformatieObject(models.Model):
         Besluit, on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUIT."
     )
-    informatieobject = models.URLField(
-        'informatieobject',
+
+    informatieobject_local = models.ForeignKey(
+        'documenten.EnkelvoudigInformatieObjectCanonical', on_delete=models.CASCADE, blank=True, null=True
+    )
+    informatieobject_remote = models.URLField(blank=True, max_length=1000)
+    informatieobject = FkOrURLField(
+        verbose_name='informatieobject', fk_field='informatieobject_local', url_field='informatieobject_remote',
+        db_column='informatieobject',
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
                   "API) waarin (een deel van) het besluit beschreven is.",
-        max_length=1000
+
     )
     aard_relatie = models.CharField(
         "aard relatie", max_length=20,
@@ -187,6 +198,8 @@ class BesluitInformatieObject(models.Model):
 
     def unique_representation(self):
         if not hasattr(self, '_unique_representation'):
-            io_id = request_object_attribute(self.informatieobject, 'identificatie', 'enkelvoudiginformatieobject')
+            # TODO add auth
+            # io_id = request_object_attribute(self.informatieobject, 'identificatie', 'enkelvoudiginformatieobject')
+            io_id = self.informatieobject.identificatie
             self._unique_representation = f"({self.besluit.unique_representation()}) - {io_id}"
         return self._unique_representation

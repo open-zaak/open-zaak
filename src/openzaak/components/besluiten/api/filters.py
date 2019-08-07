@@ -10,8 +10,8 @@ class BesluitFilter(FilterSet):
         fields = (
             'identificatie',
             'verantwoordelijke_organisatie',
-            'besluittype',
-            'zaak',
+            # 'besluittype',
+            # 'zaak',
         )
 
 
@@ -20,5 +20,5 @@ class BesluitInformatieObjectFilter(FilterSet):
         model = BesluitInformatieObject
         fields = (
             'besluit',
-            'informatieobject',
+            # 'informatieobject',
         )
