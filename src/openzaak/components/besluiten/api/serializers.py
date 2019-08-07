@@ -87,19 +87,19 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
         self.fields['vervalreden'].help_text += f"\n\n{value_display_mapping}"
 
     def create(self, validated_data):
-        zaak = validated_data.pop('zaak', '')
+        # zaak = validated_data.pop('zaak', '')
         besluit = super().create(validated_data)
-        try:
-            besluit.zaak = zaak
-            besluit.save()
-        except SyncError as sync_error:
-            besluit.delete()
-            raise serializers.ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]},
-                code='sync-with-zrc'
-            ) from sync_error
-        else:
-            return besluit
+        # try:
+        #     besluit.zaak = zaak
+        #     besluit.save()
+        # except SyncError as sync_error:
+        #     besluit.delete()
+        #     raise serializers.ValidationError(
+        #         {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]},
+        #         code='sync-with-zrc'
+        #     ) from sync_error
+        # else:
+        return besluit
 
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
