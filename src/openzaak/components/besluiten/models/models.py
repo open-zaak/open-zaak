@@ -50,7 +50,7 @@ class Besluit(APIMixin, models.Model):
     zaak_local = models.ForeignKey('zaken.Zaak', on_delete=models.CASCADE, null=True, blank=True)
     zaak_remote = models.URLField(blank=True)
     zaak = FkOrURLField(
-        verbose_name='zaak',  # blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
+        verbose_name='zaak', blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
         fk_field='zaak_local', url_field='zaak_remote',
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
