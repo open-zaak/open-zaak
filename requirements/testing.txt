@@ -1,0 +1,9 @@
+# Shared between dev and jenkins requirements to run our tests
+coverage
+django-webtest
+factory_boy
+freezegun
+isort
+pyquery
+tblib
+webtest

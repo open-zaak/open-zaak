@@ -1,0 +1,58 @@
+{% extends "vng_api_common/master.html" %}
+{% load markup_tags %}
+
+{% block content %}
+
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{{ settings.PROJECT_NAME }} importeren</h1>
+    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  </div>
+
+  <div class="container">
+
+{% filter apply_markup:"markdown" %}
+# Catalogus data downloaden en importeren
+
+Indien je zelf deze referentiecomponent host, dan begin je met een lege
+catalogus. Je kan de gegevens van de gehoste referentieimplementatie echter
+importeren in je eigen versie, wat hier beschreven wordt.
+
+## Toegang krijgen tot de container
+
+### In een Kubernetes omgeving
+
+In een Kubernetes omgeving moet je op zoek gaan naar de Pod die het ZTC runt.
+Vervolgens klik je rechtsboven in de interface op `EXEC` om een interactieve
+console in de container te krijgen.
+
+### Zonder Kubernetes
+
+Zoek via `docker ps` het container ID van de ZTC container.
+
+Open een interactieve console:
+
+```
+docker exec -it <container_id> sh
+```
+
+Waarbij je `<container_id>` vervangt door het container ID wat je eerder vond.
+
+## Downloaden data
+
+Je kan nu in de container de _fixture_ met de gegevens downloaden via:
+
+```
+wget {{ fixture_url }} -O /tmp/fixture.json
+```
+
+## Inladen data
+
+Vervolgens kan je deze gevens inladen met:
+
+```
+python /app/src/manage.py loaddata /tmp/fixture.json
+```
+
+{% endfilter %}
+</div>
+{% endblock content %}

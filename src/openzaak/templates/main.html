@@ -1,0 +1,80 @@
+{% extends "vng_api_common/master.html" %}
+
+{% block content %}
+
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{{ settings.PROJECT_NAME }} startpunt</h1>
+    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  </div>
+
+  <div class="container text-center">
+
+    {% block components %}
+
+      <h2>Components</h2>
+
+      <div class="row justify-content-md-center">
+
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> ZAKEN</h5>
+                <p class="card-text">Zaak Registratie Component (ZRC)</p>
+                <a href="{% url 'main' component='zaken'%}" class="btn btn-primary">ZAKEN</a>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> BESLUITEN</h5>
+                <p class="card-text">Besluit Registratie Component (BRC)</p>
+                <a href="{% url 'main' component='besluiten'%}" class="btn btn-primary">BESLUITEN</a>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> DOCUMENTEN</h5>
+                <p class="card-text">Documenten Registratie Component (BRC)</p>
+                <a href="{% url 'main' component='documenten'%}" class="btn btn-primary">DOCUMENTEN</a>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> CATALOGI</h5>
+                <p class="card-text">Zaaktype Catalogus (ZTC)</p>
+                <a href="{% url 'main-catalogi'%}" class="btn btn-primary">CATALOGI</a>
+              </div>
+            </div>
+
+          </div>
+
+     </div>
+     <p></p>
+
+    {% endblock %}
+
+    {% block admin_link %}
+      <p></p>
+      <p>
+        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-danger"><i class="fas fa-lock"></i> Beheer</a>
+      </p>
+    {% endblock %}
+
+  </div>
+
+{% endblock %}

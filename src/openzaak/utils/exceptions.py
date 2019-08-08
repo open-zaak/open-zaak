@@ -1,0 +1,2 @@
+class DetermineProcessEndDateException(Exception):
+    pass

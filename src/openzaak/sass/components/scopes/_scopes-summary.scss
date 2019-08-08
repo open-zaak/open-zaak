@@ -1,0 +1,13 @@
+@import '../../lib/responsive';
+
+$error-detail-max-width: $breakpoint-laptop-l;
+
+.scopes-summary {
+  max-width: $error-detail-max-width;
+  margin: 0 auto;
+
+  &__title {
+    color: $color-black;
+    border-bottom: solid 2px $color-vng-blue;
+  }
+}

@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  tests:
+    build:
+      context: ./
+      target: jenkins
+    volumes:
+      - ${WORKSPACE}/reports:/app/reports
+    environment:
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.jenkins
+      - SECRET_KEY=jenkins
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=
+      - DB_HOST=db
+      - WORKSPACE=${WORKSPACE}
+      - ZTC_JWT_SECRET=dummy
+    depends_on:
+      - db
