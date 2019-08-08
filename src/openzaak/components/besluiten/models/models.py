@@ -3,8 +3,8 @@ import uuid as _uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_loose_fk.fields import FkOrURLField
 
+from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import (
@@ -44,14 +44,14 @@ class Besluit(APIMixin, models.Model):
     besluittype_remote = models.URLField(blank=True)
     besluittype = FkOrURLField(
         fk_field='besluittype_local', url_field='besluittype_remote',
-        verbose_name='besluittype', db_column='besluittype',
+        verbose_name='besluittype',
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API)."
     )
     zaak_local = models.ForeignKey('zaken.Zaak', on_delete=models.CASCADE, null=True, blank=True)
     zaak_remote = models.URLField(blank=True)
     zaak = FkOrURLField(
-        verbose_name='zaak', # blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
-        fk_field='zaak_local', url_field='zaak_remote', db_column='zaak',
+        verbose_name='zaak',  # blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
+        fk_field='zaak_local', url_field='zaak_remote',
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 
@@ -162,10 +162,9 @@ class BesluitInformatieObject(models.Model):
     informatieobject_local = models.ForeignKey(
         'documenten.EnkelvoudigInformatieObjectCanonical', on_delete=models.CASCADE, blank=True, null=True
     )
-    informatieobject_remote = models.URLField(blank=True, max_length=1000)
+    informatieobject_remote = models.URLField(blank=True, max_length=1000, default=None)
     informatieobject = FkOrURLField(
         verbose_name='informatieobject', fk_field='informatieobject_local', url_field='informatieobject_remote',
-        db_column='informatieobject',
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
                   "API) waarin (een deel van) het besluit beschreven is.",
 
@@ -184,9 +183,17 @@ class BesluitInformatieObject(models.Model):
     class Meta:
         verbose_name = 'besluitinformatieobject'
         verbose_name_plural = 'besluitinformatieobjecten'
-        unique_together = (
-            ('besluit', 'informatieobject'),
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['besluit', 'informatieobject_remote'],
+                condition=~models.Q(informatieobject_remote=""),
+                name="unique_informatieobject_remote"
+            ),
+            models.UniqueConstraint(
+                fields=["besluit", "informatieobject_local"],
+                name="unique_informatieobject_local"
+            )
+        ]
 
     def __str__(self):
         return str(self.uuid)
