@@ -27,18 +27,18 @@ class BesluittypeZaaktypeValidator:
         self.resource = resource or url_field
 
     def __call__(self, attrs):
-        url = attrs.get(self.url_field)
-        zaak_url = attrs.get(self.zaak_field)
-        if not url or not zaak_url:
+        besluittype = attrs.get(self.url_field)
+        zaak = attrs.get(self.zaak_field)
+        if not besluittype or not zaak:
             return
 
         # besluittype = fetch_object(self.resource, url)
-        # zaak = fetch_object(self.zaak_field, zaak_url)
+        # zaak = fetch_object(self.zaak_field, zaak)
         # if zaak['zaaktype'] not in besluittype['zaaktypes']:
         #     raise serializers.ValidationError(self.message, code=self.code)
 
         # loose-fk keys
-        if zaak_url.zaaktype not in url.zaaktypes:
+        if zaak.zaaktype not in besluittype.zaaktypes:
             raise serializers.ValidationError(self.message, code=self.code)
 
 

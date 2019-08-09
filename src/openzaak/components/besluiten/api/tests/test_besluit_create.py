@@ -2,6 +2,7 @@ from datetime import date
 from unittest.mock import patch
 from unittest import skip
 
+import requests_mock
 from django.test import override_settings
 from freezegun import freeze_time
 from rest_framework import status
@@ -31,7 +32,7 @@ RESPONSES = {
     },
     ZAAK: {
         'url': ZAAK,
-        'zaaktype': ZAAKTYPE
+        'zaaktype': ZAAKTYPE,
     },
     ZAAKTYPE: {
         'url': ZAAKTYPE,
@@ -58,10 +59,15 @@ class BesluitCreateTests(MockSyncMixin, TypeCheckMixin, JWTAuthMixin, APITestCas
         super().setUp()
         self.besluit_list_url = get_operation_url('besluit_create')
 
+    @requests_mock.Mocker()
     @freeze_time('2018-09-06T12:08+0200')
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_fk_remote(self, *mocks):
+    def test_create_fk_remote(self, m, *mocks):
+        m.get(ZAAK, json=RESPONSES[ZAAK])
+        m.get(BESLUITTYPE, json=RESPONSES[BESLUITTYPE])
+        m.get(ZAAKTYPE, json=RESPONSES[ZAAKTYPE])
+
         with self.subTest(part='besluit_create'):
             # see https://github.com/VNG-Realisatie/gemma-zaken/issues/162#issuecomment-416598476
             with mock_client(RESPONSES):

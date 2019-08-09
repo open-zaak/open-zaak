@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     # External applications.
     'axes',
     'django_filters',
+    'django_loose_fk',
     'corsheaders',
     'vng_api_common',  # before drf_yasg to override the management command
     'vng_api_common.authorizations',
