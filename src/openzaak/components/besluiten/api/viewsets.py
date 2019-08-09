@@ -12,7 +12,7 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from .audits import AUDIT_BRC
-from .data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
 from .permissions import (
@@ -176,15 +176,6 @@ class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
     notifications_kanaal = KANAAL_BESLUITEN
     notifications_main_resource_key = 'besluit'
     audit = AUDIT_BRC
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # Do not display BesluitInformatieObjecten that are marked to be deleted
-        marked_bios = cache.get('bios_marked_for_delete')
-        if marked_bios:
-            return qs.exclude(uuid__in=marked_bios)
-        return qs
 
 
 class BesluitAuditTrailViewSet(AuditTrailViewSet):

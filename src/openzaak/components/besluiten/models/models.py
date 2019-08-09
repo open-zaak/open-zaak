@@ -6,9 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
-from vng_api_common.utils import (
-    generate_unique_identification, request_object_attribute
-)
+from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import (
     UntilTodayValidator, alphanumeric_excluding_diacritic
 )
@@ -40,13 +38,13 @@ class Besluit(APIMixin, models.Model):
                   "organisatie die het besluit heeft vastgesteld."
     )
 
-    besluittype = models.URLField(
-        'besluittype',
-        help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API)."
+    besluittype = models.ForeignKey(
+        'catalogi.BesluitType', on_delete=models.CASCADE,
+        help_text="Referentie naar het BESLUITTYPE (in de Catalogi API)."
     )
-    zaak = models.URLField(
-        'zaak', blank=True,  # een besluit kan niet bij een zaak horen (zoals raadsbesluit)
-        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is."
+    zaak = models.ForeignKey(
+        'zaken.Zaak', on_delete=models.PROTECT, null=True, blank=True,  # een besluit kan niet bij een zaak horen
+        help_text="Referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is."
     )
 
     datum = models.DateField(
@@ -106,10 +104,6 @@ class Besluit(APIMixin, models.Model):
         'uiterlijke reactiedatum', null=True, blank=True,
         help_text="De datum tot wanneer verweer tegen het besluit mogelijk is."
     )
-    _zaakbesluit = models.URLField(
-        'zaakbesluit', blank=True,
-        help_text="Link to the related object in the ZRC API"
-    )
 
     objects = BesluitQuerySet.as_manager()
 
@@ -149,14 +143,13 @@ class BesluitInformatieObject(models.Model):
         help_text="Unieke resource identifier (UUID4)")
 
     besluit = models.ForeignKey(
-        'besluit', on_delete=models.CASCADE,
+        Besluit, on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUIT."
     )
-    informatieobject = models.URLField(
-        'informatieobject',
+    informatieobject = models.ForeignKey(
+        'documenten.EnkelvoudigInformatieObjectCanonical', on_delete=models.CASCADE,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
                   "API) waarin (een deel van) het besluit beschreven is.",
-        max_length=1000
     )
     aard_relatie = models.CharField(
         "aard relatie", max_length=20,
@@ -182,6 +175,6 @@ class BesluitInformatieObject(models.Model):
 
     def unique_representation(self):
         if not hasattr(self, '_unique_representation'):
-            io_id = request_object_attribute(self.informatieobject, 'identificatie', 'enkelvoudiginformatieobject')
+            io_id = self.informatieobject.latest_version.identificatie
             self._unique_representation = f"({self.besluit.unique_representation()}) - {io_id}"
         return self._unique_representation
