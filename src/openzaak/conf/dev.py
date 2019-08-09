@@ -2,6 +2,8 @@ import os
 import sys
 import warnings
 
+os.environ.setdefault('DEBUG', 'yes')
+
 os.environ.setdefault('SECRET_KEY', '8u9chcd4g1%i5z)u@s6#c#0u%s_gggx*915w(yzrf#awezmu^i')
 os.environ.setdefault('DB_NAME', 'openzaak')
 os.environ.setdefault('DB_USER', 'openzaak')
