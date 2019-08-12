@@ -1,6 +1,5 @@
 import logging
 
-from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
 from openzaak.components.zaken.models import (
@@ -28,7 +27,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from .audits import AUDIT_ZRC
-from .data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .filters import (
     ResultaatFilter, RolFilter, StatusFilter, ZaakFilter,
     ZaakInformatieObjectFilter, ZaakObjectFilter
@@ -435,15 +434,6 @@ class ZaakInformatieObjectViewSet(NotificationCreateMixin,
         'destroy': SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # Do not display ZaakInformatieObjecten that are marked to be deleted
-        marked_zios = cache.get('zios_marked_for_delete')
-        if marked_zios:
-            return qs.exclude(uuid__in=marked_zios)
-        return qs
 
 
 class ZaakEigenschapViewSet(NotificationCreateMixin,

@@ -174,7 +174,4 @@ class BesluitInformatieObject(models.Model):
         super().save(*args, **kwargs)
 
     def unique_representation(self):
-        if not hasattr(self, '_unique_representation'):
-            io_id = self.informatieobject.latest_version.identificatie
-            self._unique_representation = f"({self.besluit.unique_representation()}) - {io_id}"
-        return self._unique_representation
+        return f"({self.besluit.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"

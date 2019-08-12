@@ -1,15 +1,12 @@
 from datetime import date, datetime
 from typing import Union
 
-from django.conf import settings
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 import isodate
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
-from vng_api_common.models import APICredential
 
 from ..models import Zaak
 
@@ -24,13 +21,13 @@ class BrondatumCalculator:
         if self.zaak.archiefactiedatum:
             return
 
-        resultaat = self._get_resultaat()
-        resultaattype = self._get_resultaattype(resultaat.resultaattype)
-        archiefactietermijn = resultaattype['archiefactietermijn']
+        resultaattype = self.zaak.resultaat.resultaattype
+
+        archiefactietermijn = resultaattype.archiefactietermijn
         if not archiefactietermijn:
             return
 
-        brondatum_archiefprocedure = resultaattype['brondatumArchiefprocedure']
+        brondatum_archiefprocedure = resultaattype.brondatum_archiefprocedure
         afleidingswijze = brondatum_archiefprocedure['afleidingswijze']
         datum_kenmerk = brondatum_archiefprocedure['datumkenmerk']
         objecttype = brondatum_archiefprocedure['objecttype']
@@ -47,27 +44,8 @@ class BrondatumCalculator:
         return brondatum + isodate.parse_duration(archiefactietermijn)
 
     def get_archiefnominatie(self) -> str:
-        resultaat = self._get_resultaat()
-        resultaattype = self._get_resultaattype(resultaat.resultaattype)
-        return resultaattype['archiefnominatie']
-
-    def _get_resultaattype(self, resultaattype_url: str):
-        if not hasattr(self, '_resultaattype'):
-            self._resultaattype = None
-            if resultaattype_url:
-                Client = import_string(settings.ZDS_CLIENT_CLASS)
-                client = Client.from_url(resultaattype_url)
-                client.auth = APICredential.get_auth(
-                    resultaattype_url,
-                    scopes=['zds.scopes.zaaktypes.lezen']
-                )
-                self._resultaattype = client.retrieve('resultaattype', url=resultaattype_url)
-        return self._resultaattype
-
-    def _get_resultaat(self):
-        if not hasattr(self, '_resultaat'):
-            self._resultaat = self.zaak.resultaat
-        return self._resultaat
+        resultaattype = self.zaak.resultaat.resultaattype
+        return resultaattype.archiefnominatie
 
 
 def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
@@ -162,21 +140,16 @@ def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
         raise NotImplementedError
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit:
-        zaakbesluiten = zaak.zaakbesluit_set.all()
+        zaakbesluiten = zaak.besluit_set.all()
         if not zaakbesluiten.exists():
             # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
             raise DetermineProcessEndDateException(
                 _('Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.')
             )
 
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(zaakbesluiten.first().besluit)
-        client.auth = APICredential.get_auth(zaakbesluiten.first().besluit)
-
         max_ingangsdatum = None
-        for zaakbesluit in zaakbesluiten:
-            related_besluit = client.retrieve('besluit', url=zaakbesluit.besluit)
-            ingangsdatum = datetime.strptime(related_besluit['ingangsdatum'], '%Y-%m-%d')
+        for besluit in zaakbesluiten:
+            ingangsdatum = datetime.strptime(besluit.ingangsdatum, '%Y-%m-%d')
             if not max_ingangsdatum or ingangsdatum > max_ingangsdatum:
                 max_ingangsdatum = ingangsdatum
         return max_ingangsdatum
