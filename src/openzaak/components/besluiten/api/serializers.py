@@ -59,9 +59,10 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
                 'lookup_field': 'uuid',
             }
         }
-        # validators = [
+        validators = [
+            UniekeIdentificatieValidator(),
             # BesluittypeZaaktypeValidator()
-        # ]
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )

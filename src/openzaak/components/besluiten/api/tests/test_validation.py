@@ -55,8 +55,8 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         })
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(error['code'], 'unique')
+        error = get_validation_errors(response, 'identificatie')
+        self.assertEqual(error['code'], 'identificatie-niet-uniek')
 
     def test_change_immutable_fields(self):
         besluit = BesluitFactory.create(identificatie='123456')
