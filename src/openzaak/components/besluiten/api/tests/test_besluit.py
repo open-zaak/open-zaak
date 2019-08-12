@@ -4,12 +4,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin
 
-from .mixins import MockSyncMixin
 
-BESLUITTYPE = 'https://ztc.com/besluittype/abcd'
-
-
-class BesluitPaginationTestCase(MockSyncMixin, JWTAuthMixin, APITestCase):
+class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 

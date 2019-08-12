@@ -1,16 +1,10 @@
-from django.test import override_settings
-
-from openzaak.components.besluiten.api.tests.mixins import MockSyncMixin
 from rest_framework.test import APITestCase
-from zds_client.tests.mocks import mock_client
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 
 
-@override_settings(
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
-class UniqueRepresentationTestCase(MockSyncMixin, APITestCase):
+class UniqueRepresentationTestCase(APITestCase):
 
     def test_besluit(self):
         besluit = BesluitFactory(
@@ -23,19 +17,13 @@ class UniqueRepresentationTestCase(MockSyncMixin, APITestCase):
         )
 
     def test_besluitinformatieobject(self):
+        io = EnkelvoudigInformatieObjectFactory.create(identificatie='12345')
         bio = BesluitInformatieObjectFactory(
-            besluit__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04'
+            besluit__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04',
+            informatieobject=io.canonical
         )
-        responses = {
-            bio.informatieobject: {
-                'url': bio.informatieobject,
-                'identificatie': "12345",
-            }
-        }
-        with mock_client(responses):
-            unique_representation = bio.unique_representation()
 
         self.assertEqual(
-            unique_representation,
+            bio.unique_representation(),
             '(5d940d52-ff5e-4b18-a769-977af9130c04) - 12345'
         )

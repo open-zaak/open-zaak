@@ -5,7 +5,10 @@ from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )
 from openzaak.components.besluiten.models.constants import VervalRedenen
+from openzaak.components.documenten.api.serializers import EnkelvoudigInformatieObjectHyperlinkedRelatedField
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from rest_framework import serializers
+from vng_api_common.utils import get_help_text
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import (
     IsImmutableValidator, validate_rsin
@@ -49,6 +52,12 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             'verantwoordelijke_organisatie': {
                 'validators': [IsImmutableValidator(), validate_rsin],
             },
+            'besluittype': {
+                'lookup_field': 'uuid',
+            },
+            'zaak': {
+                'lookup_field': 'uuid',
+            }
         }
         # validators = [
             # BesluittypeZaaktypeValidator()
@@ -62,6 +71,14 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
+        view_name='enkelvoudiginformatieobject-detail',
+        lookup_field='uuid',
+        queryset=EnkelvoudigInformatieObject.objects,
+        help_text=get_help_text('documenten.Gebruiksrechten', 'informatieobject'),
+        validators=[IsImmutableValidator()]
+    )
+
     class Meta:
         model = BesluitInformatieObject
         fields = (
@@ -76,9 +93,6 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'url': {
                 'lookup_field': 'uuid'
-            },
-            'informatieobject': {
-                'validators': [IsImmutableValidator()]
             },
             'besluit': {
                 'lookup_field': 'uuid',

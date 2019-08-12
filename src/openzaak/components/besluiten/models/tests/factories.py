@@ -1,13 +1,15 @@
 from datetime import timedelta
 
 from django.utils import timezone
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 import factory
 
 
 class BesluitFactory(factory.django.DjangoModelFactory):
     verantwoordelijke_organisatie = factory.Faker('ssn', locale='nl_NL')
-    besluittype = factory.Faker('url')
+    besluittype = factory.SubFactory(BesluitTypeFactory)
     datum = factory.Faker('date_this_decade')
 
     class Meta:
@@ -26,7 +28,7 @@ class BesluitFactory(factory.django.DjangoModelFactory):
 
 class BesluitInformatieObjectFactory(factory.django.DjangoModelFactory):
     besluit = factory.SubFactory(BesluitFactory)
-    informatieobject = factory.Faker('url')
+    informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 
     class Meta:
         model = 'besluiten.BesluitInformatieObject'

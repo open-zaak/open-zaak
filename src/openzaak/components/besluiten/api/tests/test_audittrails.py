@@ -1,70 +1,35 @@
 from copy import deepcopy
-from unittest.mock import patch
-
-from django.test import override_settings
 
 from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import JWTAuthMixin, reverse
 from vng_api_common.utils import get_uuid_from_path
-from zds_client.tests.mocks import mock_client
-
-from .mixins import MockSyncMixin
-
-# ZTC
-ZTC_ROOT = 'https://example.com/ztc/api/v1'
-DRC_ROOT = 'https://example.com/drc/api/v1'
-CATALOGUS = f'{ZTC_ROOT}/catalogus/878a3318-5950-4642-8715-189745f91b04'
-INFORMATIE_OBJECT = f'{DRC_ROOT}/enkelvoudiginformatieobjecten/1234'
-
-ZAAK = 'https://zrc.com/zaken/1234'
-ZAAKTYPE = f'{ZTC_ROOT}/zaaktypen/1234'
-BESLUITTYPE = f'{ZTC_ROOT}/besluittypen/1234'
 
 
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
-class AuditTrailTests(MockSyncMixin, JWTAuthMixin, APITestCase):
+class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    responses = {
-        BESLUITTYPE: {
-            'url': BESLUITTYPE,
-            'zaaktypes': [
-                ZAAKTYPE
-            ],
-            'productenOfDiensten': [
-                'https://example.com/product/123',
-                'https://example.com/dienst/123',
-            ]
-        },
-        ZAAK: {
-            'url': ZAAK,
-            'zaaktype': ZAAKTYPE
-        }
-    }
-
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def _create_besluit(self, *mocks, **HEADERS):
+    def _create_besluit(self, **HEADERS):
         url = reverse(Besluit)
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(besluittype)
 
         besluit_data = {
             'verantwoordelijkeOrganisatie': '000000000',
-            'besluittype': BESLUITTYPE,
+            'besluittype': f'http://testserver{besluittype_url}',
             'datum': '2019-04-25',
             'ingangsdatum': '2019-04-26',
-            'vervaldatum': '2019-04-28'
+            'vervaldatum': '2019-04-28',
+            'identificatie': '123123'
         }
-        with mock_client(self.responses):
-            response = self.client.post(url, besluit_data, **HEADERS)
+        response = self.client.post(url, besluit_data, **HEADERS)
 
         return response.data
 
@@ -83,18 +48,15 @@ class AuditTrailTests(MockSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(besluit_create_audittrail.oud, None)
         self.assertEqual(besluit_create_audittrail.nieuw, besluit_response)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_update_besluit_audittrails(self, *mocks):
+    def test_update_besluit_audittrails(self):
         besluit_data = self._create_besluit()
 
         modified_data = deepcopy(besluit_data)
         url = modified_data.pop('url')
         modified_data['toelichting'] = 'aangepast'
 
-        with mock_client(self.responses):
-            response = self.client.put(url, modified_data)
-            besluit_response = response.data
+        response = self.client.put(url, modified_data)
+        besluit_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response['url'])
         self.assertEqual(audittrails.count(), 2)
@@ -111,11 +73,10 @@ class AuditTrailTests(MockSyncMixin, JWTAuthMixin, APITestCase):
     def test_partial_update_besluit_audittrails(self):
         besluit_data = self._create_besluit()
 
-        with mock_client(self.responses):
-            response = self.client.patch(besluit_data['url'], {
-                'toelichting': 'aangepast'
-            })
-            besluit_response = response.data
+        response = self.client.patch(besluit_data['url'], {
+            'toelichting': 'aangepast'
+        })
+        besluit_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response['url'])
         self.assertEqual(audittrails.count(), 2)
@@ -129,16 +90,16 @@ class AuditTrailTests(MockSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(besluit_update_audittrail.oud, besluit_data)
         self.assertEqual(besluit_update_audittrail.nieuw, besluit_response)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_besluitinformatieobject_audittrail(self, *mocks):
+    def test_create_besluitinformatieobject_audittrail(self):
         besluit_data = self._create_besluit()
 
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
         url = reverse(BesluitInformatieObject)
 
         response = self.client.post(url, {
             'besluit': besluit_data['url'],
-            'informatieobject': INFORMATIE_OBJECT,
+            'informatieobject': f'http://testserver{io_url}',
         })
 
         besluitinformatieobject_response = response.data
