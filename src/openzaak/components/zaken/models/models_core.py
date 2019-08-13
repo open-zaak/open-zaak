@@ -593,10 +593,7 @@ class ZaakInformatieObject(models.Model):
         return f"{self.zaak} - {self.informatieobject}"
 
     def unique_representation(self):
-        if not hasattr(self, '_unique_representation'):
-            io_id = request_object_attribute(self.informatieobject, 'identificatie', 'enkelvoudiginformatieobject')
-            self._unique_representation = f"({self.zaak.unique_representation()}) - {io_id}"
-        return self._unique_representation
+        return f"({self.zaak.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
 
     def save(self, *args, **kwargs):
         # override to set aard_relatie

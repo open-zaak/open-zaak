@@ -1,8 +1,5 @@
-import uuid
 from datetime import datetime
-from unittest.mock import patch
 
-from django.test import override_settings
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -10,32 +7,12 @@ from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory, ZaakInformatieObjectFactory
 )
-from openzaak.components.zaken.sync.signals import SyncError
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
-from zds_client.tests.mocks import mock_client
-
-from .mixins import ZaakInformatieObjectSyncMixin
-
-ZAAKTYPE = f'http://example.com/ztc/api/v1/zaaktypen/{uuid.uuid4().hex}'
-INFORMATIEOBJECT = f'http://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}'
-INFORMATIEOBJECT_TYPE = f'http://example.com/ztc/api/v1/informatieobjecttypen/{uuid.uuid4().hex}'
-
-RESPONSES = {
-    INFORMATIEOBJECT: {
-        'url': INFORMATIEOBJECT,
-        'informatieobjecttype': INFORMATIEOBJECT_TYPE
-    },
-    ZAAKTYPE: {
-        'url': ZAAKTYPE,
-        'informatieobjecttypen': [
-            INFORMATIEOBJECT_TYPE
-        ]
-    }
-}
 
 
 def dt_to_api(dt: datetime):
@@ -45,31 +22,22 @@ def dt_to_api(dt: datetime):
     return formatted
 
 
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
-class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
+class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     list_url = reverse(ZaakInformatieObject)
-
     heeft_alle_autorisaties = True
 
     @freeze_time('2018-09-19T12:25:19+0200')
-    @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create(self, *mocks):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zaak.uuid,
-        })
+    def test_create(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
 
         titel = 'some titel'
         beschrijving = 'some beschrijving'
         content = {
-            'informatieobject': INFORMATIEOBJECT,
+            'informatieobject': f'http://testserver{io_url}',
             'zaak': f'http://testserver{zaak_url}',
             'titel': titel,
             'beschrijving': beschrijving,
@@ -77,8 +45,7 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
         }
 
         # Send to the API
-        with mock_client(RESPONSES):
-            response = self.client.post(self.list_url, content)
+        response = self.client.post(self.list_url, content)
 
         # Test response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -100,28 +67,23 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
             'registratiedatum': '2018-09-19T10:25:19Z',
             'aardRelatieWeergave': RelatieAarden.labels[RelatieAarden.hoort_bij],
         })
+
         self.assertEqual(response.json(), expected_response)
 
     @freeze_time('2018-09-20 12:00:00')
-    @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_registratiedatum_ignored(self, *mocks):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zaak.uuid,
-        })
-
+    def test_registratiedatum_ignored(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
         content = {
-            'informatieobject': INFORMATIEOBJECT,
-            'zaak': 'http://testserver' + zaak_url,
+            'informatieobject': f'http://testserver{io_url}',
+            'zaak': f'http://testserver{zaak_url}',
             'registratiedatum': '2018-09-19T12:25:20+0200',
         }
 
         # Send to the API
-        with mock_client(RESPONSES):
-            self.client.post(self.list_url, content)
+        self.client.post(self.list_url, content)
 
         oio = ZaakInformatieObject.objects.get()
 
@@ -130,30 +92,20 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
             datetime(2018, 9, 20, 12, 0, 0).replace(tzinfo=timezone.utc)
         )
 
-    @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_duplicate_object(self, *mocks):
+    def test_duplicate_object(self):
         """
         Test the (informatieobject, object) unique together validation.
         """
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=INFORMATIEOBJECT,
-            zaak__zaaktype=ZAAKTYPE,
-        )
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zio.zaak.uuid,
-        })
-
+        zio = ZaakInformatieObjectFactory.create()
+        zaak_url = reverse(zio.zaak)
+        io_url = reverse(zio.informatieobject.latest_version)
         content = {
-            'informatieobject': zio.informatieobject,
+            'informatieobject': f'http://testserver{io_url}',
             'zaak': f'http://testserver{zaak_url}',
         }
 
         # Send to the API
-        with mock_client(RESPONSES):
-            response = self.client.post(self.list_url, content)
+        response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         error = get_validation_errors(response, 'nonFieldErrors')
@@ -161,29 +113,20 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
 
     @freeze_time('2018-09-20 12:00:00')
     def test_read_zaak(self):
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=INFORMATIEOBJECT
-        )
-        # Retrieve from the API
+        zio = ZaakInformatieObjectFactory.create()
+        zio_detail_url = reverse(zio)
 
-        zio_detail_url = reverse('zaakinformatieobject-detail', kwargs={
-            'version': '1',
-            'uuid': zio.uuid,
-        })
         response = self.client.get(zio_detail_url)
 
         # Test response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zio.zaak.uuid,
-        })
-
+        zaak_url = reverse(zio.zaak)
+        io_url = reverse(zio.informatieobject.latest_version)
         expected = {
             'url': f'http://testserver{zio_detail_url}',
             'uuid': str(zio.uuid),
-            'informatieobject': zio.informatieobject,
+            'informatieobject': f'http://testserver{io_url}',
             'zaak': f'http://testserver{zaak_url}',
             'aardRelatieWeergave': RelatieAarden.labels[RelatieAarden.hoort_bij],
             'titel': '',
@@ -194,14 +137,9 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
         self.assertEqual(response.json(), expected)
 
     def test_filter(self):
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=INFORMATIEOBJECT
-        )
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zio.zaak.uuid,
-        })
-        zio_list_url = reverse('zaakinformatieobject-list', kwargs={'version': '1'})
+        zio = ZaakInformatieObjectFactory.create()
+        zaak_url = reverse(zio.zaak)
+        zio_list_url = reverse('zaakinformatieobject-list')
 
         response = self.client.get(zio_list_url, {
             'zaak': f'http://testserver{zaak_url}',
@@ -211,26 +149,17 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['zaak'], f'http://testserver{zaak_url}')
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_update_zaak(self, *mocks):
+    def test_update_zaak(self):
         zaak = ZaakFactory.create()
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zaak.uuid,
-        })
-
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=INFORMATIEOBJECT
-        )
-        zio_detail_url = reverse('zaakinformatieobject-detail', kwargs={
-            'version': '1',
-            'uuid': zio.uuid,
-        })
+        zaak_url = reverse(zaak)
+        zio = ZaakInformatieObjectFactory.create()
+        zio_detail_url = reverse(zio)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
 
         response = self.client.patch(zio_detail_url, {
             'zaak': f'http://testserver{zaak_url}',
-            'informatieobject': 'https://bla.com',
+            'informatieobject': f'http://testserver{io_url}',
         })
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
@@ -240,47 +169,14 @@ class ZaakInformatieObjectAPITests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, 
                 error = get_validation_errors(response, field)
                 self.assertEqual(error['code'], IsImmutableValidator.code)
 
-    @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
-    def test_sync_create_fails(self):
-        self.mocked_sync_create.side_effect = SyncError("Sync failed")
-
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        zaak_url = reverse('zaak-detail', kwargs={
-            'version': '1',
-            'uuid': zaak.uuid,
-        })
-
-        content = {
-            'informatieobject': INFORMATIEOBJECT,
-            'zaak': f'http://testserver{zaak_url}',
-        }
-
-        # Send to the API
-        with mock_client(RESPONSES):
-            response = self.client.post(self.list_url, content)
-
-        # Test response
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-        # transaction must be rolled back
-        self.assertFalse(ZaakInformatieObject.objects.exists())
-
     @freeze_time('2018-09-19T12:25:19+0200')
     def test_delete(self):
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=INFORMATIEOBJECT,
-        )
-        zio_url = reverse('zaakinformatieobject-detail', kwargs={
-            'version': '1',
-            'uuid': zio.uuid,
-        })
-
-        self.assertEqual(self.mocked_sync_delete.call_count, 0)
+        zio = ZaakInformatieObjectFactory.create()
+        zio_url = reverse(zio)
 
         response = self.client.delete(zio_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        self.assertEqual(self.mocked_sync_delete.call_count, 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         # Relation is gone, zaak still exists.
         self.assertFalse(ZaakInformatieObject.objects.exists())

@@ -41,7 +41,7 @@ class BrondatumCalculator:
         if not brondatum:
             return
 
-        return brondatum + isodate.parse_duration(archiefactietermijn)
+        return brondatum + archiefactietermijn
 
     def get_archiefnominatie(self) -> str:
         resultaattype = self.zaak.resultaat.resultaattype
@@ -149,7 +149,7 @@ def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
 
         max_ingangsdatum = None
         for besluit in zaakbesluiten:
-            ingangsdatum = datetime.strptime(besluit.ingangsdatum, '%Y-%m-%d')
+            ingangsdatum = besluit.ingangsdatum
             if not max_ingangsdatum or ingangsdatum > max_ingangsdatum:
                 max_ingangsdatum = ingangsdatum
         return max_ingangsdatum

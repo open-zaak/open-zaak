@@ -57,7 +57,7 @@ class ZaakViewSet(NotificationViewSetMixin,
                   GeoMixin,
                   SearchMixin,
                   CheckQueryParamsMixin,
-                  ListFilterByAuthorizationsMixin,
+                  # ListFilterByAuthorizationsMixin,
                   viewsets.ModelViewSet):
     """
     Opvragen en bewerken van ZAAKen.
@@ -233,7 +233,7 @@ class ZaakViewSet(NotificationViewSetMixin,
 class StatusViewSet(NotificationCreateMixin,
                     AuditTrailCreateMixin,
                     CheckQueryParamsMixin,
-                    ListFilterByAuthorizationsMixin,
+                    # ListFilterByAuthorizationsMixin,
                     mixins.CreateModelMixin,
                     viewsets.ReadOnlyModelViewSet):
     """
@@ -315,7 +315,7 @@ class StatusViewSet(NotificationCreateMixin,
 
 
 class ZaakObjectViewSet(NotificationCreateMixin,
-                        ListFilterByAuthorizationsMixin,
+                        # ListFilterByAuthorizationsMixin,
                         AuditTrailCreateMixin,
                         mixins.CreateModelMixin,
                         viewsets.ReadOnlyModelViewSet):
@@ -355,7 +355,7 @@ class ZaakObjectViewSet(NotificationCreateMixin,
 class ZaakInformatieObjectViewSet(NotificationCreateMixin,
                                   AuditTrailViewsetMixin,
                                   CheckQueryParamsMixin,
-                                  ListFilterByAuthorizationsMixin,
+                                  # ListFilterByAuthorizationsMixin,
                                   viewsets.ModelViewSet):
 
     """
@@ -439,7 +439,7 @@ class ZaakInformatieObjectViewSet(NotificationCreateMixin,
 class ZaakEigenschapViewSet(NotificationCreateMixin,
                             AuditTrailCreateMixin,
                             NestedViewSetMixin,
-                            ListFilterByAuthorizationsMixin,
+                            # ListFilterByAuthorizationsMixin,
                             mixins.CreateModelMixin,
                             viewsets.ReadOnlyModelViewSet):
     """
@@ -496,7 +496,7 @@ class ZaakEigenschapViewSet(NotificationCreateMixin,
 
 
 class KlantContactViewSet(NotificationCreateMixin,
-                          ListFilterByAuthorizationsMixin,
+                          # ListFilterByAuthorizationsMixin,
                           AuditTrailCreateMixin,
                           mixins.CreateModelMixin,
                           viewsets.ReadOnlyModelViewSet):
@@ -535,7 +535,7 @@ class KlantContactViewSet(NotificationCreateMixin,
 class RolViewSet(NotificationCreateMixin,
                  AuditTrailCreateMixin,
                  CheckQueryParamsMixin,
-                 ListFilterByAuthorizationsMixin,
+                 # ListFilterByAuthorizationsMixin,
                  mixins.CreateModelMixin,
                  mixins.DestroyModelMixin,
                  viewsets.ReadOnlyModelViewSet):
@@ -582,7 +582,7 @@ class RolViewSet(NotificationCreateMixin,
 class ResultaatViewSet(NotificationViewSetMixin,
                        AuditTrailViewsetMixin,
                        CheckQueryParamsMixin,
-                       ListFilterByAuthorizationsMixin,
+                       # ListFilterByAuthorizationsMixin,
                        viewsets.ModelViewSet):
     """
     Opvragen en beheren van resultaten.
@@ -663,7 +663,7 @@ class ZaakBesluitViewSet(NotificationCreateMixin,
                          AuditTrailCreateMixin,
                          AuditTrailDestroyMixin,
                          NestedViewSetMixin,
-                         ListFilterByAuthorizationsMixin,
+                         # ListFilterByAuthorizationsMixin,
                          mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.ReadOnlyModelViewSet):

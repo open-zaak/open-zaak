@@ -1,34 +1,29 @@
-from django.test import override_settings
-
 from openzaak.components.zaken.models.tests.factories import (
     ZaakBesluitFactory, ZaakFactory
 )
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
 
-BESLUIT = 'https://brc.nl/api/v1/besluiten/1234'
 
-
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.ObjectInformatieObjectClient'
-)
 class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_create(self):
         zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create()
+        besluit_url = reverse(besluit)
         url = reverse('zaakbesluit-list', kwargs={'zaak_uuid': zaak.uuid})
 
         response = self.client.post(url, {
-            'besluit': BESLUIT
+            'besluit': besluit_url
         })
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         zakk_besluit = zaak.zaakbesluit_set.get()
-        self.assertEqual(zakk_besluit.besluit, BESLUIT)
+        self.assertEqual(zakk_besluit.besluit, besluit)
 
     def test_delete(self):
         zakk_besluit = ZaakBesluitFactory.create()
