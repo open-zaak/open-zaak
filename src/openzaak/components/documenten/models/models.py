@@ -122,8 +122,9 @@ class InformatieObject(models.Model):
         help_text=_("De datum waarop de ondertekening van het INFORMATIEOBJECT heeft plaatsgevonden.")
     )
 
-    informatieobjecttype = models.URLField(
-        help_text=_('URL-referentie naar het INFORMATIEOBJECTTYPE (in de '
+    informatieobjecttype = models.ForeignKey(
+        'catalogi.InformatieObjectType', on_delete=models.CASCADE,
+        help_text=_('Referentie naar het INFORMATIEOBJECTTYPE (in de '
                     'Catalogi API).')
     )
 

@@ -24,7 +24,7 @@ from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from .audits import AUDIT_DRC
-from .data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter, GebruiksrechtenFilter,
@@ -66,7 +66,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 
 class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
-                                         ListFilterByAuthorizationsMixin,
+                                         # ListFilterByAuthorizationsMixin,
                                          AuditTrailViewsetMixin,
                                          viewsets.ModelViewSet):
     """
@@ -308,7 +308,7 @@ class ObjectInformatieObjectViewSet(NotificationCreateMixin,
                                     AuditTrailCreateMixin,
                                     AuditTrailDestroyMixin,
                                     CheckQueryParamsMixin,
-                                    ListFilterByAuthorizationsMixin,
+                                    # ListFilterByAuthorizationsMixin,
                                     mixins.CreateModelMixin,
                                     mixins.DestroyModelMixin,
                                     viewsets.ReadOnlyModelViewSet):
@@ -382,7 +382,7 @@ class ObjectInformatieObjectViewSet(NotificationCreateMixin,
 
 
 class GebruiksrechtenViewSet(NotificationViewSetMixin,
-                             ListFilterByAuthorizationsMixin,
+                             # ListFilterByAuthorizationsMixin,
                              AuditTrailViewsetMixin,
                              viewsets.ModelViewSet):
     """

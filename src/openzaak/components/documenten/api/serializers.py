@@ -6,7 +6,6 @@ import uuid
 from django.conf import settings
 from django.db import transaction
 from django.utils.http import urlencode
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
@@ -22,14 +21,13 @@ from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.models import APICredential
 from vng_api_common.serializers import (
     GegevensGroepSerializer, add_choice_values_help_text
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
-from .auth import get_zrc_auth, get_ztc_auth
+from openzaak.utils.auth import get_auth
 from .validators import (
     InformatieObjectUniqueValidator, ObjectInformatieObjectValidator,
     StatusValidator
@@ -193,9 +191,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             'locked',
         )
         extra_kwargs = {
-            'informatieobjecttype': {
-                'validators': [URLValidator(get_auth=get_ztc_auth)],
-            },
             'taal': {
                 'min_length': 3,
             },
@@ -214,18 +209,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         value_display_mapping = add_choice_values_help_text(Statussen)
         self.fields['status'].help_text += f"\n\n{value_display_mapping}"
-
-    def _get_informatieobjecttype(self, informatieobjecttype_url: str) -> dict:
-        if not hasattr(self, 'informatieobjecttype'):
-            # dynamic so that it can be mocked in tests easily
-            Client = import_string(settings.ZDS_CLIENT_CLASS)
-            client = Client.from_url(informatieobjecttype_url)
-            client.auth = APICredential.get_auth(
-                informatieobjecttype_url,
-                scopes=['zds.scopes.zaaktypes.lezen']
-            )
-            self._informatieobjecttype = client.request(informatieobjecttype_url, 'informatieobjecttype')
-        return self._informatieobjecttype
 
     def validate_indicatie_gebruiksrecht(self, indicatie):
         if self.instance and not indicatie and self.instance.canonical.gebruiksrechten_set.exists():
@@ -252,8 +235,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ondertekening = validated_data.pop('ondertekening', None)
         # add vertrouwelijkheidaanduiding
         if 'vertrouwelijkheidaanduiding' not in validated_data:
-            informatieobjecttype = self._get_informatieobjecttype(validated_data['informatieobjecttype'])
-            validated_data['vertrouwelijkheidaanduiding'] = informatieobjecttype['vertrouwelijkheidaanduiding']
+            informatieobjecttype = validated_data['informatieobjecttype']
+            validated_data['vertrouwelijkheidaanduiding'] = informatieobjecttype.vertrouwelijkheidaanduiding
 
         canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
         validated_data['canonical'] = canonical
@@ -421,7 +404,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             },
             'object': {
                 'validators': [
-                    URLValidator(get_auth=get_zrc_auth, headers={'Accept-Crs': 'EPSG:4326'}),
+                    URLValidator(get_auth=get_auth, headers={'Accept-Crs': 'EPSG:4326'}),
                     IsImmutableValidator(),
                 ],
             },
