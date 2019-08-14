@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    Gebruiksrechten
 )
 from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
@@ -24,21 +24,6 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
         lookup_expr='lte',
         label='begin_registratie',
     )
-
-
-class ObjectInformatieObjectFilter(FilterSet):
-    informatieobject = URLModelChoiceFilter(
-        queryset=EnkelvoudigInformatieObjectCanonical.objects.all(),
-        instance_path='canonical',
-        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
-    )
-
-    class Meta:
-        model = ObjectInformatieObject
-        fields = (
-            'object',
-            'informatieobject',
-        )
 
 
 class GebruiksrechtenFilter(FilterSet):

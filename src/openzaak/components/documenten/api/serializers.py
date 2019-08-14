@@ -12,7 +12,7 @@ from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    Gebruiksrechten
 )
 from openzaak.components.documenten.models.constants import (
     ChecksumAlgoritmes, OndertekeningSoorten, Statussen
@@ -20,18 +20,14 @@ from openzaak.components.documenten.models.constants import (
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer, add_choice_values_help_text
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator, URLValidator
+from vng_api_common.validators import IsImmutableValidator
 
-from openzaak.utils.auth import get_auth
-from .validators import (
-    InformatieObjectUniqueValidator, ObjectInformatieObjectValidator,
-    StatusValidator
-)
+from .validators import StatusValidator
 
 
 class AnyFileType:
@@ -377,51 +373,6 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         self.instance.lock = ''
         self.instance.save()
         return self.instance
-
-
-class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name='enkelvoudiginformatieobject-detail',
-        lookup_field='uuid',
-        queryset=EnkelvoudigInformatieObject.objects,
-        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
-    )
-
-    class Meta:
-        model = ObjectInformatieObject
-        fields = (
-            'url',
-            'informatieobject',
-            'object',
-            'object_type',
-        )
-        extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-            'informatieobject': {
-                'validators': [IsImmutableValidator()],
-            },
-            'object': {
-                'validators': [
-                    URLValidator(get_auth=get_auth, headers={'Accept-Crs': 'EPSG:4326'}),
-                    IsImmutableValidator(),
-                ],
-            },
-            'object_type': {
-                'validators': [IsImmutableValidator()]
-            }
-        }
-        validators = [ObjectInformatieObjectValidator(), InformatieObjectUniqueValidator('object', 'informatieobject')]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(ObjectTypes)
-        self.fields['object_type'].help_text += f"\n\n{value_display_mapping}"
-
-        if not hasattr(self, 'initial_data'):
-            return
 
 
 class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):

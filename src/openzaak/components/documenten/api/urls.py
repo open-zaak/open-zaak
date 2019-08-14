@@ -8,7 +8,6 @@ from vng_api_common.schema import SchemaView as _SchemaView
 from .viewsets import (
     EnkelvoudigInformatieObjectAuditTrailViewSet,
     EnkelvoudigInformatieObjectViewSet, GebruiksrechtenViewSet,
-    ObjectInformatieObjectViewSet
 )
 
 router = routers.DefaultRouter()
@@ -16,7 +15,6 @@ router.register('enkelvoudiginformatieobjecten', EnkelvoudigInformatieObjectView
     routers.nested('audittrail', EnkelvoudigInformatieObjectAuditTrailViewSet),
 ], basename='enkelvoudiginformatieobject')
 router.register('gebruiksrechten', GebruiksrechtenViewSet)
-router.register('objectinformatieobjecten', ObjectInformatieObjectViewSet)
 
 
 # set the path to schema file
