@@ -1,6 +1,3 @@
-"""
-Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/39
-"""
 import uuid
 from datetime import date
 from unittest.mock import patch
@@ -17,12 +14,13 @@ from openzaak.components.zaken.models import (
     KlantContact, Rol, Status, Zaak, ZaakObject
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, RolTypeFactory, StatusTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     RolOmschrijving, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
@@ -55,21 +53,20 @@ STATUSTYPE_RESPONSE = {
     }
 }
 
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+
 class US39TestCase(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
-    def test_create_zaak(self, *mocks):
+    def test_create_zaak(self):
         """
         Maak een zaak van een bepaald type.
         """
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         url = get_operation_url('zaak_create')
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
@@ -98,7 +95,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertIsInstance(data['zaakgeometrie'], dict)  # geojson object
 
         zaak = Zaak.objects.get()
-        self.assertEqual(zaak.zaaktype, ZAAKTYPE)
+        self.assertEqual(zaak.zaaktype, zaaktype)
         self.assertEqual(zaak.registratiedatum, date(2018, 6, 11))
         self.assertEqual(
             zaak.toelichting,
@@ -108,10 +105,12 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.zaakgeometrie.x, 4.910649523925713)
         self.assertEqual(zaak.zaakgeometrie.y, 52.37240093589432)
 
-    def test_create_zaak_zonder_bronorganisatie(self, *mocks):
+    def test_create_zaak_zonder_bronorganisatie(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         url = get_operation_url('zaak_create')
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'registratiedatum': '2018-06-11',
         }
 
@@ -121,10 +120,12 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'bronorganisatie')
         self.assertEqual(error['code'], 'required')
 
-    def test_create_zaak_invalide_rsin(self, *mocks):
+    def test_create_zaak_invalide_rsin(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         url = get_operation_url('zaak_create')
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'bronorganisatie': '123456789',
             'registratiedatum': '2018-06-11',
         }
@@ -135,24 +136,24 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'bronorganisatie')
         self.assertEqual(error['code'], 'invalid')
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_zet_zaakstatus(self, *mocks):
+    def test_zet_zaakstatus(self):
         """
         De actuele status van een zaak moet gezet worden bij het aanmaken
         van de zaak.
         """
         url = get_operation_url('status_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         data = {
             'zaak': zaak_url,
-            'statustype': STATUS_TYPE,
+            'statustype': statustype_url,
             'datumStatusGezet': isodatetime(2018, 6, 6, 17, 23, 43),
         }
 
-        with mock_client(STATUSTYPE_RESPONSE):
-            response = self.client.post(url, data)
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         response_data = response.json()
@@ -165,18 +166,19 @@ class US39TestCase(JWTAuthMixin, APITestCase):
                 'url': f"http://testserver{detail_url}",
                 'uuid': str(status_.uuid),
                 'zaak': f"http://testserver{zaak_url}",
-                'statustype': STATUS_TYPE,
+                'statustype': f'http://testserver{statustype_url}',
                 'datumStatusGezet': '2018-06-06T17:23:43Z',  # UTC
                 'statustoelichting': '',
             }
         )
 
-    def test_zet_adres_binnenland(self, *mocks):
+    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    def test_zet_adres_binnenland(self):
         """
         Het adres van de melding moet in de zaak beschikbaar zijn.
         """
         url = get_operation_url('zaakobject_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
         data = {
             'zaak': zaak_url,
@@ -206,9 +208,9 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             }
         )
 
-    def test_create_klantcontact(self, *mocks):
+    def test_create_klantcontact(self):
         url = get_operation_url('klantcontact_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
         data = {
             'zaak': zaak_url,
@@ -237,9 +239,10 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             }
         )
 
-    def test_zet_stadsdeel(self, *mocks):
+    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    def test_zet_stadsdeel(self):
         url = get_operation_url('zaakobject_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
         data = {
             'zaak': zaak_url,
@@ -270,24 +273,26 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         )
 
     @freeze_time('2018-01-01')
-    def test_zet_verantwoordelijk(self, *mocks):
+    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    def test_zet_verantwoordelijk(self):
         url = get_operation_url('rol_create')
         betrokkene = f'https://example.com/orc/api/v1/vestigingen/waternet/{uuid.uuid4().hex}'
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(
+            omschrijving=RolOmschrijving.behandelaar,
+            omschrijving_generiek=RolOmschrijving.behandelaar,
+        )
+        rolltype_url = reverse(roltype)
         data = {
             'zaak': zaak_url,
             'betrokkene': betrokkene,
             'betrokkeneType': 'vestiging',
-            'roltype': ROLTYPE,
+            'roltype': rolltype_url,
             'roltoelichting': 'Baggeren van gracht',
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(ROLTYPE, json=ROLTYPE_RESPONSE)
-
-            with mock_client({ROLTYPE: ROLTYPE_RESPONSE}):
-                response = self.client.post(url, data)
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         response_data = response.json()
@@ -303,7 +308,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
                 'zaak': f"http://testserver{zaak_url}",
                 'betrokkene': betrokkene,
                 'betrokkeneType': 'vestiging',
-                'roltype': ROLTYPE,
+                'roltype': f'http://testserver{rolltype_url}',
                 'omschrijving': RolOmschrijving.behandelaar,
                 'omschrijvingGeneriek': RolOmschrijving.behandelaar,
                 'roltoelichting': 'Baggeren van gracht',

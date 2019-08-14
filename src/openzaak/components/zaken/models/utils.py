@@ -3,11 +3,10 @@ from typing import Union
 
 from django.utils.translation import ugettext_lazy as _
 
-import isodate
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
-
+from dateutil.relativedelta import relativedelta
 from ..models import Zaak
 
 
@@ -49,7 +48,7 @@ class BrondatumCalculator:
 
 
 def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
-                  objecttype: str=None, procestermijn: str=None) -> date:
+                  objecttype: str=None, procestermijn: relativedelta=None) -> date:
     """
     To calculate the Archiefactiedatum, we first need the "brondatum" which is like the start date of the storage
     period.
@@ -130,7 +129,7 @@ def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
             raise DetermineProcessEndDateException(
                 _('Geen procestermijn aanwezig voor het bepalen van de brondatum.'))
         try:
-            return zaak.einddatum + isodate.parse_duration(procestermijn)
+            return zaak.einddatum + procestermijn
         except (ValueError, TypeError) as e:
             raise DetermineProcessEndDateException(
                 _('Geen geldige periode in procestermijn: {}').format(procestermijn))

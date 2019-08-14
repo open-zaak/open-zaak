@@ -1,12 +1,3 @@
-"""
-Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
-"""
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_ALLES_VERWIJDEREN
-)
-from openzaak.components.zaken.api.tests.mixins import (
-    ZaakInformatieObjectSyncMixin
-)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import (
     KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
@@ -24,21 +15,18 @@ from vng_api_common.tests import JWTAuthMixin, reverse
 
 from .utils import ZAAK_WRITE_KWARGS
 
-ZAAKTYPE = 'https://example.com/api/v1/zaaktype/1'
 
+class US349TestCase(JWTAuthMixin, APITestCase):
 
-class US349TestCase(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
-
-    scopes = [SCOPE_ZAKEN_ALLES_VERWIJDEREN]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
     def test_delete_zaak_cascades_properly(self):
         """
         Deleting a zaak causes all related objects to be deleted as well.
         """
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
 
-        ZaakFactory.create(hoofdzaak=zaak, zaaktype=ZAAKTYPE)
+        ZaakFactory.create(hoofdzaak=zaak)
 
         ZaakEigenschapFactory.create(zaak=zaak)
         StatusFactory.create(zaak=zaak)
@@ -67,8 +55,8 @@ class US349TestCase(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         """
         Deleting a deel zaak only deletes the deel zaak, and not the hoofd zaak.
         """
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        deel_zaak = ZaakFactory.create(hoofdzaak=zaak, zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
+        deel_zaak = ZaakFactory.create(hoofdzaak=zaak)
 
         zaak_delete_url = get_operation_url('zaak_delete', uuid=deel_zaak.uuid)
 
@@ -82,13 +70,10 @@ class US349TestCase(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         """
         Test that the zaak-detail correctly contains the URL to the result.
         """
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         resultaat = ResultaatFactory.create(zaak=zaak)
         zaak_url = 'http://testserver{path}'.format(path=reverse(zaak))
         resultaat_url = 'http://testserver{path}'.format(path=reverse(resultaat))
-
-        self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
-        self.autorisatie.save()
 
         response = self.client.get(zaak_url, **ZAAK_READ_KWARGS)
 

@@ -1,4 +1,3 @@
-import uuid
 from copy import deepcopy
 from unittest.mock import patch
 
@@ -7,6 +6,8 @@ from django.test import override_settings
 from openzaak.components.zaken.models import (
     Resultaat, Zaak, ZaakInformatieObject
 )
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, ResultaatTypeFactory
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -16,51 +17,17 @@ from vng_api_common.tests import JWTAuthMixin, reverse
 from vng_api_common.utils import get_uuid_from_path
 from zds_client.tests.mocks import mock_client
 
-from .mixins import ZaakInformatieObjectSyncMixin
 
-# ZTC
-ZTC_ROOT = 'https://example.com/ztc/api/v1'
-DRC_ROOT = 'https://example.com/drc/api/v1'
-CATALOGUS = f'{ZTC_ROOT}/catalogus/878a3318-5950-4642-8715-189745f91b04'
-ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
-RESULTAATTYPE = f'{ZAAKTYPE}/resultaattypen/5b348dbf-9301-410b-be9e-83723e288785'
-# INFORMATIE_OBJECT = f'{DRC_ROOT}/enkelvoudiginformatieobjecten/1234'
-INFORMATIEOBJECT = f'http://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}'
-INFORMATIEOBJECT_TYPE = f'http://example.com/ztc/api/v1/informatieobjecttypen/{uuid.uuid4().hex}'
-
-
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
-class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
+class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    responses = {
-        INFORMATIEOBJECT: {
-            'url': INFORMATIEOBJECT,
-            'informatieobjecttype': INFORMATIEOBJECT_TYPE
-        },
-        ZAAKTYPE: {
-            'url': ZAAKTYPE,
-            'productenOfDiensten': [
-                'https://example.com/product/123',
-                'https://example.com/dienst/123',
-            ],
-            'informatieobjecttypen': [
-                INFORMATIEOBJECT_TYPE
-            ]
-        }
-    }
-
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def _create_zaak(self, *mocks, **headers):
+    def _create_zaak(self,  **headers):
         url = reverse(Zaak)
-
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         zaak_data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': '517439943',
@@ -68,8 +35,7 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
             'startdatum': '2018-12-24',
             'productenOfDiensten': ['https://example.com/product/123']
         }
-        with mock_client(self.responses):
-            response = self.client.post(url, zaak_data, **ZAAK_WRITE_KWARGS, **headers)
+        response = self.client.post(url, zaak_data, **ZAAK_WRITE_KWARGS, **headers)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -90,24 +56,18 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_create_audittrail.oud, None)
         self.assertEqual(zaak_create_audittrail.nieuw, zaak_response)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_and_delete_resultaat_audittrails(self, *mocks):
+    def test_create_and_delete_resultaat_audittrails(self):
         zaak_response = self._create_zaak()
 
+        resultaattype = ResultaatTypeFactory.create()
+        resultaattype_url = reverse(resultaattype)
         url = reverse(Resultaat)
         resultaat_data = {
             'zaak': zaak_response['url'],
-            'resultaattype': RESULTAATTYPE
+            'resultaattype': resultaattype_url
         }
-        resultaattype_response = {
-            RESULTAATTYPE: {
-                'url': RESULTAATTYPE,
-                'zaaktype': ZAAKTYPE
-            }
-        }
-        with mock_client(resultaattype_response):
-            response = self.client.post(url, resultaat_data, **ZAAK_WRITE_KWARGS)
+
+        response = self.client.post(url, resultaat_data, **ZAAK_WRITE_KWARGS)
 
         resultaat_response = response.data
 
@@ -135,9 +95,7 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(resultaat_delete_audittrail.oud, resultaat_response)
         self.assertEqual(resultaat_delete_audittrail.nieuw, None)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_update_zaak_audittrails(self, *mocks):
+    def test_update_zaak_audittrails(self):
         zaak_data = self._create_zaak()
 
         modified_data = deepcopy(zaak_data)
@@ -145,9 +103,8 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         modified_data.pop('verlenging')
         modified_data['toelichting'] = 'aangepast'
 
-        with mock_client(self.responses):
-            response = self.client.put(url, modified_data, **ZAAK_WRITE_KWARGS)
-            zaak_response = response.data
+        response = self.client.put(url, modified_data, **ZAAK_WRITE_KWARGS)
+        zaak_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=zaak_response['url'])
         self.assertEqual(audittrails.count(), 2)
@@ -164,11 +121,10 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
     def test_partial_update_zaak_audittrails(self):
         zaak_data = self._create_zaak()
 
-        with mock_client(self.responses):
-            response = self.client.patch(zaak_data['url'], {
-                'toelichting': 'aangepast'
-            }, **ZAAK_WRITE_KWARGS)
-            zaak_response = response.data
+        response = self.client.patch(zaak_data['url'], {
+            'toelichting': 'aangepast'
+        }, **ZAAK_WRITE_KWARGS)
+        zaak_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=zaak_response['url'])
         self.assertEqual(audittrails.count(), 2)
@@ -182,18 +138,16 @@ class AuditTrailTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_update_audittrail.oud, zaak_data)
         self.assertEqual(zaak_update_audittrail.nieuw, zaak_response)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_zaakinformatieobject_audittrail(self, *mocks):
+    def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
-
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse((io))
         url = reverse(ZaakInformatieObject)
 
-        with mock_client(self.responses):
-            response = self.client.post(url, {
-                'zaak': zaak_data['url'],
-                'informatieobject': INFORMATIEOBJECT,
-            })
+        response = self.client.post(url, {
+            'zaak': zaak_data['url'],
+            'informatieobject': io_url,
+        })
 
         zaakinformatieobject_response = response.data
 

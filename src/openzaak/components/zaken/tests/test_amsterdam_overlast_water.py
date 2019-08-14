@@ -1,33 +1,19 @@
-from unittest.mock import patch
-
-from django.test import override_settings
-
 from dateutil import parser
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import Zaak
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, StatusTypeFactory, \
+    ResultaatTypeFactory, EigenschapFactory
+
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding
 )
-from vng_api_common.tests import JWTAuthMixin
-from zds_client.tests.mocks import mock_client
+from vng_api_common.tests import JWTAuthMixin, reverse
 
-from .test_userstory_52 import EIGENSCHAP_NAAM_BOOT, EIGENSCHAP_OBJECTTYPE
 from .utils import ZAAK_WRITE_KWARGS, utcdatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = '517439943'
-# ZTC
-ZTC_ROOT = 'https://example.com/ztc/api/v1'
-CATALOGUS = f'{ZTC_ROOT}/catalogus/878a3318-5950-4642-8715-189745f91b04'
-ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
-RESULTAATTYPE = f'{ZAAKTYPE}/resultaattypen/5b348dbf-9301-410b-be9e-83723e288785'
-STATUSTYPE = f'{ZAAKTYPE}/statustypen/5b348dbf-9301-410b-be9e-83723e288785'
-STATUSTYPE_OVERLAST_GECONSTATEERD = f'{ZAAKTYPE}/statustypen/b86aa339-151e-45f0-ad6c-20698f50b6cd'
-
 
 TEST_DATA = {
     "id": 9966,
@@ -69,13 +55,15 @@ class Application:
         self.registreer_klantcontact()
 
     def registreer_zaak(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url('zaak_create')
 
         created = parser.parse(self.data['datetime'])
         intern_id = self.data['id']
 
         response = self.client.post(zaak_create_url, {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': f'http://testserver{zaaktype_url}',
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
@@ -87,86 +75,65 @@ class Application:
         }, **ZAAK_WRITE_KWARGS)
 
         self.references['zaak_url'] = response.json()['url']
+        self.references['zaaktype'] = zaaktype
 
-    @override_settings(
-        ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-    )
     def zet_statussen_resultaat(self):
+        statustype = StatusTypeFactory.create(zaaktype=self.references['zaaktype'])
+        statustype_url = reverse(statustype)
+        statustype_overlast_geconstateerd = StatusTypeFactory.create(zaaktype=self.references['zaaktype'])
+        statustype_overlast_geconstateerd_url = reverse(statustype_overlast_geconstateerd)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=self.references['zaaktype'],
+            archiefactietermijn='P10Y',
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+        resultaattype_url = reverse(resultaattype)
         status_create_url = get_operation_url('status_create')
         resultaat_create_url = get_operation_url('resultaat_create')
         created = parser.parse(self.data['datetime'])
 
-        responses = {
-            RESULTAATTYPE: {
-                'url': RESULTAATTYPE,
-                'zaaktype': ZAAKTYPE,
-                'archiefactietermijn': 'P10Y',
-                'archiefnominatie': Archiefnominatie.blijvend_bewaren,
-                'brondatumArchiefprocedure': {
-                    'afleidingswijze': BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
-                    'datumkenmerk': None,
-                    'objecttype': None,
-                    'procestermijn': None,
-                }
-            },
-            STATUSTYPE: {
-                'url': STATUSTYPE,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 1,
-                'isEindstatus': False,
-            },
-            STATUSTYPE_OVERLAST_GECONSTATEERD: {
-                'url': STATUSTYPE_OVERLAST_GECONSTATEERD,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 2,
-                'isEindstatus': True,
-            }
-        }
-        with mock_client(responses):
-            self.client.post(status_create_url, {
-                'zaak': self.references['zaak_url'],
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': created.isoformat(),
-            })
+        self.client.post(status_create_url, {
+            'zaak': self.references['zaak_url'],
+            'statustype': f'http://testserver{statustype_url}',
+            'datumStatusGezet': created.isoformat(),
+        })
 
-            self.client.post(resultaat_create_url, {
-                'zaak': self.references['zaak_url'],
-                'resultaattype': RESULTAATTYPE,
-                'toelichting': '',
-            })
+        self.client.post(resultaat_create_url, {
+            'zaak': self.references['zaak_url'],
+            'resultaattype': f'http://testserver{resultaattype_url}',
+            'toelichting': '',
+        })
 
-            self.client.post(status_create_url, {
-                'zaak': self.references['zaak_url'],
-                'statustype': STATUSTYPE_OVERLAST_GECONSTATEERD,
-                'datumStatusGezet': parser.parse(self.data['datetime_overlast']).isoformat(),
-            })
+        self.client.post(status_create_url, {
+            'zaak': self.references['zaak_url'],
+            'statustype': f'http://testserver{statustype_overlast_geconstateerd_url}',
+            'datumStatusGezet': parser.parse(self.data['datetime_overlast']).isoformat(),
+        })
+
+        self.references['statustype'] = statustype
+        self.references['statustype_overlast_geconstateerd'] = statustype_overlast_geconstateerd
 
     def registreer_domein_data(self):
+        eigenschap_objecttype = EigenschapFactory.create(eigenschapnaam='melding_type')
+        eigenschap_objecttype_url = reverse(eigenschap_objecttype)
+        eigenschap_naam_boot = EigenschapFactory.create(eigenschapnaam='waternet_naam_boot')
+        eigenschap_naam_boot_url = reverse(eigenschap_naam_boot)
         zaak_uuid = self.references['zaak_url'].rsplit('/')[-1]
         url = get_operation_url('zaakeigenschap_create', zaak_uuid=zaak_uuid)
 
-        responses = {
-            EIGENSCHAP_OBJECTTYPE: {
-                'url': EIGENSCHAP_OBJECTTYPE,
-                'naam': 'melding_type',
-            },
-            EIGENSCHAP_NAAM_BOOT: {
-                'url': EIGENSCHAP_NAAM_BOOT,
-                'naam': 'waternet_naam_boot',
-            }
-        }
+        self.client.post(url, {
+            'zaak': self.references['zaak_url'],
+            'eigenschap': f'http://testserver{eigenschap_objecttype_url}',
+            'waarde': 'overlast_water',
+        })
+        self.client.post(url, {
+            'zaak': self.references['zaak_url'],
+            'eigenschap': f'http://testserver{eigenschap_naam_boot_url}',
+            'waarde': TEST_DATA['waternet_naam_boot'],
+        })
 
-        with mock_client(responses):
-            self.client.post(url, {
-                'zaak': self.references['zaak_url'],
-                'eigenschap': EIGENSCHAP_OBJECTTYPE,
-                'waarde': 'overlast_water',
-            })
-            self.client.post(url, {
-                'zaak': self.references['zaak_url'],
-                'eigenschap': EIGENSCHAP_NAAM_BOOT,
-                'waarde': TEST_DATA['waternet_naam_boot'],
-            })
+        self.references['eigenschap_naam_boot'] = eigenschap_naam_boot
 
     def registreer_klantcontact(self):
         url = get_operation_url('klantcontact_create')
@@ -177,24 +144,13 @@ class Application:
         })
 
 
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
 class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
     """
     Simulate a full realistic flow.
     """
-    scopes = [
-        SCOPE_ZAKEN_CREATE,
-        SCOPE_STATUSSEN_TOEVOEGEN,
-        SCOPE_ZAKEN_BIJWERKEN
-    ]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_full_flow(self, *mocks):
+    def test_full_flow(self):
         app = Application(self.client, TEST_DATA)
 
         app.store_notification()
@@ -207,14 +163,14 @@ class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.status_set.count(), 2)
 
         last_status = zaak.status_set.order_by('-datum_status_gezet').first()
-        self.assertEqual(last_status.statustype, STATUSTYPE)
+        self.assertEqual(last_status.statustype, app.references['statustype'])
         self.assertEqual(
             last_status.datum_status_gezet,
             utcdatetime(2018, 5, 28, 7, 5, 8, 732587),
         )
 
         first_status = zaak.status_set.order_by('datum_status_gezet').first()
-        self.assertEqual(first_status.statustype, STATUSTYPE_OVERLAST_GECONSTATEERD)
+        self.assertEqual(first_status.statustype, app.references['statustype_overlast_geconstateerd'])
         self.assertEqual(
             first_status.datum_status_gezet,
             utcdatetime(2018, 5, 28, 6, 35, 11)
@@ -229,5 +185,5 @@ class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
 
         eigenschappen = zaak.zaakeigenschap_set.all()
         self.assertEqual(eigenschappen.count(), 2)
-        naam_boot = eigenschappen.get(eigenschap=EIGENSCHAP_NAAM_BOOT)
+        naam_boot = eigenschappen.get(eigenschap=app.references['eigenschap_naam_boot'])
         self.assertEqual(naam_boot.waarde, 'De Amsterdam')

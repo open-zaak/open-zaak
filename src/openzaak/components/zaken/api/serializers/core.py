@@ -319,7 +319,7 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
         if archiefstatus:
             ios = [zio.informatieobject for zio in self.instance.zaakinformatieobject_set.all()]
             for io in ios:
-                if io['status'] != 'gearchiveerd':
+                if io.latest_version.status != 'gearchiveerd':
                     raise serializers.ValidationError({
                         'archiefstatus',
                         _("Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "

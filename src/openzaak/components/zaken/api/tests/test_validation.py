@@ -580,8 +580,8 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         cls.statustype_url = reverse(cls.statustype)
 
     def test_not_allowed_to_change_statustype(self):
-        status = StatusFactory.create()
-        url = reverse(status)
+        _status = StatusFactory.create()
+        url = reverse(_status)
 
         response = self.client.patch(url, {
             "statustype": "https://ander.statustype.nl/foo/bar",

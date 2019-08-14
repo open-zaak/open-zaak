@@ -8,71 +8,39 @@ Zie ook: test_userstory_39.py, test_userstory_169.py
 """
 import datetime
 import uuid
-from unittest.mock import patch
 
 from django.test import override_settings
 
-import requests_mock
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, RolTypeFactory, StatusTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
-from vng_api_common.tests import JWTAuthMixin
-from zds_client.tests.mocks import mock_client
+from vng_api_common.tests import JWTAuthMixin, reverse
 
 from .utils import ZAAK_WRITE_KWARGS, parse_isodatetime
-
-CATALOGUS = f'https://example.com/ztc/api/v1/catalogus/{uuid.uuid4().hex}'
-ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
-STATUS_TYPE = f'{ZAAKTYPE}/statustypen/1'
 
 VERANTWOORDELIJKE_ORGANISATIE = '517439943'
 AVG_INZAGE_VERZOEK = f'https://www.example.com/orc/api/v1/avg/inzageverzoeken/{uuid.uuid4().hex}'
 BEHANDELAAR = f'https://www.example.com/orc/api/v1/brp/natuurlijkepersonen/{uuid.uuid4().hex}'
 
-ROLTYPE = "https://ztc.nl/roltypen/123"
-
-ROLTYPE_RESPONSE = {
-    "url": ROLTYPE,
-    "zaaktype": ZAAKTYPE,
-    "omschrijving": RolOmschrijving.behandelaar,
-    "omschrijvingGeneriek": RolOmschrijving.behandelaar,
-}
-
-STATUSTYPE_RESPONSE = {
-    STATUS_TYPE: {
-        'url': STATUS_TYPE,
-        'zaaktype': ZAAKTYPE,
-        'volgnummer': 1,
-        'isEindstatus': False
-    }
-}
-
 
 @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class US153TestCase(JWTAuthMixin, APITestCase):
 
-    scopes = [
-        SCOPE_ZAKEN_CREATE,
-        SCOPE_ZAKEN_ALLES_LEZEN,
-        SCOPE_ZAKEN_BIJWERKEN
-    ]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_zaak_with_kenmerken(self, *mocks):
+    def test_create_zaak_with_kenmerken(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url('zaak_create')
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
@@ -96,7 +64,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.zaakkenmerk_set.count(), 2)
 
     def test_read_zaak_with_kenmerken(self):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak.zaakkenmerk_set.create(kenmerk='kenmerk 1', bron='bron 1')
         self.assertEqual(zaak.zaakkenmerk_set.count(), 1)
 
@@ -117,10 +85,8 @@ class US153TestCase(JWTAuthMixin, APITestCase):
             }
         )
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_update_zaak_with_kenmerken(self, *mocks):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+    def test_update_zaak_with_kenmerken(self):
+        zaak = ZaakFactory.create()
         kenmerk_1 = zaak.zaakkenmerk_set.create(kenmerk='kenmerk 1', bron='bron 1')
         self.assertEqual(zaak.zaakkenmerk_set.count(), 1)
 
@@ -146,12 +112,9 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         # All objects are deleted, and (re)created.
         self.assertFalse(kenmerk_1.pk in zaak.zaakkenmerk_set.values_list('pk', flat=True))
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    @override_settings(
-        ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-    )
-    def test_full_flow(self, *mocks):
+    def test_full_flow(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url('zaak_create')
         zaakobject_create_url = get_operation_url('zaakobject_create')
         status_create_url = get_operation_url('status_create')
@@ -162,7 +125,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
 
         # Creeer Zaak
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': zaaktype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
@@ -194,31 +157,36 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Geef de Zaak een initiele Status
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = reverse(statustype)
+        StatusTypeFactory.create(zaaktype=zaaktype)
         data = {
             'zaak': zaak['url'],
-            'statustype': STATUS_TYPE,
+            'statustype': statustype_url,
             'datumStatusGezet': datetime.datetime.now().isoformat(),
         }
 
-        with mock_client(STATUSTYPE_RESPONSE):
-            response = self.client.post(status_create_url, data)
+        response = self.client.post(status_create_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Haal mogelijke rollen op uit ZTC...
         # self.client.get(...)
 
         # Voeg een behandelaar toe.
+        roltype = RolTypeFactory.create(
+            zaaktype=zaaktype,
+            omschrijving=RolOmschrijving.behandelaar,
+            omschrijving_generiek=RolOmschrijving.behandelaar
+        )
+        roltype_url = reverse(roltype)
         data = {
             'zaak': zaak['url'],
             'betrokkene': BEHANDELAAR,
             'betrokkeneType': RolTypes.natuurlijk_persoon,
-            'roltype': ROLTYPE,
+            'roltype': roltype_url,
             'roltoelichting': 'Initiele behandelaar die meerdere (deel)behandelaren kan aanwijzen.'
         }
-        with requests_mock.Mocker() as m:
-            m.get(ROLTYPE, json=ROLTYPE_RESPONSE)
-            with mock_client({ROLTYPE: ROLTYPE_RESPONSE}):
-                response = self.client.post(rol_create_url, data)
+        response = self.client.post(rol_create_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Status wijzigingen...

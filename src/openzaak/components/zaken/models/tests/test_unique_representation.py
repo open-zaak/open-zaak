@@ -1,22 +1,14 @@
-from django.test import override_settings
-
-from openzaak.components.zaken.api.tests.mixins import (
-    ZaakInformatieObjectSyncMixin
-)
 from rest_framework.test import APITestCase
-from zds_client.tests.mocks import mock_client
 
 from .factories import (
     KlantContactFactory, ResultaatFactory, RolFactory, StatusFactory,
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
+from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 
 
-@override_settings(
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient',
-)
-class UniqueRepresentationTestCase(ZaakInformatieObjectSyncMixin, APITestCase):
+class UniqueRepresentationTestCase(APITestCase):
 
     def test_zaak(self):
         zaak = ZaakFactory(
@@ -45,19 +37,10 @@ class UniqueRepresentationTestCase(ZaakInformatieObjectSyncMixin, APITestCase):
         resultaat = ResultaatFactory(
             zaak__bronorganisatie=730924658,
             zaak__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04',
+            resultaattype__omschrijving='verleend'
         )
-        responses = {
-            resultaat.resultaattype: {
-                'url': resultaat.resultaattype,
-                'omschrijving': "verleend",
-            }
-        }
-
-        with mock_client(responses):
-            unique_representation = resultaat.unique_representation()
-
         self.assertEqual(
-            unique_representation,
+            resultaat.unique_representation(),
             '(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - verleend'
         )
 
@@ -148,26 +131,21 @@ class UniqueRepresentationTestCase(ZaakInformatieObjectSyncMixin, APITestCase):
         )
 
     def test_zaakinformatieobject(self):
+        io = EnkelvoudigInformatieObjectFactory.create(identificatie="12345")
         zio = ZaakInformatieObjectFactory(
             zaak__bronorganisatie=730924658,
-            zaak__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04'
+            zaak__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04',
+            informatieobject=io.canonical
         )
-        responses = {
-            zio.informatieobject: {
-                'url': zio.informatieobject,
-                'identificatie': "12345",
-            }
-        }
-        with mock_client(responses):
-            unique_representation = zio.unique_representation()
 
         self.assertEqual(
-            unique_representation,
+            zio.unique_representation(),
             '(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - 12345'
         )
 
     def test_klancontact(self):
         klancontact = KlantContactFactory(identificatie=777)
+
         self.assertEqual(
             klancontact.unique_representation(),
             '777'
