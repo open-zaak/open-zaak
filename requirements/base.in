@@ -1,24 +1,29 @@
-Pillow
-pip-tools
+# Core libraries
+pillow
 psycopg2-binary
-python-dotenv
 python-dateutil
-pytz
-raven
-markdown
 
-Django
+# Helpers
+pip-tools
+python-dotenv
+
+# Framework libraries
+django
 django-axes
 django-choices
 django-cors-middleware
 django-markup
 django-privates
-django-choices
+django-relativedelta
+raven
+
+# Admin and UI libraries
 django-rosetta
 django_admin_index
-django-relativedelta
 django-better-admin-arrayfield
+markdown
 
+# API libraries
 djangorestframework
 djangorestframework-gis
 django-extra-fields
@@ -29,5 +34,4 @@ drf-writable-nested
 vng-api-common
 humanize
 drf-flex-fields
-django-cors-middleware
 drf-writable-nested

@@ -1,1 +1,13 @@
--r production.txt
+-r base.txt
+
+django-webtest
+coverage
+factory_boy
+freezegun
+isort
+pep8
+pylint<2.0
+requests-mock
+tblib
+webtest
+pyquery

@@ -1,0 +1,31 @@
+dist: xenial
+
+language: python
+
+python: 3.7
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "10"
+
+env:
+  global:
+  - DJANGO_SETTINGS_MODULE=openzaak.conf.test
+  - SECRET_KEY=dummy
+  - DB_PASSWORD=
+  - DB_USER=postgres
+
+install:
+  - pip install -r requirements/test.txt
+  - pip install codecov
+  - npm ci
+  - npm run build
+
+script:
+  - python src/manage.py collectstatic --noinput --link
+  - coverage run src/manage.py test src
+
+after_success:
+  - codecov
