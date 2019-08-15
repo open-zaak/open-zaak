@@ -98,9 +98,9 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaak_afsluiten(self):
-        zaak = ZaakFactory.create()
-        zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
         zaaktype = ZaakTypeFactory.create()
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
         statustype1 = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype1_url = reverse(statustype1)
         statustype2 = StatusTypeFactory.create(zaaktype=zaaktype)

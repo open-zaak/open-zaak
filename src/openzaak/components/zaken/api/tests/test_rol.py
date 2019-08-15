@@ -253,7 +253,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         url = get_operation_url('rol_create')
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        roltype = RolTypeFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',
@@ -300,7 +300,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         url = get_operation_url('rol_create')
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        roltype = RolTypeFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',
@@ -324,7 +324,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         url = get_operation_url('rol_create')
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        roltype = RolTypeFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',

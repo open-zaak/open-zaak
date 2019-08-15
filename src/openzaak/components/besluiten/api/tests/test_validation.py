@@ -1,6 +1,6 @@
 from freezegun import freeze_time
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory, ZaakInformatieobjectTypeFactory
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
@@ -114,6 +114,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
+        besluittype.zaaktypes.add(zaak.zaaktype)
         list_url = reverse('besluit-list')
 
         response = self.client.post(list_url, {
@@ -170,10 +171,12 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error['code'], 'no_match')
 
     def test_validate_no_informatieobjecttype_zaaktype_relation(self):
-        besluit = BesluitFactory.create()
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
         besluit_url = reverse(besluit)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
+
         url = reverse('besluitinformatieobject-list')
 
         response = self.client.post(url, {

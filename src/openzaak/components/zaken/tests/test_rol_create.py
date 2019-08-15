@@ -31,6 +31,7 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         roltype = RolTypeFactory.create(
             omschrijving=RolOmschrijving.behandelaar,
             omschrijving_generiek=RolOmschrijving.behandelaar,
+            zaaktype=zaak.zaaktype
         )
         roltype_url = reverse(roltype)
         url = get_operation_url('rol_create')
@@ -76,11 +77,12 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             zaak=zaak,
             betrokkene_type=RolTypes.natuurlijk_persoon,
             omschrijving=RolOmschrijving.initiator,
-            omschrijving_generiek=RolOmschrijving.initiator
+            omschrijving_generiek=RolOmschrijving.initiator,
         )
         roltype = RolTypeFactory.create(
             omschrijving=RolOmschrijving.initiator,
             omschrijving_generiek=RolOmschrijving.initiator,
+            zaaktype=zaak.zaaktype
         )
         roltype_url = reverse(roltype)
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
@@ -114,6 +116,7 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         roltype = RolTypeFactory.create(
             omschrijving=RolOmschrijving.zaakcoordinator,
             omschrijving_generiek=RolOmschrijving.zaakcoordinator,
+            zaaktype=zaak.zaaktype
         )
         roltype_url = reverse(roltype)
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)

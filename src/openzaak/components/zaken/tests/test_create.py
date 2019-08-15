@@ -282,6 +282,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         roltype = RolTypeFactory.create(
             omschrijving=RolOmschrijving.behandelaar,
             omschrijving_generiek=RolOmschrijving.behandelaar,
+            zaaktype=zaak.zaaktype
         )
         rolltype_url = reverse(roltype)
         data = {

@@ -17,6 +17,7 @@ from openzaak.components.zaken.models.utils import BrondatumCalculator
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.constants import (
     Archiefnominatie, Archiefstatus, RelatieAarden, RolOmschrijving, RolTypes,
@@ -365,9 +366,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             'datum_status_gezet',
             'statustoelichting'
         )
-        # validators = [
-        #     CorrectZaaktypeValidator('statustype')
-        # ]
+        validators = [
+            CorrectZaaktypeValidator('statustype')
+        ]
         extra_kwargs = {
             'url': {
                 'lookup_field': 'uuid',
@@ -627,7 +628,13 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             'beschrijving',
             'registratiedatum',
         )
-        # validators = [ZaaktypeInformatieobjecttypeRelationValidator("informatieobject")]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ZaakInformatieObject.objects.all(),
+                fields=['zaak', 'informatieobject']
+            ),
+            ZaaktypeInformatieobjecttypeRelationValidator()
+        ]
         extra_kwargs = {
             'url': {
                 'lookup_field': 'uuid',
@@ -747,7 +754,7 @@ class RolSerializer(PolymorphicSerializer):
         validators = [
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
             RolOccurenceValidator(RolOmschrijving.zaakcoordinator, max_amount=1),
-            # CorrectZaaktypeValidator("roltype"),
+            CorrectZaaktypeValidator("roltype"),
         ]
         extra_kwargs = {
             'url': {
@@ -816,7 +823,7 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
             'resultaattype',
             'toelichting'
         )
-        # validators = [CorrectZaaktypeValidator('resultaattype')]
+        validators = [CorrectZaaktypeValidator('resultaattype')]
         extra_kwargs = {
             'url': {
                 'lookup_field': 'uuid',

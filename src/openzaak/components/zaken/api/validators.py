@@ -118,18 +118,15 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
     code = "missing-zaaktype-informatieobjecttype-relation"
     message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
 
-    def __init__(self, url_field: str, zaak_field: str = "zaak", resource: str = None):
-        self.url_field = url_field
-        self.zaak_field = zaak_field
-        self.resource = resource or url_field
-
     def __call__(self, attrs):
-        url = attrs.get(self.url_field)
-        zaak = attrs.get(self.zaak_field)
-        if not url or not zaak:
+        informatieobject = attrs.get('informatieobject')
+        zaak = attrs.get('zaak')
+        if not informatieobject or not zaak:
             return
 
-        if url.informatieobjecttype not in zaak.zaaktype.informatieobjecttypen:
+        io_informatieobjecttype = informatieobject.latest_version.informatieobjecttype
+        zaak_informatieobjecttypes = zaak.zaaktype.heeft_relevant_informatieobjecttype.all()
+        if io_informatieobjecttype not in zaak_informatieobjecttypes:
             raise serializers.ValidationError(self.message, code=self.code)
 
 

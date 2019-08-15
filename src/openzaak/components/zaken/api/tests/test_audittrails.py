@@ -3,7 +3,8 @@ from copy import deepcopy
 from openzaak.components.zaken.models import (
     Resultaat, Zaak, ZaakInformatieObject
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, ResultaatTypeFactory
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, ResultaatTypeFactory, \
+    ZaakInformatieobjectTypeFactory
 from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from rest_framework import status
@@ -54,8 +55,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     def test_create_and_delete_resultaat_audittrails(self):
         zaak_response = self._create_zaak()
+        zaak = Zaak.objects.get()
 
-        resultaattype = ResultaatTypeFactory.create()
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
         resultaattype_url = reverse(resultaattype)
         url = reverse(Resultaat)
         resultaat_data = {
@@ -136,15 +138,19 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
+        zaak = Zaak.objects.get()
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse((io))
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype,
+            zaaktype=zaak.zaaktype
+        )
         url = reverse(ZaakInformatieObject)
 
         response = self.client.post(url, {
             'zaak': zaak_data['url'],
             'informatieobject': io_url,
         })
-
         zaakinformatieobject_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=zaak_data['url']).order_by('pk')

@@ -13,13 +13,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
-
-
-def dt_to_api(dt: datetime):
-    formatted = dt.isoformat()
-    if formatted.endswith('+00:00'):
-        return formatted[:-6] + 'Z'
-    return formatted
+from openzaak.components.catalogi.models.tests.factories import ZaakInformatieobjectTypeFactory
 
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
@@ -33,6 +27,10 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype,
+            zaaktype=zaak.zaaktype
+        )
 
         titel = 'some titel'
         beschrijving = 'some beschrijving'
@@ -76,6 +74,10 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype,
+            zaaktype=zaak.zaaktype
+        )
         content = {
             'informatieobject': f'http://testserver{io_url}',
             'zaak': f'http://testserver{zaak_url}',
@@ -83,7 +85,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         }
 
         # Send to the API
-        self.client.post(self.list_url, content)
+        response = self.client.post(self.list_url, content)
 
         oio = ZaakInformatieObject.objects.get()
 
@@ -97,8 +99,13 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Test the (informatieobject, object) unique together validation.
         """
         zio = ZaakInformatieObjectFactory.create()
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=zio.informatieobject.latest_version.informatieobjecttype,
+            zaaktype=zio.zaak.zaaktype
+        )
         zaak_url = reverse(zio.zaak)
         io_url = reverse(zio.informatieobject.latest_version)
+
         content = {
             'informatieobject': f'http://testserver{io_url}',
             'zaak': f'http://testserver{zaak_url}',

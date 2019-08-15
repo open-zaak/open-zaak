@@ -164,7 +164,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
-            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url('resultaat_create')
@@ -180,7 +181,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
         data = {
@@ -205,7 +206,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
-            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ander_datumkenmerk
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ander_datumkenmerk,
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url('resultaat_create')
@@ -222,7 +224,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
         data = {
@@ -247,7 +249,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
-            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url('resultaat_create')
@@ -264,7 +267,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
 
@@ -296,7 +299,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.eigenschap,
-            brondatum_archiefprocedure_datumkenmerk='brondatum'
+            brondatum_archiefprocedure_datumkenmerk='brondatum',
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url('resultaat_create')
@@ -313,7 +317,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
         data = {
@@ -339,7 +343,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.eigenschap,
-            brondatum_archiefprocedure_datumkenmerk='brondatum'
+            brondatum_archiefprocedure_datumkenmerk='brondatum',
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         # add resultaat
@@ -355,7 +360,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
         data = {
@@ -380,6 +385,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactietermijn='P10Y',
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         # add resultaat
@@ -395,7 +401,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # add final status to the case to close it and to calculate archive parameters
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         status_create_url = get_operation_url('status_create')
         data = {
@@ -425,6 +431,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             brondatum_archiefprocedure_datumkenmerk='einddatum',
             brondatum_archiefprocedure_registratie='LichtgevendeObjectenRegistratie',
             brondatum_archiefprocedure_objecttype='Lantaarnpaal',
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         # add resultaat
@@ -441,7 +448,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         # add final status to the case to close it and to calculate archive parameters
         status_create_url = get_operation_url('status_create')
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
             'zaak': zaak_url,
@@ -469,6 +476,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
             brondatum_archiefprocedure_datumkenmerk='einddatum',
             brondatum_archiefprocedure_objecttype=zaak_object.object_type,
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         responses = {
@@ -491,7 +499,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         # add final status to the case to close it and to calculate archive parameters
         status_create_url = get_operation_url('status_create')
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
             'zaak': zaak_url,
@@ -518,6 +526,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.termijn,
             brondatum_archiefprocedure_procestermijn='P5Y',
+            zaaktype=zaak.zaaktype
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url('resultaat_create')
@@ -533,7 +542,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         # add final status to the case to close it and to calculate archive parameters
         status_create_url = get_operation_url('status_create')
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
             'zaak': zaak_url,

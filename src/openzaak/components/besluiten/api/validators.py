@@ -28,7 +28,7 @@ class BesluittypeZaaktypeValidator:
         if not zaak:
             return
 
-        if zaak.zaaktype not in besluittype.zaaktypes:
+        if zaak.zaaktype not in besluittype.zaaktypes.all():
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -43,5 +43,8 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         if not besluit.zaak:
             return
 
-        if informatieobject.informatieobjecttype not in besluit.zaak.zaaktype.informatieobjecttypen:
+        io_informatieobjecttype = informatieobject.latest_version.informatieobjecttype
+        besluit_informatieobjecttypes = besluit.zaak.zaaktype.heeft_relevant_informatieobjecttype.all()
+        if io_informatieobjecttype not in besluit_informatieobjecttypes:
             raise serializers.ValidationError(self.message, code=self.code)
+

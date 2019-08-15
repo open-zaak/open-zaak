@@ -15,7 +15,7 @@ from openzaak.components.zaken.tests.utils import (
     ZAAK_WRITE_KWARGS, isodatetime
 )
 from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, \
-    StatusTypeFactory, ResultaatTypeFactory, EigenschapFactory
+    StatusTypeFactory, ResultaatTypeFactory, EigenschapFactory, ZaakInformatieobjectTypeFactory
 from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -503,6 +503,10 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype,
+            zaaktype=zaak.zaaktype
+        )
 
         url = reverse(ZaakInformatieObject)
 
@@ -590,7 +594,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_statustype_valid_resource(self):
-        zaak = ZaakFactory.create()
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse('status-list')
 
@@ -600,10 +604,10 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
         })
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_statustype_invalid_resource(self):
-        zaak = ZaakFactory.create()
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse('status-list')
 
@@ -636,7 +640,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
     @freeze_time('2019-07-22T12:00:00')
     def test_status_datum_status_gezet_cannot_be_in_future(self):
-        zaak = ZaakFactory.create()
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse('status-list')
 

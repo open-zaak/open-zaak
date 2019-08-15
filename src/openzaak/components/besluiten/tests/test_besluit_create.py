@@ -7,7 +7,7 @@ from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory, ZaakInformatieobjectTypeFactory
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
@@ -21,12 +21,17 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
     @freeze_time('2018-09-06T12:08+0200')
     def test_us162_voeg_besluit_toe_aan_zaak(self):
-        besluittype = BesluitTypeFactory.create()
-        besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(besluittype)
+        besluittype.zaaktypes.add(zaak.zaaktype)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype,
+            zaaktype=zaak.zaaktype
+        )
 
         with self.subTest(part='besluit_create'):
             url = get_operation_url('besluit_create')
