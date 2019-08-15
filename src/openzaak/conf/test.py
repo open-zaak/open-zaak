@@ -42,3 +42,8 @@ ENVIRONMENT = 'travis'
 #
 AXES_BEHIND_REVERSE_PROXY = False  # Required to allow FakeRequest and the like to work correctly.
 AXES_CACHE = 'axes_cache'
+
+#
+# Open Zaak specific settings
+#
+NOTIFICATIONS_DISABLED = True
