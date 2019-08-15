@@ -53,7 +53,7 @@ pyjwt==1.6.4              # via gemma-zds-client, vng-api-common
 python-dateutil==2.7.3
 python-dotenv==0.8.2
 pytz==2019.1              # via django, django-axes
-pyyaml==3.13              # via gemma-zds-client, oyaml, vng-api-common
+pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0
 requests==2.21.0          # via coreapi, django-rosetta, gemma-zds-client, vng-api-common
 ruamel.yaml==0.15.37      # via drf-yasg
