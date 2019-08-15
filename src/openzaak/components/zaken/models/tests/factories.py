@@ -94,5 +94,5 @@ class ZaakBesluitFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     besluit = factory.SubFactory(BesluitFactory)
 
-    class Meta:
-        model = 'zaken.ZaakBesluit'
+    # class Meta:
+    #     model = 'zaken.ZaakBesluit'

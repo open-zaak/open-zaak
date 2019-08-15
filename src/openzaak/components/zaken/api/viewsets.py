@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 
 from openzaak.components.zaken.models import (
-    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
+    KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
     ZaakInformatieObject, ZaakObject
 )
 from rest_framework import mixins, viewsets
@@ -12,12 +12,11 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin, AuditTrailDestroyMixin, AuditTrailViewSet,
+    AuditTrailCreateMixin, AuditTrailViewSet,
     AuditTrailViewsetMixin
 )
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
-from vng_api_common.notifications.kanalen import Kanaal
 from vng_api_common.notifications.viewsets import (
     NotificationCreateMixin, NotificationViewSetMixin
 )
@@ -44,7 +43,7 @@ from .scopes import (
 )
 from .serializers import (
     KlantContactSerializer, ResultaatSerializer, RolSerializer,
-    StatusSerializer, ZaakBesluitSerializer, ZaakEigenschapSerializer,
+    StatusSerializer, ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer, ZaakObjectSerializer, ZaakSerializer,
     ZaakZoekSerializer
 )
@@ -657,99 +656,3 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     Een specifieke audit trail regel opvragen.
     """
     main_resource_lookup_field = 'zaak_uuid'
-
-
-class ZaakBesluitViewSet(NotificationCreateMixin,
-                         AuditTrailCreateMixin,
-                         AuditTrailDestroyMixin,
-                         NestedViewSetMixin,
-                         # ListFilterByAuthorizationsMixin,
-                         mixins.CreateModelMixin,
-                         mixins.DestroyModelMixin,
-                         viewsets.ReadOnlyModelViewSet):
-
-    """
-    Read and edit Zaak-Besluit relations.
-
-    list:
-    Alle ZAAKBESLUITen opvragen.
-
-    Alle ZAAKBESLUITen opvragen.
-
-    retrieve:
-    Een specifiek ZAAKBESLUIT opvragen.
-
-    Een specifiek ZAAKBESLUIT opvragen.
-
-    create:
-    Maak een ZAAKBESLUIT aan.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
-    daarom is dit endpoint in de Zaken API geimplementeerd.
-
-    **Er wordt gevalideerd op**
-    - geldigheid URL naar de ZAAK
-
-    destroy:
-    Verwijder een ZAAKBESLUIT.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
-    daarom is dit endpoint in de Zaken API geimplementeerd.
-
-    """
-    queryset = ZaakBesluit.objects.all()
-    serializer_class = ZaakBesluitSerializer
-    # permission_classes = (
-    #     permission_class_factory(
-    #         base=ZaakBaseAuthRequired,
-    #         get_obj='_get_zaak',
-    #     ),
-    # )
-    lookup_field = 'uuid'
-
-    required_scopes = {
-        'list': SCOPE_ZAKEN_ALLES_LEZEN,
-        'retrieve': SCOPE_ZAKEN_ALLES_LEZEN,
-        'create': SCOPE_ZAKEN_BIJWERKEN,
-        'destroy': SCOPE_ZAKEN_BIJWERKEN,
-    }
-
-    parent_retrieve_kwargs = {
-        'zaak_uuid': 'uuid',
-    }
-    notifications_kanaal = KANAAL_ZAKEN
-    audit = AUDIT_ZRC
-
-    def _get_zaak(self):
-        if not hasattr(self, '_zaak'):
-            filters = lookup_kwargs_to_filters(self.parent_retrieve_kwargs, self.kwargs)
-            self._zaak = get_object_or_404(Zaak, **filters)
-        return self._zaak
-
-    def list(self, request, *args, **kwargs):
-        zaak = self._get_zaak()
-        permission = ZaakAuthScopesRequired()
-        if not permission.has_object_permission(self.request, self, zaak):
-            raise PermissionDenied
-        return super().list(request, *args, **kwargs)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        # DRF introspection
-        if not self.kwargs:
-            return context
-
-        context['parent_object'] = self._get_zaak()
-        return context
-
-    def get_notification_main_object_url(self, data: dict, kanaal: Kanaal) -> str:
-        zaak = self._get_zaak()
-        return zaak.get_absolute_api_url(request=self.request)
-
-    def get_audittrail_main_object_url(self, data: dict, main_resource: str) -> str:
-        zaak = self._get_zaak()
-        return zaak.get_absolute_api_url(request=self.request)

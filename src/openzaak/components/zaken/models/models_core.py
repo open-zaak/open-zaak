@@ -41,7 +41,6 @@ __all__ = [
     "ZaakKenmerk",
     "ZaakInformatieObject",
     "KlantContact",
-    "ZaakBesluit",
 ]
 
 
@@ -649,32 +648,3 @@ class KlantContact(models.Model):
 
     def unique_representation(self):
         return f'{self.identificatie}'
-
-
-class ZaakBesluit(models.Model):
-    """
-    Model Besluit belonged to Zaak
-    """
-    uuid = models.UUIDField(
-        unique=True, default=uuid.uuid4,
-        help_text="Unieke resource identifier (UUID4)"
-    )
-    zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
-    besluit = models.ForeignKey(
-        "besluiten.Besluit", on_delete=models.CASCADE,
-        help_text="Referentie naar het BESLUIT (in de Besluiten API), waar "
-                  "ook de relatieinformatie opgevraagd kan worden.",
-    )
-
-    objects = ZaakRelatedQuerySet.as_manager()
-
-    class Meta:
-        verbose_name = "zaakbesluit"
-        verbose_name_plural = "zaakbesluiten"
-        unique_together = ('zaak', 'besluit')
-
-    def __str__(self) -> str:
-        return f"{self.zaak} - {self.besluit}"
-
-    def unique_representation(self):
-        return f"{self.zaak} - {self.besluit}"

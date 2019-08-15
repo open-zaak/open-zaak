@@ -48,7 +48,7 @@ Uitleg bij mogelijke waarden:
 | ontvangstdatum | De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt. | string | nee | C​R​U​D |
 | verzenddatum | De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt. | string | nee | C​R​U​D |
 | indicatieGebruiksrecht | Indicatie of er beperkingen gelden aangaande het gebruik van het informatieobject anders dan raadpleging. Dit veld mag `null` zijn om aan te geven dat de indicatie nog niet bekend is. Als de indicatie gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen via de GEBRUIKSRECHTen resource. | boolean | nee | C​R​U​D |
-| informatieobjecttype | URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API). | string | ja | C​R​U​D |
+| informatieobjecttype | Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API). | string | ja | C​R​U​D |
 | locked | Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## AuditTrail
@@ -104,22 +104,6 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | startdatum | Begindatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn. Doorgaans is de datum van creatie van het informatieobject de startdatum. | string | ja | C​R​U​D |
 | einddatum | Einddatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn. | string | nee | C​R​U​D |
 | omschrijvingVoorwaarden | Omschrijving van de van toepassing zijnde voorwaarden aan het gebruik anders dan raadpleging | string | ja | C​R​U​D |
-
-## ObjectInformatieObject
-
-Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/objectinformatieobject)
-
-| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
-| --- | --- | --- | --- | --- |
-| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| informatieobject | URL-referentie naar het INFORMATIEOBJECT. | string | ja | C​R​U​D |
-| object | URL-referentie naar het gerelateerde OBJECT (in deze of een andere API). | string | ja | C​R​U​D |
-| objectType | Het type van het gerelateerde OBJECT.
-
-Uitleg bij mogelijke waarden:
-
-* `besluit` - Besluit
-* `zaak` - Zaak | string | ja | C​R​U​D |
 
 
 * Create, Read, Update, Delete

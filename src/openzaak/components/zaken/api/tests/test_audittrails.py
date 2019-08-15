@@ -1,7 +1,4 @@
 from copy import deepcopy
-from unittest.mock import patch
-
-from django.test import override_settings
 
 from openzaak.components.zaken.models import (
     Resultaat, Zaak, ZaakInformatieObject
@@ -15,7 +12,6 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, reverse
 from vng_api_common.utils import get_uuid_from_path
-from zds_client.tests.mocks import mock_client
 
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):

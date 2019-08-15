@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from openzaak.components.zaken.models import (
     KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
-    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
+    ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
 )
 from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -832,31 +832,3 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 'validators': [IsImmutableValidator()],
             }
         }
-
-
-class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'zaak_uuid': 'zaak__uuid'
-    }
-
-    class Meta:
-        model = ZaakBesluit
-        fields = (
-            'url',
-            'uuid',
-            'besluit',
-        )
-        extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-            'uuid': {
-                'read_only': True,
-            },
-            'zaak': {'lookup_field': 'uuid'},
-            'besluit': {'lookup_field': 'uuid'},
-        }
-
-    def create(self, validated_data):
-        validated_data['zaak'] = self.context['parent_object']
-        return super().create(validated_data)

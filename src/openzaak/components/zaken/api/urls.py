@@ -7,7 +7,7 @@ from vng_api_common.schema import SchemaView as _SchemaView
 
 from .viewsets import (
     KlantContactViewSet, ResultaatViewSet, RolViewSet, StatusViewSet,
-    ZaakAuditTrailViewSet, ZaakBesluitViewSet, ZaakEigenschapViewSet,
+    ZaakAuditTrailViewSet, ZaakEigenschapViewSet,
     ZaakInformatieObjectViewSet, ZaakObjectViewSet, ZaakViewSet
 )
 
@@ -15,7 +15,6 @@ router = routers.DefaultRouter()
 router.register('zaken', ZaakViewSet, [
     routers.nested('zaakeigenschappen', ZaakEigenschapViewSet),
     routers.nested('audittrail', ZaakAuditTrailViewSet),
-    routers.nested('besluiten', ZaakBesluitViewSet),
 ])
 router.register('statussen', StatusViewSet)
 router.register('zaakobjecten', ZaakObjectViewSet)
