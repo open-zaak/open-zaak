@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('documenten', '0001_initial'),
+        ('catalogi', '0001_initial'),
     ]
 
     operations = [
