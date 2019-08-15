@@ -1,5 +1,7 @@
 dist: xenial
 
+sudo: required
+
 language: python
 
 python: 3.7
@@ -9,6 +11,9 @@ services:
 
 addons:
   postgresql: "10"
+  apt:
+    packages:
+    - postgresql-10-postgis-2.4
 
 env:
   global:
@@ -17,11 +22,19 @@ env:
   - DB_PASSWORD=
   - DB_USER=postgres
 
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libgdal-dev gdal-bin
+  - gdal-config --version
+
 install:
   - pip install -r requirements/test.txt
   - pip install codecov
   - npm ci
   - npm run build
+
+before_script:
+  - psql -U postgres -c "create extension postgis"
 
 script:
   - python src/manage.py collectstatic --noinput --link
