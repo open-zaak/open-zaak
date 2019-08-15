@@ -8,27 +8,21 @@ See:
 import base64
 from io import BytesIO
 
-from django.test import override_settings
-
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin
-
-INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
+from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
+from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 
 
 class US169Tests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
-    informatieobjecttype = INFORMATIEOBJECTTYPE
-
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
     def test_upload_image(self):
         url = get_operation_url('enkelvoudiginformatieobject_create')
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
 
         # create dummy image in memory
         image = Image.new('RGB', (1, 1), 'red')
@@ -45,7 +39,7 @@ class US169Tests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             'titel': 'bijlage.jpg',
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'auteur': 'John Doe',
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': informatieobjecttype_url,
         }
 
         response = self.client.post(url, data)

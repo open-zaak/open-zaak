@@ -190,6 +190,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             'taal': {
                 'min_length': 3,
             },
+            'informatieobjecttype': {
+                'lookup_field': 'uuid',
+            }
         }
         read_only_fields = [
             'versie',

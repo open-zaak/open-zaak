@@ -6,8 +6,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
-INFORMATIEOBJECTTYPE = 'https://example.com/informatieobjecttype/foo'
-
 
 class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -16,7 +14,6 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         url = reverse('gebruiksrechten-list')
         eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
             latest_version__creatiedatum='2018-12-24',
-            latest_version__informatieobjecttype=INFORMATIEOBJECTTYPE
         )
         eio_url = reverse('enkelvoudiginformatieobject-detail', kwargs={'uuid': eio.latest_version.uuid})
 
@@ -41,9 +38,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         If gebruiksrechten exist, you cannot change the indicatieGebruiksrechten
         anymore.
         """
-        gebruiksrechten = GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        gebruiksrechten = GebruiksrechtenFactory.create()
         url = reverse(
             'enkelvoudiginformatieobject-detail',
             kwargs={'uuid': gebruiksrechten.informatieobject.latest_version.uuid}
@@ -62,9 +57,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         Assert that it's not possible to set the indication to true if there are
         no gebruiksrechten.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse('enkelvoudiginformatieobject-detail', kwargs={'uuid': eio.uuid})
 
         response = self.client.patch(url, {'indicatieGebruiksrecht': True})
@@ -74,9 +67,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error['code'], 'missing-gebruiksrechten')
 
     def test_delete_gebruiksrechten(self):
-        gebruiksrechten = GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        gebruiksrechten = GebruiksrechtenFactory.create()
         url = reverse(
             'gebruiksrechten-detail',
             kwargs={'uuid': gebruiksrechten.uuid}

@@ -1,11 +1,6 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
-from django.test import override_settings
-
-from openzaak.components.documenten.api.scopes import (
-    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
-)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, Gebruiksrechten
@@ -17,22 +12,16 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin
 
-INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 
-
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class US349TestCase(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN]
-    informatieobjecttype = INFORMATIEOBJECTTYPE
+    heeft_alle_autorisaties = True
 
     def test_delete_document_cascades_properly(self):
         """
         Deleting a EnkelvoudigInformatieObject causes all related objects to be deleted as well.
         """
-        informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create(
-            latest_version__informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create()
 
         GebruiksrechtenFactory.create(informatieobject=informatieobject)
 

@@ -1,13 +1,12 @@
 import uuid
+from unittest import skip
 from base64 import b64encode
 from datetime import datetime
-
-from django.test import override_settings
 
 from freezegun import freeze_time
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    Gebruiksrechten
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory
@@ -18,21 +17,22 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import JWTAuthMixin, reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
+from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 
 ZAAK = f'http://example.com/zrc/api/v1/zaken/{uuid.uuid4().hex}'
 
 
 @freeze_time('2019-01-01')
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
-    objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
 
     heeft_alle_autorisaties = True
 
     def _create_enkelvoudiginformatieobject(self, **HEADERS):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             'identificatie': uuid.uuid4().hex,
             'bronorganisatie': '159351741',
@@ -45,7 +45,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             'inhoud': b64encode(b'some file content').decode('utf-8'),
             'link': 'http://een.link',
             'beschrijving': 'test_beschrijving',
-            'informatieobjecttype': 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1',
+            'informatieobjecttype': informatieobjecttype_url,
             'vertrouwelijkheidaanduiding': 'openbaar',
         }
 
@@ -69,7 +69,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(informatieobject_create_audittrail.oud, None)
         self.assertEqual(informatieobject_create_audittrail.nieuw, informatieobject_data)
 
-    @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
+    @skip('ObjectInformatieObject is not implemented yet')
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
 
@@ -137,6 +137,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     def test_update_enkelvoudiginformatieobject_audittrail(self):
         informatieobject_data = self._create_enkelvoudiginformatieobject()
         informatieobject_url = informatieobject_data['url']
+        informatieobjecttype_url = informatieobject_data['informatieobjecttype']
 
         # lock for update
         eio = EnkelvoudigInformatieObjectCanonical.objects.get()
@@ -155,7 +156,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             'inhoud': b64encode(b'some file content').decode('utf-8'),
             'link': 'http://een.link',
             'beschrijving': 'test_beschrijving',
-            'informatieobjecttype': 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1',
+            'informatieobjecttype': informatieobjecttype_url,
             'vertrouwelijkheidaanduiding': 'openbaar',
             'lock': '0f60f6d2d2714c809ed762372f5a363a'
         }

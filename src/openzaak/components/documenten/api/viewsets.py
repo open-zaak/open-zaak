@@ -162,14 +162,6 @@ class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
 
     @transaction.atomic
     def perform_destroy(self, instance):
-        if instance.canonical.objectinformatieobject_set.exists():
-            raise serializers.ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: _(
-                    "All relations to the document must be destroyed before destroying the document"
-                )},
-                code="pending-relations"
-            )
-
         super().perform_destroy(instance.canonical)
 
     @property
