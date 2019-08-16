@@ -7,6 +7,8 @@ Open Zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
 
+|build-status| |coverage|
+
 API's voor Zaakgericht werken
 
 Inleiding
@@ -50,3 +52,11 @@ Copyright © Maykin Media 2019
 Licensed under the EUPL_
 
 .. _EUPL: LICENCE.md
+
+.. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
+    :alt: Build status
+    :target: https://travis-ci.org/open-zaak/open-zaak
+
+.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/master/graphs/badge.svg?branch=master
+    :alt: Coverage
+    :target: https://codecov.io/gh/open-zaak/open-zaak
