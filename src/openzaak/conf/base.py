@@ -72,13 +72,15 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     # Project applications.
-    "openzaak",
-    "openzaak.accounts",
-    "openzaak.utils",
-    "openzaak.components.zaken",
-    "openzaak.components.besluiten",
-    "openzaak.components.documenten",
-    "openzaak.components.catalogi",
+    'openzaak',
+    'openzaak.accounts',
+    'openzaak.utils',
+    'openzaak.components.authorizations',
+    'openzaak.components.zaken',
+    'openzaak.components.besluiten',
+    'openzaak.components.documenten',
+    'openzaak.components.catalogi',
+
 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
@@ -380,14 +382,11 @@ MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
 
 # urls for OAS3 specifications
 SPEC_URL = {
-    "zaken": os.path.join(BASE_DIR, "src/openzaak/components/zaken/openapi.yaml"),
-    "besluiten": os.path.join(
-        BASE_DIR, "src/openzaak/components/besluiten/openapi.yaml"
-    ),
-    "documenten": os.path.join(
-        BASE_DIR, "src/openzaak/components/documenten/openapi.yaml"
-    ),
-    "catalogi": os.path.join(BASE_DIR, "src/openzaak/components/catalogi/openapi.yaml"),
+    'zaken': os.path.join(BASE_DIR, 'src/openzaak/components/zaken/openapi.yaml'),
+    'besluiten': os.path.join(BASE_DIR, 'src/openzaak/components/besluiten/openapi.yaml'),
+    'documenten': os.path.join(BASE_DIR, 'src/openzaak/components/documenten/openapi.yaml'),
+    'catalogi': os.path.join(BASE_DIR, 'src/openzaak/components/catalogi/openapi.yaml'),
+    'authorizations': os.path.join(BASE_DIR, 'src/openzaak/components/authorizations/openapi.yaml'),
 }
 
 # for generate_schema depending on the component

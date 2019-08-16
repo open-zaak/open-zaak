@@ -14,15 +14,15 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="main.html")),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
     # separate apps
-    re_path(
-        r"^(?P<component>zaken|besluiten|documenten)/$",
-        TemplateView.as_view(template_name="index.html"),
-        name="main",
-    ),
-    path("zaken/api/", include("openzaak.components.zaken.api.urls")),
-    path("besluiten/api/", include("openzaak.components.besluiten.api.urls")),
-    path("documenten/api/", include("openzaak.components.documenten.api.urls")),
-    path("catalogi/", include("openzaak.components.catalogi.urls")),
+    re_path(r'^(?P<component>zaken|besluiten|documenten|authorizations)/$',
+            TemplateView.as_view(template_name='index.html'), name='main'),
+
+    path('zaken/api/', include('openzaak.components.zaken.api.urls')),
+    path('besluiten/api/', include('openzaak.components.besluiten.api.urls')),
+    path('documenten/api/', include('openzaak.components.documenten.api.urls')),
+    path('authorizations/api/', include('openzaak.components.authorizations.api.urls')),
+    path('catalogi/', include('openzaak.components.catalogi.urls')),
+
     # Simply show the master template.
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("vng_api_common.notifications.urls")),
