@@ -11,11 +11,13 @@ import uuid
 
 from django.test import override_settings
 
+from openzaak.components.catalogi.models.tests.factories import (
+    RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
+)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, RolTypeFactory, StatusTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (

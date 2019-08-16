@@ -7,9 +7,13 @@ from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory, ZaakInformatieobjectTypeFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    BesluitTypeFactory, ZaakInformatieobjectTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse

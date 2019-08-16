@@ -3,17 +3,21 @@ from datetime import datetime
 from django.utils import timezone
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    ZaakInformatieobjectTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory, ZaakInformatieObjectFactory
 )
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
-from openzaak.components.catalogi.models.tests.factories import ZaakInformatieobjectTypeFactory
 
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):

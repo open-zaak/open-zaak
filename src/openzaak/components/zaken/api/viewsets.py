@@ -6,14 +6,14 @@ from openzaak.components.zaken.models import (
     KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
     ZaakInformatieObject, ZaakObject
 )
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin, AuditTrailViewSet,
-    AuditTrailViewsetMixin
+    AuditTrailCreateMixin, AuditTrailViewSet, AuditTrailViewsetMixin
 )
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
@@ -26,7 +26,6 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from .audits import AUDIT_ZRC
-from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .filters import (
     ResultaatFilter, RolFilter, StatusFilter, ZaakFilter,
     ZaakInformatieObjectFilter, ZaakObjectFilter
@@ -43,9 +42,8 @@ from .scopes import (
 )
 from .serializers import (
     KlantContactSerializer, ResultaatSerializer, RolSerializer,
-    StatusSerializer, ZaakEigenschapSerializer,
-    ZaakInformatieObjectSerializer, ZaakObjectSerializer, ZaakSerializer,
-    ZaakZoekSerializer
+    StatusSerializer, ZaakEigenschapSerializer, ZaakInformatieObjectSerializer,
+    ZaakObjectSerializer, ZaakSerializer, ZaakZoekSerializer
 )
 
 logger = logging.getLogger(__name__)

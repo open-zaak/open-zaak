@@ -5,15 +5,15 @@ from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )
 from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.documenten.api.serializers import EnkelvoudigInformatieObjectHyperlinkedRelatedField
+from openzaak.components.documenten.api.serializers import (
+    EnkelvoudigInformatieObjectHyperlinkedRelatedField
+)
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from vng_api_common.utils import get_help_text
 from vng_api_common.serializers import add_choice_values_help_text
-from vng_api_common.validators import (
-    IsImmutableValidator, validate_rsin
-)
+from vng_api_common.utils import get_help_text
+from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from .validators import (
     BesluittypeZaaktypeValidator, UniekeIdentificatieValidator,

@@ -1,8 +1,9 @@
 from unittest import skip
+
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.zaken.models.tests.factories import (
     ZaakBesluitFactory, ZaakFactory
 )
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse

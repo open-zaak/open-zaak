@@ -4,6 +4,13 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
+    ZaakInformatieobjectTypeFactory, ZaakTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie
@@ -14,9 +21,6 @@ from openzaak.components.zaken.models.tests.factories import (
 from openzaak.components.zaken.tests.utils import (
     ZAAK_WRITE_KWARGS, isodatetime
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, \
-    StatusTypeFactory, ResultaatTypeFactory, EigenschapFactory, ZaakInformatieobjectTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding

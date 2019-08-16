@@ -3,10 +3,11 @@ from typing import Union
 
 from django.utils.translation import ugettext_lazy as _
 
+from dateutil.relativedelta import relativedelta
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
-from dateutil.relativedelta import relativedelta
+
 from ..models import Zaak
 
 

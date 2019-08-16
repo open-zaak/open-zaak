@@ -1,3 +1,6 @@
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from rest_framework.test import APITestCase
 
 from .factories import (
@@ -5,7 +8,6 @@ from .factories import (
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 
 
 class UniqueRepresentationTestCase(APITestCase):

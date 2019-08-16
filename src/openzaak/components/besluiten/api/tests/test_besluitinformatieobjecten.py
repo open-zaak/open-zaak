@@ -6,7 +6,9 @@ from openzaak.components.besluiten.models import (
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse

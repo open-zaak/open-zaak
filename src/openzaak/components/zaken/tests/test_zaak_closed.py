@@ -3,14 +3,16 @@ from unittest import skip
 
 from django.utils import timezone
 
+from openzaak.components.catalogi.models.tests.factories import (
+    StatusTypeFactory
+)
 from openzaak.components.zaken.api.scopes import (
-    SCOPE_STATUSSEN_TOEVOEGEN,
-    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN, SCOPEN_ZAKEN_HEROPENEN
+    SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+    SCOPEN_ZAKEN_HEROPENEN
 )
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.catalogi.models.tests.factories import StatusTypeFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from rest_framework import status
 from rest_framework.test import APITestCase

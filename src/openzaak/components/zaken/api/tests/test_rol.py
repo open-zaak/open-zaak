@@ -1,4 +1,5 @@
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
 from openzaak.components.zaken.models import (
     Adres, NatuurlijkPersoon, NietNatuurlijkPersoon, Rol,
     SubVerblijfBuitenland, Vestiging
@@ -7,8 +8,6 @@ from openzaak.components.zaken.models.constants import IndicatieMachtiging
 from openzaak.components.zaken.models.tests.factories import (
     RolFactory, ZaakFactory
 )
-from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes

@@ -1,10 +1,14 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 import factory
+from openzaak.components.catalogi.models.tests.factories import (
+    BesluitTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory
+)
 
 
 class BesluitFactory(factory.django.DjangoModelFactory):

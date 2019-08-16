@@ -6,9 +6,9 @@ ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/42
 """
 from django.contrib.gis.geos import Point
 
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse

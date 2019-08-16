@@ -2,10 +2,13 @@ from datetime import date
 
 from django.test import TestCase
 
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
+
 from ..models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 )
-from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 
 
 class EIOTests(TestCase):

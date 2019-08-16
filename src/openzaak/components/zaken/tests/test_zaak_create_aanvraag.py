@@ -7,8 +7,9 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/163
 Zie ook: test_userstory_39.py, test_userstory_169.py
 """
 from datetime import date
-from openzaak.components.zaken.api.tests.utils import get_operation_url
+
 from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.zaken.api.tests.utils import get_operation_url
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding

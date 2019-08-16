@@ -1,11 +1,14 @@
 from copy import deepcopy
 
+from openzaak.components.catalogi.models.tests.factories import (
+    ResultaatTypeFactory, ZaakInformatieobjectTypeFactory, ZaakTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from openzaak.components.zaken.models import (
     Resultaat, Zaak, ZaakInformatieObject
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, ResultaatTypeFactory, \
-    ZaakInformatieobjectTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from rest_framework import status
 from rest_framework.test import APITestCase

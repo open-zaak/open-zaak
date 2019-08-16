@@ -3,8 +3,12 @@ from copy import deepcopy
 from openzaak.components.besluiten.models import (
     Besluit, BesluitInformatieObject
 )
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    BesluitTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail

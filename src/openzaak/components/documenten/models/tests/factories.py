@@ -5,8 +5,10 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
-from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 
 
 class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFactory):

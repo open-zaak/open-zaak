@@ -6,6 +6,9 @@ from django.test import override_settings
 
 import requests_mock
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
+)
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
 )
@@ -14,7 +17,6 @@ from openzaak.components.zaken.models import (
     KlantContact, Rol, Status, Zaak, ZaakObject
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, RolTypeFactory, StatusTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (

@@ -7,11 +7,11 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/45
 import uuid
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.tests.factories import (
     RolFactory, ZaakFactory
 )
-from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes

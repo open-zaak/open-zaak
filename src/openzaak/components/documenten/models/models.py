@@ -8,9 +8,7 @@ from privates.fields import PrivateMediaFileField
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
-from vng_api_common.utils import (
-    generate_unique_identification
-)
+from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen

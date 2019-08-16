@@ -1,9 +1,12 @@
 import uuid
-from unittest import skip
 from base64 import b64encode
 from datetime import datetime
+from unittest import skip
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten
@@ -17,7 +20,6 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import JWTAuthMixin, reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
-from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 
 ZAAK = f'http://example.com/zrc/api/v1/zaken/{uuid.uuid4().hex}'
 

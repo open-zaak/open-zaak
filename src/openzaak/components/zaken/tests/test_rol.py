@@ -10,12 +10,14 @@ from datetime import date
 
 from django.test import override_settings
 
+from openzaak.components.catalogi.models.tests.factories import (
+    RolTypeFactory, ZaakTypeFactory
+)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.tests.factories import (
     RolFactory, ZaakFactory
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, RolTypeFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (

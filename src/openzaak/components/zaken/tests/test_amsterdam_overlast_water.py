@@ -1,9 +1,10 @@
 from dateutil import parser
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
+    ZaakTypeFactory
+)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import Zaak
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, StatusTypeFactory, \
-    ResultaatTypeFactory, EigenschapFactory
-
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,

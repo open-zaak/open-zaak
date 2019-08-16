@@ -1,11 +1,14 @@
 import uuid
-from unittest import skip
 from base64 import b64encode
 from datetime import date
+from unittest import skip
 
 from django.utils import timezone
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
@@ -13,7 +16,6 @@ from openzaak.components.documenten.models import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory, ObjectInformatieObjectFactory
 )
-from openzaak.components.catalogi.models.tests.factories import InformatieObjectTypeFactory
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase

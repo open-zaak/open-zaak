@@ -47,4 +47,3 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         besluit_informatieobjecttypes = besluit.zaak.zaaktype.heeft_relevant_informatieobjecttype.all()
         if io_informatieobjecttype not in besluit_informatieobjecttypes:
             raise serializers.ValidationError(self.message, code=self.code)
-

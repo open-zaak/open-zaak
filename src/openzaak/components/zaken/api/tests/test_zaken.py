@@ -5,6 +5,10 @@ from django.contrib.gis.geos import Point
 from django.utils import timezone
 
 from dateutil.relativedelta import relativedelta
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    ResultaatTypeFactory, StatusTypeFactory, ZaakTypeFactory
+)
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import (
@@ -14,8 +18,6 @@ from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
 from openzaak.components.zaken.tests.utils import (
     ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime, utcdatetime
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, StatusTypeFactory, ResultaatTypeFactory
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (

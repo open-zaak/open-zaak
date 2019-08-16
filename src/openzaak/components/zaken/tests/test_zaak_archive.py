@@ -2,13 +2,18 @@
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
+
+from openzaak.components.catalogi.models.tests.factories import (
+    ResultaatTypeFactory, StatusTypeFactory, ZaakTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory
+)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.tests.factories import (
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, ResultaatTypeFactory, StatusTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (

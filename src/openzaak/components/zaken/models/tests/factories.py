@@ -2,14 +2,17 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory, ResultaatTypeFactory, RolTypeFactory, StatusTypeFactory,
+    ZaakTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory
+)
 from vng_api_common.constants import (
     RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
-
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory, EigenschapFactory, \
-    RolTypeFactory, StatusTypeFactory, ResultaatTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectCanonicalFactory
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 
 
 class ZaakFactory(factory.django.DjangoModelFactory):

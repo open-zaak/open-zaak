@@ -6,6 +6,7 @@ See:
 * https://github.com/VNG-Realisatie/gemma-zaken/issues/239 (mapping)
 """
 from unittest import skip
+
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_ALLES_LEZEN
 )
