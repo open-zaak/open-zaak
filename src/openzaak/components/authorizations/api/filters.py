@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters.rest_framework import filters
-from vng_api_common.authorizations.models import Applicatie
+from openzaak.components.authorizations.models import Applicatie
 from vng_api_common.filtersets import FilterSet
 
 

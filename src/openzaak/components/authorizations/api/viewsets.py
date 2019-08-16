@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from ..models import Applicatie
 from .serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
@@ -93,6 +94,7 @@ class ApplicatieViewSet(NotificationViewSetMixin,
     queryset = Applicatie.objects.prefetch_related('autorisaties').order_by('-pk')
     serializer_class = ApplicatieSerializer
     _filterset_class = ApplicatieFilter
+    pagination_class = PageNumberPagination
     lookup_field = 'uuid'
     # permission_classes = (AuthScopesRequired,)
     required_scopes = {
