@@ -58,7 +58,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2018-09-07T00:00:00Z',
                 'kenmerken': {
                     'verantwoordelijkeOrganisatie': '517439943',
-                    'besluittype': str(besluittype),
+                    'besluittype': f'http://testserver{besluittype_url}',
                 }
             }
         )
@@ -71,6 +71,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
         client = mock_client.return_value
         besluit = BesluitFactory.create()
         besluit_url = get_operation_url('besluit_read', uuid=besluit.uuid)
+        besluittype_url = reverse(besluit.besluittype)
         bio = BesluitInformatieObjectFactory.create(besluit=besluit)
         bio_url = get_operation_url('besluitinformatieobject_delete', uuid=bio.uuid)
 
@@ -89,7 +90,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2018-09-07T00:00:00Z',
                 'kenmerken': {
                     'verantwoordelijkeOrganisatie': besluit.verantwoordelijke_organisatie,
-                    'besluittype': str(besluit.besluittype),
+                    'besluittype': f'http://testserver{besluittype_url}',
                 }
             }
         )

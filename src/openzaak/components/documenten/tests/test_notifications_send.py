@@ -54,7 +54,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2012-01-14T00:00:00Z',
                 'kenmerken': {
                     'bronorganisatie': '159351741',
-                    'informatieobjecttype': str(informatieobjecttype),
+                    'informatieobjecttype': f'http://testserver{informatieobjecttype_url}',
                     'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
                 }
             }

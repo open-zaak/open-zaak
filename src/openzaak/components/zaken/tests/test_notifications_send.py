@@ -66,7 +66,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2012-01-14T00:00:00Z',
                 'kenmerken': {
                     'bronorganisatie': '517439943',
-                    'zaaktype': str(zaaktype),
+                    'zaaktype': f'http://testserver{zaaktype_url}',
                     'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
                 }
             }
@@ -80,6 +80,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
         client = mock_client.return_value
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaaktype_url = reverse(zaak.zaaktype)
         resultaat = ResultaatFactory.create(zaak=zaak)
         resultaat_url = get_operation_url('resultaat_update', uuid=resultaat.uuid)
 
@@ -98,7 +99,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2012-01-14T00:00:00Z',
                 'kenmerken': {
                     'bronorganisatie': zaak.bronorganisatie,
-                    'zaaktype': str(zaak.zaaktype),
+                    'zaaktype': f'http://testserver{zaaktype_url}',
                     'vertrouwelijkheidaanduiding': zaak.vertrouwelijkheidaanduiding,
                 }
             }
