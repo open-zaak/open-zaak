@@ -48,15 +48,14 @@ paths:
           type: string
       - name: besluittype
         in: query
-        description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+        description: URL naar de/het gerelateerde besluittype
         required: false
         schema:
           type: string
           format: uri
       - name: zaak
         in: query
-        description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
-          uitkomst is.
+        description: URL naar de/het gerelateerde zaak
         required: false
         schema:
           type: string
@@ -1300,8 +1299,7 @@ paths:
           format: uri
       - name: informatieobject
         in: query
-        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API)
-          waarin (een deel van) het besluit beschreven is.
+        description: URL naar de/het gerelateerde informatieobject
         required: false
         schema:
           type: string
@@ -2268,18 +2266,16 @@ components:
           minLength: 1
         besluittype:
           title: Besluittype
-          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+          description: Referentie naar het BESLUITTYPE (in de Catalogi API).
           type: string
           format: uri
-          maxLength: 200
-          minLength: 1
         zaak:
           title: Zaak
-          description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
+          description: Referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           type: string
           format: uri
-          maxLength: 200
+          nullable: true
         datum:
           title: Datum
           description: De beslisdatum (AWB) van het besluit.
@@ -2622,12 +2618,9 @@ components:
           minLength: 1
         informatieobject:
           title: Informatieobject
-          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
-            API) waarin (een deel van) het besluit beschreven is.
+          description: URL-referentie naar het INFORMATIEOBJECT.
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         besluit:
           title: Besluit
           description: URL-referentie naar het BESLUIT.

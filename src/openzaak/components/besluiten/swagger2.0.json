@@ -56,7 +56,7 @@
                     {
                         "name": "besluittype",
                         "in": "query",
-                        "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+                        "description": "URL naar de/het gerelateerde besluittype",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -64,7 +64,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+                        "description": "URL naar de/het gerelateerde zaak",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -1514,7 +1514,7 @@
                     {
                         "name": "informatieobject",
                         "in": "query",
-                        "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API) waarin (een deel van) het besluit beschreven is.",
+                        "description": "URL naar de/het gerelateerde informatieobject",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2617,18 +2617,16 @@
                 },
                 "besluittype": {
                     "title": "Besluittype",
-                    "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+                    "description": "Referentie naar het BESLUITTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri",
-                    "maxLength": 200,
-                    "minLength": 1
+                    "format": "uri"
                 },
                 "zaak": {
                     "title": "Zaak",
-                    "description": "URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+                    "description": "Referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
                     "type": "string",
                     "format": "uri",
-                    "maxLength": 200
+                    "x-nullable": true
                 },
                 "datum": {
                     "title": "Datum",
@@ -2983,11 +2981,9 @@
                 },
                 "informatieobject": {
                     "title": "Informatieobject",
-                    "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API) waarin (een deel van) het besluit beschreven is.",
+                    "description": "URL-referentie naar het INFORMATIEOBJECT.",
                     "type": "string",
-                    "format": "uri",
-                    "maxLength": 1000,
-                    "minLength": 1
+                    "format": "uri"
                 },
                 "besluit": {
                     "title": "Besluit",
