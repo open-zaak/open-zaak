@@ -30,6 +30,21 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             "besluit": f"http://testserver{reverse(besluit)}",
         }])
 
+    def test_detail(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        BesluitFactory.create(zaak=None)  # unrelated besluit
+        url = reverse("zaakbesluit-detail", kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            "url": f'http://testserver{url}',
+            "uuid": str(besluit.uuid),
+            "besluit": f"http://testserver{reverse(besluit)}",
+        })
+
     def test_create(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create()
