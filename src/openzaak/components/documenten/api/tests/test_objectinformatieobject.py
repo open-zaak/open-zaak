@@ -1,39 +1,54 @@
 import uuid
 from unittest import skip
 
+from django.test import override_settings
+
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory, ObjectInformatieObjectFactory
+)
+from openzaak.components.zaken.models.tests.factories import (
+    ZaakFactory, ZaakInformatieObjectFactory
 )
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ObjectTypes
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import (
+    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+)
 from zds_client.tests.mocks import mock_client
 
 ZAAK = 'https://zrc.nl/api/v1/zaken/1234'
 BESLUIT = 'https://brc.nl/api/v1/besluiten/4321'
 
 
-@skip('ObjectInformatieObject is not implemented yet')
+@override_settings(ALLOWED_HOSTS=["testserver.nl"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    list_url = reverse_lazy("objectinformatieobject-list")
 
     def test_create_with_objecttype_zaak(self):
+        zaak = ZaakFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
-            'uuid': eio.uuid
-        })
+        # relate the two
+        zio = ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        zaak_url = reverse(zaak)
+        eio_url = reverse(eio)
+        # re-use the ZIO UUID for OIO
+        zio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": zio.uuid})
 
         response = self.client.post(self.list_url, {
-            'object': ZAAK,
-            'informatieobject': f'http://testserver{eio_url}',
+            'object': f"http://testserver.nl{zaak_url}",
+            'informatieobject': f'http://testserver.nl{eio_url}',
             'objectType': 'zaak'
+        }, HTTP_HOST="testserver.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data, {
+            "url": f"http://testserver.nl{zio_url}",
+            "informatieobject": f"http://testserver.nl{eio_url}",
+            "object": f"http://testserver.nl{zaak_url}",
+            "object_type": "zaak",
         })
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        zio = eio.canonical.objectinformatieobject_set.get()
-        self.assertEqual(zio.object, ZAAK)
 
     def test_create_with_objecttype_besluit(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
