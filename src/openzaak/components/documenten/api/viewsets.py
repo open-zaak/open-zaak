@@ -6,7 +6,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, Gebruiksrechten
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -36,6 +36,7 @@ from .serializers import (
     EnkelvoudigInformatieObjectSerializer,
     EnkelvoudigInformatieObjectWithLockSerializer, GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
+    ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer
 )
 
@@ -363,3 +364,68 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
     Een specifieke audit trail regel opvragen.
     """
     main_resource_lookup_field = 'enkelvoudiginformatieobject_uuid'
+
+
+class ObjectInformatieObjectViewSet(#NotificationCreateMixin,
+                                    #NotificationDestroyMixin,
+                                    #AuditTrailCreateMixin,
+                                    #AuditTrailDestroyMixin,
+                                    #CheckQueryParamsMixin,
+                                    #ListFilterByAuthorizationsMixin,
+                                    mixins.CreateModelMixin,
+                                    mixins.DestroyModelMixin,
+                                    viewsets.ReadOnlyModelViewSet):
+    """
+    Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
+
+    Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
+    ZAAK in de Zaken API, en een INFORMATIEOBJECT.
+
+    create:
+    Maak een OBJECT-INFORMATIEOBJECT relatie aan.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
+    endpoint bij het synchroniseren van relaties.
+
+    **Er wordt gevalideerd op**
+    - geldigheid `informatieobject` URL
+    - de combinatie `informatieobject` en `object` moet uniek zijn
+    - bestaan van `object` URL
+
+    list:
+    Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
+
+    Deze lijst kan gefilterd wordt met query-string parameters.
+
+    retrieve:
+    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
+
+    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
+
+    destroy:
+    Verwijder een OBJECT-INFORMATIEOBJECT relatie.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
+    endpoint bij het synchroniseren van relaties.
+    """
+    # queryset = ObjectInformatieObject.objects.all()
+    serializer_class = ObjectInformatieObjectSerializer
+    # filterset_class = ObjectInformatieObjectFilter
+    lookup_field = 'uuid'
+    # notifications_kanaal = KANAAL_DOCUMENTEN
+    # notifications_main_resource_key = 'informatieobject'
+    # permission_classes = (InformationObjectRelatedAuthScopesRequired,)
+    required_scopes = {
+        'list': SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        'retrieve': SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        'create': SCOPE_DOCUMENTEN_AANMAKEN,
+        'destroy': SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+        'update': SCOPE_DOCUMENTEN_BIJWERKEN,
+        'partial_update': SCOPE_DOCUMENTEN_BIJWERKEN,
+    }
+    audit = AUDIT_DRC
+    audittrail_main_resource_key = 'informatieobject'

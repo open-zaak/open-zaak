@@ -2,6 +2,7 @@
 Serializers of the Document Registratie Component REST API
 """
 import uuid
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import transaction
@@ -20,13 +21,14 @@ from openzaak.components.documenten.models.constants import (
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer, add_choice_values_help_text
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
 
+from ..models.oio import ObjectInformatieObject
 from .validators import StatusValidator
 
 
@@ -403,3 +405,94 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
                 'validators': [IsImmutableValidator()],
             },
         }
+
+
+class ObjectInformatieObjectSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="objectinformatieobject-detail",
+        lookup_field="uuid",
+        read_only=True,
+    )
+
+    informatieobject = serializers.HyperlinkedRelatedField(
+        queryset=EnkelvoudigInformatieObject.objects.all(),
+        view_name="enkelvoudiginformatieobject-detail",
+        lookup_field="uuid",
+    )
+
+    object = serializers.URLField(
+        min_length=1,
+        max_length=1000,
+        help_text=_("URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."),
+        source="obj_url",
+    )
+
+    object_type = serializers.ChoiceField(
+        choices=ObjectTypes.choices,
+        help_text=(
+            _("Het type van het gerelateerde object.")
+            + "\n\n"  # noqa
+            + add_choice_values_help_text(ObjectTypes)  # noqa
+        ),
+    )
+
+    class Meta:
+        model = ObjectInformatieObject
+
+    def validate(self, data: dict):
+        eio = data["informatieobject"]
+        parsed_url = urlparse(data["obj_url"])
+
+        host = self.context["request"].get_host()
+        is_local = parsed_url.netloc == host
+        if not is_local:
+            raise serializers.ValidationError({
+                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
+                            "Dit object bestaat niet op dit domein.")
+            }, code="no-match")
+
+        # check if it's any of the possible types
+        last_bit = parsed_url.path.split("/")[-1]
+        try:
+            _uuid = uuid.UUID(last_bit)
+        except ValueError as exc:
+            raise serializers.ValidationError({
+                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
+                            "De URL eindigt niet op een geldig UUID.")
+            }, code="no-match") from exc
+
+        obj_type = data['object_type']
+        related_objs = f"{obj_type}informatieobject_set"
+        queryset = (
+            getattr(eio.canonical, related_objs)
+            .filter(**{f"{obj_type}__uuid": _uuid})
+        )
+        obj = queryset.first()
+        if obj is None:
+            raise serializers.ValidationError(
+                {
+                    "object": _("Het gerelateerde object kon niet herleid worden tot een {obj_type}.").format(
+                        obj_type=obj_type
+                    )
+                },
+                code="no-match"
+            )
+
+        data["object"] = obj
+        return data
+
+    def create(self, validated_data: dict):
+        """
+        Return a data object for further processing.
+
+        We don't actually have to do anything in the database, because the ZIO/
+        BIO already have that sorted out for us. We just need to be API
+        compatible with the standard.
+        """
+        oio = ObjectInformatieObject(
+            informatieobject=validated_data["informatieobject"],
+            _object=validated_data["object"],
+            object_type=validated_data["object_type"],
+            request=self.context["request"],
+        )
+        return oio
