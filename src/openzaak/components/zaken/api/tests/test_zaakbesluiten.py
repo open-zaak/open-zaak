@@ -46,29 +46,25 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
         })
 
     def test_create(self):
-        zaak = ZaakFactory.create()
-        besluit = BesluitFactory.create()
+        besluit = BesluitFactory.create(for_zaak=True)
         besluit_url = reverse(besluit)
-        url = reverse('zaakbesluit-list', kwargs={'zaak_uuid': zaak.uuid})
+        url = reverse('zaakbesluit-list', kwargs={'zaak_uuid': besluit.zaak.uuid})
 
-        response = self.client.post(url, {
-            'besluit': besluit_url
-        })
+        response = self.client.post(url, {'besluit': besluit_url})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        zakk_besluit = zaak.zaakbesluit_set.get()
-        self.assertEqual(zakk_besluit.besluit, besluit)
-
     def test_delete(self):
-        zakk_besluit = ZaakBesluitFactory.create()
-        zaak = zakk_besluit.zaak
+        besluit = BesluitFactory.create(for_zaak=True)
         url = reverse('zaakbesluit-detail', kwargs={
-            'zaak_uuid': zaak.uuid,
-            'uuid': zakk_besluit.uuid
+            'zaak_uuid': besluit.zaak.uuid,
+            'uuid': besluit.uuid
         })
+        besluit.zaak = None  # it must already be disconnected from zaak
+        besluit.save()
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(zaak.zaakinformatieobject_set.exists())
+        # because the reference between zaak/besluit is broken, this 404s, as
+        # it should
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
