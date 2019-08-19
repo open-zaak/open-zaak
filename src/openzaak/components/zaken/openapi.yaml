@@ -486,14 +486,14 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
           format: uri
       - name: resultaattype
         in: query
-        description: URL naar de/het gerelateerde resultaattype
+        description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
         required: false
         schema:
           type: string
@@ -1403,7 +1403,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -1481,7 +1481,8 @@ paths:
           type: string
       - name: roltype
         in: query
-        description: URL naar de/het gerelateerde roltype
+        description: ' URL-referentie naar een roltype binnen het ZAAKTYPE van de
+          ZAAK.'
         required: false
         schema:
           type: string
@@ -2060,14 +2061,14 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
           format: uri
       - name: statustype
         in: query
-        description: URL naar de/het gerelateerde statustype
+        description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
         required: false
         schema:
           type: string
@@ -2506,14 +2507,15 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
           format: uri
       - name: informatieobject
         in: query
-        description: URL naar de/het gerelateerde informatieobject
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
+          waar ook de relatieinformatie opgevraagd kan worden.
         required: false
         schema:
           type: string
@@ -3433,7 +3435,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -3930,7 +3932,8 @@ paths:
           type: string
       - name: zaaktype
         in: query
-        description: URL naar de/het gerelateerde zaaktype
+        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS
+          waar deze voorkomt
         required: false
         schema:
           type: string
@@ -6293,7 +6296,7 @@ components:
           format: uri
         resultaattype:
           title: Resultaattype
-          description: Referentie naar het RESULTAATTYPE (in de Catalogi API).
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           type: string
           format: uri
         toelichting:
@@ -6361,7 +6364,8 @@ components:
           - medewerker
         roltype:
           title: Roltype
-          description: Referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
+          description: ' URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.'
           type: string
           format: uri
         omschrijving:
@@ -6767,7 +6771,7 @@ components:
           format: uri
         statustype:
           title: Statustype
-          description: Referentie naar het STATUSTYPE (in de Catalogi API).
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           type: string
           format: uri
         datumStatusGezet:
@@ -8268,8 +8272,8 @@ components:
           maxLength: 1000
         zaaktype:
           title: Zaaktype
-          description: Referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS
-            waar deze voorkomt
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de
+            CATALOGUS waar deze voorkomt
           type: string
           format: uri
         registratiedatum:
@@ -8530,7 +8534,8 @@ components:
           minLength: 1
         zaaktype:
           title: Zaaktype
-          description: URL naar de/het gerelateerde zaaktype
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de
+            CATALOGUS waar deze voorkomt
           type: string
           minLength: 1
         archiefnominatie:

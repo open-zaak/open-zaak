@@ -8,6 +8,9 @@ from django.test import override_settings
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory
 )
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK
+)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory
@@ -152,9 +155,10 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'nonFieldErrors')
         self.assertEqual(error['code'], 'incorrect-lock-id')
 
+    @skip('Current implementation is without authentication')
     def test_unlock_force(self):
-        # self.autorisatie.scopes = [SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK]
-        # self.autorisatie.save()
+        self.autorisatie.scopes = [SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK]
+        self.autorisatie.save()
 
         eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
             lock=uuid.uuid4().hex

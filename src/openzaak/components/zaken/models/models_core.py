@@ -93,7 +93,7 @@ class Zaak(APIMixin, models.Model):
     )
     zaaktype = models.ForeignKey(
         'catalogi.ZaakType', on_delete=models.CASCADE,
-        help_text="Referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt"
+        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt"
     )
     registratiedatum = models.DateField(
         help_text='De datum waarop de zaakbehandelende organisatie de ZAAK '
@@ -278,7 +278,7 @@ class Status(models.Model):
     )
     statustype = models.ForeignKey(
         'catalogi.StatusType', on_delete=models.CASCADE,
-        help_text=_("Referentie naar het STATUSTYPE (in de Catalogi API).")
+        help_text=_("URL-referentie naar het STATUSTYPE (in de Catalogi API).")
     )
     # extra informatie
     datum_status_gezet = models.DateTimeField(
@@ -320,7 +320,7 @@ class Resultaat(models.Model):
     )
     resultaattype = models.ForeignKey(
         'catalogi.ResultaatType', on_delete=models.CASCADE,
-        help_text=_("Referentie naar het RESULTAATTYPE (in de Catalogi API).")
+        help_text=_("URL-referentie naar het RESULTAATTYPE (in de Catalogi API).")
     )
 
     toelichting = models.TextField(
@@ -366,7 +366,7 @@ class Rol(models.Model):
 
     roltype = models.ForeignKey(
         'catalogi.RolType', on_delete=models.CASCADE,
-        help_text="Referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+        help_text=" URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
     )
     omschrijving = models.CharField(
         _("omschrijving"), max_length=20,
@@ -555,7 +555,7 @@ class ZaakInformatieObject(models.Model):
     )
     informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical", on_delete=models.CASCADE,
-        help_text="Referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
+        help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
                   "ook de relatieinformatie opgevraagd kan worden."
     )
     aard_relatie = models.CharField(

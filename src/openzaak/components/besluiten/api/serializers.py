@@ -77,8 +77,9 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         view_name='enkelvoudiginformatieobject-detail',
         lookup_field='uuid',
         queryset=EnkelvoudigInformatieObject.objects,
-        help_text=get_help_text('documenten.Gebruiksrechten', 'informatieobject'),
-        validators=[IsImmutableValidator()]
+        help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
+                  "API) waarin (een deel van) het besluit beschreven is.",
+        validators=[IsImmutableValidator()],
     )
 
     class Meta:

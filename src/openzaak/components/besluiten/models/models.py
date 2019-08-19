@@ -40,11 +40,11 @@ class Besluit(APIMixin, models.Model):
 
     besluittype = models.ForeignKey(
         'catalogi.BesluitType', on_delete=models.CASCADE,
-        help_text="Referentie naar het BESLUITTYPE (in de Catalogi API)."
+        help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API)."
     )
     zaak = models.ForeignKey(
         'zaken.Zaak', on_delete=models.PROTECT, null=True, blank=True,  # een besluit kan niet bij een zaak horen
-        help_text="Referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is."
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is."
     )
 
     datum = models.DateField(
@@ -144,7 +144,7 @@ class BesluitInformatieObject(models.Model):
 
     besluit = models.ForeignKey(
         Besluit, on_delete=models.CASCADE,
-        help_text="URL-referentie naar het BESLUIT."
+        help_text="URL-referentie naar het BESLUIT.",
     )
     informatieobject = models.ForeignKey(
         'documenten.EnkelvoudigInformatieObjectCanonical', on_delete=models.CASCADE,

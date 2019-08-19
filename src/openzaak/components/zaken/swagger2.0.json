@@ -536,7 +536,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaak",
+                        "description": "URL-referentie naar de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -544,7 +544,7 @@
                     {
                         "name": "resultaattype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde resultaattype",
+                        "description": "URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -1621,7 +1621,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaak",
+                        "description": "URL-referentie naar de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -1707,7 +1707,7 @@
                     {
                         "name": "roltype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde roltype",
+                        "description": " URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2396,7 +2396,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaak",
+                        "description": "URL-referentie naar de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2404,7 +2404,7 @@
                     {
                         "name": "statustype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde statustype",
+                        "description": "URL-referentie naar het STATUSTYPE (in de Catalogi API).",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2921,7 +2921,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaak",
+                        "description": "URL-referentie naar de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2929,7 +2929,7 @@
                     {
                         "name": "informatieobject",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde informatieobject",
+                        "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -4006,7 +4006,7 @@
                     {
                         "name": "zaak",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaak",
+                        "description": "URL-referentie naar de ZAAK.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -4585,7 +4585,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -7290,7 +7290,7 @@
                 },
                 "resultaattype": {
                     "title": "Resultaattype",
-                    "description": "Referentie naar het RESULTAATTYPE (in de Catalogi API).",
+                    "description": "URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri"
                 },
@@ -7354,7 +7354,7 @@
                 },
                 "roltype": {
                     "title": "Roltype",
-                    "description": "Referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+                    "description": " URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
                     "type": "string",
                     "format": "uri"
                 },
@@ -7829,7 +7829,7 @@
                 },
                 "statustype": {
                     "title": "Statustype",
-                    "description": "Referentie naar het STATUSTYPE (in de Catalogi API).",
+                    "description": "URL-referentie naar het STATUSTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri"
                 },
@@ -9685,7 +9685,7 @@
                 },
                 "zaaktype": {
                     "title": "Zaaktype",
-                    "description": "Referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
+                    "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
                     "type": "string",
                     "format": "uri"
                 },
@@ -9921,7 +9921,7 @@
                 },
                 "zaaktype": {
                     "title": "Zaaktype",
-                    "description": "URL naar de/het gerelateerde zaaktype",
+                    "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
                     "type": "string",
                     "minLength": 1
                 },

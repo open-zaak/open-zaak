@@ -120,7 +120,7 @@ class InformatieObject(models.Model):
 
     informatieobjecttype = models.ForeignKey(
         'catalogi.InformatieObjectType', on_delete=models.CASCADE,
-        help_text=_('Referentie naar het INFORMATIEOBJECTTYPE (in de '
+        help_text=_('URL-referentie naar het INFORMATIEOBJECTTYPE (in de '
                     'Catalogi API).')
     )
 

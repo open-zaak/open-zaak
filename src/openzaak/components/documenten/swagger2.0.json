@@ -3373,7 +3373,7 @@
                 },
                 "informatieobjecttype": {
                     "title": "Informatieobjecttype",
-                    "description": "Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
+                    "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri"
                 },
@@ -3678,7 +3678,7 @@
                 },
                 "informatieobjecttype": {
                     "title": "Informatieobjecttype",
-                    "description": "Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
+                    "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri"
                 },
@@ -3996,7 +3996,7 @@
                 },
                 "informatieobjecttype": {
                     "title": "Informatieobjecttype",
-                    "description": "Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
+                    "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri"
                 },
