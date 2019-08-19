@@ -1,17 +1,34 @@
-from unittest import skip
-
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakBesluitFactory, ZaakFactory
-)
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
 
 
-@skip('ZaakBesluit is not implemented yet')
 class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+
+    def test_list(self):
+        """
+        Assert that it's possible to list besluiten for zaken.
+        """
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        BesluitFactory.create(zaak=None)  # unrelated besluit
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        zaakbesluit_url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid}
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [{
+            "url": f'http://testserver{zaakbesluit_url}',
+            "uuid": str(besluit.uuid),
+            "besluit": f"http://testserver{reverse(besluit)}",
+        }])
 
     def test_create(self):
         zaak = ZaakFactory.create()
