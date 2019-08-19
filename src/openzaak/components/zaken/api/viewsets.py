@@ -1,7 +1,9 @@
 import logging
 
+from django.db import models
 from django.shortcuts import get_object_or_404
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.zaken.models import (
     KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
     ZaakInformatieObject, ZaakObject
@@ -42,8 +44,9 @@ from .scopes import (
 )
 from .serializers import (
     KlantContactSerializer, ResultaatSerializer, RolSerializer,
-    StatusSerializer, ZaakEigenschapSerializer, ZaakInformatieObjectSerializer,
-    ZaakObjectSerializer, ZaakSerializer, ZaakZoekSerializer
+    StatusSerializer, ZaakBesluitSerializer, ZaakEigenschapSerializer,
+    ZaakInformatieObjectSerializer, ZaakObjectSerializer, ZaakSerializer,
+    ZaakZoekSerializer
 )
 
 logger = logging.getLogger(__name__)
@@ -654,3 +657,67 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     Een specifieke audit trail regel opvragen.
     """
     main_resource_lookup_field = 'zaak_uuid'
+
+
+class ZaakBesluitViewSet(  # NotificationCreateMixin,
+                           # AuditTrailCreateMixin,
+                           # AuditTrailDestroyMixin,
+                           NestedViewSetMixin,
+                           # ListFilterByAuthorizationsMixin,
+                           # mixins.CreateModelMixin,
+                           # mixins.DestroyModelMixin,
+                           viewsets.ReadOnlyModelViewSet):
+    """
+    Read and edit Zaak-Besluit relations.
+
+    Because of the database-FK nature, ZaakBesluit is pretty much an alias
+    for Besluit. We are handling Besluit-objects here and filtering them on
+    the relevant Zaak.
+
+    list:
+    Alle ZAAKBESLUITen opvragen.
+
+    Alle ZAAKBESLUITen opvragen.
+
+    retrieve:
+    Een specifiek ZAAKBESLUIT opvragen.
+
+    Een specifiek ZAAKBESLUIT opvragen.
+
+    create:
+    Maak een ZAAKBESLUIT aan.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
+    daarom is dit endpoint in de Zaken API geimplementeerd.
+
+    **Er wordt gevalideerd op**
+    - geldigheid URL naar de ZAAK
+
+    destroy:
+    Verwijder een ZAAKBESLUIT.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
+    daarom is dit endpoint in de Zaken API geimplementeerd.
+    """
+    serializer_class = ZaakBesluitSerializer
+    lookup_field = 'uuid'
+
+    # permission_classes = (
+    #     permission_class_factory(
+    #         base=ZaakBaseAuthRequired,
+    #         get_obj='_get_zaak',
+    #     ),
+    # )
+
+    def _get_zaak(self):
+        if not hasattr(self, '_zaak'):
+            self._zaak = get_object_or_404(Zaak, {"uuid": self.kwargs["zaak_uuid"]})
+        return self._zaak
+
+    def get_queryset(self) -> models.QuerySet:
+        zaak_uuid = self.kwargs.get("zaak_uuid")  # empty on drf-yasg introspection
+        return Besluit.objects.filter(zaak__uuid=zaak_uuid)

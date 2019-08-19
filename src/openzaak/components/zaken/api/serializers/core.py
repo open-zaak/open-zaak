@@ -23,6 +23,7 @@ from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
+from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.constants import (
     Archiefnominatie, Archiefstatus, RelatieAarden, RolOmschrijving, RolTypes,
@@ -841,3 +842,28 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 'validators': [IsImmutableValidator()],
             }
         }
+
+
+class ZaakBesluitSerializer(serializers.Serializer):
+    """
+    Serializer the reverse relation between Besluit-Zaak.
+
+    We use the UUID of the Besluit to generate the URL/UUID of the ZaakBesluit
+    instance, since it's a FK relationship, we can safely do this. Effectively,
+    we're feeding the :class:`Besluit` instance to this serializer.
+    """
+    url = NestedHyperlinkedIdentityField(
+        view_name="zaakbesluit-detail",
+        lookup_field="uuid",
+        parent_lookup_kwargs={'zaak_uuid': 'zaak__uuid'},
+    )
+    uuid = serializers.UUIDField(
+        help_text=_("Unieke resource identifier (UUID4)"),
+        read_only=True,
+    )
+    besluit = serializers.HyperlinkedIdentityField(
+        view_name="besluit-detail",
+        lookup_field="uuid",
+        help_text=_("URL-referentie naar het BESLUIT (in de Besluiten API), waar "
+                    "ook de relatieinformatie opgevraagd kan worden.")
+    )
