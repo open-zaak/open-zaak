@@ -6,13 +6,14 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.zaken.models import (
     KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
-    ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
+    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
 )
 from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -856,14 +857,26 @@ class ZaakBesluitSerializer(serializers.Serializer):
         view_name="zaakbesluit-detail",
         lookup_field="uuid",
         parent_lookup_kwargs={'zaak_uuid': 'zaak__uuid'},
+        read_only=True,
     )
     uuid = serializers.UUIDField(
         help_text=_("Unieke resource identifier (UUID4)"),
         read_only=True,
     )
-    besluit = serializers.HyperlinkedIdentityField(
+    besluit = serializers.HyperlinkedRelatedField(
+        queryset=Besluit.objects.all(),
         view_name="besluit-detail",
         lookup_field="uuid",
         help_text=_("URL-referentie naar het BESLUIT (in de Besluiten API), waar "
                     "ook de relatieinformatie opgevraagd kan worden.")
+
     )
+
+    def validate_besluit(self, besluit: Besluit):
+        zaak = self.context["view"]._get_zaak()
+        if not besluit.zaak == zaak:
+            raise serializers.ValidationError(
+                _("Het Besluit verwijst niet naar de juiste zaak"),
+                code="invalid-zaak"
+            )
+        return besluit

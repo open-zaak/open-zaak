@@ -2,20 +2,19 @@ import logging
 
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from openzaak.components.besluiten.models import Besluit
-from openzaak.components.zaken.models import (
-    KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
-    ZaakInformatieObject, ZaakObject
-)
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.reverse import reverse
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin, AuditTrailViewSet, AuditTrailViewsetMixin
+    AuditTrailCreateMixin, AuditTrailDestroyMixin, AuditTrailViewSet,
+    AuditTrailViewsetMixin
 )
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
@@ -27,6 +26,10 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
+from ..models import (
+    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
+    ZaakInformatieObject, ZaakObject
+)
 from .audits import AUDIT_ZRC
 from .filters import (
     ResultaatFilter, RolFilter, StatusFilter, ZaakFilter,
@@ -659,14 +662,14 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     main_resource_lookup_field = 'zaak_uuid'
 
 
-class ZaakBesluitViewSet(  # NotificationCreateMixin,
-                           # AuditTrailCreateMixin,
-                           # AuditTrailDestroyMixin,
-                           NestedViewSetMixin,
-                           # ListFilterByAuthorizationsMixin,
-                           # mixins.CreateModelMixin,
-                           # mixins.DestroyModelMixin,
-                           viewsets.ReadOnlyModelViewSet):
+class ZaakBesluitViewSet(NotificationCreateMixin,
+                         AuditTrailCreateMixin,
+                         AuditTrailDestroyMixin,
+                         NestedViewSetMixin,
+                         # ListFilterByAuthorizationsMixin,  # TODO FIXME
+                         mixins.CreateModelMixin,
+                         mixins.DestroyModelMixin,
+                         viewsets.ReadOnlyModelViewSet):
     """
     Read and edit Zaak-Besluit relations.
 
@@ -703,6 +706,7 @@ class ZaakBesluitViewSet(  # NotificationCreateMixin,
     De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
     daarom is dit endpoint in de Zaken API geimplementeerd.
     """
+    queryset = ZaakBesluit.objects.none()  # required for vng-api-common
     serializer_class = ZaakBesluitSerializer
     lookup_field = 'uuid'
 
@@ -712,12 +716,52 @@ class ZaakBesluitViewSet(  # NotificationCreateMixin,
     #         get_obj='_get_zaak',
     #     ),
     # )
+    notifications_kanaal = KANAAL_ZAKEN
+    audit = AUDIT_ZRC
 
     def _get_zaak(self):
         if not hasattr(self, '_zaak'):
-            self._zaak = get_object_or_404(Zaak, {"uuid": self.kwargs["zaak_uuid"]})
+            self._zaak = get_object_or_404(Zaak, uuid=self.kwargs["zaak_uuid"])
         return self._zaak
 
     def get_queryset(self) -> models.QuerySet:
         zaak_uuid = self.kwargs.get("zaak_uuid")  # empty on drf-yasg introspection
-        return Besluit.objects.filter(zaak__uuid=zaak_uuid)
+        return ZaakBesluit.objects.filter(zaak__uuid=zaak_uuid)
+
+    def perform_create(self, serializer):
+        """
+        Handle the creation logic.
+
+        Nothing extra happens here, since the creation is entirely managed via
+        the Besluit resource. We just perform some extra sanity checks in the
+        serializer.
+        """
+        besluit = serializer.validated_data["besluit"]
+        self._instance = ZaakBesluit.objects.get(pk=besluit.pk)
+        serializer.instance = self._instance
+
+    def get_audittrail_instance(self, response):
+        return self._instance
+
+    def get_audittrail_main_object_url(self, data, main_resource) -> str:
+        return reverse(
+            "zaak-detail",
+            request=self.request,
+            kwargs={"uuid": self.kwargs["zaak_uuid"]}
+        )
+
+    def perform_destroy(self, instance: Besluit):
+        """
+        'Delete' the relation between zaak & besluit.
+
+        The actual relation information must be updated in the Besluiten API,
+        so this is just a check.
+        """
+        if instance.zaak:
+            raise ValidationError({
+                "zaak": _("Het Besluit verwijst nog naar deze zaak. "
+                          "Deze relatie moet eerst verbroken worden.")
+            }, code="inconsistent-relation")
+
+        # nothing to do, the 'relation' info is dealt with through besluit.Besluit
+        pass

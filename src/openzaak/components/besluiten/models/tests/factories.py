@@ -19,6 +19,13 @@ class BesluitFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'besluiten.Besluit'
 
+    class Params:
+        for_zaak = factory.Trait(
+            zaak=factory.SubFactory(
+                "openzaak.components.zaken.models.tests.factories.ZaakFactory"
+            ),
+        )
+
     @factory.lazy_attribute
     def ingangsdatum(self):
         _ingangsdatum = factory.Faker(
