@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -7,11 +6,10 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, Gebruiksrechten
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from rest_framework import serializers, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet, AuditTrailViewsetMixin
