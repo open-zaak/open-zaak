@@ -18,11 +18,16 @@ class EnkelvoudigInformatieObjectInline(admin.StackedInline):
     extra = 1
 
 
+def unlock(modeladmin, request, queryset):
+    queryset.update(lock='')
+
+
 @admin.register(EnkelvoudigInformatieObjectCanonical)
 class EnkelvoudigInformatieObjectCanonicalAdmin(PrivateMediaMixin, admin.ModelAdmin):
     list_display = ['__str__', 'get_not_lock_display']
     inlines = [EnkelvoudigInformatieObjectInline, GebruiksrechtenInline]
     private_media_fields = ('inhoud',)
+    actions = [unlock]
 
     def get_not_lock_display(self, obj) -> bool:
         return not bool(obj.lock)
