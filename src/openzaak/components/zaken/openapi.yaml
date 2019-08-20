@@ -6705,9 +6705,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     KlantContact:
       required:
@@ -8762,11 +8762,10 @@ components:
       type: object
       properties:
         url:
-          title: URL-referentie naar de ZAAK.
+          title: Url
+          description: URL-referentie naar de ZAAK.
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         aardRelatie:
           title: Aard relatie
           description: 'Benamingen van de aard van de relaties van andere zaken tot

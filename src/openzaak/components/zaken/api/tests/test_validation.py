@@ -12,7 +12,9 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory
 )
-from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.components.zaken.models import (
+    RelevanteZaakRelatie, Zaak, ZaakInformatieObject
+)
 from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie
 )
@@ -20,7 +22,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ResultaatFactory, StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 )
 from openzaak.components.zaken.tests.utils import (
-    ZAAK_WRITE_KWARGS, isodatetime
+    ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime
 )
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -127,8 +129,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'communicatiekanaal')
         self.assertIsNone(error)
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_404')
-    def test_relevante_andere_zaken(self):
+    def test_relevante_andere_zaken_invalid(self):
         url = reverse('zaak-list')
 
         response = self.client.post(url, {
@@ -146,55 +147,8 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, 'relevanteAndereZaken.0.url')
-        self.assertEqual(validation_error['code'], URLValidator.code)
+        self.assertEqual(validation_error['code'], 'no_match')
 
-    @override_settings(
-        LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-        ALLOWED_HOSTS=[valid_testserver_url]
-    )
-    def test_relevante_andere_zaken_invalid_resource(self, *mocks):
-        url = reverse('zaak-list')
-
-        zaak_body = {
-            'zaaktype': f'http://testserver{self.zaaktype_url}',
-            'bronorganisatie': '517439943',
-            'verantwoordelijkeOrganisatie': '517439943',
-            'registratiedatum': '2018-06-11',
-            'startdatum': '2018-06-11',
-            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-        }
-
-        response = self.client.post(
-            url,
-            zaak_body,
-            HTTP_HOST=self.valid_testserver_url,
-            **ZAAK_WRITE_KWARGS
-        )
-
-        andere_zaak_url = response.data['url']
-
-        zaak_body.update({'relevanteAndereZaken': [{
-            'url': andere_zaak_url,
-            'aardRelatie': AardZaakRelatie.vervolg
-        }]})
-
-        with patch('vng_api_common.validators.obj_has_shape', return_value=False):
-            response = self.client.post(
-                url,
-                zaak_body,
-                HTTP_HOST=self.valid_testserver_url,
-                **ZAAK_WRITE_KWARGS
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        validation_error = get_validation_errors(response, 'relevanteAndereZaken.0.url')
-        self.assertEqual(validation_error['code'], 'invalid-resource')
-
-    @override_settings(
-        LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-        ALLOWED_HOSTS=[valid_testserver_url]
-    )
     def test_relevante_andere_zaken_valid_zaak_resource(self):
         url = reverse('zaak-list')
 
@@ -210,24 +164,21 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             url,
             zaak_body,
-            HTTP_HOST=self.valid_testserver_url,
             **ZAAK_WRITE_KWARGS
         )
 
-        andere_zaak_url = response.data['url']
-
+        zaak2 = ZaakFactory.create()
+        zaak2_url = reverse(zaak2)
         zaak_body.update({'relevanteAndereZaken': [{
-            'url': andere_zaak_url,
+            'url': f'http://testserver{zaak2_url}',
             'aardRelatie': AardZaakRelatie.vervolg
         }]})
 
-        with patch('vng_api_common.validators.obj_has_shape', return_value=True):
-            response = self.client.post(
-                url,
-                zaak_body,
-                HTTP_HOST=self.valid_testserver_url,
-                **ZAAK_WRITE_KWARGS
-            )
+        response = self.client.post(
+            url,
+            zaak_body,
+            **ZAAK_WRITE_KWARGS
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

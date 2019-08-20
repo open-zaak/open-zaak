@@ -107,7 +107,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         response = self.client.put(url, modified_data, **ZAAK_WRITE_KWARGS)
         zaak_response = response.data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=zaak_response['url'])
+        audittrails = AuditTrail.objects.filter(hoofd_object=zaak_response['url']).order_by('id')
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the Zaak update contains the correct

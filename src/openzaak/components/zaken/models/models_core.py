@@ -253,7 +253,9 @@ class RelevanteZaakRelatie(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, related_name='relevante_andere_zaken',
     )
-    url = models.URLField(_("URL-referentie naar de ZAAK."), max_length=1000)
+    url = models.ForeignKey(
+        Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
+    )
     aard_relatie = models.CharField(
         max_length=20, choices=AardZaakRelatie.choices,
         help_text=_('Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.')

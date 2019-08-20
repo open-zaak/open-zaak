@@ -111,17 +111,16 @@ class OpschortingSerializer(GegevensGroepSerializer):
 
 
 class RelevanteZaakSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        view_name='zaak-detail',
+        lookup_field='uuid',
+        help_text=_("URL-referentie naar de ZAAK.")
+    )
+
     class Meta:
         model = RelevanteZaakRelatie
         fields = ('url', 'aard_relatie',)
-        extra_kwargs = {
-            'url': {
-                'validators': [
-                    ResourceValidator('Zaak', settings.ZRC_API_SPEC, get_auth=get_auth,
-                                      headers={'Accept-Crs': 'EPSG:4326'})
-                ]
-            }
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
