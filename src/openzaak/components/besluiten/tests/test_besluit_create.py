@@ -5,7 +5,7 @@ from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.besluiten.models.tests.factories import (
-    BesluitFactory, BesluitInformatieObjectFactory,
+    BesluitFactory, BesluitInformatieObjectFactory
 )
 from openzaak.components.catalogi.models.tests.factories import (
     BesluitTypeFactory, ZaakInformatieobjectTypeFactory

@@ -124,9 +124,9 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         if not informatieobject or not zaak:
             return
 
-        io_informatieobjecttype = informatieobject.latest_version.informatieobjecttype
-        zaak_informatieobjecttypes = zaak.zaaktype.heeft_relevant_informatieobjecttype.all()
-        if io_informatieobjecttype not in zaak_informatieobjecttypes:
+        io = informatieobject.enkelvoudiginformatieobject_set.first()
+        if not zaak.zaaktype.heeft_relevant_informatieobjecttype\
+                .filter(id=io.informatieobjecttype_id, concept=False).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 

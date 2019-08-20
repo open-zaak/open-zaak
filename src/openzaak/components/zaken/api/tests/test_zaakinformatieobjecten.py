@@ -29,7 +29,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_create(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        io = EnkelvoudigInformatieObjectFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
         io_url = reverse(io)
         ZaakInformatieobjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype,
@@ -76,7 +76,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_registratiedatum_ignored(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        io = EnkelvoudigInformatieObjectFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
         io_url = reverse(io)
         ZaakInformatieobjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype,

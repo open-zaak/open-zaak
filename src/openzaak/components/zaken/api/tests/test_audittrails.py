@@ -142,8 +142,8 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
         zaak = Zaak.objects.get()
-        io = EnkelvoudigInformatieObjectFactory.create()
-        io_url = reverse((io))
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
+        io_url = reverse(io)
         ZaakInformatieobjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype,
             zaaktype=zaak.zaaktype

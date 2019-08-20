@@ -1,3 +1,4 @@
+import uuid
 from unittest import skip
 from unittest.mock import patch
 
@@ -16,14 +17,17 @@ from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie
 )
 from openzaak.components.zaken.models.tests.factories import (
-    ResultaatFactory, StatusFactory, ZaakFactory
+    ResultaatFactory, StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 )
 from openzaak.components.zaken.tests.utils import (
     ZAAK_WRITE_KWARGS, isodatetime
 )
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (
+    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding
+)
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, URLValidator
@@ -505,7 +509,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
     def test_informatieobject_create(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        io = EnkelvoudigInformatieObjectFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
         io_url = reverse(io)
         ZaakInformatieobjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype,
@@ -586,6 +590,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.zaaktype_url = reverse(cls.zaaktype)
         cls.statustype_url = reverse(cls.statustype)
+        cls.statustype_end_url = reverse(cls.statustype_end)
 
     def test_not_allowed_to_change_statustype(self):
         _status = StatusFactory.create()
@@ -658,6 +663,62 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, 'datumStatusGezet')
         self.assertEqual(validation_error['code'], 'date-in-future')
+
+    def test_status_with_informatieobject_lock(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create(canonical__lock=uuid.uuid4().hex)
+        ZaakInformatieObjectFactory.create(
+            zaak=zaak,
+            informatieobject=io.canonical
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn='P10Y',
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=self.zaaktype
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        list_url = reverse('status-list')
+
+        response = self.client.post(list_url, {
+            'zaak': zaak_url,
+            'statustype': self.statustype_end_url,
+            'datumStatusGezet': isodatetime(2019, 7, 22, 13, 00, 00),
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, 'nonFieldErrors')
+        self.assertEqual(validation_error['code'], 'informatieobject-locked')
+
+    def test_status_with_informatieobject_indicatie_gebruiksrecht_null(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create(indicatie_gebruiksrecht=None)
+        ZaakInformatieObjectFactory.create(
+            zaak=zaak,
+            informatieobject=io.canonical
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn='P10Y',
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=self.zaaktype
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        list_url = reverse('status-list')
+
+        response = self.client.post(list_url, {
+            'zaak': zaak_url,
+            'statustype': self.statustype_end_url,
+            'datumStatusGezet': isodatetime(2019, 7, 22, 13, 00, 00),
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, 'nonFieldErrors')
+        self.assertEqual(validation_error['code'], 'indicatiegebruiksrecht-unset')
 
 
 class ResultaatValidationTests(JWTAuthMixin, APITestCase):

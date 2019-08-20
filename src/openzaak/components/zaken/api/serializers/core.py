@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Max, Subquery
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,7 +11,9 @@ from openzaak.components.besluiten.models import Besluit
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField
 )
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+)
 from openzaak.components.zaken.models import (
     KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
     ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
@@ -322,15 +325,21 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
         default_archiefstatus = self.instance.archiefstatus if self.instance else Archiefstatus.nog_te_archiveren
         archiefstatus = attrs.get('archiefstatus', default_archiefstatus) != Archiefstatus.nog_te_archiveren
         if archiefstatus:
-            ios = [zio.informatieobject for zio in self.instance.zaakinformatieobject_set.all()]
-            for io in ios:
-                if io.latest_version.status != 'gearchiveerd':
-                    raise serializers.ValidationError({
-                        'archiefstatus',
-                        _("Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
-                          "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
-                          "waarde dan `nog_te_archiveren`.")
-                    }, code='documents-not-archived')
+            # search for related informatieobjects with status != 'gearchiveerd'
+            canonical_ids = self.instance.zaakinformatieobject_set.values('informatieobject_id')
+            io_ids = EnkelvoudigInformatieObjectCanonical.objects.filter(id__in=Subquery(canonical_ids))\
+                .annotate(last=Max('enkelvoudiginformatieobject')).values('last')
+
+            if EnkelvoudigInformatieObject.objects\
+                    .filter(id__in=Subquery(io_ids))\
+                    .exclude(status='gearchiveerd').exists():
+
+                raise serializers.ValidationError({
+                    'archiefstatus',
+                    _("Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
+                      "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
+                      "waarde dan `nog_te_archiveren`.")
+                }, code='documents-not-archived')
 
             for attr in ['archiefnominatie', 'archiefactiedatum']:
                 if not attrs.get(attr, getattr(self.instance, attr) if self.instance else None):
@@ -345,7 +354,7 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
     def create(self, validated_data: dict):
         # set the derived value from ZTC
         if 'vertrouwelijkheidaanduiding' not in validated_data:
-            zaaktype = validated_data.get('zaaktype')
+            zaaktype = validated_data['zaaktype']
             validated_data['vertrouwelijkheidaanduiding'] = zaaktype.vertrouwelijkheidaanduiding
 
         return super().create(validated_data)
@@ -403,21 +412,30 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # and are unlocked
         if validated_attrs['__is_eindstatus']:
             zaak = validated_attrs['zaak']
-            zios = zaak.zaakinformatieobject_set.all()
-            for zio in zios:
-                informatieobject = zio.informatieobject
-                if informatieobject.lock:
-                    raise serializers.ValidationError(
-                        "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
-                        "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
-                        code='informatieobject-locked'
-                    )
-                if informatieobject.indicatie_gebruiksrecht is None:
-                    raise serializers.ValidationError(
-                        "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
-                        "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten.",
-                        code='indicatiegebruiksrecht-unset'
-                    )
+
+            if zaak.zaakinformatieobject_set.exclude(informatieobject__lock='').exists():
+                raise serializers.ValidationError(
+                    "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
+                    "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
+                    code='informatieobject-locked'
+                )
+            canonical_ids = zaak.zaakinformatieobject_set.values('informatieobject_id')
+            io_ids = EnkelvoudigInformatieObjectCanonical.objects.filter(id__in=Subquery(canonical_ids))\
+                .annotate(last=Max('enkelvoudiginformatieobject')).values('last')
+
+            if EnkelvoudigInformatieObject.objects\
+                    .filter(id__in=Subquery(io_ids))\
+                    .filter(indicatie_gebruiksrecht__isnull=True).exists():
+
+                    # zios = zaak.zaakinformatieobject_set.all()
+                    # for zio in zios:
+                    #     informatieobject = zio.informatieobject
+                    #     if informatieobject.latest_version.indicatie_gebruiksrecht is None:
+                raise serializers.ValidationError(
+                    "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
+                    "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten.",
+                    code='indicatiegebruiksrecht-unset'
+                )
 
             brondatum_calculator = BrondatumCalculator(zaak, validated_attrs['datum_status_gezet'])
             try:

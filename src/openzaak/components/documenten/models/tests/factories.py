@@ -22,7 +22,7 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
 
 
 class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
-    canonical = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
+    canonical = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None)
     identificatie = uuid.uuid4().hex
     bronorganisatie = factory.Faker('ssn', locale='nl_NL')
     creatiedatum = datetime.date(2018, 6, 27)
