@@ -28,7 +28,7 @@ class BesluittypeZaaktypeValidator:
         if not zaak:
             return
 
-        if zaak.zaaktype not in besluittype.zaaktypes.all():
+        if not besluittype.zaaktypes.filter(id=zaak.zaaktype_id, concept=False).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -40,10 +40,6 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         informatieobject = attrs.get('informatieobject')
         besluit = attrs.get('besluit')
 
-        if not besluit.zaak:
-            return
-
-        io_informatieobjecttype = informatieobject.latest_version.informatieobjecttype
-        besluit_informatieobjecttypes = besluit.zaak.zaaktype.heeft_relevant_informatieobjecttype.all()
-        if io_informatieobjecttype not in besluit_informatieobjecttypes:
+        io = informatieobject.enkelvoudiginformatieobject_set.first()
+        if not besluit.besluittype.informatieobjecttypes.filter(id=io.informatieobjecttype_id, concept=False).exists():
             raise serializers.ValidationError(self.message, code=self.code)

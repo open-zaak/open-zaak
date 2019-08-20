@@ -97,8 +97,10 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     def test_create_besluitinformatieobject_audittrail(self):
         besluit_data = self._create_besluit()
 
-        io = EnkelvoudigInformatieObjectFactory.create()
+        besluit = Besluit.objects.get()
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
         io_url = reverse(io)
+        besluit.besluittype.informatieobjecttypes.add(io.informatieobjecttype)
         url = reverse(BesluitInformatieObject)
 
         response = self.client.post(url, {
