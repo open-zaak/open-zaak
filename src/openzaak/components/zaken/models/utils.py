@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import Union
 
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Max
 
 from dateutil.relativedelta import relativedelta
 from openzaak.utils import parse_isodatetime
@@ -147,11 +148,7 @@ def get_brondatum(zaak: Zaak, afleidingswijze: str, datum_kenmerk: str=None,
                 _('Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.')
             )
 
-        max_ingangsdatum = None
-        for besluit in zaakbesluiten:
-            ingangsdatum = besluit.ingangsdatum
-            if not max_ingangsdatum or ingangsdatum > max_ingangsdatum:
-                max_ingangsdatum = ingangsdatum
+        max_ingangsdatum = zaakbesluiten.aggregate(Max('ingangsdatum'))['ingangsdatum__max']
         return max_ingangsdatum
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit:
