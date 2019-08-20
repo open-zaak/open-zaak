@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-from openzaak.components.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from openzaak.components.authorizations.api.validators import UniqueClientIDValidator
 from vng_api_common.constants import (
     ComponentTypes, VertrouwelijkheidsAanduiding

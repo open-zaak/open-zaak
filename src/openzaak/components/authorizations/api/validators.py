@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.serializers import ValidationError
 
-from ..models import Applicatie
+from vng_api_common.authorizations.models import Applicatie
 
 
 class UniqueClientIDValidator:
