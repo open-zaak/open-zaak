@@ -13,7 +13,7 @@ from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from .audits import AUDIT_BRC
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
-from .permissions import BesluitAuthScopesRequired, BesluitRelatedAuthScopesRequired
+from .permissions import BesluitAuthRequired
 from .scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -23,12 +23,10 @@ from .scopes import (
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 
-class BesluitViewSet(
-    NotificationViewSetMixin,
-    AuditTrailViewsetMixin,
-    ListFilterByAuthorizationsMixin,
-    viewsets.ModelViewSet,
-):
+class BesluitViewSet(NotificationViewSetMixin,
+                     AuditTrailViewsetMixin,
+                     # ListFilterByAuthorizationsMixin,
+                     viewsets.ModelViewSet):
     """
     Opvragen en bewerken van BESLUITen.
 
@@ -90,7 +88,7 @@ class BesluitViewSet(
     filter_class = BesluitFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
-    permission_classes = (BesluitAuthScopesRequired, )
+    permission_classes = (BesluitAuthRequired, )
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -103,13 +101,11 @@ class BesluitViewSet(
     audit = AUDIT_BRC
 
 
-class BesluitInformatieObjectViewSet(
-    NotificationViewSetMixin,
-    AuditTrailViewsetMixin,
-    CheckQueryParamsMixin,
-    ListFilterByAuthorizationsMixin,
-    viewsets.ModelViewSet,
-):
+class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
+                                     AuditTrailViewsetMixin,
+                                     CheckQueryParamsMixin,
+                                     # ListFilterByAuthorizationsMixin,
+                                     viewsets.ModelViewSet):
     """
     Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties.
 
@@ -168,7 +164,8 @@ class BesluitInformatieObjectViewSet(
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
     lookup_field = 'uuid'
-    permission_classes = (BesluitRelatedAuthScopesRequired,)
+    permission_classes = (BesluitAuthRequired,)
+    permission_main_object = 'besluit'
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,

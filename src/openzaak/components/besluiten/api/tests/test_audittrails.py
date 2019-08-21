@@ -3,8 +3,9 @@ from copy import deepcopy
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
+from openzaak.utils.tests import JWTAuthMixin
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory

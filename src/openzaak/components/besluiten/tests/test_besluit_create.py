@@ -1,10 +1,10 @@
 from datetime import date
 
 from freezegun import freeze_time
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import (
-    JWTAuthMixin,
     TypeCheckMixin,
     get_validation_errors,
     reverse,
@@ -17,11 +17,14 @@ from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    BesluitTypeFactory
+)
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):

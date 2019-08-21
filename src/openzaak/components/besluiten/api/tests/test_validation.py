@@ -1,23 +1,20 @@
 from freezegun import freeze_time
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin,
-    get_validation_errors,
-    reverse,
-    reverse_lazy,
-)
-from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
 
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
-    BesluitTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    BesluitTypeFactory
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import (
+    get_validation_errors, reverse, reverse_lazy
+)
+from openzaak.utils.tests import JWTAuthMixin
+from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
 
 
 class BesluitValidationTests(JWTAuthMixin, APITestCase):
