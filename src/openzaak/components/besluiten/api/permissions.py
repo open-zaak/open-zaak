@@ -3,9 +3,10 @@ from vng_api_common.permissions import (
     MainObjAuthScopesRequired,
     RelatedObjAuthScopesRequired,
 )
+from openzaak.utils.permissions import AuthComponentMixin
 
 
-class BesluitAuthScopesRequired(MainObjAuthScopesRequired):
+class BesluitAuthScopesRequired(AuthComponentMixin, MainObjAuthScopesRequired):
     """
     Look at the scopes required for the current action and at informatieobjecttype and vertrouwelijkheidaanduiding
     of current informatieobject and check that they are present in the AC for this client
@@ -14,7 +15,7 @@ class BesluitAuthScopesRequired(MainObjAuthScopesRequired):
     permission_fields = ("besluittype",)
 
 
-class BesluitBaseAuthRequired(BaseAuthRequired):
+class BesluitBaseAuthRequired(AuthComponentMixin, BaseAuthRequired):
     """
     Look at the scopes required for the current action and at informatieobjecttype and vertrouwelijkheidaanduiding
     of related informatieobject and check that they are present in the AC for this client
@@ -24,7 +25,8 @@ class BesluitBaseAuthRequired(BaseAuthRequired):
     obj_path = "besluit"
 
 
-class BesluitRelatedAuthScopesRequired(RelatedObjAuthScopesRequired):
+
+class BesluitRelatedAuthScopesRequired(AuthComponentMixin, RelatedObjAuthScopesRequired):
     """
     Look at the scopes required for the current action and at besluittype
     of related besluit and check that they are present in the AC for this client

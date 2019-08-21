@@ -90,7 +90,7 @@ class BesluitViewSet(
     filter_class = BesluitFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
-    # permission_classes = (BesluitAuthScopesRequired, )
+    permission_classes = (BesluitAuthScopesRequired, )
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -167,8 +167,8 @@ class BesluitInformatieObjectViewSet(
     queryset = BesluitInformatieObject.objects.all()
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
-    lookup_field = "uuid"
-    # permission_classes = (BesluitRelatedAuthScopesRequired,)
+    lookup_field = 'uuid'
+    permission_classes = (BesluitRelatedAuthScopesRequired,)
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
