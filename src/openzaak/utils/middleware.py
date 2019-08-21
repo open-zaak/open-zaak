@@ -36,41 +36,41 @@ class JWTAuth(_JWTAuth):
         self.encoded = encoded
         self.component = None
 
-    def set_component(self, component):
-        self.component = COMPONENT_MAPPING.get(component, component)
-
     @property
     def applicaties(self) -> Union[list, None]:
         if self.client_id is None:
-            return []
+            return None
 
         return Applicatie.objects.filter(client_ids__contains=[self.client_id])
 
-    @property
-    def autorisaties(self) -> models.QuerySet:
+    def get_autorisaties(self, component) -> models.QuerySet:
         """
         Retrieve all authorizations relevant to this component.
         """
         app_ids = self.applicaties.values('id')
         return Autorisatie.objects.filter(
                 applicatie_id__in=Subquery(app_ids),
-                component=self.component
+                component=component
             )
 
-    def has_auth(self, scopes: List[str], **fields) -> bool:
+    def has_auth(self, scopes: List[str], init_component: str = None,  **fields) -> bool:
         if scopes is None:
             return False
 
-        scopes_provided = set()
+        if not self.applicaties:
+            return False
 
         # allow everything
         if self.applicaties.filter(heeft_alle_autorisaties=True).exists():
             return True
 
-        if not self.component:
+        if not init_component:
             return False
 
-        autorisaties = self.autorisaties
+        component = COMPONENT_MAPPING.get(init_component, init_component)
+
+        autorisaties = self.get_autorisaties(component)
+        scopes_provided = set()
 
         # filter on all additional components
         for field_name, field_value in fields.items():
