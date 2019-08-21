@@ -1,3 +1,5 @@
 from django.contrib import admin
+from vng_api_common.authorizations.models import AuthorizationsConfig
 
-# TODO unregister config
+
+admin.site.unregister(AuthorizationsConfig)
