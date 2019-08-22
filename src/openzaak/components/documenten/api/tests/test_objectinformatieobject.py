@@ -24,6 +24,8 @@ ZAAK = 'https://zrc.nl/api/v1/zaken/1234'
 BESLUIT = 'https://brc.nl/api/v1/besluiten/4321'
 
 
+@tag("oio")
+@skip('ObjectInformatieObject is not implemented yet')
 @override_settings(ALLOWED_HOSTS=["testserver.nl"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -104,7 +106,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'nonFieldErrors')
         self.assertEqual(error['code'], 'unique')
 
-    @tag("oio")
     def test_filter(self):
         zio = ZaakInformatieObjectFactory.create()
         eio_detail_url = reverse(zio.informatieobject.latest_version)
