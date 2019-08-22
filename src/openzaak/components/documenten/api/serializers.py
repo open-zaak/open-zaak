@@ -2,6 +2,8 @@
 Serializers of the Document Registratie Component REST API
 """
 import uuid
+from typing import Union
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import transaction
@@ -10,10 +12,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
+
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.zaken.models import Zaak
+
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
     add_choice_values_help_text,
@@ -21,18 +27,19 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
 
+
 from openzaak.components.catalogi.models import InformatieObjectType
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten,
-)
 from openzaak.components.documenten.models.constants import (
     ChecksumAlgoritmes,
     OndertekeningSoorten,
     Statussen,
 )
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+
+from ..models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten, ObjectInformatieObject
+)
 
 from .validators import StatusValidator
 
@@ -438,4 +445,99 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
-lf
+
+
+class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
+        view_name='enkelvoudiginformatieobject-detail',
+        lookup_field='uuid',
+        queryset=EnkelvoudigInformatieObject.objects,
+        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
+    )
+    object = serializers.URLField(
+        min_length=1,
+        max_length=1000,
+        help_text=_("URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."),
+        source="object_url",
+    )
+
+    class Meta:
+        model = ObjectInformatieObject
+        fields = (
+            'url',
+            'informatieobject',
+            'object',
+            'object_type',
+        )
+        extra_kwargs = {
+            'url': {
+                'lookup_field': 'uuid',
+            },
+        }
+        # validators = [InformatieObjectUniqueValidator('object', 'informatieobject')]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        value_display_mapping = add_choice_values_help_text(ObjectTypes)
+        self.fields['object_type'].help_text += f"\n\n{value_display_mapping}"
+
+    def validate_object_url(self, value: str):
+        parsed_url = urlparse(value)
+        host = self.context["request"].get_host()
+        is_local = parsed_url.netloc == host
+        if not is_local:
+            raise serializers.ValidationError({
+                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
+                            "Dit object bestaat niet op dit domein.")
+            }, code="no-match")
+        return value
+
+    def validate(self, data: dict) -> dict:
+        """
+        Run validation of fields that depend on each other.
+
+        Side effect: the data["object"] URL reference is transformed into an
+        actual instance of Besluit or Zaak.
+        """
+        data["object"] = self._resolve_object(
+            data["object_url"],
+            data["informatieobject"],
+            data['object_type'],
+        )
+        return data
+
+    @staticmethod
+    def _resolve_object(
+            object_url: str,
+            informatieobject: EnkelvoudigInformatieObjectCanonical,
+            object_type: str) -> Union[Zaak, Besluit]:
+        # check if it's any of the possible types
+        parsed_url = urlparse(object_url)
+        last_bit = parsed_url.path.split("/")[-1]
+        try:
+            _uuid = uuid.UUID(last_bit)
+        except ValueError as exc:
+            raise serializers.ValidationError({
+                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
+                            "De URL eindigt niet op een geldig UUID.")
+            }, code="no-match") from exc
+
+        related_objs = f"{object_type}informatieobject_set"
+        queryset = (
+            getattr(informatieobject, related_objs)
+            .select_related(object_type)
+            .filter(**{f"{object_type}__uuid": _uuid})
+        )
+        obj = queryset.first()
+        if obj is not None:
+            return getattr(obj, object_type)
+
+        raise serializers.ValidationError(
+            {
+                "object": _("Het gerelateerde object kon niet herleid worden tot een {object_type}.").format(
+                    object_type=object_type
+                )
+            },
+            code="no-match"
+        )
