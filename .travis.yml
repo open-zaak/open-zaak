@@ -29,6 +29,7 @@ before_install:
 
 install:
   - pip install -r requirements/test.txt
+  - pip install codecov isort black
   - npm ci
   - npm run build
 
@@ -38,17 +39,14 @@ before_script:
 jobs:
   include:
     - stage: django test
-      install: pip install codecov
       script:
         - python src/manage.py collectstatic --noinput --link
         - coverage run src/manage.py test src
 
     - stage: isort
-      install: pip install isort
       script: isort --recursive --check-only --diff .
 
     - stage: black
-      install: pip install black
       script: black --check src
 
 after_success:
