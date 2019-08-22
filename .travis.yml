@@ -37,6 +37,12 @@ before_script:
 
 jobs:
   include:
+    - stage: django test
+      install: pip install codecov
+      script:
+        - python src/manage.py collectstatic --noinput --link
+        - coverage run src/manage.py test src
+
     - stage: isort
       install: pip install isort
       script: isort --recursive --check-only --diff .
@@ -44,12 +50,6 @@ jobs:
     - stage: black
       install: pip install black
       script: black --check src
-
-    - stage: test
-      install: pip install codecov
-      script:
-        - python src/manage.py collectstatic --noinput --link
-        - coverage run src/manage.py test src
 
 after_success:
   - codecov
