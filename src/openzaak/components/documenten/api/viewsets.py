@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -10,6 +11,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
+from rest_framework.settings import api_settings
 from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet, AuditTrailViewsetMixin
@@ -161,6 +164,15 @@ class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
 
     @transaction.atomic
     def perform_destroy(self, instance):
+        if instance.canonical.besluitinformatieobject_set.exists() or \
+                instance.canonical.zaakinformatieobject_set.exists():
+            raise ValidationError({
+                api_settings.NON_FIELD_ERRORS_KEY: _(
+                    "All relations to the document must be destroyed before destroying the document"
+                )},
+                code="pending-relations"
+            )
+
         super().perform_destroy(instance.canonical)
 
     @property

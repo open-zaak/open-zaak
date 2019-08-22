@@ -1,8 +1,8 @@
 from datetime import date, datetime
 from typing import Union
 
-from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max
+from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 from openzaak.utils import parse_isodatetime
