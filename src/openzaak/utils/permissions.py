@@ -36,6 +36,9 @@ class AuthRequired(permissions.BasePermission):
             )
         return import_string(self.main_resource)
 
+    def get_main_object(self, obj, permission_main_object):
+        return getattr(obj, permission_main_object)
+
     def has_permission(self, request: Request, view) -> bool:
         from rest_framework.viewsets import ViewSetMixin
 
@@ -78,7 +81,7 @@ class AuthRequired(permissions.BasePermission):
         if view.__class__ is main_resource:
             main_object = obj
         else:
-            main_object = getattr(obj, view.permission_main_object)
+            main_object = self.get_main_object(obj, view.permission_main_object)
 
         main_object_data = self.format_data(main_object, request)
         fields = self.get_fields(main_object_data)

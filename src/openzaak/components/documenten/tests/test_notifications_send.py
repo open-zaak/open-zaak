@@ -18,7 +18,10 @@ from openzaak.components.documenten.api.tests.utils import get_operation_url
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(JWTAuthMixin, APITestCase):
-    @patch("zds_client.Client.from_url")
+
+    heeft_alle_autorisaties = True
+
+    @patch('zds_client.Client.from_url')
     def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT

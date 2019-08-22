@@ -30,10 +30,7 @@ from .filters import (
     GebruiksrechtenFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
-from .permissions import (
-    InformationObjectAuthScopesRequired,
-    InformationObjectRelatedAuthScopesRequired,
-)
+from .permissions import InformationObjectAuthRequired
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -153,13 +150,11 @@ class EnkelvoudigInformatieObjectViewSet(
     Heft de "checkout" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT
     ontgrendeld wordt.
     """
-
-    queryset = EnkelvoudigInformatieObject.objects.order_by(
-        "canonical", "-versie"
-    ).distinct("canonical")
-    lookup_field = "uuid"
+    queryset = EnkelvoudigInformatieObject.objects.order_by('canonical', '-versie').distinct('canonical')
+    lookup_field = 'uuid'
+    serializer_class = EnkelvoudigInformatieObjectSerializer
     pagination_class = PageNumberPagination
-    # permission_classes = (InformationObjectAuthScopesRequired, )
+    permission_classes = (InformationObjectAuthRequired, )
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -206,7 +201,7 @@ class EnkelvoudigInformatieObjectViewSet(
         """
         if self.action in ["update", "partial_update"]:
             return EnkelvoudigInformatieObjectWithLockSerializer
-        return EnkelvoudigInformatieObjectSerializer
+        return self.serializer_class
 
     @swagger_auto_schema(
         manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM]
@@ -406,8 +401,9 @@ class GebruiksrechtenViewSet(
     filterset_class = GebruiksrechtenFilter
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
-    notifications_main_resource_key = "informatieobject"
-    # permission_classes = (InformationObjectRelatedAuthScopesRequired,)
+    notifications_main_resource_key = 'informatieobject'
+    permission_classes = (InformationObjectAuthRequired,)
+    permission_main_object = 'informatieobject'
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
