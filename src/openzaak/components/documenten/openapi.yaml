@@ -230,6 +230,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnkelvoudigInformatieObjectData'
+        required: true
       responses:
         '201':
           description: Created
@@ -358,12 +364,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EnkelvoudigInformatieObjectData'
-        required: true
     parameters: []
   /enkelvoudiginformatieobjecten/{enkelvoudiginformatieobject_uuid}/audittrail:
     get:
@@ -814,6 +814,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
       responses:
         '200':
           description: OK
@@ -949,8 +951,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      requestBody:
-        $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
     patch:
       operationId: enkelvoudiginformatieobject_partial_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
@@ -978,6 +978,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
       responses:
         '200':
           description: OK
@@ -1113,8 +1115,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      requestBody:
-        $ref: '#/components/requestBodies/EnkelvoudigInformatieObjectWithLockData'
     delete:
       operationId: enkelvoudiginformatieobject_delete
       summary: Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.
@@ -1427,6 +1427,12 @@ paths:
         (ENKELVOUDIG) INFORMATIEOBJECT bijgewerkt (`PUT`, `PATCH`) en weer
 
         ontgrendeld worden.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LockEnkelvoudigInformatieObject'
+        required: true
       responses:
         '200':
           description: ''
@@ -1550,12 +1556,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LockEnkelvoudigInformatieObject'
-        required: true
     parameters:
     - name: uuid
       in: path
@@ -1571,6 +1571,12 @@ paths:
       description: 'Heft de "checkout" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT
 
         ontgrendeld wordt.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockEnkelvoudigInformatieObject'
+        required: true
       responses:
         '204':
           description: No content
@@ -1690,12 +1696,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UnlockEnkelvoudigInformatieObject'
-        required: true
     parameters:
     - name: uuid
       in: path
@@ -1928,6 +1928,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Gebruiksrechten'
       responses:
         '201':
           description: Created
@@ -2056,8 +2058,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      requestBody:
-        $ref: '#/components/requestBodies/Gebruiksrechten'
     parameters: []
   /gebruiksrechten/{uuid}:
     get:
@@ -2212,6 +2212,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Gebruiksrechten'
       responses:
         '200':
           description: OK
@@ -2347,8 +2349,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      requestBody:
-        $ref: '#/components/requestBodies/Gebruiksrechten'
     patch:
       operationId: gebruiksrechten_partial_update
       summary: Werk een GEBRUIKSRECHT relatie deels bij.
@@ -2374,6 +2374,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Gebruiksrechten'
       responses:
         '200':
           description: OK
@@ -2509,8 +2511,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
-      requestBody:
-        $ref: '#/components/requestBodies/Gebruiksrechten'
     delete:
       operationId: gebruiksrechten_delete
       summary: Verwijder een GEBRUIKSRECHT.
@@ -2683,9 +2683,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      bearerFormat: JWT
-      scheme: bearer
       type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Ondertekening:
       title: ondertekening
