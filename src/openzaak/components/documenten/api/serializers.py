@@ -10,13 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten
-)
-from openzaak.components.documenten.models.constants import (
-    ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-)
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -26,6 +19,14 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
+
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten
+)
+from openzaak.components.documenten.models.constants import (
+    ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+)
 
 from .validators import StatusValidator
 

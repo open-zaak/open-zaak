@@ -7,23 +7,6 @@ from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.documenten.api.serializers import (
-    EnkelvoudigInformatieObjectHyperlinkedRelatedField
-)
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
-)
-from openzaak.components.zaken.models import (
-    KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
-    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
-)
-from openzaak.components.zaken.models.constants import (
-    AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-)
-from openzaak.components.zaken.models.utils import BrondatumCalculator
-from openzaak.utils.auth import get_auth
-from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
@@ -42,6 +25,24 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, UntilNowValidator, URLValidator
 )
+
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.documenten.api.serializers import (
+    EnkelvoudigInformatieObjectHyperlinkedRelatedField
+)
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+)
+from openzaak.components.zaken.models import (
+    KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
+    ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
+)
+from openzaak.components.zaken.models.constants import (
+    AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+)
+from openzaak.components.zaken.models.utils import BrondatumCalculator
+from openzaak.utils.auth import get_auth
+from openzaak.utils.exceptions import DetermineProcessEndDateException
 
 from ..validators import (
     CorrectZaaktypeValidator, DateNotInFutureValidator, HoofdzaakValidator,

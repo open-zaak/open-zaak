@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
 
-from openzaak.components.documenten.models.validators import validate_status
 from rest_framework import serializers
+
+from openzaak.components.documenten.models.validators import validate_status
 
 
 class StatusValidator:

@@ -4,8 +4,6 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.besluiten.models import Besluit
-from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -25,6 +23,9 @@ from vng_api_common.permissions import permission_class_factory
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
+
+from openzaak.components.besluiten.models import Besluit
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
     KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,

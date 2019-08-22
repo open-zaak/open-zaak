@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 import factory
 import factory.fuzzy
+
 from openzaak.components.catalogi.models import (
     BronCatalogus, BronZaakType, Formulier, ZaakObjectType, ZaakType
 )

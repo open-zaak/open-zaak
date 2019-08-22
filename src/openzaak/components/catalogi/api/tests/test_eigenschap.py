@@ -1,12 +1,13 @@
 from unittest import skip
 
+from rest_framework import status
+from vng_api_common.tests import reverse
+
 from openzaak.components.catalogi.models import Eigenschap
 from openzaak.components.catalogi.models.tests.factories import (
     EigenschapFactory, EigenschapReferentieFactory,
     EigenschapSpecificatieFactory, ZaakTypeFactory
 )
-from rest_framework import status
-from vng_api_common.tests import reverse
 
 from .base import APITestCase
 

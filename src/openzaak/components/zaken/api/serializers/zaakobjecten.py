@@ -1,5 +1,8 @@
 import logging
 
+from rest_framework import serializers
+from vng_api_common.serializers import add_choice_values_help_text
+
 from openzaak.components.zaken.models import (
     Buurt, Gemeente, GemeentelijkeOpenbareRuimte, Huishouden,
     Inrichtingselement, KadastraleOnroerendeZaak, Kunstwerkdeel,
@@ -12,8 +15,6 @@ from openzaak.components.zaken.models.constants import (
     TyperingInrichtingselement, TyperingKunstwerk, TyperingWater,
     TypeSpoorbaan
 )
-from rest_framework import serializers
-from vng_api_common.serializers import add_choice_values_help_text
 
 from .address import (
     TerreinGebouwdObjectAdresSerializer, WozObjectAdresSerializer

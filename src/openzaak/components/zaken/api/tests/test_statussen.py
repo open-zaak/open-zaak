@@ -1,7 +1,8 @@
-from openzaak.components.zaken.models.tests.factories import StatusFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
+
+from openzaak.components.zaken.models.tests.factories import StatusFactory
 
 
 class StatusTests(JWTAuthMixin, APITestCase):

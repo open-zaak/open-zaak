@@ -1,8 +1,9 @@
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.catalogi.models import ZaakType
 from rest_framework.serializers import ValidationError
+
+from openzaak.components.catalogi.models import ZaakType
 
 
 class ZaaktypeGeldigheidValidator:

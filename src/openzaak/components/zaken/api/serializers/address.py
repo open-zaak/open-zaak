@@ -1,7 +1,8 @@
 import logging
 
-from openzaak.components.zaken.models import Adres
 from rest_framework import serializers
+
+from openzaak.components.zaken.models import Adres
 
 logger = logging.getLogger(__name__)
 

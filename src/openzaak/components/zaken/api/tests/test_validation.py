@@ -5,6 +5,18 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import (
+    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding
+)
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.validators import (
+    IsImmutableValidator, ResourceValidator, URLValidator
+)
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.catalogi.models.tests.factories import (
     EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
     ZaakInformatieobjectTypeFactory, ZaakTypeFactory
@@ -24,17 +36,6 @@ from openzaak.components.zaken.models.tests.factories import (
 from openzaak.components.zaken.tests.utils import (
     ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import (
-    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
-    VertrouwelijkheidsAanduiding
-)
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
-from vng_api_common.validators import (
-    IsImmutableValidator, ResourceValidator, URLValidator
-)
-from zds_client.tests.mocks import mock_client
 
 
 class ZaakValidationTests(JWTAuthMixin, APITestCase):

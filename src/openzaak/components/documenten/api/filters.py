@@ -1,11 +1,12 @@
 from django_filters import rest_framework as filters
+from vng_api_common.filters import URLModelChoiceFilter
+from vng_api_common.filtersets import FilterSet
+from vng_api_common.utils import get_help_text
+
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten
 )
-from vng_api_common.filters import URLModelChoiceFilter
-from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):

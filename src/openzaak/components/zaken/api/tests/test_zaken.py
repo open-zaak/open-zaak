@@ -5,6 +5,14 @@ from django.contrib.gis.geos import Point
 from django.utils import timezone
 
 from dateutil.relativedelta import relativedelta
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import (
+    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding
+)
+from vng_api_common.tests import JWTAuthMixin, reverse
+
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
     ResultaatTypeFactory, StatusTypeFactory, ZaakTypeFactory
@@ -18,13 +26,6 @@ from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
 from openzaak.components.zaken.tests.utils import (
     ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, isodatetime, utcdatetime
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import (
-    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
-    VertrouwelijkheidsAanduiding
-)
-from vng_api_common.tests import JWTAuthMixin, reverse
 
 from ..scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN,

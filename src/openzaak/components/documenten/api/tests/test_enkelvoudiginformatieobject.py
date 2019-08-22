@@ -6,6 +6,11 @@ from unittest import skip
 from django.utils import timezone
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory
 )
@@ -16,10 +21,6 @@ from openzaak.components.documenten.models import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory, ObjectInformatieObjectFactory
 )
-from privates.test import temp_private_root
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
 
 @freeze_time('2018-06-27')

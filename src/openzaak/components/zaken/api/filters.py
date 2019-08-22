@@ -1,9 +1,10 @@
 from django_filters import filters
+from vng_api_common.filtersets import FilterSet
+from vng_api_common.utils import get_help_text
+
 from openzaak.components.zaken.models import (
     Resultaat, Rol, Status, Zaak, ZaakInformatieObject, ZaakObject
 )
-from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text
 
 
 class ZaakFilter(FilterSet):

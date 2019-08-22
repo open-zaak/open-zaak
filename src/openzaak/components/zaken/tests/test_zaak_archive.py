@@ -3,6 +3,15 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import (
+    Archiefnominatie, Archiefstatus, BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding
+)
+from vng_api_common.tests import JWTAuthMixin, reverse
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.catalogi.models.tests.factories import (
     ResultaatTypeFactory, StatusTypeFactory, ZaakTypeFactory
 )
@@ -14,14 +23,6 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
     ZaakObjectFactory
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import (
-    Archiefnominatie, Archiefstatus, BrondatumArchiefprocedureAfleidingswijze,
-    VertrouwelijkheidsAanduiding
-)
-from vng_api_common.tests import JWTAuthMixin, reverse
-from zds_client.tests.mocks import mock_client
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 

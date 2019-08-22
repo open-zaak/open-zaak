@@ -1,16 +1,17 @@
 from dateutil import parser
-from openzaak.components.catalogi.models.tests.factories import (
-    EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
-    ZaakTypeFactory
-)
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding
 )
 from vng_api_common.tests import JWTAuthMixin, reverse
+
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
+    ZaakTypeFactory
+)
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
 
 from .utils import ZAAK_WRITE_KWARGS, utcdatetime
 

@@ -2,6 +2,10 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from vng_api_common.constants import (
+    RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
+)
+
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
     EigenschapFactory, ResultaatTypeFactory, RolTypeFactory, StatusTypeFactory,
@@ -9,9 +13,6 @@ from openzaak.components.catalogi.models.tests.factories import (
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory
-)
-from vng_api_common.constants import (
-    RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
 
 

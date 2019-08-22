@@ -4,14 +4,15 @@ ik in mijn communicatie snel kan verwijzen naar mijn aanvraag.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/164
 """
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
 
 from .utils import ZAAK_WRITE_KWARGS
 

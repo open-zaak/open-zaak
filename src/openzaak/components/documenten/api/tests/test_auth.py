@@ -5,14 +5,15 @@ from unittest import skip
 
 from django.test import override_settings
 
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,
-    ObjectInformatieObjectFactory
-)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
+
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,
+    ObjectInformatieObjectFactory
+)
 
 from ..scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 

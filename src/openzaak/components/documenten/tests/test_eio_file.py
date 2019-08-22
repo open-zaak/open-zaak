@@ -5,6 +5,12 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
+from privates.test import temp_private_root
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import JWTAuthMixin, reverse
+
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory
 )
@@ -14,11 +20,6 @@ from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory
 )
-from privates.test import temp_private_root
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, reverse
 
 
 @temp_private_root()

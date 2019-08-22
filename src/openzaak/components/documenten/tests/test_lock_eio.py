@@ -2,6 +2,11 @@ import uuid
 from base64 import b64encode
 from unittest import skip
 
+from privates.test import temp_private_root
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory
 )
@@ -12,10 +17,6 @@ from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory
 )
-from privates.test import temp_private_root
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
 
 @temp_private_root()

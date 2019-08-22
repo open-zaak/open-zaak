@@ -3,6 +3,14 @@ from unittest import expectedFailure, skip
 
 from django.test import override_settings, tag
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import ObjectTypes
+from vng_api_common.tests import (
+    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+)
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
 )
@@ -12,13 +20,6 @@ from openzaak.components.documenten.models.tests.factories import (
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory, ZaakInformatieObjectFactory
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import ObjectTypes
-from vng_api_common.tests import (
-    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
-)
-from zds_client.tests.mocks import mock_client
 
 ZAAK = 'https://zrc.nl/api/v1/zaken/1234'
 BESLUIT = 'https://brc.nl/api/v1/besluiten/4321'

@@ -1,5 +1,10 @@
 from django.test import override_settings
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import ZaakobjectTypes
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+
 from openzaak.components.zaken.models import (
     Adres, Huishouden, KadastraleOnroerendeZaak, Medewerker, NatuurlijkPersoon,
     NietNatuurlijkPersoon, Overige, TerreinGebouwdObject, WozDeelobject,
@@ -9,10 +14,6 @@ from openzaak.components.zaken.models import (
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory, ZaakObjectFactory
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import ZaakobjectTypes
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
 
 from .utils import get_operation_url
 

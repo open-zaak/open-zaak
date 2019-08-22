@@ -3,6 +3,7 @@ from datetime import date
 from django.test import TestCase
 
 from freezegun import freeze_time
+
 from openzaak.components.catalogi.models.tests.base_tests import (
     HaaglandenMixin
 )

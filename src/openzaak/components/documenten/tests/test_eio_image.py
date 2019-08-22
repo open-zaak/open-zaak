@@ -8,15 +8,16 @@ See:
 import base64
 from io import BytesIO
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory
-)
-from openzaak.components.documenten.api.tests.utils import get_operation_url
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
+
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
+from openzaak.components.documenten.api.tests.utils import get_operation_url
 
 
 class US169Tests(TypeCheckMixin, JWTAuthMixin, APITestCase):

@@ -2,14 +2,15 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.catalogi.models.constants import (
-    SelectielijstKlasseProcestermijn as Procestermijn
-)
 from rest_framework.serializers import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze
 )
 from vng_api_common.models import APICredential
+
+from openzaak.components.catalogi.models.constants import (
+    SelectielijstKlasseProcestermijn as Procestermijn
+)
 
 
 def fetch_object(resource: str, url: str) -> dict:

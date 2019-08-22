@@ -3,6 +3,13 @@ from unittest.mock import patch
 from django.test import override_settings
 
 import requests_mock
+from rest_framework import status
+from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+from vng_api_common.tests import (
+    TypeCheckMixin, get_validation_errors, reverse, reverse_lazy
+)
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.catalogi.models import ResultaatType
 from openzaak.components.catalogi.models.constants import (
     SelectielijstKlasseProcestermijn as Procestermijn
@@ -10,12 +17,6 @@ from openzaak.components.catalogi.models.constants import (
 from openzaak.components.catalogi.models.tests.factories import (
     ResultaatTypeFactory, ZaakTypeFactory
 )
-from rest_framework import status
-from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
-from vng_api_common.tests import (
-    TypeCheckMixin, get_validation_errors, reverse, reverse_lazy
-)
-from zds_client.tests.mocks import mock_client
 
 from .base import APITestCase
 

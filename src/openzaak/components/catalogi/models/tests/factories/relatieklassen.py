@@ -1,4 +1,5 @@
 import factory
+
 from openzaak.components.catalogi.models.choices import RichtingChoices
 
 from ....models import (

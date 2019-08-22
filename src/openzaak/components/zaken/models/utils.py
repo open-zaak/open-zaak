@@ -5,9 +5,10 @@ from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
+from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
-from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
 from ..models import Zaak
 

@@ -3,6 +3,12 @@ from unittest import skip
 
 from django.test import override_settings
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import (
+    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
+)
+
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory
 )
@@ -11,11 +17,6 @@ from openzaak.components.documenten.models.constants import (
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory
-)
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
 )
 
 

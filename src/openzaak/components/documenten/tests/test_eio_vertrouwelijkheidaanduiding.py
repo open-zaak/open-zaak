@@ -6,13 +6,14 @@ https://github.com/VNG-Realisatie/gemma-zaken/issues/609
 """
 from base64 import b64encode
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory
-)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
+
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 
 
 class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):

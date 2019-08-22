@@ -5,6 +5,11 @@ from unittest import skip
 from django.test import override_settings
 from django.urls import reverse as django_reverse
 
+from rest_framework import status
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import get_validation_errors, reverse
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.models.choices import (
     AardRelatieChoices, InternExtern
@@ -13,10 +18,6 @@ from openzaak.components.catalogi.models.tests.factories import (
     BesluitTypeFactory, CatalogusFactory, ZaakObjectTypeFactory,
     ZaakTypeFactory
 )
-from rest_framework import status
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
 
 from .base import APITestCase
 from .utils import get_operation_url

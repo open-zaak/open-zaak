@@ -1,5 +1,12 @@
 from copy import deepcopy
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.utils import get_uuid_from_path
+
 from openzaak.components.catalogi.models.tests.factories import (
     ResultaatTypeFactory, ZaakInformatieobjectTypeFactory, ZaakTypeFactory
 )
@@ -10,12 +17,6 @@ from openzaak.components.zaken.models import (
     Resultaat, Zaak, ZaakInformatieObject
 )
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, reverse
-from vng_api_common.utils import get_uuid_from_path
 
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):

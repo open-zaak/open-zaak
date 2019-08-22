@@ -9,13 +9,14 @@ from unittest import skip
 
 from django.test import tag
 
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin
+
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models.tests.factories import (
     ObjectInformatieObjectFactory
 )
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin
 
 INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
 

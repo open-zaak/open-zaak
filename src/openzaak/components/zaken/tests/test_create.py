@@ -6,6 +6,14 @@ from django.test import override_settings
 
 import requests_mock
 from freezegun import freeze_time
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.constants import (
+    RolOmschrijving, VertrouwelijkheidsAanduiding, ZaakobjectTypes
+)
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from zds_client.tests.mocks import mock_client
+
 from openzaak.components.catalogi.models.tests.factories import (
     RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
 )
@@ -17,13 +25,6 @@ from openzaak.components.zaken.models import (
     KlantContact, Rol, Status, Zaak, ZaakObject
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.constants import (
-    RolOmschrijving, VertrouwelijkheidsAanduiding, ZaakobjectTypes
-)
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 
