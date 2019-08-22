@@ -27,8 +27,6 @@ from openzaak.components.catalogi.models.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.components.zaken.api.tests.utils import get_operation_url
-
-# aanvraag aangemaakt in extern systeem, leeft buiten ZRC
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 
