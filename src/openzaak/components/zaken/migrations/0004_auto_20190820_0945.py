@@ -7,50 +7,69 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('besluiten', '0003_auto_20190820_0945'),
-        ('zaken', '0003_delete_zaakbesluit'),
+        ("besluiten", "0003_auto_20190820_0945"),
+        ("zaken", "0003_delete_zaakbesluit"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ZaakBesluit',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-            },
-            bases=('besluiten.besluit',),
+            name="ZaakBesluit",
+            fields=[],
+            options={"proxy": True, "indexes": [], "constraints": []},
+            bases=("besluiten.besluit",),
         ),
         migrations.AlterField(
-            model_name='relevantezaakrelatie',
-            name='url',
-            field=models.ForeignKey(help_text='URL-referentie naar de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='zaken.Zaak'),
+            model_name="relevantezaakrelatie",
+            name="url",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar de ZAAK.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="zaken.Zaak",
+            ),
         ),
         migrations.AlterField(
-            model_name='resultaat',
-            name='resultaattype',
-            field=models.ForeignKey(help_text='URL-referentie naar het RESULTAATTYPE (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ResultaatType'),
+            model_name="resultaat",
+            name="resultaattype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ResultaatType",
+            ),
         ),
         migrations.AlterField(
-            model_name='rol',
-            name='roltype',
-            field=models.ForeignKey(help_text=' URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.RolType'),
+            model_name="rol",
+            name="roltype",
+            field=models.ForeignKey(
+                help_text=" URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.RolType",
+            ),
         ),
         migrations.AlterField(
-            model_name='status',
-            name='statustype',
-            field=models.ForeignKey(help_text='URL-referentie naar het STATUSTYPE (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.StatusType'),
+            model_name="status",
+            name="statustype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.StatusType",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaak',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType'),
+            model_name="zaak",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ZaakType",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaakinformatieobject',
-            name='informatieobject',
-            field=models.ForeignKey(help_text='URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.', on_delete=django.db.models.deletion.CASCADE, to='documenten.EnkelvoudigInformatieObjectCanonical'),
+            model_name="zaakinformatieobject",
+            name="informatieobject",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="documenten.EnkelvoudigInformatieObjectCanonical",
+            ),
         ),
     ]

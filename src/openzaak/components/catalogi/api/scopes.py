@@ -7,19 +7,19 @@ writes are not supported yet in the API.
 from vng_api_common.scopes import Scope
 
 SCOPE_ZAAKTYPES_READ = Scope(
-    'zaaktypes.lezen',
+    "zaaktypes.lezen",
     description="""
 **Laat toe om**:
 
 * leesoperaties uit te voeren in de API. Alle resources zijn beschikbaar.
-"""
+""",
 )
 
 SCOPE_ZAAKTYPES_WRITE = Scope(
-    'zaaktypes.schrijven',
+    "zaaktypes.schrijven",
     description="""
 **Laat toe om**:
 
 * schrijfoperaties uit te voeren in de API. Alle resources zijn beschikbaar.
-"""
+""",
 )

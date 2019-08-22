@@ -11,23 +11,18 @@ class CheckListItemSerializer(SourceMappingSerializerMixin, ModelSerializer):
     class Meta:
         model = CheckListItem
         ref_name = None  # Inline
-        source_mapping = {
-            'naam': 'itemnaam'
-        }
-        fields = (
-            'naam',
-            'vraagstelling',
-            'verplicht',
-            'toelichting',
-        )
+        source_mapping = {"naam": "itemnaam"}
+        fields = ("naam", "vraagstelling", "verplicht", "toelichting")
 
 
 class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
     is_eindstatus = serializers.BooleanField(
         read_only=True,
-        help_text=_('Geeft aan dat dit STATUSTYPE een eindstatus betreft. Dit '
-                    'gegeven is afgeleid uit alle STATUSTYPEn van dit ZAAKTYPE '
-                    'met het hoogste volgnummer.')
+        help_text=_(
+            "Geeft aan dat dit STATUSTYPE een eindstatus betreft. Dit "
+            "gegeven is afgeleid uit alle STATUSTYPEn van dit ZAAKTYPE "
+            "met het hoogste volgnummer."
+        ),
     )
 
     # heeftVerplichteEigenschap = NestedHyperlinkedRelatedField(
@@ -64,42 +59,27 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = StatusType
         fields = (
-            'url',
-            'omschrijving',
-            'omschrijving_generiek',
-            'statustekst',
-
-            'zaaktype',
-
-            'volgnummer',
-
-            'is_eindstatus',
+            "url",
+            "omschrijving",
+            "omschrijving_generiek",
+            "statustekst",
+            "zaaktype",
+            "volgnummer",
+            "is_eindstatus",
             # 'doorlooptijd',
             # 'checklistitem',
-            'informeren',
+            "informeren",
             # 'toelichting',
-
             # 'ingangsdatumObject',
             # 'einddatumObject',
-
             # 'heeftVerplichteInformatieobjecttype',
             # 'heeftVerplichteEigenschap',
             # 'heeftVerplichteZaakObjecttype',
         )
         extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-            'omschrijving': {
-                'source': 'statustype_omschrijving',
-            },
-            'omschrijving_generiek': {
-                'source': 'statustype_omschrijving_generiek',
-            },
-            'volgnummer': {
-                'source': 'statustypevolgnummer',
-            },
-            'zaaktype': {
-                'lookup_field': 'uuid',
-            }
+            "url": {"lookup_field": "uuid"},
+            "omschrijving": {"source": "statustype_omschrijving"},
+            "omschrijving_generiek": {"source": "statustype_omschrijving_generiek"},
+            "volgnummer": {"source": "statustypevolgnummer"},
+            "zaaktype": {"lookup_field": "uuid"},
         }

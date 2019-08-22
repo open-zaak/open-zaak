@@ -2,29 +2,38 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from vng_api_common.constants import (
+    RolOmschrijving,
+    RolTypes,
+    VertrouwelijkheidsAanduiding,
+    ZaakobjectTypes,
+)
+
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
-    EigenschapFactory, ResultaatTypeFactory, RolTypeFactory, StatusTypeFactory,
-    ZaakTypeFactory
+    EigenschapFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
 )
 from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectCanonicalFactory
-)
-from vng_api_common.constants import (
-    RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
+    EnkelvoudigInformatieObjectCanonicalFactory,
 )
 
 
 class ZaakFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
-    vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(choices=VertrouwelijkheidsAanduiding.values)
-    registratiedatum = factory.Faker('date_this_month', before_today=True)
-    startdatum = factory.Faker('date_this_month', before_today=True)
-    bronorganisatie = factory.Faker('ssn', locale='nl_NL')
-    verantwoordelijke_organisatie = factory.Faker('ssn', locale='nl_NL')
+    vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
+        choices=VertrouwelijkheidsAanduiding.values
+    )
+    registratiedatum = factory.Faker("date_this_month", before_today=True)
+    startdatum = factory.Faker("date_this_month", before_today=True)
+    bronorganisatie = factory.Faker("ssn", locale="nl_NL")
+    verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
 
     class Meta:
-        model = 'zaken.Zaak'
+        model = "zaken.Zaak"
 
 
 class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
@@ -32,48 +41,48 @@ class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 
     class Meta:
-        model = 'zaken.ZaakInformatieObject'
+        model = "zaken.ZaakInformatieObject"
 
 
 class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     eigenschap = factory.SubFactory(EigenschapFactory)
-    _naam = factory.Faker('word')
-    waarde = factory.Faker('word')
+    _naam = factory.Faker("word")
+    waarde = factory.Faker("word")
 
     class Meta:
-        model = 'zaken.ZaakEigenschap'
+        model = "zaken.ZaakEigenschap"
 
 
 class ZaakObjectFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    object = factory.Faker('url')
+    object = factory.Faker("url")
     # Excluded: overige
     object_type = factory.fuzzy.FuzzyChoice(choices=list(ZaakobjectTypes.values)[:-1])
 
     class Meta:
-        model = 'zaken.ZaakObject'
+        model = "zaken.ZaakObject"
 
 
 class RolFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    betrokkene = factory.Faker('url')
+    betrokkene = factory.Faker("url")
     betrokkene_type = factory.fuzzy.FuzzyChoice(RolTypes.values)
     roltype = factory.SubFactory(RolTypeFactory)
-    omschrijving = factory.Faker('word')
+    omschrijving = factory.Faker("word")
     omschrijving_generiek = factory.fuzzy.FuzzyChoice(RolOmschrijving.values)
 
     class Meta:
-        model = 'zaken.Rol'
+        model = "zaken.Rol"
 
 
 class StatusFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     statustype = factory.SubFactory(StatusTypeFactory)
-    datum_status_gezet = factory.Faker('date_time_this_month', tzinfo=timezone.utc)
+    datum_status_gezet = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
 
     class Meta:
-        model = 'zaken.Status'
+        model = "zaken.Status"
 
 
 class ResultaatFactory(factory.django.DjangoModelFactory):
@@ -81,16 +90,16 @@ class ResultaatFactory(factory.django.DjangoModelFactory):
     resultaattype = factory.SubFactory(ResultaatTypeFactory)
 
     class Meta:
-        model = 'zaken.Resultaat'
+        model = "zaken.Resultaat"
 
 
 class KlantContactFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    identificatie = factory.Sequence(lambda n: f'{n}')
-    datumtijd = factory.Faker('date_time_this_month', tzinfo=timezone.utc)
+    identificatie = factory.Sequence(lambda n: f"{n}")
+    datumtijd = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
 
     class Meta:
-        model = 'zaken.KlantContact'
+        model = "zaken.KlantContact"
 
 
 class ZaakBesluitFactory(factory.django.DjangoModelFactory):

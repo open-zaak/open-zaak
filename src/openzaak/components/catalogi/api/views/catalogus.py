@@ -1,14 +1,14 @@
-from openzaak.components.catalogi.models import Catalogus
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+
+from openzaak.components.catalogi.models import Catalogus
 
 from ..filters import CatalogusFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import CatalogusSerializer
 
 
-class CatalogusViewSet(mixins.CreateModelMixin,
-                       viewsets.ReadOnlyModelViewSet):
+class CatalogusViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     """
     Opvragen en bewerken van CATALOGUSsen.
 
@@ -46,14 +46,15 @@ class CatalogusViewSet(mixins.CreateModelMixin,
     Verwijder een CATALOGUS. Dit kan alleen als er geen onderliggende
     ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn zijn.
     """
-    queryset = Catalogus.objects.all().order_by('-pk')
+
+    queryset = Catalogus.objects.all().order_by("-pk")
     serializer_class = CatalogusSerializer
     filter_class = CatalogusFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     pagination_class = PageNumberPagination
     required_scopes = {
-        'list': SCOPE_ZAAKTYPES_READ,
-        'retrieve': SCOPE_ZAAKTYPES_READ,
-        'create': SCOPE_ZAAKTYPES_WRITE,
-        'destroy': SCOPE_ZAAKTYPES_WRITE,
+        "list": SCOPE_ZAAKTYPES_READ,
+        "retrieve": SCOPE_ZAAKTYPES_READ,
+        "create": SCOPE_ZAAKTYPES_WRITE,
+        "destroy": SCOPE_ZAAKTYPES_WRITE,
     }

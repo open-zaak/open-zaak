@@ -6,10 +6,12 @@ class GeldigheidAdminMixin(object):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         return tuple(fieldsets) + (
-            (_('Geldigheid'), {
-                'fields': ('datum_begin_geldigheid', 'datum_einde_geldigheid', )
-            }),
+            (
+                _("Geldigheid"),
+                {"fields": ("datum_begin_geldigheid", "datum_einde_geldigheid")},
+            ),
         )
+
     #
     # formfield_overrides = {
     #     StUFDateField: {'widget': AdminDateWidget},
@@ -20,11 +22,14 @@ class FilterSearchOrderingAdminMixin(object):
     """
     Consult the model options to set filters and search fields.
     """
+
     def __init__(self, *args, **kwargs):
-        if not hasattr(self, 'model'):
-            raise ImproperlyConfigured('The "model" attribute needs to be set on "{}" if "{}" is used.'.format(
-                self.__class__.__name__, 'FilterSearchOrderingAdminMixin',
-            ))
+        if not hasattr(self, "model"):
+            raise ImproperlyConfigured(
+                'The "model" attribute needs to be set on "{}" if "{}" is used.'.format(
+                    self.__class__.__name__, "FilterSearchOrderingAdminMixin"
+                )
+            )
 
         super().__init__(*args, **kwargs)
 
@@ -37,20 +42,18 @@ class FilterSearchOrderingAdminMixin(object):
         """
         The fields that can be filtered on in the API, are shown as filter in the admin.
         """
-        return self.get_model_option('filter_fields', super().get_list_filter(request))
+        return self.get_model_option("filter_fields", super().get_list_filter(request))
 
     def get_search_fields(self, request):
         """
         The fields that are searched in the admin.
         """
-        return self.get_model_option('search_fields', super().get_search_fields(request))
+        return self.get_model_option(
+            "search_fields", super().get_search_fields(request)
+        )
 
 
 class ConceptAdminMixin(object):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
-        return tuple(fieldsets) + (
-            (_('Concept'), {
-                'fields': ('concept', )
-            }),
-        )
+        return tuple(fieldsets) + ((_("Concept"), {"fields": ("concept",)}),)

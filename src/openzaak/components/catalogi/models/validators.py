@@ -12,23 +12,24 @@ class KardinaliteitValidator(object):
     """
 
     def __call__(self, value):
-        if value != 'N':
+        if value != "N":
             try:
                 error = int(value) <= 0
             except Exception:
                 error = True
             if error:
                 raise ValidationError(
-                    _("Gebruik gehele getallen groter dan 0 of 'N' voor ongelimiteerd"))
+                    _("Gebruik gehele getallen groter dan 0 of 'N' voor ongelimiteerd")
+                )
 
 
 validate_kardinaliteit = KardinaliteitValidator()
 
 
 uppercase_validator = RegexValidator(
-    _lazy_re_compile('^[A-Z]*$'),
-    message=_('Voer alleen hoofdletters in.'),
-    code='invalid',
+    _lazy_re_compile("^[A-Z]*$"),
+    message=_("Voer alleen hoofdletters in."),
+    code="invalid",
 )
 
 
@@ -37,9 +38,9 @@ def validate_uppercase(value):
 
 
 letters_numbers_underscores_validator = RegexValidator(
-    _lazy_re_compile('^[A-Za-z0-9 _]*$'),
-    message=_('Voer alleen letters, cijfers en/of liggende streepjes in.'),
-    code='invalid',
+    _lazy_re_compile("^[A-Za-z0-9 _]*$"),
+    message=_("Voer alleen letters, cijfers en/of liggende streepjes in."),
+    code="invalid",
 )
 
 
@@ -51,9 +52,9 @@ def validate_letters_numbers_underscores(value):
 
 
 letters_numbers_underscores_spaces_validator = RegexValidator(
-    _lazy_re_compile('^[A-Za-z0-9 _]*$'),
-    message=_('Voer alleen letters, cijfers, liggende streepjes en/of spaties in.'),
-    code='invalid',
+    _lazy_re_compile("^[A-Za-z0-9 _]*$"),
+    message=_("Voer alleen letters, cijfers, liggende streepjes en/of spaties in."),
+    code="invalid",
 )
 
 

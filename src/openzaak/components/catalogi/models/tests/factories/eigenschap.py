@@ -17,7 +17,7 @@ class EigenschapReferentieFactory(factory.django.DjangoModelFactory):
 
 
 class EigenschapFactory(factory.django.DjangoModelFactory):
-    eigenschapnaam = factory.Sequence(lambda n: 'eigenschap {}'.format(n))
+    eigenschapnaam = factory.Sequence(lambda n: "eigenschap {}".format(n))
     zaaktype = factory.SubFactory(ZaakTypeFactory)
 
     class Meta:

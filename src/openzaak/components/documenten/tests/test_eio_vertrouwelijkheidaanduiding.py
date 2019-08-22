@@ -6,13 +6,14 @@ https://github.com/VNG-Realisatie/gemma-zaken/issues/609
 """
 from base64 import b64encode
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory
-)
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
+
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory,
+)
 
 
 class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
@@ -28,25 +29,28 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        url = reverse('enkelvoudiginformatieobject-list')
+        url = reverse("enkelvoudiginformatieobject-list")
 
-        response = self.client.post(url, {
-            'bronorganisatie': '159351741',
-            'creatiedatum': '2018-06-27',
-            'titel': 'detailed summary',
-            'auteur': 'test_auteur',
-            'formaat': 'txt',
-            'taal': 'eng',
-            'bestandsnaam': 'dummy.txt',
-            'inhoud': b64encode(b'some file content').decode('utf-8'),
-            'link': 'http://een.link',
-            'beschrijving': 'test_beschrijving',
-            'informatieobjecttype': informatieobjecttype_url
-        })
+        response = self.client.post(
+            url,
+            {
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": informatieobjecttype_url,
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data['vertrouwelijkheidaanduiding'],
+            response.data["vertrouwelijkheidaanduiding"],
             VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
         )
 
@@ -58,25 +62,28 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        url = reverse('enkelvoudiginformatieobject-list')
+        url = reverse("enkelvoudiginformatieobject-list")
 
-        response = self.client.post(url, {
-            'bronorganisatie': '159351741',
-            'creatiedatum': '2018-06-27',
-            'titel': 'detailed summary',
-            'auteur': 'test_auteur',
-            'formaat': 'txt',
-            'taal': 'eng',
-            'bestandsnaam': 'dummy.txt',
-            'inhoud': b64encode(b'some file content').decode('utf-8'),
-            'link': 'http://een.link',
-            'beschrijving': 'test_beschrijving',
-            'informatieobjecttype': informatieobjecttype_url,
-            'vertrouwelijkheidaanduiding': 'openbaar'
-        })
+        response = self.client.post(
+            url,
+            {
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": informatieobjecttype_url,
+                "vertrouwelijkheidaanduiding": "openbaar",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data['vertrouwelijkheidaanduiding'],
+            response.data["vertrouwelijkheidaanduiding"],
             VertrouwelijkheidsAanduiding.openbaar,
         )

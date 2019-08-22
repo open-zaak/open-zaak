@@ -7,10 +7,8 @@ from rest_framework.response import Response
 
 
 class ConceptPublishMixin:
-    @swagger_auto_schema(
-        request_body=no_body,
-    )
-    @action(detail=True, methods=['post'])
+    @swagger_auto_schema(request_body=no_body)
+    @action(detail=True, methods=["post"])
     def publish(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.concept = False
@@ -35,32 +33,31 @@ class ConceptDestroyMixin:
 
 class ConceptFilterMixin:
     def get_concept_filter(self):
-        return {'concept': False}
+        return {"concept": False}
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        if not hasattr(self, 'action') or self.action != 'list':
+        if not hasattr(self, "action") or self.action != "list":
             return qs
 
         # show only non-concepts by default
         query_params = self.request.query_params or {}
-        if 'status' in query_params:
+        if "status" in query_params:
             return qs
 
         return qs.filter(**self.get_concept_filter())
 
 
-class ConceptMixin(ConceptPublishMixin,
-                   ConceptDestroyMixin,
-                   ConceptFilterMixin):
+class ConceptMixin(ConceptPublishMixin, ConceptDestroyMixin, ConceptFilterMixin):
     """ mixin for resources which have 'concept' field"""
+
     pass
 
 
 class ZaakTypeConceptCreateMixin:
     def perform_create(self, serializer):
-        zaaktype = serializer.validated_data['zaaktype']
+        zaaktype = serializer.validated_data["zaaktype"]
         if not zaaktype.concept:
             msg = _("Creating a related object to non-concept object is forbidden")
             raise PermissionDenied(detail=msg)
@@ -75,16 +72,17 @@ class ZaakTypeConceptDestroyMixin(ConceptDestroyMixin):
 
 class ZaakTypeConceptFilterMixin(ConceptFilterMixin):
     def get_concept_filter(self):
-        return {'zaaktype__concept': False}
+        return {"zaaktype__concept": False}
 
 
-class ZaakTypeConceptMixin(ZaakTypeConceptCreateMixin,
-                           ZaakTypeConceptDestroyMixin,
-                           ZaakTypeConceptFilterMixin):
+class ZaakTypeConceptMixin(
+    ZaakTypeConceptCreateMixin, ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMixin
+):
     """
     mixin for resources which have FK or one-to-one relations with ZaakType objects,
     which support concept functionality
     """
+
     pass
 
 
@@ -97,7 +95,9 @@ class M2MConceptCreateMixin:
             field = serializer.validated_data.get(field_name, [])
             for related_object in field:
                 if not related_object.concept:
-                    msg = _(f"Relations to a non-concept {field_name} object can't be created")
+                    msg = _(
+                        f"Relations to a non-concept {field_name} object can't be created"
+                    )
                     raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)

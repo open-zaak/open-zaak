@@ -4,18 +4,19 @@ ik in mijn communicatie snel kan verwijzen naar mijn aanvraag.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/164
 """
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
+
 from .utils import ZAAK_WRITE_KWARGS
 
-VERANTWOORDELIJKE_ORGANISATIE = '517439943'
+VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 class US164TestCase(JWTAuthMixin, APITestCase):
@@ -28,14 +29,14 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         """
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        url = get_operation_url('zaak_create')
+        url = get_operation_url("zaak_create")
         data = {
-            'zaaktype': f'http://testserver{zaaktype_url}',
-            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-            'identificatie': 'strtmzk-0001',
-            'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
-            'bronorganisatie': '517439943',
-            'startdatum': '2018-06-11',
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "identificatie": "strtmzk-0001",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "bronorganisatie": "517439943",
+            "startdatum": "2018-06-11",
         }
 
         response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
@@ -43,27 +44,27 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         zaak = Zaak.objects.get()
-        self.assertEqual(zaak.identificatie, 'strtmzk-0001')
+        self.assertEqual(zaak.identificatie, "strtmzk-0001")
 
     def test_uniqueness_identificatie(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        ZaakFactory.create(identificatie='strtmzk-0001', bronorganisatie='517439943')
+        ZaakFactory.create(identificatie="strtmzk-0001", bronorganisatie="517439943")
 
-        url = get_operation_url('zaak_create')
+        url = get_operation_url("zaak_create")
         data = {
-            'zaaktype': f'http://testserver{zaaktype_url}',
-            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-            'identificatie': 'strtmzk-0001',
-            'bronorganisatie': '517439943',
-            'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
-            'startdatum': '2018-06-11',
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "identificatie": "strtmzk-0001",
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "startdatum": "2018-06-11",
         }
 
         response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['code'], 'invalid')
+        self.assertEqual(response.data["code"], "invalid")
 
-        error = get_validation_errors(response, 'identificatie')
-        self.assertEqual(error['code'], 'identificatie-niet-uniek')
+        error = get_validation_errors(response, "identificatie")
+        self.assertEqual(error["code"], "identificatie-niet-uniek")

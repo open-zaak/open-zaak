@@ -11,10 +11,11 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 class StatusTests(TestCase):
-
     def test_empty_status_empty_ontvangstdatum(self):
         try:
-            eio = EnkelvoudigInformatieObjectFactory.create(ontvangstdatum=None, status='')
+            eio = EnkelvoudigInformatieObjectFactory.create(
+                ontvangstdatum=None, status=""
+            )
             eio.full_clean()
         except ValidationError:
             self.fail("Empty status and ontvangstdatum should be possible")
@@ -22,8 +23,7 @@ class StatusTests(TestCase):
     def test_empty_status_non_empty_ontvangstdatum(self):
         try:
             eio = EnkelvoudigInformatieObjectFactory.create(
-                ontvangstdatum=date(2018, 12, 24),
-                status=''
+                ontvangstdatum=date(2018, 12, 24), status=""
             )
             eio.full_clean()
         except ValidationError:
@@ -33,11 +33,10 @@ class StatusTests(TestCase):
         for invalid_status in Statussen.invalid_for_received():
             with self.subTest(status=invalid_status):
                 eio = EnkelvoudigInformatieObjectFactory.create(
-                    ontvangstdatum=date(2018, 12, 24),
-                    status=invalid_status
+                    ontvangstdatum=date(2018, 12, 24), status=invalid_status
                 )
                 with self.assertRaises(ValidationError) as exc_context:
                     eio.full_clean()
 
-                code = exc_context.exception.error_dict['status'][0].code
-                self.assertEqual(code, 'invalid_for_received')
+                code = exc_context.exception.error_dict["status"][0].code
+                self.assertEqual(code, "invalid_for_received")

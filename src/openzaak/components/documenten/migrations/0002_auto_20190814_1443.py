@@ -6,15 +6,16 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('documenten', '0001_initial'),
-        ('catalogi', '0001_initial'),
-    ]
+    dependencies = [("documenten", "0001_initial"), ("catalogi", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='enkelvoudiginformatieobject',
-            name='informatieobjecttype',
-            field=models.ForeignKey(help_text='Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.InformatieObjectType'),
-        ),
+            model_name="enkelvoudiginformatieobject",
+            name="informatieobjecttype",
+            field=models.ForeignKey(
+                help_text="Referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.InformatieObjectType",
+            ),
+        )
     ]

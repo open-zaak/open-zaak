@@ -9,45 +9,47 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
     zaaktypen = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
-        source='zaaktype_set',
-        view_name='zaaktype-detail',
-        lookup_field='uuid',
-        help_text=_('URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden ontsloten.')
+        source="zaaktype_set",
+        view_name="zaaktype-detail",
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden ontsloten."
+        ),
     )
 
     besluittypen = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
-        source='besluittype_set',
-        view_name='besluittype-detail',
-        lookup_field='uuid',
-        help_text=_('URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden ontsloten.')
+        source="besluittype_set",
+        view_name="besluittype-detail",
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden ontsloten."
+        ),
     )
 
     informatieobjecttypen = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
-        source='informatieobjecttype_set',
-        view_name='informatieobjecttype-detail',
-        lookup_field='uuid',
-        help_text=_('URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten.')
+        source="informatieobjecttype_set",
+        view_name="informatieobjecttype-detail",
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
+        ),
     )
 
     class Meta:
         model = Catalogus
         fields = (
-            'url',
-            'domein',
-            'rsin',
-            'contactpersoon_beheer_naam',
-            'contactpersoon_beheer_telefoonnummer',
-            'contactpersoon_beheer_emailadres',
-            'zaaktypen',
-            'besluittypen',
-            'informatieobjecttypen',
+            "url",
+            "domein",
+            "rsin",
+            "contactpersoon_beheer_naam",
+            "contactpersoon_beheer_telefoonnummer",
+            "contactpersoon_beheer_emailadres",
+            "zaaktypen",
+            "besluittypen",
+            "informatieobjecttypen",
         )
-        extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid'
-            },
-        }
+        extra_kwargs = {"url": {"lookup_field": "uuid"}}

@@ -1,6 +1,7 @@
-from openzaak.components.catalogi.models import Eigenschap
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+
+from openzaak.components.catalogi.models import Eigenschap
 
 from ..filters import EigenschapFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
@@ -8,10 +9,12 @@ from ..serializers import EigenschapSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
-class EigenschapViewSet(ZaakTypeConceptMixin,
-                        mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.ReadOnlyModelViewSet):
+class EigenschapViewSet(
+    ZaakTypeConceptMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
     """
     Opvragen en bewerken van EIGENSCHAPpen van een ZAAKTYPE.
 
@@ -52,14 +55,15 @@ class EigenschapViewSet(ZaakTypeConceptMixin,
     Verwijder een EIGENSCHAP. Dit kan alleen als het bijbehorende ZAAKTYPE een
     concept betreft.
     """
-    queryset = Eigenschap.objects.all().order_by('-pk')
+
+    queryset = Eigenschap.objects.all().order_by("-pk")
     serializer_class = EigenschapSerializer
     filterset_class = EigenschapFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     pagination_class = PageNumberPagination
     required_scopes = {
-        'list': SCOPE_ZAAKTYPES_READ,
-        'retrieve': SCOPE_ZAAKTYPES_READ,
-        'create': SCOPE_ZAAKTYPES_WRITE,
-        'destroy': SCOPE_ZAAKTYPES_WRITE,
+        "list": SCOPE_ZAAKTYPES_READ,
+        "retrieve": SCOPE_ZAAKTYPES_READ,
+        "create": SCOPE_ZAAKTYPES_WRITE,
+        "destroy": SCOPE_ZAAKTYPES_WRITE,
     }

@@ -33,7 +33,7 @@ class AbstractRolZaakobjectRelation(models.Model):
     def clean(self):
         super().clean()
         if self.rol is None and self.zaakobject is None:
-            raise ValidationError('Relations to Rol or ZaakObject models should be set')
+            raise ValidationError("Relations to Rol or ZaakObject models should be set")
 
     class Meta:
         abstract = True
@@ -48,8 +48,14 @@ class AbstractRolZaakobjectZakelijkRechtRelation(models.Model):
 
     def clean(self):
         super().clean()
-        if self.rol is None and self.zaakobject is None and self.zakelijk_rechtHeeft_als_gerechtigde is None:
-            raise ValidationError('Relations to Rol, ZaakObject or ZakelijkRechtHeeft models should be set')
+        if (
+            self.rol is None
+            and self.zaakobject is None
+            and self.zakelijk_rechtHeeft_als_gerechtigde is None
+        ):
+            raise ValidationError(
+                "Relations to Rol, ZaakObject or ZakelijkRechtHeeft models should be set"
+            )
 
     class Meta:
         abstract = True
@@ -59,79 +65,87 @@ class AbstractRolZaakobjectZakelijkRechtRelation(models.Model):
 class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inp_bsn = BSNField(
         blank=True,
-        help_text='Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.'
+        help_text="Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
     )
     anp_identificatie = models.CharField(
-        max_length=17, blank=True,
-        help_text='Het door de gemeente uitgegeven unieke nummer voor een ANDER NATUURLIJK PERSOON'
+        max_length=17,
+        blank=True,
+        help_text="Het door de gemeente uitgegeven unieke nummer voor een ANDER NATUURLIJK PERSOON",
     )
     inp_a_nummer = models.CharField(
-        max_length=10, blank=True,
-        help_text='Het administratienummer van de persoon, bedoeld in de Wet BRP',
+        max_length=10,
+        blank=True,
+        help_text="Het administratienummer van de persoon, bedoeld in de Wet BRP",
         validators=[
             RegexValidator(
-                regex=r'^[1-9][0-9]{9}$',
-                message=_('inpA_nummer must consist of 10 digits'),
-                code='a-nummer-incorrect-format'
+                regex=r"^[1-9][0-9]{9}$",
+                message=_("inpA_nummer must consist of 10 digits"),
+                code="a-nummer-incorrect-format",
             )
-        ]
+        ],
     )
     geslachtsnaam = models.CharField(
-        max_length=200, blank=True,
-        help_text='De stam van de geslachtsnaam.'
+        max_length=200, blank=True, help_text="De stam van de geslachtsnaam."
     )
-    voorvoegsel_geslachtsnaam = models.CharField(
-        max_length=80, blank=True,
-    )
+    voorvoegsel_geslachtsnaam = models.CharField(max_length=80, blank=True)
     voorletters = models.CharField(
-        max_length=20, blank=True,
-        help_text='De verzameling letters die gevormd wordt door de eerste letter van '
-                  'alle in volgorde voorkomende voornamen.'
+        max_length=20,
+        blank=True,
+        help_text="De verzameling letters die gevormd wordt door de eerste letter van "
+        "alle in volgorde voorkomende voornamen.",
     )
     voornamen = models.CharField(
-        max_length=200, blank=True,
-        help_text='Voornamen bij de naam die de persoon wenst te voeren.'
+        max_length=200,
+        blank=True,
+        help_text="Voornamen bij de naam die de persoon wenst te voeren.",
     )
     geslachtsaanduiding = models.CharField(
-        max_length=1, blank=True,
-        help_text='Een aanduiding die aangeeft of de persoon een man of een vrouw is, '
-                  'of dat het geslacht nog onbekend is.', choices=GeslachtsAanduiding.choices
+        max_length=1,
+        blank=True,
+        help_text="Een aanduiding die aangeeft of de persoon een man of een vrouw is, "
+        "of dat het geslacht nog onbekend is.",
+        choices=GeslachtsAanduiding.choices,
     )
-    geboortedatum = models.CharField(
-        max_length=18, blank=True
-    )
+    geboortedatum = models.CharField(max_length=18, blank=True)
 
     class Meta:
-        verbose_name = 'natuurlijk persoon'
+        verbose_name = "natuurlijk persoon"
 
 
 class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inn_nnp_id = RSINField(
         blank=True,
-        help_text='Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON',
+        help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
     )
 
     ann_identificatie = models.CharField(
-        max_length=17, blank=True,
-        help_text='Het door de gemeente uitgegeven unieke nummer voor een ANDER NIET-NATUURLIJK PERSOON')
+        max_length=17,
+        blank=True,
+        help_text="Het door de gemeente uitgegeven unieke nummer voor een ANDER NIET-NATUURLIJK PERSOON",
+    )
 
     statutaire_naam = models.TextField(
-        max_length=500, blank=True,
-        help_text='Naam van de niet-natuurlijke persoon zoals deze is vastgelegd in de statuten (rechtspersoon) of '
-                  'in de vennootschapsovereenkomst is overeengekomen (Vennootschap onder firma of Commanditaire '
-                  'vennootschap).')
+        max_length=500,
+        blank=True,
+        help_text="Naam van de niet-natuurlijke persoon zoals deze is vastgelegd in de statuten (rechtspersoon) of "
+        "in de vennootschapsovereenkomst is overeengekomen (Vennootschap onder firma of Commanditaire "
+        "vennootschap).",
+    )
 
     inn_rechtsvorm = models.CharField(
-        max_length=50, choices=SoortRechtsvorm.choices, blank=True,
-        help_text='De juridische vorm van de NIET-NATUURLIJK PERSOON.'
+        max_length=50,
+        choices=SoortRechtsvorm.choices,
+        blank=True,
+        help_text="De juridische vorm van de NIET-NATUURLIJK PERSOON.",
     )
     bezoekadres = models.CharField(
-        max_length=1000, blank=True,
-        help_text='De gegevens over het adres van de NIET-NATUURLIJK PERSOON',
+        max_length=1000,
+        blank=True,
+        help_text="De gegevens over het adres van de NIET-NATUURLIJK PERSOON",
     )
 
     class Meta:
-        verbose_name = 'niet-natuurlijk persoon'
+        verbose_name = "niet-natuurlijk persoon"
 
 
 class Vestiging(AbstractRolZaakobjectRelation):
@@ -139,17 +153,20 @@ class Vestiging(AbstractRolZaakobjectRelation):
     Een gebouw of complex van gebouwen waar duurzame uitoefening van de activiteiten
     van een onderneming of rechtspersoon plaatsvindt.
     """
+
     vestigings_nummer = models.CharField(
-        max_length=24, blank=True,
-        help_text='Een korte unieke aanduiding van de Vestiging.'
+        max_length=24,
+        blank=True,
+        help_text="Een korte unieke aanduiding van de Vestiging.",
     )
     handelsnaam = ArrayField(
         models.TextField(max_length=625, blank=True),
         default=list,
-        help_text='De naam van de vestiging waaronder gehandeld wordt.')
+        help_text="De naam van de vestiging waaronder gehandeld wordt.",
+    )
 
     class Meta:
-        verbose_name = 'vestiging'
+        verbose_name = "vestiging"
 
 
 class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
@@ -159,20 +176,21 @@ class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
     ZAAKBEHANDELENDE ORGANISATIE en die verantwoordelijk is voor de
     behandeling van zaken.
     """
+
     identificatie = models.CharField(
-        max_length=24, blank=True,
-        help_text='Een korte identificatie van de organisatorische eenheid.'
+        max_length=24,
+        blank=True,
+        help_text="Een korte identificatie van de organisatorische eenheid.",
     )
     naam = models.CharField(
-        max_length=50, blank=True,
-        help_text='De feitelijke naam van de organisatorische eenheid.'
+        max_length=50,
+        blank=True,
+        help_text="De feitelijke naam van de organisatorische eenheid.",
     )
-    is_gehuisvest_in = models.CharField(
-        max_length=24, blank=True,
-    )
+    is_gehuisvest_in = models.CharField(max_length=24, blank=True)
 
     class Meta:
-        verbose_name = 'organisatorische eenheid'
+        verbose_name = "organisatorische eenheid"
 
 
 class Medewerker(AbstractRolZaakobjectRelation):
@@ -180,24 +198,32 @@ class Medewerker(AbstractRolZaakobjectRelation):
     Een MEDEWERKER van de organisatie die zaken behandelt uit hoofde van
     zijn of haar functie binnen een ORGANISATORISCHE EENHEID.
     """
+
     identificatie = models.CharField(
-        max_length=24, blank=True,
-        help_text='Een korte unieke aanduiding van de MEDEWERKER.')
+        max_length=24,
+        blank=True,
+        help_text="Een korte unieke aanduiding van de MEDEWERKER.",
+    )
     achternaam = models.CharField(
-        max_length=200, blank=True,
-        help_text='De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer gebruikt.'
+        max_length=200,
+        blank=True,
+        help_text="De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer gebruikt.",
     )
     voorletters = models.CharField(
-        max_length=20, blank=True,
-        help_text='De verzameling letters die gevormd wordt door de eerste letter van '
-                  'alle in volgorde voorkomende voornamen.')
+        max_length=20,
+        blank=True,
+        help_text="De verzameling letters die gevormd wordt door de eerste letter van "
+        "alle in volgorde voorkomende voornamen.",
+    )
     voorvoegsel_achternaam = models.CharField(
-        max_length=10, blank=True,
-        help_text='Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA), '
-                  'voorvoegseltabel, en door een spatie van de geslachtsnaam is')
+        max_length=10,
+        blank=True,
+        help_text="Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA), "
+        "voorvoegseltabel, en door een spatie van de geslachtsnaam is",
+    )
 
     class Meta:
-        verbose_name = 'medewerker'
+        verbose_name = "medewerker"
 
 
 # models for nested objects
@@ -205,21 +231,32 @@ class SubVerblijfBuitenland(models.Model):
     """
     Datamodel afwijking, model representatie van de Groepattribuutsoort 'Verblijf buitenland'
     """
+
     natuurlijkpersoon = models.OneToOneField(
-        NatuurlijkPersoon, on_delete=models.CASCADE, null=True, related_name='sub_verblijf_buitenland'
+        NatuurlijkPersoon,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="sub_verblijf_buitenland",
     )
     nietnatuurlijkpersoon = models.OneToOneField(
-        NietNatuurlijkPersoon, on_delete=models.CASCADE, null=True, related_name='sub_verblijf_buitenland'
+        NietNatuurlijkPersoon,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="sub_verblijf_buitenland",
     )
     vestiging = models.OneToOneField(
-        Vestiging, on_delete=models.CASCADE, null=True, related_name='sub_verblijf_buitenland'
+        Vestiging,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="sub_verblijf_buitenland",
     )
     lnd_landcode = models.CharField(
         max_length=4,
-        help_text='De code, behorende bij de landnaam, zoals opgenomen in de Land/Gebied-tabel van de BRP.'
+        help_text="De code, behorende bij de landnaam, zoals opgenomen in de Land/Gebied-tabel van de BRP.",
     )
     lnd_landnaam = models.CharField(
-        max_length=40, help_text='De naam van het land, zoals opgenomen in de Land/Gebied-tabel van de BRP.'
+        max_length=40,
+        help_text="De naam van het land, zoals opgenomen in de Land/Gebied-tabel van de BRP.",
     )
     sub_adres_buitenland_1 = models.CharField(max_length=35, blank=True)
     sub_adres_buitenland_2 = models.CharField(max_length=35, blank=True)
@@ -227,6 +264,12 @@ class SubVerblijfBuitenland(models.Model):
 
     def clean(self):
         super().clean()
-        if self.natuurlijkpersoon is None and self.nietnatuurlijkpersoon is None and self.vestiging is None:
-            raise ValidationError('Relations to NatuurlijkPersoon, NietNatuurlijkPersoon or Vestiging '
-                                  'models should be set')
+        if (
+            self.natuurlijkpersoon is None
+            and self.nietnatuurlijkpersoon is None
+            and self.vestiging is None
+        ):
+            raise ValidationError(
+                "Relations to NatuurlijkPersoon, NietNatuurlijkPersoon or Vestiging "
+                "models should be set"
+            )

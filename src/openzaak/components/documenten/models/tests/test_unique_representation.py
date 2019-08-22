@@ -6,51 +6,49 @@ from rest_framework.test import APITestCase
 from zds_client.tests.mocks import mock_client
 
 from .factories import (
-    EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,
-    ObjectInformatieObjectFactory
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenFactory,
+    ObjectInformatieObjectFactory,
 )
 
 
-@override_settings(
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
+@override_settings(ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient")
 class UniqueRepresentationTestCase(APITestCase):
-
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
             bronorganisatie=730924658,
-            identificatie='5d940d52-ff5e-4b18-a769-977af9130c04'
+            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
 
         self.assertEqual(
             eio.unique_representation(),
-            '730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04'
+            "730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04",
         )
 
     def test_gebruiksrechten(self):
         gebruiksrechten = GebruiksrechtenFactory(
             informatieobject__latest_version__bronorganisatie=730924658,
-            informatieobject__latest_version__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04',
-            omschrijving_voorwaarden="some conditions"
+            informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+            omschrijving_voorwaarden="some conditions",
         )
 
         self.assertEqual(
             gebruiksrechten.unique_representation(),
-            '(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - some conditions'
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - some conditions",
         )
 
-    @skip('ObjectInformatieObject is not implemented yet')
+    @skip("ObjectInformatieObject is not implemented yet")
     def test_oio(self):
         oio = ObjectInformatieObjectFactory(
             informatieobject__latest_version__bronorganisatie=730924658,
-            informatieobject__latest_version__identificatie='5d940d52-ff5e-4b18-a769-977af9130c04',
-            is_zaak=True
+            informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+            is_zaak=True,
         )
         responses = {
             oio.object: {
-                'url': oio.object,
-                'bronorganisatie': 123456789,
-                'identificatie': 'c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf'
+                "url": oio.object,
+                "bronorganisatie": 123456789,
+                "identificatie": "c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf",
             }
         }
 
@@ -59,5 +57,5 @@ class UniqueRepresentationTestCase(APITestCase):
 
         self.assertEqual(
             unique_representation,
-            '(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf'
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf",
         )

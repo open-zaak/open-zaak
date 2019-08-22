@@ -3,23 +3,36 @@ from unittest import skip
 from django.test import TestCase
 
 from openzaak.components.catalogi.models import (
-    InformatieObjectType, ResultaatType, ZaakInformatieobjectType,
-    ZaakInformatieobjectTypeArchiefregime, ZaakType, ZaakTypenRelatie
+    InformatieObjectType,
+    ResultaatType,
+    ZaakInformatieobjectType,
+    ZaakInformatieobjectTypeArchiefregime,
+    ZaakType,
+    ZaakTypenRelatie,
 )
 
 from .factories import (
-    BesluitTypeFactory, BronCatalogusFactory, BronZaakTypeFactory,
-    CatalogusFactory, CheckListItemFactory, EigenschapFactory,
-    EigenschapReferentieFactory, EigenschapSpecificatieFactory,
-    FormulierFactory, InformatieObjectTypeFactory,
-    InformatieObjectTypeOmschrijvingGeneriekFactory, ResultaatTypeFactory,
-    RolTypeFactory, StatusTypeFactory, ZaakObjectTypeFactory, ZaakTypeFactory,
-    ZaakTypenRelatieFactory
+    BesluitTypeFactory,
+    BronCatalogusFactory,
+    BronZaakTypeFactory,
+    CatalogusFactory,
+    CheckListItemFactory,
+    EigenschapFactory,
+    EigenschapReferentieFactory,
+    EigenschapSpecificatieFactory,
+    FormulierFactory,
+    InformatieObjectTypeFactory,
+    InformatieObjectTypeOmschrijvingGeneriekFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakObjectTypeFactory,
+    ZaakTypeFactory,
+    ZaakTypenRelatieFactory,
 )
 
 
 class FactoryTests(TestCase):
-
     def test_factories(self):
         iot = InformatieObjectTypeFactory.create()
 
@@ -58,7 +71,7 @@ class FactoryTests(TestCase):
         self.assertEqual(ZaakInformatieobjectType.objects.count(), 1)
         self.assertEqual(ZaakType.objects.count(), 1)
 
-    @skip('ZaakInformatieobjectTypeArchiefregime is disabled at the moment')
+    @skip("ZaakInformatieobjectTypeArchiefregime is disabled at the moment")
     def test_zaak_informatieobject_type_archiefregime_factory(self):
         self.assertEqual(ResultaatType.objects.count(), 0)
         self.assertEqual(ZaakInformatieobjectTypeArchiefregime.objects.count(), 0)
@@ -73,7 +86,9 @@ class FactoryTests(TestCase):
 
         ResultaatTypeFactory.create(bepaalt_afwijkend_archiefregime_van=None)
         self.assertEqual(ResultaatType.objects.count(), 2)  # + 1
-        self.assertEqual(ZaakInformatieobjectTypeArchiefregime.objects.count(), 1)  # stays the same
+        self.assertEqual(
+            ZaakInformatieobjectTypeArchiefregime.objects.count(), 1
+        )  # stays the same
         self.assertEqual(ZaakInformatieobjectType.objects.count(), 1)  # stay the same
 
     def test_zaak_typen_relatie_factory(self):

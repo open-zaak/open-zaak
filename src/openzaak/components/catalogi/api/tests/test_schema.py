@@ -13,7 +13,7 @@ class DocumentationAPITests(ClientAPITestMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.schema_url = reverse('schema-redoc-catalogi', kwargs={'version': '1'})
+        self.schema_url = reverse("schema-redoc-catalogi", kwargs={"version": "1"})
 
     def test_schema_does_not_contain_flex_serializers(self):
         """
@@ -22,10 +22,10 @@ class DocumentationAPITests(ClientAPITestMixin, APITestCase):
 
         See: https://github.com/rsinger86/drf-flex-fields/issues/9
         """
-        response = self.api_client.get('{}?format=openapi'.format(self.schema_url))
+        response = self.api_client.get("{}?format=openapi".format(self.schema_url))
         self.assertEqual(response.status_code, 200)
 
-        data = json.loads(response.content.decode('utf-8'))
+        data = json.loads(response.content.decode("utf-8"))
 
-        self.assertIn('swagger', data)
-        self.assertNotIn('DynamicFieldsModel', data)
+        self.assertIn("swagger", data)
+        self.assertNotIn("DynamicFieldsModel", data)

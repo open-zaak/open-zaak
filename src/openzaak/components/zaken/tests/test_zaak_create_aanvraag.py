@@ -8,17 +8,18 @@ Zie ook: test_userstory_39.py, test_userstory_169.py
 """
 from datetime import date
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import JWTAuthMixin, reverse
 
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+
 from .utils import ZAAK_WRITE_KWARGS
 
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
-VERANTWOORDELIJKE_ORGANISATIE = '517439943'
+VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 class US169TestCase(JWTAuthMixin, APITestCase):
@@ -31,16 +32,16 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         """
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        zaak_create_url = get_operation_url('zaak_create')
+        zaak_create_url = get_operation_url("zaak_create")
         data = {
-            'zaaktype': f'http://testserver{zaaktype_url}',
-            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-            'bronorganisatie': '517439943',
-            'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
-            'identificatie': 'HLM-straatartiest-42',
-            'omschrijving': 'Dagontheffing - Station Haarlem',
-            'toelichting': 'Het betreft een clown met grote trom, mondharmonica en cymbalen.',
-            'startdatum': '2018-08-15',
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "identificatie": "HLM-straatartiest-42",
+            "omschrijving": "Dagontheffing - Station Haarlem",
+            "toelichting": "Het betreft een clown met grote trom, mondharmonica en cymbalen.",
+            "startdatum": "2018-08-15",
         }
 
         # aanmaken zaak
@@ -48,6 +49,6 @@ class US169TestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         data = response.json()
-        self.assertIn('identificatie', data)
-        self.assertEqual(data['registratiedatum'], date.today().strftime('%Y-%m-%d'))
-        self.assertEqual(data['startdatum'], '2018-08-15')
+        self.assertIn("identificatie", data)
+        self.assertEqual(data["registratiedatum"], date.today().strftime("%Y-%m-%d"))
+        self.assertEqual(data["startdatum"], "2018-08-15")

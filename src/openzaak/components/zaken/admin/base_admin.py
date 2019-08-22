@@ -1,8 +1,15 @@
 from django.contrib import admin
 
 from ..models import (
-    KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
-    ZaakEigenschap, ZaakInformatieObject, ZaakObject
+    KlantContact,
+    RelevanteZaakRelatie,
+    Resultaat,
+    Rol,
+    Status,
+    Zaak,
+    ZaakEigenschap,
+    ZaakInformatieObject,
+    ZaakObject,
 )
 
 
@@ -28,7 +35,7 @@ class KlantContactInline(admin.TabularInline):
 
 class RolInline(admin.TabularInline):
     model = Rol
-    raw_id_fields = ['zaak']
+    raw_id_fields = ["zaak"]
 
 
 class ResultaatInline(admin.TabularInline):
@@ -37,12 +44,12 @@ class ResultaatInline(admin.TabularInline):
 
 class RelevanteZaakRelatieInline(admin.TabularInline):
     model = RelevanteZaakRelatie
-    fk_name = 'zaak'
+    fk_name = "zaak"
 
 
 @admin.register(Zaak)
 class ZaakAdmin(admin.ModelAdmin):
-    list_display = ['identificatie']
+    list_display = ["identificatie"]
     inlines = [
         StatusInline,
         ZaakObjectInline,
@@ -57,41 +64,41 @@ class ZaakAdmin(admin.ModelAdmin):
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'datum_status_gezet']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "datum_status_gezet"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
 
 
 @admin.register(ZaakObject)
 class ZaakObjectAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'object', 'relatieomschrijving']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "object", "relatieomschrijving"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
 
 
 @admin.register(KlantContact)
 class KlantContactAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'identificatie', 'datumtijd', 'kanaal']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "identificatie", "datumtijd", "kanaal"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
 
 
 @admin.register(ZaakEigenschap)
 class ZaakEigenschapAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'eigenschap', 'waarde']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "eigenschap", "waarde"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
 
 
 @admin.register(ZaakInformatieObject)
 class ZaakInformatieObjectAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'informatieobject']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "informatieobject"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
 
 
 @admin.register(Resultaat)
 class ResultaatAdmin(admin.ModelAdmin):
-    list_display = ['zaak', 'toelichting']
-    list_select_related = ['zaak']
-    raw_id_fields = ['zaak']
+    list_display = ["zaak", "toelichting"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]

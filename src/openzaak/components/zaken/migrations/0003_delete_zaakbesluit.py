@@ -5,12 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('zaken', '0002_auto_20190812_1418'),
-    ]
+    dependencies = [("zaken", "0002_auto_20190812_1418")]
 
-    operations = [
-        migrations.DeleteModel(
-            name='ZaakBesluit',
-        ),
-    ]
+    operations = [migrations.DeleteModel(name="ZaakBesluit")]

@@ -26,10 +26,14 @@ class StUFDateField(CharField):
 
     'J'
     """
-    def __init__(self, *args, **kwargs):
-        warnings.warn("StUFDateField is no longer used, use a DateField instead.", DeprecationWarning)
 
-        kwargs['max_length'] = kwargs.get('max_length', 1 + 8)
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "StUFDateField is no longer used, use a DateField instead.",
+            DeprecationWarning,
+        )
+
+        kwargs["max_length"] = kwargs.get("max_length", 1 + 8)
         super(StUFDateField, self).__init__(*args, **kwargs)
 
 
@@ -37,8 +41,11 @@ class DatumField(CharField):
     """
     Moet voldoen aan Datum(jjjjmmdd)
     """
-    def __init__(self, *args, **kwargs):
-        warnings.warn("DatumField is no longer used, use a DateField instead.", DeprecationWarning)
 
-        kwargs['max_length'] = 8
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "DatumField is no longer used, use a DateField instead.", DeprecationWarning
+        )
+
+        kwargs["max_length"] = 8
         super(DatumField, self).__init__(*args, **kwargs)

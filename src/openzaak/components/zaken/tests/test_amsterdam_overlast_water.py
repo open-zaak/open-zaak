@@ -1,20 +1,24 @@
 from dateutil import parser
-from openzaak.components.catalogi.models.tests.factories import (
-    EigenschapFactory, ResultaatTypeFactory, StatusTypeFactory,
-    ZaakTypeFactory
-)
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
-    Archiefnominatie, BrondatumArchiefprocedureAfleidingswijze,
-    VertrouwelijkheidsAanduiding
+    Archiefnominatie,
+    BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import JWTAuthMixin, reverse
 
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory,
+    ResultaatTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
+from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.zaken.models import Zaak
+
 from .utils import ZAAK_WRITE_KWARGS, utcdatetime
 
-VERANTWOORDELIJKE_ORGANISATIE = '517439943'
+VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 TEST_DATA = {
     "id": 9966,
@@ -36,12 +40,11 @@ TEST_DATA = {
     "ml_cat": "melding openbare ruimte",
     "stadsdeel": "Centrum",
     "coordinates": "POINT (4.910649523925713 52.37240093589432)",
-    "verantwoordelijk": "Waternet"
+    "verantwoordelijk": "Waternet",
 }
 
 
 class Application:
-
     def __init__(self, client, data: dict):
         self.client = client
 
@@ -58,97 +61,130 @@ class Application:
     def registreer_zaak(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        zaak_create_url = get_operation_url('zaak_create')
+        zaak_create_url = get_operation_url("zaak_create")
 
-        created = parser.parse(self.data['datetime'])
-        intern_id = self.data['id']
+        created = parser.parse(self.data["datetime"])
+        intern_id = self.data["id"]
 
-        response = self.client.post(zaak_create_url, {
-            'zaaktype': f'http://testserver{zaaktype_url}',
-            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-            'bronorganisatie': '517439943',
-            'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,
-            'identificatie': f'WATER_{intern_id}',
-            'registratiedatum': created.strftime('%Y-%m-%d'),
-            'startdatum': created.strftime('%Y-%m-%d'),
-            'toelichting': self.data['text'],
-            'zaakgeometrie': self.data['coordinates'],
-        }, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(
+            zaak_create_url,
+            {
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+                "identificatie": f"WATER_{intern_id}",
+                "registratiedatum": created.strftime("%Y-%m-%d"),
+                "startdatum": created.strftime("%Y-%m-%d"),
+                "toelichting": self.data["text"],
+                "zaakgeometrie": self.data["coordinates"],
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
 
-        self.references['zaak_url'] = response.json()['url']
-        self.references['zaaktype'] = zaaktype
+        self.references["zaak_url"] = response.json()["url"]
+        self.references["zaaktype"] = zaaktype
 
     def zet_statussen_resultaat(self):
-        statustype = StatusTypeFactory.create(zaaktype=self.references['zaaktype'])
+        statustype = StatusTypeFactory.create(zaaktype=self.references["zaaktype"])
         statustype_url = reverse(statustype)
-        statustype_overlast_geconstateerd = StatusTypeFactory.create(zaaktype=self.references['zaaktype'])
-        statustype_overlast_geconstateerd_url = reverse(statustype_overlast_geconstateerd)
+        statustype_overlast_geconstateerd = StatusTypeFactory.create(
+            zaaktype=self.references["zaaktype"]
+        )
+        statustype_overlast_geconstateerd_url = reverse(
+            statustype_overlast_geconstateerd
+        )
         resultaattype = ResultaatTypeFactory.create(
-            zaaktype=self.references['zaaktype'],
-            archiefactietermijn='P10Y',
+            zaaktype=self.references["zaaktype"],
+            archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
         )
         resultaattype_url = reverse(resultaattype)
-        status_create_url = get_operation_url('status_create')
-        resultaat_create_url = get_operation_url('resultaat_create')
-        created = parser.parse(self.data['datetime'])
+        status_create_url = get_operation_url("status_create")
+        resultaat_create_url = get_operation_url("resultaat_create")
+        created = parser.parse(self.data["datetime"])
 
-        self.client.post(status_create_url, {
-            'zaak': self.references['zaak_url'],
-            'statustype': f'http://testserver{statustype_url}',
-            'datumStatusGezet': created.isoformat(),
-        })
+        self.client.post(
+            status_create_url,
+            {
+                "zaak": self.references["zaak_url"],
+                "statustype": f"http://testserver{statustype_url}",
+                "datumStatusGezet": created.isoformat(),
+            },
+        )
 
-        self.client.post(resultaat_create_url, {
-            'zaak': self.references['zaak_url'],
-            'resultaattype': f'http://testserver{resultaattype_url}',
-            'toelichting': '',
-        })
+        self.client.post(
+            resultaat_create_url,
+            {
+                "zaak": self.references["zaak_url"],
+                "resultaattype": f"http://testserver{resultaattype_url}",
+                "toelichting": "",
+            },
+        )
 
-        self.client.post(status_create_url, {
-            'zaak': self.references['zaak_url'],
-            'statustype': f'http://testserver{statustype_overlast_geconstateerd_url}',
-            'datumStatusGezet': parser.parse(self.data['datetime_overlast']).isoformat(),
-        })
+        self.client.post(
+            status_create_url,
+            {
+                "zaak": self.references["zaak_url"],
+                "statustype": f"http://testserver{statustype_overlast_geconstateerd_url}",
+                "datumStatusGezet": parser.parse(
+                    self.data["datetime_overlast"]
+                ).isoformat(),
+            },
+        )
 
-        self.references['statustype'] = statustype
-        self.references['statustype_overlast_geconstateerd'] = statustype_overlast_geconstateerd
+        self.references["statustype"] = statustype
+        self.references[
+            "statustype_overlast_geconstateerd"
+        ] = statustype_overlast_geconstateerd
 
     def registreer_domein_data(self):
-        eigenschap_objecttype = EigenschapFactory.create(eigenschapnaam='melding_type')
+        eigenschap_objecttype = EigenschapFactory.create(eigenschapnaam="melding_type")
         eigenschap_objecttype_url = reverse(eigenschap_objecttype)
-        eigenschap_naam_boot = EigenschapFactory.create(eigenschapnaam='waternet_naam_boot')
+        eigenschap_naam_boot = EigenschapFactory.create(
+            eigenschapnaam="waternet_naam_boot"
+        )
         eigenschap_naam_boot_url = reverse(eigenschap_naam_boot)
-        zaak_uuid = self.references['zaak_url'].rsplit('/')[-1]
-        url = get_operation_url('zaakeigenschap_create', zaak_uuid=zaak_uuid)
+        zaak_uuid = self.references["zaak_url"].rsplit("/")[-1]
+        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak_uuid)
 
-        self.client.post(url, {
-            'zaak': self.references['zaak_url'],
-            'eigenschap': f'http://testserver{eigenschap_objecttype_url}',
-            'waarde': 'overlast_water',
-        })
-        self.client.post(url, {
-            'zaak': self.references['zaak_url'],
-            'eigenschap': f'http://testserver{eigenschap_naam_boot_url}',
-            'waarde': TEST_DATA['waternet_naam_boot'],
-        })
+        self.client.post(
+            url,
+            {
+                "zaak": self.references["zaak_url"],
+                "eigenschap": f"http://testserver{eigenschap_objecttype_url}",
+                "waarde": "overlast_water",
+            },
+        )
+        self.client.post(
+            url,
+            {
+                "zaak": self.references["zaak_url"],
+                "eigenschap": f"http://testserver{eigenschap_naam_boot_url}",
+                "waarde": TEST_DATA["waternet_naam_boot"],
+            },
+        )
 
-        self.references['eigenschap_naam_boot'] = eigenschap_naam_boot
+        self.references["eigenschap_naam_boot"] = eigenschap_naam_boot
 
     def registreer_klantcontact(self):
-        url = get_operation_url('klantcontact_create')
-        self.client.post(url, {
-            'zaak': self.references['zaak_url'],
-            'datumtijd': self.data['datetime'],
-            'kanaal': self.data['source'],
-        })
+        url = get_operation_url("klantcontact_create")
+        self.client.post(
+            url,
+            {
+                "zaak": self.references["zaak_url"],
+                "datumtijd": self.data["datetime"],
+                "kanaal": self.data["source"],
+            },
+        )
 
 
 class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
     """
     Simulate a full realistic flow.
     """
+
     heeft_alle_autorisaties = True
 
     def test_full_flow(self):
@@ -156,35 +192,34 @@ class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
 
         app.store_notification()
 
-        zaak = Zaak.objects.get(identificatie='WATER_9966')
-        self.assertEqual(zaak.toelichting, 'test')
+        zaak = Zaak.objects.get(identificatie="WATER_9966")
+        self.assertEqual(zaak.toelichting, "test")
         self.assertEqual(zaak.zaakgeometrie.x, 4.910649523925713)
         self.assertEqual(zaak.zaakgeometrie.y, 52.37240093589432)
 
         self.assertEqual(zaak.status_set.count(), 2)
 
-        last_status = zaak.status_set.order_by('-datum_status_gezet').first()
-        self.assertEqual(last_status.statustype, app.references['statustype'])
+        last_status = zaak.status_set.order_by("-datum_status_gezet").first()
+        self.assertEqual(last_status.statustype, app.references["statustype"])
         self.assertEqual(
-            last_status.datum_status_gezet,
-            utcdatetime(2018, 5, 28, 7, 5, 8, 732587),
+            last_status.datum_status_gezet, utcdatetime(2018, 5, 28, 7, 5, 8, 732587)
         )
 
-        first_status = zaak.status_set.order_by('datum_status_gezet').first()
-        self.assertEqual(first_status.statustype, app.references['statustype_overlast_geconstateerd'])
+        first_status = zaak.status_set.order_by("datum_status_gezet").first()
         self.assertEqual(
-            first_status.datum_status_gezet,
-            utcdatetime(2018, 5, 28, 6, 35, 11)
+            first_status.statustype, app.references["statustype_overlast_geconstateerd"]
+        )
+        self.assertEqual(
+            first_status.datum_status_gezet, utcdatetime(2018, 5, 28, 6, 35, 11)
         )
 
         klantcontact = zaak.klantcontact_set.get()
-        self.assertEqual(klantcontact.kanaal, 'Telefoon 14020')
+        self.assertEqual(klantcontact.kanaal, "Telefoon 14020")
         self.assertEqual(
-            klantcontact.datumtijd,
-            utcdatetime(2018, 5, 28, 7, 5, 8, 732587),
+            klantcontact.datumtijd, utcdatetime(2018, 5, 28, 7, 5, 8, 732587)
         )
 
         eigenschappen = zaak.zaakeigenschap_set.all()
         self.assertEqual(eigenschappen.count(), 2)
-        naam_boot = eigenschappen.get(eigenschap=app.references['eigenschap_naam_boot'])
-        self.assertEqual(naam_boot.waarde, 'De Amsterdam')
+        naam_boot = eigenschappen.get(eigenschap=app.references["eigenschap_naam_boot"])
+        self.assertEqual(naam_boot.waarde, "De Amsterdam")

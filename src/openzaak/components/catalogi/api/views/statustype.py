@@ -8,10 +8,12 @@ from ..serializers import StatusTypeSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
-class StatusTypeViewSet(ZaakTypeConceptMixin,
-                        mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.ReadOnlyModelViewSet):
+class StatusTypeViewSet(
+    ZaakTypeConceptMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
     """
     Opvragen en bewerken van STATUSTYPEn van een ZAAKTYPE.
 
@@ -51,14 +53,15 @@ class StatusTypeViewSet(ZaakTypeConceptMixin,
     Verwijder een STATUSTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE een
     concept betreft.
     """
-    queryset = StatusType.objects.all().order_by('-pk')
+
+    queryset = StatusType.objects.all().order_by("-pk")
     serializer_class = StatusTypeSerializer
     filterset_class = StatusTypeFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     pagination_class = PageNumberPagination
     required_scopes = {
-        'list': SCOPE_ZAAKTYPES_READ,
-        'retrieve': SCOPE_ZAAKTYPES_READ,
-        'create': SCOPE_ZAAKTYPES_WRITE,
-        'destroy': SCOPE_ZAAKTYPES_WRITE,
+        "list": SCOPE_ZAAKTYPES_READ,
+        "retrieve": SCOPE_ZAAKTYPES_READ,
+        "create": SCOPE_ZAAKTYPES_WRITE,
+        "destroy": SCOPE_ZAAKTYPES_WRITE,
     }

@@ -8,64 +8,51 @@ from ..utils.validators import RelationCatalogValidator
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     informatieobjecttypes = serializers.HyperlinkedRelatedField(
-        view_name='informatieobjecttype-detail',
+        view_name="informatieobjecttype-detail",
         many=True,
-        lookup_field='uuid',
+        lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
-        help_text=get_help_text('catalogi.BesluitType', 'informatieobjecttypes')
+        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypes"),
     )
 
     zaaktypes = serializers.HyperlinkedRelatedField(
         many=True,
-        view_name='zaaktype-detail',
-        lookup_field='uuid',
+        view_name="zaaktype-detail",
+        lookup_field="uuid",
         queryset=ZaakType.objects.all(),
-        help_text=get_help_text('catalogi.BesluitType', 'zaaktypes')
+        help_text=get_help_text("catalogi.BesluitType", "zaaktypes"),
     )
 
     class Meta:
         model = BesluitType
         extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-            'catalogus': {
-                'lookup_field': 'uuid',
-            },
-            'begin_geldigheid': {
-                'source': 'datum_begin_geldigheid'
-            },
-            'einde_geldigheid': {
-                'source': 'datum_einde_geldigheid'
-            },
-            'concept': {
-                'read_only': True,
-            },
+            "url": {"lookup_field": "uuid"},
+            "catalogus": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "concept": {"read_only": True},
         }
         fields = (
-            'url',
-            'catalogus',
-            'zaaktypes',
-
-            'omschrijving',
-            'omschrijving_generiek',
-            'besluitcategorie',
-            'reactietermijn',
-            'publicatie_indicatie',
-            'publicatietekst',
-            'publicatietermijn',
-            'toelichting',
-
-            'informatieobjecttypes',
-            'begin_geldigheid',
-            'einde_geldigheid',
-            'concept',
+            "url",
+            "catalogus",
+            "zaaktypes",
+            "omschrijving",
+            "omschrijving_generiek",
+            "besluitcategorie",
+            "reactietermijn",
+            "publicatie_indicatie",
+            "publicatietekst",
+            "publicatietermijn",
+            "toelichting",
+            "informatieobjecttypes",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "concept",
         )
         validators = [
             UniqueTogetherValidator(
-                queryset=BesluitType.objects.all(),
-                fields=['catalogus', 'omschrijving'],
+                queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),
-            RelationCatalogValidator('informatieobjecttypes'),
-            RelationCatalogValidator('zaaktypes'),
+            RelationCatalogValidator("informatieobjecttypes"),
+            RelationCatalogValidator("zaaktypes"),
         ]
