@@ -2,13 +2,21 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    EigenschapFactory, ResultaatTypeFactory, RolTypeFactory, StatusTypeFactory,
+    ZaakTypeFactory
+)
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory
+)
 from vng_api_common.constants import (
     RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding, ZaakobjectTypes
 )
 
 
 class ZaakFactory(factory.django.DjangoModelFactory):
-    zaaktype = factory.Faker('url')
+    zaaktype = factory.SubFactory(ZaakTypeFactory)
     vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(choices=VertrouwelijkheidsAanduiding.values)
     registratiedatum = factory.Faker('date_this_month', before_today=True)
     startdatum = factory.Faker('date_this_month', before_today=True)
@@ -21,7 +29,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
 
 class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    informatieobject = factory.Faker('url')
+    informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 
     class Meta:
         model = 'zaken.ZaakInformatieObject'
@@ -29,7 +37,7 @@ class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
 
 class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    eigenschap = factory.Faker('url')
+    eigenschap = factory.SubFactory(EigenschapFactory)
     _naam = factory.Faker('word')
     waarde = factory.Faker('word')
 
@@ -51,7 +59,7 @@ class RolFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     betrokkene = factory.Faker('url')
     betrokkene_type = factory.fuzzy.FuzzyChoice(RolTypes.values)
-    roltype = factory.Faker('url')
+    roltype = factory.SubFactory(RolTypeFactory)
     omschrijving = factory.Faker('word')
     omschrijving_generiek = factory.fuzzy.FuzzyChoice(RolOmschrijving.values)
 
@@ -61,7 +69,7 @@ class RolFactory(factory.django.DjangoModelFactory):
 
 class StatusFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    statustype = factory.Faker('url')
+    statustype = factory.SubFactory(StatusTypeFactory)
     datum_status_gezet = factory.Faker('date_time_this_month', tzinfo=timezone.utc)
 
     class Meta:
@@ -70,7 +78,7 @@ class StatusFactory(factory.django.DjangoModelFactory):
 
 class ResultaatFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    resultaattype = factory.Faker('url')
+    resultaattype = factory.SubFactory(ResultaatTypeFactory)
 
     class Meta:
         model = 'zaken.Resultaat'
@@ -87,7 +95,7 @@ class KlantContactFactory(factory.django.DjangoModelFactory):
 
 class ZaakBesluitFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    besluit = factory.Faker('url')
+    besluit = factory.SubFactory(BesluitFactory)
 
-    class Meta:
-        model = 'zaken.ZaakBesluit'
+    # class Meta:
+    #     model = 'zaken.ZaakBesluit'

@@ -2,12 +2,18 @@ import logging
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Max, Subquery
 from django.utils.encoding import force_text
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-import requests
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.documenten.api.serializers import (
+    EnkelvoudigInformatieObjectHyperlinkedRelatedField
+)
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+)
 from openzaak.components.zaken.models import (
     KlantContact, RelevanteZaakRelatie, Resultaat, Rol, Status, Zaak,
     ZaakBesluit, ZaakEigenschap, ZaakInformatieObject, ZaakKenmerk, ZaakObject
@@ -16,28 +22,27 @@ from openzaak.components.zaken.models.constants import (
     AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 )
 from openzaak.components.zaken.models.utils import BrondatumCalculator
-from openzaak.components.zaken.sync.signals import SyncError
+from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from rest_framework import serializers
-from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
+from rest_framework_nested.relations import NestedHyperlinkedIdentityField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.constants import (
     Archiefnominatie, Archiefstatus, RelatieAarden, RolOmschrijving, RolTypes,
     ZaakobjectTypes
 )
-from vng_api_common.models import APICredential
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import (
     GegevensGroepSerializer, NestedGegevensGroepMixin,
     add_choice_values_help_text
 )
+from vng_api_common.utils import get_help_text
 from vng_api_common.validators import (
     IsImmutableValidator, ResourceValidator, UntilNowValidator, URLValidator
 )
 
-from ..auth import get_auth
 from ..validators import (
     CorrectZaaktypeValidator, DateNotInFutureValidator, HoofdzaakValidator,
     NotSelfValidator, RolOccurenceValidator, UniekeIdentificatieValidator,
@@ -106,16 +111,16 @@ class OpschortingSerializer(GegevensGroepSerializer):
 
 
 class RelevanteZaakSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        view_name='zaak-detail',
+        lookup_field='uuid',
+        help_text=_("URL-referentie naar de ZAAK.")
+    )
+
     class Meta:
         model = RelevanteZaakRelatie
         fields = ('url', 'aard_relatie',)
-        extra_kwargs = {
-            'url': {
-                'validators': [
-                    ResourceValidator('Zaak', settings.ZRC_API_SPEC, get_auth=get_auth, headers={'Accept-Crs': 'EPSG:4326'})
-                ]
-            }
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -243,11 +248,8 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
                 'validators': [IsImmutableValidator()],
             },
             'zaaktype': {
-                # TODO: does order matter here with the default validators?
-                'validators': [
-                    IsImmutableValidator(),
-                    ResourceValidator('ZaakType', settings.ZTC_API_SPEC, get_auth=get_auth)
-                ],
+                'lookup_field': 'uuid',
+                'validators': [IsImmutableValidator()],
             },
             'einddatum': {
                 'read_only': True,
@@ -295,38 +297,6 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
         value_display_mapping = add_choice_values_help_text(Archiefnominatie)
         self.fields['archiefnominatie'].help_text += f"\n\n{value_display_mapping}"
 
-    def _get_zaaktype(self, zaaktype_url: str) -> dict:
-        if not hasattr(self, '_zaaktype'):
-            # dynamic so that it can be mocked in tests easily
-            Client = import_string(settings.ZDS_CLIENT_CLASS)
-            client = Client.from_url(zaaktype_url)
-            client.auth = APICredential.get_auth(
-                zaaktype_url,
-                scopes=['zds.scopes.zaaktypes.lezen']
-            )
-            self._zaaktype = client.request(zaaktype_url, 'zaaktype')
-        return self._zaaktype
-
-    def _get_information_objects(self) -> list:
-        if not hasattr(self, '_information_objects'):
-            self._information_objects = []
-
-            if self.instance:
-                Client = import_string(settings.ZDS_CLIENT_CLASS)
-
-                zios = self.instance.zaakinformatieobject_set.all()
-                for zio in zios:
-                    io_url = zio.informatieobject
-                    client = Client.from_url(io_url)
-                    client.auth = APICredential.get_auth(
-                        io_url,
-                        scopes=['scopes.documenten.lezen']
-                    )
-                    informatieobject = client.request(io_url, 'enkelvoudiginformatieobject')
-                    self._information_objects.append(informatieobject)
-
-        return self._information_objects
-
     def validate(self, attrs):
         super().validate(attrs)
 
@@ -341,10 +311,10 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
         default_zaaktype = self.instance.zaaktype if self.instance else None
         zaaktype = attrs.get('zaaktype', default_zaaktype)
         assert zaaktype, "Should not have passed validation - a zaaktype is needed"
+
         producten_of_diensten = attrs.get('producten_of_diensten')
         if producten_of_diensten:
-            zaaktype = self._get_zaaktype(zaaktype)
-            if not set(producten_of_diensten).issubset(set(zaaktype['productenOfDiensten'])):
+            if not set(producten_of_diensten).issubset(set(zaaktype.producten_of_diensten)):
                 raise serializers.ValidationError({
                     'producten_of_diensten': _("Niet alle producten/diensten komen voor in "
                                                "de producten/diensten op het zaaktype")
@@ -354,15 +324,21 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
         default_archiefstatus = self.instance.archiefstatus if self.instance else Archiefstatus.nog_te_archiveren
         archiefstatus = attrs.get('archiefstatus', default_archiefstatus) != Archiefstatus.nog_te_archiveren
         if archiefstatus:
-            ios = self._get_information_objects()
-            for io in ios:
-                if io['status'] != 'gearchiveerd':
-                    raise serializers.ValidationError({
-                        'archiefstatus',
-                        _("Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
-                          "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
-                          "waarde dan `nog_te_archiveren`.")
-                    }, code='documents-not-archived')
+            # search for related informatieobjects with status != 'gearchiveerd'
+            canonical_ids = self.instance.zaakinformatieobject_set.values('informatieobject_id')
+            io_ids = EnkelvoudigInformatieObjectCanonical.objects.filter(id__in=Subquery(canonical_ids))\
+                .annotate(last=Max('enkelvoudiginformatieobject')).values('last')
+
+            if EnkelvoudigInformatieObject.objects\
+                    .filter(id__in=Subquery(io_ids))\
+                    .exclude(status='gearchiveerd').exists():
+
+                raise serializers.ValidationError({
+                    'archiefstatus',
+                    _("Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
+                      "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
+                      "waarde dan `nog_te_archiveren`.")
+                }, code='documents-not-archived')
 
             for attr in ['archiefnominatie', 'archiefactiedatum']:
                 if not attrs.get(attr, getattr(self.instance, attr) if self.instance else None):
@@ -377,8 +353,8 @@ class ZaakSerializer(NestedGegevensGroepMixin, NestedCreateMixin, NestedUpdateMi
     def create(self, validated_data: dict):
         # set the derived value from ZTC
         if 'vertrouwelijkheidaanduiding' not in validated_data:
-            zaaktype = self._get_zaaktype(validated_data['zaaktype'])
-            validated_data['vertrouwelijkheidaanduiding'] = zaaktype['vertrouwelijkheidaanduiding']
+            zaaktype = validated_data['zaaktype']
+            validated_data['vertrouwelijkheidaanduiding'] = zaaktype.vertrouwelijkheidaanduiding
 
         return super().create(validated_data)
 
@@ -416,9 +392,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 'lookup_field': 'uuid',
             },
             'statustype': {
-                'validators': [
-                    ResourceValidator('StatusType', settings.ZTC_API_SPEC, get_auth=get_auth),
-                ]
+                'lookup_field': 'uuid',
             },
             'datum_status_gezet': {
                 'validators': [
@@ -429,55 +403,38 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)
-        statustype_url = validated_attrs['statustype']
 
-        # dynamic so that it can be mocked in tests easily
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(statustype_url)
-        client.auth = APICredential.get_auth(
-            statustype_url,
-            scopes=['zds.scopes.zaaktypes.lezen']
-        )
-
-        try:
-            statustype = client.retrieve('statustype', url=statustype_url)
-            validated_attrs['__is_eindstatus'] = statustype['isEindstatus']
-        except requests.HTTPError as exc:
-            raise serializers.ValidationError(
-                exc.args[0],
-                code='relation-validation-error'
-            ) from exc
-        except KeyError as exc:
-            raise serializers.ValidationError(
-                exc.args[0],
-                code='relation-validation-error'
-            ) from exc
+        statustype = validated_attrs['statustype']
+        validated_attrs['__is_eindstatus'] = statustype.is_eindstatus()
 
         # validate that all InformationObjects have indicatieGebruiksrecht set
         # and are unlocked
         if validated_attrs['__is_eindstatus']:
             zaak = validated_attrs['zaak']
-            zios = zaak.zaakinformatieobject_set.all()
-            for zio in zios:
-                io_url = zio.informatieobject
-                client = Client.from_url(io_url)
-                client.auth = APICredential.get_auth(
-                    io_url,
-                    scopes=['zds.scopes.zaaktypes.lezen']
+
+            if zaak.zaakinformatieobject_set.exclude(informatieobject__lock='').exists():
+                raise serializers.ValidationError(
+                    "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
+                    "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
+                    code='informatieobject-locked'
                 )
-                informatieobject = client.retrieve('enkelvoudiginformatieobject', url=io_url)
-                if informatieobject['locked']:
-                    raise serializers.ValidationError(
-                        "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
-                        "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
-                        code='informatieobject-locked'
-                    )
-                if informatieobject['indicatieGebruiksrecht'] is None:
-                    raise serializers.ValidationError(
-                        "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
-                        "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten.",
-                        code='indicatiegebruiksrecht-unset'
-                    )
+            canonical_ids = zaak.zaakinformatieobject_set.values('informatieobject_id')
+            io_ids = EnkelvoudigInformatieObjectCanonical.objects.filter(id__in=Subquery(canonical_ids))\
+                .annotate(last=Max('enkelvoudiginformatieobject')).values('last')
+
+            if EnkelvoudigInformatieObject.objects\
+                    .filter(id__in=Subquery(io_ids))\
+                    .filter(indicatie_gebruiksrecht__isnull=True).exists():
+
+                    # zios = zaak.zaakinformatieobject_set.all()
+                    # for zio in zios:
+                    #     informatieobject = zio.informatieobject
+                    #     if informatieobject.latest_version.indicatie_gebruiksrecht is None:
+                raise serializers.ValidationError(
+                    "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
+                    "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten.",
+                    code='indicatiegebruiksrecht-unset'
+                )
 
             brondatum_calculator = BrondatumCalculator(zaak, validated_attrs['datum_status_gezet'])
             try:
@@ -672,6 +629,13 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         source='get_aard_relatie_display', read_only=True,
         choices=[(force_text(value), key) for key, value in RelatieAarden.choices]
     )
+    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
+        view_name='enkelvoudiginformatieobject-detail',
+        lookup_field='uuid',
+        queryset=EnkelvoudigInformatieObject.objects,
+        help_text=get_help_text('documenten.Gebruiksrechten', 'informatieobject'),
+        validators=[IsImmutableValidator()]
+    )
 
     class Meta:
         model = ZaakInformatieObject
@@ -690,7 +654,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=ZaakInformatieObject.objects.all(),
                 fields=['zaak', 'informatieobject']
             ),
-            ZaaktypeInformatieobjecttypeRelationValidator("informatieobject"),
+            ZaaktypeInformatieobjecttypeRelationValidator()
         ]
         extra_kwargs = {
             'url': {
@@ -699,32 +663,11 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             'uuid': {
                 'read_only': True,
             },
-            'informatieobject': {
-                'validators': [
-                    ResourceValidator('EnkelvoudigInformatieObject', settings.DRC_API_SPEC, get_auth=get_auth),
-                    IsImmutableValidator()
-                ],
-            },
             'zaak': {
                 'lookup_field': 'uuid',
                 'validators': [IsImmutableValidator()],
             },
         }
-
-    def save(self, **kwargs):
-        # can't slap a transaction atomic on this, since DRC queries for the
-        # relation!
-        try:
-            return super().save(**kwargs)
-        except SyncError as sync_error:
-            # delete the object again
-            ZaakInformatieObject.objects.filter(
-                informatieobject=self.validated_data['informatieobject'],
-                zaak=self.validated_data['zaak']
-            )._raw_delete('default')
-            raise serializers.ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]
-            }) from sync_error
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
@@ -753,7 +696,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 'lookup_field': 'uuid',
             },
             'eigenschap': {
-                'validators': [ResourceValidator('Eigenschap', settings.ZTC_API_SPEC, get_auth=get_auth)]
+                'lookup_field': 'uuid',
             },
             'naam': {
                 'source': '_naam',
@@ -761,24 +704,11 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             }
         }
 
-    def _get_eigenschap(self, eigenschap_url):
-        if not hasattr(self, '_eigenschap'):
-            self._eigenschap = None
-            if eigenschap_url:
-                Client = import_string(settings.ZDS_CLIENT_CLASS)
-                client = Client.from_url(eigenschap_url)
-                client.auth = APICredential.get_auth(
-                    eigenschap_url,
-                    scopes=['zds.scopes.zaaktypes.lezen']
-                )
-                self._eigenschap = client.request(eigenschap_url, 'eigenschap')
-        return self._eigenschap
-
     def validate(self, attrs):
         super().validate(attrs)
 
-        eigenschap = self._get_eigenschap(attrs['eigenschap'])
-        attrs['_naam'] = eigenschap['naam']
+        eigenschap = attrs['eigenschap']
+        attrs['_naam'] = eigenschap.eigenschapnaam
 
         return attrs
 
@@ -861,10 +791,8 @@ class RolSerializer(PolymorphicSerializer):
                 'required': False,
             },
             'roltype': {
-                'validators': [
-                    IsImmutableValidator(),
-                    ResourceValidator('RolType', settings.ZTC_API_SPEC, get_auth=get_auth),
-                ]
+                'lookup_field': 'uuid',
+                'validators': [IsImmutableValidator()],
             }
         }
 
@@ -928,41 +856,44 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 'lookup_field': 'uuid',
             },
             'resultaattype': {
-                'validators': [
-                    IsImmutableValidator(),
-                    ResourceValidator('ResultaatType', settings.ZTC_API_SPEC, get_auth=get_auth)
-                ],
-            }
-        }
-
-
-class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'zaak_uuid': 'zaak__uuid'
-    }
-
-    class Meta:
-        model = ZaakBesluit
-        fields = (
-            'url',
-            'uuid',
-            'besluit',
-        )
-        extra_kwargs = {
-            'url': {
                 'lookup_field': 'uuid',
-            },
-            'uuid': {
-                'read_only': True,
-            },
-            'zaak': {'lookup_field': 'uuid'},
-            'besluit': {
-                'validators': [
-                    URLValidator(get_auth=get_auth),
-                ]
+                'validators': [IsImmutableValidator()],
             }
         }
 
-    def create(self, validated_data):
-        validated_data['zaak'] = self.context['parent_object']
-        return super().create(validated_data)
+
+class ZaakBesluitSerializer(serializers.Serializer):
+    """
+    Serializer the reverse relation between Besluit-Zaak.
+
+    We use the UUID of the Besluit to generate the URL/UUID of the ZaakBesluit
+    instance, since it's a FK relationship, we can safely do this. Effectively,
+    we're feeding the :class:`Besluit` instance to this serializer.
+    """
+    url = NestedHyperlinkedIdentityField(
+        view_name="zaakbesluit-detail",
+        lookup_field="uuid",
+        parent_lookup_kwargs={'zaak_uuid': 'zaak__uuid'},
+        read_only=True,
+    )
+    uuid = serializers.UUIDField(
+        help_text=_("Unieke resource identifier (UUID4)"),
+        read_only=True,
+    )
+    besluit = serializers.HyperlinkedRelatedField(
+        queryset=Besluit.objects.all(),
+        view_name="besluit-detail",
+        lookup_field="uuid",
+        help_text=_("URL-referentie naar het BESLUIT (in de Besluiten API), waar "
+                    "ook de relatieinformatie opgevraagd kan worden.")
+
+    )
+
+    def validate_besluit(self, besluit: Besluit):
+        zaak = self.context["view"]._get_zaak()
+        if not besluit.zaak == zaak:
+            raise serializers.ValidationError(
+                _("Het Besluit verwijst niet naar de juiste zaak"),
+                code="invalid-zaak"
+            )
+        return besluit

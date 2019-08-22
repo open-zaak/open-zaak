@@ -1,44 +1,70 @@
-from django.test import override_settings
-
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakBesluitFactory, ZaakFactory
-)
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, reverse
 
-BESLUIT = 'https://brc.nl/api/v1/besluiten/1234'
 
-
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.ObjectInformatieObjectClient'
-)
 class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def test_create(self):
+    def test_list(self):
+        """
+        Assert that it's possible to list besluiten for zaken.
+        """
         zaak = ZaakFactory.create()
-        url = reverse('zaakbesluit-list', kwargs={'zaak_uuid': zaak.uuid})
+        besluit = BesluitFactory.create(zaak=zaak)
+        BesluitFactory.create(zaak=None)  # unrelated besluit
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        zaakbesluit_url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid}
+        )
 
-        response = self.client.post(url, {
-            'besluit': BESLUIT
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [{
+            "url": f'http://testserver{zaakbesluit_url}',
+            "uuid": str(besluit.uuid),
+            "besluit": f"http://testserver{reverse(besluit)}",
+        }])
+
+    def test_detail(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        BesluitFactory.create(zaak=None)  # unrelated besluit
+        url = reverse("zaakbesluit-detail", kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            "url": f'http://testserver{url}',
+            "uuid": str(besluit.uuid),
+            "besluit": f"http://testserver{reverse(besluit)}",
         })
+
+    def test_create(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+        besluit_url = reverse(besluit)
+        url = reverse('zaakbesluit-list', kwargs={'zaak_uuid': besluit.zaak.uuid})
+
+        response = self.client.post(url, {'besluit': besluit_url})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        zakk_besluit = zaak.zaakbesluit_set.get()
-        self.assertEqual(zakk_besluit.besluit, BESLUIT)
-
     def test_delete(self):
-        zakk_besluit = ZaakBesluitFactory.create()
-        zaak = zakk_besluit.zaak
+        besluit = BesluitFactory.create(for_zaak=True)
         url = reverse('zaakbesluit-detail', kwargs={
-            'zaak_uuid': zaak.uuid,
-            'uuid': zakk_besluit.uuid
+            'zaak_uuid': besluit.zaak.uuid,
+            'uuid': besluit.uuid
         })
+        besluit.zaak = None  # it must already be disconnected from zaak
+        besluit.save()
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(zaak.zaakinformatieobject_set.exists())
+        # because the reference between zaak/besluit is broken, this 404s, as
+        # it should
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

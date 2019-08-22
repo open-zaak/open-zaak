@@ -4,33 +4,27 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
-from openzaak.components.documenten.api.scopes import (
-    SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
 )
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin
-
-INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
+from vng_api_common.tests import JWTAuthMixin, reverse
 
 
 @freeze_time("2012-01-14")
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    NOTIFICATIONS_DISABLED=False
-)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(JWTAuthMixin, APITestCase):
-
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN]
-    informatieobjecttype = INFORMATIEOBJECTTYPE
 
     @patch('zds_client.Client.from_url')
     def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         client = mock_client.return_value
         url = get_operation_url('enkelvoudiginformatieobject_create')
         data = {
@@ -42,7 +36,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
             'formaat': 'text/plain',
             'taal': 'dut',
             'inhoud': base64.b64encode(b'Extra tekst in bijlage').decode('utf-8'),
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': informatieobjecttype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar
         }
 
@@ -62,7 +56,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 'aanmaakdatum': '2012-01-14T00:00:00Z',
                 'kenmerken': {
                     'bronorganisatie': '159351741',
-                    'informatieobjecttype': 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1',
+                    'informatieobjecttype': f'http://testserver{informatieobjecttype_url}',
                     'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
                 }
             }

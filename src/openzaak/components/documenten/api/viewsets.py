@@ -4,31 +4,26 @@ from django.utils.translation import ugettext_lazy as _
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
+    EnkelvoudigInformatieObject, Gebruiksrechten
 )
-from rest_framework import mixins, serializers, status, viewsets
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin, AuditTrailDestroyMixin, AuditTrailViewSet,
-    AuditTrailViewsetMixin
+    AuditTrailViewSet, AuditTrailViewsetMixin
 )
-from vng_api_common.notifications.viewsets import (
-    NotificationCreateMixin, NotificationDestroyMixin,
-    NotificationViewSetMixin
-)
+from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.serializers import FoutSerializer
-from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from .audits import AUDIT_DRC
-from .data_filtering import ListFilterByAuthorizationsMixin
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
-    EnkelvoudigInformatieObjectListFilter, GebruiksrechtenFilter,
-    ObjectInformatieObjectFilter
+    EnkelvoudigInformatieObjectListFilter, GebruiksrechtenFilter
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .permissions import (
@@ -44,10 +39,8 @@ from .serializers import (
     EnkelvoudigInformatieObjectSerializer,
     EnkelvoudigInformatieObjectWithLockSerializer, GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
-    ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer
 )
-from .validators import RemoteRelationValidator
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = openapi.Parameter(
@@ -66,7 +59,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 
 class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
-                                         ListFilterByAuthorizationsMixin,
+                                         # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                                          AuditTrailViewsetMixin,
                                          viewsets.ModelViewSet):
     """
@@ -170,8 +163,9 @@ class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
 
     @transaction.atomic
     def perform_destroy(self, instance):
-        if instance.canonical.objectinformatieobject_set.exists():
-            raise serializers.ValidationError({
+        if instance.canonical.besluitinformatieobject_set.exists() or \
+                instance.canonical.zaakinformatieobject_set.exists():
+            raise ValidationError({
                 api_settings.NON_FIELD_ERRORS_KEY: _(
                     "All relations to the document must be destroyed before destroying the document"
                 )},
@@ -303,86 +297,8 @@ class EnkelvoudigInformatieObjectViewSet(NotificationViewSetMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ObjectInformatieObjectViewSet(NotificationCreateMixin,
-                                    NotificationDestroyMixin,
-                                    AuditTrailCreateMixin,
-                                    AuditTrailDestroyMixin,
-                                    CheckQueryParamsMixin,
-                                    ListFilterByAuthorizationsMixin,
-                                    mixins.CreateModelMixin,
-                                    mixins.DestroyModelMixin,
-                                    viewsets.ReadOnlyModelViewSet):
-    """
-    Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
-
-    Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
-    ZAAK in de Zaken API, en een INFORMATIEOBJECT.
-
-    create:
-    Maak een OBJECT-INFORMATIEOBJECT relatie aan.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
-    endpoint bij het synchroniseren van relaties.
-
-    **Er wordt gevalideerd op**
-    - geldigheid `informatieobject` URL
-    - de combinatie `informatieobject` en `object` moet uniek zijn
-    - bestaan van `object` URL
-
-    list:
-    Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
-
-    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
-
-    destroy:
-    Verwijder een OBJECT-INFORMATIEOBJECT relatie.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
-    endpoint bij het synchroniseren van relaties.
-    """
-    queryset = ObjectInformatieObject.objects.all()
-    serializer_class = ObjectInformatieObjectSerializer
-    filterset_class = ObjectInformatieObjectFilter
-    lookup_field = 'uuid'
-    notifications_kanaal = KANAAL_DOCUMENTEN
-    notifications_main_resource_key = 'informatieobject'
-    # permission_classes = (InformationObjectRelatedAuthScopesRequired,)
-    required_scopes = {
-        'list': SCOPE_DOCUMENTEN_ALLES_LEZEN,
-        'retrieve': SCOPE_DOCUMENTEN_ALLES_LEZEN,
-        'create': SCOPE_DOCUMENTEN_AANMAKEN,
-        'destroy': SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
-        'update': SCOPE_DOCUMENTEN_BIJWERKEN,
-        'partial_update': SCOPE_DOCUMENTEN_BIJWERKEN,
-    }
-    audit = AUDIT_DRC
-    audittrail_main_resource_key = 'informatieobject'
-
-    def perform_destroy(self, instance):
-        # destroy is only allowed if the remote relation does no longer exist, so check for that
-        validator = RemoteRelationValidator()
-
-        try:
-            validator(instance)
-        except serializers.ValidationError as exc:
-            raise serializers.ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: exc
-            }, code=exc.detail[0].code)
-        else:
-            super().perform_destroy(instance)
-
-
 class GebruiksrechtenViewSet(NotificationViewSetMixin,
-                             ListFilterByAuthorizationsMixin,
+                             # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                              AuditTrailViewsetMixin,
                              viewsets.ModelViewSet):
     """

@@ -1,7 +1,11 @@
 from copy import deepcopy
+from unittest import skip
 
 from django.test import override_settings
 
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from openzaak.components.documenten.models.constants import (
     OndertekeningSoorten, Statussen
 )
@@ -13,9 +17,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import (
     JWTAuthMixin, get_validation_errors, reverse, reverse_lazy
 )
-from vng_api_common.validators import URLValidator
-
-INFORMATIEOBJECTTYPE = 'https://example.com/informatieobjecttype/foo'
 
 
 class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
@@ -41,26 +42,16 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
                 error = get_validation_errors(response, f'{field}.{key}')
                 self.assertEqual(error['code'], code)
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_404')
     def test_validate_informatieobjecttype_invalid(self):
         url = reverse('enkelvoudiginformatieobject-list')
 
         response = self.client.post(url, {
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': 'https://example.com/informatieobjecttype/foo',
         })
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, 'informatieobjecttype')
-        self.assertEqual(error['code'], URLValidator.code)
-
-    def test_link_fetcher_cannot_connect(self):
-        url = reverse('enkelvoudiginformatieobject-list')
-
-        response = self.client.post(url, {
-            'informatieobjecttype': 'http://invalid-host/informatieobjecttype/foo',
-        })
-
-        self.assertNotEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(error['code'], 'no_match')
 
     def test_integriteit(self):
         url = reverse('enkelvoudiginformatieobject-list')
@@ -140,6 +131,8 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         en ?ter vaststelling? zijn niet van toepassing op ontvangen
         informatieobjecten.
         """
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         invalid_statuses = (Statussen.in_bewerking, Statussen.ter_vaststelling)
         data = {
             'bronorganisatie': '319582462',
@@ -148,7 +141,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
             'auteur': 'dummy',
             'taal': 'nld',
             'inhoud': 'aGVsbG8gd29ybGQ=',
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': informatieobjecttype_url,
             'ontvangstdatum': '2018-12-24',
         }
 
@@ -185,10 +178,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         Assert that setting the ontvangstdatum later, after an 'invalid' status
         has been set, is not possible.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create(
-            ontvangstdatum=None,
-            informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        eio = EnkelvoudigInformatieObjectFactory.create(ontvangstdatum=None)
         url = reverse('enkelvoudiginformatieobject-detail', kwargs={'uuid': eio.uuid})
 
         for invalid_status in (Statussen.in_bewerking, Statussen.ter_vaststelling):
@@ -204,6 +194,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error['code'], 'invalid_for_received')
 
 
+@skip('ObjectInformatieObject is not implemented yet')
 class FilterValidationTests(JWTAuthMixin, APITestCase):
     """
     Test that incorrect filter usage results in HTTP 400.

@@ -1,12 +1,14 @@
 import unittest
 from datetime import date
-from unittest.mock import patch
 
 from django.contrib.gis.geos import Point
-from django.test import override_settings, tag
 from django.utils import timezone
 
 from dateutil.relativedelta import relativedelta
+from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    ResultaatTypeFactory, StatusTypeFactory, ZaakTypeFactory
+)
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import (
@@ -23,7 +25,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding
 )
 from vng_api_common.tests import JWTAuthMixin, reverse
-from zds_client.tests.mocks import mock_client
 
 from ..scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN,
@@ -31,39 +32,10 @@ from ..scopes import (
 )
 from .utils import get_operation_url
 
-# ZTC
-ZTC_ROOT = 'https://example.com/ztc/api/v1'
-CATALOGUS = f'{ZTC_ROOT}/catalogus/878a3318-5950-4642-8715-189745f91b04'
-ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
-RESULTAATTYPE = f'{ZAAKTYPE}/resultaattypen/5b348dbf-9301-410b-be9e-83723e288785'
-STATUSTYPE = f'{ZAAKTYPE}/statustypen/5b348dbf-9301-410b-be9e-83723e288785'
-STATUSTYPE2 = f'{ZAAKTYPE}/statustypen/b86aa339-151e-45f0-ad6c-20698f50b6cd'
 
-BESLUIT = 'https://example.com/brc/api/v1/besluiten/12345678'
-RESPONSES = {
-    STATUSTYPE: {
-        'url': STATUSTYPE,
-        'zaaktype': ZAAKTYPE,
-        'volgnummer': 1,
-        'isEindstatus': False
-    },
-    STATUSTYPE2: {
-        'url': STATUSTYPE2,
-        'zaaktype': ZAAKTYPE,
-        'volgnummer': 2,
-        'isEindstatus': True
-    }
-}
-
-
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class ApiStrategyTests(JWTAuthMixin, APITestCase):
 
-    scopes = [
-        SCOPE_ZAKEN_CREATE,
-        SCOPE_ZAKEN_ALLES_LEZEN,
-    ]
-    zaaktype = 'https://example.com/foo/bar'
+    heeft_alle_autorisaties = True
 
     @unittest.expectedFailure
     def test_api_10_lazy_eager_loading(self):
@@ -97,14 +69,14 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
             'EPSG:4326'
         )
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_api_51_status_codes(self, *mocks):
+    def test_api_51_status_codes(self):
         with self.subTest(crud='create'):
+            zaaktype = ZaakTypeFactory.create()
+            zaaktype_url = reverse(zaaktype)
             url = reverse('zaak-list')
 
             response = self.client.post(url, {
-                'zaaktype': 'https://example.com/foo/bar',
+                'zaaktype': f'http://testserver{zaaktype_url}',
                 'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
                 'bronorganisatie': '517439943',
                 'verantwoordelijkeOrganisatie': '517439943',
@@ -123,61 +95,34 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response_detail.status_code, status.HTTP_200_OK)
 
 
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
 class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
 
-    scopes = [
-        SCOPE_ZAKEN_CREATE,
-        SCOPE_ZAKEN_BIJWERKEN,
-        SCOPE_ZAKEN_ALLES_LEZEN,
-        SCOPE_STATUSSEN_TOEVOEGEN,
-    ]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_zaak_afsluiten(self, *mocks):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+    def test_zaak_afsluiten(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
-
-        responses = {
-            RESULTAATTYPE: {
-                'url': RESULTAATTYPE,
-                'zaaktype': ZAAKTYPE,
-                'archiefactietermijn': 'P10Y',
-                'archiefnominatie': Archiefnominatie.blijvend_bewaren,
-                'brondatumArchiefprocedure': {
-                    'afleidingswijze': BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
-                    'datumkenmerk': None,
-                    'objecttype': None,
-                    'procestermijn': None,
-                }
-            },
-            STATUSTYPE: {
-                'url': STATUSTYPE,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 1,
-                'isEindstatus': False,
-            },
-            STATUSTYPE2: {
-                'url': STATUSTYPE2,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 2,
-                'isEindstatus': True,
-            }
-        }
+        statustype1 = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype1_url = reverse(statustype1)
+        statustype2 = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype2_url = reverse(statustype2)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            archiefactietermijn=relativedelta(years=10),
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+        resultaattype_url = reverse(resultaattype)
 
         # Set initial status
         status_list_url = reverse('status-list')
-        with mock_client(responses):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
-            })
+
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': f'http://testserver{statustype1_url}',
+            'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
         zaak.refresh_from_db()
@@ -187,24 +132,22 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         resultaat_create_url = get_operation_url('resultaat_create')
         data = {
             'zaak': zaak_url,
-            'resultaattype': RESULTAATTYPE,
+            'resultaattype': f'http://testserver{resultaattype_url}',
             'toelichting': '',
         }
 
-        with mock_client(responses):
-            response = self.client.post(resultaat_create_url, data)
+        response = self.client.post(resultaat_create_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Set eindstatus
         datum_status_gezet = utcdatetime(2018, 10, 22, 10, 00, 00)
 
-        with mock_client(responses):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE2,
-                'datumStatusGezet': datum_status_gezet.isoformat(),
-            })
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': f'http://testserver{statustype2_url}',
+            'datumStatusGezet': datum_status_gezet.isoformat(),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
         zaak.refresh_from_db()
@@ -215,144 +158,131 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         )
 
 
-@override_settings(
-    LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
-)
 class ZakenTests(JWTAuthMixin, APITestCase):
 
     scopes = [
         SCOPE_ZAKEN_CREATE,
         SCOPE_ZAKEN_BIJWERKEN,
         SCOPE_ZAKEN_ALLES_LEZEN,
-    ]
-    zaaktype = ZAAKTYPE
+        SCOPE_STATUSSEN_TOEVOEGEN,
+        ]
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_enkel_initiele_status_met_scope_aanmaken(self, *mocks):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaaktype_url = reverse(cls.zaaktype)
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype_url = reverse(cls.statustype)
+        cls.statustype2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype2_url = reverse(cls.statustype2)
+
+        cls.autorisatie.zaaktype = cls.zaaktype_url
+        cls.autorisatie.save()
+
+    def test_enkel_initiele_status_met_scope_aanmaken(self):
         """
         Met de scope zaken.aanmaken mag je enkel een status aanmaken als er
         nog geen status was.
         """
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
         status_list_url = reverse('status-list')
 
         # initiele status
-        with mock_client(RESPONSES):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
-            })
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': self.statustype_url,
+            'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # extra status - mag niet, onafhankelijk van de data
-        with mock_client(RESPONSES):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': isodatetime(2018, 10, 2, 10, 00, 00),
-            })
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': self.statustype_url,
+            'datumStatusGezet': isodatetime(2018, 10, 2, 10, 00, 00),
+        })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.assertEqual(zaak.status_set.count(), 1)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_zaak_heropen_reset_einddatum(self, *mocks):
+    @unittest.skip('Current implementation is without authentication')
+    def test_zaak_heropen_reset_einddatum(self):
         self.autorisatie.scopes = self.autorisatie.scopes + [SCOPEN_ZAKEN_HEROPENEN]
         self.autorisatie.save()
 
-        zaak = ZaakFactory.create(einddatum='2019-01-07', zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create(einddatum='2019-01-07', zaaktype=self.zaaktype)
         StatusFactory.create(
             zaak=zaak,
-            statustype=STATUSTYPE2,
+            statustype=self.statustype2,
             datum_status_gezet='2019-01-07T12:51:41+0000',
         )
-        zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
+        zaak_url = reverse(zaak)
         status_list_url = reverse('status-list')
 
         # Set status other than eindstatus
         datum_status_gezet = utcdatetime(2019, 1, 7, 12, 53, 25)
-        with mock_client(RESPONSES):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': datum_status_gezet.isoformat(),
-            })
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': self.statustype_url,
+            'datumStatusGezet': datum_status_gezet.isoformat(),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
         zaak.refresh_from_db()
         self.assertIsNone(zaak.einddatum)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_zaak_met_producten(self, *mocks):
+    def test_zaak_met_producten(self):
         url = reverse('zaak-list')
+        self.zaaktype.producten_of_diensten = [
+            'https://example.com/product/123',
+            'https://example.com/dienst/123'
+        ]
+        self.zaaktype.save()
 
-        responses = {
-            ZAAKTYPE: {
-                'url': ZAAKTYPE,
-                'productenOfDiensten': [
-                    'https://example.com/product/123',
-                    'https://example.com/dienst/123',
-                ]
-            }
-        }
-
-        with mock_client(responses):
-            response = self.client.post(url, {
-                'zaaktype': ZAAKTYPE,
-                'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-                'bronorganisatie': '517439943',
-                'verantwoordelijkeOrganisatie': '517439943',
-                'registratiedatum': '2018-12-24',
-                'startdatum': '2018-12-24',
-                'productenOfDiensten': ['https://example.com/product/123'],
-            }, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, {
+            'zaaktype': f'http://testserver{self.zaaktype_url}',
+            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
+            'bronorganisatie': '517439943',
+            'verantwoordelijkeOrganisatie': '517439943',
+            'registratiedatum': '2018-12-24',
+            'startdatum': '2018-12-24',
+            'productenOfDiensten': ['https://example.com/product/123'],
+        }, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         zaak = Zaak.objects.get()
         self.assertEqual(len(zaak.producten_of_diensten), 1)
 
         # update
-        with mock_client(responses):
-            response2 = self.client.patch(response.data['url'], {
-                'productenOfDiensten': [
-                    'https://example.com/product/123',
-                    'https://example.com/dienst/123',
-                ]
-            }, **ZAAK_WRITE_KWARGS)
+        response2 = self.client.patch(response.data['url'], {
+            'productenOfDiensten': [
+                'https://example.com/product/123',
+                'https://example.com/dienst/123',
+            ]
+        }, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         zaak.refresh_from_db()
         self.assertEqual(len(zaak.producten_of_diensten), 2)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    @tag('mock_client')
-    def test_zaak_vertrouwelijkheidaanduiding_afgeleid(self, *mocks):
+    def test_zaak_vertrouwelijkheidaanduiding_afgeleid(self):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
         """
         url = reverse('zaak-list')
-        responses = {
-            ZAAKTYPE: {
-                'url': ZAAKTYPE,
-                'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
-            }
-        }
+        self.zaaktype.vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zaakvertrouwelijk
+        self.zaaktype.save()
 
-        with mock_client(responses):
-            response = self.client.post(url, {
-                'zaaktype': ZAAKTYPE,
-                'bronorganisatie': '517439943',
-                'verantwoordelijkeOrganisatie': '517439943',
-                'registratiedatum': '2018-12-24',
-                'startdatum': '2018-12-24',
-            }, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, {
+            'zaaktype': f'http://testserver{self.zaaktype_url}',
+            'bronorganisatie': '517439943',
+            'verantwoordelijkeOrganisatie': '517439943',
+            'registratiedatum': '2018-12-24',
+            'startdatum': '2018-12-24',
+        }, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
@@ -360,30 +290,22 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
         )
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    @tag('mock_client')
-    def test_zaak_vertrouwelijkheidaanduiding_expliciet(self, *mocks):
+    def test_zaak_vertrouwelijkheidaanduiding_expliciet(self):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
         """
         url = reverse('zaak-list')
-        responses = {
-            ZAAKTYPE: {
-                'url': ZAAKTYPE,
-                'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
-            }
-        }
+        self.zaaktype.vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zaakvertrouwelijk
+        self.zaaktype.save()
 
-        with mock_client(responses):
-            response = self.client.post(url, {
-                'zaaktype': ZAAKTYPE,
-                'bronorganisatie': '517439943',
-                'verantwoordelijkeOrganisatie': '517439943',
-                'registratiedatum': '2018-12-24',
-                'startdatum': '2018-12-24',
-                'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
-            }, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, {
+            'zaaktype': f'http://testserver{self.zaaktype_url}',
+            'bronorganisatie': '517439943',
+            'verantwoordelijkeOrganisatie': '517439943',
+            'registratiedatum': '2018-12-24',
+            'startdatum': '2018-12-24',
+            'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
+        }, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
@@ -392,8 +314,8 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
 
     def test_deelzaken(self):
-        hoofdzaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        deelzaak = ZaakFactory.create(hoofdzaak=hoofdzaak, zaaktype=ZAAKTYPE)
+        hoofdzaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        deelzaak = ZaakFactory.create(hoofdzaak=hoofdzaak, zaaktype=self.zaaktype)
         detail_url = reverse(hoofdzaak)
         deelzaak_url = reverse(deelzaak)
 
@@ -409,7 +331,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(
             betalingsindicatie=BetalingsIndicatie.gedeeltelijk,
             laatste_betaaldatum=timezone.now(),
-            zaaktype=ZAAKTYPE
         )
         url = reverse(zaak)
 
@@ -423,7 +344,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.laatste_betaaldatum)
 
     def test_pagination_default(self):
-        ZaakFactory.create_batch(2, zaaktype=ZAAKTYPE)
+        ZaakFactory.create_batch(2)
         url = reverse(Zaak)
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
@@ -435,7 +356,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data['next'])
 
     def test_pagination_page_param(self):
-        ZaakFactory.create_batch(2, zaaktype=ZAAKTYPE)
+        ZaakFactory.create_batch(2)
         url = reverse(Zaak)
 
         response = self.client.get(url, {'page': 1}, **ZAAK_READ_KWARGS)
@@ -446,13 +367,11 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data['previous'])
         self.assertIsNone(response_data['next'])
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_complex_geometry(self, *mocks):
+    def test_complex_geometry(self):
         url = reverse('zaak-list')
 
         response = self.client.post(url, {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': f'http://testserver{self.zaaktype_url}',
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': '517439943',
@@ -470,8 +389,8 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNotNone(zaak.zaakgeometrie)
 
     def test_filter_startdatum(self):
-        ZaakFactory.create(zaaktype=ZAAKTYPE, startdatum='2019-01-01')
-        ZaakFactory.create(zaaktype=ZAAKTYPE, startdatum='2019-03-01')
+        ZaakFactory.create(startdatum='2019-01-01')
+        ZaakFactory.create(startdatum='2019-03-01')
         url = reverse('zaak-list')
 
         response_gt = self.client.get(url, {'startdatum__gt': '2019-02-01'}, **ZAAK_READ_KWARGS)
@@ -489,9 +408,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response_lte.data['results'][0]['startdatum'], '2019-01-01')
 
     def test_sort_startdatum(self):
-        ZaakFactory.create(zaaktype=ZAAKTYPE, startdatum='2019-01-01')
-        ZaakFactory.create(zaaktype=ZAAKTYPE, startdatum='2019-03-01')
-        ZaakFactory.create(zaaktype=ZAAKTYPE, startdatum='2019-02-01')
+        ZaakFactory.create(startdatum='2019-01-01')
+        ZaakFactory.create(startdatum='2019-03-01')
+        ZaakFactory.create(startdatum='2019-02-01')
         url = reverse('zaak-list')
 
         response = self.client.get(url, {'ordering': '-startdatum'}, **ZAAK_READ_KWARGS)
@@ -509,56 +428,32 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    @override_settings(
-        LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
-    )
-    def test_zaak_archiefactiedatum_afleidingswijze_ingangsdatum_besluit(self, *mocks):
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
-        zaak_url = reverse('zaak-detail', kwargs={'uuid': zaak.uuid})
+    def test_zaak_archiefactiedatum_afleidingswijze_ingangsdatum_besluit(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = reverse(zaak)
+        statustype1 = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype1_url = reverse(statustype1)
+        statustype2 = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype2_url = reverse(statustype2)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            archiefactietermijn=relativedelta(years=10),
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit
+        )
+        resultaattype_url = reverse(resultaattype)
 
-        responses = {
-            RESULTAATTYPE: {
-                'url': RESULTAATTYPE,
-                'zaaktype': ZAAKTYPE,
-                'archiefactietermijn': 'P10Y',
-                'archiefnominatie': Archiefnominatie.blijvend_bewaren,
-                'brondatumArchiefprocedure': {
-                    'afleidingswijze': BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
-                    'datumkenmerk': None,
-                    'objecttype': None,
-                    'procestermijn': None,
-                }
-            },
-            STATUSTYPE: {
-                'url': STATUSTYPE,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 1,
-                'isEindstatus': False,
-            },
-            STATUSTYPE2: {
-                'url': STATUSTYPE2,
-                'zaaktype': ZAAKTYPE,
-                'volgnummer': 2,
-                'isEindstatus': True,
-            },
-            BESLUIT: {
-                'url': BESLUIT,
-                'ingangsdatum': '2020-05-03',
-            }
-        }
-
-        ZaakBesluitFactory.create(zaak=zaak, besluit=BESLUIT)
+        BesluitFactory.create(zaak=zaak, ingangsdatum='2020-05-03')
 
         # Set initial status
         status_list_url = reverse('status-list')
-        with mock_client(responses):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE,
-                'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
-            })
+
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': f'http://testserver{statustype1_url}',
+            'datumStatusGezet': isodatetime(2018, 10, 1, 10, 00, 00),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
         zaak.refresh_from_db()
@@ -568,24 +463,22 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
         resultaat_create_url = get_operation_url('resultaat_create')
         data = {
             'zaak': zaak_url,
-            'resultaattype': RESULTAATTYPE,
+            'resultaattype': f'http://testserver{resultaattype_url}',
             'toelichting': '',
         }
 
-        with mock_client(responses):
-            response = self.client.post(resultaat_create_url, data)
+        response = self.client.post(resultaat_create_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Set eindstatus
         datum_status_gezet = utcdatetime(2018, 10, 22, 10, 00, 00)
 
-        with mock_client(responses):
-            response = self.client.post(status_list_url, {
-                'zaak': zaak_url,
-                'statustype': STATUSTYPE2,
-                'datumStatusGezet': datum_status_gezet.isoformat(),
-            })
+        response = self.client.post(status_list_url, {
+            'zaak': zaak_url,
+            'statustype': f'http://testserver{statustype2_url}',
+            'datumStatusGezet': datum_status_gezet.isoformat(),
+        })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
         zaak.refresh_from_db()

@@ -37,6 +37,7 @@ class ResultaatInline(admin.TabularInline):
 
 class RelevanteZaakRelatieInline(admin.TabularInline):
     model = RelevanteZaakRelatie
+    fk_name = 'zaak'
 
 
 @admin.register(Zaak)

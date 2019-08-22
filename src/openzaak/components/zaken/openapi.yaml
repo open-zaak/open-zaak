@@ -207,6 +207,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KlantContact'
+        required: true
       responses:
         '201':
           description: Created
@@ -335,12 +341,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - klantcontacten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/KlantContact'
-        required: true
     parameters: []
   /klantcontacten/{uuid}:
     get:
@@ -486,7 +486,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -652,6 +652,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Resultaat'
       responses:
         '201':
           description: Created
@@ -780,8 +782,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      requestBody:
-        $ref: '#/components/requestBodies/Resultaat'
     parameters: []
   /resultaten/{uuid}:
     get:
@@ -940,6 +940,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Resultaat'
       responses:
         '200':
           description: OK
@@ -1075,8 +1077,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      requestBody:
-        $ref: '#/components/requestBodies/Resultaat'
     patch:
       operationId: resultaat_partial_update
       summary: Werk een RESULTAAT deels bij.
@@ -1106,6 +1106,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Resultaat'
       responses:
         '200':
           description: OK
@@ -1241,8 +1243,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - resultaten
-      requestBody:
-        $ref: '#/components/requestBodies/Resultaat'
     delete:
       operationId: resultaat_delete
       summary: Verwijder een RESULTAAT van een ZAAK.
@@ -1403,7 +1403,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -1481,7 +1481,8 @@ paths:
           type: string
       - name: roltype
         in: query
-        description: URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
+        description: ' URL-referentie naar een roltype binnen het ZAAKTYPE van de
+          ZAAK.'
         required: false
         schema:
           type: string
@@ -1658,6 +1659,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+        required: true
       responses:
         '201':
           description: Created
@@ -1786,12 +1793,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - rollen
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Rol'
-        required: true
     parameters: []
   /rollen/{uuid}:
     get:
@@ -2060,7 +2061,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -2227,6 +2228,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+        required: true
       responses:
         '201':
           description: Created
@@ -2355,12 +2362,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - statussen
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Status'
-        required: true
     parameters: []
   /statussen/{uuid}:
     get:
@@ -2506,7 +2507,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -2676,6 +2677,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakInformatieObject'
       responses:
         '201':
           description: Created
@@ -2804,8 +2807,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      requestBody:
-        $ref: '#/components/requestBodies/ZaakInformatieObject'
     parameters: []
   /zaakinformatieobjecten/{uuid}:
     get:
@@ -2967,6 +2968,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakInformatieObject'
       responses:
         '200':
           description: OK
@@ -3102,8 +3105,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      requestBody:
-        $ref: '#/components/requestBodies/ZaakInformatieObject'
     patch:
       operationId: zaakinformatieobject_partial_update
       summary: Werk een ZAAK-INFORMATIEOBJECT relatie in deels bij.
@@ -3136,6 +3137,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakInformatieObject'
       responses:
         '200':
           description: OK
@@ -3271,8 +3274,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakinformatieobjecten
-      requestBody:
-        $ref: '#/components/requestBodies/ZaakInformatieObject'
     delete:
       operationId: zaakinformatieobject_delete
       summary: Verwijder een ZAAK-INFORMATIEOBJECT relatie.
@@ -3434,7 +3435,7 @@ paths:
       parameters:
       - name: zaak
         in: query
-        description: URL naar de/het gerelateerde zaak
+        description: URL-referentie naar de ZAAK.
         required: false
         schema:
           type: string
@@ -3635,6 +3636,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakObject'
+        required: true
       responses:
         '201':
           description: Created
@@ -3763,12 +3770,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaakobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakObject'
-        required: true
     parameters: []
   /zaakobjecten/{uuid}:
     get:
@@ -4276,6 +4277,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Zaak'
       responses:
         '201':
           description: Created
@@ -4416,8 +4419,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        $ref: '#/components/requestBodies/Zaak'
     parameters: []
   /zaken/_zoek:
     post:
@@ -4453,6 +4454,12 @@ paths:
           type: string
           enum:
           - EPSG:4326
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakZoek'
+        required: true
       responses:
         '200':
           description: OK
@@ -4614,12 +4621,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakZoek'
-        required: true
     parameters: []
   /zaken/{uuid}:
     get:
@@ -4848,6 +4849,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Zaak'
       responses:
         '200':
           description: OK
@@ -5003,8 +5006,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        $ref: '#/components/requestBodies/Zaak'
     patch:
       operationId: zaak_partial_update
       summary: Werk een ZAAK deels bij.
@@ -5063,6 +5064,8 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Zaak'
       responses:
         '200':
           description: OK
@@ -5218,8 +5221,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        $ref: '#/components/requestBodies/Zaak'
     delete:
       operationId: zaak_delete
       summary: Verwijder een ZAAK.
@@ -5819,6 +5820,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakBesluit'
+        required: true
       responses:
         '201':
           description: Created
@@ -5947,12 +5954,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakBesluit'
-        required: true
     parameters:
     - name: zaak_uuid
       in: path
@@ -6241,7 +6242,6 @@ paths:
     parameters:
     - name: uuid
       in: path
-      description: Unieke resource identifier (UUID4)
       required: true
       schema:
         type: string
@@ -6396,6 +6396,12 @@ paths:
         required: false
         schema:
           type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakEigenschap'
+        required: true
       responses:
         '201':
           description: Created
@@ -6524,12 +6530,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - zaken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakEigenschap'
-        required: true
     parameters:
     - name: zaak_uuid
       in: path
@@ -6705,9 +6705,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      bearerFormat: JWT
-      scheme: bearer
       type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     KlantContact:
       required:
@@ -6885,8 +6885,6 @@ components:
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         toelichting:
           title: Toelichting
           description: Een toelichting op wat het resultaat van de zaak inhoudt.
@@ -6952,12 +6950,10 @@ components:
           - medewerker
         roltype:
           title: Roltype
-          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
-            ZAAK.
+          description: ' URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.'
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         omschrijving:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
@@ -7364,8 +7360,6 @@ components:
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         datumStatusGezet:
           title: Datum status gezet
           description: De datum waarop de ZAAK de status heeft verkregen.
@@ -7400,12 +7394,9 @@ components:
           readOnly: true
         informatieobject:
           title: Informatieobject
-          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
-            API), waar ook de relatieinformatie opgevraagd kan worden.
+          description: URL-referentie naar het INFORMATIEOBJECT.
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK.
@@ -8771,11 +8762,10 @@ components:
       type: object
       properties:
         url:
-          title: URL-referentie naar de ZAAK.
+          title: Url
+          description: URL-referentie naar de ZAAK.
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         aardRelatie:
           title: Aard relatie
           description: 'Benamingen van de aard van de relaties van andere zaken tot
@@ -8871,8 +8861,6 @@ components:
             CATALOGUS waar deze voorkomt
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         registratiedatum:
           title: Registratiedatum
           description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
@@ -9386,8 +9374,6 @@ components:
             ook de relatieinformatie opgevraagd kan worden.
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
     ZaakEigenschap:
       required:
       - zaak
@@ -9415,8 +9401,6 @@ components:
           description: URL-referentie naar de EIGENSCHAP (in de Catalogi API).
           type: string
           format: uri
-          maxLength: 1000
-          minLength: 1
         naam:
           title: Naam
           description: De naam van de EIGENSCHAP (overgenomen uit de Catalogi API).

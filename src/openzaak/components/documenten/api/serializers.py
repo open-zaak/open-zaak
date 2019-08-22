@@ -6,14 +6,13 @@ import uuid
 from django.conf import settings
 from django.db import transaction
 from django.utils.http import urlencode
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    Gebruiksrechten
 )
 from openzaak.components.documenten.models.constants import (
     ChecksumAlgoritmes, OndertekeningSoorten, Statussen
@@ -21,19 +20,14 @@ from openzaak.components.documenten.models.constants import (
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.models import APICredential
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer, add_choice_values_help_text
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator, URLValidator
+from vng_api_common.validators import IsImmutableValidator
 
-from .auth import get_zrc_auth, get_ztc_auth
-from .validators import (
-    InformatieObjectUniqueValidator, ObjectInformatieObjectValidator,
-    StatusValidator
-)
+from .validators import StatusValidator
 
 
 class AnyFileType:
@@ -193,12 +187,12 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             'locked',
         )
         extra_kwargs = {
-            'informatieobjecttype': {
-                'validators': [URLValidator(get_auth=get_ztc_auth)],
-            },
             'taal': {
                 'min_length': 3,
             },
+            'informatieobjecttype': {
+                'lookup_field': 'uuid',
+            }
         }
         read_only_fields = [
             'versie',
@@ -214,18 +208,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         value_display_mapping = add_choice_values_help_text(Statussen)
         self.fields['status'].help_text += f"\n\n{value_display_mapping}"
-
-    def _get_informatieobjecttype(self, informatieobjecttype_url: str) -> dict:
-        if not hasattr(self, 'informatieobjecttype'):
-            # dynamic so that it can be mocked in tests easily
-            Client = import_string(settings.ZDS_CLIENT_CLASS)
-            client = Client.from_url(informatieobjecttype_url)
-            client.auth = APICredential.get_auth(
-                informatieobjecttype_url,
-                scopes=['zds.scopes.zaaktypes.lezen']
-            )
-            self._informatieobjecttype = client.request(informatieobjecttype_url, 'informatieobjecttype')
-        return self._informatieobjecttype
 
     def validate_indicatie_gebruiksrecht(self, indicatie):
         if self.instance and not indicatie and self.instance.canonical.gebruiksrechten_set.exists():
@@ -252,8 +234,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ondertekening = validated_data.pop('ondertekening', None)
         # add vertrouwelijkheidaanduiding
         if 'vertrouwelijkheidaanduiding' not in validated_data:
-            informatieobjecttype = self._get_informatieobjecttype(validated_data['informatieobjecttype'])
-            validated_data['vertrouwelijkheidaanduiding'] = informatieobjecttype['vertrouwelijkheidaanduiding']
+            informatieobjecttype = validated_data['informatieobjecttype']
+            validated_data['vertrouwelijkheidaanduiding'] = informatieobjecttype.vertrouwelijkheidaanduiding
 
         canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
         validated_data['canonical'] = canonical
@@ -394,51 +376,6 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         self.instance.lock = ''
         self.instance.save()
         return self.instance
-
-
-class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name='enkelvoudiginformatieobject-detail',
-        lookup_field='uuid',
-        queryset=EnkelvoudigInformatieObject.objects,
-        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
-    )
-
-    class Meta:
-        model = ObjectInformatieObject
-        fields = (
-            'url',
-            'informatieobject',
-            'object',
-            'object_type',
-        )
-        extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-            'informatieobject': {
-                'validators': [IsImmutableValidator()],
-            },
-            'object': {
-                'validators': [
-                    URLValidator(get_auth=get_zrc_auth, headers={'Accept-Crs': 'EPSG:4326'}),
-                    IsImmutableValidator(),
-                ],
-            },
-            'object_type': {
-                'validators': [IsImmutableValidator()]
-            }
-        }
-        validators = [ObjectInformatieObjectValidator(), InformatieObjectUniqueValidator('object', 'informatieobject')]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(ObjectTypes)
-        self.fields['object_type'].help_text += f"\n\n{value_display_mapping}"
-
-        if not hasattr(self, 'initial_data'):
-            return
 
 
 class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):

@@ -15,12 +15,11 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 
 from ..scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
-from .mixins import MockSyncMixin
 
 
 @skip('Current implementation is without authentication')
 @override_settings(ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient')
-class BesluitScopeForbiddenTests(MockSyncMixin, AuthCheckMixin, APITestCase):
+class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
 
     def test_cannot_create_besluit_without_correct_scope(self):
         url = reverse('besluit-list')
@@ -42,7 +41,7 @@ class BesluitScopeForbiddenTests(MockSyncMixin, AuthCheckMixin, APITestCase):
 
 
 @skip('Current implementation is without authentication')
-class BesluitReadCorrectScopeTests(MockSyncMixin, JWTAuthMixin, APITestCase):
+class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     besluittype = 'https://besluittype.nl/ok'
 
@@ -102,7 +101,7 @@ class BesluitReadCorrectScopeTests(MockSyncMixin, JWTAuthMixin, APITestCase):
     LINK_FETCHER='vng_api_common.mocks.link_fetcher_200',
     ZDS_CLIENT_CLASS='vng_api_common.mocks.MockClient'
 )
-class BioReadTests(MockSyncMixin, JWTAuthMixin, APITestCase):
+class BioReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
     besluittype = 'https://besluittype.nl/ok'

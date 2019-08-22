@@ -1,11 +1,14 @@
 import uuid
 from base64 import b64encode
 from datetime import date
+from unittest import skip
 
-from django.test import override_settings
 from django.utils import timezone
 
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
@@ -18,8 +21,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
-INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
-
 
 @freeze_time('2018-06-27')
 @temp_private_root()
@@ -28,8 +29,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
     def test_create(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             'identificatie': uuid.uuid4().hex,
             'bronorganisatie': '159351741',
@@ -42,7 +44,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             'inhoud': b64encode(b'some file content').decode('utf-8'),
             'link': 'http://een.link',
             'beschrijving': 'test_beschrijving',
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': f'http://testserver{informatieobjecttype_url}',
             'vertrouwelijkheidaanduiding': 'openbaar',
         }
 
@@ -69,13 +71,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.inhoud.read(), b'some file content')
         self.assertEqual(stored_object.link, 'http://een.link')
         self.assertEqual(stored_object.beschrijving, 'test_beschrijving')
-        self.assertEqual(stored_object.informatieobjecttype, INFORMATIEOBJECTTYPE)
+        self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, 'openbaar')
 
-        expected_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
-            'version': '1',
-            'uuid': stored_object.uuid,
-        })
+        expected_url = reverse(stored_object)
         expected_file_url = get_operation_url('enkelvoudiginformatieobject_download', uuid=stored_object.uuid)
 
         expected_response = content.copy()
@@ -110,15 +109,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response_data[key], expected_response[key])
 
     def test_read(self):
-        test_object = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
-
+        test_object = EnkelvoudigInformatieObjectFactory.create()
         # Retrieve from the API
-        detail_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
-            'version': '1',
-            'uuid': test_object.uuid,
-        })
+        detail_url = reverse(test_object)
 
         response = self.client.get(detail_url)
 
@@ -156,7 +149,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 'waarde': '',
                 'datum': None,
             },
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype':  f'http://testserver{reverse(test_object.informatieobjecttype)}',
             'locked': False,
         }
         response_data = response.json()
@@ -186,11 +179,12 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['bestandsomvang'], 12)  # 12 bytes
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
     def test_integrity_empty(self):
         """
         Assert that integrity is optional.
         """
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             'identificatie': uuid.uuid4().hex,
             'bronorganisatie': '159351741',
@@ -202,7 +196,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             'bestandsnaam': 'dummy.txt',
             'vertrouwelijkheidaanduiding': 'openbaar',
             'inhoud': b64encode(b'some file content').decode('utf-8'),
-            'informatieobjecttype': 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1',
+            'informatieobjecttype': f'http://testserver{informatieobjecttype_url}',
             'integriteit': None,
         }
 
@@ -217,11 +211,12 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "datum": None,
         })
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
     def test_integrity_provided(self):
         """
         Assert that integrity is saved.
         """
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             'identificatie': uuid.uuid4().hex,
             'bronorganisatie': '159351741',
@@ -233,7 +228,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             'bestandsnaam': 'dummy.txt',
             'vertrouwelijkheidaanduiding': 'openbaar',
             'inhoud': b64encode(b'some file content').decode('utf-8'),
-            'informatieobjecttype': 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1',
+            'informatieobjecttype': f'http://testserver{informatieobjecttype_url}',
             'integriteit': {
                 "algoritme": "md5",
                 "waarde": "27c3a009a3cbba674d0b3e836f2d4685",
@@ -275,6 +270,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    @skip('ObjectInformatieObject is not implemented yet')
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
@@ -290,16 +286,12 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
 
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
     def test_eio_update(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(
-            beschrijving='beschrijving1',
-            informatieobjecttype=INFORMATIEOBJECTTYPE,
-        )
+        eio = EnkelvoudigInformatieObjectFactory.create(beschrijving='beschrijving1')
 
         eio_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
             'uuid': eio.uuid,
@@ -539,7 +531,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response._container[0], b'inhoud1')
 
 
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True

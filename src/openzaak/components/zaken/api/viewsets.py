@@ -1,24 +1,23 @@
 import logging
 
-from django.core.cache import cache
+from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.zaken.models import (
-    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
-    ZaakInformatieObject, ZaakObject
-)
+from openzaak.components.besluiten.models import Besluit
+from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.reverse import reverse
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin, AuditTrailDestroyMixin, AuditTrailViewSet,
     AuditTrailViewsetMixin
 )
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
-from vng_api_common.notifications.kanalen import Kanaal
 from vng_api_common.notifications.viewsets import (
     NotificationCreateMixin, NotificationViewSetMixin
 )
@@ -27,8 +26,11 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
+from ..models import (
+    KlantContact, Resultaat, Rol, Status, Zaak, ZaakBesluit, ZaakEigenschap,
+    ZaakInformatieObject, ZaakObject
+)
 from .audits import AUDIT_ZRC
-from .data_filtering import ListFilterByAuthorizationsMixin
 from .filters import (
     ResultaatFilter, RolFilter, StatusFilter, ZaakFilter,
     ZaakInformatieObjectFilter, ZaakObjectFilter
@@ -58,7 +60,7 @@ class ZaakViewSet(NotificationViewSetMixin,
                   GeoMixin,
                   SearchMixin,
                   CheckQueryParamsMixin,
-                  ListFilterByAuthorizationsMixin,
+                  # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                   viewsets.ModelViewSet):
     """
     Opvragen en bewerken van ZAAKen.
@@ -234,7 +236,7 @@ class ZaakViewSet(NotificationViewSetMixin,
 class StatusViewSet(NotificationCreateMixin,
                     AuditTrailCreateMixin,
                     CheckQueryParamsMixin,
-                    ListFilterByAuthorizationsMixin,
+                    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                     mixins.CreateModelMixin,
                     viewsets.ReadOnlyModelViewSet):
     """
@@ -316,7 +318,7 @@ class StatusViewSet(NotificationCreateMixin,
 
 
 class ZaakObjectViewSet(NotificationCreateMixin,
-                        ListFilterByAuthorizationsMixin,
+                        # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                         AuditTrailCreateMixin,
                         mixins.CreateModelMixin,
                         viewsets.ReadOnlyModelViewSet):
@@ -356,7 +358,7 @@ class ZaakObjectViewSet(NotificationCreateMixin,
 class ZaakInformatieObjectViewSet(NotificationCreateMixin,
                                   AuditTrailViewsetMixin,
                                   CheckQueryParamsMixin,
-                                  ListFilterByAuthorizationsMixin,
+                                  # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                                   viewsets.ModelViewSet):
 
     """
@@ -436,20 +438,11 @@ class ZaakInformatieObjectViewSet(NotificationCreateMixin,
     }
     audit = AUDIT_ZRC
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # Do not display ZaakInformatieObjecten that are marked to be deleted
-        marked_zios = cache.get('zios_marked_for_delete')
-        if marked_zios:
-            return qs.exclude(uuid__in=marked_zios)
-        return qs
-
 
 class ZaakEigenschapViewSet(NotificationCreateMixin,
                             AuditTrailCreateMixin,
                             NestedViewSetMixin,
-                            ListFilterByAuthorizationsMixin,
+                            # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                             mixins.CreateModelMixin,
                             viewsets.ReadOnlyModelViewSet):
     """
@@ -506,7 +499,7 @@ class ZaakEigenschapViewSet(NotificationCreateMixin,
 
 
 class KlantContactViewSet(NotificationCreateMixin,
-                          ListFilterByAuthorizationsMixin,
+                          # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                           AuditTrailCreateMixin,
                           mixins.CreateModelMixin,
                           viewsets.ReadOnlyModelViewSet):
@@ -545,7 +538,7 @@ class KlantContactViewSet(NotificationCreateMixin,
 class RolViewSet(NotificationCreateMixin,
                  AuditTrailCreateMixin,
                  CheckQueryParamsMixin,
-                 ListFilterByAuthorizationsMixin,
+                 # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                  mixins.CreateModelMixin,
                  mixins.DestroyModelMixin,
                  viewsets.ReadOnlyModelViewSet):
@@ -592,7 +585,7 @@ class RolViewSet(NotificationCreateMixin,
 class ResultaatViewSet(NotificationViewSetMixin,
                        AuditTrailViewsetMixin,
                        CheckQueryParamsMixin,
-                       ListFilterByAuthorizationsMixin,
+                       # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
                        viewsets.ModelViewSet):
     """
     Opvragen en beheren van resultaten.
@@ -673,13 +666,16 @@ class ZaakBesluitViewSet(NotificationCreateMixin,
                          AuditTrailCreateMixin,
                          AuditTrailDestroyMixin,
                          NestedViewSetMixin,
-                         ListFilterByAuthorizationsMixin,
+                         # ListFilterByAuthorizationsMixin,  #TODO implement with authorizations
                          mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.ReadOnlyModelViewSet):
-
     """
     Read and edit Zaak-Besluit relations.
+
+    Because of the database-FK nature, ZaakBesluit is pretty much an alias
+    for Besluit. We are handling Besluit-objects here and filtering them on
+    the relevant Zaak.
 
     list:
     Alle ZAAKBESLUITen opvragen.
@@ -709,57 +705,63 @@ class ZaakBesluitViewSet(NotificationCreateMixin,
 
     De Besluiten API gebruikt dit endpoint om relaties te synchroniseren,
     daarom is dit endpoint in de Zaken API geimplementeerd.
-
     """
-    queryset = ZaakBesluit.objects.all()
+    queryset = ZaakBesluit.objects.none()  # required for vng-api-common
     serializer_class = ZaakBesluitSerializer
+    lookup_field = 'uuid'
+
     # permission_classes = (
     #     permission_class_factory(
     #         base=ZaakBaseAuthRequired,
     #         get_obj='_get_zaak',
     #     ),
     # )
-    lookup_field = 'uuid'
-
-    required_scopes = {
-        'list': SCOPE_ZAKEN_ALLES_LEZEN,
-        'retrieve': SCOPE_ZAKEN_ALLES_LEZEN,
-        'create': SCOPE_ZAKEN_BIJWERKEN,
-        'destroy': SCOPE_ZAKEN_BIJWERKEN,
-    }
-
-    parent_retrieve_kwargs = {
-        'zaak_uuid': 'uuid',
-    }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
     def _get_zaak(self):
         if not hasattr(self, '_zaak'):
-            filters = lookup_kwargs_to_filters(self.parent_retrieve_kwargs, self.kwargs)
-            self._zaak = get_object_or_404(Zaak, **filters)
+            self._zaak = get_object_or_404(Zaak, uuid=self.kwargs["zaak_uuid"])
         return self._zaak
 
-    def list(self, request, *args, **kwargs):
-        zaak = self._get_zaak()
-        permission = ZaakAuthScopesRequired()
-        if not permission.has_object_permission(self.request, self, zaak):
-            raise PermissionDenied
-        return super().list(request, *args, **kwargs)
+    def get_queryset(self) -> models.QuerySet:
+        zaak_uuid = self.kwargs.get("zaak_uuid")  # empty on drf-yasg introspection
+        return ZaakBesluit.objects.filter(zaak__uuid=zaak_uuid)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        # DRF introspection
-        if not self.kwargs:
-            return context
+    def perform_create(self, serializer):
+        """
+        Handle the creation logic.
 
-        context['parent_object'] = self._get_zaak()
-        return context
+        Nothing extra happens here, since the creation is entirely managed via
+        the Besluit resource. We just perform some extra sanity checks in the
+        serializer.
+        """
+        besluit = serializer.validated_data["besluit"]
+        self._instance = ZaakBesluit.objects.get(pk=besluit.pk)
+        serializer.instance = self._instance
 
-    def get_notification_main_object_url(self, data: dict, kanaal: Kanaal) -> str:
-        zaak = self._get_zaak()
-        return zaak.get_absolute_api_url(request=self.request)
+    def get_audittrail_instance(self, response):
+        return self._instance
 
-    def get_audittrail_main_object_url(self, data: dict, main_resource: str) -> str:
-        zaak = self._get_zaak()
-        return zaak.get_absolute_api_url(request=self.request)
+    def get_audittrail_main_object_url(self, data, main_resource) -> str:
+        return reverse(
+            "zaak-detail",
+            request=self.request,
+            kwargs={"uuid": self.kwargs["zaak_uuid"]}
+        )
+
+    def perform_destroy(self, instance: Besluit):
+        """
+        'Delete' the relation between zaak & besluit.
+
+        The actual relation information must be updated in the Besluiten API,
+        so this is just a check.
+        """
+        if instance.zaak:
+            raise ValidationError({
+                "zaak": _("Het Besluit verwijst nog naar deze zaak. "
+                          "Deze relatie moet eerst verbroken worden.")
+            }, code="inconsistent-relation")
+
+        # nothing to do, the 'relation' info is dealt with through besluit.Besluit
+        pass

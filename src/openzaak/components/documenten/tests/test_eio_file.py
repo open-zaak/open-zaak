@@ -5,10 +5,8 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
-from django.test import override_settings
-
-from openzaak.components.documenten.api.scopes import (
-    SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
 )
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -20,22 +18,20 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin
-
-INFORMATIEOBJECTTYPE = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
+from vng_api_common.tests import JWTAuthMixin, reverse
 
 
 @temp_private_root()
 class US39TestCase(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
-    informatieobjecttype = INFORMATIEOBJECTTYPE
+    heeft_alle_autorisaties = True
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
     def test_create_enkelvoudiginformatieobject(self):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url('enkelvoudiginformatieobject_create')
         data = {
             'identificatie': 'AMS20180701001',
@@ -46,7 +42,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             'formaat': 'text/plain',
             'taal': 'dut',
             'inhoud': base64.b64encode(b'Extra tekst in bijlage').decode('utf-8'),
-            'informatieobjecttype': INFORMATIEOBJECTTYPE,
+            'informatieobjecttype': informatieobjecttype_url,
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar
         }
 
@@ -67,10 +63,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         )
 
     def test_read_detail_file(self):
-        self.autorisatie.scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-        self.autorisatie.save()
-
-        eio = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=INFORMATIEOBJECTTYPE)
+        eio = EnkelvoudigInformatieObjectFactory.create()
         file_url = get_operation_url('enkelvoudiginformatieobject_download', uuid=eio.uuid)
 
         response = self.client.get(file_url)
@@ -79,12 +72,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.content.decode("utf-8"), 'some data')
 
     def test_list_file(self):
-        self.autorisatie.scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-        self.autorisatie.save()
-
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
-            latest_version__informatieobjecttype=INFORMATIEOBJECTTYPE
-        )
+        eio = EnkelvoudigInformatieObjectCanonicalFactory.create()
         list_url = get_operation_url('enkelvoudiginformatieobject_list')
 
         response = self.client.get(list_url)

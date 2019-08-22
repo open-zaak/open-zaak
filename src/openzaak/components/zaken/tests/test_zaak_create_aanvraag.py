@@ -7,41 +7,33 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/163
 Zie ook: test_userstory_39.py, test_userstory_169.py
 """
 from datetime import date
-from unittest.mock import patch
 
-from django.test import override_settings
-
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin
+from vng_api_common.tests import JWTAuthMixin, reverse
 
 from .utils import ZAAK_WRITE_KWARGS
 
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
-AANVRAAG = 'https://example.com/orc/api/v1/straatartiesten/37c60cda-689e-4e4a-969c-fa4ed56cb2c6'
-CATALOGUS = 'https://example.com/ztc/api/v1/catalogus/878a3318-5950-4642-8715-189745f91b04'
-ZAAKTYPE = f'{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f'
 VERANTWOORDELIJKE_ORGANISATIE = '517439943'
 
 
-@override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
 class US169TestCase(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_ZAKEN_CREATE]
-    zaaktype = ZAAKTYPE
+    heeft_alle_autorisaties = True
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_aanvraag(self, *mocks):
+    def test_create_aanvraag(self):
         """
         Maak een zaak voor een aanvraag.
         """
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url('zaak_create')
         data = {
-            'zaaktype': ZAAKTYPE,
+            'zaaktype': f'http://testserver{zaaktype_url}',
             'vertrouwelijkheidaanduiding': VertrouwelijkheidsAanduiding.openbaar,
             'bronorganisatie': '517439943',
             'verantwoordelijkeOrganisatie': VERANTWOORDELIJKE_ORGANISATIE,

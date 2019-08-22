@@ -1,7 +1,5 @@
-from unittest.mock import patch
-
-import requests_mock
 from freezegun import freeze_time
+from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
 from openzaak.components.zaken.models import (
     Adres, NatuurlijkPersoon, NietNatuurlijkPersoon, Rol,
     SubVerblijfBuitenland, Vestiging
@@ -12,24 +10,14 @@ from openzaak.components.zaken.models.tests.factories import (
 )
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import RolOmschrijving, RolTypes
+from vng_api_common.constants import RolTypes
 from vng_api_common.tests import (
-    JWTAuthMixin, TypeCheckMixin, get_validation_errors
+    JWTAuthMixin, TypeCheckMixin, get_validation_errors, reverse
 )
-from zds_client.tests.mocks import mock_client
 
 from .utils import get_operation_url
 
-ZAAKTYPE = "https://ztc.nl/zaaktypen/123"
 BETROKKENE = 'http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd'
-ROLTYPE = "https://ztc.nl/roltypen/123"
-
-ROLTYPE_RESPONSE = {
-    "url": ROLTYPE,
-    "zaaktype": ZAAKTYPE,
-    "omschrijving": RolOmschrijving.initiator,
-    "omschrijvingGeneriek": RolOmschrijving.initiator,
-}
 
 
 class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
@@ -42,7 +30,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         rol = RolFactory.create(
             zaak=zaak,
             betrokkene_type=RolTypes.natuurlijk_persoon,
-            betrokkene='http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd',
+            betrokkene=BETROKKENE,
             omschrijving='Beslisser',
             omschrijving_generiek='Beslisser',
             indicatie_machtiging=IndicatieMachtiging.gemachtigde
@@ -67,6 +55,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             sub_adres_buitenland_1='some uk adres'
         )
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype_url = reverse(rol.roltype)
         url = get_operation_url('rol_read', uuid=rol.uuid)
 
         response = self.client.get(url)
@@ -83,7 +72,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 'zaak': f'http://testserver{zaak_url}',
                 'betrokkene': BETROKKENE,
                 'betrokkeneType': RolTypes.natuurlijk_persoon,
-                'roltype': rol.roltype,
+                'roltype': f'http://testserver{roltype_url}',
                 'omschrijving': 'Beslisser',
                 'omschrijvingGeneriek': 'Beslisser',
                 'roltoelichting': '',
@@ -142,6 +131,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             sub_adres_buitenland_1='some uk adres'
         )
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype_url = reverse(rol.roltype)
         url = get_operation_url('rol_read', uuid=rol.uuid)
 
         response = self.client.get(url)
@@ -158,7 +148,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 'zaak': f'http://testserver{zaak_url}',
                 'betrokkene': BETROKKENE,
                 'betrokkeneType': RolTypes.niet_natuurlijk_persoon,
-                'roltype': rol.roltype,
+                'roltype': f'http://testserver{roltype_url}',
                 'omschrijving': 'Beslisser',
                 'omschrijvingGeneriek': 'Beslisser',
                 'roltoelichting': '',
@@ -211,6 +201,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             sub_adres_buitenland_1='some uk adres'
         )
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype_url = reverse(rol.roltype)
         url = get_operation_url('rol_read', uuid=rol.uuid)
 
         response = self.client.get(url)
@@ -227,7 +218,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 'zaak': f'http://testserver{zaak_url}',
                 'betrokkene': BETROKKENE,
                 'betrokkeneType': RolTypes.vestiging,
-                'roltype': rol.roltype,
+                'roltype': f'http://testserver{roltype_url}',
                 'omschrijving': 'Beslisser',
                 'omschrijvingGeneriek': 'Beslisser',
                 'roltoelichting': '',
@@ -257,16 +248,16 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             }
         )
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_rol_with_identificatie(self, *mocks):
+    def test_create_rol_with_identificatie(self):
         url = get_operation_url('rol_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',
             'betrokkene_type': RolTypes.natuurlijk_persoon,
-            'roltype': ROLTYPE,
+            'roltype': f'http://testserver{roltype_url}',
             'roltoelichting': 'awerw',
             'betrokkeneIdentificatie': {
                 'anpIdentificatie': '12345',
@@ -285,10 +276,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             }
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(ROLTYPE, json=ROLTYPE_RESPONSE)
-            with mock_client({ROLTYPE: ROLTYPE_RESPONSE}):
-                response = self.client.post(url, data)
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -307,24 +295,21 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(natuurlijk_persoon.sub_verblijf_buitenland, verblijf_buitenland)
         self.assertEqual(verblijf_buitenland.lnd_landcode, 'UK')
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_rol_without_identificatie(self, *mocks):
+    def test_create_rol_without_identificatie(self):
         url = get_operation_url('rol_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',
             'betrokkene': BETROKKENE,
             'betrokkene_type': RolTypes.natuurlijk_persoon,
-            'roltype': ROLTYPE,
+            'roltype': f'http://testserver{roltype_url}',
             'roltoelichting': 'awerw',
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(ROLTYPE, json=ROLTYPE_RESPONSE)
-            with mock_client({ROLTYPE: ROLTYPE_RESPONSE}):
-                response = self.client.post(url, data)
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -334,23 +319,20 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         self.assertEqual(rol.betrokkene, BETROKKENE)
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_rol_fail_validation(self, *mocks):
+    def test_create_rol_fail_validation(self):
         url = get_operation_url('rol_create')
-        zaak = ZaakFactory.create(zaaktype=ZAAKTYPE)
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
         data = {
             'zaak': f'http://testserver{zaak_url}',
             'betrokkene_type': RolTypes.natuurlijk_persoon,
-            'roltype': ROLTYPE,
+            'roltype': f'http://testserver{roltype_url}',
             'roltoelichting': 'awerw',
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(ROLTYPE, json=ROLTYPE_RESPONSE)
-            with mock_client({ROLTYPE: ROLTYPE_RESPONSE}):
-                response = self.client.post(url, data)
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

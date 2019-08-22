@@ -136,7 +136,7 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
                 'relatieomschrijving': '',
                 'objectType': ZaakobjectTypes.adres,
                 'objectTypeOverige': '',
-            'objectIdentificatie': {
+                'objectIdentificatie': {
                     'identificatie': '123456',
                     'wplWoonplaatsNaam': 'test city',
                     'gorOpenbareRuimteNaam': 'test space',

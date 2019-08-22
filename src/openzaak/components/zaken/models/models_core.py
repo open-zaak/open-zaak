@@ -41,7 +41,6 @@ __all__ = [
     "ZaakKenmerk",
     "ZaakInformatieObject",
     "KlantContact",
-    "ZaakBesluit",
 ]
 
 
@@ -92,10 +91,9 @@ class Zaak(APIMixin, models.Model):
         max_length=1000, blank=True,
         help_text='Een toelichting op de zaak.'
     )
-    zaaktype = models.URLField(
-        _("zaaktype"),
-        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
-        max_length=1000
+    zaaktype = models.ForeignKey(
+        'catalogi.ZaakType', on_delete=models.CASCADE,
+        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt"
     )
     registratiedatum = models.DateField(
         help_text='De datum waarop de zaakbehandelende organisatie de ZAAK '
@@ -255,7 +253,9 @@ class RelevanteZaakRelatie(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, related_name='relevante_andere_zaken',
     )
-    url = models.URLField(_("URL-referentie naar de ZAAK."), max_length=1000)
+    url = models.ForeignKey(
+        Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
+    )
     aard_relatie = models.CharField(
         max_length=20, choices=AardZaakRelatie.choices,
         help_text=_('Benamingen van de aard van de relaties van andere zaken tot (onderhanden) zaken.')
@@ -278,11 +278,10 @@ class Status(models.Model):
         Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
-    statustype = models.URLField(
-        _("statustype"), max_length=1000,
+    statustype = models.ForeignKey(
+        'catalogi.StatusType', on_delete=models.CASCADE,
         help_text=_("URL-referentie naar het STATUSTYPE (in de Catalogi API).")
     )
-
     # extra informatie
     datum_status_gezet = models.DateTimeField(
         help_text='De datum waarop de ZAAK de status heeft verkregen.'
@@ -321,8 +320,8 @@ class Resultaat(models.Model):
         Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
-    resultaattype = models.URLField(
-        _("resultaattype"), max_length=1000,
+    resultaattype = models.ForeignKey(
+        'catalogi.ResultaatType', on_delete=models.CASCADE,
         help_text=_("URL-referentie naar het RESULTAATTYPE (in de Catalogi API).")
     )
 
@@ -341,10 +340,7 @@ class Resultaat(models.Model):
         return "Resultaat ({})".format(self.uuid)
 
     def unique_representation(self):
-        if not hasattr(self, '_unique_representation'):
-            result_type_desc = request_object_attribute(self.resultaattype, 'omschrijving', 'resultaattype')
-            self._unique_representation = f"({self.zaak.unique_representation()}) - {result_type_desc}"
-        return self._unique_representation
+        return f"({self.zaak.unique_representation()}) - {self.resultaattype.omschrijving}"
 
 
 class Rol(models.Model):
@@ -370,9 +366,9 @@ class Rol(models.Model):
         help_text='Type van de `betrokkene`.'
     )
 
-    roltype = models.URLField(
-        help_text="URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
-        max_length=1000
+    roltype = models.ForeignKey(
+        'catalogi.RolType', on_delete=models.CASCADE,
+        help_text=" URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
     )
     omschrijving = models.CharField(
         _("omschrijving"), max_length=20,
@@ -403,9 +399,6 @@ class Rol(models.Model):
         verbose_name_plural = "Rollen"
 
     def save(self, *args, **kwargs):
-        # derive text fields from RolType
-        assert self.roltype, "Roltype URL must be set"
-
         self._derive_roltype_attributes()
 
         super().save(*args, **kwargs)
@@ -414,13 +407,8 @@ class Rol(models.Model):
         if self.omschrijving and self.omschrijving_generiek:
             return
 
-        Client = import_string(settings.ZDS_CLIENT_CLASS)
-        client = Client.from_url(self.roltype)
-        client.auth = APICredential.get_auth(self.roltype)
-        roltype = client.retrieve("roltype", url=self.roltype)
-
-        self.omschrijving = roltype["omschrijving"]
-        self.omschrijving_generiek = roltype["omschrijvingGeneriek"]
+        self.omschrijving = self.roltype.omschrijving
+        self.omschrijving_generiek = self.roltype.omschrijving_generiek
 
     def unique_representation(self):
         if self.betrokkene == '':
@@ -515,14 +503,10 @@ class ZaakEigenschap(models.Model):
         help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
-    eigenschap = models.URLField(
+    eigenschap = models.ForeignKey(
+        'catalogi.Eigenschap', on_delete=models.CASCADE,
         help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
-        max_length=1000
     )
-    # TODO - validatie _kan eventueel_ de configuratie van ZTC uitlezen om input
-    # te valideren, en per eigenschap een specifiek datatype terug te geven.
-    # In eerste instantie laten we het aan de client over om validatie en
-    # type-conversie te doen.
     _naam = models.CharField(
         max_length=20,
         help_text=_("De naam van de EIGENSCHAP (overgenomen uit de Catalogi API).")
@@ -571,11 +555,10 @@ class ZaakInformatieObject(models.Model):
         Zaak, on_delete=models.CASCADE,
         help_text=('URL-referentie naar de ZAAK.')
     )
-    informatieobject = models.URLField(
-        "informatieobject",
+    informatieobject = models.ForeignKey(
+        "documenten.EnkelvoudigInformatieObjectCanonical", on_delete=models.CASCADE,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
-                  "ook de relatieinformatie opgevraagd kan worden.",
-        max_length=1000
+                  "ook de relatieinformatie opgevraagd kan worden."
     )
     aard_relatie = models.CharField(
         "aard relatie", max_length=20,
@@ -611,10 +594,7 @@ class ZaakInformatieObject(models.Model):
         return f"{self.zaak} - {self.informatieobject}"
 
     def unique_representation(self):
-        if not hasattr(self, '_unique_representation'):
-            io_id = request_object_attribute(self.informatieobject, 'identificatie', 'enkelvoudiginformatieobject')
-            self._unique_representation = f"({self.zaak.unique_representation()}) - {io_id}"
-        return self._unique_representation
+        return f"({self.zaak.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
 
     def save(self, *args, **kwargs):
         # override to set aard_relatie
@@ -670,33 +650,3 @@ class KlantContact(models.Model):
 
     def unique_representation(self):
         return f'{self.identificatie}'
-
-
-class ZaakBesluit(models.Model):
-    """
-    Model Besluit belonged to Zaak
-    """
-    uuid = models.UUIDField(
-        unique=True, default=uuid.uuid4,
-        help_text="Unieke resource identifier (UUID4)"
-    )
-    zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
-    besluit = models.URLField(
-        "besluit",
-        help_text="URL-referentie naar het BESLUIT (in de Besluiten API), waar "
-                  "ook de relatieinformatie opgevraagd kan worden.",
-        max_length=1000
-    )
-
-    objects = ZaakRelatedQuerySet.as_manager()
-
-    class Meta:
-        verbose_name = "zaakbesluit"
-        verbose_name_plural = "zaakbesluiten"
-        unique_together = ('zaak', 'besluit')
-
-    def __str__(self) -> str:
-        return f"{self.zaak} - {self.besluit}"
-
-    def unique_representation(self):
-        return f"{self.zaak} - {self.besluit}"

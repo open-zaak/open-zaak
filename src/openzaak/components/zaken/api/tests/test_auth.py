@@ -21,7 +21,6 @@ from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
 from ..scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
 )
-from .mixins import ZaakInformatieObjectSyncMixin
 
 INFORMATIEOBJECT = f'http://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}'
 
@@ -292,7 +291,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
 
 
 @skip('Current implementation is without authentication')
-class ZaakInformatieObjectTests(ZaakInformatieObjectSyncMixin, JWTAuthMixin, APITestCase):
+class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     zaaktype = 'https://zaaktype.nl/ok'
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar

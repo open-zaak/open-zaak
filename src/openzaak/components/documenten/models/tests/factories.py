@@ -5,6 +5,9 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory
+)
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 
 
@@ -19,7 +22,7 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
 
 
 class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
-    canonical = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
+    canonical = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None)
     identificatie = uuid.uuid4().hex
     bronorganisatie = factory.Faker('ssn', locale='nl_NL')
     creatiedatum = datetime.date(2018, 6, 27)
@@ -28,7 +31,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     formaat = 'some formaat'
     taal = 'nld'
     inhoud = factory.django.FileField(data=b'some data', filename='file.bin')
-    informatieobjecttype = 'https://example.com/ztc/api/v1/catalogus/1/informatieobjecttype/1'
+    informatieobjecttype = factory.SubFactory(InformatieObjectTypeFactory)
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
 
     class Meta:
@@ -40,8 +43,8 @@ class ObjectInformatieObjectFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
     object = factory.Faker('url')
 
-    class Meta:
-        model = 'documenten.ObjectInformatieObject'
+    # class Meta:
+        # model = 'documenten.ObjectInformatieObject'
 
     class Params:
         is_zaak = factory.Trait(

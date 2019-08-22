@@ -586,13 +586,13 @@ class PaginationTests(APITestCase):
         Catalogus.objects.create(domein=self.catalogus.domein, rsin='555555555')
 
         # Set page size to 2 items per page.
-        from openzaak.components.catalogi.api.utils.pagination import HALPagination
-        self._old_page_size = HALPagination.page_size
-        HALPagination.page_size = 2
+        # from openzaak.components.catalogi.api.utils.pagination import HALPagination
+        # self._old_page_size = HALPagination.page_size
+        # HALPagination.page_size = 2
 
-    def tearDown(self):
-        from openzaak.components.catalogi.api.utils.pagination import HALPagination
-        HALPagination.page_size = self._old_page_size
+    # def tearDown(self):
+    #     from openzaak.components.catalogi.api.utils.pagination import HALPagination
+    #     HALPagination.page_size = self._old_page_size
 
     @skip("Pagination disabled for now")
     def test_pagination_using_json_hal(self):

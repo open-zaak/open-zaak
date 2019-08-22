@@ -1,24 +1,13 @@
 from datetime import date
 
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from vng_api_common.models import APICredential
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator
 )
-
-
-def fetch_object(resource: str, url: str) -> dict:
-    Client = import_string(settings.ZDS_CLIENT_CLASS)
-    client = Client.from_url(url)
-    client.auth = APICredential.get_auth(url)
-    obj = client.retrieve(resource, url=url)
-    return obj
 
 
 class RolOccurenceValidator:
@@ -42,10 +31,10 @@ class RolOccurenceValidator:
         self.instance = getattr(serializer, 'instance', None)
 
     def __call__(self, attrs):
-        roltype = fetch_object("roltype", attrs["roltype"])
+        roltype = attrs["roltype"]
 
-        attrs["omschrijving"] = roltype["omschrijving"]
-        attrs["omschrijving_generiek"] = roltype["omschrijvingGeneriek"]
+        attrs["omschrijving"] = roltype.omschrijving
+        attrs["omschrijving_generiek"] = roltype.omschrijving_generiek
 
         if attrs['omschrijving_generiek'] != self.omschrijving_generiek:
             return
@@ -121,8 +110,7 @@ class CorrectZaaktypeValidator:
         if not url or not zaak:
             return
 
-        obj = fetch_object(self.resource, url)
-        if obj["zaaktype"] != zaak.zaaktype:
+        if url.zaaktype != zaak.zaaktype:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -130,21 +118,15 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
     code = "missing-zaaktype-informatieobjecttype-relation"
     message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
 
-    def __init__(self, url_field: str, zaak_field: str = "zaak", resource: str = None):
-        self.url_field = url_field
-        self.zaak_field = zaak_field
-        self.resource = resource or url_field
-
     def __call__(self, attrs):
-        url = attrs.get(self.url_field)
-        zaak = attrs.get(self.zaak_field)
-        if not url or not zaak:
+        informatieobject = attrs.get('informatieobject')
+        zaak = attrs.get('zaak')
+        if not informatieobject or not zaak:
             return
 
-        obj = fetch_object(self.resource, url)
-        zaaktype = fetch_object('zaaktype', zaak.zaaktype)
-
-        if obj['informatieobjecttype'] not in zaaktype['informatieobjecttypen']:
+        io = informatieobject.enkelvoudiginformatieobject_set.first()
+        if not zaak.zaaktype.heeft_relevant_informatieobjecttype\
+                .filter(id=io.informatieobjecttype_id, concept=False).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 
