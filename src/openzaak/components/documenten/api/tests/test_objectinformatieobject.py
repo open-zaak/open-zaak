@@ -1,5 +1,5 @@
 import uuid
-from unittest import skip
+from unittest import expectedFailure, skip
 
 from django.test import override_settings, tag
 
@@ -77,10 +77,14 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             "object_type": "besluit",
         })
 
-    @tag("oio")
+    @expectedFailure
     def test_duplicate_object(self):
         """
         Test the (informatieobject, object) unique together validation.
+
+        This is expected to fail, since there is no actual creation in database.
+        It will however become relevant again when we're handling remote
+        references.
         """
         zio = ZaakInformatieObjectFactory.create()
 
@@ -100,22 +104,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, 'nonFieldErrors')
         self.assertEqual(error['code'], 'unique')
 
-    @skip("IMPLEMENT ME")
+    @tag("oio")
     def test_filter(self):
-        oio = ObjectInformatieObjectFactory.create(
-            is_zaak=True,
-        )
-        eo_detail_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
-            'uuid': oio.informatieobject.latest_version.uuid
-        })
+        zio = ZaakInformatieObjectFactory.create()
+        eio_detail_url = reverse(zio.informatieobject.latest_version)
 
         response = self.client.get(self.list_url, {
-            'informatieobject': f'http://testserver{eo_detail_url}',
-        })
+            'informatieobject': f'http://testserver.nl{eio_detail_url}',
+        }, HTTP_HOST="testserver.nl")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['informatieobject'], f'http://testserver{eo_detail_url}')
+        self.assertEqual(response.data[0]['informatieobject'], f'http://testserver{eio_detail_url}')
 
 
 @skip('ObjectInformatieObject is not implemented yet')
