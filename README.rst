@@ -38,9 +38,9 @@ De gegevens worden ontsloten middels een `set API's`_, te weten:
 .. _`Catalogi API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index
 .. _`Besluiten API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index
 
-**Open Zaak** gebruikt de `referentie implementaties van VNG Realisatie`_ als
-basis om een stabiele set API's te realiseren die gebruikt kunnen worden bij
-gemeenten.
+**Open Zaak** gebruikt de code van de
+`referentie implementaties van VNG Realisatie`_ als basis om een stabiele set
+API's te realiseren die gebruikt kunnen worden bij gemeenten.
 
 .. _`referentie implementaties van VNG Realisatie`: https://github.com/VNG-Realisatie/gemma-zaken
 
