@@ -31,10 +31,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='objectinformatieobject',
-            constraint=models.CheckConstraint(check=models.Q(('besluit__isnull', True), ('object_type', 'zaak'), ('zaak__isnull', False)), name='check_type_zaak'),
-        ),
-        migrations.AddConstraint(
-            model_name='objectinformatieobject',
-            constraint=models.CheckConstraint(check=models.Q(('besluit__isnull', False), ('object_type', 'besluit'), ('zaak__isnull', True)), name='check_type_besluit'),
+            constraint=models.CheckConstraint(check=models.Q(models.Q(('besluit__isnull', True), ('object_type', 'zaak'), ('zaak__isnull', False)), models.Q(('besluit__isnull', False), ('object_type', 'besluit'), ('zaak__isnull', True)), _connector='OR'), name='check_type'),
         ),
     ]

@@ -415,16 +415,12 @@ class ObjectInformatieObject(models.Model):
                     object_type=ObjectTypes.zaak,
                     zaak__isnull=False,
                     besluit__isnull=True,
-                ),
-                name="check_type_zaak",
-            ),
-            models.CheckConstraint(
-                check=Q(
+                ) | Q(
                     object_type=ObjectTypes.besluit,
                     zaak__isnull=True,
                     besluit__isnull=False,
                 ),
-                name="check_type_besluit",
+                name="check_type",
             ),
             models.UniqueConstraint(fields=("informatieobject", "zaak"), name="unique_io_zaak"),
             models.UniqueConstraint(fields=("informatieobject", "besluit"), name="unique_io_besluit"),
