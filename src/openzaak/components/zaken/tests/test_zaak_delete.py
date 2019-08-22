@@ -4,13 +4,24 @@ from vng_api_common.tests import JWTAuthMixin, reverse
 
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import (
-    KlantContact, Resultaat, Rol, Status, Zaak, ZaakEigenschap,
-    ZaakInformatieObject, ZaakObject
+    KlantContact,
+    Resultaat,
+    Rol,
+    Status,
+    Zaak,
+    ZaakEigenschap,
+    ZaakInformatieObject,
+    ZaakObject,
 )
 from openzaak.components.zaken.models.tests.factories import (
-    KlantContactFactory, ResultaatFactory, RolFactory, StatusFactory,
-    ZaakEigenschapFactory, ZaakFactory, ZaakInformatieObjectFactory,
-    ZaakObjectFactory
+    KlantContactFactory,
+    ResultaatFactory,
+    RolFactory,
+    StatusFactory,
+    ZaakEigenschapFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 
@@ -37,10 +48,12 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         ZaakInformatieObjectFactory.create(zaak=zaak)
         KlantContactFactory.create(zaak=zaak)
 
-        zaak_delete_url = get_operation_url('zaak_delete', uuid=zaak.uuid)
+        zaak_delete_url = get_operation_url("zaak_delete", uuid=zaak.uuid)
 
         response = self.client.delete(zaak_delete_url, **ZAAK_WRITE_KWARGS)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
 
         self.assertEqual(Zaak.objects.all().count(), 0)
 
@@ -59,10 +72,12 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         deel_zaak = ZaakFactory.create(hoofdzaak=zaak)
 
-        zaak_delete_url = get_operation_url('zaak_delete', uuid=deel_zaak.uuid)
+        zaak_delete_url = get_operation_url("zaak_delete", uuid=deel_zaak.uuid)
 
         response = self.client.delete(zaak_delete_url, **ZAAK_WRITE_KWARGS)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
 
         self.assertEqual(Zaak.objects.all().count(), 1)
         self.assertEqual(Zaak.objects.get().pk, zaak.pk)
@@ -73,10 +88,10 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         """
         zaak = ZaakFactory.create()
         resultaat = ResultaatFactory.create(zaak=zaak)
-        zaak_url = 'http://testserver{path}'.format(path=reverse(zaak))
-        resultaat_url = 'http://testserver{path}'.format(path=reverse(resultaat))
+        zaak_url = "http://testserver{path}".format(path=reverse(zaak))
+        resultaat_url = "http://testserver{path}".format(path=reverse(resultaat))
 
         response = self.client.get(zaak_url, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['resultaat'], resultaat_url)
+        self.assertEqual(response.json()["resultaat"], resultaat_url)

@@ -46,10 +46,9 @@ info = openapi.Info(
     description=description,
     contact=openapi.Contact(
         email="standaarden.ondersteuning@vng.nl",
-        url="https://zaakgerichtwerken.vng.cloud"
+        url="https://zaakgerichtwerken.vng.cloud",
     ),
     license=openapi.License(
-        name="EUPL 1.2",
-        url='https://opensource.org/licenses/EUPL-1.2'
+        name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"
     ),
 )

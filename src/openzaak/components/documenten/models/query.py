@@ -83,8 +83,12 @@ class AuthorizationsFilterMixin:
             # retrieve the canonical IDs of EnkelvoudigInformatieObjects
             # for which the user is authorized and then return the objects
             # related to those EnkelvoudigInformatieObjectCanonicals
-            model = apps.get_model('documenten', 'EnkelvoudigInformatieObject')
-            filtered = model.objects.annotate(**annotations).filter(**filters).values('canonical')
+            model = apps.get_model("documenten", "EnkelvoudigInformatieObject")
+            filtered = (
+                model.objects.annotate(**annotations)
+                .filter(**filters)
+                .values("canonical")
+            )
             queryset = self.filter(informatieobject__in=filtered)
         # bring it all together now to build the resulting queryset
         else:

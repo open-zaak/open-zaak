@@ -4,14 +4,9 @@ from django.utils import timezone
 
 from openzaak.utils import parse_isodatetime  # noqa
 
-ZAAK_READ_KWARGS = {
-    'HTTP_ACCEPT_CRS': 'EPSG:4326',
-}
+ZAAK_READ_KWARGS = {"HTTP_ACCEPT_CRS": "EPSG:4326"}
 
-ZAAK_WRITE_KWARGS = {
-    'HTTP_ACCEPT_CRS': 'EPSG:4326',
-    'HTTP_CONTENT_CRS': 'EPSG:4326',
-}
+ZAAK_WRITE_KWARGS = {"HTTP_ACCEPT_CRS": "EPSG:4326", "HTTP_CONTENT_CRS": "EPSG:4326"}
 
 
 def utcdatetime(*args, **kwargs) -> datetime:

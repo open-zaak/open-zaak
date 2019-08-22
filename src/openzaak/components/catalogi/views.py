@@ -6,11 +6,13 @@ from django.views.generic import TemplateView
 
 
 class DumpDataView(TemplateView):
-    template_name = 'catalogi/dumpdata.html'
+    template_name = "catalogi/dumpdata.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['fixture_url'] = self.request.build_absolute_uri(reverse('dumpdata-fixture'))
+        context["fixture_url"] = self.request.build_absolute_uri(
+            reverse("dumpdata-fixture")
+        )
         return context
 
 
@@ -20,7 +22,7 @@ class DumpDataFixtureView(View):
     """
 
     def get(self, request):
-        response = HttpResponse(content_type='application/json')
-        response['Content-Disposition'] = 'attachment; filename="fixture.json"'
-        call_command('dumpdata', args=['datamodel'], indent=4, stdout=response)
+        response = HttpResponse(content_type="application/json")
+        response["Content-Disposition"] = 'attachment; filename="fixture.json"'
+        call_command("dumpdata", args=["datamodel"], indent=4, stdout=response)
         return response

@@ -24,54 +24,64 @@ class Catalogus(models.Model):
 
     KING bepaalt niet op voorhand welke waarden 'Domein' kan aannemen, maar registreert wel alle gebruikte waarden.
     """
+
     uuid = models.UUIDField(
-        unique=True, default=uuid.uuid4,
-        help_text="Unieke resource identifier (UUID4)"
+        unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
     # TODO [KING]: "Voor de waardenverzameling wordt door KING een waardenlijst beheerd waarin wordt
     # bijgehouden welke afkorting welk domein betreft." ZTC 2.1, blz 42 - Waar dan?
     domein = models.CharField(  # waardenverzameling hoofdletters
-        _('domein'), max_length=5, validators=[validate_uppercase],
-        help_text=_("Een afkorting waarmee wordt aangegeven voor welk domein "
-                    "in een CATALOGUS ZAAKTYPEn zijn uitgewerkt.")
+        _("domein"),
+        max_length=5,
+        validators=[validate_uppercase],
+        help_text=_(
+            "Een afkorting waarmee wordt aangegeven voor welk domein "
+            "in een CATALOGUS ZAAKTYPEn zijn uitgewerkt."
+        ),
     )
     rsin = RSINField(
-        _('rsin'),
-        help_text=_("Het door een kamer toegekend uniek nummer voor de INGESCHREVEN "
-                    "NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.")
+        _("rsin"),
+        help_text=_(
+            "Het door een kamer toegekend uniek nummer voor de INGESCHREVEN "
+            "NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS."
+        ),
     )
     contactpersoon_beheer_naam = models.CharField(
-        _('naam'), max_length=40,
-        help_text=_("De naam van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.")
+        _("naam"),
+        max_length=40,
+        help_text=_(
+            "De naam van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS."
+        ),
     )
     contactpersoon_beheer_telefoonnummer = models.CharField(
-        _('telefoonnummer'), max_length=20, blank=True,
-        help_text=_("Het telefoonnummer van de contactpersoon die verantwoordelijk "
-                    "is voor het beheer van de CATALOGUS.")
+        _("telefoonnummer"),
+        max_length=20,
+        blank=True,
+        help_text=_(
+            "Het telefoonnummer van de contactpersoon die verantwoordelijk "
+            "is voor het beheer van de CATALOGUS."
+        ),
     )
     # specificatie waardenverzameling conform RFC 5321 en RFC 5322
     contactpersoon_beheer_emailadres = models.EmailField(
-        _('emailadres'), max_length=254, blank=True,
-        help_text=_('Het emailadres van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.')
+        _("emailadres"),
+        max_length=254,
+        blank=True,
+        help_text=_(
+            "Het emailadres van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS."
+        ),
     )
 
     class Meta:
-        mnemonic = 'CAT'
-        unique_together = ('domein', 'rsin')
-        verbose_name = _('catalogus')
-        verbose_name_plural = _('catalogussen')
+        mnemonic = "CAT"
+        unique_together = ("domein", "rsin")
+        verbose_name = _("catalogus")
+        verbose_name_plural = _("catalogussen")
         ordering = unique_together
 
-        filter_fields = (
-            'domein',
-            'rsin',
-        )
+        filter_fields = ("domein", "rsin")
         ordering_fields = filter_fields
-        search_fields = (
-            'domein',
-            'rsin',
-            'contactpersoon_beheer_naam',
-        )
+        search_fields = ("domein", "rsin", "contactpersoon_beheer_naam")
 
     def __str__(self):
-        return '{} - {}'.format(self.domein, self.rsin)
+        return "{} - {}".format(self.domein, self.rsin)

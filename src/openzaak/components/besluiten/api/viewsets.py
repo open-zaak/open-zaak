@@ -1,33 +1,34 @@
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailViewSet, AuditTrailViewsetMixin
+    AuditTrailViewSet,
+    AuditTrailViewsetMixin,
 )
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.components.besluiten.models import (
-    Besluit, BesluitInformatieObject
-)
+from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from .audits import AUDIT_BRC
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
-from .permissions import (
-    BesluitAuthScopesRequired, BesluitRelatedAuthScopesRequired
-)
+from .permissions import BesluitAuthScopesRequired, BesluitRelatedAuthScopesRequired
 from .scopes import (
-    SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN,
-    SCOPE_BESLUITEN_ALLES_VERWIJDEREN, SCOPE_BESLUITEN_BIJWERKEN
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+    SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
+    SCOPE_BESLUITEN_BIJWERKEN,
 )
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 
-class BesluitViewSet(NotificationViewSetMixin,
-                     AuditTrailViewsetMixin,
-                     ListFilterByAuthorizationsMixin,
-                     viewsets.ModelViewSet):
+class BesluitViewSet(
+    NotificationViewSetMixin,
+    AuditTrailViewsetMixin,
+    ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
+):
     """
     Opvragen en bewerken van BESLUITen.
 
@@ -83,29 +84,32 @@ class BesluitViewSet(NotificationViewSetMixin,
     - `BESLUITINFORMATIEOBJECT`
     - audit trail regels
     """
-    queryset = Besluit.objects.all().order_by('-pk')
+
+    queryset = Besluit.objects.all().order_by("-pk")
     serializer_class = BesluitSerializer
     filter_class = BesluitFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     pagination_class = PageNumberPagination
     # permission_classes = (BesluitAuthScopesRequired, )
     required_scopes = {
-        'list': SCOPE_BESLUITEN_ALLES_LEZEN,
-        'retrieve': SCOPE_BESLUITEN_ALLES_LEZEN,
-        'create': SCOPE_BESLUITEN_AANMAKEN,
-        'destroy': SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
-        'update': SCOPE_BESLUITEN_BIJWERKEN,
-        'partial_update': SCOPE_BESLUITEN_BIJWERKEN,
+        "list": SCOPE_BESLUITEN_ALLES_LEZEN,
+        "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
+        "create": SCOPE_BESLUITEN_AANMAKEN,
+        "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
+        "update": SCOPE_BESLUITEN_BIJWERKEN,
+        "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_BESLUITEN
     audit = AUDIT_BRC
 
 
-class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
-                                     AuditTrailViewsetMixin,
-                                     CheckQueryParamsMixin,
-                                     ListFilterByAuthorizationsMixin,
-                                     viewsets.ModelViewSet):
+class BesluitInformatieObjectViewSet(
+    NotificationViewSetMixin,
+    AuditTrailViewsetMixin,
+    CheckQueryParamsMixin,
+    ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
+):
     """
     Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties.
 
@@ -159,21 +163,22 @@ class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
 
     Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
     """
+
     queryset = BesluitInformatieObject.objects.all()
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     # permission_classes = (BesluitRelatedAuthScopesRequired,)
     required_scopes = {
-        'list': SCOPE_BESLUITEN_ALLES_LEZEN,
-        'retrieve': SCOPE_BESLUITEN_ALLES_LEZEN,
-        'create': SCOPE_BESLUITEN_AANMAKEN,
-        'destroy': SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
-        'update': SCOPE_BESLUITEN_BIJWERKEN,
-        'partial_update': SCOPE_BESLUITEN_BIJWERKEN,
+        "list": SCOPE_BESLUITEN_ALLES_LEZEN,
+        "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
+        "create": SCOPE_BESLUITEN_AANMAKEN,
+        "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
+        "update": SCOPE_BESLUITEN_BIJWERKEN,
+        "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_BESLUITEN
-    notifications_main_resource_key = 'besluit'
+    notifications_main_resource_key = "besluit"
     audit = AUDIT_BRC
 
 
@@ -191,4 +196,5 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
 
     Een specifieke audit trail regel opvragen.
     """
-    main_resource_lookup_field = 'besluit_uuid'
+
+    main_resource_lookup_field = "besluit_uuid"

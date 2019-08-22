@@ -14,7 +14,9 @@ class BaseErrorView(APIView):
 
 
 class ValidationErrorView(BaseErrorView):
-    exception = exceptions.ValidationError({'foo': ["Invalid data."]}, code='validation-error')
+    exception = exceptions.ValidationError(
+        {"foo": ["Invalid data."]}, code="validation-error"
+    )
 
 
 class NotFoundView(BaseErrorView):
@@ -52,7 +54,9 @@ class PreconditionFailed(BaseErrorView):
 
 
 class UnsupportedMediaTypeView(BaseErrorView):
-    exception = exceptions.UnsupportedMediaType('application/xml', detail="This media type is not supported")
+    exception = exceptions.UnsupportedMediaType(
+        "application/xml", detail="This media type is not supported"
+    )
 
 
 class ThrottledView(BaseErrorView):

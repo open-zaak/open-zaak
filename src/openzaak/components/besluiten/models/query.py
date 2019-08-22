@@ -34,7 +34,9 @@ class AuthorizationsFilterMixin:
         )
 
         # keep a list of allowed besluittypen
-        besluittypen = [a.besluittype for a in authorizations if scope.is_contained_in(a.scopes)]
+        besluittypen = [
+            a.besluittype for a in authorizations if scope.is_contained_in(a.scopes)
+        ]
 
         # filtering:
         # * only allow the white-listed besluittypen, explicitly

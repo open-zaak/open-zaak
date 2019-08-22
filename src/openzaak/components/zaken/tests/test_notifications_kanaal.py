@@ -12,8 +12,7 @@ from openzaak.components.zaken.models import Zaak
 
 @override_settings(IS_HTTPS=True)
 class CreateNotifKanaalTestCase(APITestCase):
-
-    @patch('zds_client.Client')
+    @patch("zds_client.Client")
     def test_kanaal_create_with_name(self, mock_client):
         """
         Test is request to create kanaal is send with specified kanaal name
@@ -21,22 +20,27 @@ class CreateNotifKanaalTestCase(APITestCase):
         client = mock_client.from_url.return_value
         client.list.return_value = []
         # ensure this is added to the registry
-        Kanaal(label='kanaal_test', main_resource=Zaak)
+        Kanaal(label="kanaal_test", main_resource=Zaak)
 
         stdout = StringIO()
-        call_command('register_kanaal', 'kanaal_test', nc_api_root='https://example.com/api/v1', stdout=stdout)
-
-        client.create.assert_called_once_with(
-            'kanaal',
-            {
-                'naam': 'kanaal_test',
-                'documentatieLink': 'https://example.com/ref/kanalen/#kanaal_test',
-                'filters': [],
-            }
+        call_command(
+            "register_kanaal",
+            "kanaal_test",
+            nc_api_root="https://example.com/api/v1",
+            stdout=stdout,
         )
 
-    @patch('zds_client.Client')
-    @override_settings(NOTIFICATIONS_KANAAL='dummy-kanaal')
+        client.create.assert_called_once_with(
+            "kanaal",
+            {
+                "naam": "kanaal_test",
+                "documentatieLink": "https://example.com/ref/kanalen/#kanaal_test",
+                "filters": [],
+            },
+        )
+
+    @patch("zds_client.Client")
+    @override_settings(NOTIFICATIONS_KANAAL="dummy-kanaal")
     def test_kanaal_create_without_name(self, mock_client):
         """
         Test is request to create kanaal is send with default kanaal name
@@ -44,16 +48,18 @@ class CreateNotifKanaalTestCase(APITestCase):
         client = mock_client.from_url.return_value
         client.list.return_value = []
         # ensure this is added to the registry
-        Kanaal(label='dummy-kanaal', main_resource=Zaak)
+        Kanaal(label="dummy-kanaal", main_resource=Zaak)
 
         stdout = StringIO()
-        call_command('register_kanaal', nc_api_root='https://example.com/api/v1', stdout=stdout)
+        call_command(
+            "register_kanaal", nc_api_root="https://example.com/api/v1", stdout=stdout
+        )
 
         client.create.assert_called_once_with(
-            'kanaal',
+            "kanaal",
             {
-                'naam': 'dummy-kanaal',
-                'documentatieLink': 'https://example.com/ref/kanalen/#dummy-kanaal',
-                'filters': [],
-            }
+                "naam": "dummy-kanaal",
+                "documentatieLink": "https://example.com/ref/kanalen/#dummy-kanaal",
+                "filters": [],
+            },
         )

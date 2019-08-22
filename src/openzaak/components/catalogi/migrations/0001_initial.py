@@ -16,482 +16,2028 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='BronCatalogus',
+            name="BronCatalogus",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('domein', models.CharField(help_text='Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.', max_length=30, verbose_name='domein')),
-                ('rsin', models.CharField(help_text='Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.', max_length=9, validators=[django.core.validators.RegexValidator('^[0-9]*$')], verbose_name='rsin')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "domein",
+                    models.CharField(
+                        help_text="Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.",
+                        max_length=30,
+                        verbose_name="domein",
+                    ),
+                ),
+                (
+                    "rsin",
+                    models.CharField(
+                        help_text="Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.",
+                        max_length=9,
+                        validators=[django.core.validators.RegexValidator("^[0-9]*$")],
+                        verbose_name="rsin",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Bron catalogus',
-                'verbose_name_plural': 'Bron catalogussen',
+                "verbose_name": "Bron catalogus",
+                "verbose_name_plural": "Bron catalogussen",
             },
         ),
         migrations.CreateModel(
-            name='BronZaakType',
+            name="BronZaakType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('zaaktype_identificatie', models.PositiveIntegerField(help_text='De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.', validators=[django.core.validators.MaxValueValidator(99999)], verbose_name='zaaktype identificatie')),
-                ('zaaktype_omschrijving', models.CharField(help_text='De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in de Broncatalogus.', max_length=80, verbose_name='zaaktype omschrijving')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "zaaktype_identificatie",
+                    models.PositiveIntegerField(
+                        help_text="De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.",
+                        validators=[django.core.validators.MaxValueValidator(99999)],
+                        verbose_name="zaaktype identificatie",
+                    ),
+                ),
+                (
+                    "zaaktype_omschrijving",
+                    models.CharField(
+                        help_text="De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in de Broncatalogus.",
+                        max_length=80,
+                        verbose_name="zaaktype omschrijving",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Bron zaaktype',
-                'verbose_name_plural': 'Bron zaaktypen',
+                "verbose_name": "Bron zaaktype",
+                "verbose_name_plural": "Bron zaaktypen",
             },
         ),
         migrations.CreateModel(
-            name='Catalogus',
+            name="Catalogus",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('domein', models.CharField(help_text='Een afkorting waarmee wordt aangegeven voor welk domein in een CATALOGUS ZAAKTYPEn zijn uitgewerkt.', max_length=5, validators=[openzaak.components.catalogi.models.validators.validate_uppercase], verbose_name='domein')),
-                ('rsin', vng_api_common.fields.RSINField(help_text='Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.', max_length=9, verbose_name='rsin')),
-                ('contactpersoon_beheer_naam', models.CharField(help_text='De naam van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.', max_length=40, verbose_name='naam')),
-                ('contactpersoon_beheer_telefoonnummer', models.CharField(blank=True, help_text='Het telefoonnummer van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.', max_length=20, verbose_name='telefoonnummer')),
-                ('contactpersoon_beheer_emailadres', models.EmailField(blank=True, help_text='Het emailadres van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.', max_length=254, verbose_name='emailadres')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "domein",
+                    models.CharField(
+                        help_text="Een afkorting waarmee wordt aangegeven voor welk domein in een CATALOGUS ZAAKTYPEn zijn uitgewerkt.",
+                        max_length=5,
+                        validators=[
+                            openzaak.components.catalogi.models.validators.validate_uppercase
+                        ],
+                        verbose_name="domein",
+                    ),
+                ),
+                (
+                    "rsin",
+                    vng_api_common.fields.RSINField(
+                        help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.",
+                        max_length=9,
+                        verbose_name="rsin",
+                    ),
+                ),
+                (
+                    "contactpersoon_beheer_naam",
+                    models.CharField(
+                        help_text="De naam van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.",
+                        max_length=40,
+                        verbose_name="naam",
+                    ),
+                ),
+                (
+                    "contactpersoon_beheer_telefoonnummer",
+                    models.CharField(
+                        blank=True,
+                        help_text="Het telefoonnummer van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.",
+                        max_length=20,
+                        verbose_name="telefoonnummer",
+                    ),
+                ),
+                (
+                    "contactpersoon_beheer_emailadres",
+                    models.EmailField(
+                        blank=True,
+                        help_text="Het emailadres van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS.",
+                        max_length=254,
+                        verbose_name="emailadres",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'catalogus',
-                'verbose_name_plural': 'catalogussen',
-                'ordering': ('domein', 'rsin'),
-                'mnemonic': 'CAT',
-                'filter_fields': ('domein', 'rsin'),
-                'ordering_fields': ('domein', 'rsin'),
-                'search_fields': ('domein', 'rsin', 'contactpersoon_beheer_naam'),
-                'unique_together': {('domein', 'rsin')},
+                "verbose_name": "catalogus",
+                "verbose_name_plural": "catalogussen",
+                "ordering": ("domein", "rsin"),
+                "mnemonic": "CAT",
+                "filter_fields": ("domein", "rsin"),
+                "ordering_fields": ("domein", "rsin"),
+                "search_fields": ("domein", "rsin", "contactpersoon_beheer_naam"),
+                "unique_together": {("domein", "rsin")},
             },
         ),
         migrations.CreateModel(
-            name='CheckListItem',
+            name="CheckListItem",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('itemnaam', models.CharField(help_text='De betekenisvolle benaming van het checklistitem', max_length=30, verbose_name='itemnaam')),
-                ('vraagstelling', models.CharField(help_text='Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt gecontroleerd moet worden.', max_length=255, verbose_name='vraagstelling')),
-                ('verplicht', models.BooleanField(default=False, help_text='Het al dan niet verplicht zijn van controle van het aandachtspunt voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.', verbose_name='verplicht')),
-                ('toelichting', models.CharField(blank=True, help_text='Beschrijving van de overwegingen bij het controleren van het aandachtspunt', max_length=1000, null=True, verbose_name='toelichting')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "itemnaam",
+                    models.CharField(
+                        help_text="De betekenisvolle benaming van het checklistitem",
+                        max_length=30,
+                        verbose_name="itemnaam",
+                    ),
+                ),
+                (
+                    "vraagstelling",
+                    models.CharField(
+                        help_text="Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt gecontroleerd moet worden.",
+                        max_length=255,
+                        verbose_name="vraagstelling",
+                    ),
+                ),
+                (
+                    "verplicht",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Het al dan niet verplicht zijn van controle van het aandachtspunt voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.",
+                        verbose_name="verplicht",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Beschrijving van de overwegingen bij het controleren van het aandachtspunt",
+                        max_length=1000,
+                        null=True,
+                        verbose_name="toelichting",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Eigenschap',
+            name="Eigenschap",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('eigenschapnaam', models.CharField(help_text='De naam van de EIGENSCHAP', max_length=20, verbose_name='eigenschapnaam')),
-                ('definitie', models.CharField(help_text='De beschrijving van de betekenis van deze EIGENSCHAP', max_length=255, verbose_name='definitie')),
-                ('toelichting', models.CharField(blank=True, help_text='Een toelichting op deze EIGENSCHAP en het belang hiervan voor zaken van dit ZAAKTYPE.', max_length=1000, verbose_name='toelichting')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "eigenschapnaam",
+                    models.CharField(
+                        help_text="De naam van de EIGENSCHAP",
+                        max_length=20,
+                        verbose_name="eigenschapnaam",
+                    ),
+                ),
+                (
+                    "definitie",
+                    models.CharField(
+                        help_text="De beschrijving van de betekenis van deze EIGENSCHAP",
+                        max_length=255,
+                        verbose_name="definitie",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Een toelichting op deze EIGENSCHAP en het belang hiervan voor zaken van dit ZAAKTYPE.",
+                        max_length=1000,
+                        verbose_name="toelichting",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Eigenschap',
-                'verbose_name_plural': 'Eigenschappen',
-                'ordering': ('zaaktype', 'eigenschapnaam'),
-                'mnemonic': 'EIG',
-                'filter_fields': ('zaaktype', 'eigenschapnaam'),
-                'ordering_fields': ('zaaktype', 'eigenschapnaam'),
-                'search_fields': ('eigenschapnaam', 'definitie', 'toelichting'),
+                "verbose_name": "Eigenschap",
+                "verbose_name_plural": "Eigenschappen",
+                "ordering": ("zaaktype", "eigenschapnaam"),
+                "mnemonic": "EIG",
+                "filter_fields": ("zaaktype", "eigenschapnaam"),
+                "ordering_fields": ("zaaktype", "eigenschapnaam"),
+                "search_fields": ("eigenschapnaam", "definitie", "toelichting"),
             },
         ),
         migrations.CreateModel(
-            name='EigenschapReferentie',
+            name="EigenschapReferentie",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('objecttype', models.CharField(blank=True, help_text='De naam van het objecttype waarbij de eigenschap is gemodelleerd in het informatiemodel waarvan het objecttype deel uit maakt.', max_length=40, null=True, validators=[openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores_spaces], verbose_name='objecttype')),
-                ('informatiemodel', models.CharField(blank=True, help_text='De naam en de versie van het informatiemodel waarin de eigenschap is gemodelleerd.', max_length=80, null=True, validators=[openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores], verbose_name='informatiemodel')),
-                ('namespace', models.CharField(help_text='De naam van het schema waarin de eigenschap is opgenomen.', max_length=200, verbose_name='namespace')),
-                ('schemalocatie', models.CharField(help_text='De locatie van het XML-schema behorend bij de Namespace', max_length=200, verbose_name='schemalocatie')),
-                ('x_path_element', models.CharField(blank=True, help_text='De naam van de eigenschap en het pad daarnaar toe in het XML-schema behorend bij de namespace.', max_length=255, null=True, verbose_name='x path element')),
-                ('entiteittype', models.CharField(help_text='De naam van de XML-constructie in het XML-schema behorend bij de namespace die afgeleid is van de naam van het objecttype en waarin de eigenschap is opgenomen.', max_length=80, verbose_name='entiteittype')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "objecttype",
+                    models.CharField(
+                        blank=True,
+                        help_text="De naam van het objecttype waarbij de eigenschap is gemodelleerd in het informatiemodel waarvan het objecttype deel uit maakt.",
+                        max_length=40,
+                        null=True,
+                        validators=[
+                            openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores_spaces
+                        ],
+                        verbose_name="objecttype",
+                    ),
+                ),
+                (
+                    "informatiemodel",
+                    models.CharField(
+                        blank=True,
+                        help_text="De naam en de versie van het informatiemodel waarin de eigenschap is gemodelleerd.",
+                        max_length=80,
+                        null=True,
+                        validators=[
+                            openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores
+                        ],
+                        verbose_name="informatiemodel",
+                    ),
+                ),
+                (
+                    "namespace",
+                    models.CharField(
+                        help_text="De naam van het schema waarin de eigenschap is opgenomen.",
+                        max_length=200,
+                        verbose_name="namespace",
+                    ),
+                ),
+                (
+                    "schemalocatie",
+                    models.CharField(
+                        help_text="De locatie van het XML-schema behorend bij de Namespace",
+                        max_length=200,
+                        verbose_name="schemalocatie",
+                    ),
+                ),
+                (
+                    "x_path_element",
+                    models.CharField(
+                        blank=True,
+                        help_text="De naam van de eigenschap en het pad daarnaar toe in het XML-schema behorend bij de namespace.",
+                        max_length=255,
+                        null=True,
+                        verbose_name="x path element",
+                    ),
+                ),
+                (
+                    "entiteittype",
+                    models.CharField(
+                        help_text="De naam van de XML-constructie in het XML-schema behorend bij de namespace die afgeleid is van de naam van het objecttype en waarin de eigenschap is opgenomen.",
+                        max_length=80,
+                        verbose_name="entiteittype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Eigenschap referentie',
-                'verbose_name_plural': 'Eigenschap referenties',
+                "verbose_name": "Eigenschap referentie",
+                "verbose_name_plural": "Eigenschap referenties",
             },
         ),
         migrations.CreateModel(
-            name='EigenschapSpecificatie',
+            name="EigenschapSpecificatie",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('groep', models.CharField(blank=True, help_text='Benaming van het object of groepattribuut waarvan de EIGENSCHAP een inhoudelijk gegeven specificeert.', max_length=32, validators=[openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores], verbose_name='groep')),
-                ('formaat', models.CharField(choices=[('tekst', 'Tekst'), ('getal', 'Getal'), ('datum', 'Datum'), ('datum_tijd', 'Datum/tijd')], help_text='Het soort tekens waarmee waarden van de EIGENSCHAP kunnen worden vastgelegd.', max_length=20, verbose_name='formaat')),
-                ('lengte', models.CharField(help_text='Het aantal karakters (lengte) waarmee waarden van de EIGENSCHAP worden vastgelegd.', max_length=14, verbose_name='lengte')),
-                ('kardinaliteit', models.CharField(help_text='Het aantal mogelijke voorkomens van waarden van deze EIGENSCHAP bij een zaak van het ZAAKTYPE.', max_length=3, validators=[openzaak.components.catalogi.models.validators.KardinaliteitValidator()], verbose_name='kardinaliteit')),
-                ('waardenverzameling', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100, verbose_name='waardenverzameling'), blank=True, help_text='Waarden die deze EIGENSCHAP kan hebben.', size=None)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "groep",
+                    models.CharField(
+                        blank=True,
+                        help_text="Benaming van het object of groepattribuut waarvan de EIGENSCHAP een inhoudelijk gegeven specificeert.",
+                        max_length=32,
+                        validators=[
+                            openzaak.components.catalogi.models.validators.validate_letters_numbers_underscores
+                        ],
+                        verbose_name="groep",
+                    ),
+                ),
+                (
+                    "formaat",
+                    models.CharField(
+                        choices=[
+                            ("tekst", "Tekst"),
+                            ("getal", "Getal"),
+                            ("datum", "Datum"),
+                            ("datum_tijd", "Datum/tijd"),
+                        ],
+                        help_text="Het soort tekens waarmee waarden van de EIGENSCHAP kunnen worden vastgelegd.",
+                        max_length=20,
+                        verbose_name="formaat",
+                    ),
+                ),
+                (
+                    "lengte",
+                    models.CharField(
+                        help_text="Het aantal karakters (lengte) waarmee waarden van de EIGENSCHAP worden vastgelegd.",
+                        max_length=14,
+                        verbose_name="lengte",
+                    ),
+                ),
+                (
+                    "kardinaliteit",
+                    models.CharField(
+                        help_text="Het aantal mogelijke voorkomens van waarden van deze EIGENSCHAP bij een zaak van het ZAAKTYPE.",
+                        max_length=3,
+                        validators=[
+                            openzaak.components.catalogi.models.validators.KardinaliteitValidator()
+                        ],
+                        verbose_name="kardinaliteit",
+                    ),
+                ),
+                (
+                    "waardenverzameling",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(
+                            max_length=100, verbose_name="waardenverzameling"
+                        ),
+                        blank=True,
+                        help_text="Waarden die deze EIGENSCHAP kan hebben.",
+                        size=None,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Eigenschap specificatie',
-                'verbose_name_plural': 'Eigenschap specificaties',
+                "verbose_name": "Eigenschap specificatie",
+                "verbose_name_plural": "Eigenschap specificaties",
             },
         ),
         migrations.CreateModel(
-            name='Formulier',
+            name="Formulier",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('naam', models.CharField(help_text='De naam van het formulier.', max_length=80, verbose_name='naam')),
-                ('link', models.URLField(blank=True, help_text='De URL naar het formulier.', null=True, verbose_name='link')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "naam",
+                    models.CharField(
+                        help_text="De naam van het formulier.",
+                        max_length=80,
+                        verbose_name="naam",
+                    ),
+                ),
+                (
+                    "link",
+                    models.URLField(
+                        blank=True,
+                        help_text="De URL naar het formulier.",
+                        null=True,
+                        verbose_name="link",
+                    ),
+                ),
+            ],
+            options={"verbose_name": "Formulier", "verbose_name_plural": "Formulieren"},
+        ),
+        migrations.CreateModel(
+            name="InformatieObjectType",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datum_begin_geldigheid",
+                    models.DateField(
+                        help_text="De datum waarop het is ontstaan.",
+                        verbose_name="datum begin geldigheid",
+                    ),
+                ),
+                (
+                    "datum_einde_geldigheid",
+                    models.DateField(
+                        blank=True,
+                        help_text="De datum waarop het is opgeheven.",
+                        null=True,
+                        verbose_name="datum einde geldigheid",
+                    ),
+                ),
+                (
+                    "concept",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.",
+                        verbose_name="concept",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "omschrijving",
+                    models.CharField(
+                        help_text="Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+                        max_length=80,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "informatieobjectcategorie",
+                    models.CharField(
+                        help_text="Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+                        max_length=80,
+                        verbose_name="categorie",
+                    ),
+                ),
+                (
+                    "trefwoord",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(
+                            max_length=30, verbose_name="trefwoord"
+                        ),
+                        blank=True,
+                        default=list,
+                        help_text="Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.)",
+                        size=None,
+                    ),
+                ),
+                (
+                    "vertrouwelijkheidaanduiding",
+                    vng_api_common.fields.VertrouwelijkheidsAanduidingField(
+                        choices=[
+                            ("openbaar", "Openbaar"),
+                            ("beperkt_openbaar", "Beperkt openbaar"),
+                            ("intern", "Intern"),
+                            ("zaakvertrouwelijk", "Zaakvertrouwelijk"),
+                            ("vertrouwelijk", "Vertrouwelijk"),
+                            ("confidentieel", "Confidentieel"),
+                            ("geheim", "Geheim"),
+                            ("zeer_geheim", "Zeer geheim"),
+                        ],
+                        help_text="Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.",
+                        max_length=20,
+                        verbose_name="vertrouwelijkheidaanduiding",
+                    ),
+                ),
+                (
+                    "model",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.URLField(verbose_name="model"),
+                        blank=True,
+                        default=list,
+                        help_text="De URL naar het model / sjabloon dat wordt gebruikt voor de creatie van informatieobjecten van dit INFORMATIEOBJECTTYPE. (Gebruik een komma om waarden van elkaar te onderscheiden.)",
+                        size=None,
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Een eventuele toelichting op dit INFORMATIEOBJECTTYPE.",
+                        max_length=1000,
+                        null=True,
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "catalogus",
+                    models.ForeignKey(
+                        help_text="URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.Catalogus",
+                        verbose_name="maakt deel uit van",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Formulier',
-                'verbose_name_plural': 'Formulieren',
+                "verbose_name": "Informatieobjecttype",
+                "verbose_name_plural": "Informatieobjecttypen",
             },
         ),
         migrations.CreateModel(
-            name='InformatieObjectType',
+            name="InformatieObjectTypeOmschrijvingGeneriek",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datum_begin_geldigheid', models.DateField(help_text='De datum waarop het is ontstaan.', verbose_name='datum begin geldigheid')),
-                ('datum_einde_geldigheid', models.DateField(blank=True, help_text='De datum waarop het is opgeheven.', null=True, verbose_name='datum einde geldigheid')),
-                ('concept', models.BooleanField(default=True, help_text='Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.', verbose_name='concept')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('omschrijving', models.CharField(help_text='Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.', max_length=80, verbose_name='omschrijving')),
-                ('informatieobjectcategorie', models.CharField(help_text='Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.', max_length=80, verbose_name='categorie')),
-                ('trefwoord', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30, verbose_name='trefwoord'), blank=True, default=list, help_text='Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.)', size=None)),
-                ('vertrouwelijkheidaanduiding', vng_api_common.fields.VertrouwelijkheidsAanduidingField(choices=[('openbaar', 'Openbaar'), ('beperkt_openbaar', 'Beperkt openbaar'), ('intern', 'Intern'), ('zaakvertrouwelijk', 'Zaakvertrouwelijk'), ('vertrouwelijk', 'Vertrouwelijk'), ('confidentieel', 'Confidentieel'), ('geheim', 'Geheim'), ('zeer_geheim', 'Zeer geheim')], help_text='Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.', max_length=20, verbose_name='vertrouwelijkheidaanduiding')),
-                ('model', django.contrib.postgres.fields.ArrayField(base_field=models.URLField(verbose_name='model'), blank=True, default=list, help_text='De URL naar het model / sjabloon dat wordt gebruikt voor de creatie van informatieobjecten van dit INFORMATIEOBJECTTYPE. (Gebruik een komma om waarden van elkaar te onderscheiden.)', size=None)),
-                ('toelichting', models.CharField(blank=True, help_text='Een eventuele toelichting op dit INFORMATIEOBJECTTYPE.', max_length=1000, null=True, verbose_name='toelichting')),
-                ('catalogus', models.ForeignKey(help_text='URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.Catalogus', verbose_name='maakt deel uit van')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datum_begin_geldigheid",
+                    models.DateField(
+                        help_text="De datum waarop het is ontstaan.",
+                        verbose_name="datum begin geldigheid",
+                    ),
+                ),
+                (
+                    "datum_einde_geldigheid",
+                    models.DateField(
+                        blank=True,
+                        help_text="De datum waarop het is opgeheven.",
+                        null=True,
+                        verbose_name="datum einde geldigheid",
+                    ),
+                ),
+                (
+                    "informatieobjecttype_omschrijving_generiek",
+                    models.CharField(
+                        help_text="Algemeen gehanteerde omschrijving van het type informatieobject.",
+                        max_length=80,
+                        verbose_name="informatieobjecttype omschrijving generiek",
+                    ),
+                ),
+                (
+                    "definitie_informatieobjecttype_omschrijving_generiek",
+                    models.CharField(
+                        help_text="Nauwkeurige beschrijving van het generieke type informatieobject",
+                        max_length=255,
+                        verbose_name="definitie",
+                    ),
+                ),
+                (
+                    "herkomst_informatieobjecttype_omschrijving_generiek",
+                    models.CharField(
+                        help_text="De naam van de waardenverzameling, of van de beherende organisatie daarvan, waaruit de waarde is overgenomen.",
+                        max_length=12,
+                        verbose_name="herkomst",
+                    ),
+                ),
+                (
+                    "hierarchie_informatieobjecttype_omschrijving_generiek",
+                    models.CharField(
+                        help_text="De plaats in de rangorde van het informatieobjecttype.",
+                        max_length=80,
+                        verbose_name="hierarchie",
+                    ),
+                ),
+                (
+                    "opmerking_informatieobjecttype_omschrijving_generiek",
+                    models.CharField(
+                        blank=True,
+                        help_text="Zinvolle toelichting bij het informatieobjecttype",
+                        max_length=255,
+                        null=True,
+                        verbose_name="opmerking",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Informatieobjecttype',
-                'verbose_name_plural': 'Informatieobjecttypen',
+                "verbose_name": "Generieke informatieobjecttype-omschrijving",
+                "verbose_name_plural": "Generieke informatieobjecttype-omschrijvingen",
+                "mnemonic": "DOG",
             },
         ),
         migrations.CreateModel(
-            name='InformatieObjectTypeOmschrijvingGeneriek',
+            name="ResultaatType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datum_begin_geldigheid', models.DateField(help_text='De datum waarop het is ontstaan.', verbose_name='datum begin geldigheid')),
-                ('datum_einde_geldigheid', models.DateField(blank=True, help_text='De datum waarop het is opgeheven.', null=True, verbose_name='datum einde geldigheid')),
-                ('informatieobjecttype_omschrijving_generiek', models.CharField(help_text='Algemeen gehanteerde omschrijving van het type informatieobject.', max_length=80, verbose_name='informatieobjecttype omschrijving generiek')),
-                ('definitie_informatieobjecttype_omschrijving_generiek', models.CharField(help_text='Nauwkeurige beschrijving van het generieke type informatieobject', max_length=255, verbose_name='definitie')),
-                ('herkomst_informatieobjecttype_omschrijving_generiek', models.CharField(help_text='De naam van de waardenverzameling, of van de beherende organisatie daarvan, waaruit de waarde is overgenomen.', max_length=12, verbose_name='herkomst')),
-                ('hierarchie_informatieobjecttype_omschrijving_generiek', models.CharField(help_text='De plaats in de rangorde van het informatieobjecttype.', max_length=80, verbose_name='hierarchie')),
-                ('opmerking_informatieobjecttype_omschrijving_generiek', models.CharField(blank=True, help_text='Zinvolle toelichting bij het informatieobjecttype', max_length=255, null=True, verbose_name='opmerking')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "omschrijving",
+                    models.CharField(
+                        help_text="Omschrijving van de aard van resultaten van het RESULTAATTYPE.",
+                        max_length=20,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "resultaattypeomschrijving",
+                    models.URLField(
+                        help_text="Algemeen gehanteerde omschrijving van de aard van resultaten van het RESULTAATTYPE. Dit moet een URL-referentie zijn naar de referenlijst van generieke resultaattypeomschrijvingen. Im ImZTC heet dit 'omschrijving generiek'",
+                        max_length=1000,
+                        verbose_name="resultaattypeomschrijving",
+                    ),
+                ),
+                (
+                    "omschrijving_generiek",
+                    models.CharField(
+                        blank=True,
+                        editable=False,
+                        help_text="Gecachete tekstuele waarde van de generieke resultaattypeomschrijving.",
+                        max_length=20,
+                        verbose_name="omschrijving generiek",
+                    ),
+                ),
+                (
+                    "selectielijstklasse",
+                    models.URLField(
+                        help_text="URL-referentie naar de, voor het archiefregime bij het RESULTAATTYPE relevante, categorie in de Selectielijst Archiefbescheiden (RESULTAAT in de Selectielijst API) van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.",
+                        max_length=1000,
+                        verbose_name="selectielijstklasse",
+                    ),
+                ),
+                (
+                    "archiefnominatie",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            (
+                                "blijvend_bewaren",
+                                "Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.",
+                            ),
+                            (
+                                "vernietigen",
+                                "Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.",
+                            ),
+                        ],
+                        default="",
+                        help_text="Aanduiding die aangeeft of ZAAKen met een resultaat van dit RESULTAATTYPE blijvend moeten worden bewaard of (op termijn) moeten worden vernietigd. Indien niet expliciet opgegeven wordt dit gevuld vanuit de selectielijst.",
+                        max_length=20,
+                        verbose_name="archiefnominatie",
+                    ),
+                ),
+                (
+                    "archiefactietermijn",
+                    relativedeltafield.RelativeDeltaField(
+                        blank=True,
+                        help_text="De termijn, na het vervallen van het bedrjfsvoeringsbelang, waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen) van een ZAAK met een resultaat van dit RESULTAATTYPE vernietigd of overgebracht (naar een archiefbewaarplaats) moet worden. Voor te vernietigen dossiers betreft het de in die Selectielijst genoemde bewaartermjn. Voor blijvend te bewaren zaakdossiers betreft het de termijn vanaf afronding van de zaak tot overbrenging (de procestermijn is dan nihil).",
+                        null=True,
+                        verbose_name="archiefactietermijn",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_afleidingswijze",
+                    models.CharField(
+                        choices=[
+                            ("afgehandeld", "Afgehandeld"),
+                            ("ander_datumkenmerk", "Ander datumkenmerk"),
+                            ("eigenschap", "Eigenschap"),
+                            ("gerelateerde_zaak", "Gerelateerde zaak"),
+                            ("hoofdzaak", "Hoofzaak"),
+                            ("ingangsdatum_besluit", "Ingangsdatum besluit"),
+                            ("termijn", "Termijn"),
+                            ("vervaldatum_besluit", "Vervaldatum besluit"),
+                            ("zaakobject", "Zaakobject"),
+                        ],
+                        help_text="Wijze van bepalen van de brondatum.",
+                        max_length=20,
+                        verbose_name="afleidingswijze brondatum",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_datumkenmerk",
+                    models.CharField(
+                        blank=True,
+                        help_text="Naam van de attribuutsoort van het procesobject dat bepalend is voor het einde van de procestermijn.",
+                        max_length=80,
+                        verbose_name="datumkenmerk",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_einddatum_bekend",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Indicatie dat de einddatum van het procesobject gedurende de uitvoering van de zaak bekend moet worden. Indien deze nog niet bekend is en deze waarde staat op `true`, dan kan de zaak (nog) niet afgesloten worden.",
+                        verbose_name="einddatum bekend",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_objecttype",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("adres", "Adres"),
+                            ("besluit", "Besluit"),
+                            ("buurt", "Buurt"),
+                            ("enkelvoudig_document", "Enkelvoudig document"),
+                            ("gemeente", "Gemeente"),
+                            (
+                                "gemeentelijke_openbare_ruimte",
+                                "Gemeentelijke openbare ruimte",
+                            ),
+                            ("huishouden", "Huishouden"),
+                            ("inrichtingselement", "Inrichtingselement"),
+                            (
+                                "kadastrale_onroerende_zaak",
+                                "Kadastrale onroerende zaak",
+                            ),
+                            ("kunstwerkdeel", "Kunstwerkdeel"),
+                            (
+                                "maatschappelijke_activiteit",
+                                "Maatschappelijke activiteit",
+                            ),
+                            ("medewerker", "Medewerker"),
+                            ("natuurlijk_persoon", "Natuurlijk persoon"),
+                            ("niet_natuurlijk_persoon", "Niet-natuurlijk persoon"),
+                            ("openbare_ruimte", "Openbare ruimte"),
+                            ("organisatorische_eenheid", "Organisatorische eenheid"),
+                            ("pand", "Pand"),
+                            ("spoorbaandeel", "Spoorbaandeel"),
+                            ("status", "Status"),
+                            ("terreindeel", "Terreindeel"),
+                            ("terrein_gebouwd_object", "Terrein gebouwd object"),
+                            ("vestiging", "Vestiging"),
+                            ("waterdeel", "Waterdeel"),
+                            ("wegdeel", "Wegdeel"),
+                            ("wijk", "Wijk"),
+                            ("woonplaats", "Woonplaats"),
+                            ("woz_deelobject", "Woz deel object"),
+                            ("woz_object", "Woz object"),
+                            ("woz_waarde", "Woz waarde"),
+                            ("zakelijk_recht", "Zakelijk recht"),
+                            ("overige", "Overige"),
+                        ],
+                        help_text="Het soort object in de registratie dat het procesobject representeert.",
+                        max_length=80,
+                        verbose_name="objecttype",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_registratie",
+                    models.CharField(
+                        blank=True,
+                        help_text="De naam van de registratie waarvan het procesobject deel uit maakt.",
+                        max_length=80,
+                        verbose_name="registratie",
+                    ),
+                ),
+                (
+                    "brondatum_archiefprocedure_procestermijn",
+                    relativedeltafield.RelativeDeltaField(
+                        blank=True,
+                        help_text="De periode dat het zaakdossier na afronding van de zaak actief gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening van de organisatie. Enkel relevant indien de afleidingswijze 'termijn' is.",
+                        null=True,
+                        verbose_name="procestermijn",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.TextField(
+                        blank=True,
+                        help_text="Een toelichting op dit RESULTAATTYPE en het belang hiervan voor ZAAKen waarin een resultaat van dit RESULTAATTYPE wordt geselecteerd.",
+                        verbose_name="toelichting",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Generieke informatieobjecttype-omschrijving',
-                'verbose_name_plural': 'Generieke informatieobjecttype-omschrijvingen',
-                'mnemonic': 'DOG',
+                "verbose_name": "resultaattype",
+                "verbose_name_plural": "resultaattypen",
             },
         ),
         migrations.CreateModel(
-            name='ResultaatType',
+            name="RolType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('omschrijving', models.CharField(help_text='Omschrijving van de aard van resultaten van het RESULTAATTYPE.', max_length=20, verbose_name='omschrijving')),
-                ('resultaattypeomschrijving', models.URLField(help_text="Algemeen gehanteerde omschrijving van de aard van resultaten van het RESULTAATTYPE. Dit moet een URL-referentie zijn naar de referenlijst van generieke resultaattypeomschrijvingen. Im ImZTC heet dit 'omschrijving generiek'", max_length=1000, verbose_name='resultaattypeomschrijving')),
-                ('omschrijving_generiek', models.CharField(blank=True, editable=False, help_text='Gecachete tekstuele waarde van de generieke resultaattypeomschrijving.', max_length=20, verbose_name='omschrijving generiek')),
-                ('selectielijstklasse', models.URLField(help_text='URL-referentie naar de, voor het archiefregime bij het RESULTAATTYPE relevante, categorie in de Selectielijst Archiefbescheiden (RESULTAAT in de Selectielijst API) van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.', max_length=1000, verbose_name='selectielijstklasse')),
-                ('archiefnominatie', models.CharField(blank=True, choices=[('blijvend_bewaren', 'Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.'), ('vernietigen', 'Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.')], default='', help_text='Aanduiding die aangeeft of ZAAKen met een resultaat van dit RESULTAATTYPE blijvend moeten worden bewaard of (op termijn) moeten worden vernietigd. Indien niet expliciet opgegeven wordt dit gevuld vanuit de selectielijst.', max_length=20, verbose_name='archiefnominatie')),
-                ('archiefactietermijn', relativedeltafield.RelativeDeltaField(blank=True, help_text='De termijn, na het vervallen van het bedrjfsvoeringsbelang, waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen) van een ZAAK met een resultaat van dit RESULTAATTYPE vernietigd of overgebracht (naar een archiefbewaarplaats) moet worden. Voor te vernietigen dossiers betreft het de in die Selectielijst genoemde bewaartermjn. Voor blijvend te bewaren zaakdossiers betreft het de termijn vanaf afronding van de zaak tot overbrenging (de procestermijn is dan nihil).', null=True, verbose_name='archiefactietermijn')),
-                ('brondatum_archiefprocedure_afleidingswijze', models.CharField(choices=[('afgehandeld', 'Afgehandeld'), ('ander_datumkenmerk', 'Ander datumkenmerk'), ('eigenschap', 'Eigenschap'), ('gerelateerde_zaak', 'Gerelateerde zaak'), ('hoofdzaak', 'Hoofzaak'), ('ingangsdatum_besluit', 'Ingangsdatum besluit'), ('termijn', 'Termijn'), ('vervaldatum_besluit', 'Vervaldatum besluit'), ('zaakobject', 'Zaakobject')], help_text='Wijze van bepalen van de brondatum.', max_length=20, verbose_name='afleidingswijze brondatum')),
-                ('brondatum_archiefprocedure_datumkenmerk', models.CharField(blank=True, help_text='Naam van de attribuutsoort van het procesobject dat bepalend is voor het einde van de procestermijn.', max_length=80, verbose_name='datumkenmerk')),
-                ('brondatum_archiefprocedure_einddatum_bekend', models.BooleanField(default=False, help_text='Indicatie dat de einddatum van het procesobject gedurende de uitvoering van de zaak bekend moet worden. Indien deze nog niet bekend is en deze waarde staat op `true`, dan kan de zaak (nog) niet afgesloten worden.', verbose_name='einddatum bekend')),
-                ('brondatum_archiefprocedure_objecttype', models.CharField(blank=True, choices=[('adres', 'Adres'), ('besluit', 'Besluit'), ('buurt', 'Buurt'), ('enkelvoudig_document', 'Enkelvoudig document'), ('gemeente', 'Gemeente'), ('gemeentelijke_openbare_ruimte', 'Gemeentelijke openbare ruimte'), ('huishouden', 'Huishouden'), ('inrichtingselement', 'Inrichtingselement'), ('kadastrale_onroerende_zaak', 'Kadastrale onroerende zaak'), ('kunstwerkdeel', 'Kunstwerkdeel'), ('maatschappelijke_activiteit', 'Maatschappelijke activiteit'), ('medewerker', 'Medewerker'), ('natuurlijk_persoon', 'Natuurlijk persoon'), ('niet_natuurlijk_persoon', 'Niet-natuurlijk persoon'), ('openbare_ruimte', 'Openbare ruimte'), ('organisatorische_eenheid', 'Organisatorische eenheid'), ('pand', 'Pand'), ('spoorbaandeel', 'Spoorbaandeel'), ('status', 'Status'), ('terreindeel', 'Terreindeel'), ('terrein_gebouwd_object', 'Terrein gebouwd object'), ('vestiging', 'Vestiging'), ('waterdeel', 'Waterdeel'), ('wegdeel', 'Wegdeel'), ('wijk', 'Wijk'), ('woonplaats', 'Woonplaats'), ('woz_deelobject', 'Woz deel object'), ('woz_object', 'Woz object'), ('woz_waarde', 'Woz waarde'), ('zakelijk_recht', 'Zakelijk recht'), ('overige', 'Overige')], help_text='Het soort object in de registratie dat het procesobject representeert.', max_length=80, verbose_name='objecttype')),
-                ('brondatum_archiefprocedure_registratie', models.CharField(blank=True, help_text='De naam van de registratie waarvan het procesobject deel uit maakt.', max_length=80, verbose_name='registratie')),
-                ('brondatum_archiefprocedure_procestermijn', relativedeltafield.RelativeDeltaField(blank=True, help_text="De periode dat het zaakdossier na afronding van de zaak actief gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening van de organisatie. Enkel relevant indien de afleidingswijze 'termijn' is.", null=True, verbose_name='procestermijn')),
-                ('toelichting', models.TextField(blank=True, help_text='Een toelichting op dit RESULTAATTYPE en het belang hiervan voor ZAAKen waarin een resultaat van dit RESULTAATTYPE wordt geselecteerd.', verbose_name='toelichting')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("uuid", models.UUIDField(default=uuid.uuid4)),
+                (
+                    "omschrijving",
+                    models.CharField(
+                        help_text="Omschrijving van de aard van de ROL.",
+                        max_length=20,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "omschrijving_generiek",
+                    models.CharField(
+                        choices=[
+                            ("adviseur", "Adviseur"),
+                            ("behandelaar", "Behandelaar"),
+                            ("belanghebbende", "Belanghebbende"),
+                            ("beslisser", "Beslisser"),
+                            ("initiator", "Initiator"),
+                            ("klantcontacter", "Klantcontacter"),
+                            ("zaakcoordinator", "Zaakcoördinator"),
+                            ("mede_initiator", "Mede-initiator"),
+                        ],
+                        help_text="Algemeen gehanteerde omschrijving van de aard van de ROL.",
+                        max_length=20,
+                        verbose_name="omschrijving generiek",
+                    ),
+                ),
+                (
+                    "soort_betrokkene",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(
+                            max_length=80, verbose_name="soort betrokkene"
+                        ),
+                        default=list,
+                        help_text="De (soort) betrokkene die een rol van dit roltype mag uitoefenen. (Gebruik een komma om waarden van elkaar te onderscheiden.)",
+                        size=None,
+                    ),
+                ),
+            ],
+            options={"verbose_name": "Roltype", "verbose_name_plural": "Roltypen"},
+        ),
+        migrations.CreateModel(
+            name="StatusType",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "statustype_omschrijving",
+                    models.CharField(
+                        help_text="Een korte, voor de initiator van de zaak relevante, omschrijving van de aard van de STATUS van zaken van een ZAAKTYPE.",
+                        max_length=80,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "statustype_omschrijving_generiek",
+                    models.CharField(
+                        blank=True,
+                        help_text="Algemeen gehanteerde omschrijving van de aard van STATUSsen van het STATUSTYPE",
+                        max_length=80,
+                        verbose_name="omschrijving generiek",
+                    ),
+                ),
+                (
+                    "statustypevolgnummer",
+                    models.PositiveSmallIntegerField(
+                        help_text="Een volgnummer voor statussen van het STATUSTYPE binnen een zaak.",
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(9999),
+                        ],
+                        verbose_name="statustypevolgnummer",
+                    ),
+                ),
+                (
+                    "doorlooptijd_status",
+                    models.PositiveSmallIntegerField(
+                        blank=True,
+                        help_text="De door de zaakbehandelende organisatie(s) gestelde norm voor de doorlooptijd voor het bereiken van statussen van dit STATUSTYPE bij het desbetreffende ZAAKTYPE, vanaf het bereiken van de voorafgaande status",
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(999),
+                        ],
+                        verbose_name="doorlooptijd status",
+                    ),
+                ),
+                (
+                    "informeren",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang.",
+                        verbose_name="informeren",
+                    ),
+                ),
+                (
+                    "statustekst",
+                    models.CharField(
+                        blank=True,
+                        help_text="De tekst die wordt gebruikt om de Initiator te informeren over het bereiken van een STATUS van dit STATUSTYPE bij het desbetreffende ZAAKTYPE.",
+                        max_length=1000,
+                        verbose_name="statustekst",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Een eventuele toelichting op dit STATUSTYPE.",
+                        max_length=1000,
+                        null=True,
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "checklistitem",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Te controleren aandachtspunt voorafgaand aan het bereiken van een status van het STATUSTYPE.",
+                        to="catalogi.CheckListItem",
+                        verbose_name="checklistitem",
+                    ),
+                ),
+                (
+                    "roltypen",
+                    models.ManyToManyField(
+                        help_text="De STATUSTYPEn die een betrokkene in een rol van dit ROLTYPE mag zetten.",
+                        related_name="mag_zetten",
+                        to="catalogi.RolType",
+                        verbose_name="roltypen",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'resultaattype',
-                'verbose_name_plural': 'resultaattypen',
+                "verbose_name": "Statustype",
+                "verbose_name_plural": "Statustypen",
+                "ordering": ("zaaktype", "statustypevolgnummer"),
+                "filter_fields": ("zaaktype", "informeren"),
+                "ordering_fields": ("zaaktype", "informeren"),
+                "search_fields": (
+                    "statustype_omschrijving",
+                    "statustype_omschrijving_generiek",
+                    "statustypevolgnummer",
+                ),
             },
         ),
         migrations.CreateModel(
-            name='RolType',
+            name="ZaakInformatieobjectType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4)),
-                ('omschrijving', models.CharField(help_text='Omschrijving van de aard van de ROL.', max_length=20, verbose_name='omschrijving')),
-                ('omschrijving_generiek', models.CharField(choices=[('adviseur', 'Adviseur'), ('behandelaar', 'Behandelaar'), ('belanghebbende', 'Belanghebbende'), ('beslisser', 'Beslisser'), ('initiator', 'Initiator'), ('klantcontacter', 'Klantcontacter'), ('zaakcoordinator', 'Zaakcoördinator'), ('mede_initiator', 'Mede-initiator')], help_text='Algemeen gehanteerde omschrijving van de aard van de ROL.', max_length=20, verbose_name='omschrijving generiek')),
-                ('soort_betrokkene', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=80, verbose_name='soort betrokkene'), default=list, help_text='De (soort) betrokkene die een rol van dit roltype mag uitoefenen. (Gebruik een komma om waarden van elkaar te onderscheiden.)', size=None)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "volgnummer",
+                    models.PositiveSmallIntegerField(
+                        help_text="Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het ZAAKTYPE.",
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(999),
+                        ],
+                        verbose_name="volgnummer",
+                    ),
+                ),
+                (
+                    "richting",
+                    models.CharField(
+                        choices=[
+                            ("inkomend", "Inkomend"),
+                            ("intern", "Intern"),
+                            ("uitgaand", "Uitgaand"),
+                        ],
+                        help_text="Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.",
+                        max_length=20,
+                        verbose_name="richting",
+                    ),
+                ),
+                (
+                    "informatieobjecttype",
+                    models.ForeignKey(
+                        help_text="URL-referentie naar het INFORMATIEOBJECTTYPE.",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.InformatieObjectType",
+                        verbose_name="informatie object type",
+                    ),
+                ),
+                (
+                    "statustype",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn verplicht aanwezig moeten zijn.",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="heeft_verplichte_zit",
+                        to="catalogi.StatusType",
+                        verbose_name="status type",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Roltype',
-                'verbose_name_plural': 'Roltypen',
+                "verbose_name": "Zaak-Informatieobject-Type",
+                "verbose_name_plural": "Zaak-Informatieobject-Typen",
+                "ordering": ("zaaktype", "volgnummer"),
+                "filter_fields": ("zaaktype", "informatieobjecttype", "richting"),
+                "ordering_fields": ("zaaktype", "informatieobjecttype", "richting"),
+                "search_fields": "volgnummer",
             },
         ),
         migrations.CreateModel(
-            name='StatusType',
+            name="ZaakType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('statustype_omschrijving', models.CharField(help_text='Een korte, voor de initiator van de zaak relevante, omschrijving van de aard van de STATUS van zaken van een ZAAKTYPE.', max_length=80, verbose_name='omschrijving')),
-                ('statustype_omschrijving_generiek', models.CharField(blank=True, help_text='Algemeen gehanteerde omschrijving van de aard van STATUSsen van het STATUSTYPE', max_length=80, verbose_name='omschrijving generiek')),
-                ('statustypevolgnummer', models.PositiveSmallIntegerField(help_text='Een volgnummer voor statussen van het STATUSTYPE binnen een zaak.', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)], verbose_name='statustypevolgnummer')),
-                ('doorlooptijd_status', models.PositiveSmallIntegerField(blank=True, help_text='De door de zaakbehandelende organisatie(s) gestelde norm voor de doorlooptijd voor het bereiken van statussen van dit STATUSTYPE bij het desbetreffende ZAAKTYPE, vanaf het bereiken van de voorafgaande status', null=True, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(999)], verbose_name='doorlooptijd status')),
-                ('informeren', models.BooleanField(default=False, help_text='Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang.', verbose_name='informeren')),
-                ('statustekst', models.CharField(blank=True, help_text='De tekst die wordt gebruikt om de Initiator te informeren over het bereiken van een STATUS van dit STATUSTYPE bij het desbetreffende ZAAKTYPE.', max_length=1000, verbose_name='statustekst')),
-                ('toelichting', models.CharField(blank=True, help_text='Een eventuele toelichting op dit STATUSTYPE.', max_length=1000, null=True, verbose_name='toelichting')),
-                ('checklistitem', models.ManyToManyField(blank=True, help_text='Te controleren aandachtspunt voorafgaand aan het bereiken van een status van het STATUSTYPE.', to='catalogi.CheckListItem', verbose_name='checklistitem')),
-                ('roltypen', models.ManyToManyField(help_text='De STATUSTYPEn die een betrokkene in een rol van dit ROLTYPE mag zetten.', related_name='mag_zetten', to='catalogi.RolType', verbose_name='roltypen')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datum_begin_geldigheid",
+                    models.DateField(
+                        help_text="De datum waarop het is ontstaan.",
+                        verbose_name="datum begin geldigheid",
+                    ),
+                ),
+                (
+                    "datum_einde_geldigheid",
+                    models.DateField(
+                        blank=True,
+                        help_text="De datum waarop het is opgeheven.",
+                        null=True,
+                        verbose_name="datum einde geldigheid",
+                    ),
+                ),
+                (
+                    "concept",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.",
+                        verbose_name="concept",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "zaaktype_identificatie",
+                    models.PositiveIntegerField(
+                        help_text="Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                        validators=[django.core.validators.MaxValueValidator(99999)],
+                        verbose_name="identificatie",
+                    ),
+                ),
+                (
+                    "zaaktype_omschrijving",
+                    models.CharField(
+                        help_text="Omschrijving van de aard van ZAAKen van het ZAAKTYPE.",
+                        max_length=80,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "zaaktype_omschrijving_generiek",
+                    models.CharField(
+                        blank=True,
+                        help_text="Algemeen gehanteerde omschrijving van de aard van ZAAKen van het ZAAKTYPE",
+                        max_length=80,
+                        verbose_name="omschrijving generiek",
+                    ),
+                ),
+                (
+                    "vertrouwelijkheidaanduiding",
+                    vng_api_common.fields.VertrouwelijkheidsAanduidingField(
+                        choices=[
+                            ("openbaar", "Openbaar"),
+                            ("beperkt_openbaar", "Beperkt openbaar"),
+                            ("intern", "Intern"),
+                            ("zaakvertrouwelijk", "Zaakvertrouwelijk"),
+                            ("vertrouwelijk", "Vertrouwelijk"),
+                            ("confidentieel", "Confidentieel"),
+                            ("geheim", "Geheim"),
+                            ("zeer_geheim", "Zeer geheim"),
+                        ],
+                        help_text="Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.",
+                        max_length=20,
+                        verbose_name="vertrouwelijkheidaanduiding",
+                    ),
+                ),
+                (
+                    "zaakcategorie",
+                    models.CharField(
+                        blank=True,
+                        help_text="Typering van de aard van ZAAKen van het ZAAKTYPE.",
+                        max_length=40,
+                        verbose_name="zaakcategorie",
+                    ),
+                ),
+                (
+                    "doel",
+                    models.TextField(
+                        help_text="Een omschrijving van hetgeen beoogd is te bereiken met een zaak van dit zaaktype.",
+                        verbose_name="doel",
+                    ),
+                ),
+                (
+                    "aanleiding",
+                    models.TextField(
+                        help_text="Een omschrijving van de gebeurtenis die leidt tot het starten van een ZAAK van dit ZAAKTYPE.",
+                        verbose_name="aanleiding",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.TextField(
+                        blank=True,
+                        help_text="Een eventuele toelichting op dit zaaktype, zoals een beschrijving van het procesverloop op de hoofdlijnen.",
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "indicatie_intern_of_extern",
+                    models.CharField(
+                        choices=[("intern", "Intern"), ("extern", "Extern")],
+                        help_text="Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.",
+                        max_length=6,
+                        verbose_name="indicatie intern of extern",
+                    ),
+                ),
+                (
+                    "handeling_initiator",
+                    models.CharField(
+                        help_text="Werkwoord dat hoort bij de handeling die de initiator verricht bij dit zaaktype. Meestal 'aanvragen', 'indienen' of 'melden'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_initiator",
+                        max_length=20,
+                        verbose_name="handeling initiator",
+                    ),
+                ),
+                (
+                    "onderwerp",
+                    models.CharField(
+                        help_text="Het onderwerp van ZAAKen van dit ZAAKTYPE. In veel gevallen nauw gerelateerd aan de product- of dienstnaam uit de Producten- en Dienstencatalogus (PDC). Bijvoorbeeld: 'Evenementenvergunning', 'Geboorte', 'Klacht'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.onderwerp",
+                        max_length=80,
+                        verbose_name="onderwerp",
+                    ),
+                ),
+                (
+                    "handeling_behandelaar",
+                    models.CharField(
+                        help_text="Werkwoord dat hoort bij de handeling die de behandelaar verricht bij het afdoen van ZAAKen van dit ZAAKTYPE. Meestal 'behandelen', 'uitvoeren', 'vaststellen' of 'onderhouden'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_behandelaar",
+                        max_length=20,
+                        verbose_name="handeling behandelaar",
+                    ),
+                ),
+                (
+                    "doorlooptijd_behandeling",
+                    vng_api_common.fields.DaysDurationField(
+                        help_text="De periode waarbinnen volgens wet- en regelgeving een ZAAK van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.",
+                        max_duration=999,
+                        min_duration=1,
+                        verbose_name="doorlooptijd behandeling",
+                    ),
+                ),
+                (
+                    "servicenorm_behandeling",
+                    vng_api_common.fields.DaysDurationField(
+                        blank=True,
+                        help_text="De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE afgerond wordt conform de geldende servicenormen van de zaakbehandelende organisatie(s).",
+                        max_duration=999,
+                        min_duration=1,
+                        null=True,
+                        verbose_name="servicenorm behandeling",
+                    ),
+                ),
+                (
+                    "opschorting_en_aanhouding_mogelijk",
+                    models.BooleanField(
+                        help_text="Aanduiding die aangeeft of ZAAKen van dit mogelijk ZAAKTYPE kunnen worden opgeschort en/of aangehouden.",
+                        verbose_name="opschorting/aanhouding mogelijk",
+                    ),
+                ),
+                (
+                    "verlenging_mogelijk",
+                    models.BooleanField(
+                        help_text="Aanduiding die aangeeft of de Doorlooptijd behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd.",
+                        verbose_name="verlenging mogelijk",
+                    ),
+                ),
+                (
+                    "verlengingstermijn",
+                    vng_api_common.fields.DaysDurationField(
+                        blank=True,
+                        help_text="De termijn in dagen waarmee de Doorlooptijd behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen een waarde bevatten als verlenging mogelijk is.",
+                        max_duration=999,
+                        min_duration=1,
+                        null=True,
+                        verbose_name="verlengingstermijn",
+                    ),
+                ),
+                (
+                    "trefwoorden",
+                    django_better_admin_arrayfield.models.fields.ArrayField(
+                        base_field=models.CharField(
+                            max_length=30, verbose_name="trefwoord"
+                        ),
+                        blank=True,
+                        default=list,
+                        help_text="Een trefwoord waarmee ZAAKen van het ZAAKTYPE kunnen worden gekarakteriseerd.",
+                        size=None,
+                    ),
+                ),
+                (
+                    "archiefclassificatiecode",
+                    models.CharField(
+                        blank=True,
+                        help_text="De systematische identificatie van zaakdossiers van dit ZAAKTYPE overeenkomstig logisch gestructureerde conventies, methoden en procedureregels.",
+                        max_length=20,
+                        null=True,
+                        verbose_name="archiefclassificatiecode",
+                    ),
+                ),
+                (
+                    "verantwoordelijke",
+                    models.CharField(
+                        help_text="De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.",
+                        max_length=50,
+                        verbose_name="verantwoordelijke",
+                    ),
+                ),
+                (
+                    "publicatie_indicatie",
+                    models.BooleanField(
+                        help_text="Aanduiding of (het starten van) een ZAAK dit ZAAKTYPE gepubliceerd moet worden.",
+                        verbose_name="publicatie indicatie",
+                    ),
+                ),
+                (
+                    "publicatietekst",
+                    models.TextField(
+                        blank=True,
+                        help_text="De generieke tekst van de publicatie van ZAAKen van dit ZAAKTYPE.",
+                        verbose_name="publicatietekst",
+                    ),
+                ),
+                (
+                    "verantwoordingsrelatie",
+                    django_better_admin_arrayfield.models.fields.ArrayField(
+                        base_field=models.CharField(
+                            max_length=40, verbose_name="verantwoordingsrelatie"
+                        ),
+                        blank=True,
+                        default=list,
+                        help_text="De relatie tussen ZAAKen van dit ZAAKTYPE en de beleidsmatige en/of financiële verantwoording.",
+                        size=None,
+                    ),
+                ),
+                (
+                    "versiedatum",
+                    models.DateField(
+                        help_text="De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE geldig zijn geworden",
+                        verbose_name="versiedatum",
+                    ),
+                ),
+                (
+                    "producten_of_diensten",
+                    django_better_admin_arrayfield.models.fields.ArrayField(
+                        base_field=models.URLField(
+                            max_length=1000, verbose_name="URL naar product/dienst"
+                        ),
+                        help_text="Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht.",
+                        size=None,
+                    ),
+                ),
+                (
+                    "selectielijst_procestype",
+                    models.URLField(
+                        blank=True,
+                        help_text="URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst API).",
+                        verbose_name="selectielijst procestype",
+                    ),
+                ),
+                (
+                    "referentieproces_naam",
+                    models.CharField(
+                        help_text="De naam van het Referentieproces.",
+                        max_length=80,
+                        verbose_name="referentieprocesnaam",
+                    ),
+                ),
+                (
+                    "referentieproces_link",
+                    models.URLField(
+                        blank=True,
+                        help_text="De URL naar de beschrijving van het Referentieproces",
+                        verbose_name="referentieproceslink",
+                    ),
+                ),
+                (
+                    "broncatalogus",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="De CATALOGUS waaraan het ZAAKTYPE is ontleend.",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.BronCatalogus",
+                        verbose_name="broncatalogus",
+                    ),
+                ),
+                (
+                    "bronzaaktype",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Het zaaktype binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.BronZaakType",
+                        verbose_name="bronzaaktype",
+                    ),
+                ),
+                (
+                    "catalogus",
+                    models.ForeignKey(
+                        help_text="URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.Catalogus",
+                        verbose_name="maakt deel uit van",
+                    ),
+                ),
+                (
+                    "formulier",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Formulier Het formulier dat ZAAKen van dit ZAAKTYPE initieert.",
+                        to="catalogi.Formulier",
+                        verbose_name="formulier",
+                    ),
+                ),
+                (
+                    "is_deelzaaktype_van",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="De ZAAKTYPEn (van de hoofdzaken) waaronder ZAAKen van dit ZAAKTYPE als deelzaak kunnen voorkomen.",
+                        related_name="zaak_typen_is_deelzaaktype_van",
+                        to="catalogi.ZaakType",
+                        verbose_name="is deelzaaktype van",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Statustype',
-                'verbose_name_plural': 'Statustypen',
-                'ordering': ('zaaktype', 'statustypevolgnummer'),
-                'filter_fields': ('zaaktype', 'informeren'),
-                'ordering_fields': ('zaaktype', 'informeren'),
-                'search_fields': ('statustype_omschrijving', 'statustype_omschrijving_generiek', 'statustypevolgnummer'),
-            },
-        ),
-        migrations.CreateModel(
-            name='ZaakInformatieobjectType',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('volgnummer', models.PositiveSmallIntegerField(help_text='Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het ZAAKTYPE.', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(999)], verbose_name='volgnummer')),
-                ('richting', models.CharField(choices=[('inkomend', 'Inkomend'), ('intern', 'Intern'), ('uitgaand', 'Uitgaand')], help_text='Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.', max_length=20, verbose_name='richting')),
-                ('informatieobjecttype', models.ForeignKey(help_text='URL-referentie naar het INFORMATIEOBJECTTYPE.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.InformatieObjectType', verbose_name='informatie object type')),
-                ('statustype', models.ForeignKey(blank=True, help_text='URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn verplicht aanwezig moeten zijn.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='heeft_verplichte_zit', to='catalogi.StatusType', verbose_name='status type')),
-            ],
-            options={
-                'verbose_name': 'Zaak-Informatieobject-Type',
-                'verbose_name_plural': 'Zaak-Informatieobject-Typen',
-                'ordering': ('zaaktype', 'volgnummer'),
-                'filter_fields': ('zaaktype', 'informatieobjecttype', 'richting'),
-                'ordering_fields': ('zaaktype', 'informatieobjecttype', 'richting'),
-                'search_fields': 'volgnummer',
-            },
-        ),
-        migrations.CreateModel(
-            name='ZaakType',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datum_begin_geldigheid', models.DateField(help_text='De datum waarop het is ontstaan.', verbose_name='datum begin geldigheid')),
-                ('datum_einde_geldigheid', models.DateField(blank=True, help_text='De datum waarop het is opgeheven.', null=True, verbose_name='datum einde geldigheid')),
-                ('concept', models.BooleanField(default=True, help_text='Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.', verbose_name='concept')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('zaaktype_identificatie', models.PositiveIntegerField(help_text='Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.', validators=[django.core.validators.MaxValueValidator(99999)], verbose_name='identificatie')),
-                ('zaaktype_omschrijving', models.CharField(help_text='Omschrijving van de aard van ZAAKen van het ZAAKTYPE.', max_length=80, verbose_name='omschrijving')),
-                ('zaaktype_omschrijving_generiek', models.CharField(blank=True, help_text='Algemeen gehanteerde omschrijving van de aard van ZAAKen van het ZAAKTYPE', max_length=80, verbose_name='omschrijving generiek')),
-                ('vertrouwelijkheidaanduiding', vng_api_common.fields.VertrouwelijkheidsAanduidingField(choices=[('openbaar', 'Openbaar'), ('beperkt_openbaar', 'Beperkt openbaar'), ('intern', 'Intern'), ('zaakvertrouwelijk', 'Zaakvertrouwelijk'), ('vertrouwelijk', 'Vertrouwelijk'), ('confidentieel', 'Confidentieel'), ('geheim', 'Geheim'), ('zeer_geheim', 'Zeer geheim')], help_text='Aanduiding van de mate waarin zaakdossiers van ZAAKen van dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet.', max_length=20, verbose_name='vertrouwelijkheidaanduiding')),
-                ('zaakcategorie', models.CharField(blank=True, help_text='Typering van de aard van ZAAKen van het ZAAKTYPE.', max_length=40, verbose_name='zaakcategorie')),
-                ('doel', models.TextField(help_text='Een omschrijving van hetgeen beoogd is te bereiken met een zaak van dit zaaktype.', verbose_name='doel')),
-                ('aanleiding', models.TextField(help_text='Een omschrijving van de gebeurtenis die leidt tot het starten van een ZAAK van dit ZAAKTYPE.', verbose_name='aanleiding')),
-                ('toelichting', models.TextField(blank=True, help_text='Een eventuele toelichting op dit zaaktype, zoals een beschrijving van het procesverloop op de hoofdlijnen.', verbose_name='toelichting')),
-                ('indicatie_intern_of_extern', models.CharField(choices=[('intern', 'Intern'), ('extern', 'Extern')], help_text='Een aanduiding waarmee onderscheid wordt gemaakt tussen ZAAKTYPEn die Intern respectievelijk Extern geïnitieerd worden. Indien van beide sprake kan zijn, dan prevaleert de externe initiatie.', max_length=6, verbose_name='indicatie intern of extern')),
-                ('handeling_initiator', models.CharField(help_text="Werkwoord dat hoort bij de handeling die de initiator verricht bij dit zaaktype. Meestal 'aanvragen', 'indienen' of 'melden'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_initiator", max_length=20, verbose_name='handeling initiator')),
-                ('onderwerp', models.CharField(help_text="Het onderwerp van ZAAKen van dit ZAAKTYPE. In veel gevallen nauw gerelateerd aan de product- of dienstnaam uit de Producten- en Dienstencatalogus (PDC). Bijvoorbeeld: 'Evenementenvergunning', 'Geboorte', 'Klacht'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.onderwerp", max_length=80, verbose_name='onderwerp')),
-                ('handeling_behandelaar', models.CharField(help_text="Werkwoord dat hoort bij de handeling die de behandelaar verricht bij het afdoen van ZAAKen van dit ZAAKTYPE. Meestal 'behandelen', 'uitvoeren', 'vaststellen' of 'onderhouden'. Zie ook het IOB model op https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_behandelaar", max_length=20, verbose_name='handeling behandelaar')),
-                ('doorlooptijd_behandeling', vng_api_common.fields.DaysDurationField(help_text='De periode waarbinnen volgens wet- en regelgeving een ZAAK van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.', max_duration=999, min_duration=1, verbose_name='doorlooptijd behandeling')),
-                ('servicenorm_behandeling', vng_api_common.fields.DaysDurationField(blank=True, help_text='De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE afgerond wordt conform de geldende servicenormen van de zaakbehandelende organisatie(s).', max_duration=999, min_duration=1, null=True, verbose_name='servicenorm behandeling')),
-                ('opschorting_en_aanhouding_mogelijk', models.BooleanField(help_text='Aanduiding die aangeeft of ZAAKen van dit mogelijk ZAAKTYPE kunnen worden opgeschort en/of aangehouden.', verbose_name='opschorting/aanhouding mogelijk')),
-                ('verlenging_mogelijk', models.BooleanField(help_text='Aanduiding die aangeeft of de Doorlooptijd behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd.', verbose_name='verlenging mogelijk')),
-                ('verlengingstermijn', vng_api_common.fields.DaysDurationField(blank=True, help_text='De termijn in dagen waarmee de Doorlooptijd behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen een waarde bevatten als verlenging mogelijk is.', max_duration=999, min_duration=1, null=True, verbose_name='verlengingstermijn')),
-                ('trefwoorden', django_better_admin_arrayfield.models.fields.ArrayField(base_field=models.CharField(max_length=30, verbose_name='trefwoord'), blank=True, default=list, help_text='Een trefwoord waarmee ZAAKen van het ZAAKTYPE kunnen worden gekarakteriseerd.', size=None)),
-                ('archiefclassificatiecode', models.CharField(blank=True, help_text='De systematische identificatie van zaakdossiers van dit ZAAKTYPE overeenkomstig logisch gestructureerde conventies, methoden en procedureregels.', max_length=20, null=True, verbose_name='archiefclassificatiecode')),
-                ('verantwoordelijke', models.CharField(help_text='De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.', max_length=50, verbose_name='verantwoordelijke')),
-                ('publicatie_indicatie', models.BooleanField(help_text='Aanduiding of (het starten van) een ZAAK dit ZAAKTYPE gepubliceerd moet worden.', verbose_name='publicatie indicatie')),
-                ('publicatietekst', models.TextField(blank=True, help_text='De generieke tekst van de publicatie van ZAAKen van dit ZAAKTYPE.', verbose_name='publicatietekst')),
-                ('verantwoordingsrelatie', django_better_admin_arrayfield.models.fields.ArrayField(base_field=models.CharField(max_length=40, verbose_name='verantwoordingsrelatie'), blank=True, default=list, help_text='De relatie tussen ZAAKen van dit ZAAKTYPE en de beleidsmatige en/of financiële verantwoording.', size=None)),
-                ('versiedatum', models.DateField(help_text='De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE geldig zijn geworden', verbose_name='versiedatum')),
-                ('producten_of_diensten', django_better_admin_arrayfield.models.fields.ArrayField(base_field=models.URLField(max_length=1000, verbose_name='URL naar product/dienst'), help_text='Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht.', size=None)),
-                ('selectielijst_procestype', models.URLField(blank=True, help_text='URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst API).', verbose_name='selectielijst procestype')),
-                ('referentieproces_naam', models.CharField(help_text='De naam van het Referentieproces.', max_length=80, verbose_name='referentieprocesnaam')),
-                ('referentieproces_link', models.URLField(blank=True, help_text='De URL naar de beschrijving van het Referentieproces', verbose_name='referentieproceslink')),
-                ('broncatalogus', models.ForeignKey(blank=True, help_text='De CATALOGUS waaraan het ZAAKTYPE is ontleend.', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.BronCatalogus', verbose_name='broncatalogus')),
-                ('bronzaaktype', models.ForeignKey(blank=True, help_text='Het zaaktype binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.BronZaakType', verbose_name='bronzaaktype')),
-                ('catalogus', models.ForeignKey(help_text='URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.Catalogus', verbose_name='maakt deel uit van')),
-                ('formulier', models.ManyToManyField(blank=True, help_text='Formulier Het formulier dat ZAAKen van dit ZAAKTYPE initieert.', to='catalogi.Formulier', verbose_name='formulier')),
-                ('is_deelzaaktype_van', models.ManyToManyField(blank=True, help_text='De ZAAKTYPEn (van de hoofdzaken) waaronder ZAAKen van dit ZAAKTYPE als deelzaak kunnen voorkomen.', related_name='zaak_typen_is_deelzaaktype_van', to='catalogi.ZaakType', verbose_name='is deelzaaktype van')),
-            ],
-            options={
-                'verbose_name': 'Zaaktype',
-                'verbose_name_plural': 'Zaaktypen',
-                'ordering': ('catalogus', 'zaaktype_identificatie'),
-                'filter_fields': ('catalogus', 'publicatie_indicatie', 'verlenging_mogelijk', 'opschorting_en_aanhouding_mogelijk', 'indicatie_intern_of_extern', 'vertrouwelijkheidaanduiding'),
-                'ordering_fields': ('catalogus', 'publicatie_indicatie', 'verlenging_mogelijk', 'opschorting_en_aanhouding_mogelijk', 'indicatie_intern_of_extern', 'vertrouwelijkheidaanduiding'),
-                'search_fields': ('zaaktype_identificatie', 'zaaktype_omschrijving', 'zaaktype_omschrijving_generiek', 'zaakcategorie', 'doel', 'aanleiding', 'onderwerp', 'toelichting'),
+                "verbose_name": "Zaaktype",
+                "verbose_name_plural": "Zaaktypen",
+                "ordering": ("catalogus", "zaaktype_identificatie"),
+                "filter_fields": (
+                    "catalogus",
+                    "publicatie_indicatie",
+                    "verlenging_mogelijk",
+                    "opschorting_en_aanhouding_mogelijk",
+                    "indicatie_intern_of_extern",
+                    "vertrouwelijkheidaanduiding",
+                ),
+                "ordering_fields": (
+                    "catalogus",
+                    "publicatie_indicatie",
+                    "verlenging_mogelijk",
+                    "opschorting_en_aanhouding_mogelijk",
+                    "indicatie_intern_of_extern",
+                    "vertrouwelijkheidaanduiding",
+                ),
+                "search_fields": (
+                    "zaaktype_identificatie",
+                    "zaaktype_omschrijving",
+                    "zaaktype_omschrijving_generiek",
+                    "zaakcategorie",
+                    "doel",
+                    "aanleiding",
+                    "onderwerp",
+                    "toelichting",
+                ),
             },
             bases=(vng_api_common.models.APIMixin, models.Model),
         ),
         migrations.CreateModel(
-            name='ZaakObjectType',
+            name="ZaakObjectType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datum_begin_geldigheid', models.DateField(help_text='De datum waarop het is ontstaan.', verbose_name='datum begin geldigheid')),
-                ('datum_einde_geldigheid', models.DateField(blank=True, help_text='De datum waarop het is opgeheven.', null=True, verbose_name='datum einde geldigheid')),
-                ('objecttype', models.CharField(help_text='De naam van het objecttype waarop zaken van het gerelateerde ZAAKTYPE betrekking hebben.', max_length=50, verbose_name='objecttype')),
-                ('ander_objecttype', models.BooleanField(default=False, help_text='Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een ander, niet in RSGB en RGBZ voorkomend, objecttype betreft', verbose_name='ander objecttype')),
-                ('relatieomschrijving', models.CharField(help_text='Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE.', max_length=80, verbose_name='relatieomschrijving')),
-                ('is_relevant_voor', models.ForeignKey(help_text='Zaken van het ZAAKTYPE waarvoor objecten van dit ZAAKOBJECTTYPE relevant zijn.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType', verbose_name='is_relevant_voor')),
-                ('statustype', models.ForeignKey(blank=True, help_text='TODO: dit is de related helptext: De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van het ZAAKTYPE voordat een STATUS van dit STATUSTYPE kan worden gezet', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='heeft_verplichte_zaakobjecttype', to='catalogi.StatusType', verbose_name='status type')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datum_begin_geldigheid",
+                    models.DateField(
+                        help_text="De datum waarop het is ontstaan.",
+                        verbose_name="datum begin geldigheid",
+                    ),
+                ),
+                (
+                    "datum_einde_geldigheid",
+                    models.DateField(
+                        blank=True,
+                        help_text="De datum waarop het is opgeheven.",
+                        null=True,
+                        verbose_name="datum einde geldigheid",
+                    ),
+                ),
+                (
+                    "objecttype",
+                    models.CharField(
+                        help_text="De naam van het objecttype waarop zaken van het gerelateerde ZAAKTYPE betrekking hebben.",
+                        max_length=50,
+                        verbose_name="objecttype",
+                    ),
+                ),
+                (
+                    "ander_objecttype",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een ander, niet in RSGB en RGBZ voorkomend, objecttype betreft",
+                        verbose_name="ander objecttype",
+                    ),
+                ),
+                (
+                    "relatieomschrijving",
+                    models.CharField(
+                        help_text="Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE.",
+                        max_length=80,
+                        verbose_name="relatieomschrijving",
+                    ),
+                ),
+                (
+                    "is_relevant_voor",
+                    models.ForeignKey(
+                        help_text="Zaken van het ZAAKTYPE waarvoor objecten van dit ZAAKOBJECTTYPE relevant zijn.",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.ZaakType",
+                        verbose_name="is_relevant_voor",
+                    ),
+                ),
+                (
+                    "statustype",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="TODO: dit is de related helptext: De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van het ZAAKTYPE voordat een STATUS van dit STATUSTYPE kan worden gezet",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="heeft_verplichte_zaakobjecttype",
+                        to="catalogi.StatusType",
+                        verbose_name="status type",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Zaakobjecttype',
-                'verbose_name_plural': 'Zaakobjecttypen',
-                'ordering': ('is_relevant_voor', 'objecttype'),
-                'mnemonic': 'ZOT',
-                'filter_fields': ('is_relevant_voor', 'ander_objecttype'),
-                'ordering_fields': ('is_relevant_voor', 'ander_objecttype'),
-                'search_fields': ('objecttype', 'relatieomschrijving'),
-                'unique_together': {('is_relevant_voor', 'objecttype')},
+                "verbose_name": "Zaakobjecttype",
+                "verbose_name_plural": "Zaakobjecttypen",
+                "ordering": ("is_relevant_voor", "objecttype"),
+                "mnemonic": "ZOT",
+                "filter_fields": ("is_relevant_voor", "ander_objecttype"),
+                "ordering_fields": ("is_relevant_voor", "ander_objecttype"),
+                "search_fields": ("objecttype", "relatieomschrijving"),
+                "unique_together": {("is_relevant_voor", "objecttype")},
             },
         ),
         migrations.CreateModel(
-            name='ZaakInformatieobjectTypeArchiefregime',
+            name="ZaakInformatieobjectTypeArchiefregime",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('selectielijstklasse', models.CharField(blank=True, help_text='Verwijzing naar de voor het ZAAKINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.', max_length=500, null=True, verbose_name='selectielijstklasse')),
-                ('archiefnominatie', models.CharField(choices=[('blijvend_bewaren', 'Blijvend bewaren'), ('vernietigen', 'Vernietigen')], help_text='Aanduiding die aangeeft of informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het ZAAKTYPE met een resultaat van het RESULTAATTYPE, blijvend moeten worden bewaard of (op termijn) moeten worden vernietigd.', max_length=16, verbose_name='archiefnominatie')),
-                ('archiefactietermijn', models.PositiveSmallIntegerField(help_text='De termijn waarna informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het ZAAKTYPE met een resultaat van het RESULTAATTYPE, vernietigd of overgebracht (naar een archiefbewaarplaats) moeten worden.', validators=[django.core.validators.MaxValueValidator(9999)], verbose_name='archiefactietermijn')),
-                ('resultaattype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='catalogi.ResultaatType', verbose_name='resultaattype')),
-                ('zaak_informatieobject_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakInformatieobjectType', verbose_name='zaakinformatie object type')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "selectielijstklasse",
+                    models.CharField(
+                        blank=True,
+                        help_text="Verwijzing naar de voor het ZAAKINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.",
+                        max_length=500,
+                        null=True,
+                        verbose_name="selectielijstklasse",
+                    ),
+                ),
+                (
+                    "archiefnominatie",
+                    models.CharField(
+                        choices=[
+                            ("blijvend_bewaren", "Blijvend bewaren"),
+                            ("vernietigen", "Vernietigen"),
+                        ],
+                        help_text="Aanduiding die aangeeft of informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het ZAAKTYPE met een resultaat van het RESULTAATTYPE, blijvend moeten worden bewaard of (op termijn) moeten worden vernietigd.",
+                        max_length=16,
+                        verbose_name="archiefnominatie",
+                    ),
+                ),
+                (
+                    "archiefactietermijn",
+                    models.PositiveSmallIntegerField(
+                        help_text="De termijn waarna informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het ZAAKTYPE met een resultaat van het RESULTAATTYPE, vernietigd of overgebracht (naar een archiefbewaarplaats) moeten worden.",
+                        validators=[django.core.validators.MaxValueValidator(9999)],
+                        verbose_name="archiefactietermijn",
+                    ),
+                ),
+                (
+                    "resultaattype",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.ResultaatType",
+                        verbose_name="resultaattype",
+                    ),
+                ),
+                (
+                    "zaak_informatieobject_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.ZaakInformatieobjectType",
+                        verbose_name="zaakinformatie object type",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Zaak-Informatieobject-Type Archiefregime',
-                'verbose_name_plural': 'Zaak-Informatieobject-Type Archiefregimes',
-                'ordering': ('pk',),
-                'mnemonic': 'ZIA',
-                'filter_fields': ('zaak_informatieobject_type', 'resultaattype', 'archiefnominatie'),
-                'ordering_fields': ('zaak_informatieobject_type', 'resultaattype', 'archiefnominatie'),
-                'search_fields': ('selectielijstklasse',),
-                'unique_together': {('zaak_informatieobject_type', 'resultaattype')},
+                "verbose_name": "Zaak-Informatieobject-Type Archiefregime",
+                "verbose_name_plural": "Zaak-Informatieobject-Type Archiefregimes",
+                "ordering": ("pk",),
+                "mnemonic": "ZIA",
+                "filter_fields": (
+                    "zaak_informatieobject_type",
+                    "resultaattype",
+                    "archiefnominatie",
+                ),
+                "ordering_fields": (
+                    "zaak_informatieobject_type",
+                    "resultaattype",
+                    "archiefnominatie",
+                ),
+                "search_fields": ("selectielijstklasse",),
+                "unique_together": {("zaak_informatieobject_type", "resultaattype")},
             },
         ),
         migrations.AddField(
-            model_name='zaakinformatieobjecttype',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType', verbose_name='zaaktype'),
+            model_name="zaakinformatieobjecttype",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ZaakType",
+                verbose_name="zaaktype",
+            ),
         ),
         migrations.AddField(
-            model_name='statustype',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden.', on_delete=django.db.models.deletion.CASCADE, related_name='statustypen', to='catalogi.ZaakType', verbose_name='is van'),
+            model_name="statustype",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="statustypen",
+                to="catalogi.ZaakType",
+                verbose_name="is van",
+            ),
         ),
         migrations.AddField(
-            model_name='roltype',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType', verbose_name='is van'),
+            model_name="roltype",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ZaakType",
+                verbose_name="is van",
+            ),
         ),
         migrations.AddField(
-            model_name='resultaattype',
-            name='bepaalt_afwijkend_archiefregime_van',
-            field=models.ManyToManyField(blank=True, help_text='Informatieobjecten van een ZAAKINFORMATIEOBJECTTYPE bij zaken van een ZAAKTYPE waarvan, op grond van resultaten van een RESULTAATTYPE bij dat ZAAKTYPE, de archiveringskenmerken afwijken van de archiveringskenmerken van het ZAAKTYPE.', related_name='resultaattypes', through='catalogi.ZaakInformatieobjectTypeArchiefregime', to='catalogi.ZaakInformatieobjectType', verbose_name='bepaalt afwijkend archiefregime van'),
+            model_name="resultaattype",
+            name="bepaalt_afwijkend_archiefregime_van",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Informatieobjecten van een ZAAKINFORMATIEOBJECTTYPE bij zaken van een ZAAKTYPE waarvan, op grond van resultaten van een RESULTAATTYPE bij dat ZAAKTYPE, de archiveringskenmerken afwijken van de archiveringskenmerken van het ZAAKTYPE.",
+                related_name="resultaattypes",
+                through="catalogi.ZaakInformatieobjectTypeArchiefregime",
+                to="catalogi.ZaakInformatieobjectType",
+                verbose_name="bepaalt afwijkend archiefregime van",
+            ),
         ),
         migrations.AddField(
-            model_name='resultaattype',
-            name='heeft_verplichte_ziot',
-            field=models.ManyToManyField(blank=True, help_text='De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.', related_name='resultaattypen', to='catalogi.ZaakInformatieobjectType', verbose_name='heeft verplichte zaakinformatie objecttype'),
+            model_name="resultaattype",
+            name="heeft_verplichte_ziot",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.",
+                related_name="resultaattypen",
+                to="catalogi.ZaakInformatieobjectType",
+                verbose_name="heeft verplichte zaakinformatie objecttype",
+            ),
         ),
         migrations.AddField(
-            model_name='resultaattype',
-            name='heeft_verplichte_zot',
-            field=models.ManyToManyField(blank=True, help_text='De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.', to='catalogi.ZaakObjectType', verbose_name='heeft verplichte'),
+            model_name="resultaattype",
+            name="heeft_verplichte_zot",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.",
+                to="catalogi.ZaakObjectType",
+                verbose_name="heeft verplichte",
+            ),
         ),
         migrations.AddField(
-            model_name='resultaattype',
-            name='heeft_voor_brondatum_archiefprocedure_relevante',
-            field=models.ForeignKey(blank=True, help_text='De EIGENSCHAP die bepalend is voor het moment waarop de Archiefactietermijn start voor een ZAAK met een resultaat van dit RESULTAATTYPE.', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.Eigenschap', verbose_name='heeft voor brondatum archiefprocedure relevante'),
+            model_name="resultaattype",
+            name="heeft_voor_brondatum_archiefprocedure_relevante",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="De EIGENSCHAP die bepalend is voor het moment waarop de Archiefactietermijn start voor een ZAAK met een resultaat van dit RESULTAATTYPE.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.Eigenschap",
+                verbose_name="heeft voor brondatum archiefprocedure relevante",
+            ),
         ),
         migrations.AddField(
-            model_name='resultaattype',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.', on_delete=django.db.models.deletion.CASCADE, related_name='resultaattypen', to='catalogi.ZaakType', verbose_name='is relevant voor'),
+            model_name="resultaattype",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="resultaattypen",
+                to="catalogi.ZaakType",
+                verbose_name="is relevant voor",
+            ),
         ),
         migrations.AddField(
-            model_name='informatieobjecttype',
-            name='omschrijving_generiek',
-            field=models.ForeignKey(blank=True, help_text='Algemeen gehanteerde omschrijving van het INFORMATIEOBJECTTYPE.', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.InformatieObjectTypeOmschrijvingGeneriek', verbose_name='omschrijving generiek'),
+            model_name="informatieobjecttype",
+            name="omschrijving_generiek",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Algemeen gehanteerde omschrijving van het INFORMATIEOBJECTTYPE.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.InformatieObjectTypeOmschrijvingGeneriek",
+                verbose_name="omschrijving generiek",
+            ),
         ),
         migrations.AddField(
-            model_name='informatieobjecttype',
-            name='zaaktypes',
-            field=models.ManyToManyField(help_text='ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit INFORMATIEOBJECTTYPE', related_name='heeft_relevant_informatieobjecttype', through='catalogi.ZaakInformatieobjectType', to='catalogi.ZaakType', verbose_name='zaaktypes'),
+            model_name="informatieobjecttype",
+            name="zaaktypes",
+            field=models.ManyToManyField(
+                help_text="ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit INFORMATIEOBJECTTYPE",
+                related_name="heeft_relevant_informatieobjecttype",
+                through="catalogi.ZaakInformatieobjectType",
+                to="catalogi.ZaakType",
+                verbose_name="zaaktypes",
+            ),
         ),
         migrations.AddField(
-            model_name='eigenschap',
-            name='referentie_naar_eigenschap',
-            field=models.ForeignKey(blank=True, help_text='Verwijzing naar de standaard waarin de eigenschap is gespecificeerd', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.EigenschapReferentie', verbose_name='referentie naar eigenschap'),
+            model_name="eigenschap",
+            name="referentie_naar_eigenschap",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Verwijzing naar de standaard waarin de eigenschap is gespecificeerd",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.EigenschapReferentie",
+                verbose_name="referentie naar eigenschap",
+            ),
         ),
         migrations.AddField(
-            model_name='eigenschap',
-            name='specificatie_van_eigenschap',
-            field=models.ForeignKey(blank=True, help_text='Attribuutkenmerken van de eigenschap', null=True, on_delete=django.db.models.deletion.CASCADE, to='catalogi.EigenschapSpecificatie', verbose_name='specificatie van eigenschap'),
+            model_name="eigenschap",
+            name="specificatie_van_eigenschap",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Attribuutkenmerken van de eigenschap",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.EigenschapSpecificatie",
+                verbose_name="specificatie van eigenschap",
+            ),
         ),
         migrations.AddField(
-            model_name='eigenschap',
-            name='statustype',
-            field=models.ForeignKey(blank=True, help_text='Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een STATUS van het STATUSTYPE kan worden gezet.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='heeft_verplichte_eigenschap', to='catalogi.StatusType', verbose_name='status type'),
+            model_name="eigenschap",
+            name="statustype",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een STATUS van het STATUSTYPE kan worden gezet.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="heeft_verplichte_eigenschap",
+                to="catalogi.StatusType",
+                verbose_name="status type",
+            ),
         ),
         migrations.AddField(
-            model_name='eigenschap',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType', verbose_name='is van'),
+            model_name="eigenschap",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ZaakType",
+                verbose_name="is van",
+            ),
         ),
         migrations.CreateModel(
-            name='ZaakTypenRelatie',
+            name="ZaakTypenRelatie",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('gerelateerd_zaaktype', models.URLField(help_text='URL referentie naar het gerelateerde zaaktype, mogelijks in een extern ZTC.', verbose_name='gerelateerd zaaktype')),
-                ('aard_relatie', models.CharField(choices=[('vervolg', 'Vervolg'), ('bijdrage', 'Bijdrage'), ('onderwerp', 'Onderwerp')], help_text='Omschrijving van de aard van de relatie van zaken van het ZAAKTYPE tot zaken van het andere ZAAKTYPE', max_length=15, verbose_name='aard relatie')),
-                ('toelichting', models.CharField(blank=True, help_text='Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN.', max_length=255, verbose_name='toelichting')),
-                ('zaaktype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='zaaktypenrelaties', to='catalogi.ZaakType', verbose_name='zaaktype van')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "gerelateerd_zaaktype",
+                    models.URLField(
+                        help_text="URL referentie naar het gerelateerde zaaktype, mogelijks in een extern ZTC.",
+                        verbose_name="gerelateerd zaaktype",
+                    ),
+                ),
+                (
+                    "aard_relatie",
+                    models.CharField(
+                        choices=[
+                            ("vervolg", "Vervolg"),
+                            ("bijdrage", "Bijdrage"),
+                            ("onderwerp", "Onderwerp"),
+                        ],
+                        help_text="Omschrijving van de aard van de relatie van zaken van het ZAAKTYPE tot zaken van het andere ZAAKTYPE",
+                        max_length=15,
+                        verbose_name="aard relatie",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN.",
+                        max_length=255,
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "zaaktype",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="zaaktypenrelaties",
+                        to="catalogi.ZaakType",
+                        verbose_name="zaaktype van",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Zaaktypenrelatie',
-                'verbose_name_plural': 'Zaaktypenrelaties',
-                'ordering': ('pk',),
-                'filter_fields': ('zaaktype', 'gerelateerd_zaaktype', 'aard_relatie'),
-                'ordering_fields': ('zaaktype', 'gerelateerd_zaaktype', 'aard_relatie'),
-                'search_fields': ('toelichting',),
-                'unique_together': {('zaaktype', 'gerelateerd_zaaktype')},
+                "verbose_name": "Zaaktypenrelatie",
+                "verbose_name_plural": "Zaaktypenrelaties",
+                "ordering": ("pk",),
+                "filter_fields": ("zaaktype", "gerelateerd_zaaktype", "aard_relatie"),
+                "ordering_fields": ("zaaktype", "gerelateerd_zaaktype", "aard_relatie"),
+                "search_fields": ("toelichting",),
+                "unique_together": {("zaaktype", "gerelateerd_zaaktype")},
             },
         ),
         migrations.AlterUniqueTogether(
-            name='zaakinformatieobjecttype',
-            unique_together={('zaaktype', 'volgnummer')},
+            name="zaakinformatieobjecttype",
+            unique_together={("zaaktype", "volgnummer")},
         ),
         migrations.AlterUniqueTogether(
-            name='statustype',
-            unique_together={('zaaktype', 'statustypevolgnummer')},
+            name="statustype", unique_together={("zaaktype", "statustypevolgnummer")}
         ),
         migrations.AlterUniqueTogether(
-            name='roltype',
-            unique_together={('zaaktype', 'omschrijving')},
+            name="roltype", unique_together={("zaaktype", "omschrijving")}
         ),
         migrations.AlterUniqueTogether(
-            name='resultaattype',
-            unique_together={('zaaktype', 'omschrijving')},
+            name="resultaattype", unique_together={("zaaktype", "omschrijving")}
         ),
         migrations.AlterUniqueTogether(
-            name='informatieobjecttype',
-            unique_together={('catalogus', 'omschrijving')},
+            name="informatieobjecttype", unique_together={("catalogus", "omschrijving")}
         ),
         migrations.AlterUniqueTogether(
-            name='eigenschap',
-            unique_together={('zaaktype', 'eigenschapnaam')},
+            name="eigenschap", unique_together={("zaaktype", "eigenschapnaam")}
         ),
         migrations.CreateModel(
-            name='BesluitType',
+            name="BesluitType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datum_begin_geldigheid', models.DateField(help_text='De datum waarop het is ontstaan.', verbose_name='datum begin geldigheid')),
-                ('datum_einde_geldigheid', models.DateField(blank=True, help_text='De datum waarop het is opgeheven.', null=True, verbose_name='datum einde geldigheid')),
-                ('concept', models.BooleanField(default=True, help_text='Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.', verbose_name='concept')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, help_text='Unieke resource identifier (UUID4)', unique=True)),
-                ('omschrijving', models.CharField(blank=True, help_text='Omschrijving van de aard van BESLUITen van het BESLUITTYPE.', max_length=80, verbose_name='omschrijving')),
-                ('omschrijving_generiek', models.CharField(blank=True, help_text='Algemeen gehanteerde omschrijving van de aard van BESLUITen van het BESLUITTYPE', max_length=80, verbose_name='omschrijving generiek')),
-                ('besluitcategorie', models.CharField(blank=True, help_text='Typering van de aard van BESLUITen van het BESLUITTYPE.', max_length=40, verbose_name='besluitcategorie')),
-                ('reactietermijn', vng_api_common.fields.DaysDurationField(blank=True, help_text='Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype mogelijk is.', max_duration=999, min_duration=1, null=True, verbose_name='reactietermijn')),
-                ('publicatie_indicatie', models.BooleanField(help_text='Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten worden.', verbose_name='publicatie indicatie')),
-                ('publicatietekst', models.TextField(blank=True, help_text='De generieke tekst van de publicatie van BESLUITen van dit BESLUITTYPE', verbose_name='publicatietekst')),
-                ('publicatietermijn', vng_api_common.fields.DaysDurationField(blank=True, help_text='Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten blijven.', max_duration=999, min_duration=1, null=True, verbose_name='publicatietermijn')),
-                ('toelichting', models.TextField(blank=True, help_text='Een eventuele toelichting op dit BESLUITTYPE.', verbose_name='toelichting')),
-                ('catalogus', models.ForeignKey(help_text='URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.Catalogus', verbose_name='catalogus')),
-                ('informatieobjecttypes', models.ManyToManyField(blank=True, help_text='URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit BESLUITTYPE worden vastgelegd.', to='catalogi.InformatieObjectType', verbose_name='informatieobjecttype')),
-                ('resultaattypes', models.ManyToManyField(help_text='(inverse van:) Het BESLUITTYPE van besluiten die gepaard gaan met resultaten van het RESULTAATTYPE.', to='catalogi.ResultaatType', verbose_name='is resultaat van')),
-                ('zaaktypes', models.ManyToManyField(help_text='ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE', to='catalogi.ZaakType', verbose_name='zaaktypes')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datum_begin_geldigheid",
+                    models.DateField(
+                        help_text="De datum waarop het is ontstaan.",
+                        verbose_name="datum begin geldigheid",
+                    ),
+                ),
+                (
+                    "datum_einde_geldigheid",
+                    models.DateField(
+                        blank=True,
+                        help_text="De datum waarop het is opgeheven.",
+                        null=True,
+                        verbose_name="datum einde geldigheid",
+                    ),
+                ),
+                (
+                    "concept",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.",
+                        verbose_name="concept",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        help_text="Unieke resource identifier (UUID4)",
+                        unique=True,
+                    ),
+                ),
+                (
+                    "omschrijving",
+                    models.CharField(
+                        blank=True,
+                        help_text="Omschrijving van de aard van BESLUITen van het BESLUITTYPE.",
+                        max_length=80,
+                        verbose_name="omschrijving",
+                    ),
+                ),
+                (
+                    "omschrijving_generiek",
+                    models.CharField(
+                        blank=True,
+                        help_text="Algemeen gehanteerde omschrijving van de aard van BESLUITen van het BESLUITTYPE",
+                        max_length=80,
+                        verbose_name="omschrijving generiek",
+                    ),
+                ),
+                (
+                    "besluitcategorie",
+                    models.CharField(
+                        blank=True,
+                        help_text="Typering van de aard van BESLUITen van het BESLUITTYPE.",
+                        max_length=40,
+                        verbose_name="besluitcategorie",
+                    ),
+                ),
+                (
+                    "reactietermijn",
+                    vng_api_common.fields.DaysDurationField(
+                        blank=True,
+                        help_text="Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype mogelijk is.",
+                        max_duration=999,
+                        min_duration=1,
+                        null=True,
+                        verbose_name="reactietermijn",
+                    ),
+                ),
+                (
+                    "publicatie_indicatie",
+                    models.BooleanField(
+                        help_text="Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten worden.",
+                        verbose_name="publicatie indicatie",
+                    ),
+                ),
+                (
+                    "publicatietekst",
+                    models.TextField(
+                        blank=True,
+                        help_text="De generieke tekst van de publicatie van BESLUITen van dit BESLUITTYPE",
+                        verbose_name="publicatietekst",
+                    ),
+                ),
+                (
+                    "publicatietermijn",
+                    vng_api_common.fields.DaysDurationField(
+                        blank=True,
+                        help_text="Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten blijven.",
+                        max_duration=999,
+                        min_duration=1,
+                        null=True,
+                        verbose_name="publicatietermijn",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.TextField(
+                        blank=True,
+                        help_text="Een eventuele toelichting op dit BESLUITTYPE.",
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "catalogus",
+                    models.ForeignKey(
+                        help_text="URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.Catalogus",
+                        verbose_name="catalogus",
+                    ),
+                ),
+                (
+                    "informatieobjecttypes",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit BESLUITTYPE worden vastgelegd.",
+                        to="catalogi.InformatieObjectType",
+                        verbose_name="informatieobjecttype",
+                    ),
+                ),
+                (
+                    "resultaattypes",
+                    models.ManyToManyField(
+                        help_text="(inverse van:) Het BESLUITTYPE van besluiten die gepaard gaan met resultaten van het RESULTAATTYPE.",
+                        to="catalogi.ResultaatType",
+                        verbose_name="is resultaat van",
+                    ),
+                ),
+                (
+                    "zaaktypes",
+                    models.ManyToManyField(
+                        help_text="ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE",
+                        to="catalogi.ZaakType",
+                        verbose_name="zaaktypes",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'besluittype',
-                'verbose_name_plural': 'besluittypen',
-                'unique_together': {('catalogus', 'omschrijving')},
+                "verbose_name": "besluittype",
+                "verbose_name_plural": "besluittypen",
+                "unique_together": {("catalogus", "omschrijving")},
             },
         ),
     ]

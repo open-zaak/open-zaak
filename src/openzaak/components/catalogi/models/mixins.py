@@ -7,9 +7,14 @@ from django.utils.translation import ugettext_lazy as _
 
 class GeldigheidMixin(models.Model):
     datum_begin_geldigheid = models.DateField(
-        _('datum begin geldigheid'), help_text=_('De datum waarop het is ontstaan.'))
+        _("datum begin geldigheid"), help_text=_("De datum waarop het is ontstaan.")
+    )
     datum_einde_geldigheid = models.DateField(
-        _('datum einde geldigheid'), blank=True, null=True, help_text=_('De datum waarop het is opgeheven.'))
+        _("datum einde geldigheid"),
+        blank=True,
+        null=True,
+        help_text=_("De datum waarop het is opgeheven."),
+    )
 
     class Meta:
         abstract = True
@@ -45,8 +50,12 @@ class GeldigheidMixin(models.Model):
 
         if self.datum_einde_geldigheid:
             if self.datum_einde_geldigheid < self.datum_begin_geldigheid:
-                raise ValidationError(_('Datum einde geldigheid is gelijk aan of gelegen na de datum zoals opgenomen '
-                                        'onder Datum begin geldigheid.'))
+                raise ValidationError(
+                    _(
+                        "Datum einde geldigheid is gelijk aan of gelegen na de datum zoals opgenomen "
+                        "onder Datum begin geldigheid."
+                    )
+                )
 
     def _clean_geldigheid(self, zaaktype):
         """
@@ -61,23 +70,30 @@ class GeldigheidMixin(models.Model):
 
         if self.datum_begin_geldigheid != zaaktype.versiedatum:
             raise ValidationError(
-                _("De datum_begin_geldigheid moet gelijk zijn aan een "
-                  "Versiedatum van het gerelateerde zaaktype.")
+                _(
+                    "De datum_begin_geldigheid moet gelijk zijn aan een "
+                    "Versiedatum van het gerelateerde zaaktype."
+                )
             )
 
         if self.datum_einde_geldigheid:
             if self.datum_einde_geldigheid + timedelta(days=1) != zaaktype.versiedatum:
                 raise ValidationError(
-                    _("'Datum einde geldigheid' moet gelijk zijn aan de dag "
-                      "voor een Versiedatum van het gerelateerde zaaktype.")
+                    _(
+                        "'Datum einde geldigheid' moet gelijk zijn aan de dag "
+                        "voor een Versiedatum van het gerelateerde zaaktype."
+                    )
                 )
 
 
 class ConceptMixin(models.Model):
     concept = models.BooleanField(
-        _('concept'), default=True,
-        help_text=_('Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve '
-                    'versies en zouden niet gebruikt moeten worden buiten deze API.')
+        _("concept"),
+        default=True,
+        help_text=_(
+            "Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve "
+            "versies en zouden niet gebruikt moeten worden buiten deze API."
+        ),
     )
 
     class Meta:

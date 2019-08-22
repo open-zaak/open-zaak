@@ -11,11 +11,13 @@ from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
 
 
-class ZaakTypeInformatieObjectTypeViewSet(ConceptFilterMixin,
-                                          ConceptDestroyMixin,
-                                          mixins.CreateModelMixin,
-                                          mixins.DestroyModelMixin,
-                                          viewsets.ReadOnlyModelViewSet):
+class ZaakTypeInformatieObjectTypeViewSet(
+    ConceptFilterMixin,
+    ConceptDestroyMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
     """
     Opvragen en bewerken van ZAAKTYPE-INFORMATIEOBJECTTYPE relaties.
 
@@ -56,29 +58,30 @@ class ZaakTypeInformatieObjectTypeViewSet(ConceptFilterMixin,
     Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen als
     het bijbehorende ZAAKTYPE een concept betreft.
     """
-    queryset = ZaakInformatieobjectType.objects.all().order_by('-pk')
+
+    queryset = ZaakInformatieobjectType.objects.all().order_by("-pk")
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
     filterset_class = ZaakInformatieobjectTypeFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     pagination_class = PageNumberPagination
     required_scopes = {
-        'list': SCOPE_ZAAKTYPES_READ,
-        'retrieve': SCOPE_ZAAKTYPES_READ,
-        'create': SCOPE_ZAAKTYPES_WRITE,
-        'destroy': SCOPE_ZAAKTYPES_WRITE,
+        "list": SCOPE_ZAAKTYPES_READ,
+        "retrieve": SCOPE_ZAAKTYPES_READ,
+        "create": SCOPE_ZAAKTYPES_WRITE,
+        "destroy": SCOPE_ZAAKTYPES_WRITE,
     }
 
     def get_concept(self, instance):
         return instance.zaaktype.concept and instance.informatieobjecttype.concept
 
     def perform_create(self, serializer):
-        zaaktype = serializer.validated_data['zaaktype']
-        informatieobjecttype = serializer.validated_data['informatieobjecttype']
+        zaaktype = serializer.validated_data["zaaktype"]
+        informatieobjecttype = serializer.validated_data["informatieobjecttype"]
 
-        if not(zaaktype.concept and informatieobjecttype.concept):
+        if not (zaaktype.concept and informatieobjecttype.concept):
             msg = _("Creating relations between non-concept objects is forbidden")
             raise PermissionDenied(detail=msg)
         super().perform_create(serializer)
 
     def get_concept_filter(self):
-        return {'zaaktype__concept': False, 'informatieobjecttype__concept': False}
+        return {"zaaktype__concept": False, "informatieobjecttype__concept": False}

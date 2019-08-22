@@ -2,6 +2,7 @@ class FilterSearchOrderingViewSetMixin(object):
     """
     Consult the model options to set filter-, ordering- and search fields.
     """
+
     def get_model_option(self, attr, default=None):
         if default is None:
             default = []
@@ -32,16 +33,16 @@ class FilterSearchOrderingViewSetMixin(object):
         """
         This function can be overriden to return custom fields.
         """
-        return self.get_model_option('filter_fields')
+        return self.get_model_option("filter_fields")
 
     def get_ordering_fields(self):
         """
         This function can be overriden to return custom fields.
         """
-        return self.get_model_option('ordering_fields')
+        return self.get_model_option("ordering_fields")
 
     def get_search_fields(self):
         """
         This function can be overriden to return custom fields.
         """
-        return self.get_model_option('search_fields')
+        return self.get_model_option("search_fields")

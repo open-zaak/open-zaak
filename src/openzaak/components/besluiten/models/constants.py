@@ -5,23 +5,22 @@ from vng_api_common.constants import ObjectTypes
 
 
 class VervalRedenen(DjangoChoices):
-    tijdelijk = ChoiceItem(
-        'tijdelijk',
-        label=_("Besluit met tijdelijke werking")
-    )
+    tijdelijk = ChoiceItem("tijdelijk", label=_("Besluit met tijdelijke werking"))
     ingetrokken_overheid = ChoiceItem(
-        'ingetrokken_overheid',
-        label=_("Besluit ingetrokken door overheid")
+        "ingetrokken_overheid", label=_("Besluit ingetrokken door overheid")
     )
     ingetrokken_belanghebbende = ChoiceItem(
-        'ingetrokken_belanghebbende',
-        label=_("Besluit ingetrokken o.v.v. belanghebbende")
+        "ingetrokken_belanghebbende",
+        label=_("Besluit ingetrokken o.v.v. belanghebbende"),
     )
+
 
 # TODO Should be moved to vng-api-common
 class RelatieAarden(DjangoChoices):
-    hoort_bij = ChoiceItem('hoort_bij', _("Hoort bij, omgekeerd: kent"))
-    legt_vast = ChoiceItem('legt_vast', _("Legt vast, omgekeerd: kan vastgelegd zijn als"))
+    hoort_bij = ChoiceItem("hoort_bij", _("Hoort bij, omgekeerd: kent"))
+    legt_vast = ChoiceItem(
+        "legt_vast", _("Legt vast, omgekeerd: kan vastgelegd zijn als")
+    )
 
     @classmethod
     def from_object_type(cls, object_type: str) -> str:

@@ -9,7 +9,7 @@ from .zaken import ZaakTypeFactory
 class RolTypeFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
 
-    omschrijving = factory.Faker('text', max_nb_chars=20)
+    omschrijving = factory.Faker("text", max_nb_chars=20)
     omschrijving_generiek = factory.fuzzy.FuzzyChoice(choices=RolOmschrijving.values)
 
     class Meta:

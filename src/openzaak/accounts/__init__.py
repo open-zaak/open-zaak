@@ -1,1 +1,1 @@
-default_app_config = 'openzaak.accounts.apps.AccountsConfig'
+default_app_config = "openzaak.accounts.apps.AccountsConfig"

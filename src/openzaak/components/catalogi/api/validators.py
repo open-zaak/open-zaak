@@ -13,7 +13,10 @@ class ZaaktypeGeldigheidValidator:
     Empty end date is an open interval, which means that the object cannot
     be created after the start date.
     """
-    message = _("Dit zaaktype komt al voor binnen de catalogus en opgegeven geldigheidsperiode.")
+
+    message = _(
+        "Dit zaaktype komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+    )
     code = "overlap"
 
     def set_context(self, serializer):
@@ -22,7 +25,7 @@ class ZaaktypeGeldigheidValidator:
         prior to the validation call being made.
         """
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
+        self.instance = getattr(serializer, "instance", None)
 
     def __call__(self, attrs):
         catalogus = attrs["catalogus"]
@@ -34,7 +37,7 @@ class ZaaktypeGeldigheidValidator:
             Q(catalogus=catalogus),
             Q(zaaktype_omschrijving=zaaktype_omschrijving),
             Q(datum_einde_geldigheid=None)
-            | Q(datum_einde_geldigheid__gte=datum_begin_geldigheid)  # noqa
+            | Q(datum_einde_geldigheid__gte=datum_begin_geldigheid),  # noqa
         )
         if datum_einde_geldigheid is not None:
             query = query.filter(datum_begin_geldigheid__lte=datum_einde_geldigheid)

@@ -6,18 +6,29 @@ from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors
 
 from openzaak.components.zaken.models import (
-    Adres, Huishouden, KadastraleOnroerendeZaak, Medewerker, NatuurlijkPersoon,
-    NietNatuurlijkPersoon, Overige, TerreinGebouwdObject, WozDeelobject,
-    WozObject, WozWaarde, ZaakObject, ZakelijkRecht,
-    ZakelijkRechtHeeftAlsGerechtigde
+    Adres,
+    Huishouden,
+    KadastraleOnroerendeZaak,
+    Medewerker,
+    NatuurlijkPersoon,
+    NietNatuurlijkPersoon,
+    Overige,
+    TerreinGebouwdObject,
+    WozDeelobject,
+    WozObject,
+    WozWaarde,
+    ZaakObject,
+    ZakelijkRecht,
+    ZakelijkRechtHeeftAlsGerechtigde,
 )
 from openzaak.components.zaken.models.tests.factories import (
-    ZaakFactory, ZaakObjectFactory
+    ZaakFactory,
+    ZaakObjectFactory,
 )
 
 from .utils import get_operation_url
 
-OBJECT = 'http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd'
+OBJECT = "http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd"
 
 
 class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
@@ -30,12 +41,10 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
     def test_read_zaakobject_without_identificatie(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object=OBJECT,
-            object_type=ZaakobjectTypes.besluit
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.besluit
         )
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -46,26 +55,26 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': OBJECT,
-                'objectType': ZaakobjectTypes.besluit,
-                'objectTypeOverige': '',
-                'relatieomschrijving': '',
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": OBJECT,
+                "objectType": ZaakobjectTypes.besluit,
+                "objectTypeOverige": "",
+                "relatieomschrijving": "",
+            },
         )
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_create_zaakobject_without_identificatie(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'object': OBJECT,
-            'objectType': ZaakobjectTypes.besluit,
-            'relatieomschrijving': 'test',
+            "zaak": f"http://testserver{zaak_url}",
+            "object": OBJECT,
+            "objectType": ZaakobjectTypes.besluit,
+            "relatieomschrijving": "test",
         }
 
         response = self.client.post(url, data)
@@ -78,21 +87,21 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaakobject.object, OBJECT)
 
     def test_create_rol_fail_validation(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.besluit,
-            'relatieomschrijving': 'test',
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.besluit,
+            "relatieomschrijving": "test",
         }
 
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        validation_error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(validation_error['code'], 'invalid-zaakobject')
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "invalid-zaakobject")
 
 
 class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
@@ -106,20 +115,18 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
 
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.adres
+            zaak=zaak, object="", object_type=ZaakobjectTypes.adres
         )
         Adres.objects.create(
             zaakobject=zaakobject,
-            identificatie='123456',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer=1
+            identificatie="123456",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer=1,
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -130,43 +137,43 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.adres,
-                'objectTypeOverige': '',
-                'objectIdentificatie': {
-                    'identificatie': '123456',
-                    'wplWoonplaatsNaam': 'test city',
-                    'gorOpenbareRuimteNaam': 'test space',
-                    'huisnummer': 1,
-                    'huisletter': '',
-                    'huisnummertoevoeging': '',
-                    'postcode': ''
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.adres,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "identificatie": "123456",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test space",
+                    "huisnummer": 1,
+                    "huisletter": "",
+                    "huisnummertoevoeging": "",
+                    "postcode": "",
+                },
+            },
         )
 
     def test_create_zaakobject_adres(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.adres,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'identificatie': '123456',
-                'wplWoonplaatsNaam': 'test city',
-                'gorOpenbareRuimteNaam': 'test space',
-                'huisnummer': 1,
-                'huisletter': '',
-                'huisnummertoevoeging': '',
-                'postcode': ''
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.adres,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "123456",
+                "wplWoonplaatsNaam": "test city",
+                "gorOpenbareRuimteNaam": "test space",
+                "huisnummer": 1,
+                "huisletter": "",
+                "huisnummertoevoeging": "",
+                "postcode": "",
+            },
         }
 
         response = self.client.post(url, data)
@@ -179,43 +186,38 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
         adres = Adres.objects.get()
 
         self.assertEqual(zaakobject.adres, adres)
-        self.assertEqual(adres.identificatie, '123456')
+        self.assertEqual(adres.identificatie, "123456")
 
 
 class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for Huishouden object with nesting
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_huishouden(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.huishouden
+            zaak=zaak, object="", object_type=ZaakobjectTypes.huishouden
         )
 
-        huishouden = Huishouden.objects.create(
-            zaakobject=zaakobject,
-            nummer='123456',
-        )
+        huishouden = Huishouden.objects.create(zaakobject=zaakobject, nummer="123456")
         terreingebouwdobject = TerreinGebouwdObject.objects.create(
-            huishouden=huishouden,
-            identificatie='1',
+            huishouden=huishouden, identificatie="1"
         )
         Adres.objects.create(
             terreingebouwdobject=terreingebouwdobject,
-            num_identificatie='1',
-            identificatie='a',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer='11',
-            locatie_aanduiding='test'
+            num_identificatie="1",
+            identificatie="a",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer="11",
+            locatie_aanduiding="test",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -226,59 +228,59 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.huishouden,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'nummer': '123456',
-                    'isGehuisvestIn': {
-                        'identificatie': '1',
-                        'adresAanduidingGrp': {
-                            'numIdentificatie': '1',
-                            'oaoIdentificatie': 'a',
-                            'wplWoonplaatsNaam': 'test city',
-                            'gorOpenbareRuimteNaam': 'test space',
-                            'aoaPostcode': '',
-                            'aoaHuisnummer': 11,
-                            'aoaHuisletter': '',
-                            'aoaHuisnummertoevoeging': '',
-                            'ogoLocatieAanduiding': 'test'
-                        }
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.huishouden,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "nummer": "123456",
+                    "isGehuisvestIn": {
+                        "identificatie": "1",
+                        "adresAanduidingGrp": {
+                            "numIdentificatie": "1",
+                            "oaoIdentificatie": "a",
+                            "wplWoonplaatsNaam": "test city",
+                            "gorOpenbareRuimteNaam": "test space",
+                            "aoaPostcode": "",
+                            "aoaHuisnummer": 11,
+                            "aoaHuisletter": "",
+                            "aoaHuisnummertoevoeging": "",
+                            "ogoLocatieAanduiding": "test",
+                        },
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_huishouden(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.huishouden,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'nummer': '123456',
-                'isGehuisvestIn': {
-                    'identificatie': '1',
-                    'adresAanduidingGrp': {
-                        'numIdentificatie': '1',
-                        'oaoIdentificatie': 'a',
-                        'wplWoonplaatsNaam': 'test city',
-                        'gorOpenbareRuimteNaam': 'test space',
-                        'aoaPostcode': '1010',
-                        'aoaHuisnummer': 11,
-                        'aoaHuisletter': 'a',
-                        'aoaHuisnummertoevoeging': 'test',
-                        'ogoLocatieAanduiding': 'test'
-                    }
-                }
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.huishouden,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "nummer": "123456",
+                "isGehuisvestIn": {
+                    "identificatie": "1",
+                    "adresAanduidingGrp": {
+                        "numIdentificatie": "1",
+                        "oaoIdentificatie": "a",
+                        "wplWoonplaatsNaam": "test city",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaPostcode": "1010",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "a",
+                        "aoaHuisnummertoevoeging": "test",
+                        "ogoLocatieAanduiding": "test",
+                    },
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -291,33 +293,34 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         huishouden = Huishouden.objects.get()
 
         self.assertEqual(zaakobject.huishouden, huishouden)
-        self.assertEqual(huishouden.nummer, '123456')
-        self.assertEqual(huishouden.is_gehuisvest_in.adres_aanduiding_grp.identificatie, 'a')
+        self.assertEqual(huishouden.nummer, "123456")
+        self.assertEqual(
+            huishouden.is_gehuisvest_in.adres_aanduiding_grp.identificatie, "a"
+        )
 
 
 class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
     """
     check polyphormism for Rol-related object Medewerker
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_medewerker(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.medewerker
+            zaak=zaak, object="", object_type=ZaakobjectTypes.medewerker
         )
         Medewerker.objects.create(
             zaakobject=zaakobject,
-            identificatie='123456',
-            achternaam='Jong',
-            voorletters='J',
-            voorvoegsel_achternaam='van'
+            identificatie="123456",
+            achternaam="Jong",
+            voorletters="J",
+            voorvoegsel_achternaam="van",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -328,37 +331,37 @@ class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.medewerker,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'identificatie': '123456',
-                    'achternaam': 'Jong',
-                    'voorletters': 'J',
-                    'voorvoegselAchternaam': 'van'
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.medewerker,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "identificatie": "123456",
+                    "achternaam": "Jong",
+                    "voorletters": "J",
+                    "voorvoegselAchternaam": "van",
+                },
+            },
         )
 
     def test_create_zaakobject_medewerker(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.medewerker,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'identificatie': '123456',
-                'achternaam': 'Jong',
-                'voorletters': 'J',
-                'voorvoegselAchternaam': 'van'
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.medewerker,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "123456",
+                "achternaam": "Jong",
+                "voorletters": "J",
+                "voorvoegselAchternaam": "van",
+            },
         }
 
         response = self.client.post(url, data)
@@ -371,38 +374,36 @@ class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
         medewerker = Medewerker.objects.get()
 
         self.assertEqual(zaakobject.medewerker, medewerker)
-        self.assertEqual(medewerker.identificatie, '123456')
+        self.assertEqual(medewerker.identificatie, "123456")
 
 
 class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
     """
     check polyphormism for object TerreinGebouwdObject with GegevensGroep
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_terreinGebouwdObject(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.terrein_gebouwd_object
+            zaak=zaak, object="", object_type=ZaakobjectTypes.terrein_gebouwd_object
         )
 
         terreingebouwdobject = TerreinGebouwdObject.objects.create(
-            zaakobject=zaakobject,
-            identificatie='12345'
+            zaakobject=zaakobject, identificatie="12345"
         )
         Adres.objects.create(
             terreingebouwdobject=terreingebouwdobject,
-            num_identificatie='1',
-            identificatie='123',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer='11',
-            locatie_aanduiding='test'
+            num_identificatie="1",
+            identificatie="123",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer="11",
+            locatie_aanduiding="test",
         )
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -413,53 +414,53 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.terrein_gebouwd_object,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'identificatie': '12345',
-                    'adresAanduidingGrp': {
-                        'numIdentificatie': '1',
-                        'oaoIdentificatie': '123',
-                        'wplWoonplaatsNaam': 'test city',
-                        'gorOpenbareRuimteNaam': 'test space',
-                        'aoaPostcode': '',
-                        'aoaHuisnummer': 11,
-                        'aoaHuisletter': '',
-                        'aoaHuisnummertoevoeging': '',
-                        'ogoLocatieAanduiding': 'test'
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.terrein_gebouwd_object,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "identificatie": "12345",
+                    "adresAanduidingGrp": {
+                        "numIdentificatie": "1",
+                        "oaoIdentificatie": "123",
+                        "wplWoonplaatsNaam": "test city",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaPostcode": "",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "",
+                        "aoaHuisnummertoevoeging": "",
+                        "ogoLocatieAanduiding": "test",
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_terreinGebouwdObject(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.terrein_gebouwd_object,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'identificatie': '12345',
-                'adresAanduidingGrp': {
-                    'numIdentificatie': '1',
-                    'oaoIdentificatie': 'a',
-                    'wplWoonplaatsNaam': 'test city',
-                    'gorOpenbareRuimteNaam': 'test space',
-                    'aoaPostcode': '1010',
-                    'aoaHuisnummer': 11,
-                    'aoaHuisletter': 'a',
-                    'aoaHuisnummertoevoeging': 'test',
-                    'ogoLocatieAanduiding': 'test'
-                }
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.terrein_gebouwd_object,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "12345",
+                "adresAanduidingGrp": {
+                    "numIdentificatie": "1",
+                    "oaoIdentificatie": "a",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test space",
+                    "aoaPostcode": "1010",
+                    "aoaHuisnummer": 11,
+                    "aoaHuisletter": "a",
+                    "aoaHuisnummertoevoeging": "test",
+                    "ogoLocatieAanduiding": "test",
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -473,40 +474,38 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
         adres = Adres.objects.get()
 
         self.assertEqual(zaakobject.terreingebouwdobject, terrein_gebouwd)
-        self.assertEqual(terrein_gebouwd.identificatie, '12345')
+        self.assertEqual(terrein_gebouwd.identificatie, "12345")
         self.assertEqual(terrein_gebouwd.adres_aanduiding_grp, adres)
-        self.assertEqual(adres.identificatie, 'a')
+        self.assertEqual(adres.identificatie, "a")
 
 
 class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for WozObject object with GegevensGroep
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_wozObject(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.woz_object
+            zaak=zaak, object="", object_type=ZaakobjectTypes.woz_object
         )
 
         wozobject = WozObject.objects.create(
-            zaakobject=zaakobject,
-            woz_object_nummer='12345',
+            zaakobject=zaakobject, woz_object_nummer="12345"
         )
         Adres.objects.create(
             wozobject=wozobject,
-            identificatie='a',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer='11',
-            locatie_omschrijving='test',
+            identificatie="a",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer="11",
+            locatie_omschrijving="test",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -517,51 +516,51 @@ class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.woz_object,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'wozObjectNummer': '12345',
-                    'aanduidingWozObject': {
-                        'aoaIdentificatie': 'a',
-                        'wplWoonplaatsNaam': 'test city',
-                        'aoaPostcode': '',
-                        'gorOpenbareRuimteNaam': 'test space',
-                        'aoaHuisnummer': 11,
-                        'aoaHuisletter': '',
-                        'aoaHuisnummertoevoeging': '',
-                        'locatieOmschrijving': 'test'
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.woz_object,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "wozObjectNummer": "12345",
+                    "aanduidingWozObject": {
+                        "aoaIdentificatie": "a",
+                        "wplWoonplaatsNaam": "test city",
+                        "aoaPostcode": "",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "",
+                        "aoaHuisnummertoevoeging": "",
+                        "locatieOmschrijving": "test",
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_wozObject(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.woz_object,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'wozObjectNummer': '12345',
-                'aanduidingWozObject': {
-                    'aoaIdentificatie': 'a',
-                    'wplWoonplaatsNaam': 'test city',
-                    'aoaPostcode': '',
-                    'gorOpenbareRuimteNaam': 'test space',
-                    'aoaHuisnummer': 11,
-                    'aoaHuisletter': '',
-                    'aoaHuisnummertoevoeging': '',
-                    'locatieOmschrijving': 'test'
-                }
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.woz_object,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "wozObjectNummer": "12345",
+                "aanduidingWozObject": {
+                    "aoaIdentificatie": "a",
+                    "wplWoonplaatsNaam": "test city",
+                    "aoaPostcode": "",
+                    "gorOpenbareRuimteNaam": "test space",
+                    "aoaHuisnummer": 11,
+                    "aoaHuisletter": "",
+                    "aoaHuisnummertoevoeging": "",
+                    "locatieOmschrijving": "test",
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -575,45 +574,42 @@ class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
         adres = Adres.objects.get()
 
         self.assertEqual(zaakobject.wozobject, wozobject)
-        self.assertEqual(wozobject.woz_object_nummer, '12345')
+        self.assertEqual(wozobject.woz_object_nummer, "12345")
         self.assertEqual(wozobject.aanduiding_woz_object, adres)
-        self.assertEqual(adres.identificatie, 'a')
+        self.assertEqual(adres.identificatie, "a")
 
 
 class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for WozDeelobject object with nesting
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_wozDeelObject(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.woz_deelobject
+            zaak=zaak, object="", object_type=ZaakobjectTypes.woz_deelobject
         )
 
         woz_deel_object = WozDeelobject.objects.create(
-            zaakobject=zaakobject,
-            nummer_woz_deel_object='12345'
+            zaakobject=zaakobject, nummer_woz_deel_object="12345"
         )
 
         wozobject = WozObject.objects.create(
-            woz_deelobject=woz_deel_object,
-            woz_object_nummer='1'
+            woz_deelobject=woz_deel_object, woz_object_nummer="1"
         )
         Adres.objects.create(
             wozobject=wozobject,
-            identificatie='a',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer='11',
-            locatie_omschrijving='test',
+            identificatie="a",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer="11",
+            locatie_omschrijving="test",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -624,57 +620,57 @@ class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.woz_deelobject,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'nummerWozDeelObject': '12345',
-                    'isOnderdeelVan': {
-                        'wozObjectNummer': '1',
-                        'aanduidingWozObject': {
-                            'aoaIdentificatie': 'a',
-                            'wplWoonplaatsNaam': 'test city',
-                            'aoaPostcode': '',
-                            'gorOpenbareRuimteNaam': 'test space',
-                            'aoaHuisnummer': 11,
-                            'aoaHuisletter': '',
-                            'aoaHuisnummertoevoeging': '',
-                            'locatieOmschrijving': 'test'
-                        }
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.woz_deelobject,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "nummerWozDeelObject": "12345",
+                    "isOnderdeelVan": {
+                        "wozObjectNummer": "1",
+                        "aanduidingWozObject": {
+                            "aoaIdentificatie": "a",
+                            "wplWoonplaatsNaam": "test city",
+                            "aoaPostcode": "",
+                            "gorOpenbareRuimteNaam": "test space",
+                            "aoaHuisnummer": 11,
+                            "aoaHuisletter": "",
+                            "aoaHuisnummertoevoeging": "",
+                            "locatieOmschrijving": "test",
+                        },
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_wozDeelObject(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.woz_deelobject,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'nummerWozDeelObject': '12345',
-                'isOnderdeelVan': {
-                    'wozObjectNummer': '1',
-                    'aanduidingWozObject': {
-                        'aoaIdentificatie': 'a',
-                        'wplWoonplaatsNaam': 'test city',
-                        'aoaPostcode': '',
-                        'gorOpenbareRuimteNaam': 'test space',
-                        'aoaHuisnummer': 11,
-                        'aoaHuisletter': '',
-                        'aoaHuisnummertoevoeging': '',
-                        'locatieOmschrijving': 'test'
-                    }
-                }
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.woz_deelobject,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "nummerWozDeelObject": "12345",
+                "isOnderdeelVan": {
+                    "wozObjectNummer": "1",
+                    "aanduidingWozObject": {
+                        "aoaIdentificatie": "a",
+                        "wplWoonplaatsNaam": "test city",
+                        "aoaPostcode": "",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "",
+                        "aoaHuisnummertoevoeging": "",
+                        "locatieOmschrijving": "test",
+                    },
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -688,45 +684,40 @@ class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
         adres = Adres.objects.get()
 
         self.assertEqual(zaakobject.wozdeelobject, wozdeelobject)
-        self.assertEqual(wozdeelobject.nummer_woz_deel_object, '12345')
+        self.assertEqual(wozdeelobject.nummer_woz_deel_object, "12345")
         self.assertEqual(wozdeelobject.is_onderdeel_van.aanduiding_woz_object, adres)
-        self.assertEqual(adres.identificatie, 'a')
+        self.assertEqual(adres.identificatie, "a")
 
 
 class ZaakObjectWozWaardeTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for WozWaarde object with nesting
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_wozWaarde(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.woz_waarde
+            zaak=zaak, object="", object_type=ZaakobjectTypes.woz_waarde
         )
 
         woz_warde = WozWaarde.objects.create(
-            zaakobject=zaakobject,
-            waardepeildatum='2019'
+            zaakobject=zaakobject, waardepeildatum="2019"
         )
 
-        wozobject = WozObject.objects.create(
-            woz_warde=woz_warde,
-            woz_object_nummer='1'
-        )
+        wozobject = WozObject.objects.create(woz_warde=woz_warde, woz_object_nummer="1")
         Adres.objects.create(
             wozobject=wozobject,
-            identificatie='a',
-            wpl_woonplaats_naam='test city',
-            gor_openbare_ruimte_naam='test space',
-            huisnummer='11',
-            locatie_omschrijving='test',
+            identificatie="a",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test space",
+            huisnummer="11",
+            locatie_omschrijving="test",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -737,57 +728,57 @@ class ZaakObjectWozWaardeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.woz_waarde,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'waardepeildatum': '2019',
-                    'isVoor': {
-                        'wozObjectNummer': '1',
-                        'aanduidingWozObject': {
-                            'aoaIdentificatie': 'a',
-                            'wplWoonplaatsNaam': 'test city',
-                            'aoaPostcode': '',
-                            'gorOpenbareRuimteNaam': 'test space',
-                            'aoaHuisnummer': 11,
-                            'aoaHuisletter': '',
-                            'aoaHuisnummertoevoeging': '',
-                            'locatieOmschrijving': 'test'
-                        }
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.woz_waarde,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "waardepeildatum": "2019",
+                    "isVoor": {
+                        "wozObjectNummer": "1",
+                        "aanduidingWozObject": {
+                            "aoaIdentificatie": "a",
+                            "wplWoonplaatsNaam": "test city",
+                            "aoaPostcode": "",
+                            "gorOpenbareRuimteNaam": "test space",
+                            "aoaHuisnummer": 11,
+                            "aoaHuisletter": "",
+                            "aoaHuisnummertoevoeging": "",
+                            "locatieOmschrijving": "test",
+                        },
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_wozWaarde(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.woz_waarde,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'waardepeildatum': '2019',
-                'isVoor': {
-                    'wozObjectNummer': '1',
-                    'aanduidingWozObject': {
-                        'aoaIdentificatie': 'a',
-                        'wplWoonplaatsNaam': 'test city',
-                        'aoaPostcode': '',
-                        'gorOpenbareRuimteNaam': 'test space',
-                        'aoaHuisnummer': 11,
-                        'aoaHuisletter': '',
-                        'aoaHuisnummertoevoeging': '',
-                        'locatieOmschrijving': 'test'
-                    }
-                }
-            }
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.woz_waarde,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "waardepeildatum": "2019",
+                "isVoor": {
+                    "wozObjectNummer": "1",
+                    "aanduidingWozObject": {
+                        "aoaIdentificatie": "a",
+                        "wplWoonplaatsNaam": "test city",
+                        "aoaPostcode": "",
+                        "gorOpenbareRuimteNaam": "test space",
+                        "aoaHuisnummer": 11,
+                        "aoaHuisletter": "",
+                        "aoaHuisnummertoevoeging": "",
+                        "locatieOmschrijving": "test",
+                    },
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -801,35 +792,32 @@ class ZaakObjectWozWaardeTestCase(JWTAuthMixin, APITestCase):
         adres = Adres.objects.get()
 
         self.assertEqual(zaakobject.wozwaarde, wozwaarde)
-        self.assertEqual(wozwaarde.waardepeildatum, '2019')
+        self.assertEqual(wozwaarde.waardepeildatum, "2019")
         self.assertEqual(wozwaarde.is_voor.aanduiding_woz_object, adres)
-        self.assertEqual(adres.identificatie, 'a')
+        self.assertEqual(adres.identificatie, "a")
 
 
 class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for ZakelijkRecht object with nesting
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_zakelijkRecht(self):
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.zakelijk_recht
+            zaak=zaak, object="", object_type=ZaakobjectTypes.zakelijk_recht
         )
 
         zakelijk_recht = ZakelijkRecht.objects.create(
-            zaakobject=zaakobject,
-            identificatie='12345',
-            avg_aard='test'
+            zaakobject=zaakobject, identificatie="12345", avg_aard="test"
         )
 
         KadastraleOnroerendeZaak.objects.create(
             zakelijk_recht=zakelijk_recht,
-            kadastrale_identificatie='1',
-            kadastrale_aanduiding='test'
+            kadastrale_identificatie="1",
+            kadastrale_aanduiding="test",
         )
 
         heeft_als_gerechtigde = ZakelijkRechtHeeftAlsGerechtigde.objects.create(
@@ -837,16 +825,16 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
         )
         NatuurlijkPersoon.objects.create(
             zakelijk_rechtHeeft_als_gerechtigde=heeft_als_gerechtigde,
-            anp_identificatie='12345',
-            inp_a_nummer='1234567890'
+            anp_identificatie="12345",
+            inp_a_nummer="1234567890",
         )
         NietNatuurlijkPersoon.objects.create(
             zakelijk_rechtHeeft_als_gerechtigde=heeft_als_gerechtigde,
-            ann_identificatie='123456',
+            ann_identificatie="123456",
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -857,75 +845,75 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.zakelijk_recht,
-                'objectTypeOverige': '',
-            'objectIdentificatie': {
-                    'identificatie': '12345',
-                    'avgAard': 'test',
-                    'heeftBetrekkingOp': {
-                        'kadastraleIdentificatie': '1',
-                        'kadastraleAanduiding': 'test'
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.zakelijk_recht,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {
+                    "identificatie": "12345",
+                    "avgAard": "test",
+                    "heeftBetrekkingOp": {
+                        "kadastraleIdentificatie": "1",
+                        "kadastraleAanduiding": "test",
                     },
-                    'heeftAlsGerechtigde': {
-                        'natuurlijkPersoon': {
-                            'inpBsn': '',
-                            'anpIdentificatie': '12345',
-                            'inpA_nummer': '1234567890',
-                            'geslachtsnaam': '',
-                            'voorvoegselGeslachtsnaam': '',
-                            'voorletters': '',
-                            'voornamen': '',
-                            'geslachtsaanduiding': '',
-                            'geboortedatum': '',
-                            'verblijfsadres': None,
-                            'subVerblijfBuitenland': None
+                    "heeftAlsGerechtigde": {
+                        "natuurlijkPersoon": {
+                            "inpBsn": "",
+                            "anpIdentificatie": "12345",
+                            "inpA_nummer": "1234567890",
+                            "geslachtsnaam": "",
+                            "voorvoegselGeslachtsnaam": "",
+                            "voorletters": "",
+                            "voornamen": "",
+                            "geslachtsaanduiding": "",
+                            "geboortedatum": "",
+                            "verblijfsadres": None,
+                            "subVerblijfBuitenland": None,
                         },
-                        'nietNatuurlijkPersoon': {
-                            'innNnpId': '',
-                            'annIdentificatie': '123456',
-                            'statutaireNaam': '',
-                            'innRechtsvorm': '',
-                            'bezoekadres': '',
-                            'subVerblijfBuitenland': None
-                        }
-                    }
-                }
-            }
+                        "nietNatuurlijkPersoon": {
+                            "innNnpId": "",
+                            "annIdentificatie": "123456",
+                            "statutaireNaam": "",
+                            "innRechtsvorm": "",
+                            "bezoekadres": "",
+                            "subVerblijfBuitenland": None,
+                        },
+                    },
+                },
+            },
         )
 
     def test_create_zaakobject_zakelijkRecht(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.zakelijk_recht,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': '',
-            'objectIdentificatie': {
-                'identificatie': '1111',
-                'avgAard': 'test',
-                'heeftBetrekkingOp': {
-                    'kadastraleIdentificatie': '1',
-                    'kadastraleAanduiding': 'test'
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.zakelijk_recht,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
+            "objectIdentificatie": {
+                "identificatie": "1111",
+                "avgAard": "test",
+                "heeftBetrekkingOp": {
+                    "kadastraleIdentificatie": "1",
+                    "kadastraleAanduiding": "test",
                 },
-                'heeftAlsGerechtigde': {
-                    'natuurlijkPersoon': {
-                        'inpBsn': '',
-                        'anpIdentificatie': '1234',
-                        'inpA_nummer': '1234567890',
+                "heeftAlsGerechtigde": {
+                    "natuurlijkPersoon": {
+                        "inpBsn": "",
+                        "anpIdentificatie": "1234",
+                        "inpA_nummer": "1234567890",
                     },
-                    'nietNatuurlijkPersoon': {
-                        'innNnpId': '',
-                        'annIdentificatie': '123456',
-                    }
-                }
-            }
+                    "nietNatuurlijkPersoon": {
+                        "innNnpId": "",
+                        "annIdentificatie": "123456",
+                    },
+                },
+            },
         }
 
         response = self.client.post(url, data)
@@ -938,12 +926,17 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
         zakelijkrecht = ZakelijkRecht.objects.get()
 
         self.assertEqual(zaakobject.zakelijkrecht, zakelijkrecht)
-        self.assertEqual(zakelijkrecht.identificatie, '1111')
-        self.assertEqual(zakelijkrecht.heeft_betrekking_op.kadastrale_identificatie, '1')
-        self.assertEqual(zakelijkrecht.heeft_als_gerechtigde.natuurlijkpersoon.anp_identificatie, '1234')
+        self.assertEqual(zakelijkrecht.identificatie, "1111")
+        self.assertEqual(
+            zakelijkrecht.heeft_betrekking_op.kadastrale_identificatie, "1"
+        )
+        self.assertEqual(
+            zakelijkrecht.heeft_als_gerechtigde.natuurlijkpersoon.anp_identificatie,
+            "1234",
+        )
         self.assertEqual(
             zakelijkrecht.heeft_als_gerechtigde.nietnatuurlijkpersoon.ann_identificatie,
-            '123456'
+            "123456",
         )
 
 
@@ -951,25 +944,21 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
     """
     check polymorphism for Overige object with JSON field
     """
+
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_overige(self):
 
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object='',
-            object_type=ZaakobjectTypes.overige
+            zaak=zaak, object="", object_type=ZaakobjectTypes.overige
         )
         Overige.objects.create(
-            zaakobject=zaakobject,
-            overige_data={
-                'some_field': 'some value'
-            }
+            zaakobject=zaakobject, overige_data={"some_field": "some value"}
         )
 
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
-        url = get_operation_url('zaakobject_read', uuid=zaakobject.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
 
         response = self.client.get(url)
 
@@ -980,32 +969,28 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data,
             {
-                'url': f'http://testserver{url}',
-                'uuid': str(zaakobject.uuid),
-                'zaak': f'http://testserver{zaak_url}',
-                'object': '',
-                'relatieomschrijving': '',
-                'objectType': ZaakobjectTypes.overige,
-                'objectTypeOverige': '',
-                'objectIdentificatie': {
-                    'overigeData': {
-                        'someField': 'some value'
-                    }
-                }
-            }
+                "url": f"http://testserver{url}",
+                "uuid": str(zaakobject.uuid),
+                "zaak": f"http://testserver{zaak_url}",
+                "object": "",
+                "relatieomschrijving": "",
+                "objectType": ZaakobjectTypes.overige,
+                "objectTypeOverige": "",
+                "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+            },
         )
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_create_zaakobject_overige_with_url(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'object': OBJECT,
-            'objectType': ZaakobjectTypes.overige,
-            'objectTypeOverige': 'test',
-            'relatieomschrijving': 'test',
+            "zaak": f"http://testserver{zaak_url}",
+            "object": OBJECT,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverige": "test",
+            "relatieomschrijving": "test",
         }
 
         response = self.client.post(url, data)
@@ -1015,19 +1000,15 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(Overige.objects.count(), 0)
 
     def test_create_zaakobject_overige_with_data(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'objectType': ZaakobjectTypes.overige,
-            'objectTypeOverige': 'test',
-            'relatieomschrijving': 'test',
-            'objectIdentificatie': {
-                'overigeData': {
-                    'someField': 'some value'
-                }
-            },
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverige": "test",
+            "relatieomschrijving": "test",
+            "objectIdentificatie": {"overigeData": {"someField": "some value"}},
         }
 
         response = self.client.post(url, data)
@@ -1040,42 +1021,46 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         overige = Overige.objects.get()
 
         self.assertEqual(zaakobject.overige, overige)
-        self.assertEqual(overige.overige_data, {'some_field': 'some value'})
+        self.assertEqual(overige.overige_data, {"some_field": "some value"})
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_create_zaakobject_overige_without_type(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'object': OBJECT,
-            'objectType': ZaakobjectTypes.overige,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': ''
+            "zaak": f"http://testserver{zaak_url}",
+            "object": OBJECT,
+            "objectType": ZaakobjectTypes.overige,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "",
         }
 
         response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.json())
-        error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(error['code'], 'missing-object-type-overige')
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "missing-object-type-overige")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_create_zaakobject_with_overige_type(self):
-        url = get_operation_url('zaakobject_create')
+        url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         data = {
-            'zaak': f'http://testserver{zaak_url}',
-            'object': OBJECT,
-            'objectType': ZaakobjectTypes.adres,
-            'relatieomschrijving': 'test',
-            'objectTypeOverige': 'test'
+            "zaak": f"http://testserver{zaak_url}",
+            "object": OBJECT,
+            "objectType": ZaakobjectTypes.adres,
+            "relatieomschrijving": "test",
+            "objectTypeOverige": "test",
         }
 
         response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.json())
-        error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(error['code'], 'invalid-object-type-overige-usage')
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-object-type-overige-usage")

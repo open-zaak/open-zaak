@@ -12,22 +12,17 @@ class StatusTests(JWTAuthMixin, APITestCase):
     def test_filter_statussen_op_zaak(self):
         status1, status2 = StatusFactory.create_batch(2)
         assert status1.zaak != status2.zaak
-        status1_url = reverse('status-detail', kwargs={'uuid': status1.uuid})
-        status2_url = reverse('status-detail', kwargs={'uuid': status2.uuid})
+        status1_url = reverse("status-detail", kwargs={"uuid": status1.uuid})
+        status2_url = reverse("status-detail", kwargs={"uuid": status2.uuid})
 
-        list_url = reverse('status-list')
+        list_url = reverse("status-list")
 
-        response = self.client.get(list_url, {
-            'zaak': reverse('zaak-detail', kwargs={'uuid': status1.zaak.uuid})
-        })
+        response = self.client.get(
+            list_url,
+            {"zaak": reverse("zaak-detail", kwargs={"uuid": status1.zaak.uuid})},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(
-            response.data[0]['url'],
-            f"http://testserver{status1_url}"
-        )
-        self.assertNotEqual(
-            response.data[0]['url'],
-            f"http://testserver{status2_url}"
-        )
+        self.assertEqual(response.data[0]["url"], f"http://testserver{status1_url}")
+        self.assertNotEqual(response.data[0]["url"], f"http://testserver{status2_url}")

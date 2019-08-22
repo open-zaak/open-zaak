@@ -6,9 +6,7 @@ from rest_framework.views import APIView
 
 class View(APIView):
     def get(self, request, *args, **kwargs):
-        return Response({'ok': True})
+        return Response({"ok": True})
 
 
-urlpatterns = [
-    path('test-view', View.as_view()),
-]
+urlpatterns = [path("test-view", View.as_view())]

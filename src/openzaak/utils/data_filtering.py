@@ -15,14 +15,14 @@ class ListFilterByAuthorizationsMixin:
         base = super().get_queryset()
 
         # drf-yasg introspection - doesn't run the middleware, so this isn't set
-        if not hasattr(self.request, 'jwt_auth'):
+        if not hasattr(self.request, "jwt_auth"):
             return base
 
         # we do not apply the filtering for update/partial_update/delete,
         # because the resource _does exist_, you just don't have permission
         # to do those operations. A 403 is semantically more correct than a
         # 404, which would be the result if the queryset is always filtered.
-        if not self.action == 'list':
+        if not self.action == "list":
             return base
 
         # get the auth apps that are relevant for this particular request

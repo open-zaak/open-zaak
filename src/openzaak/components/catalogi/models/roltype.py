@@ -30,29 +30,40 @@ class RolType(models.Model):
     specifieke benamingen. Waar gesproken wordt van ‘zaak’ bedoelen we zowel ‘hoofdzaak’ als
     ‘deelzaak’.
     """
+
     uuid = models.UUIDField(default=uuid.uuid4)
-    omschrijving = models.CharField(_('omschrijving'), max_length=20, help_text=_(
-        'Omschrijving van de aard van de ROL.')
+    omschrijving = models.CharField(
+        _("omschrijving"),
+        max_length=20,
+        help_text=_("Omschrijving van de aard van de ROL."),
     )
     omschrijving_generiek = models.CharField(
-        _('omschrijving generiek'), max_length=20, choices=RolOmschrijving.choices,
-        help_text=_('Algemeen gehanteerde omschrijving van de aard van de ROL.')
+        _("omschrijving generiek"),
+        max_length=20,
+        choices=RolOmschrijving.choices,
+        help_text=_("Algemeen gehanteerde omschrijving van de aard van de ROL."),
     )
     soort_betrokkene = ArrayField(
-        models.CharField(_('soort betrokkene'), max_length=80),
-        help_text=_('De (soort) betrokkene die een rol van dit roltype mag uitoefenen. '
-                    '(Gebruik een komma om waarden van elkaar te onderscheiden.)'),
-        default=list
+        models.CharField(_("soort betrokkene"), max_length=80),
+        help_text=_(
+            "De (soort) betrokkene die een rol van dit roltype mag uitoefenen. "
+            "(Gebruik een komma om waarden van elkaar te onderscheiden.)"
+        ),
+        default=list,
     )
     zaaktype = models.ForeignKey(
-        'catalogi.ZaakType', verbose_name=_('is van'), on_delete=models.CASCADE,
-        help_text=_('URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.')
+        "catalogi.ZaakType",
+        verbose_name=_("is van"),
+        on_delete=models.CASCADE,
+        help_text=_(
+            "URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn."
+        ),
     )
 
     class Meta:
-        unique_together = ('zaaktype', 'omschrijving')
-        verbose_name = _('Roltype')
-        verbose_name_plural = _('Roltypen')
+        unique_together = ("zaaktype", "omschrijving")
+        verbose_name = _("Roltype")
+        verbose_name_plural = _("Roltypen")
         # ordering = unique_together
 
         # filter_fields = (
@@ -65,4 +76,4 @@ class RolType(models.Model):
         # )
 
     def __str__(self):
-        return '{} - {}'.format(self.zaaktype, self.omschrijving)
+        return "{} - {}".format(self.zaaktype, self.omschrijving)

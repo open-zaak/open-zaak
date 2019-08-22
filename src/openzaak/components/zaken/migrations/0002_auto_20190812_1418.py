@@ -7,46 +7,74 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('zaken', '0001_initial'),
-        ('catalogi', '0001_initial'),
-        ('documenten', '0001_initial'),
-        ('besluiten', '0001_initial'),
+        ("zaken", "0001_initial"),
+        ("catalogi", "0001_initial"),
+        ("documenten", "0001_initial"),
+        ("besluiten", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='resultaat',
-            name='resultaattype',
-            field=models.ForeignKey(help_text='Referentie naar het RESULTAATTYPE (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ResultaatType'),
+            model_name="resultaat",
+            name="resultaattype",
+            field=models.ForeignKey(
+                help_text="Referentie naar het RESULTAATTYPE (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ResultaatType",
+            ),
         ),
         migrations.AlterField(
-            model_name='rol',
-            name='roltype',
-            field=models.ForeignKey(help_text='Referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.', on_delete=django.db.models.deletion.CASCADE, to='catalogi.RolType'),
+            model_name="rol",
+            name="roltype",
+            field=models.ForeignKey(
+                help_text="Referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.RolType",
+            ),
         ),
         migrations.AlterField(
-            model_name='status',
-            name='statustype',
-            field=models.ForeignKey(help_text='Referentie naar het STATUSTYPE (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.StatusType'),
+            model_name="status",
+            name="statustype",
+            field=models.ForeignKey(
+                help_text="Referentie naar het STATUSTYPE (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.StatusType",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaak',
-            name='zaaktype',
-            field=models.ForeignKey(help_text='Referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt', on_delete=django.db.models.deletion.CASCADE, to='catalogi.ZaakType'),
+            model_name="zaak",
+            name="zaaktype",
+            field=models.ForeignKey(
+                help_text="Referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.ZaakType",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaakbesluit',
-            name='besluit',
-            field=models.ForeignKey(help_text='Referentie naar het BESLUIT (in de Besluiten API), waar ook de relatieinformatie opgevraagd kan worden.', on_delete=django.db.models.deletion.CASCADE, to='besluiten.Besluit'),
+            model_name="zaakbesluit",
+            name="besluit",
+            field=models.ForeignKey(
+                help_text="Referentie naar het BESLUIT (in de Besluiten API), waar ook de relatieinformatie opgevraagd kan worden.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="besluiten.Besluit",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaakeigenschap',
-            name='eigenschap',
-            field=models.ForeignKey(help_text='URL-referentie naar de EIGENSCHAP (in de Catalogi API).', on_delete=django.db.models.deletion.CASCADE, to='catalogi.Eigenschap'),
+            model_name="zaakeigenschap",
+            name="eigenschap",
+            field=models.ForeignKey(
+                help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="catalogi.Eigenschap",
+            ),
         ),
         migrations.AlterField(
-            model_name='zaakinformatieobject',
-            name='informatieobject',
-            field=models.ForeignKey(help_text='Referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.', on_delete=django.db.models.deletion.CASCADE, to='documenten.EnkelvoudigInformatieObjectCanonical'),
+            model_name="zaakinformatieobject",
+            name="informatieobject",
+            field=models.ForeignKey(
+                help_text="Referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="documenten.EnkelvoudigInformatieObjectCanonical",
+            ),
         ),
     ]

@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.validators import (
-    UniekeIdentificatieValidator as _UniekeIdentificatieValidator
+    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
 
 
@@ -16,9 +16,10 @@ class RolOccurenceValidator:
 
     Should be applied to the serializer class, not to an individual field
     """
-    message = _('There are already {num} `{value}` occurences')
 
-    def __init__(self, omschrijving_generiek: str, max_amount: int=1):
+    message = _("There are already {num} `{value}` occurences")
+
+    def __init__(self, omschrijving_generiek: str, max_amount: int = 1):
         self.omschrijving_generiek = omschrijving_generiek
         self.max_amount = max_amount
 
@@ -28,7 +29,7 @@ class RolOccurenceValidator:
         prior to the validation call being made.
         """
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, 'instance', None)
+        self.instance = getattr(serializer, "instance", None)
 
     def __call__(self, attrs):
         roltype = attrs["roltype"]
@@ -36,39 +37,44 @@ class RolOccurenceValidator:
         attrs["omschrijving"] = roltype.omschrijving
         attrs["omschrijving_generiek"] = roltype.omschrijving_generiek
 
-        if attrs['omschrijving_generiek'] != self.omschrijving_generiek:
+        if attrs["omschrijving_generiek"] != self.omschrijving_generiek:
             return
 
-        is_noop_update = self.instance and self.instance.omschrijving_generiek == self.omschrijving_generiek
+        is_noop_update = (
+            self.instance
+            and self.instance.omschrijving_generiek == self.omschrijving_generiek
+        )
         if is_noop_update:
             return
 
         existing = (
-            attrs['zaak']
-            .rol_set
-            .filter(omschrijving_generiek=self.omschrijving_generiek)
+            attrs["zaak"]
+            .rol_set.filter(omschrijving_generiek=self.omschrijving_generiek)
             .count()
         )
 
         if existing >= self.max_amount:
-            message = self.message.format(num=existing, value=self.omschrijving_generiek)
-            raise serializers.ValidationError({
-                'roltype': message
-            }, code='max-occurences')
+            message = self.message.format(
+                num=existing, value=self.omschrijving_generiek
+            )
+            raise serializers.ValidationError(
+                {"roltype": message}, code="max-occurences"
+            )
 
 
 class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
     """
     Valideer dat de combinatie van bronorganisatie en zaak uniek is.
     """
-    message = _('Deze identificatie bestaat al voor deze bronorganisatie')
+
+    message = _("Deze identificatie bestaat al voor deze bronorganisatie")
 
     def __init__(self):
-        super().__init__('bronorganisatie', 'identificatie')
+        super().__init__("bronorganisatie", "identificatie")
 
 
 class NotSelfValidator:
-    code = 'self-forbidden'
+    code = "self-forbidden"
     message = _("The '{field_name}' may not be a self-reference")
 
     def set_context(self, field):
@@ -78,7 +84,7 @@ class NotSelfValidator:
         """
         # Determine the existing instance, if this is an update operation.
         self.field_name = field.field_name
-        self.instance = getattr(field.root, 'instance', None)
+        self.instance = getattr(field.root, "instance", None)
 
     def __call__(self, obj: models.Model):
         if self.instance == obj:
@@ -87,7 +93,7 @@ class NotSelfValidator:
 
 
 class HoofdzaakValidator:
-    code = 'deelzaak-als-hoofdzaak'
+    code = "deelzaak-als-hoofdzaak"
     message = _("Deelzaken van deelzaken wordt niet ondersteund.")
 
     def __call__(self, obj: models.Model):
@@ -119,14 +125,15 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
     message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
 
     def __call__(self, attrs):
-        informatieobject = attrs.get('informatieobject')
-        zaak = attrs.get('zaak')
+        informatieobject = attrs.get("informatieobject")
+        zaak = attrs.get("zaak")
         if not informatieobject or not zaak:
             return
 
         io = informatieobject.enkelvoudiginformatieobject_set.first()
-        if not zaak.zaaktype.heeft_relevant_informatieobjecttype\
-                .filter(id=io.informatieobjecttype_id, concept=False).exists():
+        if not zaak.zaaktype.heeft_relevant_informatieobjecttype.filter(
+            id=io.informatieobjecttype_id, concept=False
+        ).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 

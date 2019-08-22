@@ -8,13 +8,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    EigenschapFactory
-)
+from openzaak.components.catalogi.models.tests.factories import EigenschapFactory
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import ZaakEigenschap
 from openzaak.components.zaken.models.tests.factories import (
-    ZaakEigenschapFactory, ZaakFactory
+    ZaakEigenschapFactory,
+    ZaakFactory,
 )
 
 
@@ -23,14 +22,14 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
     def test_zet_eigenschappen(self):
         zaak = ZaakFactory.create()
-        eigenschap = EigenschapFactory.create(eigenschapnaam='foobar')
-        url = get_operation_url('zaakeigenschap_create', zaak_uuid=zaak.uuid)
-        zaak_url = get_operation_url('zaak_read', uuid=zaak.uuid)
+        eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
+        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         eigenschap_url = reverse(eigenschap)
         data = {
-            'zaak': zaak_url,
-            'eigenschap': eigenschap_url,
-            'waarde': 'overlast_water'
+            "zaak": zaak_url,
+            "eigenschap": eigenschap_url,
+            "waarde": "overlast_water",
         }
 
         response = self.client.post(url, data)
@@ -39,23 +38,25 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         response_data = response.json()
         zaakeigenschap = ZaakEigenschap.objects.get()
         self.assertEqual(zaakeigenschap.zaak, zaak)
-        detail_url = get_operation_url('zaakeigenschap_read', zaak_uuid=zaak.uuid, uuid=zaakeigenschap.uuid)
+        detail_url = get_operation_url(
+            "zaakeigenschap_read", zaak_uuid=zaak.uuid, uuid=zaakeigenschap.uuid
+        )
         self.assertEqual(
             response_data,
             {
-                'url': f"http://testserver{detail_url}",
-                'uuid': str(zaakeigenschap.uuid),
-                'naam': 'foobar',
-                'zaak': f"http://testserver{zaak_url}",
-                'eigenschap': f"http://testserver{eigenschap_url}",
-                'waarde': 'overlast_water'
-            }
+                "url": f"http://testserver{detail_url}",
+                "uuid": str(zaakeigenschap.uuid),
+                "naam": "foobar",
+                "zaak": f"http://testserver{zaak_url}",
+                "eigenschap": f"http://testserver{eigenschap_url}",
+                "waarde": "overlast_water",
+            },
         )
 
     def test_lees_eigenschappen(self):
         zaak = ZaakFactory.create()
         ZaakEigenschapFactory.create_batch(3, zaak=zaak)
-        url = get_operation_url('zaakeigenschap_list', zaak_uuid=zaak.uuid)
+        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -64,10 +65,13 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(len(response_data), 3)
         for obj in response_data:
             with self.subTest(obj=obj):
-                self.assertResponseTypes(obj, (
-                    ('url', str),
-                    ('naam', str),
-                    ('zaak', str),
-                    ('eigenschap', str),
-                    ('waarde', str),
-                ))
+                self.assertResponseTypes(
+                    obj,
+                    (
+                        ("url", str),
+                        ("naam", str),
+                        ("zaak", str),
+                        ("eigenschap", str),
+                        ("waarde", str),
+                    ),
+                )

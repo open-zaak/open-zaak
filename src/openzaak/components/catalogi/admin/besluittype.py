@@ -8,33 +8,42 @@ from .mixins import ConceptAdminMixin, GeldigheidAdminMixin
 @admin.register(BesluitType)
 class BesluitTypeAdmin(GeldigheidAdminMixin, ConceptAdminMixin, admin.ModelAdmin):
     # List
-    list_display = ('catalogus', 'omschrijving', 'besluitcategorie', )
+    list_display = ("catalogus", "omschrijving", "besluitcategorie")
 
     # Details
     fieldsets = (
-        (_('Algemeen'), {
-            'fields': (
-                'omschrijving',
-                'omschrijving_generiek',
-                'besluitcategorie',
-                'reactietermijn',
-                'toelichting',
-            )
-        }),
-        (_('Publicatie'), {
-            'fields': (
-                'publicatie_indicatie',
-                'publicatietekst',
-                'publicatietermijn',
-            )
-        }),
-        (_('Relaties'), {
-            'fields': (
-                'catalogus',
-                'informatieobjecttypes',
-                # 'resultaattypes',
-                'zaaktypes',
-            )
-        }),
+        (
+            _("Algemeen"),
+            {
+                "fields": (
+                    "omschrijving",
+                    "omschrijving_generiek",
+                    "besluitcategorie",
+                    "reactietermijn",
+                    "toelichting",
+                )
+            },
+        ),
+        (
+            _("Publicatie"),
+            {
+                "fields": (
+                    "publicatie_indicatie",
+                    "publicatietekst",
+                    "publicatietermijn",
+                )
+            },
+        ),
+        (
+            _("Relaties"),
+            {
+                "fields": (
+                    "catalogus",
+                    "informatieobjecttypes",
+                    # 'resultaattypes',
+                    "zaaktypes",
+                )
+            },
+        ),
     )
-    filter_horizontal = ('informatieobjecttypes', 'zaaktypes')  # , 'resultaattypes'
+    filter_horizontal = ("informatieobjecttypes", "zaaktypes")  # , 'resultaattypes'
