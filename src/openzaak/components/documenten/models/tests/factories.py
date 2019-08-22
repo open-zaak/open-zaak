@@ -1,3 +1,13 @@
+"""
+Factory models for the documenten application.
+
+.. note::
+    There is no ObjectInformatieObjectFactory anymore, since that is
+    created automatically as part of
+    :class:`openzaak.components.zaken.models.ZaakInformatieObject` and
+    :class:`openzaak.components.besluiten.models.BesluitInformatieObject`
+    creation.
+"""
 import datetime
 import uuid
 

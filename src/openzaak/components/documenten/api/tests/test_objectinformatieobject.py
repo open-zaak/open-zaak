@@ -1,5 +1,4 @@
 import uuid
-from unittest import expectedFailure, skip
 
 from django.test import override_settings, tag
 
@@ -28,7 +27,6 @@ BESLUIT = "https://brc.nl/api/v1/besluiten/4321"
 
 
 @tag("oio")
-@skip("ObjectInformatieObject is not implemented yet")
 @override_settings(ALLOWED_HOSTS=["testserver.nl"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -100,7 +98,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             },
         )
 
-    @expectedFailure
     def test_duplicate_object(self):
         """
         Test the (informatieobject, object) unique together validation.
@@ -129,8 +126,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unique")
 
-    def test_filter(self):
+    def test_filter_eio(self):
         zio = ZaakInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create()  # may not show up
         eio_detail_url = reverse(zio.informatieobject.latest_version)
 
         response = self.client.get(
@@ -145,8 +143,21 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
         )
 
+    def test_filter_zaak(self):
+        zio = ZaakInformatieObjectFactory.create()
+        ZaakInformatieObjectFactory.create()  # may not show up
+        eio_detail_url = reverse(zio.informatieobject.latest_version)
+        zaak_url = reverse(zio.zaak)
 
-@skip("ObjectInformatieObject is not implemented yet")
+        response = self.client.get(self.list_url, {
+            'object': f'http://testserver.nl{zaak_url}',
+        }, HTTP_HOST="testserver.nl")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['informatieobject'], f'http://testserver{eio_detail_url}')
+
+
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

@@ -438,3 +438,4 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
+lf

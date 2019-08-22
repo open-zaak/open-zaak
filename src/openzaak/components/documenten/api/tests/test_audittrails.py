@@ -3,6 +3,8 @@ from base64 import b64encode
 from datetime import datetime
 from unittest import skip
 
+from django.test import tag
+
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -76,7 +78,8 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             informatieobject_create_audittrail.nieuw, informatieobject_data
         )
 
-    @skip("ObjectInformatieObject is not implemented yet")
+    @tag("oio")
+    @skip('ObjectInformatieObject is not implemented yet')
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
 

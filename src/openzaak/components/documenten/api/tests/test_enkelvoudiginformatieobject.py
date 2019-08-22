@@ -3,6 +3,7 @@ from base64 import b64encode
 from datetime import date
 from unittest import skip
 
+from django.test import tag
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -302,7 +303,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    @skip("ObjectInformatieObject is not implemented yet")
+    @tag("oio")
+    @skip('ObjectInformatieObject is not implemented yet')
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
