@@ -29,16 +29,27 @@ before_install:
 
 install:
   - pip install -r requirements/test.txt
-  - pip install codecov
   - npm ci
   - npm run build
 
 before_script:
   - psql -U postgres -c "create extension postgis"
 
-script:
-  - python src/manage.py collectstatic --noinput --link
-  - coverage run src/manage.py test src
+jobs:
+  include:
+    - stage: isort
+      install: pip install isort
+      script: isort --recursive --check-only --diff .
+
+    - stage: black
+      install: pip install black
+      script: black --check src
+
+    - stage: test
+      install: pip install codecov
+      script:
+        - python src/manage.py collectstatic --noinput --link
+        - coverage run src/manage.py test src
 
 after_success:
   - codecov
