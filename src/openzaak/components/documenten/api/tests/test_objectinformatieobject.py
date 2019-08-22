@@ -1,7 +1,7 @@
 import uuid
 from unittest import skip
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory, BesluitInformatieObjectFactory
@@ -77,26 +77,24 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             "object_type": "besluit",
         })
 
-    @skip("IMPLEMENT ME")
+    @tag("oio")
     def test_duplicate_object(self):
         """
         Test the (informatieobject, object) unique together validation.
         """
-        oio = ObjectInformatieObjectFactory.create(
-            is_zaak=True,
-        )
-        enkelvoudig_informatie_url = reverse('enkelvoudiginformatieobject-detail', kwargs={
-            'uuid': oio.informatieobject.latest_version.uuid
-        })
+        zio = ZaakInformatieObjectFactory.create()
+
+        eio_url = reverse(zio.informatieobject.latest_version)
+        zaak_url = reverse(zio.zaak)
 
         content = {
-            'informatieobject': f'http://testserver{enkelvoudig_informatie_url}',
-            'object': oio.object,
+            'informatieobject': f'http://testserver.nl{eio_url}',
+            'object': f"http://testserver.nl{zaak_url}",
             'objectType': ObjectTypes.zaak,
         }
 
         # Send to the API
-        response = self.client.post(self.list_url, content)
+        response = self.client.post(self.list_url, content, HTTP_HOST="testserver.nl")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         error = get_validation_errors(response, 'nonFieldErrors')
