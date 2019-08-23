@@ -338,16 +338,16 @@ CORS_ALLOW_HEADERS = (
     "content-crs",
 )
 
-if "GIT_SHA" in os.environ:
-    GIT_SHA = os.getenv("GIT_SHA")
-else:
-    GIT_SHA = raven.fetch_git_sha(BASE_DIR)
-
 # Raven
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 
 if SENTRY_DSN:
     INSTALLED_APPS = INSTALLED_APPS + ["raven.contrib.django.raven_compat"]
+
+    if "GIT_SHA" in os.environ:
+        GIT_SHA = os.getenv("GIT_SHA")
+    else:
+        GIT_SHA = raven.fetch_git_sha(BASE_DIR)
 
     RAVEN_CONFIG = {"dsn": SENTRY_DSN, "release": GIT_SHA}
     LOGGING["handlers"].update(
