@@ -4,7 +4,6 @@ from vng_api_common.inspectors.view import AutoSchema
 
 
 class ApplicatieConsumerAutoSchema(AutoSchema):
-
     def _get_error_responses(self) -> OrderedDict:
         assert self.view.action == "consumer"
 

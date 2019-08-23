@@ -23,10 +23,12 @@ from .scopes import (
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 
-class BesluitViewSet(NotificationViewSetMixin,
-                     AuditTrailViewsetMixin,
-                     # ListFilterByAuthorizationsMixin,
-                     viewsets.ModelViewSet):
+class BesluitViewSet(
+    NotificationViewSetMixin,
+    AuditTrailViewsetMixin,
+    # ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
+):
     """
     Opvragen en bewerken van BESLUITen.
 
@@ -88,7 +90,7 @@ class BesluitViewSet(NotificationViewSetMixin,
     filter_class = BesluitFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
-    permission_classes = (BesluitAuthRequired, )
+    permission_classes = (BesluitAuthRequired,)
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -101,11 +103,13 @@ class BesluitViewSet(NotificationViewSetMixin,
     audit = AUDIT_BRC
 
 
-class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
-                                     AuditTrailViewsetMixin,
-                                     CheckQueryParamsMixin,
-                                     # ListFilterByAuthorizationsMixin,
-                                     viewsets.ModelViewSet):
+class BesluitInformatieObjectViewSet(
+    NotificationViewSetMixin,
+    AuditTrailViewsetMixin,
+    CheckQueryParamsMixin,
+    # ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
+):
     """
     Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties.
 
@@ -163,9 +167,9 @@ class BesluitInformatieObjectViewSet(NotificationViewSetMixin,
     queryset = BesluitInformatieObject.objects.all()
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
     permission_classes = (BesluitAuthRequired,)
-    permission_main_object = 'besluit'
+    permission_main_object = "besluit"
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,

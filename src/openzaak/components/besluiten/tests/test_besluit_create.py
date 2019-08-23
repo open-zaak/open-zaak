@@ -1,6 +1,9 @@
 from datetime import date
 
 from freezegun import freeze_time
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import TypeCheckMixin, reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -17,9 +20,7 @@ from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.catalogi.models.tests.factories import (
-    BesluitTypeFactory
-)
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )

@@ -1,10 +1,12 @@
-from rest_framework.request import Request
-from django.core.exceptions import ImproperlyConfigured
 from urllib.parse import urlparse
-from vng_api_common.utils import get_resource_for_path
-from vng_api_common.permissions import bypass_permissions, get_required_scopes
-from rest_framework import permissions
+
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
+
+from rest_framework import permissions
+from rest_framework.request import Request
+from vng_api_common.permissions import bypass_permissions, get_required_scopes
+from vng_api_common.utils import get_resource_for_path
 
 
 class AuthRequired(permissions.BasePermission):
@@ -12,6 +14,7 @@ class AuthRequired(permissions.BasePermission):
     Look at the scopes required for the current action
     and check that they are present in the AC for this client
     """
+
     permission_fields = ()
     main_resource = None
 
@@ -24,7 +27,7 @@ class AuthRequired(permissions.BasePermission):
     def format_data(self, obj, request) -> dict:
         main_resource = self.get_main_resource()
         serializer_class = main_resource.serializer_class
-        serializer = serializer_class(obj, context={'request': request})
+        serializer = serializer_class(obj, context={"request": request})
         return serializer.data
 
     def get_main_resource(self):
@@ -49,7 +52,7 @@ class AuthRequired(permissions.BasePermission):
         scopes_required = get_required_scopes(view)
         component = self.get_component(view)
 
-        if view.action == 'create':
+        if view.action == "create":
             if view.__class__ is main_resource:
                 main_object_data = request.data
 

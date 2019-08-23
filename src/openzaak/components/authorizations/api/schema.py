@@ -34,10 +34,9 @@ info = openapi.Info(
     description=description,
     contact=openapi.Contact(
         email="support@maykinmedia.nl",
-        url="https://github.com/VNG-Realisatie/gemma-zaken"
+        url="https://github.com/VNG-Realisatie/gemma-zaken",
     ),
     license=openapi.License(
-        name="EUPL 1.2",
-        url='https://opensource.org/licenses/EUPL-1.2'
+        name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"
     ),
 )

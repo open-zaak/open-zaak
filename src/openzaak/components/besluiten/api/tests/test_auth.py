@@ -3,19 +3,21 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from unittest import skip
 
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import EnkelvoudigInformatieObjectFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import AuthCheckMixin, reverse
 from vng_api_common.constants import ComponentTypes
-from openzaak.utils.tests import JWTAuthMixin
+from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 
@@ -49,7 +51,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         cls.besluittype = BesluitTypeFactory.create()
         super().setUpTestData()
 
-    @skip('ListFilterMixin is not implemeted yet')
+    @skip("ListFilterMixin is not implemeted yet")
     def test_besluit_list(self):
         """
         Assert you can only list BESLUITen of the besluittypes of your authorization
@@ -82,7 +84,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skip('ListFilterMixin is not implemeted yet')
+    @skip("ListFilterMixin is not implemeted yet")
     def test_read_superuser(self):
         """
         superuser read everything
@@ -112,7 +114,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         cls.besluittype = BesluitTypeFactory.create()
         super().setUpTestData()
 
-    @skip('ListFilterMixin is not implemeted yet')
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_bio_limited_to_authorized_zaken(self):
         besluit1 = BesluitFactory.create(besluittype="https://besluittype.nl/ok")
         besluit2 = BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
@@ -136,14 +138,20 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     def test_create_bio_limited_to_authorized_besluiten(self):
-        informatieobject = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype__concept=False)
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
         informatieobject_url = reverse(informatieobject)
 
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        self.besluittype.informatieobjecttypes.add(informatieobject.informatieobjecttype)
-        besluit2.besluittype.informatieobjecttypes.add(informatieobject.informatieobjecttype)
+        self.besluittype.informatieobjecttypes.add(
+            informatieobject.informatieobjecttype
+        )
+        besluit2.besluittype.informatieobjecttypes.add(
+            informatieobject.informatieobjecttype
+        )
 
         besluit_uri1 = reverse(besluit1)
         besluit_url1 = f"http://testserver{besluit_uri1}"
@@ -154,14 +162,8 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         url1 = reverse("besluitinformatieobject-list")
         url2 = reverse("besluitinformatieobject-list")
 
-        data1 = {
-            'informatieobject': informatieobject_url,
-            'besluit': besluit_url1
-        }
-        data2 = {
-            'informatieobject': informatieobject_url,
-            'besluit': besluit_url2
-        }
+        data1 = {"informatieobject": informatieobject_url, "besluit": besluit_url1}
+        data2 = {"informatieobject": informatieobject_url, "besluit": besluit_url2}
 
         response1 = self.client.post(url1, data1)
         response2 = self.client.post(url2, data2)

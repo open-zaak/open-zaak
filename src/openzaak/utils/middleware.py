@@ -1,21 +1,25 @@
 import logging
+from typing import List, Union
 
-from vng_api_common.middleware import AuthMiddleware as _AuthMiddleware, JWTAuth as _JWTAuth
-from vng_api_common.authorizations.models import Autorisatie, Applicatie
-from django.http import HttpRequest
 from django.db import models
 from django.db.models import Subquery
-from typing import List, Union
+from django.http import HttpRequest
+
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
+from vng_api_common.middleware import (
+    AuthMiddleware as _AuthMiddleware,
+    JWTAuth as _JWTAuth,
+)
 
 logger = logging.getLogger(__name__)
 
 COMPONENT_MAPPING = {
-    'authorizations': ComponentTypes.ac,
-    'zaken': ComponentTypes.zrc,
-    'catalogi': ComponentTypes.ztc,
-    'documenten': ComponentTypes.drc,
-    'besluiten': ComponentTypes.brc
+    "authorizations": ComponentTypes.ac,
+    "zaken": ComponentTypes.zrc,
+    "catalogi": ComponentTypes.ztc,
+    "documenten": ComponentTypes.drc,
+    "besluiten": ComponentTypes.brc,
 }
 
 
@@ -47,13 +51,12 @@ class JWTAuth(_JWTAuth):
         """
         Retrieve all authorizations relevant to this component.
         """
-        app_ids = self.applicaties.values('id')
+        app_ids = self.applicaties.values("id")
         return Autorisatie.objects.filter(
-                applicatie_id__in=Subquery(app_ids),
-                component=component
-            )
+            applicatie_id__in=Subquery(app_ids), component=component
+        )
 
-    def has_auth(self, scopes: List[str], init_component: str = None,  **fields) -> bool:
+    def has_auth(self, scopes: List[str], init_component: str = None, **fields) -> bool:
         if scopes is None:
             return False
 
@@ -74,10 +77,14 @@ class JWTAuth(_JWTAuth):
 
         # filter on all additional components
         for field_name, field_value in fields.items():
-            if hasattr(self, f'filter_{field_name}'):
-                autorisaties = getattr(self, f'filter_{field_name}')(autorisaties, field_value)
+            if hasattr(self, f"filter_{field_name}"):
+                autorisaties = getattr(self, f"filter_{field_name}")(
+                    autorisaties, field_value
+                )
             else:
-                autorisaties = self.filter_default(autorisaties, field_name, field_value)
+                autorisaties = self.filter_default(
+                    autorisaties, field_name, field_value
+                )
 
         for autorisatie in autorisaties:
             scopes_provided.update(autorisatie.scopes)
@@ -87,11 +94,11 @@ class JWTAuth(_JWTAuth):
 
 class AuthMiddleware(_AuthMiddleware):
     def extract_jwt_payload(self, request):
-        authorization = request.META.get(self.header, '')
+        authorization = request.META.get(self.header, "")
         prefix = f"{self.auth_type} "
         if authorization.startswith(prefix):
             # grab the actual token
-            encoded = authorization[len(prefix):]
+            encoded = authorization[len(prefix) :]
         else:
             encoded = None
 

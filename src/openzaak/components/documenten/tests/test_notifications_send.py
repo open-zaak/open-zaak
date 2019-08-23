@@ -21,7 +21,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    @patch('zds_client.Client.from_url')
+    @patch("zds_client.Client.from_url")
     def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT

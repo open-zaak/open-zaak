@@ -6,5 +6,6 @@ class BesluitAuthRequired(AuthRequired):
     Look at the scopes required for the current action and at besluittype
     of current besluit and check that they are present in the AC for this client
     """
-    permission_fields = ('besluittype',)
-    main_resource = 'openzaak.components.besluiten.api.viewsets.BesluitViewSet'
+
+    permission_fields = ("besluittype",)
+    main_resource = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"

@@ -3,6 +3,10 @@ from unittest.mock import patch
 from django.test import override_settings
 
 from freezegun import freeze_time
+from rest_framework import status
+from rest_framework.test import APITestCase
+from vng_api_common.tests import reverse
+
 from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.besluiten.models.tests.factories import (
@@ -10,9 +14,6 @@ from openzaak.components.besluiten.models.tests.factories import (
     BesluitInformatieObjectFactory,
 )
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 from openzaak.utils.tests import JWTAuthMixin
 
 

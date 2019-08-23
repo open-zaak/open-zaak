@@ -10,21 +10,21 @@ class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
 
 
 class ApplicatieFilter(FilterSet):
-    client_ids = CharArrayFilter(field_name='client_ids', lookup_expr='contains')
+    client_ids = CharArrayFilter(field_name="client_ids", lookup_expr="contains")
 
     class Meta:
         model = Applicatie
-        fields = ('client_ids',)
+        fields = ("client_ids",)
 
 
 class ApplicatieRetrieveFilter(FilterSet):
     client_id = CharArrayFilter(
-        field_name='client_ids',
-        lookup_expr='contains',
+        field_name="client_ids",
+        lookup_expr="contains",
         required=True,
-        help_text=_("Geef het client ID op waarvoor je de applicatie wil opvragen.")
+        help_text=_("Geef het client ID op waarvoor je de applicatie wil opvragen."),
     )
 
     class Meta:
         model = Applicatie
-        fields = ('client_id',)
+        fields = ("client_id",)

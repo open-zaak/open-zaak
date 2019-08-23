@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
-from openzaak.utils.tests import JWTAuthMixin
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.models.tests.factories import (
@@ -14,6 +13,7 @@ from openzaak.components.besluiten.models.tests.factories import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):

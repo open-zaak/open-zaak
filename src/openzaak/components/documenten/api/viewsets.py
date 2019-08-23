@@ -150,11 +150,14 @@ class EnkelvoudigInformatieObjectViewSet(
     Heft de "checkout" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT
     ontgrendeld wordt.
     """
-    queryset = EnkelvoudigInformatieObject.objects.order_by('canonical', '-versie').distinct('canonical')
-    lookup_field = 'uuid'
+
+    queryset = EnkelvoudigInformatieObject.objects.order_by(
+        "canonical", "-versie"
+    ).distinct("canonical")
+    lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (InformationObjectAuthRequired, )
+    permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -401,9 +404,9 @@ class GebruiksrechtenViewSet(
     filterset_class = GebruiksrechtenFilter
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
-    notifications_main_resource_key = 'informatieobject'
+    notifications_main_resource_key = "informatieobject"
     permission_classes = (InformationObjectAuthRequired,)
-    permission_main_object = 'informatieobject'
+    permission_main_object = "informatieobject"
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,

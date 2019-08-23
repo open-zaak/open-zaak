@@ -72,15 +72,14 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     # Project applications.
-    'openzaak',
-    'openzaak.accounts',
-    'openzaak.utils',
-    'openzaak.components.authorizations',
-    'openzaak.components.zaken',
-    'openzaak.components.besluiten',
-    'openzaak.components.documenten',
-    'openzaak.components.catalogi',
-
+    "openzaak",
+    "openzaak.accounts",
+    "openzaak.utils",
+    "openzaak.components.authorizations",
+    "openzaak.components.zaken",
+    "openzaak.components.besluiten",
+    "openzaak.components.documenten",
+    "openzaak.components.catalogi",
 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
@@ -88,15 +87,15 @@ MIDDLEWARE = [
     "openzaak.utils.middleware.LogHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # 'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'openzaak.utils.middleware.AuthMiddleware',
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "openzaak.utils.middleware.AuthMiddleware",
     # 'vng_api_common.middleware.AuthMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'vng_api_common.middleware.APIVersionHeaderMiddleware',
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "vng_api_common.middleware.APIVersionHeaderMiddleware",
 ]
 
 ROOT_URLCONF = "openzaak.urls"
@@ -383,11 +382,17 @@ MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
 
 # urls for OAS3 specifications
 SPEC_URL = {
-    'zaken': os.path.join(BASE_DIR, 'src/openzaak/components/zaken/openapi.yaml'),
-    'besluiten': os.path.join(BASE_DIR, 'src/openzaak/components/besluiten/openapi.yaml'),
-    'documenten': os.path.join(BASE_DIR, 'src/openzaak/components/documenten/openapi.yaml'),
-    'catalogi': os.path.join(BASE_DIR, 'src/openzaak/components/catalogi/openapi.yaml'),
-    'authorizations': os.path.join(BASE_DIR, 'src/openzaak/components/authorizations/openapi.yaml'),
+    "zaken": os.path.join(BASE_DIR, "src/openzaak/components/zaken/openapi.yaml"),
+    "besluiten": os.path.join(
+        BASE_DIR, "src/openzaak/components/besluiten/openapi.yaml"
+    ),
+    "documenten": os.path.join(
+        BASE_DIR, "src/openzaak/components/documenten/openapi.yaml"
+    ),
+    "catalogi": os.path.join(BASE_DIR, "src/openzaak/components/catalogi/openapi.yaml"),
+    "authorizations": os.path.join(
+        BASE_DIR, "src/openzaak/components/authorizations/openapi.yaml"
+    ),
 }
 
 # for generate_schema depending on the component

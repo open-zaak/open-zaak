@@ -8,21 +8,21 @@ https://wiki.exxellence.nl/display/KPORT/2.+Zaaktype+autorisaties
 from vng_api_common.scopes import Scope
 
 SCOPE_AUTORISATIES_LEZEN = Scope(
-    'autorisaties.lezen',
+    "autorisaties.lezen",
     description="""
 **Laat toe om**:
 
 * autorisaties te lezen
-"""
+""",
 )
 
 SCOPE_AUTORISATIES_BIJWERKEN = Scope(
-    'autorisaties.bijwerken',
+    "autorisaties.bijwerken",
     description="""
 **Laat toe om**:
 
 * autorisaties te maken
 * autorisaties te wijzigen
 * autorisaties te verwijderen
-"""
+""",
 )
