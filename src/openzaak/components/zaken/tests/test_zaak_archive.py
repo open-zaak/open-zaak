@@ -11,7 +11,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 from zds_client.tests.mocks import mock_client
 
 from openzaak.components.catalogi.models.tests.factories import (
@@ -29,6 +29,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 

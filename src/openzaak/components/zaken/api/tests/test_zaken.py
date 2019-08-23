@@ -10,9 +10,11 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
+    ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
@@ -24,7 +26,6 @@ from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import (
     StatusFactory,
-    ZaakBesluitFactory,
     ZaakFactory,
 )
 from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
@@ -34,9 +35,9 @@ from openzaak.components.zaken.tests.utils import (
     isodatetime,
     utcdatetime,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import (
-    SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
@@ -183,13 +184,11 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         SCOPE_ZAKEN_CREATE,
         SCOPE_ZAKEN_BIJWERKEN,
         SCOPE_ZAKEN_ALLES_LEZEN,
-        SCOPE_STATUSSEN_TOEVOEGEN,
     ]
+    component = ComponentTypes.zrc
 
     @classmethod
     def setUpTestData(cls):
-        super().setUpTestData()
-
         cls.zaaktype = ZaakTypeFactory.create()
         cls.zaaktype_url = reverse(cls.zaaktype)
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
@@ -197,8 +196,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         cls.statustype2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype2_url = reverse(cls.statustype2)
 
-        cls.autorisatie.zaaktype = cls.zaaktype_url
-        cls.autorisatie.save()
+        super().setUpTestData()
 
     def test_enkel_initiele_status_met_scope_aanmaken(self):
         """
@@ -404,6 +402,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(
             betalingsindicatie=BetalingsIndicatie.gedeeltelijk,
             laatste_betaaldatum=timezone.now(),
+            zaaktype=self.zaaktype
         )
         url = reverse(zaak)
 

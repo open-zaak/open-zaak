@@ -1,16 +1,14 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
-import uuid
 from unittest import skip
-
-from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.tests import AuthCheckMixin, reverse
 
+from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.models.tests.factories import (
     ResultaatFactory,
@@ -23,16 +21,11 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
 
-INFORMATIEOBJECT = (
-    f"http://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}"
-)
 
-
-@skip("Current implementation is without authentication")
-@override_settings(ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient")
 class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_zaak_without_correct_scope(self):
         url = reverse("zaak-list")
@@ -48,7 +41,7 @@ class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
             reverse(zaak),
             reverse("status-list"),
             reverse(status),
-            reverse("status-list"),
+            reverse("resultaat-list"),
             reverse(resultaat),
             reverse("zaakobject-list"),
             reverse(zaak_object),
@@ -59,32 +52,35 @@ class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get", request_kwargs=ZAAK_READ_KWARGS)
 
 
-@skip("Current implementation is without authentication")
 class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_zaak_list(self):
         """
         Assert you can only list ZAAKen of the zaaktypes and vertrouwelijkheidaanduiding
         of your authorization
         """
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
         url = reverse("zaak-list")
 
@@ -107,11 +103,10 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         of your authorization
         """
         zaak1 = ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         zaak2 = ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         url1 = reverse(zaak1)
@@ -131,20 +126,18 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.applicatie.save()
 
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
         url = reverse("zaak-list")
 
@@ -157,28 +150,32 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 4)
 
 
-@skip("Current implementation is without authentication")
 class StatusReadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_resultaat_limited_to_authorized_zaken(self):
         url = reverse("status-list")
         # must show up
         status1 = StatusFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         StatusFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         StatusFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)
@@ -191,28 +188,32 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         )
 
 
-@skip("Current implementation is without authentication")
 class ResultaatTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_status_limited_to_authorized_zaken(self):
         url = reverse("resultaat-list")
         # must show up
         resultaat = ResultaatFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         ResultaatFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         ResultaatFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)
@@ -227,7 +228,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
     def test_write_operations_forbidden(self):
         # scope not provided for writes, so this should 403 (not 404!)
         resultaat = ResultaatFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
 
@@ -240,28 +241,32 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-@skip("Current implementation is without authentication")
 class ZaakObjectTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakobject_limited_to_authorized_zaken(self):
         url = reverse("zaakobject-list")
         # must show up
         zaakobject = ZaakObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         ZaakObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         ZaakObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)
@@ -275,9 +280,9 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
 
     def test_create_zaakobject_limited_to_authorized_zaken(self):
         url = reverse("zaakobject-list")
-        zaak1 = ZaakFactory.create(zaaktype="https://zaaktype.nl/not_ok")
+        zaak1 = ZaakFactory.create()
         zaak2 = ZaakFactory.create(
-            zaaktype="https://zaaktype.nl/ok",
+            zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
 
@@ -291,30 +296,31 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-@skip("Current implementation is without authentication")
 class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakinformatieobject_limited_to_authorized_zaken(self):
         # must show up
         zio1 = ZaakInformatieObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            informatieobject=INFORMATIEOBJECT,
         )
         # must not show up
         zio2 = ZaakInformatieObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            informatieobject=INFORMATIEOBJECT,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         # must not show up
         zio3 = ZaakInformatieObjectFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-            informatieobject=INFORMATIEOBJECT,
         )
 
         url = reverse(ZaakInformatieObject)
@@ -328,12 +334,17 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
 
 
-@skip("Current implementation is without authentication")
 class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakeigenschap_limited_to_authorized_zaken(self):
         # must show up
         eigenschap1 = ZaakEigenschapFactory.create(
@@ -388,17 +399,16 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
     def test_detail_zaakeigenschap_limited_to_authorized_zaken(self):
         # must show up
         eigenschap1 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         eigenschap2 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         eigenschap3 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
 
@@ -424,29 +434,37 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_create_zaakeigenschap_limited_to_authorized_zaken(self):
+        # FIXME
+        pass
 
-@skip("Current implementation is without authentication")
+
 class RolReadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_rol_limited_to_authorized_zaken(self):
         url = reverse("rol-list")
         # must show up
         rol = RolFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         RolFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         RolFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)
@@ -460,9 +478,15 @@ class RolReadTests(JWTAuthMixin, APITestCase):
 @skip("Current implementation is without authentication")
 class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
-    zaaktype = "https://zaaktype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakbesluit_limited_to_authorized_zaken(self):
         # must show up
         zaak_besluit1 = ZaakBesluitFactory.create(
@@ -512,7 +536,7 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_detail_zaakinformatieobject_limited_to_authorized_zaken(self):
+    def test_detail_zaakbesluit_limited_to_authorized_zaken(self):
         # must show up
         zaak_besluit1 = ZaakBesluitFactory.create(
             zaak__zaaktype="https://zaaktype.nl/ok",

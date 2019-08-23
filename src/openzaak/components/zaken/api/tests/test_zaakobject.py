@@ -3,7 +3,7 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.zaken.models import (
     Adres,
@@ -25,6 +25,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 from .utils import get_operation_url
 

@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import Archiefnominatie
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.models.tests.factories import StatusTypeFactory
 from openzaak.components.zaken.api.scopes import (
@@ -18,6 +18,7 @@ from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class ZaakClosedTests(JWTAuthMixin, APITestCase):

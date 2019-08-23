@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.api.tests.utils import get_operation_url
@@ -14,6 +14,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ResultaatFactory,
     ZaakFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 from .utils import ZAAK_WRITE_KWARGS
 

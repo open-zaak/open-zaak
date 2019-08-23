@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import (
@@ -24,6 +24,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
+from openzaak.utils.tests import JWTAuthMixin
 
 from .utils import ZAAK_WRITE_KWARGS
 

@@ -22,7 +22,6 @@ from vng_api_common.notifications.viewsets import (
     NotificationCreateMixin,
     NotificationViewSetMixin,
 )
-from vng_api_common.permissions import permission_class_factory
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
@@ -51,11 +50,7 @@ from .filters import (
     ZaakObjectFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .permissions import (
-    ZaakAuthScopesRequired,
-    ZaakBaseAuthRequired,
-    ZaakRelatedAuthScopesRequired,
-)
+from .permissions import ZaakAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -204,7 +199,7 @@ class ZaakViewSet(
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
 
-    # permission_classes = (ZaakAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -249,11 +244,13 @@ class ZaakViewSet(
 
         """
         zaak = self.get_object()
+        zaak_data = self.get_serializer(zaak).data
 
         if not self.request.jwt_auth.has_auth(
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
-            zaaktype=zaak.zaaktype,
-            vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            zaaktype=zaak_data["zaaktype"],
+            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+            init_component=self.queryset.model._meta.app_label,
         ):
             if zaak.einddatum:
                 msg = "Modifying a closed case with current scope is forbidden"
@@ -302,8 +299,8 @@ class StatusViewSet(
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
-
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -329,10 +326,14 @@ class StatusViewSet(
           insufficient permissions
         """
         zaak = serializer.validated_data["zaak"]
+        zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
+        component = self.queryset.model._meta.app_label
+
         if not self.request.jwt_auth.has_auth(
             scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
-            zaaktype=zaak.zaaktype,
-            vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            zaaktype=zaak_data["zaaktype"],
+            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+            init_component=component,
         ):
             if zaak.status_set.exists():
                 msg = f"Met de '{SCOPE_ZAKEN_CREATE}' scope mag je slechts 1 status zetten"
@@ -340,8 +341,9 @@ class StatusViewSet(
 
         if not self.request.jwt_auth.has_auth(
             scopes=SCOPEN_ZAKEN_HEROPENEN,
-            zaaktype=zaak.zaaktype,
-            vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            zaaktype=zaak_data["zaaktype"],
+            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+            init_component=component,
         ):
             if zaak.einddatum:
                 msg = "Reopening a closed case with current scope is forbidden"
@@ -381,7 +383,8 @@ class ZaakObjectViewSet(
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
 
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -465,8 +468,8 @@ class ZaakInformatieObjectViewSet(
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_ZAKEN
     notifications_main_resource_key = "zaak"
-
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -509,12 +512,8 @@ class ZaakEigenschapViewSet(
 
     queryset = ZaakEigenschap.objects.all()
     serializer_class = ZaakEigenschapSerializer
-    # permission_classes = (
-    #     permission_class_factory(
-    #         base=ZaakBaseAuthRequired,
-    #         get_obj='_get_zaak',
-    #     ),
-    # )
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     lookup_field = "uuid"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -533,10 +532,11 @@ class ZaakEigenschapViewSet(
         return self._zaak
 
     def list(self, request, *args, **kwargs):
-        zaak = self._get_zaak()
-        permission = ZaakAuthScopesRequired()
-        if not permission.has_object_permission(self.request, self, zaak):
-            raise PermissionDenied
+        # FIXME do we need this?
+        # zaak = self._get_zaak()
+        # permission = ZaakAuthRequired()
+        # if not permission.has_object_permission(self.request, self, zaak):
+        #     raise PermissionDenied
         return super().list(request, *args, **kwargs)
 
 
@@ -570,7 +570,8 @@ class KlantContactViewSet(
     queryset = KlantContact.objects.all()
     serializer_class = KlantContactSerializer
     lookup_field = "uuid"
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -618,8 +619,8 @@ class RolViewSet(
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
-
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -682,8 +683,8 @@ class ResultaatViewSet(
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
-
-    # permission_classes = (ZaakRelatedAuthScopesRequired,)
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -764,13 +765,17 @@ class ZaakBesluitViewSet(
     queryset = ZaakBesluit.objects.none()  # required for vng-api-common
     serializer_class = ZaakBesluitSerializer
     lookup_field = "uuid"
-
-    # permission_classes = (
-    #     permission_class_factory(
-    #         base=ZaakBaseAuthRequired,
-    #         get_obj='_get_zaak',
-    #     ),
-    # )
+    parent_retrieve_kwargs = {
+        'zaak_uuid': 'uuid',
+    }
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
+    required_scopes = {
+        'list': SCOPE_ZAKEN_ALLES_LEZEN,
+        'retrieve': SCOPE_ZAKEN_ALLES_LEZEN,
+        'create': SCOPE_ZAKEN_BIJWERKEN,
+        'destroy': SCOPE_ZAKEN_BIJWERKEN,
+    }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
