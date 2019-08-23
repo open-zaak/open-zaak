@@ -9,13 +9,12 @@ from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 
+from openzaak.utils.permissions import AuthRequired
+
 from ._schema_overrides import ApplicatieConsumerAutoSchema
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
 from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
-
-# from vng_api_common.permissions import AuthScopesRequired
-
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +96,7 @@ class ApplicatieViewSet(NotificationViewSetMixin, viewsets.ModelViewSet):
     _filterset_class = ApplicatieFilter
     pagination_class = PageNumberPagination
     lookup_field = "uuid"
-    # permission_classes = (AuthScopesRequired,)
+    permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_AUTORISATIES_LEZEN,
         "retrieve": SCOPE_AUTORISATIES_LEZEN,

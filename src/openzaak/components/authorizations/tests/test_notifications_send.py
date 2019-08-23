@@ -5,21 +5,20 @@ from django.test import override_settings
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
 from openzaak.components.authorizations.api.tests.utils import get_operation_url
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from ..models.tests.factories import AutorisatieFactory
 
 
 @freeze_time("2012-01-14")
-@override_settings(
-    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", NOTIFICATIONS_DISABLED=False
-)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
+    component = ComponentTypes.ac
 
     @patch("zds_client.Client.from_url")
     def test_send_notif_create_application(self, mock_client):

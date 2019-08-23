@@ -2,13 +2,14 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.authorizations.api.validators import UniqueClientIDValidator
 from openzaak.components.authorizations.models.tests.factories import (
     ApplicatieFactory,
     AutorisatieFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from .utils import get_operation_url
@@ -16,6 +17,7 @@ from .utils import get_operation_url
 
 class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
+    component = ComponentTypes.ac
 
     def test_create_application_with_all_permissions(self):
         """
@@ -271,6 +273,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
 
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
+    component = ComponentTypes.ac
 
     @classmethod
     def setUpTestData(cls):
@@ -315,6 +318,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
+    component = ComponentTypes.ac
 
     @classmethod
     def setUpTestData(cls):
