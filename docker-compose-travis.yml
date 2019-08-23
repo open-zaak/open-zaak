@@ -1,0 +1,68 @@
+# Inspired by https://docs.docker.com/compose/django/
+version: '3.4'
+
+services:
+  db_notifications:
+    image: postgres:11-alpine
+    ports:
+      - "5433"
+
+  rabbitmq:
+    image: rabbitmq:3.7-alpine
+    # environment:
+    #   - RABBITMQ_DEFAULT_USER=guest
+    #   - RABBITMQ_DEFAULT_PASS=guest
+
+  celery:
+    image: openzaak/open-notificaties
+    environment:
+      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
+      - SECRET_KEY=${SECRET_KEY}
+      - RABBITMQ_HOST=rabbitmq
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_LOGLEVEL=DEBUG
+      - DB_HOST=db_notifications
+    command: /celery_worker.sh
+    depends_on:
+      - db_notifications
+      - rabbitmq
+
+  notifications:
+    image: openzaak/open-notificaties
+    environment:
+      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_HOST=db_notifications
+    ports:
+      - 8001:8000
+    depends_on:
+      - db_notifications
+      - rabbitmq
+
+  db:
+    image: mdillon/postgis
+    ports:
+      - "5432"
+    # environment:
+    #   - POSTGRES_USER=${PG_USER:zrc}
+    #   - POSTGRES_PASSWORD=${PG_PASSWORD:zrc}
+
+  redis:
+    image: redis
+
+  web:
+    build: .
+    environment:
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+      - IS_HTTPS=no
+      - ALLOWED_HOSTS=*
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DEBUG=yes
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
