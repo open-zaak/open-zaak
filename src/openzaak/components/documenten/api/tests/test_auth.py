@@ -26,7 +26,6 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
         url = reverse("enkelvoudiginformatieobject-list")
         self.assertForbidden(url, method="post")
 
-    @skip("ObjectInformatieObject is not implemented yet")
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         gebruiksrechten = GebruiksrechtenFactory.create()
@@ -36,6 +35,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
             reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
             reverse("gebruiksrechten-list"),
             reverse(gebruiksrechten),
+            # FIXME add when objectinformatieobject is implemented
             # reverse('objectinformatieobject-list'),
             # reverse('objectinformatieobject-'),
         ]
@@ -231,7 +231,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
 
-@skip("Current implementation is without authentication")
+@skip("ObjectInformatieObject is not implemented yet")
 class OioReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]

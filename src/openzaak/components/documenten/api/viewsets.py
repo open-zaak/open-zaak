@@ -334,13 +334,16 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(detail=True, methods=["post"])
     def unlock(self, request, *args, **kwargs):
         eio = self.get_object()
+        eio_data = self.get_serializer(eio).data
         canonical = eio.canonical
+
         # check if it's a force unlock by administrator
         force_unlock = False
         if self.request.jwt_auth.has_auth(
             scopes=SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
-            informatieobjecttype=eio.informatieobjecttype,
-            vertrouwelijkheidaanduiding=eio.vertrouwelijkheidaanduiding,
+            informatieobjecttype=eio_data["informatieobjecttype"],
+            vertrouwelijkheidaanduiding=eio_data["vertrouwelijkheidaanduiding"],
+            init_component=self.queryset.model._meta.app_label,
         ):
             force_unlock = True
 
