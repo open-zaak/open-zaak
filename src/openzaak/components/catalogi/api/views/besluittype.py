@@ -1,6 +1,8 @@
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 
+from openzaak.utils.permissions import AuthRequired
+
 from ...models import BesluitType
 from ..filters import BesluitTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
@@ -59,6 +61,7 @@ class BesluitTypeViewSet(
     filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
+    permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,

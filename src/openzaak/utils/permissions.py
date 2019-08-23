@@ -48,9 +48,13 @@ class AuthRequired(permissions.BasePermission):
         if bypass_permissions(request):
             return True
 
-        main_resource = self.get_main_resource()
         scopes_required = get_required_scopes(view)
         component = self.get_component(view)
+
+        if not self.permission_fields:
+            return request.jwt_auth.has_auth(scopes_required, component)
+
+        main_resource = self.get_main_resource()
 
         if view.action == "create":
             if view.__class__ is main_resource:
@@ -77,9 +81,13 @@ class AuthRequired(permissions.BasePermission):
         if bypass_permissions(request):
             return True
 
-        main_resource = self.get_main_resource()
         scopes_required = get_required_scopes(view)
         component = self.get_component(view)
+
+        if not self.permission_fields:
+            return request.jwt_auth.has_auth(scopes_required, component)
+
+        main_resource = self.get_main_resource()
 
         if view.__class__ is main_resource:
             main_object = obj

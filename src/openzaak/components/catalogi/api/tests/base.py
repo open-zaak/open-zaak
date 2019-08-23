@@ -1,7 +1,9 @@
 import warnings
 
 from rest_framework.test import APITestCase as _APITestCase
-from vng_api_common.tests import JWTAuthMixin
+from vng_api_common.constants import ComponentTypes
+
+from openzaak.utils.tests import JWTAuthMixin
 
 from ...models.tests.factories import CatalogusFactory
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
@@ -11,6 +13,7 @@ from .utils import get_operation_url
 class ClientAPITestMixin(JWTAuthMixin):
 
     scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    component = ComponentTypes.ztc
 
     @property
     def api_client(self):

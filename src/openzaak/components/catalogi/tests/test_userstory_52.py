@@ -30,7 +30,6 @@ class US52TestCase(TypeCheckMixin, ClientAPITestMixin, APITestCase):
                 waardenverzameling=["boot", "zwerfvuil"],
             ),
         )
-
         EigenschapFactory.create(
             eigenschapnaam="boot.naam",
             zaaktype=zaaktype,
@@ -41,7 +40,6 @@ class US52TestCase(TypeCheckMixin, ClientAPITestMixin, APITestCase):
                 kardinaliteit="1",
             ),
         )
-
         EigenschapFactory.create(
             eigenschapnaam="boot.rederij",
             zaaktype=zaaktype,

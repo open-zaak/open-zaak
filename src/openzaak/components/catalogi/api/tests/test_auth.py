@@ -2,13 +2,11 @@
 Guarantee that the proper authorization amchinery is in place.
 """
 import uuid
-from unittest import skip
 
 from rest_framework.test import APITestCase
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 
-@skip("Current implementation is without authentication")
 class ReadTests(AuthCheckMixin, APITestCase):
     def test_cannot_read_without_correct_scope(self):
         dummy_uuid = str(uuid.uuid4())
