@@ -3,7 +3,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitInformatieObjectFactory,
@@ -18,6 +18,7 @@ from openzaak.components.documenten.models.tests.factories import (
     GebruiksrechtenFactory,
 )
 from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class US349TestCase(JWTAuthMixin, APITestCase):

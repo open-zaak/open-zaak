@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import ObjectTypes
-from vng_api_common.tests import JWTAuthMixin, reverse, reverse_lazy
+from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.models.tests.factories import (
@@ -22,6 +22,7 @@ from openzaak.components.documenten.models import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 ZAAK = f"http://example.com/zrc/api/v1/zaken/{uuid.uuid4().hex}"
 

@@ -7,12 +7,13 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
 from openzaak.components.documenten.api.tests.utils import get_operation_url
+from openzaak.utils.tests import JWTAuthMixin
 
 
 @freeze_time("2012-01-14")
