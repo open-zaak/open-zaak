@@ -39,20 +39,8 @@ class AuthRequired(permissions.BasePermission):
             )
         return import_string(self.main_resource)
 
-    def has_permission_main(self, request, view, scopes, component) -> bool:
-        main_object_data = request.data
-
-        fields = self.get_fields(main_object_data)
-        return request.jwt_auth.has_auth(scopes, component, **fields)
-
-    def has_permission_related(self, request, view, scopes, component) -> bool:
-        main_object_url = request.data[view.permission_main_object]
-        main_object_path = urlparse(main_object_url).path
-        main_object = get_resource_for_path(main_object_path)
-        main_object_data = self.format_data(main_object, request)
-
-        fields = self.get_fields(main_object_data)
-        return request.jwt_auth.has_auth(scopes, component, **fields)
+    def get_main_object(self, obj, permission_main_object):
+        return getattr(obj, permission_main_object)
 
     def has_permission(self, request: Request, view) -> bool:
         from rest_framework.viewsets import ViewSetMixin
@@ -70,13 +58,16 @@ class AuthRequired(permissions.BasePermission):
 
         if view.action == "create":
             if view.__class__ is main_resource:
-                return self.has_permission_main(
-                    request, view, scopes_required, component
-                )
+                main_object_data = request.data
+
             else:
-                return self.has_permission_related(
-                    request, view, scopes_required, component
-                )
+                main_object_url = request.data[view.permission_main_object]
+                main_object_path = urlparse(main_object_url).path
+                main_object = get_resource_for_path(main_object_path)
+                main_object_data = self.format_data(main_object, request)
+
+            fields = self.get_fields(main_object_data)
+            return request.jwt_auth.has_auth(scopes_required, component, **fields)
 
         # detect if this is an unsupported method - if it's a viewset and the
         # action was not mapped, it's not supported and DRF will catch it
@@ -85,22 +76,6 @@ class AuthRequired(permissions.BasePermission):
 
         # by default - check if the action is allowed at all
         return request.jwt_auth.has_auth(scopes_required, component)
-
-    def has_object_permission_main(self, request, view, obj, scopes, component) -> bool:
-        main_object = obj
-        main_object_data = self.format_data(main_object, request)
-
-        fields = self.get_fields(main_object_data)
-        return request.jwt_auth.has_auth(scopes, component, **fields)
-
-    def has_object_permission_related(
-        self, request, view, obj, scopes, component
-    ) -> bool:
-        main_object = getattr(obj, view.permission_main_object)
-        main_object_data = self.format_data(main_object, request)
-
-        fields = self.get_fields(main_object_data)
-        return request.jwt_auth.has_auth(scopes, component, **fields)
 
     def has_object_permission(self, request: Request, view, obj) -> bool:
         if bypass_permissions(request):
@@ -115,10 +90,10 @@ class AuthRequired(permissions.BasePermission):
         main_resource = self.get_main_resource()
 
         if view.__class__ is main_resource:
-            return self.has_object_permission_main(
-                request, view, obj, scopes_required, component
-            )
+            main_object = obj
         else:
-            return self.has_object_permission_related(
-                request, view, obj, scopes_required, component
-            )
+            main_object = self.get_main_object(obj, view.permission_main_object)
+
+        main_object_data = self.format_data(main_object, request)
+        fields = self.get_fields(main_object_data)
+        return request.jwt_auth.has_auth(scopes_required, component, **fields)

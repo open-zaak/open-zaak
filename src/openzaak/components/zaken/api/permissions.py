@@ -1,3 +1,6 @@
+from rest_framework.request import Request
+from vng_api_common.permissions import bypass_permissions, get_required_scopes
+
 from openzaak.utils.permissions import AuthRequired
 
 
@@ -12,9 +15,19 @@ class ZaakAuthRequired(AuthRequired):
 
 
 class ZaakNestedAuthRequired(ZaakAuthRequired):
-    def has_permission_related(self, request, view, scopes, component) -> bool:
+    def has_permission(self, request: Request, view) -> bool:
+        if bypass_permissions(request):
+            return True
+
+        scopes_required = get_required_scopes(view)
+        component = self.get_component(view)
+
         main_object = view._get_zaak()
         main_object_data = self.format_data(main_object, request)
 
         fields = self.get_fields(main_object_data)
-        return request.jwt_auth.has_auth(scopes, component, **fields)
+        return request.jwt_auth.has_auth(scopes_required, component, **fields)
+
+    def has_object_permission(self, request: Request, view, obj) -> bool:
+        # all checks are made in has_permission stage
+        return True
