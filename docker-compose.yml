@@ -8,7 +8,7 @@ services:
     #   - POSTGRES_USER=${PG_USER:zrc}
     #   - POSTGRES_PASSWORD=${PG_PASSWORD:zrc}
   web:
-    image: stevenbal/open-zaak
+    image: openzaak/open-zaak
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY}
