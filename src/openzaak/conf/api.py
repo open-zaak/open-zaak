@@ -11,7 +11,7 @@ SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
 SWAGGER_SETTINGS.update(
     {
         "DEFAULT_INFO": "openzaak.components.zaken.api.schema.info",  # TODO: fix it as parameter
-        'DEFAULT_AUTO_SCHEMA_CLASS': 'openzaak.utils.schema.AutoSchema',
+        "DEFAULT_AUTO_SCHEMA_CLASS": "openzaak.utils.schema.AutoSchema",
         "SECURITY_DEFINITIONS": {
             SECURITY_DEFINITION_NAME: {
                 # OAS 3.0

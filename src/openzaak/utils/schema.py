@@ -1,7 +1,10 @@
 import logging
+
 from django.conf import settings
+
 from vng_api_common.inspectors.view import AutoSchema as _AutoSchema
 from vng_api_common.permissions import get_required_scopes
+
 from .permissions import AuthRequired
 
 logger = logging.getLogger(__name__)
@@ -17,7 +20,9 @@ class AutoSchema(_AutoSchema):
         :return: security requirements
         :rtype: list[dict[str,list[str]]]"""
         permissions = self.view.get_permissions()
-        scope_permissions = [perm for perm in permissions if isinstance(perm, AuthRequired)]
+        scope_permissions = [
+            perm for perm in permissions if isinstance(perm, AuthRequired)
+        ]
 
         if not scope_permissions:
             return super().get_security()
@@ -25,7 +30,8 @@ class AutoSchema(_AutoSchema):
         if len(permissions) != len(scope_permissions):
             logger.warning(
                 "Can't represent all permissions in OAS for path %s and method %s",
-                self.path, self.method
+                self.path,
+                self.method,
             )
 
         required_scopes = []
@@ -41,6 +47,4 @@ class AutoSchema(_AutoSchema):
         scopes = [str(scope) for scope in sorted(required_scopes)]
 
         # operation level security
-        return [{
-            settings.SECURITY_DEFINITION_NAME: scopes,
-        }]
+        return [{settings.SECURITY_DEFINITION_NAME: scopes}]
