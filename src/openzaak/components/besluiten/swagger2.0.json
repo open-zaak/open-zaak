@@ -246,6 +246,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -434,6 +441,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.aanmaken"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -925,6 +939,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.lezen"
+                        ]
+                    }
                 ]
             },
             "put": {
@@ -1120,6 +1141,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "patch": {
@@ -1315,6 +1343,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -1485,6 +1520,13 @@
                 },
                 "tags": [
                     "besluiten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.verwijderen"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -1667,6 +1709,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -1855,6 +1904,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.aanmaken"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -2009,6 +2065,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.lezen"
+                        ]
+                    }
                 ]
             },
             "put": {
@@ -2204,6 +2267,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "patch": {
@@ -2399,6 +2469,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -2569,6 +2646,13 @@
                 },
                 "tags": [
                     "besluitinformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "besluiten.verwijderen"
+                        ]
+                    }
                 ]
             },
             "parameters": [

@@ -48,7 +48,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.0-rc1
+  version: 0.1.0
 security:
 - JWT-Claims: []
 paths:
@@ -245,6 +245,8 @@ paths:
 
 
         Na het aanmaken wordt een notificatie verstuurd.'
+      requestBody:
+        $ref: '#/components/requestBodies/Applicatie'
       responses:
         '201':
           description: Created
@@ -376,8 +378,6 @@ paths:
       security:
       - JWT-Claims:
         - autorisaties.bijwerken
-      requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
     parameters: []
   /applicaties/consumer:
     get:
@@ -434,7 +434,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -519,9 +519,6 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.lezen
     parameters: []
   /applicaties/{uuid}:
     get:
@@ -580,7 +577,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -682,6 +679,8 @@ paths:
 
 
         Na het bijwerken wordt een notificatie verstuurd.'
+      requestBody:
+        $ref: '#/components/requestBodies/Applicatie'
       responses:
         '200':
           description: OK
@@ -732,7 +731,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -820,8 +819,6 @@ paths:
       security:
       - JWT-Claims:
         - autorisaties.bijwerken
-      requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
     patch:
       operationId: applicatie_partial_update
       summary: Werk (een deel van) de applicatie bij.
@@ -841,6 +838,8 @@ paths:
 
 
         Na het bijwerken wordt een notificatie verstuurd.'
+      requestBody:
+        $ref: '#/components/requestBodies/Applicatie'
       responses:
         '200':
           description: OK
@@ -891,7 +890,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -979,8 +978,6 @@ paths:
       security:
       - JWT-Claims:
         - autorisaties.bijwerken
-      requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
     delete:
       operationId: applicatie_delete
       summary: Verwijder een applicatie met de bijhorende autorisaties.
@@ -1019,7 +1016,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
         '404':
-          description: Not_found
+          description: Not found
           headers:
             API-version:
               schema:
@@ -1127,9 +1124,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     AutorisatieBase:
       required:

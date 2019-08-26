@@ -203,6 +203,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
     post:
       operationId: enkelvoudiginformatieobject_create
       summary: Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.
@@ -364,6 +367,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.aanmaken
     parameters: []
   /enkelvoudiginformatieobjecten/{enkelvoudiginformatieobject_uuid}/audittrail:
     get:
@@ -787,6 +793,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
     put:
       operationId: enkelvoudiginformatieobject_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
@@ -951,6 +960,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
     patch:
       operationId: enkelvoudiginformatieobject_partial_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
@@ -1115,6 +1127,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
     delete:
       operationId: enkelvoudiginformatieobject_delete
       summary: Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.
@@ -1271,6 +1286,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -1408,6 +1426,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
     parameters:
     - name: uuid
       in: path
@@ -1556,6 +1577,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.lock
     parameters:
     - name: uuid
       in: path
@@ -1696,6 +1720,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - (documenten.lock | documenten.geforceerd-unlock)
     parameters:
     - name: uuid
       in: path
@@ -1901,6 +1928,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
     post:
       operationId: gebruiksrechten_create
       summary: Maak een GEBRUIKSRECHT aan.
@@ -2058,6 +2088,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.aanmaken
     parameters: []
   /gebruiksrechten/{uuid}:
     get:
@@ -2187,6 +2220,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
     put:
       operationId: gebruiksrechten_update
       summary: Werk een GEBRUIKSRECHT in zijn geheel bij.
@@ -2349,6 +2385,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
     patch:
       operationId: gebruiksrechten_partial_update
       summary: Werk een GEBRUIKSRECHT relatie deels bij.
@@ -2511,6 +2550,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
     delete:
       operationId: gebruiksrechten_delete
       summary: Verwijder een GEBRUIKSRECHT.
@@ -2657,6 +2699,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - gebruiksrechten
+      security:
+      - JWT-Claims:
+        - documenten.verwijderen
     parameters:
     - name: uuid
       in: path
