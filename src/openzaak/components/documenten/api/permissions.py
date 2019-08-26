@@ -12,5 +12,11 @@ class InformationObjectAuthRequired(AuthRequired):
         "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet"
     )
 
-    def get_main_object(self, obj, permission_main_object):
-        return getattr(obj, permission_main_object).latest_version
+    def has_object_permission_related(
+        self, request, view, obj, scopes, component
+    ) -> bool:
+        main_object = getattr(obj, view.permission_main_object).latest_version
+        main_object_data = self.format_data(main_object, request)
+
+        fields = self.get_fields(main_object_data)
+        return request.jwt_auth.has_auth(scopes, component, **fields)

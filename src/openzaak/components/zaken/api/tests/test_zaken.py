@@ -24,10 +24,7 @@ from openzaak.components.catalogi.models.tests.factories import (
 )
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
-from openzaak.components.zaken.models.tests.factories import (
-    StatusFactory,
-    ZaakFactory,
-)
+from openzaak.components.zaken.models.tests.factories import StatusFactory, ZaakFactory
 from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
 from openzaak.components.zaken.tests.utils import (
     ZAAK_READ_KWARGS,
@@ -180,11 +177,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
 
 class ZakenTests(JWTAuthMixin, APITestCase):
 
-    scopes = [
-        SCOPE_ZAKEN_CREATE,
-        SCOPE_ZAKEN_BIJWERKEN,
-        SCOPE_ZAKEN_ALLES_LEZEN,
-    ]
+    scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_ALLES_LEZEN]
     component = ComponentTypes.zrc
 
     @classmethod
@@ -231,7 +224,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(zaak.status_set.count(), 1)
 
-    @unittest.skip("Current implementation is without authentication")
     def test_zaak_heropen_reset_einddatum(self):
         self.autorisatie.scopes = self.autorisatie.scopes + [SCOPEN_ZAKEN_HEROPENEN]
         self.autorisatie.save()
@@ -402,7 +394,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(
             betalingsindicatie=BetalingsIndicatie.gedeeltelijk,
             laatste_betaaldatum=timezone.now(),
-            zaaktype=self.zaaktype
+            zaaktype=self.zaaktype,
         )
         url = reverse(zaak)
 

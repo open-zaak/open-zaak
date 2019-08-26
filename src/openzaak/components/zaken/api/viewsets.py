@@ -50,7 +50,7 @@ from .filters import (
     ZaakObjectFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .permissions import ZaakAuthRequired
+from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -512,7 +512,7 @@ class ZaakEigenschapViewSet(
 
     queryset = ZaakEigenschap.objects.all()
     serializer_class = ZaakEigenschapSerializer
-    permission_classes = (ZaakAuthRequired,)
+    permission_classes = (ZaakNestedAuthRequired,)
     permission_main_object = "zaak"
     lookup_field = "uuid"
     required_scopes = {
@@ -765,16 +765,14 @@ class ZaakBesluitViewSet(
     queryset = ZaakBesluit.objects.none()  # required for vng-api-common
     serializer_class = ZaakBesluitSerializer
     lookup_field = "uuid"
-    parent_retrieve_kwargs = {
-        'zaak_uuid': 'uuid',
-    }
-    permission_classes = (ZaakAuthRequired,)
+    parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
+    permission_classes = (ZaakNestedAuthRequired,)
     permission_main_object = "zaak"
     required_scopes = {
-        'list': SCOPE_ZAKEN_ALLES_LEZEN,
-        'retrieve': SCOPE_ZAKEN_ALLES_LEZEN,
-        'create': SCOPE_ZAKEN_BIJWERKEN,
-        'destroy': SCOPE_ZAKEN_BIJWERKEN,
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC

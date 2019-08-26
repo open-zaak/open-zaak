@@ -14,7 +14,7 @@ from zds_client.tests.mocks import mock_client
 from openzaak.utils.tests import JWTAuthMixin
 
 
-@skip("Current implementation is without authentication")
+@skip("Authorization component is internal. Webhooks are not used")
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
