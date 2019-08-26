@@ -66,7 +66,6 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_zaak_list(self):
         """
         Assert you can only list ZAAKen of the zaaktypes and vertrouwelijkheidaanduiding
@@ -95,7 +94,9 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         results = response.data["results"]
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["zaaktype"], "https://zaaktype.nl/ok")
+        self.assertEqual(
+            results[0]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
+        )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
             VertrouwelijkheidsAanduiding.openbaar,
@@ -164,7 +165,6 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_resultaat_limited_to_authorized_zaken(self):
         url = reverse("status-list")
         # must show up
@@ -202,7 +202,6 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_status_limited_to_authorized_zaken(self):
         url = reverse("resultaat-list")
         # must show up
@@ -255,7 +254,6 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakobject_limited_to_authorized_zaken(self):
         url = reverse("zaakobject-list")
         # must show up
@@ -310,7 +308,6 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakinformatieobject_limited_to_authorized_zaken(self):
         # must show up
         zio1 = ZaakInformatieObjectFactory.create(
@@ -348,21 +345,19 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakeigenschap_limited_to_authorized_zaken(self):
         # must show up
         eigenschap1 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         eigenschap2 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/not_ok",
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         # must not show up
         eigenschap3 = ZaakEigenschapFactory.create(
-            zaak__zaaktype="https://zaaktype.nl/ok",
+            zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
 
@@ -501,7 +496,6 @@ class RolReadTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_rol_limited_to_authorized_zaken(self):
         url = reverse("rol-list")
         # must show up
@@ -537,7 +531,6 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_zaakbesluit_limited_to_authorized_zaken(self):
         # must show up
         besluit1 = BesluitFactory.create(

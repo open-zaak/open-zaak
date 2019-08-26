@@ -55,27 +55,24 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_io_list(self):
         """
         Assert you can only list INFORMATIEOBJECTen of the informatieobjecttypes and vertrouwelijkheidaanduiding
         of your authorization
         """
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
         url = reverse("enkelvoudiginformatieobject-list")
 
@@ -87,7 +84,8 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(results), 1)
         self.assertEqual(
-            results[0]["informatieobjecttype"], "https://informatieobjecttype.nl/ok"
+            results[0]["informatieobjecttype"],
+            f"http://testserver{reverse(self.informatieobjecttype)}",
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
@@ -115,7 +113,6 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_read_superuser(self):
         """
         superuser read everything
@@ -158,23 +155,21 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
         url = reverse("gebruiksrechten-list")
         # must show up
         gebruiksrechten1 = GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)

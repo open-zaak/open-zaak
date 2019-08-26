@@ -51,13 +51,12 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         cls.besluittype = BesluitTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_besluit_list(self):
         """
         Assert you can only list BESLUITen of the besluittypes of your authorization
         """
-        BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        BesluitFactory.create(besluittype=self.besluittype)
+        BesluitFactory.create()
         url = reverse("besluit-list")
 
         response = self.client.get(url)
@@ -67,7 +66,9 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         results = response.data["results"]
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["besluittype"], "https://besluittype.nl/ok")
+        self.assertEqual(
+            results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
+        )
 
     def test_besluit_retreive(self):
         """
@@ -84,7 +85,6 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_read_superuser(self):
         """
         superuser read everything
@@ -92,8 +92,8 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.applicatie.heeft_alle_autorisaties = True
         self.applicatie.save()
 
-        BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        BesluitFactory.create(besluittype=self.besluittype)
+        BesluitFactory.create()
         url = reverse("besluit-list")
 
         response = self.client.get(url)
@@ -114,10 +114,9 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         cls.besluittype = BesluitTypeFactory.create()
         super().setUpTestData()
 
-    @skip("ListFilterMixin is not implemeted yet")
     def test_list_bio_limited_to_authorized_zaken(self):
-        besluit1 = BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        besluit2 = BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
+        besluit2 = BesluitFactory.create()
 
         url = reverse(BesluitInformatieObject)
 

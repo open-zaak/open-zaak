@@ -47,10 +47,11 @@ class JWTAuth(_JWTAuth):
 
         return Applicatie.objects.filter(client_ids__contains=[self.client_id])
 
-    def get_autorisaties(self, component) -> models.QuerySet:
+    def get_autorisaties(self, init_component: str) -> models.QuerySet:
         """
         Retrieve all authorizations relevant to this component.
         """
+        component = COMPONENT_MAPPING.get(init_component, init_component)
         app_ids = self.applicaties.values("id")
         return Autorisatie.objects.filter(
             applicatie_id__in=Subquery(app_ids), component=component
@@ -70,9 +71,7 @@ class JWTAuth(_JWTAuth):
         if not init_component:
             return False
 
-        component = COMPONENT_MAPPING.get(init_component, init_component)
-
-        autorisaties = self.get_autorisaties(component)
+        autorisaties = self.get_autorisaties(init_component)
         scopes_provided = set()
 
         # filter on all additional components

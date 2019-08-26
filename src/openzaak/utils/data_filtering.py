@@ -34,6 +34,7 @@ class ListFilterByAuthorizationsMixin:
             return base
 
         scope_needed = self.required_scopes[self.action]
-        authorizations = self.request.jwt_auth.autorisaties
+        component = base.model._meta.app_label
+        authorizations = self.request.jwt_auth.get_autorisaties(component)
 
         return base.filter_for_authorizations(scope_needed, authorizations)

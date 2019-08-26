@@ -26,7 +26,7 @@ from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 class BesluitViewSet(
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
-    # ListFilterByAuthorizationsMixin,
+    ListFilterByAuthorizationsMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -107,7 +107,7 @@ class BesluitInformatieObjectViewSet(
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin,
+    ListFilterByAuthorizationsMixin,
     viewsets.ModelViewSet,
 ):
     """

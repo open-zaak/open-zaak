@@ -82,7 +82,7 @@ class ZaakViewSet(
     GeoMixin,
     SearchMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -262,7 +262,7 @@ class StatusViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -354,7 +354,7 @@ class StatusViewSet(
 
 class ZaakObjectViewSet(
     NotificationCreateMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -398,7 +398,7 @@ class ZaakInformatieObjectViewSet(
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     viewsets.ModelViewSet,
 ):
 
@@ -487,7 +487,6 @@ class ZaakEigenschapViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -513,7 +512,6 @@ class ZaakEigenschapViewSet(
     queryset = ZaakEigenschap.objects.all()
     serializer_class = ZaakEigenschapSerializer
     permission_classes = (ZaakNestedAuthRequired,)
-    permission_main_object = "zaak"
     lookup_field = "uuid"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
@@ -531,18 +529,10 @@ class ZaakEigenschapViewSet(
             self._zaak = get_object_or_404(Zaak, **filters)
         return self._zaak
 
-    def list(self, request, *args, **kwargs):
-        # FIXME do we need this?
-        # zaak = self._get_zaak()
-        # permission = ZaakAuthRequired()
-        # if not permission.has_object_permission(self.request, self, zaak):
-        #     raise PermissionDenied
-        return super().list(request, *args, **kwargs)
-
 
 class KlantContactViewSet(
     NotificationCreateMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -585,7 +575,7 @@ class RolViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -635,7 +625,7 @@ class ResultaatViewSet(
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -720,7 +710,6 @@ class ZaakBesluitViewSet(
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     NestedViewSetMixin,
-    # ListFilterByAuthorizationsMixin,  #TODO implement with authorizations
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -767,7 +756,6 @@ class ZaakBesluitViewSet(
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     permission_classes = (ZaakNestedAuthRequired,)
-    permission_main_object = "zaak"
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,

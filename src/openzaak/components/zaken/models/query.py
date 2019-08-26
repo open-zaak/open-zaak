@@ -1,8 +1,11 @@
+from urllib.parse import urlparse
+
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
+from vng_api_common.utils import get_resource_for_path
 
 
 class AuthorizationsFilterMixin:
@@ -56,17 +59,16 @@ class AuthorizationsFilterMixin:
                 continue
 
             # this zaaktype is allowed
-            zaaktypen.append(authorization.zaaktype)
+            zaaktype_path = urlparse(authorization.zaaktype).path
+            zaaktype = get_resource_for_path(zaaktype_path)
+            zaaktypen.append(zaaktype)
 
             # extract the order and map it to the database value
             choice_item = VertrouwelijkheidsAanduiding.get_choice(
                 authorization.max_vertrouwelijkheidaanduiding
             )
             vertrouwelijkheidaanduiding_whens.append(
-                When(
-                    **{f"{prefix}zaaktype": authorization.zaaktype},
-                    then=Value(choice_item.order),
-                )
+                When(**{f"{prefix}zaaktype": zaaktype}, then=Value(choice_item.order))
             )
 
         # apply the order annnotation so we can filter later

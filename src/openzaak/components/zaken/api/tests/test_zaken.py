@@ -408,7 +408,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.laatste_betaaldatum)
 
     def test_pagination_default(self):
-        ZaakFactory.create_batch(2)
+        ZaakFactory.create_batch(2, zaaktype=self.zaaktype)
         url = reverse(Zaak)
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
@@ -420,7 +420,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["next"])
 
     def test_pagination_page_param(self):
-        ZaakFactory.create_batch(2)
+        ZaakFactory.create_batch(2, zaaktype=self.zaaktype)
         url = reverse(Zaak)
 
         response = self.client.get(url, {"page": 1}, **ZAAK_READ_KWARGS)
@@ -457,8 +457,8 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNotNone(zaak.zaakgeometrie)
 
     def test_filter_startdatum(self):
-        ZaakFactory.create(startdatum="2019-01-01")
-        ZaakFactory.create(startdatum="2019-03-01")
+        ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        ZaakFactory.create(startdatum="2019-03-01", zaaktype=self.zaaktype)
         url = reverse("zaak-list")
 
         response_gt = self.client.get(
@@ -484,9 +484,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response_lte.data["results"][0]["startdatum"], "2019-01-01")
 
     def test_sort_startdatum(self):
-        ZaakFactory.create(startdatum="2019-01-01")
-        ZaakFactory.create(startdatum="2019-03-01")
-        ZaakFactory.create(startdatum="2019-02-01")
+        ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        ZaakFactory.create(startdatum="2019-03-01", zaaktype=self.zaaktype)
+        ZaakFactory.create(startdatum="2019-02-01", zaaktype=self.zaaktype)
         url = reverse("zaak-list")
 
         response = self.client.get(url, {"ordering": "-startdatum"}, **ZAAK_READ_KWARGS)
