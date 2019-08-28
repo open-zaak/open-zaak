@@ -30,7 +30,7 @@ before_install:
 
 install:
   - pip install -r requirements/test.txt
-  - pip install codecov isort black
+  - pip install codecov
   - npm ci
   - npm run build
 

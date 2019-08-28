@@ -1,1 +1,11 @@
+#
+# DO NOT ADD DEPENDENCIES HERE
+#
+# All dependencies (which includes sub-dependencies of dependencies)
+# need to be pinned exactly. This happens during pip-compiling base.in into
+# base.txt
+#
+# This file is nothing more than a semantic alias for base.txt
+#
+
 -r base.txt

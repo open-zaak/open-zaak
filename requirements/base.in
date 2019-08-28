@@ -1,11 +1,8 @@
-# Core libraries
-pillow
-psycopg2-binary
+# Core python libraries
+markdown  # used to render some markdown in code to html
+psycopg2
 python-dateutil
-
-# Helpers
-pip-tools
-python-dotenv
+python-dotenv  # environment variables for secrets
 
 # Framework libraries
 django
@@ -15,13 +12,9 @@ django-cors-middleware
 django-markup
 django-privates
 django-relativedelta
-raven
 
 # Admin and UI libraries
-django-rosetta
-django_admin_index
 django-better-admin-arrayfield
-markdown
 
 # API libraries
 djangorestframework
@@ -36,4 +29,6 @@ humanize
 drf-flex-fields
 drf-writable-nested
 
+# WSGI servers & monitoring - production oriented
 uwsgi
+raven  # error monitoring sentry
