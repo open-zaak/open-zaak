@@ -35,3 +35,5 @@ vng-api-common
 humanize
 drf-flex-fields
 drf-writable-nested
+
+uwsgi

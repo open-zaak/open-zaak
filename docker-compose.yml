@@ -1,0 +1,18 @@
+# Inspired by https://docs.docker.com/compose/django/
+version: '3.4'
+
+services:
+  db:
+    image: mdillon/postgis
+    # environment:
+    #   - POSTGRES_USER=${PG_USER:zrc}
+    #   - POSTGRES_PASSWORD=${PG_PASSWORD:zrc}
+  web:
+    image: openzaak/open-zaak
+    environment:
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+      - SECRET_KEY=${SECRET_KEY}
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
