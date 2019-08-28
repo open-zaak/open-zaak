@@ -3,7 +3,12 @@ from datetime import date
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, TypeCheckMixin, reverse
+from vng_api_common.tests import (
+    JWTAuthMixin,
+    TypeCheckMixin,
+    get_validation_errors,
+    reverse,
+)
 
 from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models import Besluit
@@ -12,10 +17,7 @@ from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.catalogi.models.tests.factories import (
-    BesluitTypeFactory,
-    ZaakInformatieobjectTypeFactory,
-)
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -133,3 +135,31 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url2 = f"{base_uri}?besluit={besluit2_uri}"
         response2 = self.client.get(url2)
         self.assertEqual(len(response2.data), 2)
+
+    def test_besluit_create_fail_besluittype_max_length(self):
+        zaak = ZaakFactory.create(zaaktype__concept=False)
+        zaak_url = reverse(zaak)
+
+        url = get_operation_url("besluit_create")
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijke_organisatie": "517439943",  # RSIN
+                "identificatie": "123123",
+                "besluittype": f"http://testserver/{'x'*1000}",
+                "zaak": f"http://testserver{zaak_url}",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "max_length")
