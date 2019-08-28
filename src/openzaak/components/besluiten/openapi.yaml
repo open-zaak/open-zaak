@@ -2231,9 +2231,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     Besluit:
       required:
@@ -2271,12 +2271,15 @@ components:
           description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
           type: string
           format: uri
+          maxLength: 200
+          minLength: 1
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           type: string
           format: uri
+          maxLength: 200
           nullable: true
         datum:
           title: Datum
@@ -2624,6 +2627,8 @@ components:
             API) waarin (een deel van) het besluit beschreven is.
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         besluit:
           title: Besluit
           description: URL-referentie naar het BESLUIT.

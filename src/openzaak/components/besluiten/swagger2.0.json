@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "type": "http",
+            "bearerFormat": "JWT",
             "scheme": "bearer",
-            "bearerFormat": "JWT"
+            "type": "http"
         }
     },
     "security": [
@@ -2619,13 +2619,16 @@
                     "title": "Besluittype",
                     "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 200,
+                    "minLength": 1
                 },
                 "zaak": {
                     "title": "Zaak",
                     "description": "URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
                     "type": "string",
                     "format": "uri",
+                    "maxLength": 200,
                     "x-nullable": true
                 },
                 "datum": {
@@ -2983,7 +2986,9 @@
                     "title": "Informatieobject",
                     "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API) waarin (een deel van) het besluit beschreven is.",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "besluit": {
                     "title": "Besluit",
