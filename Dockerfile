@@ -41,8 +41,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=build /usr/local/lib/python3.7 /usr/local/lib/python3.7
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
-# required for swagger2openapi conversion
-COPY --from=frontend-build /app/node_modules /app/node_modules
 
 # Stage 3.2 - Copy source code
 WORKDIR /app

@@ -12,7 +12,6 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY}
-      - FIXTURES_DIR=/app/src/fixtures
     ports:
       - 8000:8000
     depends_on:
