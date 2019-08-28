@@ -47,12 +47,23 @@ jobs:
         - coverage run src/manage.py test src
 
     - name: isort
+      before_install: skip
+      install:
+        - pip install isort
+      before_script: skip
       script: isort --recursive --check-only --diff .
 
     - name: black
+      before_install: skip
+      install:
+        - pip install black
+      before_script: skip
       script: black --check src
 
     - name: Test docker image build
+      before_install: skip
+      install: skip
+      before_script: skip
       script: docker build .
 
     # TODO: second stage to push resulting image
