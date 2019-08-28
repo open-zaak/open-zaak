@@ -35,6 +35,13 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.besluiten.models import Besluit
+from openzaak.components.catalogi.models import (
+    Eigenschap,
+    ResultaatType,
+    RolType,
+    StatusType,
+    ZaakType,
+)
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
 )
@@ -49,7 +56,6 @@ from openzaak.components.zaken.models import (
     Rol,
     Status,
     Zaak,
-    ZaakBesluit,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakKenmerk,
@@ -63,6 +69,7 @@ from openzaak.components.zaken.models.constants import (
 from openzaak.components.zaken.models.utils import BrondatumCalculator
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
+from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
 from ..validators import (
     CorrectZaaktypeValidator,
@@ -134,10 +141,12 @@ class OpschortingSerializer(GegevensGroepSerializer):
 
 
 class RelevanteZaakSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedRelatedField(
+    url = LengthHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         view_name="zaak-detail",
         lookup_field="uuid",
+        min_length=1,
+        max_length=1000,
         help_text=_("URL-referentie naar de ZAAK."),
     )
 
@@ -158,6 +167,15 @@ class ZaakSerializer(
     NestedUpdateMixin,
     serializers.HyperlinkedModelSerializer,
 ):
+    zaaktype = LengthHyperlinkedRelatedField(
+        view_name="zaaktype-detail",
+        lookup_field="uuid",
+        queryset=ZaakType.objects.all(),
+        max_length=1000,
+        min_length=1,
+        validators=[IsImmutableValidator()],
+        help_text=get_help_text("zaken.Zaak", "zaaktype"),
+    )
     status = serializers.HyperlinkedRelatedField(
         source="current_status_uuid",
         read_only=True,
@@ -270,10 +288,6 @@ class ZaakSerializer(
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
             },
             "identificatie": {"validators": [IsImmutableValidator()]},
-            "zaaktype": {
-                "lookup_field": "uuid",
-                "validators": [IsImmutableValidator()],
-            },
             "einddatum": {"read_only": True, "allow_null": True},
             "communicatiekanaal": {
                 "validators": [
@@ -440,6 +454,15 @@ class ZaakZoekSerializer(serializers.Serializer):
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
+    statustype = LengthHyperlinkedRelatedField(
+        view_name="statustype-detail",
+        lookup_field="uuid",
+        queryset=StatusType.objects.all(),
+        max_length=1000,
+        min_length=1,
+        help_text=get_help_text("zaken.Status", "statustype"),
+    )
+
     class Meta:
         model = Status
         fields = (
@@ -455,7 +478,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "statustype": {"lookup_field": "uuid"},
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
         }
 
@@ -701,7 +723,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
         lookup_field="uuid",
-        queryset=EnkelvoudigInformatieObject.objects,
+        queryset=EnkelvoudigInformatieObject.objects.all(),
+        min_length=1,
+        max_length=1000,
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
         validators=[IsImmutableValidator()],
     )
@@ -735,6 +759,15 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 
+    eigenschap = LengthHyperlinkedRelatedField(
+        view_name="eigenschap-detail",
+        lookup_field="uuid",
+        queryset=Eigenschap.objects.all(),
+        max_length=1000,
+        min_length=1,
+        help_text=get_help_text("zaken.ZaakEigenschap", "eigenschap"),
+    )
+
     class Meta:
         model = ZaakEigenschap
         fields = ("url", "uuid", "zaak", "eigenschap", "naam", "waarde")
@@ -742,7 +775,6 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "eigenschap": {"lookup_field": "uuid"},
             "naam": {"source": "_naam", "read_only": True},
         }
 
@@ -769,6 +801,15 @@ class KlantContactSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RolSerializer(PolymorphicSerializer):
+    roltype = LengthHyperlinkedRelatedField(
+        view_name="roltype-detail",
+        lookup_field="uuid",
+        queryset=RolType.objects.all(),
+        max_length=1000,
+        min_length=1,
+        validators=[IsImmutableValidator()],
+        help_text=get_help_text("zaken.Rol", "roltype"),
+    )
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
@@ -807,7 +848,6 @@ class RolSerializer(PolymorphicSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
             "betrokkene": {"required": False},
-            "roltype": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
         }
 
     def __init__(self, *args, **kwargs):
@@ -852,6 +892,16 @@ class RolSerializer(PolymorphicSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
+    resultaattype = LengthHyperlinkedRelatedField(
+        view_name="resultaattype-detail",
+        lookup_field="uuid",
+        queryset=ResultaatType.objects.all(),
+        max_length=1000,
+        min_length=1,
+        validators=[IsImmutableValidator()],
+        help_text=get_help_text("zaken.Resultaat", "resultaattype"),
+    )
+
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")
@@ -860,10 +910,6 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "resultaattype": {
-                "lookup_field": "uuid",
-                "validators": [IsImmutableValidator()],
-            },
         }
 
 
@@ -885,10 +931,12 @@ class ZaakBesluitSerializer(serializers.Serializer):
     uuid = serializers.UUIDField(
         help_text=_("Unieke resource identifier (UUID4)"), read_only=True
     )
-    besluit = serializers.HyperlinkedRelatedField(
+    besluit = LengthHyperlinkedRelatedField(
         queryset=Besluit.objects.all(),
         view_name="besluit-detail",
         lookup_field="uuid",
+        min_length=1,
+        max_length=1000,
         help_text=_(
             "URL-referentie naar het BESLUIT (in de Besluiten API), waar "
             "ook de relatieinformatie opgevraagd kan worden."

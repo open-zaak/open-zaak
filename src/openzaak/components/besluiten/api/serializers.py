@@ -9,10 +9,13 @@ from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.models.constants import VervalRedenen
+from openzaak.components.catalogi.models import BesluitType
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.zaken.models import Zaak
+from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
 from .validators import (
     BesluittypeZaaktypeValidator,
@@ -22,6 +25,23 @@ from .validators import (
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
+    besluittype = LengthHyperlinkedRelatedField(
+        view_name="besluittype-detail",
+        lookup_field="uuid",
+        queryset=BesluitType.objects,
+        max_length=200,
+        min_length=1,
+        help_text=get_help_text("besluiten.Besluit", "besluittype"),
+    )
+    zaak = LengthHyperlinkedRelatedField(
+        view_name="zaak-detail",
+        lookup_field="uuid",
+        queryset=Zaak.objects,
+        required=False,
+        allow_null=True,
+        max_length=200,
+        help_text=get_help_text("besluiten.Besluit", "zaak"),
+    )
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -51,8 +71,6 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]
             },
-            "besluittype": {"lookup_field": "uuid"},
-            "zaak": {"lookup_field": "uuid"},
         }
         validators = [UniekeIdentificatieValidator(), BesluittypeZaaktypeValidator()]
 
@@ -70,6 +88,8 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         queryset=EnkelvoudigInformatieObject.objects,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
         "API) waarin (een deel van) het besluit beschreven is.",
+        max_length=1000,
+        min_length=1,
         validators=[IsImmutableValidator()],
     )
 

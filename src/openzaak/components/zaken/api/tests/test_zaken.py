@@ -12,7 +12,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
@@ -263,6 +263,30 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         zaak.refresh_from_db()
         self.assertIsNone(zaak.einddatum)
+
+    def test_zaak_create_fail_zaaktype_maxlength(self):
+        """
+        Assert that the default vertrouwelijkheidaanduiding is set.
+        """
+        url = reverse("zaak-list")
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver/{'x'*1000}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "max_length")
 
     def test_zaak_met_producten(self):
         url = reverse("zaak-list")

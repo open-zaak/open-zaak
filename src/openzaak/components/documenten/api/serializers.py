@@ -21,6 +21,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
 
+from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -31,6 +32,7 @@ from openzaak.components.documenten.models.constants import (
     OndertekeningSoorten,
     Statussen,
 )
+from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
 from .validators import StatusValidator
 
@@ -107,9 +109,7 @@ class OndertekeningSerializer(GegevensGroepSerializer):
         self.fields["soort"].help_text += f"\n\n{value_display_mapping}"
 
 
-class EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-    serializers.HyperlinkedRelatedField
-):
+class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelatedField):
     """
     Custom field to construct the url for models that have a ForeignKey to
     `EnkelvoudigInformatieObject`
@@ -145,6 +145,16 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
     url = serializers.HyperlinkedIdentityField(
         view_name="enkelvoudiginformatieobject-detail", lookup_field="uuid"
+    )
+    informatieobjecttype = LengthHyperlinkedRelatedField(
+        view_name="informatieobjecttype-detail",
+        lookup_field="uuid",
+        queryset=InformatieObjectType.objects,
+        max_length=200,
+        min_length=1,
+        help_text=get_help_text(
+            "documenten.EnkelvoudigInformatieObject", "informatieobjecttype"
+        ),
     )
     inhoud = AnyBase64File(
         view_name="enkelvoudiginformatieobject-download",
@@ -215,10 +225,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "informatieobjecttype",  # van-relatie,
             "locked",
         )
-        extra_kwargs = {
-            "taal": {"min_length": 3},
-            "informatieobjecttype": {"lookup_field": "uuid"},
-        }
+        extra_kwargs = {"taal": {"min_length": 3}}
         read_only_fields = ["versie", "begin_registratie"]
         validators = [StatusValidator()]
 

@@ -6705,9 +6705,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     KlantContact:
       required:
@@ -6885,6 +6885,8 @@ components:
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         toelichting:
           title: Toelichting
           description: Een toelichting op wat het resultaat van de zaak inhoudt.
@@ -6954,6 +6956,8 @@ components:
             ZAAK.'
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         omschrijving:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
@@ -7360,6 +7364,8 @@ components:
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         datumStatusGezet:
           title: Datum status gezet
           description: De datum waarop de ZAAK de status heeft verkregen.
@@ -7397,6 +7403,8 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT.
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK.
@@ -8766,6 +8774,8 @@ components:
           description: URL-referentie naar de ZAAK.
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         aardRelatie:
           title: Aard relatie
           description: 'Benamingen van de aard van de relaties van andere zaken tot
@@ -8861,6 +8871,8 @@ components:
             CATALOGUS waar deze voorkomt
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         registratiedatum:
           title: Registratiedatum
           description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
@@ -9374,6 +9386,8 @@ components:
             ook de relatieinformatie opgevraagd kan worden.
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
     ZaakEigenschap:
       required:
       - zaak
@@ -9401,6 +9415,8 @@ components:
           description: URL-referentie naar de EIGENSCHAP (in de Catalogi API).
           type: string
           format: uri
+          maxLength: 1000
+          minLength: 1
         naam:
           title: Naam
           description: De naam van de EIGENSCHAP (overgenomen uit de Catalogi API).

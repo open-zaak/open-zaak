@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "type": "http",
+            "bearerFormat": "JWT",
             "scheme": "bearer",
-            "bearerFormat": "JWT"
+            "type": "http"
         }
     },
     "security": [
@@ -7972,7 +7972,9 @@
                     "title": "Resultaattype",
                     "description": "URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "toelichting": {
                     "title": "Toelichting",
@@ -8036,7 +8038,9 @@
                     "title": "Roltype",
                     "description": " URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "omschrijving": {
                     "title": "Omschrijving",
@@ -8511,7 +8515,9 @@
                     "title": "Statustype",
                     "description": "URL-referentie naar het STATUSTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "datumStatusGezet": {
                     "title": "Datum status gezet",
@@ -8554,7 +8560,9 @@
                     "title": "Informatieobject",
                     "description": "URL-referentie naar het INFORMATIEOBJECT.",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "zaak": {
                     "title": "Zaak",
@@ -10274,7 +10282,9 @@
                     "title": "Url",
                     "description": "URL-referentie naar de ZAAK.",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "aardRelatie": {
                     "title": "Aard relatie",
@@ -10366,7 +10376,9 @@
                     "title": "Zaaktype",
                     "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "registratiedatum": {
                     "title": "Registratiedatum",
@@ -10846,7 +10858,9 @@
                     "title": "Besluit",
                     "description": "URL-referentie naar het BESLUIT (in de Besluiten API), waar ook de relatieinformatie opgevraagd kan worden.",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 }
             }
         },
@@ -10880,7 +10894,9 @@
                     "title": "Eigenschap",
                     "description": "URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 1000,
+                    "minLength": 1
                 },
                 "naam": {
                     "title": "Naam",

@@ -2683,9 +2683,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     Ondertekening:
       title: ondertekening
@@ -3002,6 +3002,8 @@ components:
             API).
           type: string
           format: uri
+          maxLength: 200
+          minLength: 1
         locked:
           title: locked
           description: Geeft aan of het document gelocked is. Alleen als een document
@@ -3323,6 +3325,8 @@ components:
             API).
           type: string
           format: uri
+          maxLength: 200
+          minLength: 1
         locked:
           title: locked
           description: Geeft aan of het document gelocked is. Alleen als een document
@@ -3695,6 +3699,8 @@ components:
             API).
           type: string
           format: uri
+          maxLength: 200
+          minLength: 1
         locked:
           title: locked
           description: Geeft aan of het document gelocked is. Alleen als een document

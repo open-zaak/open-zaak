@@ -28,6 +28,7 @@ SWAGGER_SETTINGS.update(
         "DEFAULT_FIELD_INSPECTORS": (
             "vng_api_common.inspectors.geojson.GeometryFieldInspector",
             "vng_api_common.inspectors.files.FileFieldInspector",
+            "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
     }

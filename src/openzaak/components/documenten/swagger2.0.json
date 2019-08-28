@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "type": "http",
+            "bearerFormat": "JWT",
             "scheme": "bearer",
-            "bearerFormat": "JWT"
+            "type": "http"
         }
     },
     "security": [
@@ -3375,7 +3375,9 @@
                     "title": "Informatieobjecttype",
                     "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 200,
+                    "minLength": 1
                 },
                 "locked": {
                     "title": "locked",
@@ -3680,7 +3682,9 @@
                     "title": "Informatieobjecttype",
                     "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 200,
+                    "minLength": 1
                 },
                 "locked": {
                     "title": "locked",
@@ -3998,7 +4002,9 @@
                     "title": "Informatieobjecttype",
                     "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "maxLength": 200,
+                    "minLength": 1
                 },
                 "locked": {
                     "title": "locked",
