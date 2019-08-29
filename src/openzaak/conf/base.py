@@ -207,7 +207,6 @@ EMAIL_PORT = getenv(
 EMAIL_HOST_USER = getenv("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", default=False)
-EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = "openzaak@example.com"
@@ -347,7 +346,7 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
 )
 
 # settings for uploading large files
-MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
+MIN_UPLOAD_SIZE = getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
 
 # urls for OAS3 specifications
 SPEC_URL = {
@@ -376,7 +375,7 @@ if subpath:
     FORCE_SCRIPT_NAME = subpath
 
 if "GIT_SHA" in os.environ:
-    GIT_SHA = getenv("GIT_SHA")
+    GIT_SHA = getenv("GIT_SHA", "")
 else:
     GIT_SHA = raven.fetch_git_sha(BASE_DIR)
 
