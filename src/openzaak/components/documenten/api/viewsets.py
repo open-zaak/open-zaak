@@ -204,7 +204,7 @@ class EnkelvoudigInformatieObjectViewSet(
         """
         if self.action in ["update", "partial_update"]:
             return EnkelvoudigInformatieObjectWithLockSerializer
-        return self.serializer_class
+        return super().get_serializer_class()
 
     @swagger_auto_schema(
         manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM]
