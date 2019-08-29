@@ -18,8 +18,7 @@ addons:
 
 env:
   global:
-  - DJANGO_SETTINGS_MODULE=openzaak.conf.test
-  - SECRET_KEY=dummy
+  - DJANGO_SETTINGS_MODULE=openzaak.conf.envs.ci
   - DB_PASSWORD=
   - DB_USER=postgres
 

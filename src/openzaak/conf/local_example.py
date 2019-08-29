@@ -1,25 +1,13 @@
-import os
+import sys
 
-#
-# Any machine specific settings when using development settings.
-#
+from .dev import DATABASES, INSTALLED_APPS
 
-# Automatically figure out the ROOT_DIR and PROJECT_DIR.
-DJANGO_PROJECT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.pardir)
-)
-ROOT_DIR = os.path.abspath(
-    os.path.join(DJANGO_PROJECT_DIR, os.path.pardir, os.path.pardir)
-)
+INSTALLED_APPS += ["django_extensions"]
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "openzaak",
-        "USER": "openzaak",
-        "PASSWORD": "openzaak",
-        "HOST": "",  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        "PORT": "",  # Set to empty string for default.
-    }
-}
+if "test" in sys.argv:
+    # Runs the tests on PostgreSQL cluster tweaked for performance
+    DATABASES["default"].update({"USER": "postgres", "PORT": 5433})
+
+    # Speed up tests by reducing time spend password hashing
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]

@@ -19,4 +19,4 @@ def setup_env():
     dotenv_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, ".env")
     load_dotenv(dotenv_path)
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openzaak.conf.dev")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openzaak.conf.envs.dev")

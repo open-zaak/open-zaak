@@ -5,13 +5,21 @@ services:
   db:
     image: mdillon/postgis
     # environment:
-    #   - POSTGRES_USER=${PG_USER:zrc}
-    #   - POSTGRES_PASSWORD=${PG_PASSWORD:zrc}
+    #   - POSTGRES_USER=${PG_USER:openzaak}
+    #   - POSTGRES_PASSWORD=${PG_PASSWORD:openzaak}
+
+  redis:
+    image: redis
+
   web:
     image: openzaak/open-zaak
     environment:
-      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-      - SECRET_KEY=${SECRET_KEY}
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.envs.docker
+      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+      - IS_HTTPS=no
+      - ALLOWED_HOSTS=*
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
     ports:
       - 8000:8000
     depends_on:

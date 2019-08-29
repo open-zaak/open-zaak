@@ -3,6 +3,7 @@ from base64 import b64encode
 from datetime import date
 from unittest import skip
 
+from django.test import override_settings
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -318,6 +319,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
 
+@override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True

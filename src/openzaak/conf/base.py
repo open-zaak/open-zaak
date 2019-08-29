@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import django.db.models.options as options
 from django.urls import reverse_lazy
@@ -6,11 +7,11 @@ from django.urls import reverse_lazy
 import raven
 
 from .api import *  # noqa
+from .environ import getenv
 from .plugins import PLUGIN_INSTALLED_APPS
 
-SITE_ID = int(os.getenv("SITE_ID", 1))
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Build paths inside the project, so further paths can be defined relative to
+# the code root.
 DJANGO_PROJECT_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.path.pardir)
 )
@@ -18,30 +19,73 @@ BASE_DIR = os.path.abspath(
     os.path.join(DJANGO_PROJECT_DIR, os.path.pardir, os.path.pardir)
 )
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
+#
+# Core Django settings
+#
+SITE_ID = getenv("SITE_ID", default=1)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = getenv("SECRET_KEY", required=True)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# NEVER run with DEBUG=True in production-like environments
+DEBUG = getenv("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+# = domains we're running on
+ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", split=True)
 
+IS_HTTPS = getenv("IS_HTTPS", default=not DEBUG)
+
+# Internationalization
+# https://docs.djangoproject.com/en/2.0/topics/i18n/
+
+LANGUAGE_CODE = "nl-nl"
+
+TIME_ZONE = "UTC"  # note: this *may* affect the output of DRF datetimes
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+USE_THOUSAND_SEPARATOR = True
+
+#
+# DATABASE and CACHING setup
+#
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": os.getenv("DB_NAME", "openzaak"),
-        "USER": os.getenv("DB_USER", "openzaak"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "openzaak"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", 5432),
+        "NAME": getenv("DB_NAME", "openzaak"),
+        "USER": getenv("DB_USER", "openzaak"),
+        "PASSWORD": getenv("DB_PASSWORD", "openzaak"),
+        "HOST": getenv("DB_HOST", "localhost"),
+        "PORT": getenv("DB_PORT", 5432),
     }
 }
 
-# Application definition
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{getenv('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
+    },
+    "axes": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{getenv('CACHE_AXES', 'localhost:6379/0')}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
+    },
+}
 
+#
+# APPLICATIONS enabled for this project
+#
 INSTALLED_APPS = [
     # Note: contenttypes should be first, see Django ticket #10827
     "django.contrib.contenttypes",
@@ -101,10 +145,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = "openzaak.urls"
 
 # List of callables that know how to import templates from various sources.
-RAW_TEMPLATE_LOADERS = (
+TEMPLATE_LOADERS = (
     "django.template.loaders.filesystem.Loader",
     "django.template.loaders.app_directories.Loader",
-    # 'admin_tools.template_loaders.Loader',
 )
 
 TEMPLATES = [
@@ -120,74 +163,58 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "openzaak.utils.context_processors.settings",
             ],
-            "loaders": RAW_TEMPLATE_LOADERS,
+            "loaders": TEMPLATE_LOADERS,
         },
     }
 ]
 
 WSGI_APPLICATION = "openzaak.wsgi.application"
 
-# Database: Defined in target specific settings files.
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-# Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
-LANGUAGE_CODE = "nl-nl"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-USE_THOUSAND_SEPARATOR = True
-
 # Translations
 LOCALE_PATHS = (os.path.join(DJANGO_PROJECT_DIR, "conf", "locale"),)
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+#
+# SERVING of static and media files
+#
 
 STATIC_URL = "/static/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Additional locations of static files
-STATICFILES_DIRS = (os.path.join(DJANGO_PROJECT_DIR, "static"),)
+STATICFILES_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "static")]
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
 
-FIXTURE_DIRS = (os.path.join(DJANGO_PROJECT_DIR, "fixtures"),)
+FIXTURE_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "fixtures")]
 
-DEFAULT_FROM_EMAIL = "openzaak@example.com"
+#
+# Sending EMAIL
+#
+EMAIL_HOST = getenv("EMAIL_HOST", default="localhost")
+EMAIL_PORT = getenv(
+    "EMAIL_PORT", default=25
+)  # disabled on Google Cloud, use 487 instead
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", default=False)
+EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 10
 
+DEFAULT_FROM_EMAIL = "openzaak@example.com"
+
+#
+# LOGGING
+#
 LOGGING_DIR = os.path.join(BASE_DIR, "log")
 
 LOGGING = {
@@ -263,12 +290,21 @@ LOGGING = {
     },
 }
 
-#
-# Additional Django settings
-#
 
-# Custom user model
+#
+# AUTH settings - user accounts, passwords, backends...
+#
 AUTH_USER_MODEL = "accounts.User"
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
 
 # Allow logging in with both username+password and email+password
 AUTHENTICATION_BACKENDS = [
@@ -277,6 +313,16 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SESSION_COOKIE_NAME = "openzaak_sessionid"
+
+#
+# SECURITY settings
+#
+SESSION_COOKIE_SECURE = IS_HTTPS
+SESSION_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SECURE = IS_HTTPS
+
+X_FRAME_OPTIONS = "DENY"
 
 #
 # Silenced checks
@@ -292,18 +338,61 @@ SITE_TITLE = "Open zaak"
 ENVIRONMENT = None
 SHOW_ALERT = True
 
-#
-# Library settings
-#
+warnings.warn("Overriding options.DEFAULT_NAMES is pending removal", DeprecationWarning)
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
+    "mnemonic",
+    "filter_fields",
+    "ordering_fields",
+    "search_fields",
+)
+
+# settings for uploading large files
+MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
+
+# urls for OAS3 specifications
+SPEC_URL = {
+    "zaken": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "zaken", "openapi.yaml"
+    ),
+    "besluiten": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "besluiten", "openapi.yaml"
+    ),
+    "documenten": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "documenten", "openapi.yaml"
+    ),
+    "catalogi": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "catalogi", "openapi.yaml"
+    ),
+    "authorizations": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "authorizations", "openapi.yaml"
+    ),
+}
+
+# Generating the schema, depending on the component
+subpath = os.getenv("SUBPATH")
+if subpath:
+    if not subpath.startswith("/"):
+        subpath = f"/{subpath}"
+    FORCE_SCRIPT_NAME = subpath
+
+if "GIT_SHA" in os.environ:
+    GIT_SHA = getenv("GIT_SHA")
+else:
+    GIT_SHA = raven.fetch_git_sha(BASE_DIR)
+
+##############################
+#                            #
+# 3RD PARTY LIBRARY SETTINGS #
+#                            #
+##############################
 
 # Django-axes
+AXES_CACHE = "axes"  # refers to CACHES setting
 AXES_LOGIN_FAILURE_LIMIT = 30  # Default: 3
 AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 AXES_USE_USER_AGENT = False  # Default: False
 AXES_COOLOFF_TIME = 1  # One hour
-AXES_BEHIND_REVERSE_PROXY = (
-    True
-)  # Default: False (we are typically using Nginx as reverse proxy)
+AXES_BEHIND_REVERSE_PROXY = IS_HTTPS  # We have either Ingress or Nginx
 AXES_ONLY_USER_FAILURES = (
     False
 )  # Default: False (you might want to block on username rather than IP)
@@ -311,8 +400,8 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = (
     False
 )  # Default: False (you might want to block on username and IP)
 
-
-HIJACK_LOGIN_REDIRECT_URL = "/"
+# Django-hijack
+HIJACK_LOGIN_REDIRECT_URL = reverse_lazy("home")
 HIJACK_LOGOUT_REDIRECT_URL = reverse_lazy("admin:accounts_user_changelist")
 HIJACK_REGISTER_ADMIN = False
 # This is a CSRF-security risk.
@@ -334,16 +423,24 @@ CORS_ALLOW_HEADERS = (
     "content-crs",
 )
 
-# Raven
-SENTRY_DSN = os.getenv("SENTRY_DSN")
+#
+# DJANGO-PRIVATES -- safely serve files after authorization
+#
+PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private-media")
+PRIVATE_MEDIA_URL = "/private-media/"
+
+# requires an nginx container running in front
+SENDFILE_BACKEND = getenv("SENDFILE_BACKEND", "sendfile.backends.nginx")
+SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
+SENDFILE_URL = PRIVATE_MEDIA_URL
+
+#
+# RAVEN/SENTRY - error monitoring
+#
+SENTRY_DSN = getenv("SENTRY_DSN")
 
 if SENTRY_DSN:
     INSTALLED_APPS = INSTALLED_APPS + ["raven.contrib.django.raven_compat"]
-
-    if "GIT_SHA" in os.environ:
-        GIT_SHA = os.getenv("GIT_SHA")
-    else:
-        GIT_SHA = raven.fetch_git_sha(BASE_DIR)
 
     RAVEN_CONFIG = {"dsn": SENTRY_DSN, "release": GIT_SHA}
     LOGGING["handlers"].update(
@@ -355,49 +452,3 @@ if SENTRY_DSN:
             }
         }
     )
-
-#
-# SSL or not?
-#
-IS_HTTPS = os.getenv("IS_HTTPS", "1").lower() in ["true", "1", "yes"]
-
-# catalogi settings
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
-    "mnemonic",
-    "filter_fields",
-    "ordering_fields",
-    "search_fields",
-)
-
-# documenten settings
-# settings for private media files
-PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private-media")
-PRIVATE_MEDIA_URL = "/private-media/"
-SENDFILE_BACKEND = "sendfile.backends.simple"
-SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
-SENDFILE_URL = PRIVATE_MEDIA_URL
-
-# settings for uploading large files
-MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
-
-# urls for OAS3 specifications
-SPEC_URL = {
-    "zaken": os.path.join(BASE_DIR, "src/openzaak/components/zaken/openapi.yaml"),
-    "besluiten": os.path.join(
-        BASE_DIR, "src/openzaak/components/besluiten/openapi.yaml"
-    ),
-    "documenten": os.path.join(
-        BASE_DIR, "src/openzaak/components/documenten/openapi.yaml"
-    ),
-    "catalogi": os.path.join(BASE_DIR, "src/openzaak/components/catalogi/openapi.yaml"),
-    "authorizations": os.path.join(
-        BASE_DIR, "src/openzaak/components/authorizations/openapi.yaml"
-    ),
-}
-
-# for generate_schema depending on the component
-subpath = os.getenv("SUBPATH")
-if subpath:
-    if not subpath.startswith("/"):
-        subpath = f"/{subpath}"
-    FORCE_SCRIPT_NAME = subpath
