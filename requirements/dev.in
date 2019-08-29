@@ -1,0 +1,10 @@
+# Helpers
+pip-tools
+
+# Code formatting
+black
+isort
+
+# Debug tooling
+django-debug-toolbar
+django-extensions

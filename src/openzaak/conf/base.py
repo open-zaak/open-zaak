@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     "rest_framework_gis",
-    # 'rest_framework_filters',
     "django_markup",
     "solo",
     "privates",
@@ -294,8 +293,6 @@ SHOW_ALERT = True
 #
 # Library settings
 #
-
-ADMIN_INDEX_SHOW_REMAINING_APPS = True
 
 # Django-axes
 AXES_LOGIN_FAILURE_LIMIT = 30  # Default: 3

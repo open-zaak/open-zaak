@@ -1,0 +1,6 @@
+# Dependencies only relevant for (unit) testing
+coverage
+factory_boy
+freezegun
+requests-mock
+tblib

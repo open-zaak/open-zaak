@@ -29,8 +29,8 @@ before_install:
   - gdal-config --version
 
 install:
-  - pip install -r requirements/test.txt
-  - pip install codecov isort black
+  - pip install -r requirements/ci.txt
+  - pip install codecov
   - npm ci
   - npm run build
 
