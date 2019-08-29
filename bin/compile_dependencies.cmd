@@ -12,13 +12,13 @@ pip-compile^
 REM Dependencies for testing
 pip-compile^
     --no-index^
-    --output-file requirements/test.txt^
+    --output-file requirements/ci.txt^
     requirements/base.txt^
-    requirements/testing.in
+    requirements/test-tools.in
 
 REM Dev depedencies - exact same set as CI + some extra tooling
 pip-compile^
     --no-index^
     --output-file requirements/dev.txt^
-    requirements/test.txt^
+    requirements/ci.txt^
     requirements/dev.in
