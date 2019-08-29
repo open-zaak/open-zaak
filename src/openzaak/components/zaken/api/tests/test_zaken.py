@@ -13,7 +13,6 @@ from vng_api_common.constants import (
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
-
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.models.tests.factories import BesluitFactory
@@ -258,6 +257,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
         """
+        self.applicatie.heeft_alle_autorisaties = True
+        self.applicatie.save()
+
         url = reverse("zaak-list")
         response = self.client.post(
             url,

@@ -3,15 +3,7 @@ from datetime import date
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, reverse
-
-from rest_framework import status
-from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    TypeCheckMixin,
-    get_validation_errors,
-    reverse,
-)
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.besluiten.api.tests.utils import get_operation_url
 from openzaak.components.besluiten.models import Besluit
