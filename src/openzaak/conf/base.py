@@ -90,7 +90,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "openzaak.utils.middleware.AuthMiddleware",
+    "openzaak.components.authorizations.middleware.AuthMiddleware",
     # 'vng_api_common.middleware.AuthMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
