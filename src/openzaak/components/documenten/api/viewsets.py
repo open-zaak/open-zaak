@@ -514,14 +514,19 @@ class ObjectInformatieObjectViewSet(NotificationCreateMixin,
     def perform_create(self, serializer):
         # object was already created by BIO/ZIO creation,
         # so just set the instance
-        serializer.instance = (
-            self
-            .get_queryset()
-            .get(**{
-                serializer.validated_data["object_type"]: serializer.validated_data["object"],
-                "informatieobject": serializer.validated_data["informatieobject"],
-            })
-        )
+        try:
+            serializer.instance = (
+                self
+                .get_queryset()
+                .get(**{
+                    serializer.validated_data["object_type"]: serializer.validated_data["object"],
+                    "informatieobject": serializer.validated_data["informatieobject"],
+                })
+            )
+        except ObjectInformatieObject.DoesNotExist:
+            raise ValidationError({
+                 api_settings.NON_FIELD_ERRORS_KEY: _("The relation between object and informatieobject don't exist")
+            }, code="inconsistent-relation")
 
     def perform_destroy(self, instance):
         """

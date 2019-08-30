@@ -454,11 +454,13 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         queryset=EnkelvoudigInformatieObject.objects,
         help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
     )
-    object = serializers.URLField(
-        min_length=1,
-        max_length=1000,
+    object = serializers.HyperlinkedRelatedField(
+        # min_length=1,
+        # max_length=1000,
+        view_name='zaak-detail',
+        queryset=Zaak.objects.all(),
+        lookup_field='uuid',
         help_text=_("URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."),
-        source="object_url",
     )
 
     class Meta:
@@ -482,62 +484,11 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         value_display_mapping = add_choice_values_help_text(ObjectTypes)
         self.fields['object_type'].help_text += f"\n\n{value_display_mapping}"
 
-    def validate_object_url(self, value: str):
-        parsed_url = urlparse(value)
-        host = self.context["request"].get_host()
-        is_local = parsed_url.netloc == host
-        if not is_local:
-            raise serializers.ValidationError({
-                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
-                            "Dit object bestaat niet op dit domein.")
-            }, code="no-match")
-        return value
+        if self.instance:
+            object_type = self.instance.object_type
+        else:
+            object_type = self.context['request'].data.get('object_type')
 
-    def validate(self, data: dict) -> dict:
-        """
-        Run validation of fields that depend on each other.
-
-        Side effect: the data["object"] URL reference is transformed into an
-        actual instance of Besluit or Zaak.
-        """
-        data["object"] = self._resolve_object(
-            data["object_url"],
-            data["informatieobject"],
-            data['object_type'],
-        )
-        return data
-
-    @staticmethod
-    def _resolve_object(
-            object_url: str,
-            informatieobject: EnkelvoudigInformatieObjectCanonical,
-            object_type: str) -> Union[Zaak, Besluit]:
-        # check if it's any of the possible types
-        parsed_url = urlparse(object_url)
-        last_bit = parsed_url.path.split("/")[-1]
-        try:
-            _uuid = uuid.UUID(last_bit)
-        except ValueError as exc:
-            raise serializers.ValidationError({
-                "object": _("Het gerelateerde object kon niet herleid worden tot een database object. "
-                            "De URL eindigt niet op een geldig UUID.")
-            }, code="no-match") from exc
-
-        related_objs = f"{object_type}informatieobject_set"
-        queryset = (
-            getattr(informatieobject, related_objs)
-            .select_related(object_type)
-            .filter(**{f"{object_type}__uuid": _uuid})
-        )
-        obj = queryset.first()
-        if obj is not None:
-            return getattr(obj, object_type)
-
-        raise serializers.ValidationError(
-            {
-                "object": _("Het gerelateerde object kon niet herleid worden tot een {object_type}.").format(
-                    object_type=object_type
-                )
-            },
-            code="no-match"
-        )
+        if object_type == 'besluit':
+            self.fields['object'].view_name = 'besluit-detail'
+            self.fields['object'].queryset = Besluit.objects.all()

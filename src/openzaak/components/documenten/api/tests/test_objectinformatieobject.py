@@ -38,7 +38,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
-        # re-use the ZIO UUID for OIO
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
 
         response = self.client.post(
@@ -70,7 +69,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         besluit_url = reverse(besluit)
         eio_url = reverse(eio)
-        # re-use the ZIO UUID for OIO
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
 
         response = self.client.post(
@@ -91,6 +89,71 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             "object_type": "besluit",
         })
 
+    def test_create_with_objecttype_other_fail(self):
+        besluit = BesluitFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        # relate the two
+        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio.canonical)
+
+        besluit_url = reverse(besluit)
+        eio_url = reverse(eio)
+
+        response = self.client.post(self.list_url, {
+            'object': f"http://testserver.nl{besluit_url}",
+            'informatieobject': f'http://testserver{eio_url}',
+            'objectType': 'other'
+        }, HTTP_HOST="testserver.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        error = get_validation_errors(response, 'objectType')
+        self.assertEqual(error['code'], 'invalid_choice')
+
+    def test_read_with_objecttype_zaak(self):
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        # relate the two
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+
+        # get OIO created via signals
+        oio = ObjectInformatieObject.objects.get()
+
+        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
+        zaak_url = reverse(zaak)
+        eio_url = reverse(eio)
+
+        response = self.client.get(oio_url, HTTP_HOST="testserver.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data, {
+            "url": f"http://testserver.nl{oio_url}",
+            "object": f"http://testserver.nl{zaak_url}",
+            "informatieobject": f"http://testserver.nl{eio_url}",
+            "object_type": "zaak",
+        })
+
+    def test_read_with_objecttype_besluit(self):
+        besluit = BesluitFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        # relate the two
+        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio.canonical)
+
+        # get OIO created via signals
+        oio = ObjectInformatieObject.objects.get()
+
+        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
+        besluit_url = reverse(besluit)
+        eio_url = reverse(eio)
+
+        response = self.client.get(oio_url,  HTTP_HOST="testserver.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data, {
+            "url": f"http://testserver.nl{oio_url}",
+            "object": f"http://testserver.nl{besluit_url}",
+            "informatieobject": f"http://testserver.nl{eio_url}",
+            "object_type": "besluit",
+        })
+
     def test_post_object_without_created_relations(self):
         """
         Test the (informatieobject, object) unique together validation.
@@ -99,10 +162,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         It will however become relevant again when we're handling remote
         references.
         """
-        zio = ZaakInformatieObjectFactory.create()
-
-        eio_url = reverse(zio.informatieobject.latest_version)
-        zaak_url = reverse(zio.zaak)
+        zaak = ZaakFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        zaak_url = reverse(zaak)
+        eio_url = reverse(eio)
 
         content = {
             "informatieobject": f"http://testserver.nl{eio_url}",
@@ -113,11 +176,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         # Send to the API
         response = self.client.post(self.list_url, content, HTTP_HOST="testserver.nl")
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "unique")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        error = get_validation_errors(response, 'nonFieldErrors')
+        self.assertEqual(error['code'], 'unique')
 
     def test_filter_eio(self):
         zio = ZaakInformatieObjectFactory.create()
