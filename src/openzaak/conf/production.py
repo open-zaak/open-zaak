@@ -23,7 +23,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 root_handler = "sentry" if "sentry" in LOGGING["handlers"] else "project"
 LOGGING["loggers"].update(
     {
-        "": {"handlers": ["sentry"], "level": "ERROR", "propagate": False},
+        "": {"handlers": [root_handler], "level": "ERROR", "propagate": False},
         "django": {"handlers": ["django"], "level": "INFO", "propagate": True},
         "django.security.DisallowedHost": {
             "handlers": ["django"],
@@ -39,7 +39,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Sets X-Content-Type-Options: nosniff
 SECURE_BROWSER_XSS_FILTER = True  # Sets X-XSS-Protection: 1; mode=block
 
 # Deal with being hosted on a subpath
-subpath = config("SUBPATH")
+subpath = config("SUBPATH", None)
 if subpath:
     if not subpath.startswith("/"):
         subpath = f"/{subpath}"
