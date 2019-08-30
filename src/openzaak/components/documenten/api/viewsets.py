@@ -52,6 +52,8 @@ from .serializers import (
     ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer
 )
+from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.components.besluiten.models import BesluitInformatieObject
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = openapi.Parameter(
@@ -520,3 +522,26 @@ class ObjectInformatieObjectViewSet(NotificationCreateMixin,
                 "informatieobject": serializer.validated_data["informatieobject"],
             })
         )
+
+    def perform_destroy(self, instance):
+        """
+        The actual relation information must be updated in the signals,
+        so this is just a check.
+        """
+        if instance.object_type == 'zaak' and ZaakInformatieObject.objects.filter(
+                informatieobject=instance.informatieobject,
+                zaak=instance.zaak).exists():
+            raise ValidationError({
+                "object": _("The relation between zaak and informatieobject still exist")
+            }, code="inconsistent-relation")
+
+        if instance.object_type == 'besluit' and BesluitInformatieObject.objects.filter(
+                informatieobject=instance.informatieobject,
+                besluit=instance.besluit).exists():
+            raise ValidationError({
+                "object": _("The relation between besluit and informatieobject still exist")
+            }, code="inconsistent-relation")
+
+        # nothing to do, the 'relation' info is dealt with through signals
+        pass
+

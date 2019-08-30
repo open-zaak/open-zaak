@@ -50,3 +50,21 @@ class OIOTests(TestCase):
 
         self.assertEqual(oio.informatieobject, bio.informatieobject)
         self.assertEqual(oio.object, bio.besluit)
+
+    def test_zio_delete_oio(self):
+        bio = BesluitInformatieObjectFactory.create()
+
+        self.assertEqual(ObjectInformatieObject.objects.count(), 1)
+
+        bio.delete()
+
+        self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+    def test_bio_delete_oio(self):
+        bio = BesluitInformatieObjectFactory.create()
+
+        self.assertEqual(ObjectInformatieObject.objects.count(), 1)
+
+        bio.delete()
+
+        self.assertEqual(ObjectInformatieObject.objects.count(), 0)

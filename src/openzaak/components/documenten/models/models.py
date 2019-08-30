@@ -435,3 +435,8 @@ class ObjectInformatieObject(models.Model):
     @property
     def object(self) -> models.Model:
         return getattr(self, self.object_type)
+
+    def unique_representation(self):
+        io_id = self.object.identificatie
+        return f"({self.informatieobject.latest_version.unique_representation()}) - {io_id}"
+
