@@ -81,6 +81,6 @@ if "test" in sys.argv:
 
 # Override settings with local settings.
 try:
-    from ..local import *  # noqa
+    from .includes.local import *  # noqa
 except ImportError:
     pass
