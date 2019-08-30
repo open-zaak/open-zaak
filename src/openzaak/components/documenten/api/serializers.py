@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.query import QuerySet
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -454,34 +455,44 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = serializers.HyperlinkedRelatedField(
-        # min_length=1,
-        # max_length=1000,
-        view_name="zaak-detail",
-        queryset=Zaak.objects.all(),
+    object = LengthHyperlinkedRelatedField(
+        min_length=1,
+        max_length=1000,
+        view_name="",
+        queryset=QuerySet(),
         lookup_field="uuid",
         help_text=_(
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
     )
 
+    def set_object_properties(self, object_type):
+        object_field = self.fields['object']
+        if object_type == 'besluit':
+            object_field.view_name = 'besluit-detail'
+            object_field.queryset = Besluit.objects
+        else:
+            object_field.view_name = 'zaak-detail'
+            object_field.queryset = Zaak.objects
+
+    def to_internal_value(self, data):
+        object_type = data.get('object_type')
+        self.set_object_properties(object_type)
+        res = super().to_internal_value(data)
+        return res
+
+    def to_representation(self, instance):
+        object_type = instance.object_type
+        self.set_object_properties(object_type)
+        return super().to_representation(instance)
+
     class Meta:
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
         extra_kwargs = {"url": {"lookup_field": "uuid"}}
-        # validators = [InformatieObjectUniqueValidator('object', 'informatieobject')]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         value_display_mapping = add_choice_values_help_text(ObjectTypes)
         self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
-
-        if self.instance:
-            object_type = self.instance.object_type
-        else:
-            object_type = self.context["request"].data.get("object_type")
-
-        if object_type == "besluit":
-            self.fields["object"].view_name = "besluit-detail"
-            self.fields["object"].queryset = Besluit.objects.all()

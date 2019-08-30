@@ -211,21 +211,22 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_filter_eio(self):
-        zio = ZaakInformatieObjectFactory.create()
+        bio = BesluitInformatieObjectFactory.create()
         ZaakInformatieObjectFactory.create()  # may not show up
-        eio_detail_url = reverse(zio.informatieobject.latest_version)
+        eio_detail_url = reverse(bio.informatieobject.latest_version)
 
         response = self.client.get(
             self.list_url,
-            {"informatieobject": f"http://testserver.nl{eio_detail_url}"},
+            # {"informatieobject": f"http://testserver.nl{eio_detail_url}"},
             HTTP_HOST="testserver.nl",
         )
+        print(response.json())
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
-        )
+        # self.assertEqual(len(response.data), 1)
+        # self.assertEqual(
+        #     response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
+        # )
 
     def test_filter_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
@@ -238,6 +239,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             {"object": f"http://testserver.nl{zaak_url}"},
             HTTP_HOST="testserver.nl",
         )
+        print(response.data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
