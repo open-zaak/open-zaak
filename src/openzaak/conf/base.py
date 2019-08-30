@@ -376,8 +376,11 @@ if subpath:
 
 if "GIT_SHA" in os.environ:
     GIT_SHA = getenv("GIT_SHA", "")
-else:
+# in docker (build) context, there is no .git directory
+elif os.path.exists(os.path.join(BASE_DIR, ".git")):
     GIT_SHA = raven.fetch_git_sha(BASE_DIR)
+else:
+    GIT_SHA = None
 
 ##############################
 #                            #
