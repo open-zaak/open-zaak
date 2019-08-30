@@ -18,7 +18,7 @@ os.environ.setdefault("SENDFILE_BACKEND", "sendfile.backends.development")
 os.environ.setdefault("ZTC_JWT_SECRET", "open-to-ztc")
 os.environ.setdefault("ZRC_JWT_SECRET", "open-to-zrc")
 
-from ..base import *  # noqa isort:skip
+from .includes.base import *  # noqa isort:skip
 
 #
 # Standard Django settings.

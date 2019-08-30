@@ -6,7 +6,7 @@ import os
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 
-from ..base import *  # noqa isort:skip
+from .includes.base import *  # noqa isort:skip
 
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},

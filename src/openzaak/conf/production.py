@@ -4,7 +4,7 @@ Production environment settings module.
 Tweaks the base settings so that caching mechanisms are used where possible,
 and HTTPS is leveraged where possible to further secure things.
 """
-from ..base import *  # noqa
+from .includes.base import *  # noqa
 
 # Caching sessions.
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"

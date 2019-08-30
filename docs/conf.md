@@ -9,11 +9,11 @@ backends, which can be configured through environment variables.
 ### Required
 
 * `DJANGO_SETTINGS_MODULE`: which environment settings to use. Available options:
-  - `openzaak.conf.envs.production`
-  - `openzaak.conf.envs.staging`
-  - `openzaak.conf.envs.docker`
-  - `openzaak.conf.envs.dev`
-  - `openzaak.conf.envs.ci`
+  - `openzaak.conf.production`
+  - `openzaak.conf.staging`
+  - `openzaak.conf.docker`
+  - `openzaak.conf.dev`
+  - `openzaak.conf.ci`
 
 * `SECRET_KEY`: secret key that's used for certain cryptographic utilities. You
   should generate one via

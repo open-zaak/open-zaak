@@ -13,7 +13,7 @@ from .plugins import PLUGIN_INSTALLED_APPS
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
 DJANGO_PROJECT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.path.pardir)
+    os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir)
 )
 BASE_DIR = os.path.abspath(
     os.path.join(DJANGO_PROJECT_DIR, os.path.pardir, os.path.pardir)

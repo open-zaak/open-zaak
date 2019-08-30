@@ -52,7 +52,7 @@ COPY ./src /app/src
 ARG COMMIT_HASH
 ENV GIT_SHA=${COMMIT_HASH}
 
-ENV DJANGO_SETTINGS_MODULE=openzaak.conf.envs.docker
+ENV DJANGO_SETTINGS_MODULE=openzaak.conf.docker
 
 ARG SECRET_KEY=dummy
 

@@ -21,7 +21,7 @@ src/openzaak/static/css/screen.css
 /htmlcov/
 
 # Environment
-local.py
+src/openzaak/conf/includes/local.py
 /env/
 /media/
 /static/

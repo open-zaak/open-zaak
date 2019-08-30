@@ -18,7 +18,7 @@ addons:
 
 env:
   global:
-  - DJANGO_SETTINGS_MODULE=openzaak.conf.envs.ci
+  - DJANGO_SETTINGS_MODULE=openzaak.conf.ci
   - DB_PASSWORD=
   - DB_USER=postgres
 
