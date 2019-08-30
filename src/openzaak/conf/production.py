@@ -39,7 +39,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Sets X-Content-Type-Options: nosniff
 SECURE_BROWSER_XSS_FILTER = True  # Sets X-XSS-Protection: 1; mode=block
 
 # Deal with being hosted on a subpath
-subpath = getenv("SUBPATH")
+subpath = config("SUBPATH")
 if subpath:
     if not subpath.startswith("/"):
         subpath = f"/{subpath}"

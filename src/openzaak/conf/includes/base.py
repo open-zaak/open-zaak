@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 import raven
 
 from .api import *  # noqa
-from .environ import getenv
+from .environ import config
 from .plugins import PLUGIN_INSTALLED_APPS
 
 # Build paths inside the project, so further paths can be defined relative to
@@ -22,18 +22,18 @@ BASE_DIR = os.path.abspath(
 #
 # Core Django settings
 #
-SITE_ID = getenv("SITE_ID", default=1)
+SITE_ID = config("SITE_ID", default=1)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = getenv("SECRET_KEY", required=True)
+SECRET_KEY = config("SECRET_KEY")
 
 # NEVER run with DEBUG=True in production-like environments
-DEBUG = getenv("DEBUG", default=False)
+DEBUG = config("DEBUG", default=False)
 
 # = domains we're running on
-ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", default=[], split=True)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=[], split=True)
 
-IS_HTTPS = getenv("IS_HTTPS", default=not DEBUG)
+IS_HTTPS = config("IS_HTTPS", default=not DEBUG)
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -56,18 +56,18 @@ USE_THOUSAND_SEPARATOR = True
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": getenv("DB_NAME", "openzaak"),
-        "USER": getenv("DB_USER", "openzaak"),
-        "PASSWORD": getenv("DB_PASSWORD", "openzaak"),
-        "HOST": getenv("DB_HOST", "localhost"),
-        "PORT": getenv("DB_PORT", 5432),
+        "NAME": config("DB_NAME", "openzaak"),
+        "USER": config("DB_USER", "openzaak"),
+        "PASSWORD": config("DB_PASSWORD", "openzaak"),
+        "HOST": config("DB_HOST", "localhost"),
+        "PORT": config("DB_PORT", 5432),
     }
 }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{getenv('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
@@ -75,7 +75,7 @@ CACHES = {
     },
     "axes": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{getenv('CACHE_AXES', 'localhost:6379/0')}",
+        "LOCATION": f"redis://{config('CACHE_AXES', 'localhost:6379/0')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
@@ -200,13 +200,13 @@ FIXTURE_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "fixtures")]
 #
 # Sending EMAIL
 #
-EMAIL_HOST = getenv("EMAIL_HOST", default="localhost")
-EMAIL_PORT = getenv(
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+EMAIL_PORT = config(
     "EMAIL_PORT", default=25
 )  # disabled on Google Cloud, use 487 instead
-EMAIL_HOST_USER = getenv("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD", default="")
-EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", default=False)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = "openzaak@example.com"
@@ -346,7 +346,7 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
 )
 
 # settings for uploading large files
-MIN_UPLOAD_SIZE = getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
+MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
 
 # urls for OAS3 specifications
 SPEC_URL = {
@@ -368,14 +368,14 @@ SPEC_URL = {
 }
 
 # Generating the schema, depending on the component
-subpath = os.getenv("SUBPATH")
+subpath = config("SUBPATH", None)
 if subpath:
     if not subpath.startswith("/"):
         subpath = f"/{subpath}"
     FORCE_SCRIPT_NAME = subpath
 
 if "GIT_SHA" in os.environ:
-    GIT_SHA = getenv("GIT_SHA", "")
+    GIT_SHA = config("GIT_SHA", "")
 # in docker (build) context, there is no .git directory
 elif os.path.exists(os.path.join(BASE_DIR, ".git")):
     GIT_SHA = raven.fetch_git_sha(BASE_DIR)
@@ -432,14 +432,14 @@ PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private-media")
 PRIVATE_MEDIA_URL = "/private-media/"
 
 # requires an nginx container running in front
-SENDFILE_BACKEND = getenv("SENDFILE_BACKEND", "sendfile.backends.nginx")
+SENDFILE_BACKEND = config("SENDFILE_BACKEND", "sendfile.backends.nginx")
 SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
 SENDFILE_URL = PRIVATE_MEDIA_URL
 
 #
 # RAVEN/SENTRY - error monitoring
 #
-SENTRY_DSN = getenv("SENTRY_DSN")
+SENTRY_DSN = config("SENTRY_DSN", None)
 
 if SENTRY_DSN:
     INSTALLED_APPS = INSTALLED_APPS + ["raven.contrib.django.raven_compat"]
