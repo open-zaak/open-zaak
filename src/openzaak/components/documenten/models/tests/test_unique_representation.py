@@ -38,7 +38,7 @@ class UniqueRepresentationTestCase(APITestCase):
         )
 
     @tag("oio")
-    @skip('ObjectInformatieObject is not implemented yet')
+    @skip("ObjectInformatieObject is not implemented yet")
     def test_oio(self):
         oio = ObjectInformatieObjectFactory(
             informatieobject__latest_version__bronorganisatie=730924658,

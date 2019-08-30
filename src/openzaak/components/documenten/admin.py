@@ -3,8 +3,10 @@ from django.contrib import admin
 from privates.admin import PrivateMediaMixin
 
 from .models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+    ObjectInformatieObject,
 )
 
 

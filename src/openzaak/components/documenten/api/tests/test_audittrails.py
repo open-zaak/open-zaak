@@ -79,7 +79,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
     @tag("oio")
-    @skip('ObjectInformatieObject is not implemented yet')
+    @skip("ObjectInformatieObject is not implemented yet")
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
 

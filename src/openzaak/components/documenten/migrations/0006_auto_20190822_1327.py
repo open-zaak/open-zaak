@@ -5,17 +5,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('documenten', '0005_auto_20190822_1325'),
-    ]
+    dependencies = [("documenten", "0005_auto_20190822_1325")]
 
     operations = [
         migrations.AddConstraint(
-            model_name='objectinformatieobject',
-            constraint=models.UniqueConstraint(fields=('informatieobject', 'zaak'), name='unique_io_zaak'),
+            model_name="objectinformatieobject",
+            constraint=models.UniqueConstraint(
+                fields=("informatieobject", "zaak"), name="unique_io_zaak"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='objectinformatieobject',
-            constraint=models.UniqueConstraint(fields=('informatieobject', 'besluit'), name='unique_io_besluit'),
+            model_name="objectinformatieobject",
+            constraint=models.UniqueConstraint(
+                fields=("informatieobject", "besluit"), name="unique_io_besluit"
+            ),
         ),
     ]

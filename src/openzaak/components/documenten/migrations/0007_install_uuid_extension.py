@@ -6,10 +6,6 @@ from django.contrib.postgres.operations import CreateExtension
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("documenten", "0006_auto_20190822_1327"),
-    ]
+    dependencies = [("documenten", "0006_auto_20190822_1327")]
 
-    operations = [
-        CreateExtension("uuid-ossp"),
-    ]
+    operations = [CreateExtension("uuid-ossp")]

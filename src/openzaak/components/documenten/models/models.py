@@ -376,12 +376,12 @@ class Gebruiksrechten(models.Model):
 
 class ObjectInformatieObject(models.Model):
     uuid = models.UUIDField(
-        unique=True, default=_uuid.uuid4,
-        help_text="Unieke resource identifier (UUID4)"
+        unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
     informatieobject = models.ForeignKey(
-        'EnkelvoudigInformatieObjectCanonical', on_delete=models.CASCADE,
-        help_text='URL-referentie naar het INFORMATIEOBJECT.'
+        "EnkelvoudigInformatieObjectCanonical",
+        on_delete=models.CASCADE,
+        help_text="URL-referentie naar het INFORMATIEOBJECT.",
     )
 
     # meta-info about relation
@@ -389,21 +389,15 @@ class ObjectInformatieObject(models.Model):
         "objecttype",
         max_length=100,
         choices=ObjectTypes.choices,
-        help_text="Het type van het gerelateerde OBJECT."
+        help_text="Het type van het gerelateerde OBJECT.",
     )
 
     # relations to the possible other objects
     zaak = models.ForeignKey(
-        "zaken.Zaak",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
     )
     besluit = models.ForeignKey(
-        "besluiten.Besluit",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
 
     class Meta:
@@ -415,21 +409,25 @@ class ObjectInformatieObject(models.Model):
                     object_type=ObjectTypes.zaak,
                     zaak__isnull=False,
                     besluit__isnull=True,
-                ) | Q(
+                )
+                | Q(
                     object_type=ObjectTypes.besluit,
                     zaak__isnull=True,
                     besluit__isnull=False,
                 ),
                 name="check_type",
             ),
-            models.UniqueConstraint(fields=("informatieobject", "zaak"), name="unique_io_zaak"),
-            models.UniqueConstraint(fields=("informatieobject", "besluit"), name="unique_io_besluit"),
+            models.UniqueConstraint(
+                fields=("informatieobject", "zaak"), name="unique_io_zaak"
+            ),
+            models.UniqueConstraint(
+                fields=("informatieobject", "besluit"), name="unique_io_besluit"
+            ),
         ]
 
     def __str__(self):
         return _("Relation between {document} and {object}").format(
-            document=self.informatieobject,
-            object=self.object
+            document=self.informatieobject, object=self.object
         )
 
     @property
@@ -439,4 +437,3 @@ class ObjectInformatieObject(models.Model):
     def unique_representation(self):
         io_id = self.object.identificatie
         return f"({self.informatieobject.latest_version.unique_representation()}) - {io_id}"
-

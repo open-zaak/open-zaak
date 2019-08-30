@@ -2,13 +2,15 @@ from django.db import IntegrityError
 from django.test import TestCase, tag
 
 from openzaak.components.besluiten.models.tests.factories import (
-    BesluitFactory, BesluitInformatieObjectFactory
+    BesluitFactory,
+    BesluitInformatieObjectFactory,
 )
 from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectCanonicalFactory
+    EnkelvoudigInformatieObjectCanonicalFactory,
 )
 from openzaak.components.zaken.models.tests.factories import (
-    ZaakFactory, ZaakInformatieObjectFactory
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
 )
 
 from ..models import ObjectInformatieObject
@@ -16,7 +18,6 @@ from ..models import ObjectInformatieObject
 
 @tag("oio")
 class OIOTests(TestCase):
-
     def test_not_both_zaak_besluit(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
         zaak = ZaakFactory.create()
@@ -24,16 +25,16 @@ class OIOTests(TestCase):
 
         with self.assertRaises(IntegrityError):
             ObjectInformatieObject.objects.create(
-                informatieobject=canonical,
-                zaak=zaak,
-                besluit=besluit,
+                informatieobject=canonical, zaak=zaak, besluit=besluit
             )
 
     def test_either_zaak_or_besluit_required(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
 
         with self.assertRaises(IntegrityError):
-            ObjectInformatieObject.objects.create(informatieobject=canonical, zaak=None, besluit=None)
+            ObjectInformatieObject.objects.create(
+                informatieobject=canonical, zaak=None, besluit=None
+            )
 
     def test_zio_creates_oio(self):
         zio = ZaakInformatieObjectFactory.create()

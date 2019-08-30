@@ -304,7 +304,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     @tag("oio")
-    @skip('ObjectInformatieObject is not implemented yet')
+    @skip("ObjectInformatieObject is not implemented yet")
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.

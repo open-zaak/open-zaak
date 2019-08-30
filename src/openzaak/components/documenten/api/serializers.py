@@ -12,10 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
-
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.zaken.models import Zaak
-
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -27,20 +23,22 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
 
-
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.components.documenten.models.constants import (
     ChecksumAlgoritmes,
     OndertekeningSoorten,
     Statussen,
 )
+from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
 from ..models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+    ObjectInformatieObject,
 )
-
 from .validators import StatusValidator
 
 
@@ -449,46 +447,41 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
 
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name='enkelvoudiginformatieobject-detail',
-        lookup_field='uuid',
+        view_name="enkelvoudiginformatieobject-detail",
+        lookup_field="uuid",
         queryset=EnkelvoudigInformatieObject.objects,
-        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
+        help_text=get_help_text(
+            "documenten.ObjectInformatieObject", "informatieobject"
+        ),
     )
     object = serializers.HyperlinkedRelatedField(
         # min_length=1,
         # max_length=1000,
-        view_name='zaak-detail',
+        view_name="zaak-detail",
         queryset=Zaak.objects.all(),
-        lookup_field='uuid',
-        help_text=_("URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."),
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
+        ),
     )
 
     class Meta:
         model = ObjectInformatieObject
-        fields = (
-            'url',
-            'informatieobject',
-            'object',
-            'object_type',
-        )
-        extra_kwargs = {
-            'url': {
-                'lookup_field': 'uuid',
-            },
-        }
+        fields = ("url", "informatieobject", "object", "object_type")
+        extra_kwargs = {"url": {"lookup_field": "uuid"}}
         # validators = [InformatieObjectUniqueValidator('object', 'informatieobject')]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         value_display_mapping = add_choice_values_help_text(ObjectTypes)
-        self.fields['object_type'].help_text += f"\n\n{value_display_mapping}"
+        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
         if self.instance:
             object_type = self.instance.object_type
         else:
-            object_type = self.context['request'].data.get('object_type')
+            object_type = self.context["request"].data.get("object_type")
 
-        if object_type == 'besluit':
-            self.fields['object'].view_name = 'besluit-detail'
-            self.fields['object'].queryset = Besluit.objects.all()
+        if object_type == "besluit":
+            self.fields["object"].view_name = "besluit-detail"
+            self.fields["object"].queryset = Besluit.objects.all()

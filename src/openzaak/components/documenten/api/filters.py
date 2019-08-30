@@ -4,8 +4,10 @@ from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
 from ..models import (
-    EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten, ObjectInformatieObject
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+    ObjectInformatieObject,
 )
 
 
@@ -41,13 +43,15 @@ class GebruiksrechtenFilter(FilterSet):
 class ObjectInformatieObjectFilter(FilterSet):
     informatieobject = URLModelChoiceFilter(
         queryset=EnkelvoudigInformatieObjectCanonical.objects.all(),
-        instance_path='canonical',
-        help_text=get_help_text('documenten.ObjectInformatieObject', 'informatieobject'),
+        instance_path="canonical",
+        help_text=get_help_text(
+            "documenten.ObjectInformatieObject", "informatieobject"
+        ),
     )
 
     class Meta:
         model = ObjectInformatieObject
         fields = (
             # 'object',
-            'informatieobject',
+            "informatieobject",
         )
