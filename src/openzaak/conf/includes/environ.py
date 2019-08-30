@@ -15,7 +15,7 @@ def getenv(key, default=None, typecast=None, required=False, split=False):
         val = val.split(",")
 
     # figure out the target type from the default
-    if default and type(default) != str:
+    if default and not split and type(default) != str:
         typecast = type(default)
 
     if typecast is bool:

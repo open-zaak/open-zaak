@@ -20,6 +20,7 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Production logging facility.
+root_handler = "sentry" if "sentry" in LOGGING["handlers"] else "project"
 LOGGING["loggers"].update(
     {
         "": {"handlers": ["sentry"], "level": "ERROR", "propagate": False},

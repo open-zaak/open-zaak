@@ -31,7 +31,7 @@ SECRET_KEY = getenv("SECRET_KEY", required=True)
 DEBUG = getenv("DEBUG", default=False)
 
 # = domains we're running on
-ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", split=True)
+ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", default=[], split=True)
 
 IS_HTTPS = getenv("IS_HTTPS", default=not DEBUG)
 
