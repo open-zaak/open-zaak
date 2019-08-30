@@ -1,10 +1,8 @@
 import uuid
 from datetime import date
-from unittest.mock import patch
 
 from django.test import override_settings
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,53 +11,24 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.models.tests.factories import (
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_ZAKEN_BIJWERKEN,
-    SCOPE_ZAKEN_CREATE,
-)
 from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models import KlantContact, Rol, Status, Zaak, ZaakObject
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.utils.tests import JWTAuthMixin
 
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 
-ZAAKTYPE = f"https://example.com/ztc/api/v1/catalogus/{uuid.uuid4().hex}/zaaktypen/{uuid.uuid4().hex}"
-STATUS_TYPE = f"https://example.com/ztc/api/v1/catalogus/{uuid.uuid4().hex}/zaaktypen/{uuid.uuid4().hex}/statustypen/{uuid.uuid4().hex}"  # noqa
-STATUS_TYPE_OVERLAST_GECONSTATEERD = f"https://example.com/ztc/api/v1/catalogus/{uuid.uuid4().hex}/zaaktypen/{uuid.uuid4().hex}/statustypen/{uuid.uuid4().hex}"  # noqa
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 OBJECT_MET_ADRES = f"https://example.com/orc/api/v1/objecten/{uuid.uuid4().hex}"
-FOTO = (
-    f"https://example.com/drc/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4().hex}"
-)
-# file:///home/bbt/Downloads/2a.aansluitspecificatieskennisgevingen-gegevenswoordenboek-entiteitenv1.0.6.pdf
 # Stadsdeel is een WijkObject in het RSGB
 STADSDEEL = f"https://example.com/rsgb/api/v1/wijkobjecten/{uuid.uuid4().hex}"
-
-ROLTYPE = "https://ztc.nl/roltypen/123"
-
-ROLTYPE_RESPONSE = {
-    "url": ROLTYPE,
-    "zaaktype": ZAAKTYPE,
-    "omschrijving": RolOmschrijving.behandelaar,
-    "omschrijvingGeneriek": RolOmschrijving.behandelaar,
-}
-
-STATUSTYPE_RESPONSE = {
-    STATUS_TYPE: {
-        "url": STATUS_TYPE,
-        "zaaktype": ZAAKTYPE,
-        "volgnummer": 1,
-        "isEindstatus": False,
-    }
-}
 
 
 class US39TestCase(JWTAuthMixin, APITestCase):

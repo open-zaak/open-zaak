@@ -1,12 +1,13 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class GebruiksrechtenTests(JWTAuthMixin, APITestCase):

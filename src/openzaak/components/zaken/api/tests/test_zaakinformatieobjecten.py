@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.models.tests.factories import (
@@ -20,6 +20,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):

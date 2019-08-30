@@ -5,12 +5,16 @@ from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import Archiefnominatie
-from vng_api_common.tests import JWTAuthMixin, reverse
+from vng_api_common.constants import Archiefnominatie, ComponentTypes
+from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import StatusTypeFactory
+from openzaak.components.catalogi.models.tests.factories import (
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.components.zaken.api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
+    SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     SCOPEN_ZAKEN_HEROPENEN,
 )
@@ -18,14 +22,22 @@ from openzaak.components.zaken.api.tests.utils import get_operation_url
 from openzaak.components.zaken.models.constants import BetalingsIndicatie
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class ZaakClosedTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_BIJWERKEN]
+    component = ComponentTypes.zrc
 
-    heeft_alle_autorisaties = True
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
 
     def test_update_zaak_open(self):
-        zaak = ZaakFactory.create(betalingsindicatie=BetalingsIndicatie.geheel)
+        zaak = ZaakFactory.create(
+            betalingsindicatie=BetalingsIndicatie.geheel, zaaktype=self.zaaktype
+        )
         url = reverse(zaak)
 
         response = self.client.patch(
@@ -38,9 +50,8 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.betalingsindicatie, BetalingsIndicatie.nvt)
 
-    @skip("Current implementation is without authentication")
     def test_update_zaak_closed_not_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now())
+        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
         url = reverse(zaak)
 
         response = self.client.patch(
@@ -49,9 +60,8 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skip("Current implementation is without authentication")
     def test_update_zaak_closed_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now())
+        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
         url = reverse(zaak)
 
         self.autorisatie.scopes = [SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
@@ -63,14 +73,15 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    @skip("Current implementation is without authentication")
     def test_reopenzaak_allowed(self):
         zaak = ZaakFactory.create(
             einddatum=timezone.now(),
             archiefactiedatum="2020-01-01",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            zaaktype=self.zaaktype,
         )
-        statustype = StatusTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=self.zaaktype)
+        StatusTypeFactory.create(zaaktype=self.zaaktype)
         statustype_url = reverse(statustype)
         StatusTypeFactory.create()
         status_create_url = get_operation_url("status_create")
@@ -91,10 +102,10 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.archiefactiedatum)
         self.assertIsNone(zaak.archiefnominatie)
 
-    @skip("Current implementation is without authentication")
     def test_reopenzaak_not_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now())
-        statustype = StatusTypeFactory.create()
+        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
+        statustype = StatusTypeFactory.create(zaaktype=self.zaaktype)
+        StatusTypeFactory.create(zaaktype=self.zaaktype)
         statustype_url = reverse(statustype)
         StatusTypeFactory.create()
         status_create_url = get_operation_url("status_create")

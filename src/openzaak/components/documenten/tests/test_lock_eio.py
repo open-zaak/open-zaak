@@ -1,20 +1,28 @@
 import uuid
 from base64 import b64encode
-from unittest import skip
 
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+    SCOPE_DOCUMENTEN_LOCK,
+)
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
+    EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
 
 @temp_private_root()
@@ -131,14 +139,20 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
 
 class EioUnlockAPITests(JWTAuthMixin, APITestCase):
 
-    heeft_alle_autorisaties = True
+    component = ComponentTypes.drc
+    scopes = [SCOPE_DOCUMENTEN_LOCK]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        super().setUpTestData()
 
     def test_unlock_success(self):
         lock = uuid.uuid4().hex
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=lock)
-        url = get_operation_url(
-            "enkelvoudiginformatieobject_unlock", uuid=eio.latest_version.uuid
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical__lock=lock, informatieobjecttype=self.informatieobjecttype
         )
+        url = get_operation_url("enkelvoudiginformatieobject_unlock", uuid=eio.uuid)
 
         response = self.client.post(url, {"lock": lock})
 
@@ -148,14 +162,14 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCase):
 
         eio.refresh_from_db()
 
-        self.assertEqual(eio.lock, "")
+        self.assertEqual(eio.canonical.lock, "")
 
-    @skip("Current implementation is without authentication")
     def test_unlock_fail_incorrect_id(self):
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=uuid.uuid4().hex)
-        url = get_operation_url(
-            "enkelvoudiginformatieobject_unlock", uuid=eio.latest_version.uuid
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical__lock=uuid.uuid4().hex,
+            informatieobjecttype=self.informatieobjecttype,
         )
+        url = get_operation_url("enkelvoudiginformatieobject_unlock", uuid=eio.uuid)
 
         response = self.client.post(url)
 
@@ -166,15 +180,15 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "incorrect-lock-id")
 
-    @skip("Current implementation is without authentication")
     def test_unlock_force(self):
         self.autorisatie.scopes = [SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK]
         self.autorisatie.save()
 
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=uuid.uuid4().hex)
-        url = get_operation_url(
-            "enkelvoudiginformatieobject_unlock", uuid=eio.latest_version.uuid
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical__lock=uuid.uuid4().hex,
+            informatieobjecttype=self.informatieobjecttype,
         )
+        url = get_operation_url("enkelvoudiginformatieobject_unlock", uuid=eio.uuid)
 
         response = self.client.post(url)
 
@@ -184,4 +198,4 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCase):
 
         eio.refresh_from_db()
 
-        self.assertEqual(eio.lock, "")
+        self.assertEqual(eio.canonical.lock, "")

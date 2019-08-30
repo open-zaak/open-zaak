@@ -2,25 +2,26 @@
 Guarantee that the proper authorization amchinery is in place.
 """
 from unittest import skip
-from unittest.mock import patch
-
-from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.besluiten.models.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
+from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.models.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 
 
-@skip("Current implementation is without authentication")
-@override_settings(ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient")
 class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_besluit_without_correct_scope(self):
         url = reverse("besluit-list")
@@ -41,17 +42,21 @@ class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get")
 
 
-@skip("Current implementation is without authentication")
 class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
-    besluittype = "https://besluittype.nl/ok"
+    component = ComponentTypes.brc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.besluittype = BesluitTypeFactory.create()
+        super().setUpTestData()
 
     def test_besluit_list(self):
         """
         Assert you can only list BESLUITen of the besluittypes of your authorization
         """
-        BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        BesluitFactory.create(besluittype=self.besluittype)
+        BesluitFactory.create()
         url = reverse("besluit-list")
 
         response = self.client.get(url)
@@ -61,14 +66,16 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         results = response.data["results"]
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["besluittype"], "https://besluittype.nl/ok")
+        self.assertEqual(
+            results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
+        )
 
     def test_besluit_retreive(self):
         """
         Assert you can only read BESLUITen of the besluittypes of your authorization
         """
-        besluit1 = BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        besluit2 = BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
+        besluit2 = BesluitFactory.create()
         url1 = reverse(besluit1)
         url2 = reverse(besluit2)
 
@@ -85,8 +92,8 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.applicatie.heeft_alle_autorisaties = True
         self.applicatie.save()
 
-        BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        BesluitFactory.create(besluittype=self.besluittype)
+        BesluitFactory.create()
         url = reverse("besluit-list")
 
         response = self.client.get(url)
@@ -97,19 +104,19 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 2)
 
 
-@skip("Current implementation is without authentication")
-@override_settings(
-    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200",
-    ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient",
-)
 class BioReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
-    besluittype = "https://besluittype.nl/ok"
+    component = ComponentTypes.brc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.besluittype = BesluitTypeFactory.create()
+        super().setUpTestData()
 
     def test_list_bio_limited_to_authorized_zaken(self):
-        besluit1 = BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        besluit2 = BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
+        besluit2 = BesluitFactory.create()
 
         url = reverse(BesluitInformatieObject)
 
@@ -129,13 +136,21 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(bio1.besluit)
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_bio_limited_to_authorized_besluiten(self, *mocks):
-        informatieobject = "https://drc.com/api/v1/enkelvoudigeinformatieobjecten/1234"
+    def test_create_bio_limited_to_authorized_besluiten(self):
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        informatieobject_url = reverse(informatieobject)
 
-        besluit1 = BesluitFactory.create(besluittype="https://besluittype.nl/ok")
-        besluit2 = BesluitFactory.create(besluittype="https://besluittype.nl/not_ok")
+        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
+        besluit2 = BesluitFactory.create()
+
+        self.besluittype.informatieobjecttypes.add(
+            informatieobject.informatieobjecttype
+        )
+        besluit2.besluittype.informatieobjecttypes.add(
+            informatieobject.informatieobjecttype
+        )
 
         besluit_uri1 = reverse(besluit1)
         besluit_url1 = f"http://testserver{besluit_uri1}"
@@ -146,8 +161,8 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         url1 = reverse("besluitinformatieobject-list")
         url2 = reverse("besluitinformatieobject-list")
 
-        data1 = {"informatieobject": informatieobject, "besluit": besluit_url1}
-        data2 = {"informatieobject": informatieobject, "besluit": besluit_url2}
+        data1 = {"informatieobject": informatieobject_url, "besluit": besluit_url1}
+        data2 = {"informatieobject": informatieobject_url, "besluit": besluit_url2}
 
         response1 = self.client.post(url1, data1)
         response2 = self.client.post(url2, data2)

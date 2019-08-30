@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "openzaak",
     "openzaak.accounts",
     "openzaak.utils",
+    "openzaak.components.authorizations",
     "openzaak.components.zaken",
     "openzaak.components.besluiten",
     "openzaak.components.documenten",
@@ -89,7 +90,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "vng_api_common.middleware.AuthMiddleware",
+    "openzaak.components.authorizations.middleware.AuthMiddleware",
+    # 'vng_api_common.middleware.AuthMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -388,6 +390,9 @@ SPEC_URL = {
         BASE_DIR, "src/openzaak/components/documenten/openapi.yaml"
     ),
     "catalogi": os.path.join(BASE_DIR, "src/openzaak/components/catalogi/openapi.yaml"),
+    "authorizations": os.path.join(
+        BASE_DIR, "src/openzaak/components/authorizations/openapi.yaml"
+    ),
 }
 
 # for generate_schema depending on the component

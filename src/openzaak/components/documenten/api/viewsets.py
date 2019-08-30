@@ -30,10 +30,7 @@ from .filters import (
     GebruiksrechtenFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
-from .permissions import (
-    InformationObjectAuthScopesRequired,
-    InformationObjectRelatedAuthScopesRequired,
-)
+from .permissions import InformationObjectAuthRequired
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -68,7 +65,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 class EnkelvoudigInformatieObjectViewSet(
     NotificationViewSetMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
     viewsets.ModelViewSet,
 ):
@@ -158,8 +155,9 @@ class EnkelvoudigInformatieObjectViewSet(
         "canonical", "-versie"
     ).distinct("canonical")
     lookup_field = "uuid"
+    serializer_class = EnkelvoudigInformatieObjectSerializer
     pagination_class = PageNumberPagination
-    # permission_classes = (InformationObjectAuthScopesRequired, )
+    permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -206,7 +204,7 @@ class EnkelvoudigInformatieObjectViewSet(
         """
         if self.action in ["update", "partial_update"]:
             return EnkelvoudigInformatieObjectWithLockSerializer
-        return EnkelvoudigInformatieObjectSerializer
+        return super().get_serializer_class()
 
     @swagger_auto_schema(
         manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM]
@@ -336,13 +334,16 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(detail=True, methods=["post"])
     def unlock(self, request, *args, **kwargs):
         eio = self.get_object()
+        eio_data = self.get_serializer(eio).data
         canonical = eio.canonical
+
         # check if it's a force unlock by administrator
         force_unlock = False
         if self.request.jwt_auth.has_auth(
             scopes=SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
-            informatieobjecttype=eio.informatieobjecttype,
-            vertrouwelijkheidaanduiding=eio.vertrouwelijkheidaanduiding,
+            informatieobjecttype=eio_data["informatieobjecttype"],
+            vertrouwelijkheidaanduiding=eio_data["vertrouwelijkheidaanduiding"],
+            init_component=self.queryset.model._meta.app_label,
         ):
             force_unlock = True
 
@@ -356,7 +357,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 class GebruiksrechtenViewSet(
     NotificationViewSetMixin,
-    # ListFilterByAuthorizationsMixin, #TODO implement with authorizations
+    ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
     viewsets.ModelViewSet,
 ):
@@ -407,7 +408,8 @@ class GebruiksrechtenViewSet(
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
     notifications_main_resource_key = "informatieobject"
-    # permission_classes = (InformationObjectRelatedAuthScopesRequired,)
+    permission_classes = (InformationObjectAuthRequired,)
+    permission_main_object = "informatieobject"
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,

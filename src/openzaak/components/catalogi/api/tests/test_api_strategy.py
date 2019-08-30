@@ -1,8 +1,6 @@
 import json
 from unittest import expectedFailure, skip, skipIf
 
-from django.test import SimpleTestCase
-from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 import yaml
@@ -17,7 +15,7 @@ from ...models.tests.factories import (
     ZaakTypeFactory,
 )
 from . import views
-from .base import APITestCase, CatalogusAPITestMixin, ClientAPITestMixin
+from .base import APITestCase, CatalogusAPITestMixin
 from .utils import get_operation_url
 
 
@@ -197,7 +195,6 @@ class RestfulPrinciplesAPITests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
 
-@skip("Current implementation is without authentication")
 class SecurityAPITests(CatalogusAPITestMixin, APILiveServerTestCase):
     """Section 2.6.2 of the DSO: API strategy"""
 

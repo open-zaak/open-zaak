@@ -2,6 +2,7 @@ from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from openzaak.components.catalogi.models import Catalogus
+from openzaak.utils.permissions import AuthRequired
 
 from ..filters import CatalogusFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
@@ -52,6 +53,7 @@ class CatalogusViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     filter_class = CatalogusFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
+    permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,

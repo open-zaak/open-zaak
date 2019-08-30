@@ -1,6 +1,9 @@
+from urllib.parse import urlparse
+
 from django.db import models
 
 from vng_api_common.scopes import Scope
+from vng_api_common.utils import get_resource_for_path
 
 
 class AuthorizationsFilterMixin:
@@ -34,9 +37,12 @@ class AuthorizationsFilterMixin:
         )
 
         # keep a list of allowed besluittypen
-        besluittypen = [
-            a.besluittype for a in authorizations if scope.is_contained_in(a.scopes)
-        ]
+        besluittypen = []
+        for authorization in authorizations:
+            if scope.is_contained_in(authorization.scopes):
+                besluittype_path = urlparse(authorization.besluittype).path
+                besluittype = get_resource_for_path(besluittype_path)
+                besluittypen.append(besluittype)
 
         # filtering:
         # * only allow the white-listed besluittypen, explicitly

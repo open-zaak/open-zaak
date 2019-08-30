@@ -3,24 +3,24 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from unittest import skip
 
-from django.test import override_settings
-
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, JWTAuthMixin, reverse
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.tests import AuthCheckMixin, reverse
 
+from openzaak.components.catalogi.models.tests.factories import (
+    InformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenFactory,
     ObjectInformatieObjectFactory,
 )
+from openzaak.utils.tests import JWTAuthMixin
 
-from ..scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 
 
-@skip("Current implementation is without authentication")
-@override_settings(ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient")
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_io_without_correct_scope(self):
         url = reverse("enkelvoudiginformatieobject-list")
@@ -29,14 +29,15 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         gebruiksrechten = GebruiksrechtenFactory.create()
-        oio = ObjectInformatieObjectFactory.create(is_besluit=True)
+        # oio = ObjectInformatieObjectFactory.create(is_besluit=True)
         urls = [
             reverse("enkelvoudiginformatieobject-list"),
             reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
             reverse("gebruiksrechten-list"),
             reverse(gebruiksrechten),
-            reverse("objectinformatieobject-list"),
-            reverse(oio),
+            # FIXME add when objectinformatieobject is implemented
+            # reverse('objectinformatieobject-list'),
+            # reverse('objectinformatieobject-'),
         ]
 
         for url in urls:
@@ -44,11 +45,15 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get")
 
 
-@skip("Current implementation is without authentication")
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-    informatieobjecttype = "https://informatieobjecttype.nl/ok"
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        super().setUpTestData()
 
     def test_io_list(self):
         """
@@ -56,20 +61,18 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         of your authorization
         """
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
         url = reverse("enkelvoudiginformatieobject-list")
 
@@ -81,7 +84,8 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(results), 1)
         self.assertEqual(
-            results[0]["informatieobjecttype"], "https://informatieobjecttype.nl/ok"
+            results[0]["informatieobjecttype"],
+            f"http://testserver{reverse(self.informatieobjecttype)}",
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
@@ -94,11 +98,10 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         of your authorization
         """
         eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         url1 = reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid})
@@ -118,20 +121,18 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.applicatie.save()
 
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
         url = reverse("enkelvoudiginformatieobject-list")
 
@@ -143,29 +144,32 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 4)
 
 
-@skip("Current implementation is without authentication")
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
-    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-    informatieobjecttype = "https://informatieobjecttype.nl/ok"
+    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
         url = reverse("gebruiksrechten-list")
         # must show up
         gebruiksrechten1 = GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
         GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         # must not show up
         GebruiksrechtenFactory.create(
-            informatieobject__latest_version__informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
 
         response = self.client.get(url)
@@ -177,14 +181,13 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
             response_data[0]["url"], f"http://testserver{reverse(gebruiksrechten1)}"
         )
 
-    def test_create_gebruiksrechten_limited_to_authorized_zaken(self):
+    def test_create_gebruiksrechten_limited_to_authorized_io(self):
         url = reverse("gebruiksrechten-list")
         eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/not_ok",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://informatieobjecttype.nl/ok",
+            informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
 
@@ -207,8 +210,23 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_read_gebruiksrechten_limited_to_authorized_io(self):
+        gebruiksrechten1 = GebruiksrechtenFactory(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        gebruiksrechten2 = GebruiksrechtenFactory(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
 
-@skip("Current implementation is without authentication")
+        response1 = self.client.get(reverse(gebruiksrechten1))
+        response2 = self.client.get(reverse(gebruiksrechten2))
+
+        self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+
+@skip("ObjectInformatieObject is not implemented yet")
 class OioReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]

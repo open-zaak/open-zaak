@@ -42,7 +42,7 @@
                     {
                         "name": "catalogus",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde catalogus",
+                        "description": "URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -245,6 +245,13 @@
                 },
                 "tags": [
                     "besluittypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -412,6 +419,13 @@
                 },
                 "tags": [
                     "besluittypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -566,6 +580,13 @@
                 },
                 "tags": [
                     "besluittypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -714,6 +735,13 @@
                 },
                 "tags": [
                     "besluittypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -758,6 +786,13 @@
                 },
                 "tags": [
                     "besluittypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -982,6 +1017,13 @@
                 },
                 "tags": [
                     "catalogussen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -1149,6 +1191,13 @@
                 },
                 "tags": [
                     "catalogussen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -1303,6 +1352,13 @@
                 },
                 "tags": [
                     "catalogussen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -1325,7 +1381,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -1514,6 +1570,13 @@
                 },
                 "tags": [
                     "eigenschappen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -1681,6 +1744,13 @@
                 },
                 "tags": [
                     "eigenschappen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -1835,6 +1905,13 @@
                 },
                 "tags": [
                     "eigenschappen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -1983,6 +2060,13 @@
                 },
                 "tags": [
                     "eigenschappen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -2005,7 +2089,7 @@
                     {
                         "name": "catalogus",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde catalogus",
+                        "description": "URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2194,6 +2278,13 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -2361,6 +2452,13 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -2515,6 +2613,13 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -2663,6 +2768,13 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -2707,6 +2819,13 @@
                 },
                 "tags": [
                     "informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -2729,7 +2848,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -2918,6 +3037,13 @@
                 },
                 "tags": [
                     "resultaattypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -3085,6 +3211,13 @@
                 },
                 "tags": [
                     "resultaattypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -3239,6 +3372,13 @@
                 },
                 "tags": [
                     "resultaattypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -3387,6 +3527,13 @@
                 },
                 "tags": [
                     "resultaattypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -3409,7 +3556,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -3615,6 +3762,13 @@
                 },
                 "tags": [
                     "roltypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -3782,6 +3936,13 @@
                 },
                 "tags": [
                     "roltypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -3936,6 +4097,13 @@
                 },
                 "tags": [
                     "roltypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -4084,6 +4252,13 @@
                 },
                 "tags": [
                     "roltypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -4105,7 +4280,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -4294,6 +4469,13 @@
                 },
                 "tags": [
                     "statustypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -4461,6 +4643,13 @@
                 },
                 "tags": [
                     "statustypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -4615,6 +4804,13 @@
                 },
                 "tags": [
                     "statustypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -4763,6 +4959,13 @@
                 },
                 "tags": [
                     "statustypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -4785,7 +4988,7 @@
                     {
                         "name": "zaaktype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde zaaktype",
+                        "description": "URL-referentie naar het ZAAKTYPE.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -4793,7 +4996,7 @@
                     {
                         "name": "informatieobjecttype",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde informatieobjecttype",
+                        "description": "URL-referentie naar het INFORMATIEOBJECTTYPE.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -4994,6 +5197,13 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -5161,6 +5371,13 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -5315,6 +5532,13 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -5463,6 +5687,13 @@
                 },
                 "tags": [
                     "zaaktype-informatieobjecttypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -5485,7 +5716,7 @@
                     {
                         "name": "catalogus",
                         "in": "query",
-                        "description": "URL naar de/het gerelateerde catalogus",
+                        "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -5688,6 +5919,13 @@
                 },
                 "tags": [
                     "zaaktypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -5855,6 +6093,13 @@
                 },
                 "tags": [
                     "zaaktypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -6009,6 +6254,13 @@
                 },
                 "tags": [
                     "zaaktypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.lezen"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -6157,6 +6409,13 @@
                 },
                 "tags": [
                     "zaaktypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -6201,6 +6460,13 @@
                 },
                 "tags": [
                     "zaaktypen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "zaaktypes.schrijven"
+                        ]
+                    }
                 ]
             },
             "parameters": [

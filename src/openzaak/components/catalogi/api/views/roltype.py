@@ -2,6 +2,8 @@ from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.utils.permissions import AuthRequired
+
 from ...models import RolType
 from ..filters import RolTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
@@ -62,6 +64,7 @@ class RolTypeViewSet(
     filterset_class = RolTypeFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
+    permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,

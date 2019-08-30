@@ -208,6 +208,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.lezen
     post:
       operationId: besluit_create
       summary: Maak een BESLUIT aan.
@@ -378,6 +381,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.aanmaken
     parameters: []
   /besluiten/{besluit_uuid}/audittrail:
     get:
@@ -782,6 +788,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.lezen
     put:
       operationId: besluit_update
       summary: Werk een BESLUIT in zijn geheel bij.
@@ -954,6 +963,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.bijwerken
     patch:
       operationId: besluit_partial_update
       summary: Werk een BESLUIT deels bij.
@@ -1126,6 +1138,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.bijwerken
     delete:
       operationId: besluit_delete
       summary: Verwijder een BESLUIT.
@@ -1278,6 +1293,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluiten
+      security:
+      - JWT-Claims:
+        - besluiten.verwijderen
     parameters:
     - name: uuid
       in: path
@@ -1431,6 +1449,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.lezen
     post:
       operationId: besluitinformatieobject_create
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
@@ -1592,6 +1613,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.aanmaken
     parameters: []
   /besluitinformatieobjecten/{uuid}:
     get:
@@ -1721,6 +1745,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.lezen
     put:
       operationId: besluitinformatieobject_update
       summary: Werk een BESLUIT-INFORMATIEOBJECT relatie in zijn geheel bij.
@@ -1891,6 +1918,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.bijwerken
     patch:
       operationId: besluitinformatieobject_partial_update
       summary: Werk een BESLUIT-INFORMATIEOBJECT relatie deels bij.
@@ -2061,6 +2091,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.bijwerken
     delete:
       operationId: besluitinformatieobject_delete
       summary: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
@@ -2205,6 +2238,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - besluitinformatieobjecten
+      security:
+      - JWT-Claims:
+        - besluiten.verwijderen
     parameters:
     - name: uuid
       in: path

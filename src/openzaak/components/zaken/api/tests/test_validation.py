@@ -12,7 +12,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import (
     IsImmutableValidator,
     ResourceValidator,
@@ -30,11 +30,7 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models import (
-    RelevanteZaakRelatie,
-    Zaak,
-    ZaakInformatieObject,
-)
+from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.models.constants import (
     AardZaakRelatie,
     BetalingsIndicatie,
@@ -45,11 +41,8 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.utils import (
-    ZAAK_READ_KWARGS,
-    ZAAK_WRITE_KWARGS,
-    isodatetime,
-)
+from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS, isodatetime
+from openzaak.utils.tests import JWTAuthMixin
 
 
 class ZaakValidationTests(JWTAuthMixin, APITestCase):

@@ -100,11 +100,3 @@ class KlantContactFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.KlantContact"
-
-
-class ZaakBesluitFactory(factory.django.DjangoModelFactory):
-    zaak = factory.SubFactory(ZaakFactory)
-    besluit = factory.SubFactory(BesluitFactory)
-
-    # class Meta:
-    #     model = 'zaken.ZaakBesluit'
