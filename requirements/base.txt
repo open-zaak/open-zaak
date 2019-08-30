@@ -44,6 +44,7 @@ oyaml==0.7                # via vng-api-common
 psycopg2==2.8.3
 pyjwt==1.6.4              # via gemma-zds-client, vng-api-common
 python-dateutil==2.7.3
+python-decouple==3.1
 python-dotenv==0.8.2
 pytz==2019.1              # via django, django-axes
 pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common

@@ -48,6 +48,7 @@ oyaml==0.7
 psycopg2==2.8.3
 pyjwt==1.6.4
 python-dateutil==2.7.3
+python-decouple==3.1
 python-dotenv==0.8.2
 pytz==2019.1
 pyyaml==5.1
