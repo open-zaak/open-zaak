@@ -1,13 +1,13 @@
 from urllib.parse import urlparse
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.module_loading import import_string
 from django.db.models import ObjectDoesNotExist
+from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework.serializers import ValidationError
 from rest_framework import permissions
 from rest_framework.request import Request
+from rest_framework.serializers import ValidationError
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.utils import get_resource_for_path
 
@@ -69,12 +69,14 @@ class AuthRequired(permissions.BasePermission):
                 try:
                     main_object = get_resource_for_path(main_object_path)
                 except ObjectDoesNotExist:
-                    raise ValidationError({
-                        view.permission_main_object: ValidationError(
-                            _('The object does not exist in the database'),
-                            code='object-does-not-exist'
-                        ).detail
-                    })
+                    raise ValidationError(
+                        {
+                            view.permission_main_object: ValidationError(
+                                _("The object does not exist in the database"),
+                                code="object-does-not-exist",
+                            ).detail
+                        }
+                    )
                 main_object_data = self.format_data(main_object, request)
 
             fields = self.get_fields(main_object_data)

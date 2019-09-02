@@ -2,11 +2,12 @@
 Serializers of the Document Registratie Component REST API
 """
 import uuid
+
 from django.conf import settings
 from django.db import transaction
+from django.db.models.query import QuerySet
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.query import QuerySet
 
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -464,16 +465,16 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     def set_object_properties(self, object_type):
-        object_field = self.fields['object']
-        if object_type == 'besluit':
-            object_field.view_name = 'besluit-detail'
+        object_field = self.fields["object"]
+        if object_type == "besluit":
+            object_field.view_name = "besluit-detail"
             object_field.queryset = Besluit.objects
         else:
-            object_field.view_name = 'zaak-detail'
+            object_field.view_name = "zaak-detail"
             object_field.queryset = Zaak.objects
 
     def to_internal_value(self, data):
-        object_type = data.get('object_type')
+        object_type = data.get("object_type")
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
         return res

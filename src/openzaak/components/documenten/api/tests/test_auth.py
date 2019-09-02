@@ -3,18 +3,25 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding, ObjectTypes
+from vng_api_common.constants import (
+    ComponentTypes,
+    ObjectTypes,
+    VertrouwelijkheidsAanduiding,
+)
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
+from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenFactory,
 )
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory, ZaakFactory
+from openzaak.components.zaken.models.tests.factories import (
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
@@ -35,7 +42,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
             reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
             reverse("gebruiksrechten-list"),
             reverse(gebruiksrechten),
-            reverse('objectinformatieobject-list'),
+            reverse("objectinformatieobject-list"),
             reverse(oio),
         ]
 
@@ -242,7 +249,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
             informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
@@ -251,15 +258,19 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
-        ObjectInformatieObject.objects.create(informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak)
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio3 = EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
-        ObjectInformatieObject.objects.create(informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak)
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         response = self.client.get(url)
 
@@ -275,7 +286,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
             informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
@@ -284,15 +295,19 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
-        oio2 = ObjectInformatieObject.objects.create(informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak)
+        oio2 = ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio3 = EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
-        oio3 = ObjectInformatieObject.objects.create(informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak)
+        oio3 = ObjectInformatieObject.objects.create(
+            informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         with self.subTest(
             informatieobjecttype=oio1.informatieobject.latest_version.informatieobjecttype,

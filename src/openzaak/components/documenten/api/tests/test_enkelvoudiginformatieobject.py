@@ -1,6 +1,7 @@
 import uuid
 from base64 import b64encode
 from datetime import date
+
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -20,9 +21,7 @@ from openzaak.components.documenten.models import (
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakInformatieObjectFactory,
-)
+from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 

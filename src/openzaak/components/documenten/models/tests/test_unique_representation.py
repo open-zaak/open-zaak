@@ -3,12 +3,10 @@ from django.test import override_settings, tag
 from rest_framework.test import APITestCase
 from zds_client.tests.mocks import mock_client
 
-from .factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenFactory,
-)
-from ..models import ObjectInformatieObject
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
+
+from ..models import ObjectInformatieObject
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
 class UniqueRepresentationTestCase(APITestCase):
@@ -37,12 +35,14 @@ class UniqueRepresentationTestCase(APITestCase):
 
     @tag("oio")
     def test_oio(self):
-        zaak = ZaakFactory.create(identificatie='12345')
+        zaak = ZaakFactory.create(identificatie="12345")
         eio = EnkelvoudigInformatieObjectFactory.create(
             bronorganisatie=730924658,
-            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04"
+            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
-        oio = ObjectInformatieObject.objects.create(zaak=zaak, object_type='zaak', informatieobject=eio.canonical)
+        oio = ObjectInformatieObject.objects.create(
+            zaak=zaak, object_type="zaak", informatieobject=eio.canonical
+        )
 
         self.assertEqual(
             oio.unique_representation(),

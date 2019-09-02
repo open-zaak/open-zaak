@@ -1,8 +1,12 @@
+from django.utils.translation import ugettext_lazy as _
+
 from django_filters import rest_framework as filters
 from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
-from django.utils.translation import ugettext_lazy as _
+
+from openzaak.components.besluiten.models import Besluit
+from openzaak.components.zaken.models import Zaak
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -10,8 +14,6 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.besluiten.models import Besluit
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
@@ -44,8 +46,8 @@ class GebruiksrechtenFilter(FilterSet):
 
 
 def object_queryset(request):
-    object_value = request.query_params.get('object', '')
-    if 'zaken' in object_value:
+    object_value = request.query_params.get("object", "")
+    if "zaken" in object_value:
         return Zaak.objects.all()
     return Besluit.objects.all()
 
@@ -53,9 +55,9 @@ def object_queryset(request):
 class ObjectFilter(URLModelChoiceFilter):
     def filter(self, qs, value):
         if isinstance(value, Zaak):
-            self.field_name = 'zaak'
+            self.field_name = "zaak"
         else:
-            self.field_name = 'besluit'
+            self.field_name = "besluit"
 
         return super().filter(qs, value)
 
@@ -77,7 +79,4 @@ class ObjectInformatieObjectFilter(FilterSet):
 
     class Meta:
         model = ObjectInformatieObject
-        fields = (
-            'object',
-            "informatieobject",
-        )
+        fields = ("object", "informatieobject")
