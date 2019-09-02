@@ -5,6 +5,8 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
+from django.test import override_settings
+
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -23,6 +25,7 @@ from openzaak.components.documenten.models.tests.factories import (
 from openzaak.utils.tests import JWTAuthMixin
 
 
+@override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
 @temp_private_root()
 class US39TestCase(JWTAuthMixin, APITestCase):
 

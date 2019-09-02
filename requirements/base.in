@@ -3,6 +3,7 @@ markdown  # used to render some markdown in code to html
 psycopg2
 python-dateutil
 python-dotenv  # environment variables for secrets
+python-decouple  # processing of envvar configs
 
 # Framework libraries
 django
@@ -10,6 +11,7 @@ django-axes
 django-choices
 django-cors-middleware
 django-markup
+django-redis
 django-privates
 django-relativedelta
 
