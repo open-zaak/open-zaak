@@ -105,5 +105,21 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | einddatum | Einddatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn. | string | nee | C​R​U​D |
 | omschrijvingVoorwaarden | Omschrijving van de van toepassing zijnde voorwaarden aan het gebruik anders dan raadpleging | string | ja | C​R​U​D |
 
+## ObjectInformatieObject
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/objectinformatieobject)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| informatieobject | URL-referentie naar het INFORMATIEOBJECT. | string | ja | C​R​U​D |
+| object | URL-referentie naar het gerelateerde OBJECT (in deze of een andere API). | string | ja | C​R​U​D |
+| objectType | Het type van het gerelateerde OBJECT.
+
+Uitleg bij mogelijke waarden:
+
+* `besluit` - Besluit
+* `zaak` - Zaak | string | ja | C​R​U​D |
+
 
 * Create, Read, Update, Delete
