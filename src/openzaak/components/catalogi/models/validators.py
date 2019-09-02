@@ -38,7 +38,7 @@ def validate_uppercase(value):
 
 
 letters_numbers_underscores_validator = RegexValidator(
-    _lazy_re_compile("^[A-Za-z0-9 _]*$"),
+    _lazy_re_compile("^[A-Za-z0-9_]*$"),
     message=_("Voer alleen letters, cijfers en/of liggende streepjes in."),
     code="invalid",
 )
