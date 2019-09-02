@@ -25,7 +25,6 @@ from openzaak.components.zaken.models.tests.factories import (
 
 
 @tag("oio")
-@override_settings(ALLOWED_HOSTS=["testserver.nl"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
@@ -46,20 +45,19 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             self.list_url,
             {
-                "object": f"http://testserver.nl{zaak_url}",
-                "informatieobject": f"http://testserver.nl{eio_url}",
+                "object": f"http://testserver{zaak_url}",
+                "informatieobject": f"http://testserver{eio_url}",
                 "objectType": "zaak",
             },
-            HTTP_HOST="testserver.nl",
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
             response.data,
             {
-                "url": f"http://testserver.nl{oio_url}",
-                "informatieobject": f"http://testserver.nl{eio_url}",
-                "object": f"http://testserver.nl{zaak_url}",
+                "url": f"http://testserver{oio_url}",
+                "informatieobject": f"http://testserver{eio_url}",
+                "object": f"http://testserver{zaak_url}",
                 "object_type": "zaak",
             },
         )
@@ -82,20 +80,19 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             self.list_url,
             {
-                "object": f"http://testserver.nl{besluit_url}",
+                "object": f"http://testserver{besluit_url}",
                 "informatieobject": f"http://testserver{eio_url}",
                 "objectType": "besluit",
             },
-            HTTP_HOST="testserver.nl",
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
             response.data,
             {
-                "url": f"http://testserver.nl{oio_url}",
-                "object": f"http://testserver.nl{besluit_url}",
-                "informatieobject": f"http://testserver.nl{eio_url}",
+                "url": f"http://testserver{oio_url}",
+                "object": f"http://testserver{besluit_url}",
+                "informatieobject": f"http://testserver{eio_url}",
                 "object_type": "besluit",
             },
         )
@@ -114,11 +111,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             self.list_url,
             {
-                "object": f"http://testserver.nl{besluit_url}",
+                "object": f"http://testserver{besluit_url}",
                 "informatieobject": f"http://testserver{eio_url}",
                 "objectType": "other",
             },
-            HTTP_HOST="testserver.nl",
         )
 
         self.assertEqual(
@@ -140,15 +136,15 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
 
-        response = self.client.get(oio_url, HTTP_HOST="testserver.nl")
+        response = self.client.get(oio_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(
             response.data,
             {
-                "url": f"http://testserver.nl{oio_url}",
-                "object": f"http://testserver.nl{zaak_url}",
-                "informatieobject": f"http://testserver.nl{eio_url}",
+                "url": f"http://testserver{oio_url}",
+                "object": f"http://testserver{zaak_url}",
+                "informatieobject": f"http://testserver{eio_url}",
                 "object_type": "zaak",
             },
         )
@@ -168,15 +164,15 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(besluit)
         eio_url = reverse(eio)
 
-        response = self.client.get(oio_url, HTTP_HOST="testserver.nl")
+        response = self.client.get(oio_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(
             response.data,
             {
-                "url": f"http://testserver.nl{oio_url}",
-                "object": f"http://testserver.nl{besluit_url}",
-                "informatieobject": f"http://testserver.nl{eio_url}",
+                "url": f"http://testserver{oio_url}",
+                "object": f"http://testserver{besluit_url}",
+                "informatieobject": f"http://testserver{eio_url}",
                 "object_type": "besluit",
             },
         )
@@ -195,13 +191,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         eio_url = reverse(eio)
 
         content = {
-            "informatieobject": f"http://testserver.nl{eio_url}",
-            "object": f"http://testserver.nl{zaak_url}",
+            "informatieobject": f"http://testserver{eio_url}",
+            "object": f"http://testserver{zaak_url}",
             "objectType": ObjectTypes.zaak,
         }
 
         # Send to the API
-        response = self.client.post(self.list_url, content, HTTP_HOST="testserver.nl")
+        response = self.client.post(self.list_url, content)
 
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
@@ -217,16 +213,14 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             self.list_url,
-            # {"informatieobject": f"http://testserver.nl{eio_detail_url}"},
-            HTTP_HOST="testserver.nl",
+            {"informatieobject": f"http://testserver{eio_detail_url}"},
         )
-        print(response.json())
 
         self.assertEqual(response.status_code, 200)
-        # self.assertEqual(len(response.data), 1)
-        # self.assertEqual(
-        #     response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
-        # )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
+        )
 
     def test_filter_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
@@ -236,16 +230,41 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             self.list_url,
-            {"object": f"http://testserver.nl{zaak_url}"},
-            HTTP_HOST="testserver.nl",
+            {"object": f"http://testserver{zaak_url}"},
         )
-        print(response.data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
             response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
         )
+
+    def test_filter_besluit(self):
+        bio = BesluitInformatieObjectFactory.create()
+        BesluitInformatieObjectFactory.create()  # may not show up
+        bio_detail_url = reverse(bio.informatieobject.latest_version)
+        besluit_url = reverse(bio.besluit)
+
+        response = self.client.get(
+            self.list_url,
+            {"object": f"http://testserver{besluit_url}"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            response.data[0]["informatieobject"], f"http://testserver{bio_detail_url}"
+        )
+
+    def test_filter_incorrect_url(self):
+        response = self.client.get(
+            self.list_url,
+            {"object": "http://example.com/some-url"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        error = get_validation_errors(response, "object")
+        self.assertEqual(error["code"], "invalid")
 
 
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
@@ -259,8 +278,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # self.assertFalse(ObjectInformatieObject.objects.exists())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_oio_remote_still_present(self):
         BesluitInformatieObjectFactory.create()
@@ -271,4 +289,4 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "remote-relation-exists")
+        self.assertEqual(error["code"], "inconsistent-relation")
