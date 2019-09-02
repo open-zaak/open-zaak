@@ -178,7 +178,6 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
 
 
 @tag("oio")
-@skip("ObjectInformatieObject is not implemented yet")
 class FilterValidationTests(JWTAuthMixin, APITestCase):
     """
     Test that incorrect filter usage results in HTTP 400.

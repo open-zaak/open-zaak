@@ -1,9 +1,6 @@
 import uuid
 from base64 import b64encode
 from datetime import date
-from unittest import skip
-
-from django.test import tag
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -22,7 +19,9 @@ from openzaak.components.documenten.models import (
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
-    ObjectInformatieObjectFactory,
+)
+from openzaak.components.zaken.models.tests.factories import (
+    ZaakInformatieObjectFactory,
 )
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -303,14 +302,12 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    @tag("oio")
-    @skip("ObjectInformatieObject is not implemented yet")
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        ObjectInformatieObjectFactory.create(informatieobject=eio.canonical)
+        ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
         url = reverse(eio)
 
         response = self.client.delete(url)

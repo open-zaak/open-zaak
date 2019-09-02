@@ -786,7 +786,6 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "datumtijd")
         self.assertEqual(validation_error["code"], "date-in-future")
 
-    @skip("depends on permission class")
     def test_klantcontact_invalid_zaak(self):
         list_url = reverse("klantcontact-list")
 

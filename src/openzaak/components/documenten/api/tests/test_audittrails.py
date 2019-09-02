@@ -79,7 +79,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
     @tag("oio")
-    @skip("ObjectInformatieObject is not implemented yet")
+    @skip("Creation and destory OIO via its resource is not supported")
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
 

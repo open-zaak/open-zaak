@@ -2,9 +2,6 @@
 Serializers of the Document Registratie Component REST API
 """
 import uuid
-from typing import Union
-from urllib.parse import urlparse
-
 from django.conf import settings
 from django.db import transaction
 from django.utils.http import urlencode

@@ -15,7 +15,7 @@ from django.utils import timezone
 
 import factory
 import factory.fuzzy
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
@@ -49,25 +49,6 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
-
-
-class ObjectInformatieObjectFactory(factory.django.DjangoModelFactory):
-
-    informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
-    object = factory.Faker("url")
-
-    # class Meta:
-    # model = 'documenten.ObjectInformatieObject'
-
-    class Params:
-        is_zaak = factory.Trait(
-            object_type=ObjectTypes.zaak,
-            object=factory.Sequence(lambda n: f"https://zrc.nl/api/v1/zaken/{n}"),
-        )
-        is_besluit = factory.Trait(
-            object_type=ObjectTypes.besluit,
-            object=factory.Sequence(lambda n: f"https://brc.nl/api/v1/besluiten/{n}"),
-        )
 
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
