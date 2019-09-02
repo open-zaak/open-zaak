@@ -453,10 +453,10 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ObjectInformatieObjectViewSet(
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
+    # NotificationCreateMixin,
+    # NotificationDestroyMixin,
+    # AuditTrailCreateMixin,
+    # AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
@@ -505,8 +505,8 @@ class ObjectInformatieObjectViewSet(
     serializer_class = ObjectInformatieObjectSerializer
     filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"
-    notifications_kanaal = KANAAL_DOCUMENTEN
-    notifications_main_resource_key = "informatieobject"
+    # notifications_kanaal = KANAAL_DOCUMENTEN
+    # notifications_main_resource_key = "informatieobject"
     permission_classes = (InformationObjectAuthRequired,)
     permission_main_object = "informatieobject"
     required_scopes = {
@@ -555,7 +555,7 @@ class ObjectInformatieObjectViewSet(
         ):
             raise ValidationError(
                 {
-                    "object": _(
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
                         "The relation between zaak and informatieobject still exist"
                     )
                 },
@@ -570,7 +570,7 @@ class ObjectInformatieObjectViewSet(
         ):
             raise ValidationError(
                 {
-                    "object": _(
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
                         "The relation between besluit and informatieobject still exist"
                     )
                 },

@@ -400,6 +400,8 @@ class ObjectInformatieObject(models.Model):
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
 
+    objects = InformatieobjectRelatedQuerySet.as_manager()
+
     class Meta:
         verbose_name = _("objectinformatieobject")
         verbose_name_plural = _("objectinformatieobjecten")
