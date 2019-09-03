@@ -44,13 +44,6 @@ API's te realiseren die gebruikt kunnen worden bij gemeenten.
 
 .. _`referentie implementaties van VNG Realisatie`: https://github.com/VNG-Realisatie/gemma-zaken
 
-Requirements
-============
-
-* PostgreSQL database
-* Install extensions ``postgres`` and ``uuid-ossp``. If the DB user is a
-  superuser, this will be installed automatically.
-
 Licentie
 ========
 
