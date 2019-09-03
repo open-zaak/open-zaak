@@ -79,7 +79,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
     @tag("oio")
-    @skip("Creation and destory OIO via its resource is not supported")
+    @skip("Creation and destroy OIO via its resource is not supported until support for external API's is added.")
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
 
