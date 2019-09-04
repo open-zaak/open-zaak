@@ -4,7 +4,7 @@ from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 
-from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from ...tests.factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
 class UniqueRepresentationTestCase(APITestCase):

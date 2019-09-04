@@ -2,7 +2,7 @@ from datetime import date
 
 from django.test import TestCase
 
-from .factories import BesluitFactory
+from ...tests.factories import BesluitFactory
 
 
 class BesluitTests(TestCase):

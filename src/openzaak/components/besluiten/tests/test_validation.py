@@ -4,13 +4,14 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
 
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.utils.tests import JWTAuthMixin
+
+from .factories import BesluitFactory
 
 
 class BesluitValidationTests(JWTAuthMixin, APITestCase):

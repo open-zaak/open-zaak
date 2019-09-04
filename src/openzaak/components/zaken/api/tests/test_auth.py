@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from openzaak.components.besluiten.models.tests.factories import BesluitFactory
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,

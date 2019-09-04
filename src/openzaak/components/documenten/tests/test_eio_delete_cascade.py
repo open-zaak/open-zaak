@@ -5,9 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.components.besluiten.models.tests.factories import (
-    BesluitInformatieObjectFactory,
-)
+from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.documenten.api.tests.utils import get_operation_url
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,

@@ -10,7 +10,7 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 
-from openzaak.components.besluiten.models.tests.factories import (
+from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )

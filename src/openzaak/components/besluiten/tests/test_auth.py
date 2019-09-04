@@ -1,25 +1,20 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
-from unittest import skip
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from openzaak.components.besluiten.models import BesluitInformatieObject
-from openzaak.components.besluiten.models.tests.factories import (
-    BesluitFactory,
-    BesluitInformatieObjectFactory,
-)
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
+from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
+from ..models import BesluitInformatieObject
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
 class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):

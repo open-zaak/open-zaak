@@ -7,7 +7,7 @@ from django.test import override_settings
 from rest_framework.test import APITestCase
 from vng_api_common.notifications.kanalen import Kanaal
 
-from openzaak.components.besluiten.models import Besluit
+from ..models import Besluit
 
 
 @override_settings(IS_HTTPS=True)
