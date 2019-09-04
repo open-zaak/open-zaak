@@ -536,7 +536,7 @@ class ObjectInformatieObjectViewSet(
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between object and informatieobject don't exist"
+                        "The relation between object and informatieobject doesn't exist"
                     )
                 },
                 code="inconsistent-relation",
@@ -556,7 +556,7 @@ class ObjectInformatieObjectViewSet(
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between zaak and informatieobject still exist"
+                        "The relation between zaak and informatieobject still exists"
                     )
                 },
                 code="inconsistent-relation",
@@ -571,7 +571,7 @@ class ObjectInformatieObjectViewSet(
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between besluit and informatieobject still exist"
+                        "The relation between besluit and informatieobject still exists"
                     )
                 },
                 code="inconsistent-relation",

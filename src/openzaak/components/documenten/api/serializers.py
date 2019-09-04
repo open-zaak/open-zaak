@@ -474,7 +474,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             object_field.queryset = Zaak.objects
 
     def to_internal_value(self, data):
-        object_type = data.get("object_type")
+        object_type = data["object_type"]
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
         return res
