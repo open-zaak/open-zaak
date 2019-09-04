@@ -1,9 +1,9 @@
-from typing import List, Union
+from typing import List
 
 from django.db import models
 from django.db.models import Subquery
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.middleware import (
     AuthMiddleware as _AuthMiddleware,

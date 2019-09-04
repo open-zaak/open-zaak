@@ -4,14 +4,11 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.authorizations.api.validators import UniqueClientIDValidator
-from openzaak.components.authorizations.models.tests.factories import (
-    ApplicatieFactory,
-    AutorisatieFactory,
-)
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
+from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
+from ..api.validators import UniqueClientIDValidator
+from .factories import ApplicatieFactory, AutorisatieFactory
 from .utils import get_operation_url
 
 
