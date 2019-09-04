@@ -12,8 +12,8 @@ from openzaak.components.documenten.models.tests.factories import (
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.utils.tests import JWTAuthMixin
 
+from ..constants import VervalRedenen
 from ..models import Besluit
-from ..models.constants import VervalRedenen
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 

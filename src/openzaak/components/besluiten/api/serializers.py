@@ -7,8 +7,6 @@ from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
-from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
-from openzaak.components.besluiten.models.constants import VervalRedenen
 from openzaak.components.catalogi.models import BesluitType
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
@@ -17,6 +15,8 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
+from ..constants import VervalRedenen
+from ..models import Besluit, BesluitInformatieObject
 from .validators import (
     BesluittypeZaaktypeValidator,
     UniekeIdentificatieValidator,

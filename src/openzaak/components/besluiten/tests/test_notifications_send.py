@@ -10,7 +10,7 @@ from vng_api_common.tests import reverse
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..models.constants import VervalRedenen
+from ..constants import VervalRedenen
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
