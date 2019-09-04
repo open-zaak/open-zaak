@@ -464,6 +464,17 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    class Meta:
+        model = ObjectInformatieObject
+        fields = ("url", "informatieobject", "object", "object_type")
+        extra_kwargs = {"url": {"lookup_field": "uuid"}}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        value_display_mapping = add_choice_values_help_text(ObjectTypes)
+        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+
     def set_object_properties(self, object_type):
         object_field = self.fields["object"]
         if object_type == "besluit":
@@ -483,14 +494,3 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         object_type = instance.object_type
         self.set_object_properties(object_type)
         return super().to_representation(instance)
-
-    class Meta:
-        model = ObjectInformatieObject
-        fields = ("url", "informatieobject", "object", "object_type")
-        extra_kwargs = {"url": {"lookup_field": "uuid"}}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(ObjectTypes)
-        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"

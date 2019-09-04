@@ -455,8 +455,8 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 class ObjectInformatieObjectViewSet(
     # NotificationCreateMixin,
     # NotificationDestroyMixin,
-    # AuditTrailCreateMixin,
-    # AuditTrailDestroyMixin,
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
