@@ -12,12 +12,8 @@ from vng_api_common.validators import (
     alphanumeric_excluding_diacritic,
 )
 
-from .constants import RelatieAarden, VervalRedenen
-from .query import (
-    BesluitInformatieObjectQuerySet,
-    BesluitQuerySet,
-    BesluitRelatedQuerySet,
-)
+from .constants import VervalRedenen
+from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -170,9 +166,6 @@ class BesluitInformatieObject(models.Model):
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
         "API) waarin (een deel van) het besluit beschreven is.",
     )
-    aard_relatie = models.CharField(
-        "aard relatie", max_length=20, choices=RelatieAarden.choices
-    )
 
     objects = BesluitInformatieObjectQuerySet.as_manager()
 
@@ -183,11 +176,6 @@ class BesluitInformatieObject(models.Model):
 
     def __str__(self):
         return str(self.uuid)
-
-    def save(self, *args, **kwargs):
-        # override to set aard_relatie
-        self.aard_relatie = RelatieAarden.from_object_type("besluit")
-        super().save(*args, **kwargs)
 
     def unique_representation(self):
         return f"({self.besluit.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
