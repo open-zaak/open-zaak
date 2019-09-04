@@ -7,7 +7,7 @@ from vng_api_common.tests import reverse
 EXPECTED_VERSION = "0.1.0"
 
 
-class DSOApiStrategyTests(APITestCase):
+class APIVersioningTests(APITestCase):
     def test_api_19_documentation_version_json(self):
         url = reverse("schema-json-authorizations", kwargs={"format": ".json"})
 
