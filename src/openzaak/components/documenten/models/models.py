@@ -14,7 +14,11 @@ from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .query import InformatieobjectQuerySet, InformatieobjectRelatedQuerySet
+from .query import (
+    InformatieobjectQuerySet,
+    InformatieobjectRelatedQuerySet,
+    ObjectInformatieObjectQuerySet,
+)
 from .validators import validate_status
 
 logger = logging.getLogger(__name__)
@@ -400,7 +404,7 @@ class ObjectInformatieObject(models.Model):
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
 
-    objects = InformatieobjectRelatedQuerySet.as_manager()
+    objects = ObjectInformatieObjectQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("objectinformatieobject")
