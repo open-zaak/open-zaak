@@ -69,3 +69,38 @@ class OIOTests(TestCase):
         bio.delete()
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+
+class BlockChangeTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        ZaakInformatieObjectFactory.create()
+        cls.oio = ObjectInformatieObject.objects.get()
+
+    def test_update(self):
+        self.assertRaises(
+            TypeError, ObjectInformatieObject.objects.update, object_type="besluit"
+        )
+
+    def test_delete(self):
+        self.assertRaises(TypeError, ObjectInformatieObject.objects.delete)
+
+    def test_bulk_update(self):
+        self.oio.object_type = "besluit"
+        self.assertRaises(
+            TypeError,
+            ObjectInformatieObject.objects.bulk_update,
+            [self.oio],
+            fields=["object_type"],
+        )
+
+    def test_bulk_create(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        zaak = ZaakFactory.create()
+        oio = ObjectInformatieObject(
+            informatieobject=canonical, zaak=zaak, object_type="zaak"
+        )
+
+        self.assertRaises(TypeError, ObjectInformatieObject.objects.bulk_create, [oio])

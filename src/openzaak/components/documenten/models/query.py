@@ -11,6 +11,7 @@ from vng_api_common.utils import get_resource_for_path
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.utils.query import BlockChangeMixin
 
 from .typing import IORelation
 
@@ -117,7 +118,7 @@ class InformatieobjectRelatedQuerySet(AuthorizationsFilterMixin, models.QuerySet
     authorizations_lookup = "informatieobject"
 
 
-class ObjectInformatieObjectQuerySet(InformatieobjectRelatedQuerySet):
+class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQuerySet):
 
     RELATIONS = {
         BesluitInformatieObject: ObjectTypes.besluit,

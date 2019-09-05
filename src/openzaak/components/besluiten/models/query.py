@@ -5,6 +5,8 @@ from django.db import models
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path
 
+from openzaak.utils.query import BlockChangeMixin
+
 
 class AuthorizationsFilterMixin:
     authorizations_lookup = None
@@ -56,3 +58,7 @@ class BesluitQuerySet(AuthorizationsFilterMixin, models.QuerySet):
 
 class BesluitRelatedQuerySet(AuthorizationsFilterMixin, models.QuerySet):
     authorizations_lookup = "besluit"
+
+
+class BesluitInformatieObjectQuerySet(BlockChangeMixin, BesluitRelatedQuerySet):
+    pass
