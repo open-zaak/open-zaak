@@ -12,7 +12,8 @@ services:
     image: redis
 
   web:
-    image: openzaak/open-zaak
+#    image: openzaak/open-zaak
+    build: .
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
@@ -22,5 +23,6 @@ services:
       - CACHE_AXES=redis:6379/0
     ports:
       - 8000:8000
+      - 8089:8089
     depends_on:
       - db

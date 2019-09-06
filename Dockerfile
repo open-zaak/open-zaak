@@ -45,6 +45,7 @@ COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 # Stage 3.2 - Copy source code
 WORKDIR /app
 COPY ./bin/docker_start.sh /start.sh
+COPY ./bin /app/bin
 RUN mkdir /app/log
 
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
