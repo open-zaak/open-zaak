@@ -1,4 +1,10 @@
-# Performance testing
+# Performance metingen
+
+## Doel
+
+Het doel van de performance metingen is om inzicht te verkrijgen in de relaties tussen systeemeisen, aantal gebruikers en reactiesnelheid van de API's. Uit deze relaties kunnen we de minimum systeemeisen opstellen, afhankelijk van het aantal gebruikers, waarop de API's nog acceptabel presteren.
+
+Tevens maakt een gestandardiseerde performance meting inzichtelijk welke effect optimalisaties hebben, zodat er doelgericht en aantoonbaar verbeteringen kunnen worden doorgevoerd.
 
 ## Functionele test scenario's
 
@@ -120,7 +126,7 @@ TODO
 
 ### Verdeling van scenario's
 
-Niet elk scenario wordt even vaak uitgevoerd. Een zaak wordt bijvoorbeeld vaker opgevraagd dan aangemaakt. Als we dit voorbeeld bekijken wordt voor elk 20x "Zaken overzicht opvragen" 10x "Zaak aanmaken" uitgevoerd. Vervolgens is dit omgezet naar een percentage, uitgaande van 100%. Hieronder staat de aangehouden verdeling.
+Niet elk scenario wordt even vaak uitgevoerd. Een zaak wordt bijvoorbeeld vaker opgevraagd dan aangemaakt. Als we dit voorbeeld bekijken wordt voor elke 20x "Zaken overzicht opvragen", 10x "Zaak aanmaken" uitgevoerd. Vervolgens is dit omgezet naar een percentage, uitgaande van 100%. Hieronder staat de aangehouden verdeling.
 
 | Scenario | Verdeling | Verdeling % |
 |---|---|---|
@@ -137,6 +143,27 @@ Niet elk scenario wordt even vaak uitgevoerd. Een zaak wordt bijvoorbeeld vaker 
 | Resultaat toevoegen | 2 | 2% |
 | **Totaal** | 90 | 100% |
 
-### Gebruikers
+### Gebruikers en gebruik
 
-TODO
+TODO: Iets met klikpaden?
+
+### Testdata
+
+De volgende test data wordt gebruikt om een realistische dataset te simuleren:
+
+**Zaken API**
+
+* 1.000.000 zaken, met elk:
+  * 
+
+**Catalogi API**
+
+* 100 zaaktypen, met elk
+  *
+  *
+  *
+
+**Documenten API**
+
+**Besluiten API**
+
