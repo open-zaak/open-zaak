@@ -1,0 +1,27 @@
+[
+  {
+    "model": "authorizations.applicatie",
+    "pk": 1,
+    "fields": {
+      "uuid": "62a08ca6-fb89-45c5-a7ea-a23aca1d8d90",
+      "client_ids": "[\"demo\"]",
+      "label": "demo",
+      "heeft_alle_autorisaties": true
+    }
+  },
+  {
+    "model": "notifications.notificationsconfig",
+    "pk": 1,
+    "fields": {
+      "api_root": "https://notificaties-api.vng.cloud/api/v1/"
+    }
+  },
+  {
+    "model": "vng_api_common.jwtsecret",
+    "pk": 1,
+    "fields": {
+      "identifier": "demo",
+      "secret": "demo"
+    }
+  }
+]
