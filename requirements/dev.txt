@@ -9,7 +9,7 @@ attrs==19.1.0             # via black
 black==19.3b0
 certifi==2018.4.16
 chardet==3.0.4
-click==7.0                # via black, pip-tools
+click==7.0
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
@@ -39,18 +39,24 @@ drf-writable-nested==0.4.3
 drf-yasg==1.16.0
 factory-boy==2.12.0
 faker==2.0.1
+flask==1.1.1
 freezegun==0.3.12
 gemma-zds-client==0.11.0
+gevent==1.4.0
+greenlet==0.4.15
 humanize==0.5.1
 idna==2.6
 inflection==0.3.1
 iso-639==0.4.5
 isodate==0.6.0
 isort==4.3.21
+itsdangerous==1.1.0
 itypes==1.1.0
 jinja2==2.10.1
+locustio==0.11.0
 markdown==3.0.1
 markupsafe==1.0
+msgpack==0.6.1
 oyaml==0.7
 pip-tools==4.1.0
 psycopg2==2.8.3
@@ -60,6 +66,7 @@ python-decouple==3.1
 python-dotenv==0.8.2
 pytz==2019.1
 pyyaml==5.1
+pyzmq==18.1.0
 raven==6.9.0
 redis==3.3.8
 requests-mock==1.6.0
@@ -75,3 +82,4 @@ uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
 vng-api-common==1.0.11
+werkzeug==0.15.6

@@ -20,12 +20,11 @@ class FilloutTool(TaskSet):
         self.client.get("/zaken/api/v1/zaken", headers=zaak_headers)
         # TODO 3 requests
 
-
     @task(8)
     def get_zaak(self):
         self.client.get(
             "/zaken/api/v1/zaken/9f1d0635-54df-4974-bf58-3432dd0d776d",
-            name='/zaken/api/v1/zaken/{uuid}',
+            name="/zaken/api/v1/zaken/{uuid}",
             headers=zaak_headers,
         )
 
@@ -48,18 +47,20 @@ class FilloutTool(TaskSet):
     @task(10)
     def zoek_zaak(self):
         body = {
-                "zaakgeometrie": {
-                    "within": {
-                        "type": "Polygon",
-                        "coordinates": [[
+            "zaakgeometrie": {
+                "within": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
                             [4.932978, 52.370394],
                             [4.884489, 52.388366],
                             [4.881418, 52.363114],
-                            [4.932978, 52.370394]
-                        ]],
-                    }
+                            [4.932978, 52.370394],
+                        ]
+                    ],
                 }
             }
+        }
 
         self.client.post("/zaken/api/v1/zaken/_zoek", json=body, headers=zaak_headers)
 

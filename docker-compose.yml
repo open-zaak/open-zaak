@@ -7,6 +7,8 @@ services:
     # environment:
     #   - POSTGRES_USER=${PG_USER:openzaak}
     #   - POSTGRES_PASSWORD=${PG_PASSWORD:openzaak}
+    volumes:
+      - ./test_data:/var/lib/postgresql/test_data
 
   redis:
     image: redis
@@ -26,3 +28,6 @@ services:
       - 8089:8089
     depends_on:
       - db
+
+volumes:
+  postgres_data:
