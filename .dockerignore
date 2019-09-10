@@ -7,3 +7,4 @@ docker-compose*
 env/
 .env
 includes/local.py
+test_data/

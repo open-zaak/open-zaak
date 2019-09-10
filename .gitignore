@@ -30,3 +30,4 @@ src/openzaak/conf/includes/local.py
 /log/nginx/*.log*
 .env
 /private-media/
+/test_data/
