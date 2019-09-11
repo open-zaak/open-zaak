@@ -25,37 +25,6 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    # heeftVerplichteEigenschap = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     source='heeft_verplichte_eigenschap',
-    #     view_name='api:eigenschap-detail',
-    #     parent_lookup_kwargs={
-    #         'catalogus_pk': 'is_van__catalogus__pk',
-    #         'zaaktype_pk': 'is_van__pk'
-    #     },
-    # )
-    # heeftVerplichteZaakObjecttype = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     source='heeft_verplichte_zaakobjecttype',
-    #     view_name='api:zaakobjecttype-detail',
-    #     parent_lookup_kwargs={
-    #         'catalogus_pk': 'is_relevant_voor__catalogus__pk',
-    #         'zaaktype_pk': 'is_relevant_voor__pk',
-    #     },
-    # )
-    # heeftVerplichteInformatieobjecttype = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     source='heeft_verplichte_zit',
-    #     view_name='api:zktiot-detail',
-    #     parent_lookup_kwargs={
-    #         'catalogus_pk': 'zaaktype__catalogus__pk',
-    #         'zaaktype_pk': 'zaaktype__pk',
-    #     },
-    # )
-
     class Meta:
         model = StatusType
         fields = (
@@ -66,15 +35,7 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "zaaktype",
             "volgnummer",
             "is_eindstatus",
-            # 'doorlooptijd',
-            # 'checklistitem',
             "informeren",
-            # 'toelichting',
-            # 'ingangsdatumObject',
-            # 'einddatumObject',
-            # 'heeftVerplichteInformatieobjecttype',
-            # 'heeftVerplichteEigenschap',
-            # 'heeftVerplichteZaakObjecttype',
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

@@ -138,31 +138,3 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         Unieke aanduiding van CATALOGUS in combinatie met Besluittype-omschrijving
         """
         return f"{self.catalogus} - {self.omschrijving}"
-
-    # def clean(self):
-    #     """
-    #     datum_begin_geldigheid is gelijk aan een Versiedatum van een gerelateerd zaaktype.
-
-    #     datum_einde_geldigheid is gelijk aan de dag voor een Versiedatum van een gerelateerd zaaktype.
-    #     """
-    #     super().clean()
-    #     TODO: review this, see GeldigheidsMixin.clean
-    #     TODO: many to many can not be validated in model.clean, we need to use a form (self.zaaktypes)
-    #     if self.datum_begin_geldigheid:
-    #         # it is required, if it was not filled in, validation error from the field will be raised
-    #         zaaktype_versiedatums = list(set(self.zaaktypes.values_list('versiedatum', flat=True)))
-    #         # use the 'onvolledige datums', do not convert to python datetime.date for this comparision
-    #         if self.datum_begin_geldigheid not in zaaktype_versiedatums:
-    #             raise ValidationError(_('Datum_begin_geldigheid is niet gelijk aan een Versiedatum '
-    #                                     'van een gerelateerd zaaktype.'))
-
-    #     if self.datum_einde_geldigheid:
-    #         zaaktype_versiedatums = list(set(self.zaaktypes.values_list('versiedatum', flat=True)))
-
-    #         day_before_zaaktype_versie_datums = [
-    #             parse_onvolledige_datum(_date) - timedelta(days=1) for _date in zaaktype_versiedatums
-    #         ]
-    #         if self.datum_begin_geldigheid not in day_before_zaaktype_versie_datums:
-    #             raise ValidationError(
-    #                 _('Datum_einde_geldigheid is niet gelijk aan de dag voor een Versiedatum '
-    #                   'van een gerelateerd zaaktype.'))

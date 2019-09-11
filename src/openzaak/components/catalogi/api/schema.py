@@ -6,14 +6,14 @@ from drf_yasg import openapi
 
 description = f"""Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
-De zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een 
-klant' (productaanvraag, melding, aangifte, informatieverzoek e.d.) tot en met 
-het leveren van een passend antwoord daarop in te richten, inclusief de 
+De zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een
+klant' (productaanvraag, melding, aangifte, informatieverzoek e.d.) tot en met
+het leveren van een passend antwoord daarop in te richten, inclusief de
 bijbehorende informatievoorziening.
 
 Een CATALOGUS bestaat uit ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn en
 wordt typisch gebruikt om een ZAAK (in de Zaken API), INFORMATIEOBJECT (in de
-Documenten API) en BESLUIT (in de Besluiten API) te voorzien van type, 
+Documenten API) en BESLUIT (in de Besluiten API) te voorzien van type,
 standaardwaarden en processtructuur.
 
 **Afhankelijkheden**

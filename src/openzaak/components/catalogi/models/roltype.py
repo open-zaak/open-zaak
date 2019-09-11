@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from vng_api_common.constants import RolOmschrijving, RolTypes
+from vng_api_common.constants import RolOmschrijving
 
 
 class RolType(models.Model):
@@ -64,16 +64,6 @@ class RolType(models.Model):
         unique_together = ("zaaktype", "omschrijving")
         verbose_name = _("Roltype")
         verbose_name_plural = _("Roltypen")
-        # ordering = unique_together
-
-        # filter_fields = (
-        #     'zaaktype',
-        # )
-        # ordering_fields = filter_fields
-        # search_fields = (
-        #     'roltypeomschrijving',
-        #     'roltypeomschrijving_generiek',
-        # )
 
     def __str__(self):
         return "{} - {}".format(self.zaaktype, self.omschrijving)

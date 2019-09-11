@@ -63,8 +63,6 @@ class ZaakObjectTypeSerializer(
             "ingangsdatumObject",
             "einddatumObject",
             "isRelevantVoor",
-            # NOTE: this field is not in the xsd
-            # 'statustype',
         )
         extra_kwargs = {"url": {"view_name": "api:zaakobjecttype-detail"}}
 
@@ -116,39 +114,17 @@ class ZaakTypenRelatieSerializer(ModelSerializer):
 class ZaakTypeSerializer(
     NestedGegevensGroepMixin, NestedCreateMixin, HyperlinkedModelSerializer
 ):
-
-    # formulier = FormulierSerializer(many=True, read_only=True)
     referentieproces = ReferentieProcesSerializer(
         required=True,
         help_text=_("Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE."),
     )
-    # broncatalogus = BronCatalogusSerializer(read_only=True)
-    # bronzaaktype = BronZaakTypeSerializer(read_only=True)
 
-    # heeftRelevantZaakObjecttype = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     source='zaakobjecttype_set',
-    #     view_name='api:zaakobjecttype-detail',
-    #     parent_lookup_kwargs={
-    #         'catalogus_pk': 'is_relevant_voor__catalogus__pk',
-    #         'zaaktype_pk': 'is_relevant_voor__pk',
-    #     }
-    # )
     gerelateerde_zaaktypen = ZaakTypenRelatieSerializer(
         many=True,
         source="zaaktypenrelaties",
         help_text="De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.",
     )
-    # isDeelzaaktypeVan = NestedHyperlinkedRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     source='is_deelzaaktype_van',
-    #     view_name='api:zaaktype-detail',
-    #     parent_lookup_kwargs={
-    #         'catalogus_pk': 'catalogus__pk'
-    #     },
-    # )
+
     informatieobjecttypen = HyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -222,7 +198,6 @@ class ZaakTypeSerializer(
             "omschrijving",
             "omschrijving_generiek",
             "vertrouwelijkheidaanduiding",
-            # 'zaakcategorie',
             "doel",
             "aanleiding",
             "toelichting",
@@ -236,22 +211,12 @@ class ZaakTypeSerializer(
             "verlenging_mogelijk",
             "verlengingstermijn",
             "trefwoorden",
-            # 'archiefclassificatiecode',
-            # 'vertrouwelijkheidAanduiding',
-            # 'verantwoordelijke',
             "publicatie_indicatie",
             "publicatietekst",
             "verantwoordingsrelatie",
             "producten_of_diensten",
             "selectielijst_procestype",
-            # 'formulier',
             "referentieproces",
-            # 'broncatalogus',
-            # 'bronzaaktype',
-            # 'ingangsdatumObject',
-            # 'versiedatum',
-            # 'einddatumObject',
-            # relaties
             "catalogus",
             "statustypen",
             "resultaattypen",
@@ -260,8 +225,6 @@ class ZaakTypeSerializer(
             "roltypen",
             "besluittypen",
             "gerelateerde_zaaktypen",
-            # # 'heeftRelevantZaakObjecttype',
-            # # 'isDeelzaaktypeVan',
             "begin_geldigheid",
             "einde_geldigheid",
             "versiedatum",
@@ -285,9 +248,6 @@ class ZaakTypeSerializer(
             },
         }
 
-        # expandable_fields = {
-        #     'catalogus': ('openzaak.components.catalogi.api.serializers.CatalogusSerializer', {'source': 'catalogus'}),
-        # }
         validators = [
             ZaaktypeGeldigheidValidator(),
             RelationCatalogValidator("besluittype_set"),

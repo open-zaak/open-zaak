@@ -2,15 +2,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
 
-# Waardenverzameling nemen we letterlijk over. Dit betekend dat we onder
-# andere de volgende waarden verwachten (en kleine afwijking hiervan zal dus
-# niet valideren):
-#
-# Eigenschap.formaat: 'datum/tijd (jjjjmmdduummss)' dus inclusief het deel tussen haakjes
-# ZaakType.vertrouwelijkheidsaanduiding: 'ZEER GEHEIM' (dus geheel in hoofdletters met spatie)
-# ResultaatType.archiefnominatie: 'Blijvend bewaren' (alleen eerste is hoofdletter en een spatie)
-# ResultaatType.brondatum_archiefprocedure: 'afgehandeld' dus geheel met kleine letters
-
 
 class FormaatChoices(DjangoChoices):
     tekst = ChoiceItem("tekst", _("Tekst"))
@@ -44,12 +35,13 @@ class ArchiefNominatieChoices(DjangoChoices):
 
 
 class AardRelatieChoices(DjangoChoices):
-    vervolg = ChoiceItem(
-        "vervolg", _("Vervolg")
-    )  # een zaak van het ZAAKTYPE is een te plannen vervolg op een zaak van het andere ZAAKTYPE
-    bijdrage = ChoiceItem(
-        "bijdrage", _("Bijdrage")
-    )  # een zaak van het ZAAKTYPE levert een bijdrage aan het bereiken van de uitkomst van een zaak van het andere ZAAKTYPE
-    onderwerp = ChoiceItem(
-        "onderwerp", _("Onderwerp")
-    )  # een zaak van het ZAAKTYPE heeft betrekking op een zaak van het andere ZAAKTYPE of een zaak van het andere ZAAKTYPE is relevant voor of is onderwerp van een zaak van het ZAAKTYPE
+    vervolg = ChoiceItem("vervolg", _("Vervolg"))
+    # een zaak van het ZAAKTYPE is een te plannen vervolg op een
+    # zaak van het andere ZAAKTYPE
+    bijdrage = ChoiceItem("bijdrage", _("Bijdrage"))
+    # een zaak van het ZAAKTYPE levert een bijdrage aan het bereiken van de
+    # uitkomst van een zaak van het andere ZAAKTYPE
+    onderwerp = ChoiceItem("onderwerp", _("Onderwerp"))
+    # een zaak van het ZAAKTYPE heeft betrekking op een zaak van het
+    # andere ZAAKTYPE of een zaak van het andere ZAAKTYPE is relevant voor
+    # of is onderwerp van een zaak van het ZAAKTYPE
