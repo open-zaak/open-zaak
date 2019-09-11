@@ -1,6 +1,6 @@
-from django.test import TestCase
+import uuid
 
-from vng_api_common.constants import RelatieAarden
+from django.test import TestCase
 
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -8,7 +8,7 @@ from openzaak.components.documenten.models.tests.factories import (
 from openzaak.utils.query import QueryBlocked
 
 from ...models import BesluitInformatieObject
-from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
 class BlockChangeTestCase(TestCase):
@@ -20,30 +20,26 @@ class BlockChangeTestCase(TestCase):
 
     def test_update(self):
         self.assertRaises(
-            QueryBlocked,
-            BesluitInformatieObject.objects.update,
-            aard_relatie=RelatieAarden.hoort_bij,
+            QueryBlocked, BesluitInformatieObject.objects.update, uuid=uuid.uuid4()
         )
 
     def test_delete(self):
         self.assertRaises(QueryBlocked, BesluitInformatieObject.objects.all().delete)
 
     def test_bulk_update(self):
-        self.bio.aard_relatie = RelatieAarden.hoort_bij
+        self.bio.uuid = uuid.uuid4()
         self.assertRaises(
             QueryBlocked,
             BesluitInformatieObject.objects.bulk_update,
             [self.bio],
-            fields=["aard_relatie"],
+            fields=["uuid"],
         )
 
     def test_bulk_create(self):
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         bio = BesluitInformatieObject(
-            besluit=besluit,
-            informatieobject=eio.canonical,
-            aard_relatie=RelatieAarden.hoort_bij,
+            besluit=besluit, informatieobject=eio.canonical, uuid=uuid.uuid4()
         )
         self.assertRaises(
             QueryBlocked, BesluitInformatieObject.objects.bulk_create, [bio]

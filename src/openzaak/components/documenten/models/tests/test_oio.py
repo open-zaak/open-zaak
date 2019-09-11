@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from django.test import TestCase, tag
 
-from openzaak.components.besluiten.models.tests.factories import (
+from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
