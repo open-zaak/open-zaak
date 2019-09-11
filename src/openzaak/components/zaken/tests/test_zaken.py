@@ -21,25 +21,25 @@ from openzaak.components.catalogi.models.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.constants import BetalingsIndicatie
-from openzaak.components.zaken.models.tests.factories import StatusFactory, ZaakFactory
-from openzaak.components.zaken.tests.constants import POLYGON_AMSTERDAM_CENTRUM
-from openzaak.components.zaken.tests.utils import (
-    ZAAK_READ_KWARGS,
-    ZAAK_WRITE_KWARGS,
-    isodatetime,
-    utcdatetime,
-)
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..scopes import (
+from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
     SCOPEN_ZAKEN_HEROPENEN,
 )
-from .utils import get_operation_url
+from ..constants import BetalingsIndicatie
+from ..models import Zaak
+from .constants import POLYGON_AMSTERDAM_CENTRUM
+from .factories import StatusFactory, ZaakFactory
+from .utils import (
+    ZAAK_READ_KWARGS,
+    ZAAK_WRITE_KWARGS,
+    get_operation_url,
+    isodatetime,
+    utcdatetime,
+)
 
 
 class ApiStrategyTests(JWTAuthMixin, APITestCase):

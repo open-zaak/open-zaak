@@ -13,7 +13,7 @@ from vng_api_common.tests import AuthCheckMixin, reverse
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.zaken.models.tests.factories import (
+from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )

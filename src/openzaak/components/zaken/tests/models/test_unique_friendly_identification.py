@@ -1,7 +1,7 @@
 from freezegun import freeze_time
 from rest_framework.test import APITestCase
 
-from .factories import ZaakFactory
+from ..factories import ZaakFactory
 
 
 class UniqueFriendlyIdentificationTests(APITestCase):

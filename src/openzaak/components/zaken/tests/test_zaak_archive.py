@@ -22,16 +22,15 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models.tests.factories import (
+from openzaak.utils.tests import JWTAuthMixin
+
+from .factories import (
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
-
-from .utils import ZAAK_WRITE_KWARGS, isodatetime
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 

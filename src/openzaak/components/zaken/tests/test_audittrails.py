@@ -15,9 +15,10 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models import Resultaat, Zaak, ZaakInformatieObject
-from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import Resultaat, Zaak, ZaakInformatieObject
+from .utils import ZAAK_WRITE_KWARGS
 
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):

@@ -5,7 +5,9 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.components.zaken.models import (
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import (
     Adres,
     Huishouden,
     KadastraleOnroerendeZaak,
@@ -21,12 +23,7 @@ from openzaak.components.zaken.models import (
     ZakelijkRecht,
     ZakelijkRechtHeeftAlsGerechtigde,
 )
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakFactory,
-    ZaakObjectFactory,
-)
-from openzaak.utils.tests import JWTAuthMixin
-
+from .factories import ZaakFactory, ZaakObjectFactory
 from .utils import get_operation_url
 
 OBJECT = "http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd"

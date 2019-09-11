@@ -4,7 +4,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 
-from .factories import (
+from ..factories import (
     KlantContactFactory,
     ResultaatFactory,
     RolFactory,

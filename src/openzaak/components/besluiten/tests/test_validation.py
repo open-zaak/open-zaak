@@ -8,7 +8,7 @@ from openzaak.components.catalogi.models.tests.factories import BesluitTypeFacto
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import BesluitFactory

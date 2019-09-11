@@ -1,3 +1,3 @@
-from .base_admin import *
-from .betrokkene import *
-from .zaakobjecten import *
+from .betrokkenen import *  # noqa
+from .objecten import *  # noqa
+from .zaken import *  # noqa

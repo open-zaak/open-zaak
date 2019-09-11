@@ -1,8 +1,6 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
-from unittest import skip
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -13,8 +11,15 @@ from openzaak.components.catalogi.models.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.components.zaken.models.tests.factories import (
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..api.scopes import (
+    SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+)
+from ..models import ZaakInformatieObject
+from .factories import (
     ResultaatFactory,
     RolFactory,
     StatusFactory,
@@ -23,11 +28,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
-from openzaak.utils.tests import JWTAuthMixin
-
-from ..scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE
-from .utils import get_operation_url
+from .utils import ZAAK_READ_KWARGS, get_operation_url
 
 
 class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):

@@ -3,7 +3,8 @@ import logging
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
-from openzaak.components.zaken.models import (
+from ...constants import GeslachtsAanduiding
+from ...models import (
     Medewerker,
     NatuurlijkPersoon,
     NietNatuurlijkPersoon,
@@ -11,8 +12,6 @@ from openzaak.components.zaken.models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
-from openzaak.components.zaken.models.constants import GeslachtsAanduiding
-
 from .address import VerblijfsAdresSerializer
 
 logger = logging.getLogger(__name__)

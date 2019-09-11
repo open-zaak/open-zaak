@@ -15,12 +15,10 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models import Zaak, ZaakInformatieObject
-from openzaak.components.zaken.models.tests.factories import (
-    ZaakFactory,
-    ZaakInformatieObjectFactory,
-)
 from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import Zaak, ZaakInformatieObject
+from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):

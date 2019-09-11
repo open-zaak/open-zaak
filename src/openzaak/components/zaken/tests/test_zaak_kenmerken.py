@@ -26,12 +26,12 @@ from openzaak.components.catalogi.models.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.utils import parse_isodatetime
 from openzaak.utils.tests import JWTAuthMixin
 
-from .utils import ZAAK_WRITE_KWARGS, parse_isodatetime
+from ..models import Zaak
+from .factories import ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 AVG_INZAGE_VERZOEK = (

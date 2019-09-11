@@ -3,7 +3,7 @@ from django.test import TestCase
 from openzaak.utils.query import QueryBlocked
 
 from ...models import ZaakInformatieObject
-from .factories import ZaakInformatieObjectFactory
+from ..factories import ZaakInformatieObjectFactory
 
 
 class BlockChangeTestCase(TestCase):

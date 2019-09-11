@@ -15,7 +15,7 @@ from vng_api_common.utils import get_uuid_from_path
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (

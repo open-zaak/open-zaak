@@ -1,5 +1,4 @@
 import datetime
-from unittest import skip
 
 from django.utils import timezone
 
@@ -12,17 +11,17 @@ from openzaak.components.catalogi.models.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.api.scopes import (
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     SCOPEN_ZAKEN_HEROPENEN,
 )
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models.constants import BetalingsIndicatie
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
-from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
-from openzaak.utils.tests import JWTAuthMixin
+from ..constants import BetalingsIndicatie
+from .factories import ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
 class ZaakClosedTests(JWTAuthMixin, APITestCase):

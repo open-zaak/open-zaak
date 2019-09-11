@@ -5,7 +5,7 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.zaken.models.tests.factories import (
+from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )

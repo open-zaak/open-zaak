@@ -1,3 +1,8 @@
+"""
+Define the ``Objecten`` that can be related to a Zaak.
+
+Each model class roughly maps to an Object Type in RGBZ.
+"""
 import logging
 
 from django.contrib.postgres.fields import JSONField
@@ -5,13 +10,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from .constants import (
+from ..constants import (
     TyperingInrichtingselement,
     TyperingKunstwerk,
     TyperingWater,
     TypeSpoorbaan,
 )
-from .models_core import ZaakObject
+from .zaken import ZaakObject
 
 logger = logging.getLogger(__name__)
 

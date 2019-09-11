@@ -10,7 +10,7 @@ from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 
-from ..models import Zaak
+from .models import Zaak
 
 
 class BrondatumCalculator:

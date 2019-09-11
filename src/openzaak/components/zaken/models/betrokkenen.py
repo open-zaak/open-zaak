@@ -1,3 +1,9 @@
+"""
+Define types of ``Betrokkenen``.
+
+A ``Betrokkene`` is involved with a ``Zaak`` by having a ``Rol`` in it. There
+are various types of involved 'people', which are modelled here.
+"""
 import logging
 
 from django.contrib.postgres.fields import ArrayField
@@ -8,9 +14,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.fields import BSNField, RSINField
 
-from .constants import GeslachtsAanduiding, SoortRechtsvorm
-from .models_core import Rol, ZaakObject
-from .models_zaakobjecten import ZakelijkRechtHeeftAlsGerechtigde
+from ..constants import GeslachtsAanduiding, SoortRechtsvorm
+from .objecten import ZakelijkRechtHeeftAlsGerechtigde
+from .zaken import Rol, ZaakObject
 
 logger = logging.getLogger(__name__)
 

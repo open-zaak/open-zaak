@@ -29,8 +29,8 @@ from vng_api_common.models import APICredential, APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
-from .constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-from .query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
+from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+from ..query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
 
 logger = logging.getLogger(__name__)
 

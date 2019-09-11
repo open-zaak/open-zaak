@@ -1,312 +1,154 @@
-import logging
+from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
+from vng_api_common.constants import ZaakobjectTypes
+from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.validators import URLValidator
 
-from openzaak.components.zaken.models import (
-    Buurt,
-    Gemeente,
-    GemeentelijkeOpenbareRuimte,
-    Huishouden,
-    Inrichtingselement,
-    KadastraleOnroerendeZaak,
-    Kunstwerkdeel,
-    MaatschappelijkeActiviteit,
-    OpenbareRuimte,
-    Overige,
-    Pand,
-    Spoorbaandeel,
-    Terreindeel,
-    TerreinGebouwdObject,
-    Waterdeel,
-    Wegdeel,
-    Wijk,
-    Woonplaats,
-    WozDeelobject,
-    WozObject,
-    WozWaarde,
-    ZakelijkRecht,
-    ZakelijkRechtHeeftAlsGerechtigde,
+from ...models import ZaakObject
+from .address import ObjectAdresSerializer
+from .betrokkenen import (
+    RolMedewerkerSerializer,
+    RolNatuurlijkPersoonSerializer,
+    RolNietNatuurlijkPersoonSerializer,
+    RolOrganisatorischeEenheidSerializer,
+    RolVestigingSerializer,
 )
-from openzaak.components.zaken.models.constants import (
-    TyperingInrichtingselement,
-    TyperingKunstwerk,
-    TyperingWater,
-    TypeSpoorbaan,
+from .objecten import (
+    ObjectBuurtSerializer,
+    ObjectGemeentelijkeOpenbareRuimteSerializer,
+    ObjectGemeenteSerializer,
+    ObjectHuishoudenSerializer,
+    ObjectInrichtingselementSerializer,
+    ObjectKadastraleOnroerendeZaakSerializer,
+    ObjectKunstwerkdeelSerializer,
+    ObjectMaatschappelijkeActiviteitSerializer,
+    ObjectOpenbareRuimteSerializer,
+    ObjectOverigeSerializer,
+    ObjectPandSerializer,
+    ObjectSpoorbaandeelSerializer,
+    ObjectTerreindeelSerializer,
+    ObjectTerreinGebouwdObjectSerializer,
+    ObjectWaterdeelSerializer,
+    ObjectWegdeelSerializer,
+    ObjectWijkSerializer,
+    ObjectWoonplaatsSerializer,
+    ObjectWozDeelobjectSerializer,
+    ObjectWozObjectSerializer,
+    ObjectWozWaardeSerializer,
+    ObjectZakelijkRechtSerializer,
 )
 
-from .address import TerreinGebouwdObjectAdresSerializer, WozObjectAdresSerializer
-from .core import RolNatuurlijkPersoonSerializer, RolNietNatuurlijkPersoonSerializer
 
-logger = logging.getLogger(__name__)
-
-
-class ObjectBuurtSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Buurt
-        fields = ("buurt_code", "buurt_naam", "gem_gemeente_code", "wyk_wijk_code")
-
-
-class ObjectGemeenteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Gemeente
-        fields = ("gemeente_naam", "gemeente_code")
-
-
-class ObjectGemeentelijkeOpenbareRuimteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GemeentelijkeOpenbareRuimte
-        fields = ("identificatie", "openbare_ruimte_naam")
-
-
-class ObjectInrichtingselementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Inrichtingselement
-        fields = ("type", "identificatie", "naam")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(TyperingInrichtingselement)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
-
-
-class ObjectKunstwerkdeelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Kunstwerkdeel
-        fields = ("type", "identificatie", "naam")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(TyperingKunstwerk)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
-
-
-class ObjectMaatschappelijkeActiviteitSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MaatschappelijkeActiviteit
-        fields = ("kvk_nummer", "handelsnaam")
-
-
-class ObjectOpenbareRuimteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OpenbareRuimte
-        fields = ("identificatie", "wpl_woonplaats_naam", "gor_openbare_ruimte_naam")
-
-
-class ObjectPandSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Pand
-        fields = ("identificatie",)
-
-
-class ObjectSpoorbaandeelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Spoorbaandeel
-        fields = ("type", "identificatie", "naam")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(TypeSpoorbaan)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
-
-
-class ObjectTerreindeelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Terreindeel
-        fields = ("type", "identificatie", "naam")
-
-
-class ObjectWaterdeelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Waterdeel
-        fields = ("type_waterdeel", "identificatie", "naam")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        value_display_mapping = add_choice_values_help_text(TyperingWater)
-        self.fields["type_waterdeel"].help_text += f"\n\n{value_display_mapping}"
-
-
-class ObjectWegdeelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Wegdeel
-        fields = ("type", "identificatie", "naam")
-
-
-class ObjectWijkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Wijk
-        fields = ("wijk_code", "wijk_naam", "gem_gemeente_code")
-
-
-class ObjectWoonplaatsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Woonplaats
-        fields = ("identificatie", "woonplaats_naam")
-
-
-class ObjectTerreinGebouwdObjectSerializer(serializers.ModelSerializer):
-    adres_aanduiding_grp = TerreinGebouwdObjectAdresSerializer(
-        required=False, allow_null=True
+class ZaakObjectSerializer(PolymorphicSerializer):
+    discriminator = Discriminator(
+        discriminator_field="object_type",
+        mapping={
+            ZaakobjectTypes.adres: ObjectAdresSerializer(),
+            ZaakobjectTypes.besluit: None,
+            ZaakobjectTypes.buurt: ObjectBuurtSerializer(),
+            ZaakobjectTypes.enkelvoudig_document: None,
+            ZaakobjectTypes.gemeente: ObjectGemeenteSerializer(),
+            ZaakobjectTypes.gemeentelijke_openbare_ruimte: ObjectGemeentelijkeOpenbareRuimteSerializer(),
+            ZaakobjectTypes.huishouden: ObjectHuishoudenSerializer(),
+            ZaakobjectTypes.inrichtingselement: ObjectInrichtingselementSerializer(),
+            ZaakobjectTypes.kadastrale_onroerende_zaak: ObjectKadastraleOnroerendeZaakSerializer(),
+            ZaakobjectTypes.kunstwerkdeel: ObjectKunstwerkdeelSerializer(),
+            ZaakobjectTypes.maatschappelijke_activiteit: ObjectMaatschappelijkeActiviteitSerializer(),
+            ZaakobjectTypes.medewerker: RolMedewerkerSerializer(),
+            ZaakobjectTypes.natuurlijk_persoon: RolNatuurlijkPersoonSerializer(),
+            ZaakobjectTypes.niet_natuurlijk_persoon: RolNietNatuurlijkPersoonSerializer(),
+            ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
+            ZaakobjectTypes.organisatorische_eenheid: RolOrganisatorischeEenheidSerializer(),
+            ZaakobjectTypes.pand: ObjectPandSerializer(),
+            ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),
+            ZaakobjectTypes.status: None,
+            ZaakobjectTypes.terreindeel: ObjectTerreindeelSerializer(),
+            ZaakobjectTypes.terrein_gebouwd_object: ObjectTerreinGebouwdObjectSerializer(),
+            ZaakobjectTypes.vestiging: RolVestigingSerializer(),
+            ZaakobjectTypes.waterdeel: ObjectWaterdeelSerializer(),
+            ZaakobjectTypes.wegdeel: ObjectWegdeelSerializer(),
+            ZaakobjectTypes.wijk: ObjectWijkSerializer(),
+            ZaakobjectTypes.woonplaats: ObjectWoonplaatsSerializer(),
+            ZaakobjectTypes.woz_deelobject: ObjectWozDeelobjectSerializer(),
+            ZaakobjectTypes.woz_object: ObjectWozObjectSerializer(),
+            ZaakobjectTypes.woz_waarde: ObjectWozWaardeSerializer(),
+            ZaakobjectTypes.zakelijk_recht: ObjectZakelijkRechtSerializer(),
+            ZaakobjectTypes.overige: ObjectOverigeSerializer(),
+        },
+        group_field="object_identificatie",
+        same_model=False,
     )
 
     class Meta:
-        model = TerreinGebouwdObject
-        fields = ("identificatie", "adres_aanduiding_grp")
-
-    def create(self, validated_data):
-        adres_data = validated_data.pop("adres_aanduiding_grp", None)
-        terreingebouwdobject = super().create(validated_data)
-
-        if adres_data:
-            adres_data["terreingebouwdobject"] = terreingebouwdobject
-            TerreinGebouwdObjectAdresSerializer().create(adres_data)
-        return terreingebouwdobject
-
-
-class ObjectHuishoudenSerializer(serializers.ModelSerializer):
-    is_gehuisvest_in = ObjectTerreinGebouwdObjectSerializer(
-        required=False, allow_null=True
-    )
-
-    class Meta:
-        model = Huishouden
-        fields = ("nummer", "is_gehuisvest_in")
-
-    def create(self, validated_data):
-        terrein_gebouwd_data = validated_data.pop("is_gehuisvest_in", None)
-        huishouden = super().create(validated_data)
-
-        if terrein_gebouwd_data:
-            terrein_gebouwd_data["huishouden"] = huishouden
-            ObjectTerreinGebouwdObjectSerializer().create(terrein_gebouwd_data)
-        return huishouden
-
-
-class ObjectWozObjectSerializer(serializers.ModelSerializer):
-    aanduiding_woz_object = WozObjectAdresSerializer(required=False, allow_null=True)
-
-    class Meta:
-        model = WozObject
-        fields = ("woz_object_nummer", "aanduiding_woz_object")
-
-    def create(self, validated_data):
-        adres_data = validated_data.pop("aanduiding_woz_object", None)
-        wozobject = super().create(validated_data)
-
-        if adres_data:
-            adres_data["wozobject"] = wozobject
-            WozObjectAdresSerializer().create(adres_data)
-        return wozobject
-
-
-class ObjectWozDeelobjectSerializer(serializers.ModelSerializer):
-    is_onderdeel_van = ObjectWozObjectSerializer(required=False)
-
-    class Meta:
-        model = WozDeelobject
-        fields = ("nummer_woz_deel_object", "is_onderdeel_van")
-
-    def create(self, validated_data):
-        woz_object_data = validated_data.pop("is_onderdeel_van", None)
-        woz_deelobject = super().create(validated_data)
-
-        if woz_object_data:
-            woz_object_data["woz_deelobject"] = woz_deelobject
-            ObjectWozObjectSerializer().create(woz_object_data)
-        return woz_deelobject
-
-
-class ObjectWozWaardeSerializer(serializers.ModelSerializer):
-    is_voor = ObjectWozObjectSerializer(required=False)
-
-    class Meta:
-        model = WozWaarde
-        fields = ("waardepeildatum", "is_voor")
-
-    def create(self, validated_data):
-        woz_object_data = validated_data.pop("is_voor", None)
-        woz_warde = super().create(validated_data)
-
-        if woz_object_data:
-            woz_object_data["woz_warde"] = woz_warde
-            ObjectWozObjectSerializer().create(woz_object_data)
-        return woz_warde
-
-
-class ObjectKadastraleOnroerendeZaakSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = KadastraleOnroerendeZaak
-        fields = ("kadastrale_identificatie", "kadastrale_aanduiding")
-
-
-class ZakelijkRechtHeeftAlsGerechtigdeSerializer(serializers.ModelSerializer):
-    natuurlijk_persoon = RolNatuurlijkPersoonSerializer(
-        required=False, source="natuurlijkpersoon"
-    )
-    niet_natuurlijk_persoon = RolNietNatuurlijkPersoonSerializer(
-        required=False, source="nietnatuurlijkpersoon"
-    )
-
-    class Meta:
-        model = ZakelijkRechtHeeftAlsGerechtigde
-        fields = ("natuurlijk_persoon", "niet_natuurlijk_persoon")
-
-    def create(self, validated_data):
-        natuurlijk_persoon_data = validated_data.pop("natuurlijkpersoon", None)
-        niet_natuurlijk_persoon_data = validated_data.pop("nietnatuurlijkpersoon", None)
-        heeft_als_gerechtigde = super().create(validated_data)
-
-        if natuurlijk_persoon_data:
-            natuurlijk_persoon_data[
-                "zakelijk_rechtHeeft_als_gerechtigde"
-            ] = heeft_als_gerechtigde
-            RolNatuurlijkPersoonSerializer().create(natuurlijk_persoon_data)
-
-        if niet_natuurlijk_persoon_data:
-            niet_natuurlijk_persoon_data[
-                "zakelijk_rechtHeeft_als_gerechtigde"
-            ] = heeft_als_gerechtigde
-            RolNietNatuurlijkPersoonSerializer().create(niet_natuurlijk_persoon_data)
-
-        return heeft_als_gerechtigde
-
-
-class ObjectZakelijkRechtSerializer(serializers.ModelSerializer):
-    heeft_betrekking_op = ObjectKadastraleOnroerendeZaakSerializer(required=False)
-    heeft_als_gerechtigde = ZakelijkRechtHeeftAlsGerechtigdeSerializer(required=False)
-
-    class Meta:
-        model = ZakelijkRecht
+        model = ZaakObject
         fields = (
-            "identificatie",
-            "avg_aard",
-            "heeft_betrekking_op",
-            "heeft_als_gerechtigde",
+            "url",
+            "uuid",
+            "zaak",
+            "object",
+            "object_type",
+            "object_type_overige",
+            "relatieomschrijving",
         )
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+            "object": {"required": False, "validators": [URLValidator()]},
+        }
 
-    def create(self, validated_data):
-        heeft_betrekking_op_data = validated_data.pop("heeft_betrekking_op", None)
-        heeft_als_gerechtigde_data = validated_data.pop("heeft_als_gerechtigde", None)
-        zakelijk_recht = super().create(validated_data)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        if heeft_betrekking_op_data:
-            heeft_betrekking_op_data["zakelijk_recht"] = zakelijk_recht
-            ObjectKadastraleOnroerendeZaakSerializer().create(heeft_betrekking_op_data)
+        value_display_mapping = add_choice_values_help_text(ZaakobjectTypes)
+        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
-        if heeft_als_gerechtigde_data:
-            heeft_als_gerechtigde_data["zakelijk_recht"] = zakelijk_recht
-            ZakelijkRechtHeeftAlsGerechtigdeSerializer().create(
-                heeft_als_gerechtigde_data
+    def validate(self, attrs):
+        validated_attrs = super().validate(attrs)
+        object = validated_attrs.get("object", None)
+        object_identificatie = validated_attrs.get("object_identificatie", None)
+
+        if not object and not object_identificatie:
+            raise serializers.ValidationError(
+                _("betrokkene or betrokkeneIdentificatie must be provided"),
+                code="invalid-zaakobject",
             )
-        return zakelijk_recht
 
+        object_type = validated_attrs.get("object_type", None)
+        object_type_overige = validated_attrs.get("object_type_overige", None)
 
-class ObjectOverigeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Overige
-        fields = ("overige_data",)
+        if object_type == ZaakobjectTypes.overige and not object_type_overige:
+            raise serializers.ValidationError(
+                _(
+                    'Als `objectType` de waarde "overige" heeft, moet '
+                    "`objectTypeOverige` van een waarde voorzien zijn."
+                ),
+                code="missing-object-type-overige",
+            )
+
+        if object_type != ZaakobjectTypes.overige and object_type_overige:
+            raise serializers.ValidationError(
+                _(
+                    'Als `objectType` niet de waarde "overige" heeft, mag '
+                    "`objectTypeOverige` niet van een waarde voorzien zijn."
+                ),
+                code="invalid-object-type-overige-usage",
+            )
+
+        return validated_attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        group_data = validated_data.pop("object_identificatie", None)
+        zaakobject = super().create(validated_data)
+
+        if group_data:
+            group_serializer = self.discriminator.mapping[validated_data["object_type"]]
+            serializer = group_serializer.get_fields()["object_identificatie"]
+            group_data["zaakobject"] = zaakobject
+            serializer.create(group_data)
+
+        return zaakobject

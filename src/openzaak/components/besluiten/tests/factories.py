@@ -21,7 +21,7 @@ class BesluitFactory(factory.django.DjangoModelFactory):
     class Params:
         for_zaak = factory.Trait(
             zaak=factory.SubFactory(
-                "openzaak.components.zaken.models.tests.factories.ZaakFactory"
+                "openzaak.components.zaken.tests.factories.ZaakFactory"
             )
         )
 

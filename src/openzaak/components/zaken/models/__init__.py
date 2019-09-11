@@ -1,4 +1,4 @@
-from .models_betrokkene import *  # noqa
-from .models_core import *  # noqa
-from .models_proxy import ZaakBesluit
-from .models_zaakobjecten import *  # noqa
+from .betrokkenen import *  # noqa
+from .objecten import *  # noqa
+from .proxy import ZaakBesluit  # noqa
+from .zaken import *  # noqa

@@ -1,5 +1,4 @@
 import uuid
-from unittest import skip
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -30,19 +29,17 @@ from openzaak.components.catalogi.models.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.components.zaken.models.constants import (
-    AardZaakRelatie,
-    BetalingsIndicatie,
-)
-from openzaak.components.zaken.models.tests.factories import (
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..constants import AardZaakRelatie, BetalingsIndicatie
+from ..models import ZaakInformatieObject
+from .factories import (
     ResultaatFactory,
     StatusFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS, isodatetime
-from openzaak.utils.tests import JWTAuthMixin
+from .utils import ZAAK_WRITE_KWARGS, isodatetime
 
 
 class ZaakValidationTests(JWTAuthMixin, APITestCase):

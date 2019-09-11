@@ -2,7 +2,7 @@ from django.test import tag
 
 from rest_framework.test import APITestCase
 
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.zaken.tests.factories import ZaakFactory
 
 from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory

@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.utils import timezone
 
-from openzaak.utils import parse_isodatetime  # noqa
+from vng_api_common.tests import get_operation_url as _get_operation_url
 
 ZAAK_READ_KWARGS = {"HTTP_ACCEPT_CRS": "EPSG:4326"}
 
@@ -16,3 +17,7 @@ def utcdatetime(*args, **kwargs) -> datetime:
 def isodatetime(*args, **kwargs) -> str:
     dt = utcdatetime(*args, **kwargs)
     return dt.isoformat()
+
+
+def get_operation_url(operation, **kwargs):
+    return _get_operation_url(operation, spec_path=settings.SPEC_URL["zaken"], **kwargs)
