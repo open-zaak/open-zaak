@@ -3,7 +3,7 @@ from datetime import date
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.documenten.models.constants import Statussen
+from .constants import Statussen
 
 
 def validate_status(status: str = None, ontvangstdatum: date = None, instance=None):

@@ -15,17 +15,16 @@ from vng_api_common.utils import get_uuid_from_path
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.models import (
+from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
 )
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
-from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin
+from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @freeze_time("2019-01-01")

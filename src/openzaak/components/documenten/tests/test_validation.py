@@ -1,5 +1,4 @@
 from copy import deepcopy
-from unittest import skip
 
 from django.test import override_settings, tag
 
@@ -10,14 +9,10 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.models.constants import (
-    OndertekeningSoorten,
-    Statussen,
-)
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
 from openzaak.utils.tests import JWTAuthMixin
+
+from ..constants import OndertekeningSoorten, Statussen
+from .factories import EnkelvoudigInformatieObjectFactory
 
 
 class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):

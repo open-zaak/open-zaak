@@ -24,14 +24,10 @@ from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import InformatieObjectType
-from openzaak.components.documenten.models.constants import (
-    ChecksumAlgoritmes,
-    OndertekeningSoorten,
-    Statussen,
-)
 from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
+from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,

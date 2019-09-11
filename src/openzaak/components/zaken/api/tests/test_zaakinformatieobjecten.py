@@ -12,7 +12,7 @@ from vng_api_common.validators import IsImmutableValidator
 from openzaak.components.catalogi.models.tests.factories import (
     ZaakInformatieobjectTypeFactory,
 )
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models import Zaak, ZaakInformatieObject

@@ -19,7 +19,7 @@ from openzaak.components.catalogi.models.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.api.tests.utils import get_operation_url

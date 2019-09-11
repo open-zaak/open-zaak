@@ -14,16 +14,12 @@ from vng_api_common.tests import get_validation_errors, reverse
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    EnkelvoudigInformatieObjectCanonical,
-)
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
 from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+from .factories import EnkelvoudigInformatieObjectFactory
+from .utils import get_operation_url
 
 
 @freeze_time("2018-06-27")

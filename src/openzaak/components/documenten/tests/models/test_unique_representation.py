@@ -1,12 +1,11 @@
-from django.test import override_settings, tag
+from django.test import tag
 
 from rest_framework.test import APITestCase
-from zds_client.tests.mocks import mock_client
 
 from openzaak.components.zaken.models.tests.factories import ZaakFactory
 
-from ..models import ObjectInformatieObject
-from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
+from ...models import ObjectInformatieObject
+from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
 class UniqueRepresentationTestCase(APITestCase):

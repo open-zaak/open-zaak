@@ -27,7 +27,7 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
         model = "documenten.EnkelvoudigInformatieObjectCanonical"
 
     latest_version = factory.RelatedFactory(
-        "openzaak.components.documenten.models.tests.factories.EnkelvoudigInformatieObjectFactory",
+        "openzaak.components.documenten.tests.factories.EnkelvoudigInformatieObjectFactory",
         "canonical",
     )
 

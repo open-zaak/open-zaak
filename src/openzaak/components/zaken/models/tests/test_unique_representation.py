@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 

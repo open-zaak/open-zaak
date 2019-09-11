@@ -5,7 +5,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
 
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.tests.factories import ZaakFactory

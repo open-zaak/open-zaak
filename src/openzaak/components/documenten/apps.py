@@ -8,4 +8,4 @@ class DocumentenConfig(AppConfig):
 
     def ready(self):
         # load the signal receivers
-        from .models import signals  # noqa
+        from . import signals  # noqa

@@ -5,16 +5,14 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectCanonicalFactory,
-)
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
 
-from ..models import ObjectInformatieObject
+from ...models import ObjectInformatieObject
+from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
 @tag("oio")

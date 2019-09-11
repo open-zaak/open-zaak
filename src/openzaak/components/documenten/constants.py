@@ -1,7 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
-from vng_api_common.constants import ObjectTypes
 
 
 class Statussen(DjangoChoices):

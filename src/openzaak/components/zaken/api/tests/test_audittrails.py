@@ -12,7 +12,7 @@ from openzaak.components.catalogi.models.tests.factories import (
     ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models import Resultaat, Zaak, ZaakInformatieObject

@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 
-from django.core.exceptions import ValidationError
-from django.db.models import ObjectDoesNotExist, QuerySet
+from django.db.models import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters

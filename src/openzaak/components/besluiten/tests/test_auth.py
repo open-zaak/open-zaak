@@ -7,7 +7,7 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.tests import JWTAuthMixin

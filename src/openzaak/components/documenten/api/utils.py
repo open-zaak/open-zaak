@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 from rest_framework.reverse import reverse
 
 
+# TODO: move to general purpose utils
 def get_absolute_url(url_name: str, uuid: str) -> str:
     path = reverse(
         url_name,

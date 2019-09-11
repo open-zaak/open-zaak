@@ -1,4 +1,4 @@
-from django.test import override_settings, tag
+from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,14 +14,13 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
+
+from ..models import ObjectInformatieObject
+from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio")

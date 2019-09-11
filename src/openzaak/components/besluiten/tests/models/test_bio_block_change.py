@@ -2,7 +2,7 @@ import uuid
 
 from django.test import TestCase
 
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked

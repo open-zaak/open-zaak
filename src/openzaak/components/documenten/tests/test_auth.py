@@ -13,18 +13,15 @@ from vng_api_common.tests import AuthCheckMixin, reverse
 from openzaak.components.catalogi.models.tests.factories import (
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.models.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenFactory,
-)
 from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..models import ObjectInformatieObject
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
