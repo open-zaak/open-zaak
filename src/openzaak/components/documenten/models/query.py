@@ -1,12 +1,19 @@
+from typing import Dict, Tuple
 from urllib.parse import urlparse
 
 from django.apps import apps
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path
+
+from openzaak.components.besluiten.models import BesluitInformatieObject
+from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.utils.query import BlockChangeMixin
+
+from .typing import IORelation
 
 
 class AuthorizationsFilterMixin:
@@ -109,3 +116,32 @@ class InformatieobjectQuerySet(AuthorizationsFilterMixin, models.QuerySet):
 
 class InformatieobjectRelatedQuerySet(AuthorizationsFilterMixin, models.QuerySet):
     authorizations_lookup = "informatieobject"
+
+
+class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQuerySet):
+
+    RELATIONS = {
+        BesluitInformatieObject: ObjectTypes.besluit,
+        ZaakInformatieObject: ObjectTypes.zaak,
+    }
+
+    def create_from(self, relation: IORelation) -> models.Model:
+        object_type = self.RELATIONS[type(relation)]
+        relation_field = {object_type: getattr(relation, object_type)}
+        return self.create(
+            informatieobject=relation.informatieobject,
+            object_type=object_type,
+            **relation_field,
+        )
+
+    def delete_for(self, relation: IORelation) -> Tuple[int, Dict[str, int]]:
+        object_type = self.RELATIONS[type(relation)]
+        relation_field = {object_type: getattr(relation, object_type)}
+
+        # fetch the instance
+        obj = self.get(
+            informatieobject=relation.informatieobject,
+            object_type=object_type,
+            **relation_field,
+        )
+        return obj.delete()

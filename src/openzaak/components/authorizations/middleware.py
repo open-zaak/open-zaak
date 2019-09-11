@@ -29,6 +29,9 @@ class JWTAuth(_JWTAuth):
         """
         Retrieve all authorizations relevant to this component.
         """
+        if not self.applicaties:
+            return Autorisatie.objects.none()
+
         component = COMPONENT_MAPPING.get(init_component, init_component)
         app_ids = self.applicaties.values("id")
         return Autorisatie.objects.filter(

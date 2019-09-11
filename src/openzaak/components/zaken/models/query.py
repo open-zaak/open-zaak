@@ -7,6 +7,8 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path
 
+from openzaak.utils.query import BlockChangeMixin
+
 
 class AuthorizationsFilterMixin:
     authorizations_lookup = None
@@ -95,3 +97,7 @@ class ZaakQuerySet(AuthorizationsFilterMixin, models.QuerySet):
 
 class ZaakRelatedQuerySet(AuthorizationsFilterMixin, models.QuerySet):
     authorizations_lookup = "zaak"
+
+
+class ZaakInformatieObjectQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
+    pass

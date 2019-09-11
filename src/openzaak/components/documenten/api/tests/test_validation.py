@@ -1,7 +1,7 @@
 from copy import deepcopy
 from unittest import skip
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -177,7 +177,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid_for_received")
 
 
-@skip("ObjectInformatieObject is not implemented yet")
+@tag("oio")
 class FilterValidationTests(JWTAuthMixin, APITestCase):
     """
     Test that incorrect filter usage results in HTTP 400.

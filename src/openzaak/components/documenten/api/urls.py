@@ -9,6 +9,7 @@ from .viewsets import (
     EnkelvoudigInformatieObjectAuditTrailViewSet,
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
+    ObjectInformatieObjectViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -19,6 +20,7 @@ router.register(
     basename="enkelvoudiginformatieobject",
 )
 router.register("gebruiksrechten", GebruiksrechtenViewSet)
+router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 
 
 # set the path to schema file

@@ -1,18 +1,14 @@
-from unittest import skip
-
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework.test import APITestCase
 from zds_client.tests.mocks import mock_client
 
-from .factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenFactory,
-    ObjectInformatieObjectFactory,
-)
+from openzaak.components.zaken.models.tests.factories import ZaakFactory
+
+from ..models import ObjectInformatieObject
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
-@override_settings(ZDS_CLIENT_CLASS="vng_api_common.mocks.MockClient")
 class UniqueRepresentationTestCase(APITestCase):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
@@ -37,25 +33,18 @@ class UniqueRepresentationTestCase(APITestCase):
             "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - some conditions",
         )
 
-    @skip("ObjectInformatieObject is not implemented yet")
+    @tag("oio")
     def test_oio(self):
-        oio = ObjectInformatieObjectFactory(
-            informatieobject__latest_version__bronorganisatie=730924658,
-            informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
-            is_zaak=True,
+        zaak = ZaakFactory.create(identificatie="12345")
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            bronorganisatie=730924658,
+            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
-        responses = {
-            oio.object: {
-                "url": oio.object,
-                "bronorganisatie": 123456789,
-                "identificatie": "c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf",
-            }
-        }
-
-        with mock_client(responses):
-            unique_representation = oio.unique_representation()
+        oio = ObjectInformatieObject.objects.create(
+            zaak=zaak, object_type="zaak", informatieobject=eio.canonical
+        )
 
         self.assertEqual(
-            unique_representation,
-            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - c7cf4ce7-3cbe-44ca-848b-fc6e8ea80acf",
+            oio.unique_representation(),
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - 12345",
         )

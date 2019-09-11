@@ -1,7 +1,8 @@
 import uuid
 from base64 import b64encode
 from datetime import datetime
-from unittest import skip
+
+from django.test import tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -18,13 +19,13 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
+    ObjectInformatieObject,
 )
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
-
-ZAAK = f"http://example.com/zrc/api/v1/zaken/{uuid.uuid4().hex}"
 
 
 @freeze_time("2019-01-01")
@@ -32,6 +33,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
+    objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)
 
     heeft_alle_autorisaties = True
 
@@ -76,16 +78,19 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             informatieobject_create_audittrail.nieuw, informatieobject_data
         )
 
-    @skip("ObjectInformatieObject is not implemented yet")
+    @tag("oio")
     def test_create_objectinformatieobject_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject=informatieobject.canonical
+        )
 
         content = {
             "informatieobject": reverse(
                 "enkelvoudiginformatieobject-detail",
                 kwargs={"uuid": informatieobject.uuid},
             ),
-            "object": ZAAK,
+            "object": reverse(zio.zaak),
             "objectType": ObjectTypes.zaak,
         }
 

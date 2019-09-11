@@ -6,6 +6,7 @@ from .models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
+    ObjectInformatieObject,
 )
 
 
@@ -51,3 +52,11 @@ class GebruiksrechtenAdmin(admin.ModelAdmin):
     list_display = ("uuid", "informatieobject")
     list_filter = ("informatieobject",)
     raw_id_fields = ("informatieobject",)
+
+
+@admin.register(ObjectInformatieObject)
+class ObjectInformatieObjectAdmin(admin.ModelAdmin):
+    list_display = ("uuid", "informatieobject", "object_type", "object")
+    list_select_related = ("zaak", "besluit")
+    raw_id_fields = ("informatieobject", "zaak", "besluit")
+    readonly_fields = ("uuid",)

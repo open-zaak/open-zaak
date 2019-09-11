@@ -13,7 +13,11 @@ from vng_api_common.validators import (
 )
 
 from .constants import RelatieAarden, VervalRedenen
-from .query import BesluitQuerySet, BesluitRelatedQuerySet
+from .query import (
+    BesluitInformatieObjectQuerySet,
+    BesluitQuerySet,
+    BesluitRelatedQuerySet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -170,7 +174,7 @@ class BesluitInformatieObject(models.Model):
         "aard relatie", max_length=20, choices=RelatieAarden.choices
     )
 
-    objects = BesluitRelatedQuerySet.as_manager()
+    objects = BesluitInformatieObjectQuerySet.as_manager()
 
     class Meta:
         verbose_name = "besluitinformatieobject"

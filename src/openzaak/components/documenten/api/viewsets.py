@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -11,23 +11,34 @@ from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.notifications.viewsets import NotificationViewSetMixin
-from vng_api_common.serializers import FoutSerializer
-
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    Gebruiksrechten,
+from vng_api_common.notifications.viewsets import (
+    NotificationCreateMixin,
+    NotificationDestroyMixin,
+    NotificationViewSetMixin,
 )
+from vng_api_common.serializers import FoutSerializer
+from vng_api_common.viewsets import CheckQueryParamsMixin
+
+from openzaak.components.besluiten.models import BesluitInformatieObject
+from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
+from ..models import (
+    EnkelvoudigInformatieObject,
+    Gebruiksrechten,
+    ObjectInformatieObject,
+)
 from .audits import AUDIT_DRC
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter,
     GebruiksrechtenFilter,
+    ObjectInformatieObjectFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .permissions import InformationObjectAuthRequired
@@ -44,6 +55,7 @@ from .serializers import (
     EnkelvoudigInformatieObjectWithLockSerializer,
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
+    ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
 )
 
@@ -438,3 +450,132 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
     """
 
     main_resource_lookup_field = "enkelvoudiginformatieobject_uuid"
+
+
+class ObjectInformatieObjectViewSet(
+    # NotificationCreateMixin,
+    # NotificationDestroyMixin,
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
+    CheckQueryParamsMixin,
+    ListFilterByAuthorizationsMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    """
+    Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
+
+    Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
+    ZAAK in de Zaken API, en een INFORMATIEOBJECT.
+
+    create:
+    Maak een OBJECT-INFORMATIEOBJECT relatie aan.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
+    endpoint bij het synchroniseren van relaties.
+
+    **Er wordt gevalideerd op**
+    - geldigheid `informatieobject` URL
+    - de combinatie `informatieobject` en `object` moet uniek zijn
+    - bestaan van `object` URL
+
+    list:
+    Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
+
+    Deze lijst kan gefilterd wordt met query-string parameters.
+
+    retrieve:
+    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
+
+    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
+
+    destroy:
+    Verwijder een OBJECT-INFORMATIEOBJECT relatie.
+
+    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
+
+    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
+    endpoint bij het synchroniseren van relaties.
+    """
+
+    queryset = ObjectInformatieObject.objects.all()
+    serializer_class = ObjectInformatieObjectSerializer
+    filterset_class = ObjectInformatieObjectFilter
+    lookup_field = "uuid"
+    # notifications_kanaal = KANAAL_DOCUMENTEN
+    # notifications_main_resource_key = "informatieobject"
+    permission_classes = (InformationObjectAuthRequired,)
+    permission_main_object = "informatieobject"
+    required_scopes = {
+        "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        "create": SCOPE_DOCUMENTEN_AANMAKEN,
+        "destroy": SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+        "update": SCOPE_DOCUMENTEN_BIJWERKEN,
+        "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
+    }
+    audit = AUDIT_DRC
+    audittrail_main_resource_key = "informatieobject"
+
+    def perform_create(self, serializer):
+        # object was already created by BIO/ZIO creation,
+        # so just set the instance
+        try:
+            serializer.instance = self.get_queryset().get(
+                **{
+                    serializer.validated_data["object_type"]: serializer.validated_data[
+                        "object"
+                    ],
+                    "informatieobject": serializer.validated_data["informatieobject"],
+                }
+            )
+        except ObjectInformatieObject.DoesNotExist:
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "The relation between object and informatieobject doesn't exist"
+                    )
+                },
+                code="inconsistent-relation",
+            )
+
+    def perform_destroy(self, instance):
+        """
+        The actual relation information must be updated in the signals,
+        so this is just a check.
+        """
+        if (
+            instance.object_type == "zaak"
+            and ZaakInformatieObject.objects.filter(
+                informatieobject=instance.informatieobject, zaak=instance.zaak
+            ).exists()
+        ):
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "The relation between zaak and informatieobject still exists"
+                    )
+                },
+                code="inconsistent-relation",
+            )
+
+        if (
+            instance.object_type == "besluit"
+            and BesluitInformatieObject.objects.filter(
+                informatieobject=instance.informatieobject, besluit=instance.besluit
+            ).exists()
+        ):
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "The relation between besluit and informatieobject still exists"
+                    )
+                },
+                code="inconsistent-relation",
+            )
+
+        # nothing to do, the 'relation' info is dealt with through signals
+        pass

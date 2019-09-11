@@ -5,6 +5,7 @@ import uuid
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models.query import QuerySet
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -13,7 +14,7 @@ from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
     add_choice_values_help_text,
@@ -21,19 +22,22 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import InformatieObjectType
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    EnkelvoudigInformatieObjectCanonical,
-    Gebruiksrechten,
-)
 from openzaak.components.documenten.models.constants import (
     ChecksumAlgoritmes,
     OndertekeningSoorten,
     Statussen,
 )
+from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
+from ..models import (
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+    ObjectInformatieObject,
+)
 from .validators import StatusValidator
 
 
@@ -438,3 +442,55 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
+
+
+class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
+        view_name="enkelvoudiginformatieobject-detail",
+        lookup_field="uuid",
+        queryset=EnkelvoudigInformatieObject.objects,
+        help_text=get_help_text(
+            "documenten.ObjectInformatieObject", "informatieobject"
+        ),
+    )
+    object = LengthHyperlinkedRelatedField(
+        min_length=1,
+        max_length=1000,
+        view_name="",
+        queryset=QuerySet(),
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
+        ),
+    )
+
+    class Meta:
+        model = ObjectInformatieObject
+        fields = ("url", "informatieobject", "object", "object_type")
+        extra_kwargs = {"url": {"lookup_field": "uuid"}}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        value_display_mapping = add_choice_values_help_text(ObjectTypes)
+        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+
+    def set_object_properties(self, object_type):
+        object_field = self.fields["object"]
+        if object_type == "besluit":
+            object_field.view_name = "besluit-detail"
+            object_field.queryset = Besluit.objects
+        else:
+            object_field.view_name = "zaak-detail"
+            object_field.queryset = Zaak.objects
+
+    def to_internal_value(self, data):
+        object_type = data["object_type"]
+        self.set_object_properties(object_type)
+        res = super().to_internal_value(data)
+        return res
+
+    def to_representation(self, instance):
+        object_type = instance.object_type
+        self.set_object_properties(object_type)
+        return super().to_representation(instance)
