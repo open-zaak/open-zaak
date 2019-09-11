@@ -18,11 +18,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import (
-    ConceptAdminMixin,
-    FilterSearchOrderingAdminMixin,
-    GeldigheidAdminMixin,
-)
+from .mixins import ConceptAdminMixin, GeldigheidAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -59,7 +55,6 @@ class ZaakTypenRelatieInline(admin.TabularInline):
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
     ListObjectActionsAdminMixin,
-    FilterSearchOrderingAdminMixin,
     GeldigheidAdminMixin,
     ConceptAdminMixin,
     DynamicArrayMixin,
@@ -76,6 +71,25 @@ class ZaakTypeAdmin(
         "catalogus",
         "uuid",
         "get_absolute_api_url",
+    )
+    list_filter = (
+        "catalogus",
+        "publicatie_indicatie",
+        "verlenging_mogelijk",
+        "opschorting_en_aanhouding_mogelijk",
+        "indicatie_intern_of_extern",
+        "vertrouwelijkheidaanduiding",
+    )
+    ordering = ("catalogus", "zaaktype_identificatie")
+    search_fields = (
+        "zaaktype_identificatie",
+        "zaaktype_omschrijving",
+        "zaaktype_omschrijving_generiek",
+        "zaakcategorie",
+        "doel",
+        "aanleiding",
+        "onderwerp",
+        "toelichting",
     )
 
     # Details

@@ -78,15 +78,9 @@ class ZaakObjectType(GeldigheidMixin, models.Model):
     )
 
     class Meta:
-        mnemonic = "ZOT"
         unique_together = ("is_relevant_voor", "objecttype")
         verbose_name = _("Zaakobjecttype")
         verbose_name_plural = _("Zaakobjecttypen")
-        ordering = unique_together
-
-        filter_fields = ("is_relevant_voor", "ander_objecttype")
-        ordering_fields = filter_fields
-        search_fields = ("objecttype", "relatieomschrijving")
 
     def clean(self):
         """
@@ -560,27 +554,6 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     class Meta:
         verbose_name = _("Zaaktype")
         verbose_name_plural = _("Zaaktypen")
-        ordering = ("catalogus", "zaaktype_identificatie")
-
-        filter_fields = (
-            "catalogus",
-            "publicatie_indicatie",
-            "verlenging_mogelijk",
-            "opschorting_en_aanhouding_mogelijk",
-            "indicatie_intern_of_extern",
-            "vertrouwelijkheidaanduiding",
-        )
-        ordering_fields = filter_fields
-        search_fields = (
-            "zaaktype_identificatie",
-            "zaaktype_omschrijving",
-            "zaaktype_omschrijving_generiek",
-            "zaakcategorie",
-            "doel",
-            "aanleiding",
-            "onderwerp",
-            "toelichting",
-        )
 
     def __str__(self):
         return "{} - {}".format(self.catalogus, self.zaaktype_identificatie)

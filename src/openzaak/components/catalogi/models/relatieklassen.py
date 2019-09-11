@@ -68,11 +68,6 @@ class ZaakInformatieobjectType(models.Model):
         unique_together = ("zaaktype", "volgnummer")
         verbose_name = _("Zaak-Informatieobject-Type")
         verbose_name_plural = _("Zaak-Informatieobject-Typen")
-        ordering = unique_together
-
-        filter_fields = ("zaaktype", "informatieobjecttype", "richting")
-        ordering_fields = filter_fields
-        search_fields = "volgnummer"
 
     def __str__(self):
         return "{} - {}".format(self.zaaktype, self.volgnummer)
@@ -131,20 +126,10 @@ class ZaakInformatieobjectTypeArchiefregime(models.Model):
     )
 
     class Meta:
-        mnemonic = "ZIA"
         # NOTE: The uniqueness is not explicitly defined in specification:
         unique_together = ("zaak_informatieobject_type", "resultaattype")
         verbose_name = _("Zaak-Informatieobject-Type Archiefregime")
         verbose_name_plural = _("Zaak-Informatieobject-Type Archiefregimes")
-        ordering = ("pk",)
-
-        filter_fields = (
-            "zaak_informatieobject_type",
-            "resultaattype",
-            "archiefnominatie",
-        )
-        ordering_fields = filter_fields
-        search_fields = ("selectielijstklasse",)
 
     def __str__(self):
         return "{} - {}".format("zaak_informatieobject_type", "resultaattype")
@@ -194,11 +179,6 @@ class ZaakTypenRelatie(models.Model):
         unique_together = ("zaaktype", "gerelateerd_zaaktype")
         verbose_name = _("Zaaktypenrelatie")
         verbose_name_plural = _("Zaaktypenrelaties")
-        ordering = ("pk",)
-
-        filter_fields = ("zaaktype", "gerelateerd_zaaktype", "aard_relatie")
-        ordering_fields = filter_fields
-        search_fields = ("toelichting",)
 
     def __str__(self):
         return "{} - {}".format("zaaktype", "gerelateerd_zaaktype")

@@ -292,15 +292,12 @@ class Eigenschap(models.Model):
     )
 
     class Meta:
-        mnemonic = "EIG"
         unique_together = ("zaaktype", "eigenschapnaam")
         verbose_name = _("Eigenschap")
         verbose_name_plural = _("Eigenschappen")
-        ordering = unique_together
 
-        filter_fields = ("zaaktype", "eigenschapnaam")
-        ordering_fields = filter_fields
-        search_fields = ("eigenschapnaam", "definitie", "toelichting")
+    def __str__(self):
+        return "{} - {}".format(self.zaaktype, self.eigenschapnaam)
 
     def clean(self):
         """
@@ -320,6 +317,3 @@ class Eigenschap(models.Model):
                     "van eigenschap of referentie naar eigenschap"
                 )
             )
-
-    def __str__(self):
-        return "{} - {}".format(self.zaaktype, self.eigenschapnaam)

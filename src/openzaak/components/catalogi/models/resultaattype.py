@@ -225,7 +225,7 @@ class ResultaatType(models.Model):
             "resultaat van dit RESULTAATTYPE kan worden gezet."
         ),
     )
-    heeft_verplichte_ziot = models.ManyToManyField(  # does not have a mnemonic, I choose 'ziot' here
+    heeft_verplichte_ziot = models.ManyToManyField(
         "catalogi.ZaakInformatieObjectType",
         verbose_name=_("heeft verplichte zaakinformatie objecttype"),
         blank=True,
