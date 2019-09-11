@@ -1,19 +1,25 @@
-from django.db.models import QuerySet
+class QueryBlocked(Exception):
+    pass
 
 
 class BlockChangeMixin:
-    @property
-    def msg(self):
-        return f"This method is forbidden for {self.model.__name__} queryset"
+    def _block(self, method: str):
+        raise QueryBlocked(
+            f"Queryset/manager `{method}` is forbidden for {self.model.__name__}. "
+            "These methods do not fire signals, which are relied upon."
+        )
 
-    def bulk_create(self, objs, batch_size=None, ignore_conflicts=False):
-        raise TypeError(self.msg)
+    def bulk_create(self, *args, **kwargs):
+        self._block("bulk_create")
 
-    def bulk_update(self, objs, fields, batch_size=None):
-        raise TypeError(self.msg)
+    def bulk_update(self, *args, **kwargs):
+        self._block("bulk_update")
 
-    def update(self, **kwargs):
-        raise TypeError(self.msg)
+    def update(self, *args, **kwargs):
+        self._block("update")
 
-    def delete(self):
-        raise TypeError(self.msg)
+    def delete(self, *args, **kwargs):
+        self._block("delete")
+
+    # see django.db.models.query.QuerySet.delete
+    delete.queryset_only = True

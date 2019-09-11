@@ -12,6 +12,7 @@ from openzaak.components.zaken.models.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
+from openzaak.utils.query import QueryBlocked
 
 from ..models import ObjectInformatieObject
 
@@ -81,16 +82,16 @@ class BlockChangeTestCase(TestCase):
 
     def test_update(self):
         self.assertRaises(
-            TypeError, ObjectInformatieObject.objects.update, object_type="besluit"
+            QueryBlocked, ObjectInformatieObject.objects.update, object_type="besluit"
         )
 
     def test_delete(self):
-        self.assertRaises(TypeError, ObjectInformatieObject.objects.delete)
+        self.assertRaises(QueryBlocked, ObjectInformatieObject.objects.all().delete)
 
     def test_bulk_update(self):
         self.oio.object_type = "besluit"
         self.assertRaises(
-            TypeError,
+            QueryBlocked,
             ObjectInformatieObject.objects.bulk_update,
             [self.oio],
             fields=["object_type"],
@@ -103,4 +104,6 @@ class BlockChangeTestCase(TestCase):
             informatieobject=canonical, zaak=zaak, object_type="zaak"
         )
 
-        self.assertRaises(TypeError, ObjectInformatieObject.objects.bulk_create, [oio])
+        self.assertRaises(
+            QueryBlocked, ObjectInformatieObject.objects.bulk_create, [oio]
+        )

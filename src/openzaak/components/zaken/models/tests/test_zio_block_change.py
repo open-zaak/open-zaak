@@ -1,5 +1,7 @@
 from django.test import TestCase
 
+from openzaak.utils.query import QueryBlocked
+
 from ...models import ZaakInformatieObject
 from .factories import ZaakInformatieObjectFactory
 
@@ -12,15 +14,17 @@ class BlockChangeTestCase(TestCase):
         cls.zio = ZaakInformatieObjectFactory.create()
 
     def test_update(self):
-        self.assertRaises(TypeError, ZaakInformatieObject.objects.update, titel="new")
+        self.assertRaises(
+            QueryBlocked, ZaakInformatieObject.objects.update, titel="new"
+        )
 
     def test_delete(self):
-        self.assertRaises(TypeError, ZaakInformatieObject.objects.delete)
+        self.assertRaises(QueryBlocked, ZaakInformatieObject.objects.all().delete)
 
     def test_bulk_update(self):
         self.zio.title = "new"
         self.assertRaises(
-            TypeError,
+            QueryBlocked,
             ZaakInformatieObject.objects.bulk_update,
             [self.zio],
             fields=["titel"],
@@ -28,4 +32,4 @@ class BlockChangeTestCase(TestCase):
 
     def test_bulk_create(self):
         zio = ZaakInformatieObjectFactory.build()
-        self.assertRaises(TypeError, ZaakInformatieObject.objects.bulk_create, [zio])
+        self.assertRaises(QueryBlocked, ZaakInformatieObject.objects.bulk_create, [zio])

@@ -5,6 +5,7 @@ from vng_api_common.constants import RelatieAarden
 from openzaak.components.documenten.models.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.utils.query import QueryBlocked
 
 from ...models import BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -19,18 +20,18 @@ class BlockChangeTestCase(TestCase):
 
     def test_update(self):
         self.assertRaises(
-            TypeError,
+            QueryBlocked,
             BesluitInformatieObject.objects.update,
             aard_relatie=RelatieAarden.hoort_bij,
         )
 
     def test_delete(self):
-        self.assertRaises(TypeError, BesluitInformatieObject.objects.delete)
+        self.assertRaises(QueryBlocked, BesluitInformatieObject.objects.all().delete)
 
     def test_bulk_update(self):
         self.bio.aard_relatie = RelatieAarden.hoort_bij
         self.assertRaises(
-            TypeError,
+            QueryBlocked,
             BesluitInformatieObject.objects.bulk_update,
             [self.bio],
             fields=["aard_relatie"],
@@ -44,4 +45,6 @@ class BlockChangeTestCase(TestCase):
             informatieobject=eio.canonical,
             aard_relatie=RelatieAarden.hoort_bij,
         )
-        self.assertRaises(TypeError, BesluitInformatieObject.objects.bulk_create, [bio])
+        self.assertRaises(
+            QueryBlocked, BesluitInformatieObject.objects.bulk_create, [bio]
+        )
