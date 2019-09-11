@@ -6,7 +6,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )

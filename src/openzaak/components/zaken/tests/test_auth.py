@@ -7,7 +7,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
 )

@@ -2,8 +2,6 @@ from django.conf import settings
 
 from drf_yasg import openapi
 
-# from .kanalen import KANAAL_CATALOGI
-
 description = f"""Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
 De zaaktypecatalogus helpt gemeenten om het proces vanuit de 'vraag van een

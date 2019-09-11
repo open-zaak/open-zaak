@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import ResultaatFactory, ZaakFactory

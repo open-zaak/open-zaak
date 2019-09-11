@@ -16,7 +16,7 @@ from vng_api_common.constants import (
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,

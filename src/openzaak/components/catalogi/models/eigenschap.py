@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from .choices import FormaatChoices
+from ..constants import FormaatChoices
 from .validators import (
     validate_kardinaliteit,
     validate_letters_numbers_underscores,

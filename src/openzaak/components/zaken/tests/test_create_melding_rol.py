@@ -20,10 +20,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    RolTypeFactory,
-    ZaakTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import RolTypeFactory, ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Zaak

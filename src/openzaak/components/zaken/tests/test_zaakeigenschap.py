@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import EigenschapFactory
+from openzaak.components.catalogi.tests.factories import EigenschapFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import ZaakEigenschap

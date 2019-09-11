@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import Eigenschap, EigenschapReferentie, EigenschapSpecificatie
+from ..models import Eigenschap, EigenschapSpecificatie
 from .mixins import FilterSearchOrderingAdminMixin
 
 
@@ -22,38 +22,6 @@ class EigenschapAdmin(FilterSearchOrderingAdminMixin, admin.ModelAdmin):
                     "zaaktype",
                     "specificatie_van_eigenschap",
                     "referentie_naar_eigenschap",
-                )
-            },
-        ),
-    )
-
-
-@admin.register(EigenschapReferentie)
-class EigenschapReferentieAdmin(admin.ModelAdmin):
-    # List
-    list_display = ("objecttype", "informatiemodel")  # Add is_van
-    # list_filter = ('rsin', )  # Add is_van
-    search_fields = (
-        "objecttype",
-        "informatiemodel",
-        "namespace",
-        "schemalocatie",
-        "x_path_element",
-        "entiteittype",
-    )
-
-    # Details
-    fieldsets = (
-        (
-            _("Algemeen"),
-            {
-                "fields": (
-                    "objecttype",
-                    "informatiemodel",
-                    "namespace",
-                    "schemalocatie",
-                    "x_path_element",
-                    "entiteittype",
                 )
             },
         ),

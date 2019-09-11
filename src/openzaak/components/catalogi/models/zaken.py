@@ -12,7 +12,7 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import DaysDurationField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 
-from .choices import InternExtern
+from ..constants import InternExtern
 from .mixins import ConceptMixin, GeldigheidMixin
 
 

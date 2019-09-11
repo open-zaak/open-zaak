@@ -11,9 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 

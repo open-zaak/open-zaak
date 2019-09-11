@@ -5,4 +5,4 @@ from .informatieobjecttype import *  # noqa
 from .resultaattype import *  # noqa
 from .roltype import *  # noqa
 from .statustype import *  # noqa
-from .zaken import *  # noqa
+from .zaaktypen import *  # noqa

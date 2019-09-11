@@ -19,7 +19,7 @@ from vng_api_common.validators import (
 )
 from zds_client.tests.mocks import mock_client
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,

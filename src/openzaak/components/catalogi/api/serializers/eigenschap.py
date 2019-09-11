@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
+from ...constants import FormaatChoices
 from ...models import Eigenschap, EigenschapSpecificatie
-from ...models.choices import FormaatChoices
 
 
 class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
@@ -18,11 +18,9 @@ class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
 
 
 class EigenschapSerializer(serializers.HyperlinkedModelSerializer):
-
     specificatie = EigenschapSpecificatieSerializer(
         read_only=True, source="specificatie_van_eigenschap"
     )
-    # referentie = EigenschapReferentieSerializer(read_only=True, source='referentie_naar_eigenschap')
 
     class Meta:
         model = Eigenschap

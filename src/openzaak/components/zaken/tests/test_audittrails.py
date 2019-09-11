@@ -7,7 +7,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,

@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM

@@ -12,9 +12,7 @@ from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 

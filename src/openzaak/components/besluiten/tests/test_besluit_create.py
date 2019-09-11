@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )

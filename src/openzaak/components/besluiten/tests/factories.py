@@ -4,7 +4,7 @@ from django.utils import timezone
 
 import factory
 
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
 )

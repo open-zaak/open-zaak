@@ -7,9 +7,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK

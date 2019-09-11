@@ -1,14 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import CheckListItem, StatusType
+from ..models import StatusType
 from .mixins import FilterSearchOrderingAdminMixin
-
-
-@admin.register(CheckListItem)
-class CheckListItemAdmin(admin.ModelAdmin):
-    list_display = ("itemnaam",)
-    fields = ("itemnaam", "vraagstelling", "verplicht", "toelichting")
 
 
 @admin.register(StatusType)

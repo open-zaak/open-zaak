@@ -12,11 +12,6 @@ class GeldigheidAdminMixin(object):
             ),
         )
 
-    #
-    # formfield_overrides = {
-    #     StUFDateField: {'widget': AdminDateWidget},
-    # }
-
 
 class FilterSearchOrderingAdminMixin(object):
     """

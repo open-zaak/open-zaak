@@ -4,11 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.components.catalogi.models.choices import (
-    AardRelatieChoices,
-    ArchiefNominatieChoices,
-    RichtingChoices,
-)
+from ..constants import AardRelatieChoices, ArchiefNominatieChoices, RichtingChoices
 
 
 class ZaakInformatieobjectType(models.Model):

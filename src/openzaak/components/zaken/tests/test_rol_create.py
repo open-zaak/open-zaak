@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
+from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import RolFactory, ZaakFactory

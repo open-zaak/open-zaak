@@ -3,13 +3,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from relativedeltafield import RelativeDeltaField
 
-from ..models import ResultaatType, ZaakInformatieobjectTypeArchiefregime
-from .forms import RelativeDeltaField as RelativeDeltaFormField, ResultaatTypeForm
+from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 
-
-class ZaakInformatieobjectTypeArchiefregimeInline(admin.TabularInline):
-    model = ZaakInformatieobjectTypeArchiefregime
-    extra = 1
+from ..models import ResultaatType
+from .forms import ResultaatTypeForm
 
 
 @admin.register(ResultaatType)
@@ -53,12 +50,6 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        # (_('Relaties'), {
-        #     'fields': (
-        #         'heeft_verplichte_zot',
-        #         'heeft_verplichte_ziot'
-        #     )
-        # }),
     )
     raw_id_fields = ("zaaktype",)
 

@@ -5,7 +5,7 @@ from django.urls import include, path
 from vng_api_common import routers
 from vng_api_common.schema import SchemaView as _SchemaView
 
-from .views import (
+from .viewsets import (
     BesluitTypeViewSet,
     CatalogusViewSet,
     EigenschapViewSet,

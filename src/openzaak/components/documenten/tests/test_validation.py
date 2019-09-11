@@ -6,9 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import OndertekeningSoorten, Statussen

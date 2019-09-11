@@ -17,9 +17,7 @@ import factory
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 
 
 class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFactory):

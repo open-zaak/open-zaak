@@ -14,7 +14,7 @@ from vng_api_common.constants import (
 from vng_api_common.tests import reverse
 from zds_client.tests.mocks import mock_client
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,

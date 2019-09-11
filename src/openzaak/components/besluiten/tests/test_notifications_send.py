@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import VervalRedenen

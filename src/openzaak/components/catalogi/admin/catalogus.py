@@ -7,7 +7,7 @@ from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .besluittype import BesluitTypeAdmin
 from .informatieobjecttype import InformatieObjectTypeAdmin
 from .mixins import FilterSearchOrderingAdminMixin
-from .zaken import ZaakTypeAdmin
+from .zaaktypen import ZaakTypeAdmin
 
 
 class ZaakTypeInline(EditInlineAdminMixin, admin.TabularInline):

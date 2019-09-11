@@ -1,18 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
 
-from ...models import CheckListItem, StatusType
-from ..utils.serializers import SourceMappingSerializerMixin
-
-
-class CheckListItemSerializer(SourceMappingSerializerMixin, ModelSerializer):
-    class Meta:
-        model = CheckListItem
-        ref_name = None  # Inline
-        source_mapping = {"naam": "itemnaam"}
-        fields = ("naam", "vraagstelling", "verplicht", "toelichting")
+from ...models import StatusType
 
 
 class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):

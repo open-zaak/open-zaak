@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import Archiefnominatie, ComponentTypes
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )

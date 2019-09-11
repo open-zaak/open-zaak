@@ -9,7 +9,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
     RolTypeFactory,
