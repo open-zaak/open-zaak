@@ -5,20 +5,16 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.components.besluiten.models.tests.factories import (
-    BesluitInformatieObjectFactory,
-)
-from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    Gebruiksrechten,
-)
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
+from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     GebruiksrechtenFactory,
 )
-from openzaak.components.zaken.models.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin
+from .utils import get_operation_url
 
 
 class US349TestCase(JWTAuthMixin, APITestCase):

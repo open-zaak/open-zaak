@@ -1,29 +1,18 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 import requests
-from dateutil.relativedelta import relativedelta
-from relativedeltafield import format_relativedelta
 from rest_framework.exceptions import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.validators import ResourceValidator
 
+from openzaak.forms.widgets import BooleanRadio
+
+from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType, ZaakType
-from ..models.constants import SelectielijstKlasseProcestermijn as Procestermijn
-
-API_SPEC = "https://ref.tst.vng.cloud/referentielijsten/api/v1/schema/openapi.yaml?v=3"
-
-
-class BooleanRadio(forms.RadioSelect):
-    def __init__(self, attrs=None):
-        choices = ((True, _("Yes")), (False, _("No")))
-        super().__init__(attrs, choices)
-
-    def value_from_datadict(self, data, files, name):
-        value = data.get(name, False)
-        return {True: True, "True": True, "False": False, False: False}[value]
 
 
 class ZaakTypeForm(forms.ModelForm):
@@ -87,9 +76,10 @@ class ResultaatTypeForm(forms.ModelForm):
             err = forms.ValidationError(msg, code="invalid")
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
 
+        validator = ResourceValidator("Resultaat", settings.VRL_API_SPEC)
         try:
             # Check whether the url points to a Resultaat
-            ResourceValidator("Resultaat", API_SPEC)(selectielijstklasse)
+            validator(selectielijstklasse)
         except ValidationError as exc:
             err = forms.ValidationError(exc.detail[0], code=exc.detail[0].code)
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
@@ -337,21 +327,3 @@ class ResultaatTypeForm(forms.ModelForm):
                         value=afleidingswijze_label,
                     )
                     self.add_error(field, forms.ValidationError(msg, code="required"))
-
-
-# TODO: somehow move this to vng-api-common
-class RelativeDeltaWidget(forms.TextInput):
-    def format_value(self, value):
-        if isinstance(value, relativedelta):
-            return format_relativedelta(value)
-        return super().format_value(value)
-
-
-class RelativeDeltaField(forms.CharField):
-    widget = RelativeDeltaWidget
-    empty_strings_allowed = False
-
-    def __init__(self, *args, **kwargs):
-        assert "empty_value" not in kwargs, "empty_value may not be provided"
-        kwargs["empty_value"] = None
-        super().__init__(*args, **kwargs)

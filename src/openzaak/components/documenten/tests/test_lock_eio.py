@@ -7,22 +7,15 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
-from openzaak.components.documenten.api.scopes import (
-    SCOPE_DOCUMENTEN_AANMAKEN,
-    SCOPE_DOCUMENTEN_ALLES_LEZEN,
-    SCOPE_DOCUMENTEN_BIJWERKEN,
-    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
-    SCOPE_DOCUMENTEN_LOCK,
-)
-from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
+from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from .utils import get_operation_url
 
 
 @temp_private_root()

@@ -55,7 +55,6 @@ class InformatieObjectTypeOmschrijvingGeneriek(GeldigheidMixin, models.Model):
     )
 
     class Meta:
-        mnemonic = "DOG"
         verbose_name = _("Generieke informatieobjecttype-omschrijving")
         verbose_name_plural = _("Generieke informatieobjecttype-omschrijvingen")
 

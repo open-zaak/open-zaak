@@ -162,15 +162,6 @@ class StatusType(models.Model):
         unique_together = ("zaaktype", "statustypevolgnummer")
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
-        ordering = unique_together
-
-        filter_fields = ("zaaktype", "informeren")
-        ordering_fields = filter_fields
-        search_fields = (
-            "statustype_omschrijving",
-            "statustype_omschrijving_generiek",
-            "statustypevolgnummer",
-        )
 
     def is_eindstatus(self):
         """

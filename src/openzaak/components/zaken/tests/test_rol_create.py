@@ -12,10 +12,11 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import RolTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models.tests.factories import RolFactory, ZaakFactory
+from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
+
+from .factories import RolFactory, ZaakFactory
+from .utils import get_operation_url
 
 WATERNET = f"https://waternet.nl/api/organisatorische-eenheid/{uuid.uuid4().hex}"
 

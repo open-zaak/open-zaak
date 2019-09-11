@@ -7,11 +7,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
-from openzaak.components.authorizations.api.tests.utils import get_operation_url
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
-from ..models.tests.factories import AutorisatieFactory
+from .factories import AutorisatieFactory
+from .utils import get_operation_url
 
 
 @freeze_time("2012-01-14")

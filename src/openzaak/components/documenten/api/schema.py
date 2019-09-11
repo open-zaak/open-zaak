@@ -6,10 +6,10 @@ from .kanalen import KANAAL_DOCUMENTEN
 
 description = f"""Een API om een documentregistratiecomponent (DRC) te benaderen.
 
-In een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een 
-INFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens. 
-INFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden 
-gerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben. 
+In een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een
+INFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens.
+INFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden
+gerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben.
 
 GEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT
 (buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd

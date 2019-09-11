@@ -13,11 +13,10 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
-from .utils import ZAAK_WRITE_KWARGS
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 # aanvraag aangemaakt in extern systeem, leeft buiten ZRC
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"

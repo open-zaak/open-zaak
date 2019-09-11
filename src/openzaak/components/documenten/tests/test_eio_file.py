@@ -13,16 +13,15 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
-from openzaak.components.documenten.api.tests.utils import get_operation_url
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.utils.tests import JWTAuthMixin
+
+from ..models import EnkelvoudigInformatieObject
+from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from .utils import get_operation_url
 
 
 @override_settings(SENDFILE_BACKEND="sendfile.backends.simple")

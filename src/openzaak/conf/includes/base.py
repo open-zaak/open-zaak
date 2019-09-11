@@ -1,7 +1,6 @@
 import os
 import warnings
 
-import django.db.models.options as options
 from django.urls import reverse_lazy
 
 import raven
@@ -135,7 +134,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "openzaak.components.authorizations.middleware.AuthMiddleware",
-    # 'vng_api_common.middleware.AuthMiddleware',
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -336,14 +334,6 @@ SITE_TITLE = "Open zaak"
 
 ENVIRONMENT = None
 SHOW_ALERT = True
-
-warnings.warn("Overriding options.DEFAULT_NAMES is pending removal", DeprecationWarning)
-options.DEFAULT_NAMES = options.DEFAULT_NAMES + (
-    "mnemonic",
-    "filter_fields",
-    "ordering_fields",
-    "search_fields",
-)
 
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)

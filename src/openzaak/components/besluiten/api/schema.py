@@ -14,7 +14,7 @@ een besluit van een andere organisatie dat het onderwerp (object) is van een
 zaak van de zaakbehandelende organisatie. BESLUIT heeft dan ook een optionele
 relatie met de ZAAK waarvan het een uitkomst is.
 
-De typering van BESLUITen is in de Catalogi API (ZTC) ondergebracht in de vorm 
+De typering van BESLUITen is in de Catalogi API (ZTC) ondergebracht in de vorm
 van BESLUITTYPEn.
 
 **Afhankelijkheden**

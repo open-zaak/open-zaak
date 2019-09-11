@@ -10,13 +10,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, reverse
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM
-from .utils import ZAAK_WRITE_KWARGS
+from .factories import ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
 class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):

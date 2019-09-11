@@ -16,10 +16,7 @@ from vng_api_common.serializers import (
 from vng_api_common.validators import ResourceValidator
 
 from ...models import ResultaatType
-from ..utils.validators import (
-    ProcestermijnAfleidingswijzeValidator,
-    ProcesTypeValidator,
-)
+from ..validators import ProcestermijnAfleidingswijzeValidator, ProcesTypeValidator
 
 
 class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):

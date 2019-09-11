@@ -1,6 +1,6 @@
 from vng_api_common.notifications.kanalen import Kanaal
 
-from openzaak.components.besluiten.models import Besluit
+from ..models import Besluit
 
 KANAAL_BESLUITEN = Kanaal(
     "besluiten",

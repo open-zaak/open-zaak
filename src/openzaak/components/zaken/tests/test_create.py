@@ -13,17 +13,16 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import KlantContact, Rol, Status, Zaak, ZaakObject
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
 from openzaak.utils.tests import JWTAuthMixin
 
-from .utils import ZAAK_WRITE_KWARGS, isodatetime
+from ..models import KlantContact, Rol, Status, Zaak, ZaakObject
+from .factories import ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 OBJECT_MET_ADRES = f"https://example.com/orc/api/v1/objecten/{uuid.uuid4().hex}"

@@ -5,19 +5,17 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
-from openzaak.components.besluiten.api.tests.utils import get_operation_url
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.besluiten.models.constants import VervalRedenen
-from openzaak.components.besluiten.models.tests.factories import (
-    BesluitFactory,
-    BesluitInformatieObjectFactory,
-)
-from openzaak.components.catalogi.models.tests.factories import BesluitTypeFactory
-from openzaak.components.documenten.models.tests.factories import (
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.tests import JWTAuthMixin
+
+from ..constants import VervalRedenen
+from ..models import Besluit
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from .utils import get_operation_url
 
 
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):

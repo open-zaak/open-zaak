@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.utils import get_help_text
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
-from ..utils.validators import RelationCatalogValidator
+from ..validators import RelationCatalogValidator
 
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):

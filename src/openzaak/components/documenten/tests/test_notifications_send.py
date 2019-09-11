@@ -9,11 +9,10 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.models.tests.factories import (
-    InformatieObjectTypeFactory,
-)
-from openzaak.components.documenten.api.tests.utils import get_operation_url
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
+
+from .utils import get_operation_url
 
 
 @freeze_time("2012-01-14")

@@ -2,15 +2,16 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import RolType
-from .mixins import FilterSearchOrderingAdminMixin
 
 
 @admin.register(RolType)
-class RolTypeAdmin(FilterSearchOrderingAdminMixin, admin.ModelAdmin):
+class RolTypeAdmin(admin.ModelAdmin):
     model = RolType
 
     # List
     list_display = ("omschrijving", "zaaktype", "uuid")
+    list_filter = ("zaaktype", "omschrijving_generiek")
+    search_fields = ("omschrijving",)
 
     # Details
     fieldsets = (

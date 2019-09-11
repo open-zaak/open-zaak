@@ -9,13 +9,12 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.catalogi.models.tests.factories import ZaakTypeFactory
-from openzaak.components.zaken.api.tests.utils import get_operation_url
-from openzaak.components.zaken.models import Zaak
-from openzaak.components.zaken.models.tests.factories import ZaakFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
-from .utils import ZAAK_WRITE_KWARGS
+from ..models import Zaak
+from .factories import ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 

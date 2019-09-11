@@ -8,7 +8,6 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 from zds_client.tests.mocks import mock_client
 
 from openzaak.utils.tests import JWTAuthMixin

@@ -4,7 +4,7 @@ from django_filters import rest_framework as filters
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_resource_for_path
 
-from openzaak.components.catalogi.models import (
+from ..models import (
     BesluitType,
     Catalogus,
     Eigenschap,
