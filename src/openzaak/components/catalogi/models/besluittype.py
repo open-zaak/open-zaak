@@ -111,15 +111,6 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         ),
     )
 
-    resultaattypes = models.ManyToManyField(
-        "catalogi.ResultaatType",
-        verbose_name=_("is resultaat van"),
-        help_text=_(
-            "(inverse van:) Het BESLUITTYPE van besluiten die gepaard gaan "
-            "met resultaten van het RESULTAATTYPE."
-        ),
-    )
-
     zaaktypes = models.ManyToManyField(
         "catalogi.ZaakType",
         verbose_name=_("zaaktypes"),

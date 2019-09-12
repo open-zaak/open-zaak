@@ -202,51 +202,6 @@ class ResultaatType(models.Model):
         ),
     )
 
-    # 'old' fields, not actively used at the moment
-
-    bepaalt_afwijkend_archiefregime_van = models.ManyToManyField(
-        "catalogi.ZaakInformatieObjectType",
-        verbose_name=_("bepaalt afwijkend archiefregime van"),
-        through="catalogi.ZaakInformatieobjectTypeArchiefregime",
-        blank=True,
-        related_name="resultaattypes",
-        help_text=_(
-            "Informatieobjecten van een ZAAKINFORMATIEOBJECTTYPE bij zaken van een ZAAKTYPE waarvan, op grond van "
-            "resultaten van een RESULTAATTYPE bij dat ZAAKTYPE, de archiveringskenmerken afwijken van de "
-            "archiveringskenmerken van het ZAAKTYPE."
-        ),
-    )
-    heeft_verplichte_zot = models.ManyToManyField(
-        "catalogi.ZaakObjectType",
-        verbose_name=_("heeft verplichte"),
-        blank=True,
-        help_text=_(
-            "De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van dit ZAAKTYPE voordat een "
-            "resultaat van dit RESULTAATTYPE kan worden gezet."
-        ),
-    )
-    heeft_verplichte_ziot = models.ManyToManyField(
-        "catalogi.ZaakInformatieObjectType",
-        verbose_name=_("heeft verplichte zaakinformatie objecttype"),
-        blank=True,
-        related_name="resultaattypen",  # TODO needs a better related name
-        help_text=_(
-            "De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het zaakdossier van ZAAKen van dit "
-            "ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet."
-        ),
-    )
-    heeft_voor_brondatum_archiefprocedure_relevante = models.ForeignKey(
-        "catalogi.Eigenschap",
-        verbose_name=_("heeft voor brondatum archiefprocedure relevante"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        help_text=_(
-            "De EIGENSCHAP die bepalend is voor het moment waarop de Archiefactietermijn start voor een ZAAK "
-            "met een resultaat van dit RESULTAATTYPE."
-        ),
-    )
-
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
         verbose_name = _("resultaattype")

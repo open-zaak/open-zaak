@@ -15,11 +15,10 @@ class ZaakInformatieobjectTypeInline(admin.TabularInline):
 class InformatieObjectTypeAdmin(
     GeldigheidAdminMixin, ConceptAdminMixin, admin.ModelAdmin
 ):
-    list_display = ("catalogus", "omschrijving", "informatieobjectcategorie")
-    list_filter = ("catalogus", "informatieobjectcategorie")
+    list_display = ("catalogus", "omschrijving",)
+    list_filter = ("catalogus",)
     search_fields = (
         "omschrijving",
-        "informatieobjectcategorie",
         "trefwoord",
         "toelichting",
     )
@@ -32,7 +31,6 @@ class InformatieObjectTypeAdmin(
             {
                 "fields": (
                     "omschrijving",
-                    "informatieobjectcategorie",
                     "trefwoord",
                     "vertrouwelijkheidaanduiding",
                     "model",
