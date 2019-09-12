@@ -206,6 +206,4 @@ class Eigenschap(models.Model):
         super().clean()
 
         if not bool(self.specificatie_van_eigenschap):
-            raise ValidationError(
-                _("Het attribuut specificatie is verplicht.")
-            )
+            raise ValidationError(_("Het attribuut specificatie is verplicht."))

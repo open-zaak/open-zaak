@@ -132,14 +132,7 @@ class ZaakTypeAdmin(
             {"fields": ("referentieproces_naam", "referentieproces_link")},
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
-        (
-            _("Relaties"),
-            {
-                "fields": (
-                    "catalogus",
-                )
-            },
-        ),
+        (_("Relaties"), {"fields": ("catalogus",)}),
     )
     raw_id_fields = ("catalogus",)
     inlines = (
