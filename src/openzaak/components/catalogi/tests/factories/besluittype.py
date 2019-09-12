@@ -43,12 +43,3 @@ class BesluitTypeFactory(factory.django.DjangoModelFactory):
         # use the OnvolledigeDatum value (second element in tuple) as the value
         dates_begin_geldigheid.sort()
         self.datum_begin_geldigheid = dates_begin_geldigheid[0]
-
-    @factory.post_generation
-    def resultaattypes(self, create, extracted, **kwargs):
-        # required M2M, if it is not passed in, create one
-        if not extracted:
-            extracted = [ResultaatTypeFactory.create(zaaktype=self.zaaktypes.get())]
-
-        for resultaat_type in extracted:
-            self.resultaattypes.add(resultaat_type)

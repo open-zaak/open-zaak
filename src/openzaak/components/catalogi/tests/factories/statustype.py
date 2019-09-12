@@ -11,12 +11,3 @@ class StatusTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = StatusType
-
-    @factory.post_generation
-    def roltypen(self, create, extracted, **kwargs):
-        # optional M2M, do nothing when no arguments are passed
-        if not extracted:
-            extracted = [RolTypeFactory.create(zaaktype=self.zaaktype)]
-
-        for roltype in extracted:
-            self.roltypen.add(roltype)
