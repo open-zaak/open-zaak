@@ -482,6 +482,7 @@ class Rol(models.Model):
     class Meta:
         verbose_name = "Rol"
         verbose_name_plural = "Rollen"
+        indexes = [models.Index(fields=["betrokkene"])]
 
     def save(self, *args, **kwargs):
         self._derive_roltype_attributes()
