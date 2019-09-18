@@ -42,6 +42,7 @@ class RolType(models.Model):
         max_length=20,
         choices=RolOmschrijving.choices,
         help_text=_("Algemeen gehanteerde omschrijving van de aard van de ROL."),
+        db_index=True,
     )
     soort_betrokkene = ArrayField(
         models.CharField(_("soort betrokkene"), max_length=80),

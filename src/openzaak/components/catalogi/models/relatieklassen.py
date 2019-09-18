@@ -46,6 +46,7 @@ class ZaakInformatieobjectType(models.Model):
             "Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE "
             "bij zaken van het gerelateerde ZAAKTYPE."
         ),
+        db_index=True,
     )
 
     # this is the relation that is described on StatusType in the specification

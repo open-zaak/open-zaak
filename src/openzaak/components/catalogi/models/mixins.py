@@ -94,6 +94,7 @@ class ConceptMixin(models.Model):
             "Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve "
             "versies en zouden niet gebruikt moeten worden buiten deze API."
         ),
+        db_index=True,
     )
 
     class Meta:

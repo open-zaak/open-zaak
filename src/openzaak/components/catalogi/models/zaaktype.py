@@ -271,6 +271,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
+        db_index=True,
     )
     zaaktype_omschrijving = models.CharField(
         _("omschrijving"),
@@ -413,6 +414,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         help_text=_(
             "Een trefwoord waarmee ZAAKen van het ZAAKTYPE kunnen worden gekarakteriseerd."
         ),
+        db_index=True,
     )
     # TODO [KING]: ?? waardenverzameling: De classificatiecode in het gehanteerde
     # archiveringsclassificatiestelsel, gevolgd door een spatie en –

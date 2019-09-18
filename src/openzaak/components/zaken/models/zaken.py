@@ -88,6 +88,7 @@ class Zaak(APIMixin, models.Model):
         help_text="De unieke identificatie van de ZAAK binnen de organisatie "
         "die verantwoordelijk is voor de behandeling van de ZAAK.",
         validators=[alphanumeric_excluding_diacritic],
+        db_index=True,
     )
     bronorganisatie = RSINField(
         help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
@@ -120,7 +121,8 @@ class Zaak(APIMixin, models.Model):
     )
 
     startdatum = models.DateField(
-        help_text="De datum waarop met de uitvoering van de zaak is gestart"
+        help_text="De datum waarop met de uitvoering van de zaak is gestart",
+        db_index=True,
     )
     einddatum = models.DateField(
         blank=True,
@@ -261,6 +263,7 @@ class Zaak(APIMixin, models.Model):
         help_text=_(
             "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden."
         ),
+        db_index=True,
     )
     archiefstatus = models.CharField(
         _("archiefstatus"),
@@ -270,6 +273,7 @@ class Zaak(APIMixin, models.Model):
         help_text=_(
             "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden."
         ),
+        db_index=True,
     )
     archiefactiedatum = models.DateField(
         _("archiefactiedatum"),
@@ -280,6 +284,7 @@ class Zaak(APIMixin, models.Model):
             "worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van "
             "een RESULTAAT aan deze ZAAK indien nog leeg."
         ),
+        db_index=True,
     )
 
     objects = ZaakQuerySet.as_manager()
@@ -437,9 +442,13 @@ class Rol(models.Model):
         help_text="URL-referentie naar een betrokkene gerelateerd aan de ZAAK.",
         max_length=1000,
         blank=True,
+        db_index=True,
     )
     betrokkene_type = models.CharField(
-        max_length=100, choices=RolTypes.choices, help_text="Type van de `betrokkene`."
+        max_length=100,
+        choices=RolTypes.choices,
+        help_text="Type van de `betrokkene`.",
+        db_index=True,
     )
 
     roltype = models.ForeignKey(
@@ -451,6 +460,7 @@ class Rol(models.Model):
         _("omschrijving"),
         max_length=20,
         editable=False,
+        db_index=True,
         help_text=_(
             "Omschrijving van de aard van de ROL, afgeleid uit " "het ROLTYPE."
         ),
@@ -462,6 +472,7 @@ class Rol(models.Model):
             "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE."
         ),
         editable=False,
+        db_index=True,
     )
     roltoelichting = models.TextField(max_length=1000)
 
@@ -482,7 +493,6 @@ class Rol(models.Model):
     class Meta:
         verbose_name = "Rol"
         verbose_name_plural = "Rollen"
-        indexes = [models.Index(fields=["betrokkene"])]
 
     def save(self, *args, **kwargs):
         self._derive_roltype_attributes()
@@ -526,6 +536,7 @@ class ZaakObject(models.Model):
         help_text="URL-referentie naar de resource die het OBJECT beschrijft.",
         max_length=1000,
         blank=True,
+        db_index=True,
     )
     relatieomschrijving = models.CharField(
         max_length=80,
@@ -538,6 +549,7 @@ class ZaakObject(models.Model):
         help_text="Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er "
         "geen passend type is, dan moet het type worden opgegeven "
         "onder `objectTypeOverige`.",
+        db_index=True,
     )
     object_type_overige = models.CharField(
         max_length=100,
