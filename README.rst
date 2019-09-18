@@ -51,7 +51,7 @@ Copyright © Maykin Media 2019
 
 Licensed under the EUPL_
 
-.. _EUPL: LICENCE.md
+.. _EUPL: LICENSE.md
 
 .. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
     :alt: Build status
