@@ -67,7 +67,6 @@ class ZaakTypeAdmin(
     list_display = (
         "zaaktype_identificatie",
         "zaaktype_omschrijving",
-        "zaakcategorie",
         "catalogus",
         "uuid",
         "get_absolute_api_url",
@@ -133,18 +132,8 @@ class ZaakTypeAdmin(
             {"fields": ("referentieproces_naam", "referentieproces_link")},
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
-        (
-            _("Relaties"),
-            {
-                "fields": (
-                    "catalogus",
-                    # m2m:
-                    "is_deelzaaktype_van",
-                )
-            },
-        ),
+        (_("Relaties"), {"fields": ("catalogus",)}),
     )
-    filter_horizontal = ("is_deelzaaktype_van", "formulier")
     raw_id_fields = ("catalogus",)
     inlines = (
         ZaakTypenRelatieInline,

@@ -121,10 +121,10 @@ class StatusTypeAPITests(APITestCase):
         rol_type = RolTypeFactory.create(zaaktype=zaaktype)
 
         statustype_1 = StatusTypeFactory.create(
-            zaaktype=zaaktype, roltypen=[rol_type], statustypevolgnummer=1
+            zaaktype=zaaktype, statustypevolgnummer=1
         )
         statustype_2 = StatusTypeFactory.create(
-            zaaktype=zaaktype, roltypen=[rol_type], statustypevolgnummer=2
+            zaaktype=zaaktype, statustypevolgnummer=2
         )
 
         # Volgnummer 1

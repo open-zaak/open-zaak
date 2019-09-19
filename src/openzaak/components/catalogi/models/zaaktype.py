@@ -116,131 +116,6 @@ class ZaakObjectType(GeldigheidMixin, models.Model):
         )
 
 
-class Formulier(models.Model):
-    """
-    Het formulier dat ZAAKen van dit ZAAKTYPE initieert.
-
-    Regels
-    De groepattribuutsoort verandert alleen van waarde
-    (materiële historie) cq. één of meer van de subattributen
-    veranderen van waarde op een datum die gelijk is aan een
-    Versiedatum van het zaaktype.
-
-    Toelichting
-    Met deze groepattribuutsoort wordt de relatie gelegd naar het 'blanco' formulier / de
-    formulierdefinitie waarmee ZAAKen van dit ZAAKTYPE worden geïnitieerd. Formulier moet in deze
-    context in de ruimste zin van het woord worden opgevat; het kan zowel gaan om het sjabloon
-    voor het papieren formulier als het e-formulier dat wordt gebruikt voor de webintake. Om die
-    reden is de kardinaliteit 0-N: er kan per kanaal een ander formulier gedefinieerd zijn. De
-    kardinaliteit per kanaal is 0-1.
-    """
-
-    naam = models.CharField(
-        _("naam"), max_length=80, help_text=_("De naam van het formulier.")
-    )
-    link = models.URLField(
-        _("link"), blank=True, null=True, help_text=_("De URL naar het formulier.")
-    )
-
-    def __str__(self):
-        return self.naam
-
-    class Meta:
-        verbose_name = _("Formulier")
-        verbose_name_plural = _("Formulieren")
-
-
-class BronCatalogus(models.Model):
-    """
-    De CATALOGUS waaraan het ZAAKTYPE is ontleend.
-
-    Regels
-    De groepattribuutsoort verandert alleen van waarde
-    (materiële historie) cq. één of meer van de subattributen
-    veranderen van waarde op een datum die gelijk is aan een
-    Versiedatum van het zaaktype.
-
-    Toelichting
-    Met deze groepattribuutsoort kan een relatie worden gelegd naar de CATALOGUS waaraan de
-    configuratie van dit ZAAKTYPE is ontleend. Denk bijvoorbeeld aan het leggen van de relatie tussen
-    het 'lokale' ZAAKTYPE 'Aanvraag Uittreksel GBA behandelen' en een specifiek voor de sector
-    Burgerzaken ontwikkelde catalogus met alle zaaktypen voor Burgerzaken. De combinatie van deze
-    groepattribuutsoort met de attribuutsoort Bronzaaktype-identificatie identificeert het zaaktype
-    waarvan dit 'lokale' zaaktype is afgeleid uniek en stelt de beheerder van dit ZAAKTYPE in staat die
-    relatie te bewaken.
-    """
-
-    domein = models.CharField(
-        _("domein"),
-        max_length=30,
-        help_text=_("Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend."),
-    )
-    # rsin is gespecificeerd als N9, ivm voorloopnullen gekozen voor CharField. Geen waardenverzameling gedefinieerd
-    rsin = models.CharField(
-        _("rsin"),
-        max_length=9,
-        validators=[RegexValidator("^[0-9]*$")],
-        help_text=_(
-            "Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die "
-            "beheerder is van de CATALOGUS waaraan het ZAAKTYPE is ontleend."
-        ),
-    )
-
-    def __str__(self):
-        return "{} - {}".format(self.rsin, self.domein)
-
-    class Meta:
-        verbose_name = _("Bron catalogus")
-        verbose_name_plural = _("Bron catalogussen")
-
-
-class BronZaakType(models.Model):
-    """
-    Het zaaktype binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
-
-    Regels
-    De groepattribuutsoort verandert alleen van waarde
-    (materiële historie) cq. één of meer van de subattributen
-    veranderen van waarde op een datum die gelijk is aan een
-    Versiedatum van het zaaktype.
-
-    Toelichting
-    Met de combinatie van deze groepattribuutsoort en de groepattribuutsoort Broncatalogus, kan
-    de relatie worden gelegd naar het zaaktype (de bron) dat de basis vormde voor dit ZAAKTYPE.
-    Uitgangspunt is dat het zaaktype is afgeleid van de versie van het bronzaaktype zoals dat bestond
-    ten tijde van de begindatum van het zaaktype.
-    Een voorbeeld is een zaaktype dat is overgenomen uit een landelijk gestandaardiseerde
-    CATALOGUS en vervolgens enigszins is aangepast voor toepassing in de eigen organisatie. Door
-    het vastleggen van deze relatie kunnen wijzigingen in het bronzaaktype worden gesignaleerd,
-    geëvalueerd en mogelijk leiden tot aanpassing van het 'eigen' zaaktype.
-    Idealiter is een organisatiespecifiek zaaktypen ontleend aan een referentiecatalogus. Aangezien
-    dat vooralsnog niet altijd het geval zal zijn heeft dit groepattribuutsoort de kardinaliteit 0-1.
-    Dringend wordt aanbevolen dit groepattribuutsoort wel van waarden te voorzien.
-    """
-
-    zaaktype_identificatie = models.PositiveIntegerField(
-        _("zaaktype identificatie"),
-        validators=[MaxValueValidator(99999)],
-        help_text=_(
-            "De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS."
-        ),
-    )
-    zaaktype_omschrijving = models.CharField(
-        _("zaaktype omschrijving"),
-        max_length=80,
-        help_text=_(
-            "De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in de Broncatalogus."
-        ),
-    )
-
-    def __str__(self):
-        return "{} - {}".format(self.zaaktype_identificatie, self.zaaktype_omschrijving)
-
-    class Meta:
-        verbose_name = _("Bron zaaktype")
-        verbose_name_plural = _("Bron zaaktypen")
-
-
 class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     """
     Het geheel van karakteristieke eigenschappen van zaken van eenzelfde soort
@@ -294,17 +169,6 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
         ),
     )
-
-    # TODO [KING]: waardenverzameling zie Zaaktypecatalogus, is dat de
-    # catalogus die bij dit zaaktype hoort? Wat is de categorie dan?
-    # see also: https://github.com/VNG-Realisatie/gemma-zaken/issues/695
-    zaakcategorie = models.CharField(
-        _("zaakcategorie"),
-        max_length=40,
-        blank=True,
-        help_text=_("Typering van de aard van ZAAKen van het ZAAKTYPE."),
-    )
-
     doel = models.TextField(
         _("doel"),
         help_text=_(
@@ -414,33 +278,6 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "Een trefwoord waarmee ZAAKen van het ZAAKTYPE kunnen worden gekarakteriseerd."
         ),
     )
-    # TODO [KING]: ?? waardenverzameling: De classificatiecode in het gehanteerde
-    # archiveringsclassificatiestelsel, gevolgd door een spatie en –
-    # tussen haakjes - de gebruikelijke afkorting van de naam van het gehanteerde classificatiestelsel.
-    archiefclassificatiecode = models.CharField(
-        _("archiefclassificatiecode"),
-        max_length=20,
-        blank=True,
-        null=True,
-        help_text=_(
-            "De systematische identificatie van zaakdossiers van dit ZAAKTYPE overeenkomstig logisch gestructureerde "
-            "conventies, methoden en procedureregels."
-        ),
-    )
-    # TODO [KING]: waardenverzameling heeft de volgende regel, momenteel valideren we hier niets,
-    # maar wellicht kan het wel: Indien het om een zaaktype in een catalogus voor een specifieke organisatie gaat,
-    # dan de naam van een Organisatorische eenheid of Medewerker overeenkomstig het RGBZ.
-    # Hoe weten we of een catalogus van een specifieke organisatie is? Als we Catalogus.contactpersoon_beheer_naam
-    # gebruiken dan is dit veld overbodig want dan gebruiken we gewoon
-    # ZaakType.catalogus.contactpersoon_beheer_naam
-    verantwoordelijke = models.CharField(
-        _("verantwoordelijke"),
-        max_length=50,
-        help_text=_(
-            "De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor "
-            "de uitvoering van zaken van het ZAAKTYPE."
-        ),
-    )
     publicatie_indicatie = models.BooleanField(
         _("publicatie indicatie"),
         help_text=_(
@@ -489,14 +326,6 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "kenmerken (PROCESTYPE in de Selectielijst API)."
         ),
     )
-
-    formulier = models.ManyToManyField(
-        "catalogi.Formulier",
-        verbose_name=_("formulier"),
-        blank=True,
-        help_text=_("Formulier Het formulier dat ZAAKen van dit ZAAKTYPE initieert."),
-    )
-
     referentieproces_naam = models.CharField(
         _("referentieprocesnaam"),
         max_length=80,
@@ -512,38 +341,9 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         optional=("link",),
     )
 
-    broncatalogus = models.ForeignKey(
-        "catalogi.BronCatalogus",
-        verbose_name=_("broncatalogus"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        help_text=_("De CATALOGUS waaraan het ZAAKTYPE is ontleend."),
-    )
-    bronzaaktype = models.ForeignKey(
-        "catalogi.BronZaakType",
-        verbose_name=("bronzaaktype"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        help_text=_(
-            "Het zaaktype binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend."
-        ),
-    )
-
     #
     # relaties
     #
-    is_deelzaaktype_van = models.ManyToManyField(
-        "catalogi.ZaakType",
-        verbose_name=_("is deelzaaktype van"),
-        blank=True,
-        related_name="zaak_typen_is_deelzaaktype_van",
-        help_text=_(
-            "De ZAAKTYPEn (van de hoofdzaken) waaronder ZAAKen van dit ZAAKTYPE als deelzaak kunnen voorkomen."
-        ),
-    )
-
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
         verbose_name=_("maakt deel uit van"),

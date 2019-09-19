@@ -109,84 +109,6 @@ class EigenschapSpecificatie(models.Model):
                 )
 
 
-class EigenschapReferentie(models.Model):
-    """
-    Met de ‘subattributen’ (van deze groepattribuutsoort) Objecttype, Informatiemodel, Namespace, Schemalocatie, X-path
-    element en Entiteittype wordt een eigenschap gespecificeerd door te refereren naar een berichtenmodel cq. namespace
-    en, bij voorkeur ook, een informatiemodel. Dit vindt alleen plaats als de eigenschap niet gespecificeerd is door
-    middel van het groepattribuutsoort ‘Specificatie van eigenschap’. Met de naam van de eigenschap zijn de metagegevens
-    van de eigenschap (herkomst, formaat, waardenverzameling e.d.) te ontlenen aan het desbetreffende informatiemodel.
-    De specificatie dwingt niet af dat er persé sprake moet zijn van een informatiemodel. Wel is een consequentie dat er
-    een XML-schema is waarin de, bij een zaaktype te specificeren, eigenschap is opgenomen. Verwijzen naar zowel een
-    informatie- als een berichtenmodel is evenwel een waarborg voor een robuuste gegevensuitwisseling.
-    """
-
-    objecttype = models.CharField(  # letters, cijfers, spaties, liggend streepje
-        _("objecttype"),
-        max_length=40,
-        blank=True,
-        null=True,
-        validators=[validate_letters_numbers_underscores_spaces],
-        help_text=_(
-            "De naam van het objecttype waarbij de eigenschap is gemodelleerd in het informatiemodel "
-            "waarvan het objecttype deel uit maakt."
-        ),
-    )
-    informatiemodel = models.CharField(  # letters, cijfers, liggend streepje
-        _("informatiemodel"),
-        max_length=80,
-        blank=True,
-        null=True,
-        validators=[validate_letters_numbers_underscores],
-        help_text=_(
-            "De naam en de versie van het informatiemodel waarin de eigenschap is gemodelleerd."
-        ),
-    )
-    namespace = models.CharField(
-        _("namespace"),
-        max_length=200,
-        help_text=_("De naam van het schema waarin de eigenschap is opgenomen."),
-    )
-    schemalocatie = models.CharField(
-        _("schemalocatie"),
-        max_length=200,
-        help_text=_("De locatie van het XML-schema behorend bij de Namespace"),
-    )
-    x_path_element = models.CharField(
-        _("x path element"),
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text=_(
-            "De naam van de eigenschap en het pad daarnaar toe in het XML-schema behorend bij de namespace."
-        ),
-    )
-    entiteittype = models.CharField(
-        _("entiteittype"),
-        max_length=80,
-        help_text=_(
-            "De naam van de XML-constructie in het XML-schema behorend bij de namespace die afgeleid is van de naam "
-            "van het objecttype en waarin de eigenschap is opgenomen."
-        ),
-    )
-
-    class Meta:
-        verbose_name = _("Eigenschap referentie")
-        verbose_name_plural = _("Eigenschap referenties")
-
-    def clean(self):
-        """
-        In de specificatie hebben de volgende velden een waardenververzameling die afhangt van het xml-schema:
-
-        namespace:      Alle uri’s van gepubliceerde xml-schema’s
-        x_path_element: Alle elementen in het xml-schema zoals aangeduid met Namespace.
-        entiteittype:   Alle complex types in het xml-schema zoals aangeduid met Namespace.
-
-        Deze validatie gaan we niet implementeren
-        """
-        pass
-
-
 class Eigenschap(models.Model):
     """
     Een relevant inhoudelijk gegeven dat bij ZAAKen van dit ZAAKTYPE geregistreerd moet kunnen worden en geen standaard
@@ -250,36 +172,12 @@ class Eigenschap(models.Model):
         help_text=_("Attribuutkenmerken van de eigenschap"),
         on_delete=models.CASCADE,
     )
-    referentie_naar_eigenschap = models.ForeignKey(
-        "catalogi.EigenschapReferentie",
-        verbose_name=_("referentie naar eigenschap"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        help_text=_(
-            "Verwijzing naar de standaard waarin de eigenschap is gespecificeerd"
-        ),
-    )
     toelichting = models.CharField(
         _("toelichting"),
         max_length=1000,
         blank=True,
         help_text=_(
             "Een toelichting op deze EIGENSCHAP en het belang hiervan voor zaken van dit ZAAKTYPE."
-        ),
-    )
-
-    # shouldn't this be a M2M?
-    statustype = models.ForeignKey(
-        "catalogi.StatusType",
-        verbose_name=_("status type"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="heeft_verplichte_eigenschap",
-        help_text=_(
-            "Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een "
-            "STATUS van het STATUSTYPE kan worden gezet."
         ),
     )
     zaaktype = models.ForeignKey(
@@ -307,13 +205,5 @@ class Eigenschap(models.Model):
         """
         super().clean()
 
-        if not (
-            bool(self.specificatie_van_eigenschap)
-            ^ bool(self.referentie_naar_eigenschap)
-        ):  # xor
-            raise ValidationError(
-                _(
-                    "Één van twee groepen attributen is verplicht: specificatie "
-                    "van eigenschap of referentie naar eigenschap"
-                )
-            )
+        if not bool(self.specificatie_van_eigenschap):
+            raise ValidationError(_("Het attribuut specificatie is verplicht."))

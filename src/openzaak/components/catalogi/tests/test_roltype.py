@@ -28,7 +28,6 @@ class RolTypeAPITests(APITestCase):
         rol_type = RolTypeFactory.create(
             omschrijving="Vergunningaanvrager",
             omschrijving_generiek=RolOmschrijving.initiator,
-            soort_betrokkene=["Aanvrager"],
             zaaktype__catalogus=self.catalogus,
         )
         zaaktype = rol_type.zaaktype

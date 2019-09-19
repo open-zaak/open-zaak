@@ -43,14 +43,6 @@ class RolType(models.Model):
         choices=RolOmschrijving.choices,
         help_text=_("Algemeen gehanteerde omschrijving van de aard van de ROL."),
     )
-    soort_betrokkene = ArrayField(
-        models.CharField(_("soort betrokkene"), max_length=80),
-        help_text=_(
-            "De (soort) betrokkene die een rol van dit roltype mag uitoefenen. "
-            "(Gebruik een komma om waarden van elkaar te onderscheiden.)"
-        ),
-        default=list,
-    )
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
         verbose_name=_("is van"),
