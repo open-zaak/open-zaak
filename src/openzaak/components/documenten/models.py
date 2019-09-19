@@ -40,6 +40,7 @@ class InformatieObject(models.Model):
         default="",
         help_text="Een binnen een gegeven context ondubbelzinnige referentie "
         "naar het INFORMATIEOBJECT.",
+        db_index=True,
     )
     bronorganisatie = RSINField(
         max_length=9,
@@ -47,6 +48,7 @@ class InformatieObject(models.Model):
         "organisatie die het informatieobject heeft gecreëerd of "
         "heeft ontvangen en als eerste in een samenwerkingsketen "
         "heeft vastgelegd.",
+        db_index=True,
     )
     # TODO: change to read-only?
     creatiedatum = models.DateField(
@@ -307,6 +309,7 @@ class EnkelvoudigInformatieObject(APIMixin, InformatieObject):
             "Een datumtijd in ISO8601 formaat waarop deze versie van het INFORMATIEOBJECT is aangemaakt of "
             "gewijzigd."
         ),
+        db_index=True,
     )
 
     class Meta:
@@ -335,6 +338,7 @@ class Gebruiksrechten(models.Model):
             "Begindatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn. "
             "Doorgaans is de datum van creatie van het informatieobject de startdatum."
         ),
+        db_index=True,
     )
     einddatum = models.DateTimeField(
         _("startdatum"),
@@ -343,6 +347,7 @@ class Gebruiksrechten(models.Model):
         help_text=_(
             "Einddatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn."
         ),
+        db_index=True,
     )
 
     objects = InformatieobjectRelatedQuerySet.as_manager()

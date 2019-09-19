@@ -72,11 +72,13 @@ class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inp_bsn = BSNField(
         blank=True,
         help_text="Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
+        db_index=True,
     )
     anp_identificatie = models.CharField(
         max_length=17,
         blank=True,
         help_text="Het door de gemeente uitgegeven unieke nummer voor een ANDER NATUURLIJK PERSOON",
+        db_index=True,
     )
     inp_a_nummer = models.CharField(
         max_length=10,
@@ -89,6 +91,7 @@ class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
                 code="a-nummer-incorrect-format",
             )
         ],
+        db_index=True,
     )
     geslachtsnaam = models.CharField(
         max_length=200, blank=True, help_text="De stam van de geslachtsnaam."
@@ -122,12 +125,14 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inn_nnp_id = RSINField(
         blank=True,
         help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
+        db_index=True,
     )
 
     ann_identificatie = models.CharField(
         max_length=17,
         blank=True,
         help_text="Het door de gemeente uitgegeven unieke nummer voor een ANDER NIET-NATUURLIJK PERSOON",
+        db_index=True,
     )
 
     statutaire_naam = models.TextField(
@@ -164,6 +169,7 @@ class Vestiging(AbstractRolZaakobjectRelation):
         max_length=24,
         blank=True,
         help_text="Een korte unieke aanduiding van de Vestiging.",
+        db_index=True,
     )
     handelsnaam = ArrayField(
         models.TextField(max_length=625, blank=True),
@@ -187,6 +193,7 @@ class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
         max_length=24,
         blank=True,
         help_text="Een korte identificatie van de organisatorische eenheid.",
+        db_index=True,
     )
     naam = models.CharField(
         max_length=50,
@@ -209,6 +216,7 @@ class Medewerker(AbstractRolZaakobjectRelation):
         max_length=24,
         blank=True,
         help_text="Een korte unieke aanduiding van de MEDEWERKER.",
+        db_index=True,
     )
     achternaam = models.CharField(
         max_length=200,

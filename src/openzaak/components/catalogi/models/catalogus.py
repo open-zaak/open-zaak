@@ -45,6 +45,7 @@ class Catalogus(models.Model):
             "Het door een kamer toegekend uniek nummer voor de INGESCHREVEN "
             "NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS."
         ),
+        db_index=True,
     )
     contactpersoon_beheer_naam = models.CharField(
         _("naam"),

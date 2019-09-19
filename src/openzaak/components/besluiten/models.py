@@ -21,8 +21,9 @@ __all__ = ["Besluit", "BesluitInformatieObject"]
 
 
 class Besluit(APIMixin, models.Model):
-    uuid = models.UUIDField(default=_uuid.uuid4)
-
+    uuid = models.UUIDField(
+        unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
     identificatie = models.CharField(
         "identificatie",
         max_length=50,
@@ -36,6 +37,7 @@ class Besluit(APIMixin, models.Model):
         "verantwoordelijke organisatie",
         help_text="Het RSIN van de niet-natuurlijk persoon zijnde de "
         "organisatie die het besluit heeft vastgesteld.",
+        db_index=True,
     )
 
     besluittype = models.ForeignKey(
