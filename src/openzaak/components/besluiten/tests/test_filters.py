@@ -24,7 +24,11 @@ class ListFilterLocalFKTests(JWTAuthMixin, APITestCase):
         BesluitFactory.create_batch(1, besluittype=type2)
         type1_url = get_catalogus_operation_url("besluittype_read", uuid=type1.uuid)
 
-        response = self.client.get(url, {"besluittype": type1_url})
+        response = self.client.get(
+            url,
+            {"besluittype": f"http://openzaak.nl{type1_url}"},
+            HTTP_HOST="openzaak.nl",
+        )
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["count"], 3)

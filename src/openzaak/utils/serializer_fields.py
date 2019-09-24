@@ -3,12 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 
-class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
-    """
-    replace build-in 'no_match' error code with `bad-url` to make it consistent with
-    reference implementation
-    """
-
+class LengthValidationMixin:
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),
         "min_length": _("Ensure this field has at least {min_length} characters."),
@@ -21,6 +16,15 @@ class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
 
         super().__init__(**kwargs)
 
+    def fail(self, key, **kwargs):
+        """
+        Replace build-in 'no_match' error code with `bad-url` to make it consistent with
+        reference implementation
+        """
+        if key == "no_match":
+            key = "bad-url"
+        super().fail(key, **kwargs)
+
     def to_internal_value(self, data):
         if self.max_length and len(data) > self.max_length:
             self.fail("max_length", max_length=self.max_length, length=len(data))
@@ -30,7 +34,8 @@ class LengthHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
 
         return super().to_internal_value(data)
 
-    def fail(self, key, **kwargs):
-        if key == "no_match":
-            key = "bad-url"
-        super().fail(key, **kwargs)
+
+class LengthHyperlinkedRelatedField(
+    LengthValidationMixin, serializers.HyperlinkedRelatedField
+):
+    pass

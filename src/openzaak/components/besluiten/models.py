@@ -4,6 +4,7 @@ import uuid as _uuid
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
@@ -40,11 +41,27 @@ class Besluit(APIMixin, models.Model):
         db_index=True,
     )
 
-    besluittype = models.ForeignKey(
+    _besluittype_url = models.URLField(
+        _("extern besluittype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern BESLUITTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
     )
+    besluittype = FkOrURLField(
+        fk_field="_besluittype",
+        url_field="_besluittype_url",
+        help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+    )
+
     zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,

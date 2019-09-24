@@ -1,5 +1,4 @@
 import os
-import warnings
 
 from django.urls import reverse_lazy
 
@@ -114,6 +113,7 @@ INSTALLED_APPS = [
     "solo",
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
+    "django_loose_fk",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
