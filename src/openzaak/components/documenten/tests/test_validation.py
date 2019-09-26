@@ -50,7 +50,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobjecttype")
-        self.assertEqual(error["code"], "no_match")
+        self.assertEqual(error["code"], "bad-url")
 
     def test_integriteit(self):
         url = reverse("enkelvoudiginformatieobject-list")
