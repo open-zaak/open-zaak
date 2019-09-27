@@ -136,12 +136,17 @@ class ProcestermijnAfleidingswijzeValidator:
             procestermijn == Procestermijn.nihil
             and afleidingswijze != Afleidingswijze.afgehandeld
         ) or (
-           procestermijn != Procestermijn.nihil and afleidingswijze == Afleidingswijze.afgehandeld):
+            procestermijn != Procestermijn.nihil
+            and afleidingswijze == Afleidingswijze.afgehandeld
+        ):
             error = True
         elif (
             procestermijn == Procestermijn.ingeschatte_bestaansduur_procesobject
             and afleidingswijze != Afleidingswijze.termijn
-        ) or (procestermijn != Procestermijn.ingeschatte_bestaansduur_procesobject and afleidingswijze == Afleidingswijze.termijn):
+        ) or (
+            procestermijn != Procestermijn.ingeschatte_bestaansduur_procesobject
+            and afleidingswijze == Afleidingswijze.termijn
+        ):
             error = True
 
         if error:

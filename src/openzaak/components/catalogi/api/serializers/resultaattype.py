@@ -16,7 +16,11 @@ from vng_api_common.serializers import (
 from vng_api_common.validators import ResourceValidator
 
 from ...models import ResultaatType
-from ..validators import ProcestermijnAfleidingswijzeValidator, ProcesTypeValidator, BrondatumArchiefprocedureValidator
+from ..validators import (
+    BrondatumArchiefprocedureValidator,
+    ProcestermijnAfleidingswijzeValidator,
+    ProcesTypeValidator,
+)
 
 
 class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
@@ -24,11 +28,7 @@ class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
         model = ResultaatType
         gegevensgroep = "brondatum_archiefprocedure"
 
-        extra_kwargs = {
-            'procestermijn': {
-                'allow_null': True,
-            }
-        }
+        extra_kwargs = {"procestermijn": {"allow_null": True}}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

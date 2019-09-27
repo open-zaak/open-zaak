@@ -5,7 +5,9 @@ from django.test import override_settings
 
 import requests_mock
 from rest_framework import status
-from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze
+from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
+)
 from vng_api_common.tests import (
     TypeCheckMixin,
     get_validation_errors,
@@ -17,14 +19,15 @@ from zds_client.tests.mocks import mock_client
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType
 from .base import APITestCase
-from .factories import ResultaatTypeFactory, ZaakTypeFactory
 from .contants import BrondatumArchiefprocedureExampleMapping as MAPPING
-
+from .factories import ResultaatTypeFactory, ZaakTypeFactory
 
 PROCESTYPE_URL = "http://referentielijsten.nl/procestypen/1234"
 SELECTIELIJSTKLASSE_URL = "http://example.com/resultaten/1234"
 SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL = "http://example.com/resultaten/4321"
-SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL = "http://example.com/resultaten/5678"
+SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL = (
+    "http://example.com/resultaten/5678"
+)
 RESULTAATTYPEOMSCHRIJVING_URL = "http://example.com/omschrijving/1"
 
 
@@ -596,289 +599,323 @@ class ResultaatTypeValidationTests(APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "invalid-afleidingswijze-for-procestermijn")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_value_for_datumkenmerk(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['datumkenmerk'] = 'identificatie'
+                archiefprocedure["datumkenmerk"] = "identificatie"
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
-                if afleidingswijze in [Afleidingswijze.eigenschap, Afleidingswijze.zaakobject, Afleidingswijze.ander_datumkenmerk]:
+                if afleidingswijze in [
+                    Afleidingswijze.eigenschap,
+                    Afleidingswijze.zaakobject,
+                    Afleidingswijze.ander_datumkenmerk,
+                ]:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
                 else:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.datumkenmerk')
-                    self.assertEqual(error['code'], "must-be-empty")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.datumkenmerk"
+                    )
+                    self.assertEqual(error["code"], "must-be-empty")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_datumkenmerk_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['datumkenmerk'] = ''
+                archiefprocedure["datumkenmerk"] = ""
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
-                if afleidingswijze in [Afleidingswijze.eigenschap, Afleidingswijze.zaakobject, Afleidingswijze.ander_datumkenmerk]:
+                if afleidingswijze in [
+                    Afleidingswijze.eigenschap,
+                    Afleidingswijze.zaakobject,
+                    Afleidingswijze.ander_datumkenmerk,
+                ]:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.datumkenmerk')
-                    self.assertEqual(error['code'], "required")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.datumkenmerk"
+                    )
+                    self.assertEqual(error["code"], "required")
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_einddatum_bekend_true(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['einddatumBekend'] = True
+                archiefprocedure["einddatumBekend"] = True
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
-                if afleidingswijze in [Afleidingswijze.afgehandeld, Afleidingswijze.termijn]:
+                if afleidingswijze in [
+                    Afleidingswijze.afgehandeld,
+                    Afleidingswijze.termijn,
+                ]:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.einddatumBekend')
-                    self.assertEqual(error['code'], "must-be-empty")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.einddatumBekend"
+                    )
+                    self.assertEqual(error["code"], "must-be-empty")
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_einddatum_bekend_false(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['einddatumBekend'] = False
+                archiefprocedure["einddatumBekend"] = False
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 ResultaatType.objects.get().delete()
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_value_for_objecttype(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['objecttype'] = 'pand'
+                archiefprocedure["objecttype"] = "pand"
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
-                if afleidingswijze in [Afleidingswijze.zaakobject, Afleidingswijze.ander_datumkenmerk]:
+                if afleidingswijze in [
+                    Afleidingswijze.zaakobject,
+                    Afleidingswijze.ander_datumkenmerk,
+                ]:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
                 else:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.objecttype')
-                    self.assertEqual(error['code'], "must-be-empty")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.objecttype"
+                    )
+                    self.assertEqual(error["code"], "must-be-empty")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_objecttype_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['objecttype'] = ''
+                archiefprocedure["objecttype"] = ""
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
-                if afleidingswijze in [Afleidingswijze.zaakobject, Afleidingswijze.ander_datumkenmerk]:
+                if afleidingswijze in [
+                    Afleidingswijze.zaakobject,
+                    Afleidingswijze.ander_datumkenmerk,
+                ]:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.objecttype')
-                    self.assertEqual(error['code'], "required")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.objecttype"
+                    )
+                    self.assertEqual(error["code"], "required")
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_value_for_registratie(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['registratie'] = 'test'
+                archiefprocedure["registratie"] = "test"
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
@@ -888,83 +925,89 @@ class ResultaatTypeValidationTests(APITestCase):
                 else:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.registratie')
-                    self.assertEqual(error['code'], "must-be-empty")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.registratie"
+                    )
+                    self.assertEqual(error["code"], "must-be-empty")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_registratie_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['registratie'] = ''
+                archiefprocedure["registratie"] = ""
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.ander_datumkenmerk:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.registratie')
-                    self.assertEqual(error['code'], "required")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.registratie"
+                    )
+                    self.assertEqual(error["code"], "required")
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_value_for_procestermijn(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['procestermijn'] = 'P5M'
+                archiefprocedure["procestermijn"] = "P5M"
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
@@ -974,48 +1017,53 @@ class ResultaatTypeValidationTests(APITestCase):
                 else:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.procestermijn')
-                    self.assertEqual(error['code'], "must-be-empty")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.procestermijn"
+                    )
+                    self.assertEqual(error["code"], "must-be-empty")
 
-    @override_settings(LINK_FETCHER='vng_api_common.mocks.link_fetcher_200')
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
-    @patch('vng_api_common.validators.obj_has_shape', return_value=True)
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
     def test_procestermijn_null(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
-            concept=True
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse('zaaktype-detail', kwargs={
-            'uuid': zaaktype.uuid,
-        })
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
         for afleidingswijze in Afleidingswijze.labels:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
-                archiefprocedure['procestermijn'] = None
+                archiefprocedure["procestermijn"] = None
 
                 data = {
-                    'zaaktype': f'http://testserver{zaaktype_url}',
-                    'omschrijving': 'illum',
-                    'resultaattypeomschrijving': RESULTAATTYPEOMSCHRIJVING_URL,
-                    'selectielijstklasse': self._get_selectielijstklasse_url(afleidingswijze),
-                    'archiefnominatie': 'blijvend_bewaren',
-                    'archiefactietermijn': 'P10Y',
-                    'brondatumArchiefprocedure': archiefprocedure
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "omschrijving": "illum",
+                    "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+                    "selectielijstklasse": self._get_selectielijstklasse_url(
+                        afleidingswijze
+                    ),
+                    "archiefnominatie": "blijvend_bewaren",
+                    "archiefactietermijn": "P10Y",
+                    "brondatumArchiefprocedure": archiefprocedure,
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri('GET', RESULTAATTYPEOMSCHRIJVING_URL, json={
-                        'omschrijving': 'test'
-                    })
+                    m.register_uri(
+                        "GET",
+                        RESULTAATTYPEOMSCHRIJVING_URL,
+                        json={"omschrijving": "test"},
+                    )
                     with mock_client(self.RESPONSES):
                         response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.termijn:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                    error = get_validation_errors(response, 'brondatumArchiefprocedure.procestermijn')
-                    self.assertEqual(error['code'], "required")
+                    error = get_validation_errors(
+                        response, "brondatumArchiefprocedure.procestermijn"
+                    )
+                    self.assertEqual(error["code"], "required")
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
