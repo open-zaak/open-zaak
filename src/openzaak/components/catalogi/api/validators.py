@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -134,15 +135,128 @@ class ProcestermijnAfleidingswijzeValidator:
         if (
             procestermijn == Procestermijn.nihil
             and afleidingswijze != Afleidingswijze.afgehandeld
-        ):
+        ) or (
+           procestermijn != Procestermijn.nihil and afleidingswijze == Afleidingswijze.afgehandeld):
             error = True
         elif (
             procestermijn == Procestermijn.ingeschatte_bestaansduur_procesobject
             and afleidingswijze != Afleidingswijze.termijn
-        ):
+        ) or (procestermijn != Procestermijn.ingeschatte_bestaansduur_procesobject and afleidingswijze == Afleidingswijze.termijn):
             error = True
 
         if error:
             raise ValidationError(
                 self.message.format(afleidingswijze, procestermijn), code=self.code
             )
+
+
+def validate_brondatumarchiefprocedure(data: dict, mapping: dict):
+    error = False
+    empty = []
+    required = []
+    for key, value in mapping.items():
+        if bool(data[key]) != value:
+            error = True
+            if value:
+                required.append(key)
+            else:
+                empty.append(key)
+    return error, empty, required
+
+
+class BrondatumArchiefprocedureValidator:
+    empty_code = "must-be-empty"
+    empty_message = _("This field must be empty for afleidingswijze `{}`")
+    required_code = "required"
+    required_message = _("This field is required for afleidingswijze `{}`")
+
+    def __init__(self, archiefprocedure_field="brondatum_archiefprocedure"):
+        self.archiefprocedure_field = archiefprocedure_field
+
+    def __call__(self, attrs: dict):
+        archiefprocedure = attrs.get(self.archiefprocedure_field)
+        afleidingswijze = archiefprocedure["afleidingswijze"]
+
+        mapping = {
+            Afleidingswijze.afgehandeld: {
+                "procestermijn": False,
+                "datumkenmerk": False,
+                "einddatum_bekend": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.ander_datumkenmerk: {
+                "procestermijn": False,
+                "datumkenmerk": True,
+                "objecttype": True,
+                "registratie": True,
+            },
+            Afleidingswijze.eigenschap: {
+                "procestermijn": False,
+                "datumkenmerk": True,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.gerelateerde_zaak: {
+                "procestermijn": False,
+                "datumkenmerk": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.hoofdzaak: {
+                "procestermijn": False,
+                "datumkenmerk": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.ingangsdatum_besluit: {
+                "procestermijn": False,
+                "datumkenmerk": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.termijn: {
+                "procestermijn": True,
+                "datumkenmerk": False,
+                "einddatum_bekend": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.vervaldatum_besluit: {
+                "procestermijn": False,
+                "datumkenmerk": False,
+                "objecttype": False,
+                "registratie": False,
+            },
+            Afleidingswijze.zaakobject: {
+                "procestermijn": False,
+                "datumkenmerk": True,
+                "objecttype": True,
+                "registratie": False,
+            },
+        }
+
+        error, empty, required = validate_brondatumarchiefprocedure(
+            archiefprocedure, mapping[afleidingswijze]
+        )
+
+        if error:
+            error_dict = {}
+            for fieldname in empty:
+                error_dict.update(
+                    {
+                        f"{self.archiefprocedure_field}.{fieldname}": ErrorDetail(
+                            self.empty_message.format(afleidingswijze), self.empty_code
+                        )
+                    }
+                )
+            for fieldname in required:
+                error_dict.update(
+                    {
+                        f"{self.archiefprocedure_field}.{fieldname}": ErrorDetail(
+                            self.required_message.format(afleidingswijze),
+                            self.required_code,
+                        )
+                    }
+                )
+            raise ValidationError(error_dict)

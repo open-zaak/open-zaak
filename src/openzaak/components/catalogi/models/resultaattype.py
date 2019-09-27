@@ -188,7 +188,7 @@ class ResultaatType(models.Model):
             "registratie": brondatum_archiefprocedure_registratie,
             "procestermijn": brondatum_archiefprocedure_procestermijn,
         },
-        optional=("datumkenmerk", "einddatum_bekend", "objecttype", "registratie"),
+        optional=("datumkenmerk", "einddatum_bekend", "objecttype", "registratie", "procestermijn"),
         none_for_empty=True,
     )
 
