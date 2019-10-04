@@ -10,6 +10,7 @@ django
 django-axes
 django-choices
 django-cors-middleware
+django-loose-fk
 django-markup
 django-redis
 django-privates
