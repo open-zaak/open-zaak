@@ -21,6 +21,7 @@ env:
   - DJANGO_SETTINGS_MODULE=openzaak.conf.ci
   - DB_PASSWORD=
   - DB_USER=postgres
+  - ALLOWED_HOSTS=openzaak.nl
 
 before_install:
   - sudo apt-get update

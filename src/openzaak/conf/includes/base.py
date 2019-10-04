@@ -29,7 +29,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False)
 
 # = domains we're running on
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=[], split=True)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", split=True)
 
 IS_HTTPS = config("IS_HTTPS", default=not DEBUG)
 
