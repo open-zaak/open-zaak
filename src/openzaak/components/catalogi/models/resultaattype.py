@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 import requests
-from relativedeltafield import RelativeDeltaField
+from relativedeltafield import RelativeDeltaField, parse_relativedelta
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -228,7 +228,10 @@ class ResultaatType(models.Model):
 
         if not self.archiefactietermijn and self.selectielijstklasse:
             selectielijstklasse = self.get_selectielijstklasse()
-            self.archiefactietermijn = selectielijstklasse["bewaartermijn"]
+            parsed_relativedelta = parse_relativedelta(
+                selectielijstklasse["bewaartermijn"]
+            )
+            self.archiefactietermijn = parsed_relativedelta
 
         super().save(*args, **kwargs)
 
