@@ -26,6 +26,7 @@ from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+from openzaak.utils.validators import PublishValidator
 
 from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from ..models import (
@@ -155,6 +156,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         help_text=get_help_text(
             "documenten.EnkelvoudigInformatieObject", "informatieobjecttype"
         ),
+        validators=[PublishValidator()],
     )
     inhoud = AnyBase64File(
         view_name="enkelvoudiginformatieobject-download",
