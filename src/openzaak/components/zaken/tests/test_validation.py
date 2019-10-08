@@ -57,7 +57,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
     def test_validate_zaaktype_invalid(self):

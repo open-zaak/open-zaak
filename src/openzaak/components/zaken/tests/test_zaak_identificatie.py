@@ -27,7 +27,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         """
         Garandeer dat de client zelf een identificatie kan genereren.
         """
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         url = get_operation_url("zaak_create")
         data = {
@@ -47,7 +47,7 @@ class US164TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, "strtmzk-0001")
 
     def test_uniqueness_identificatie(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         ZaakFactory.create(identificatie="strtmzk-0001", bronorganisatie="517439943")
 

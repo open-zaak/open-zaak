@@ -29,7 +29,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_us162_voeg_besluit_toe_aan_zaak(self):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         besluittype.zaaktypes.add(zaak.zaaktype)
         io = EnkelvoudigInformatieObjectFactory.create(

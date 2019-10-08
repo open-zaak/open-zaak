@@ -26,7 +26,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         client = mock_client.return_value
         url = get_operation_url("enkelvoudiginformatieobject_create")

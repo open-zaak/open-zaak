@@ -35,7 +35,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def _create_enkelvoudiginformatieobject(self, **HEADERS):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             "identificatie": uuid.uuid4().hex,

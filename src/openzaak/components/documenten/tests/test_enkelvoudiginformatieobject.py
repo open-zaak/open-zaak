@@ -28,7 +28,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_create(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             "identificatie": uuid.uuid4().hex,
@@ -208,7 +208,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Assert that integrity is optional.
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             "identificatie": uuid.uuid4().hex,
@@ -238,7 +238,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Assert that integrity is saved.
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
             "identificatie": uuid.uuid4().hex,
@@ -328,7 +328,9 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
     heeft_alle_autorisaties = True
 
     def test_eio_update(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", informatieobjecttype__concept=False
+        )
 
         eio_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}

@@ -123,7 +123,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         en ?ter vaststelling? zijn niet van toepassing op ontvangen
         informatieobjecten.
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         invalid_statuses = (Statussen.in_bewerking, Statussen.ter_vaststelling)
         data = {

@@ -77,7 +77,7 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
 
     def test_api_51_status_codes(self):
         with self.subTest(crud="create"):
-            zaaktype = ZaakTypeFactory.create()
+            zaaktype = ZaakTypeFactory.create(concept=False)
             zaaktype_url = reverse(zaaktype)
             url = reverse("zaak-list")
 
@@ -107,7 +107,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaak_afsluiten(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         statustype1 = StatusTypeFactory.create(zaaktype=zaaktype)
@@ -181,7 +181,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_url = reverse(cls.statustype)

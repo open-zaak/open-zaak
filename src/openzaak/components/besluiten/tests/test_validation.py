@@ -45,7 +45,9 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], UntilTodayValidator.code)
 
     def test_duplicate_rsin_identificatie(self):
-        besluit = BesluitFactory.create(identificatie="123456")
+        besluit = BesluitFactory.create(
+            identificatie="123456", besluittype__concept=False
+        )
         besluittype_url = reverse(besluit.besluittype)
 
         response = self.client.post(
@@ -90,7 +92,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         )
 
     def test_validate_besluittype_valid(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         url = reverse("besluit-list")
 
@@ -151,7 +153,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "not-published")
 
     def test_zaaktype_besluittype_relation(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
@@ -173,7 +175,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_no_zaaktype_besluittype_relation(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -201,7 +203,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_relation_with_non_published_zaaktype(self):
         zaak = ZaakFactory.create(zaaktype__concept=True)
         zaak_url = reverse(zaak)
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         besluittype.zaaktypes.add(zaak.zaaktype)
         list_url = reverse("besluit-list")

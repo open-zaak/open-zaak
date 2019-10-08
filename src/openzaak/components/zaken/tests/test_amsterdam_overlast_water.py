@@ -59,7 +59,7 @@ class Application:
         self.registreer_klantcontact()
 
     def registreer_zaak(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url("zaak_create")
 
