@@ -9,11 +9,17 @@ from ...models import ZaakType
 from ..filters import ZaakTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import ZaakTypeSerializer
-from .mixins import ConceptMixin, M2MConceptDestroyMixin
+from .mixins import M2MConceptDestroyMixin, ConceptDestroyMixin, ConceptFilterMixin
+from django.utils.translation import ugettext_lazy as _
+
+from drf_yasg.utils import no_body, swagger_auto_schema
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
 
 
 class ZaakTypeViewSet(
-    CheckQueryParamsMixin, ConceptMixin, M2MConceptDestroyMixin, viewsets.ModelViewSet
+    CheckQueryParamsMixin, ConceptDestroyMixin, ConceptFilterMixin, M2MConceptDestroyMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van ZAAKTYPEn nodig voor ZAKEN in de Zaken API.
@@ -84,3 +90,25 @@ class ZaakTypeViewSet(
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
+
+    @swagger_auto_schema(request_body=no_body)
+    @action(detail=True, methods=["post"])
+    def publish(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # check related objects
+        besluittypen = instance.besluittype_set.all()
+        informatieobjecttypen = instance.heeft_relevant_informatieobjecttype.all()
+
+        for types in [besluittypen, informatieobjecttypen]:
+            for relative_type in types:
+                if relative_type.concept:
+                    msg = _("All relative resources should be published")
+                    raise PermissionDenied(detail=msg)
+
+        instance.concept = False
+        instance.save()
+
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
