@@ -29,9 +29,7 @@ class BesluittypeZaaktypeValidator:
         if not zaak:
             return
 
-        if not besluittype.zaaktypes.filter(
-            id=zaak.zaaktype_id, concept=False
-        ).exists():
+        if not besluittype.zaaktypes.filter(id=zaak.zaaktype_id).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -45,6 +43,6 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
 
         io = informatieobject.enkelvoudiginformatieobject_set.first()
         if not besluit.besluittype.informatieobjecttypen.filter(
-            id=io.informatieobjecttype_id, concept=False
+            id=io.informatieobjecttype_id
         ).exists():
             raise serializers.ValidationError(self.message, code=self.code)
