@@ -2703,6 +2703,7 @@
                     "title": "Besluittype",
                     "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
                     "type": "string",
+                    "format": "uri",
                     "maxLength": 200,
                     "minLength": 1
                 },
