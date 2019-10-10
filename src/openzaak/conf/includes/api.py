@@ -32,6 +32,10 @@ SWAGGER_SETTINGS.update(
             "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
+        "DEFAULT_FILTER_INSPECTORS": (
+            "django_loose_fk.inspectors.query.FilterInspector",
+        )
+        + BASE_SWAGGER_SETTINGS["DEFAULT_FILTER_INSPECTORS"],
     }
 )
 

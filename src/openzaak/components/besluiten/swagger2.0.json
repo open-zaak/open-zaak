@@ -58,7 +58,8 @@
                         "in": "query",
                         "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     },
                     {
                         "name": "zaak",
