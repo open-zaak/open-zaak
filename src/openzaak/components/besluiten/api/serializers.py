@@ -4,15 +4,12 @@ Serializers of the Besluit Registratie Component REST API
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
-from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.components.zaken.models import Zaak
-from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
@@ -24,15 +21,6 @@ from .validators import (
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
-    zaak = LengthHyperlinkedRelatedField(
-        view_name="zaak-detail",
-        lookup_field="uuid",
-        queryset=Zaak.objects,
-        required=False,
-        allow_null=True,
-        max_length=200,
-        help_text=get_help_text("besluiten.Besluit", "zaak"),
-    )
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -60,6 +48,8 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             # per BRC API spec!
             "besluittype": {"lookup_field": "uuid", "max_length": 200},
+            # per BRC API spec!
+            "zaak": {"lookup_field": "uuid", "max_length": 200},
             "identificatie": {"validators": [IsImmutableValidator()]},
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]

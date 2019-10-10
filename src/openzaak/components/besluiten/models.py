@@ -62,11 +62,24 @@ class Besluit(APIMixin, models.Model):
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
-    zaak = models.ForeignKey(
+    _zaak_url = models.URLField(
+        _("externe zaak"),
+        blank=True,
+        max_length=1000,
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+    )
+    _zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
         null=True,
         blank=True,  # een besluit kan niet bij een zaak horen
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+    )
+    zaak = FkOrURLField(
+        fk_field="_zaak",
+        url_field="_zaak_url",
+        blank=True,
+        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 
