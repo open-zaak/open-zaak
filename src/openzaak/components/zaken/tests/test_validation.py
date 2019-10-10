@@ -75,7 +75,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(validation_error["code"], "no_match")
+        self.assertEqual(validation_error["code"], "bad-url")
         self.assertEqual(validation_error["name"], "zaaktype")
 
     def test_validate_zaaktype_valid(self, *mocks):
@@ -168,7 +168,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "relevanteAndereZaken.0.url")
-        self.assertEqual(validation_error["code"], "no_match")
+        self.assertEqual(validation_error["code"], "bad-url")
 
     def test_relevante_andere_zaken_valid_zaak_resource(self):
         url = reverse("zaak-list")
@@ -460,7 +460,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "informatieobject")
-        self.assertEqual(validation_error["code"], "no_match")
+        self.assertEqual(validation_error["code"], "bad-url")
         self.assertEqual(validation_error["name"], "informatieobject")
 
     def test_informatieobject_no_zaaktype_informatieobjecttype_relation(self):
@@ -615,7 +615,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "statustype")
-        self.assertEqual(error["code"], "no_match")
+        self.assertEqual(error["code"], "bad-url")
 
     def test_statustype_zaaktype_mismatch(self):
         zaak = ZaakFactory.create()
@@ -743,7 +743,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "resultaattype")
-        self.assertEqual(validation_error["code"], "no_match")
+        self.assertEqual(validation_error["code"], "bad-url")
 
     def test_resultaattype_incorrect_zaaktype(self):
         zaak = ZaakFactory.create()
@@ -817,7 +817,6 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_404")
     def test_eigenschap_invalid_url(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -831,7 +830,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "eigenschap")
-        self.assertEqual(validation_error["code"], "no_match")
+        self.assertEqual(validation_error["code"], "bad-url")
 
 
 class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):

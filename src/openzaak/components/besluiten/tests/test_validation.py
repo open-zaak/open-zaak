@@ -123,7 +123,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "no_match")
+        self.assertEqual(error["code"], "bad-url")
 
     def test_zaaktype_besluittype_relation(self):
         besluittype = BesluitTypeFactory.create()
@@ -220,7 +220,7 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobject")
-        self.assertEqual(error["code"], "no_match")
+        self.assertEqual(error["code"], "bad-url")
 
     def test_validate_no_informatieobjecttype_zaaktype_relation(self):
         zaak = ZaakFactory.create()
