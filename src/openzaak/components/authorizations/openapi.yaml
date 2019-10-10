@@ -1163,6 +1163,7 @@ components:
           - brc
         componentWeergave:
           title: Component weergave
+          description: Omschrijving van `component`.
           type: string
           readOnly: true
           minLength: 1
@@ -1248,6 +1249,30 @@ components:
       allOf:
       - $ref: '#/components/schemas/AutorisatieBase'
       - $ref: '#/components/schemas/brcAutorisatie'
+    nrcAutorisatie:
+      type: object
+      properties: {}
+    nrc:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/AutorisatieBase'
+      - $ref: '#/components/schemas/nrcAutorisatie'
+    ztcAutorisatie:
+      type: object
+      properties: {}
+    ztc:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/AutorisatieBase'
+      - $ref: '#/components/schemas/ztcAutorisatie'
+    acAutorisatie:
+      type: object
+      properties: {}
+    ac:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/AutorisatieBase'
+      - $ref: '#/components/schemas/acAutorisatie'
     Applicatie:
       required:
       - clientIds

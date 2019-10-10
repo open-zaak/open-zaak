@@ -1284,6 +1284,7 @@
                 },
                 "componentWeergave": {
                     "title": "Component weergave",
+                    "description": "Omschrijving van `component`.",
                     "type": "string",
                     "readOnly": true,
                     "minLength": 1
@@ -1397,6 +1398,51 @@
                 },
                 {
                     "$ref": "#/definitions/brcAutorisatie"
+                }
+            ]
+        },
+        "nrcAutorisatie": {
+            "type": "object",
+            "properties": {}
+        },
+        "nrc": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/AutorisatieBase"
+                },
+                {
+                    "$ref": "#/definitions/nrcAutorisatie"
+                }
+            ]
+        },
+        "ztcAutorisatie": {
+            "type": "object",
+            "properties": {}
+        },
+        "ztc": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/AutorisatieBase"
+                },
+                {
+                    "$ref": "#/definitions/ztcAutorisatie"
+                }
+            ]
+        },
+        "acAutorisatie": {
+            "type": "object",
+            "properties": {}
+        },
+        "ac": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/AutorisatieBase"
+                },
+                {
+                    "$ref": "#/definitions/acAutorisatie"
                 }
             ]
         },
