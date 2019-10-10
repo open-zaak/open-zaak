@@ -269,6 +269,51 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         data = response.json()
         self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
 
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.oas.fetcher.fetch", return_value={})
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_derive_archiefactiedatum_from_selectielijstklasse(self, *mocks):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "brondatumArchiefprocedure": {
+                "afleidingswijze": Afleidingswijze.afgehandeld,
+                "einddatumBekend": False,
+                "procestermijn": None,
+                "datumkenmerk": "",
+                "objecttype": "",
+                "registratie": "",
+            },
+        }
+
+        responses = {
+            SELECTIELIJSTKLASSE_URL: {
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            }
+        }
+
+        with mock_client(responses):
+            with requests_mock.Mocker() as m:
+                m.register_uri(
+                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
+                )
+                m.register_uri(
+                    "GET", SELECTIELIJSTKLASSE_URL, json={"bewaartermijn": "P5Y"}
+                )
+                response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data["archiefactietermijn"], "P5Y")
+
 
 class ResultaatTypeFilterAPITests(APITestCase):
     maxDiff = None
