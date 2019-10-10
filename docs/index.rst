@@ -10,6 +10,16 @@ Welcome to Open zaak's documentation!
    :maxdepth: 3
    :caption: Contents:
 
+   deployment/linux
+   deployment/containers
+
+
+TODO
+====
+
+This documentation is work in progress.
+
+.. todolist::
 
 
 Indices and tables

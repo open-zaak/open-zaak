@@ -1,0 +1,11 @@
+DJANGO_SETTINGS_MODULE=openzaak.conf.production
+# generate one on https://www.miniwebtool.com/django-secret-key-generator/
+SECRET_KEY=replace-me-because-i-am-insecure
+ALLOWED_HOSTS=openzaak.gemeente.nl
+
+DB_HOST=localhost
+DB_NAME=production
+DB_USER=openzaak
+DB_PASSWORD=<database password>
+
+IS_HTTPS=yes
