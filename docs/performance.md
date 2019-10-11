@@ -6,6 +6,34 @@ Het doel van de performance metingen is om inzicht te verkrijgen in de relaties 
 
 Tevens maakt een gestandardiseerde performance meting inzichtelijk welke effect optimalisaties hebben, zodat er doelgericht en aantoonbaar verbeteringen kunnen worden doorgevoerd.
 
+## Technische test scenario's
+
+De performance van enkele veelgebruike API-verzoeken wordt gemeten om inzicht te verkrijgen in de ruwe performance. Het betreft het opvragen en aanmaken van een (hoofd) object en het opvragen van een lijst van (hoofd) objecten van de Zaken, Catalogi, Besluiten en Documenten API's.
+
+**Zaken API**
+
+* ZAAKen opvragen (`GET /api/v1/zaken`)
+* ZAAK opvragen (`GET /api/v1/zaken/d4d..2e8`)
+* ZAAK aanmaken (`POST /api/v1/zaken`)
+
+**Catalogi API**
+
+* ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
+* ZAAKTYPE opvragen (`GET /api/v1/zaaktypen/d4d..2e8`)
+* ZAAKTYPE aanmaken (`POST /api/v1/zaaktypen`)
+
+**Besluiten API**
+
+* BESLUITen opvragen (`GET /api/v1/besluit`)
+* BESLUIT opvragen (`GET /api/v1/besluit/d4d..2e8`)
+* BESLUIT aanmaken (`POST /api/v1/besluit`)
+
+**Documenten API**
+
+* ENKELVOUDIGINFORMATIEOBJECTen opvragen (`GET /api/v1/enkelvoudiginformatieobjecten`)
+* ENKELVOUDIGINFORMATIEOBJECT opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/d4d..2e8`)
+* ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
+
 ## Functionele test scenario's
 
 Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze gebruikt worden door een applicatie. Er zijn enkele typische functionele scenario's geschetst vanuit de praktijk:
@@ -22,7 +50,7 @@ Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze
 10. Besluit toevoegen
 11. Resultaat toevoegen
 
-## Scenario's in API-verzoeken
+### Scenario's in API-verzoeken
 
 Alle functionele scenario's zijn vertaald naar API-verzoeken. Het aantal API-verzoeken, de exacte query parameters voor het filteren en/of sorteren van lijsten, en de gegevens die worden verstuurd voor het aanmaken van objecten, zijn allemaal zeer dynamisch in de praktijk. Er wordt voor elk functioneel scenario een of meerdere concrete API verzoeken opgesteld die het scenario zo goed mogelijk invullen.
 
