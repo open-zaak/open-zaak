@@ -11,7 +11,6 @@ Tevens maakt een gestandardiseerde performance meting inzichtelijk welke effect 
 Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze gebruikt worden door een applicatie. Er zijn enkele typische functionele scenario's geschetst vanuit de praktijk:
 
 1. Zaken overzicht opvragen
-1a. Zaken overzicht opvragen van een zaaktype
 2. Zaken zoeken op locatie
 3. Zaken zoeken op persoon
 4. Zaak details opvragen
