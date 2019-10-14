@@ -35,6 +35,8 @@ install:
 
 before_script:
   - psql -U postgres -c "create extension postgis"
+  # https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 jobs:
   include:
@@ -66,6 +68,21 @@ jobs:
       script: docker build .
 
     # TODO: second stage to push resulting image
+
+    - stage: Newman tests
+      name: ZGW api tests
+      services:
+        - docker
+      before_install: skip
+      install:
+        - npm install newman
+      before_script: skip
+      script:
+        - docker-compose -f docker-compose-travis.yml up -d
+        - bin/postman_tests.sh
+      after_script:
+        - docker-compose stop
+        - docker-compose rm -f
 
 after_success:
   - codecov
