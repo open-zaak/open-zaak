@@ -51,7 +51,7 @@ pytz==2019.1              # via django, django-axes
 pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0
 redis==3.3.8              # via django-redis
-requests==2.21.0          # via coreapi, gemma-zds-client, vng-api-common
+requests==2.21.0
 ruamel.yaml==0.15.37      # via drf-yasg
 six==1.11.0               # via django-markup, django-sendfile2, drf-yasg, isodate, python-dateutil
 sqlparse==0.3.0           # via django
