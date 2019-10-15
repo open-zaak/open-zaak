@@ -12,31 +12,52 @@ De performance van enkele veelgebruike API-verzoeken wordt gemeten om inzicht te
 
 **Zaken API**
 
-* ZAAKen opvragen (`GET /api/v1/zaken`)
-* ZAAK opvragen (`GET /api/v1/zaken/d4d..2e8`)
-* ZAAK aanmaken (`POST /api/v1/zaken`)
+1. ZAAKen opvragen (`GET /api/v1/zaken`)
+2. ZAAK opvragen (`GET /api/v1/zaken/d4d..2e8`)
+3. ZAAK aanmaken (`POST /api/v1/zaken`)
 
 **Catalogi API**
 
-* ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
-* ZAAKTYPE opvragen (`GET /api/v1/zaaktypen/d4d..2e8`)
-* ZAAKTYPE aanmaken (`POST /api/v1/zaaktypen`)
+1. ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
+2. ZAAKTYPE opvragen (`GET /api/v1/zaaktypen/d4d..2e8`)
+3. ZAAKTYPE aanmaken (`POST /api/v1/zaaktypen`)
 
 **Besluiten API**
 
-* BESLUITen opvragen (`GET /api/v1/besluit`)
-* BESLUIT opvragen (`GET /api/v1/besluit/d4d..2e8`)
-* BESLUIT aanmaken (`POST /api/v1/besluit`)
+1. BESLUITen opvragen (`GET /api/v1/besluit`)
+2. BESLUIT opvragen (`GET /api/v1/besluit/d4d..2e8`)
+3. BESLUIT aanmaken (`POST /api/v1/besluit`)
 
 **Documenten API**
 
-* ENKELVOUDIGINFORMATIEOBJECTen opvragen (`GET /api/v1/enkelvoudiginformatieobjecten`)
-* ENKELVOUDIGINFORMATIEOBJECT opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/d4d..2e8`)
-* ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
+1. ENKELVOUDIGINFORMATIEOBJECTen opvragen (`GET /api/v1/enkelvoudiginformatieobjecten`)
+2. ENKELVOUDIGINFORMATIEOBJECT opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/d4d..2e8`)
+3. ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
+
+### Test specificatie
+
+#### Gebruik van scenario's
+
+Een scenario is in deze test specificatie gelijk aan een API-verzoek. Elke API-resource wordt achter elkaar bevraagd zonder wachttijd tussen de verzoeken. Zo kan het aantal verzoeken per minuut en de gemiddelde antwoord tijd gemeten worden.
+
+#### Virtuele gebruikers
+
+Er wordt getest met een oplopend aantal virtuele gebruikers, van 1 tot 100, die tegelijk de functionele scenario's aan het uitvoeren zijn. Een virtuele gebruiker is technisch gezien een script dat de verschillende scenario's achter elkaar uitvoert. Zo wordt inzichtelijk gemaakt wat de impact is van het aantal virtuele gebruikers op de performance.
+
+#### Testdata
+
+De volgende test data wordt gebruikt om een realistische dataset te simuleren:
+
+* 1.000.000 zaken in de Zaken API
+* 1.000.000 documenten in de Documenten API
+* 1.000.000 besluiten in de Besluiten API
+* 1 catalogus met 100 zaaktypen in de Catalogi API
+
+De volledige testset is beschreven in de technische bijlage.
 
 ## Functionele test scenario's
 
-Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze gebruikt worden door een applicatie. Er zijn enkele typische functionele scenario's geschetst vanuit de praktijk:
+Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze gebruikt worden door een applicatie, ofwel een virtueel systeem. Er zijn enkele typische functionele scenario's geschetst vanuit de praktijk:
 
 1. Zaken overzicht opvragen
 2. Zaken zoeken op locatie
@@ -56,7 +77,7 @@ Alle functionele scenario's zijn vertaald naar API-verzoeken. Het aantal API-ver
 
 Enkele API-verzoeken zijn buiten scope geplaatst omdat ze geen onderdeel zijn van API's voor Zaakgericht werken maar hoogstwaarschijnlijk wel nodig zijn om een functionele gebruikersinterface op te bouwen.
 
-### Zaken overzicht opvragen (1)
+#### Zaken overzicht opvragen (1)
 
 Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 
@@ -70,7 +91,7 @@ Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 * 1x ZAAKTYPE opvragen (`GET /api/v1/zaaktypen`)
 * 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
 
-### Zaken zoeken op locatie (2)
+#### Zaken zoeken op locatie (2)
 
 Een lijst van zaken opvragen die raakvlak hebben met een bepaald geografisch gebied (polygon).
 
@@ -78,7 +99,7 @@ Een lijst van zaken opvragen die raakvlak hebben met een bepaald geografisch geb
 
 * 1x ZAAKen zoeken (`POST /api/v1/zaken/_zoek`)
 
-### Zaken zoeken op persoon (3)
+#### Zaken zoeken op persoon (3)
 
 Een lijst van zaken opvragen met een specifieke betrokkene bij die zaken.
 
@@ -88,7 +109,7 @@ Een lijst van zaken opvragen met een specifieke betrokkene bij die zaken.
 
 * 1x ZAAKen filteren `GET /api/v1/rollen?betrokkene=https://personen/api/v1/a66c38`
 
-### Zaak details opvragen (4)
+#### Zaak details opvragen (4)
 
 Een afgeronde enkele zaak opvragen, met een resultaat, een besluit, *2 zaakobjecten*, *3 betrokkenen* en 3 documenten.
 
@@ -119,7 +140,7 @@ Een afgeronde enkele zaak opvragen, met een resultaat, een besluit, *2 zaakobjec
 
 * 1x BESLUITen opvragen (`GET /api/v1/besluiten?zaak=/api/v1/zaken/d4d..2e8`)
 
-### Geschiedenis opvragen (5)
+#### Geschiedenis opvragen (5)
 
 De gecombineerde audit trail opvragen van een zaak, een besluit en 3 documenten uit hun respectievelijke API's.
 
@@ -135,9 +156,9 @@ De gecombineerde audit trail opvragen van een zaak, een besluit en 3 documenten 
 
 * 1x AUDITTRAIL opvragen (`GET /api/v1/besluiten/a28..6d3/audittrail`)
 
-### Zaak aanmaken (6)
+#### Zaak aanmaken (6)
 
-Een zaak aanmaken
+Een zaak aanmaken met een initiële status en een initiator.
 
 **Zaken API**
 
@@ -145,13 +166,13 @@ Een zaak aanmaken
 * 1x STATUS aanmaken (`POST /api/v1/status`)
 * 1x ROL aanmaken (`POST /api/v1/rollen`)
 
-### Status toevoegen (7)
+#### Status toevoegen (7)
 
 **Zaken API**
 
 * 1x STATUS aanmaken (`POST /api/v1/status`)
 
-### Betrokkene toevoegen (8)
+#### Betrokkene toevoegen (8)
 
 * *1x Persoon zoeken (buiten scope)*
 
@@ -159,7 +180,9 @@ Een zaak aanmaken
 
 * 1x ROL aanmaken (`POST /api/v1/rollen`)
 
-### Document toevoegen (9)
+#### Document toevoegen (9)
+
+Een document aanmaken en de relatie leggen met een zaak.
 
 **Zaken API**
 
@@ -169,44 +192,48 @@ Een zaak aanmaken
 
 * 1x ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
 
-### Besluit toevoegen (10)
+#### Besluit toevoegen (10)
 
 **Besluiten API**
 
 * 1x BESLUIT aanmaken (`POST /api/v1/besluiten`)
 
-### Resultaat toevoegen (11)
+#### Resultaat toevoegen (11)
 
 **Zaken API**
 
 * 1x RESULTAAT aanmaken (`POST /api/v1/resultaten`)
 
-## Test specificatie
+### Test specificatie
 
-### Verdeling van scenario's
+#### Gebruik van scenario's
 
-Niet elk scenario wordt even vaak uitgevoerd. Een zaak wordt bijvoorbeeld vaker opgevraagd dan aangemaakt. Als we dit voorbeeld bekijken wordt voor elke 20x "Zaken overzicht opvragen", 10x "Zaak aanmaken" uitgevoerd. Vervolgens is dit omgezet naar een percentage, uitgaande van 100%. Hieronder staat de aangehouden verdeling.
+Niet elk scenario wordt even vaak uitgevoerd. Een zaak wordt bijvoorbeeld vaker opgevraagd dan aangemaakt. In de onderstaande tabel wordt bijvoorbeeld voor elke 20x "Zaken overzicht opvragen", 10x "Zaak aanmaken" uitgevoerd. Vervolgens is dit omgezet naar een percentage, er van uitgaande dat alle scenario's 100% vertegenwoordigt.
 
-| # | Scenario | Verdeling | Verdeling % |
-|---|---|---|---|
-| 1 | Zaken overzicht opvragen | 20 | 22% |
-| 2 | Zaken zoeken op locatie | 10| 11% |
-| 3 | Zaken zoeken op persoon | 10 | 11% |
-| 4 | Zaak details opvragen | 8 | 9% |
-| 5 | Geschiedenis opvragen | 2 | 2% |
-| 6 | Zaak aanmaken | 10 | 11% |
-| 7 | Status toevoegen | 20 | 22% |
-| 8 | Betrokkene toevoegen | 3 | 3% |
-| 9 | Document toevoegen | 3 | 3% |
-| 10 | Besluit toevoegen | 2 | 2% |
-| 11 | Resultaat toevoegen | 2 | 2% |
-| | **Totaal** | 90 | 100% |
+Om de praktijk verder te benaderen wordt voor elk scenario een bepaalde wachttijd genomen. De wachttijd is de tijd die een echte gebruiker bijvoorbeeld nodig heeft om gegevens in te vullen in de gebruikersinterface. Deze wachttijd vertaald zich naar de tijd tussen scenario's. In de onderstaande tabel wordt bijvoorbeeld bij het uitvoeren van "Zaak aanmaken" eerst tussen 0 en 10 minuten gewacht (gemiddeld 5 minuten).
 
-### Gebruikers en gebruik
+De wachttijd staat voor de snelheid waarmee gebruikers bepaalde acties in het virtuele systeem uitvoeren en daarmee de belasting die ze veroorzaken.
 
-TODO: Iets met klikpaden?
+| # | Scenario | Verdeling | Verdeling % | Gemiddelde wachttijd (minuten) | Wachttijd spreiding (minuten) |
+|---|---|---|---|---|---|
+| 1 | Zaken overzicht opvragen | 20 | 22% | 1 | 0 - 2 |
+| 2 | Zaken zoeken op locatie | 1| 1% | 1 | 0 - 2 |
+| 3 | Zaken zoeken op persoon | 10 | 11% | 1 | 0 - 2 |
+| 4 | Zaak details opvragen | 8 | 9% | 2 | 0 - 4 |
+| 5 | Geschiedenis opvragen | 2 | 2% | 3 | 0 - 6 |
+| 6 | Zaak aanmaken | 10 | 11% | 5 | 0 - 10 |
+| 7 | Status toevoegen | 20 | 22% | 2 | 0 - 4 |
+| 8 | Betrokkene toevoegen | 3 | 3% | 3 | 0 - 6 |
+| 9 | Document toevoegen | 12 | 13% | 4 | 0 - 8 |
+| 10 | Besluit toevoegen | 2 | 2% | 3 | 0 - 6 |
+| 11 | Resultaat toevoegen | 2 | 2% | 3 | 0 - 6 |
+| | **Totaal** | 90 | 100% |  |  |
 
-### Testdata
+#### Virtuele gebruikers
+
+Er wordt getest met een oplopend aantal virtuele gebruikers, van 10 tot 1000, die tegelijk de functionele scenario's aan het uitvoeren zijn. Een virtuele gebruiker is technisch gezien een script dat de verschillende scenario's uitvoert, in de genoemde verdeling en met de bijbehorende wachttijd.
+
+#### Testdata
 
 De volgende test data wordt gebruikt om een realistische dataset te simuleren:
 
