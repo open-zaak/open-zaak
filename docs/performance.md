@@ -60,16 +60,17 @@ De volledige testset is beschreven in de technische bijlage.
 Het testen van performance wordt gedaan door de API's zo te benaderen alsof deze gebruikt worden door een applicatie, ofwel een virtueel systeem. Er zijn enkele typische functionele scenario's geschetst vanuit de praktijk:
 
 1. Zaken overzicht opvragen
-2. Zaken zoeken op locatie
-3. Zaken zoeken op persoon
-4. Zaak details opvragen
-5. Geschiedenis opvragen
-6. Zaak aanmaken
-7. Status toevoegen
-8. Betrokkene toevoegen
-9. Document toevoegen
-10. Besluit toevoegen
-11. Resultaat toevoegen
+2. Zaken overzicht opvragen van specifiek zaaktype
+3. Zaken zoeken op locatie
+4. Zaken zoeken op persoon
+5. Zaak details opvragen
+6. Geschiedenis opvragen
+7. Zaak aanmaken
+8. Status toevoegen
+9. Betrokkene toevoegen
+10. Document toevoegen
+11. Besluit toevoegen
+12. Resultaat toevoegen
 
 ### Scenario's in API-verzoeken
 
@@ -88,10 +89,24 @@ Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 
 **Catalogi API**
 
-* 1x ZAAKTYPE opvragen (`GET /api/v1/zaaktypen`)
+* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
 * 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
 
-#### Zaken zoeken op locatie (2)
+#### Zaken overzicht opvragen (2)
+
+Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
+
+**Zaken API**
+
+* 1x ZAAKen opvragen (`GET /api/v1/zaken/`)
+* 1x STATUSsen opvragen (`GET /api/v1/statussen`)
+
+**Catalogi API**
+
+* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
+* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
+
+#### Zaken zoeken op locatie (3)
 
 Een lijst van zaken opvragen die raakvlak hebben met een bepaald geografisch gebied (polygon).
 
@@ -99,7 +114,7 @@ Een lijst van zaken opvragen die raakvlak hebben met een bepaald geografisch geb
 
 * 1x ZAAKen zoeken (`POST /api/v1/zaken/_zoek`)
 
-#### Zaken zoeken op persoon (3)
+#### Zaken zoeken op persoon (4)
 
 Een lijst van zaken opvragen met een specifieke betrokkene bij die zaken.
 
@@ -109,7 +124,7 @@ Een lijst van zaken opvragen met een specifieke betrokkene bij die zaken.
 
 * 1x ZAAKen filteren `GET /api/v1/rollen?betrokkene=https://personen/api/v1/a66c38`
 
-#### Zaak details opvragen (4)
+#### Zaak details opvragen (5)
 
 Een afgeronde enkele zaak opvragen, met een resultaat, een besluit, *2 zaakobjecten*, *3 betrokkenen* en 3 documenten.
 
@@ -140,7 +155,7 @@ Een afgeronde enkele zaak opvragen, met een resultaat, een besluit, *2 zaakobjec
 
 * 1x BESLUITen opvragen (`GET /api/v1/besluiten?zaak=/api/v1/zaken/d4d..2e8`)
 
-#### Geschiedenis opvragen (5)
+#### Geschiedenis opvragen (6)
 
 De gecombineerde audit trail opvragen van een zaak, een besluit en 3 documenten uit hun respectievelijke API's.
 
@@ -156,7 +171,7 @@ De gecombineerde audit trail opvragen van een zaak, een besluit en 3 documenten 
 
 * 1x AUDITTRAIL opvragen (`GET /api/v1/besluiten/a28..6d3/audittrail`)
 
-#### Zaak aanmaken (6)
+#### Zaak aanmaken (7)
 
 Een zaak aanmaken met een initiële status en een initiator.
 
@@ -166,13 +181,13 @@ Een zaak aanmaken met een initiële status en een initiator.
 * 1x STATUS aanmaken (`POST /api/v1/status`)
 * 1x ROL aanmaken (`POST /api/v1/rollen`)
 
-#### Status toevoegen (7)
+#### Status toevoegen (8)
 
 **Zaken API**
 
 * 1x STATUS aanmaken (`POST /api/v1/status`)
 
-#### Betrokkene toevoegen (8)
+#### Betrokkene toevoegen (9)
 
 * *1x Persoon zoeken (buiten scope)*
 
@@ -180,7 +195,7 @@ Een zaak aanmaken met een initiële status en een initiator.
 
 * 1x ROL aanmaken (`POST /api/v1/rollen`)
 
-#### Document toevoegen (9)
+#### Document toevoegen (10)
 
 Een document aanmaken en de relatie leggen met een zaak.
 
@@ -192,13 +207,13 @@ Een document aanmaken en de relatie leggen met een zaak.
 
 * 1x ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
 
-#### Besluit toevoegen (10)
+#### Besluit toevoegen (11)
 
 **Besluiten API**
 
 * 1x BESLUIT aanmaken (`POST /api/v1/besluiten`)
 
-#### Resultaat toevoegen (11)
+#### Resultaat toevoegen (12)
 
 **Zaken API**
 
@@ -216,18 +231,19 @@ De wachttijd staat voor de snelheid waarmee gebruikers bepaalde acties in het vi
 
 | # | Scenario | Verdeling | Verdeling % | Gemiddelde wachttijd (minuten) | Wachttijd spreiding (minuten) |
 |---|---|---|---|---|---|
-| 1 | Zaken overzicht opvragen | 20 | 22% | 1 | 0 - 2 |
-| 2 | Zaken zoeken op locatie | 1| 1% | 1 | 0 - 2 |
-| 3 | Zaken zoeken op persoon | 10 | 11% | 1 | 0 - 2 |
-| 4 | Zaak details opvragen | 8 | 9% | 2 | 0 - 4 |
-| 5 | Geschiedenis opvragen | 2 | 2% | 3 | 0 - 6 |
-| 6 | Zaak aanmaken | 10 | 11% | 5 | 0 - 10 |
-| 7 | Status toevoegen | 20 | 22% | 2 | 0 - 4 |
-| 8 | Betrokkene toevoegen | 3 | 3% | 3 | 0 - 6 |
-| 9 | Document toevoegen | 12 | 13% | 4 | 0 - 8 |
-| 10 | Besluit toevoegen | 2 | 2% | 3 | 0 - 6 |
-| 11 | Resultaat toevoegen | 2 | 2% | 3 | 0 - 6 |
-| | **Totaal** | 90 | 100% |  |  |
+| 1 | Zaken overzicht opvragen | 20 | 20% | 2 | 0 - 4 |
+| 2 | Zaken overzicht opvragen voor specifiek zaaktype | 10 | 10% | 2 | 0 - 4 |
+| 3 | Zaken zoeken op locatie | 1| 1% | 1 | 0 - 2 |
+| 4 | Zaken zoeken op persoon | 10 | 10% | 1 | 0 - 2 |
+| 5 | Zaak details opvragen | 8 | 8% | 2 | 0 - 4 |
+| 6 | Geschiedenis opvragen | 2 | 2% | 3 | 0 - 6 |
+| 7 | Zaak aanmaken | 10 | 10% | 5 | 0 - 10 |
+| 8 | Status toevoegen | 20 | 20% | 2 | 0 - 4 |
+| 9 | Betrokkene toevoegen | 3 | 3% | 3 | 0 - 6 |
+| 10 | Document toevoegen | 12 | 12% | 4 | 0 - 8 |
+| 11 | Besluit toevoegen | 2 | 2% | 3 | 0 - 6 |
+| 12 | Resultaat toevoegen | 2 | 2% | 3 | 0 - 6 |
+| | **Totaal** | 100 | 100% |  |  |
 
 #### Virtuele gebruikers
 
