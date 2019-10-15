@@ -1,7 +1,7 @@
 from decouple import Csv, config as _config, undefined
 
 
-def config(option: str, default=undefined, split=False, *args, **kwargs):
+def config(option: str, default=undefined, *args, **kwargs):
     if "split" in kwargs:
         kwargs.pop("split")
         kwargs["cast"] = Csv()

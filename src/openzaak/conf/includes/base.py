@@ -1,5 +1,4 @@
 import os
-import warnings
 
 from django.urls import reverse_lazy
 
@@ -30,7 +29,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False)
 
 # = domains we're running on
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=[], split=True)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", split=True)
 
 IS_HTTPS = config("IS_HTTPS", default=not DEBUG)
 
@@ -114,6 +113,7 @@ INSTALLED_APPS = [
     "solo",
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
+    "django_loose_fk",
     # Project applications.
     "openzaak",
     "openzaak.accounts",

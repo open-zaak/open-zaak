@@ -4,6 +4,7 @@ import uuid as _uuid
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
@@ -40,16 +41,45 @@ class Besluit(APIMixin, models.Model):
         db_index=True,
     )
 
-    besluittype = models.ForeignKey(
+    _besluittype_url = models.URLField(
+        _("extern besluittype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern BESLUITTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.CASCADE,
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
     )
-    zaak = models.ForeignKey(
+    besluittype = FkOrURLField(
+        fk_field="_besluittype",
+        url_field="_besluittype_url",
+        help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
+    )
+
+    _zaak_url = models.URLField(
+        _("externe zaak"),
+        blank=True,
+        max_length=1000,
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+    )
+    _zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
         null=True,
         blank=True,  # een besluit kan niet bij een zaak horen
+        help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
+    )
+    zaak = FkOrURLField(
+        fk_field="_zaak",
+        url_field="_zaak_url",
+        blank=True,
+        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
 

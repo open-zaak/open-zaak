@@ -1,3 +1,4 @@
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -109,16 +110,19 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_besluittype_invalid(self):
         list_url = reverse("besluit-list")
 
-        response = self.client.post(
-            list_url,
-            {
-                "verantwoordelijkeOrganisatie": "000000000",
-                "identificatie": "123456",
-                "besluittype": "https://example.com/zrc/zaken/1234",
-                "datum": "2018-09-06",
-                "ingangsdatum": "2018-10-01",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com/zrc/zaken/1234", status_code=404)
+
+            response = self.client.post(
+                list_url,
+                {
+                    "verantwoordelijkeOrganisatie": "000000000",
+                    "identificatie": "123456",
+                    "besluittype": "https://example.com/zrc/zaken/1234",
+                    "datum": "2018-09-06",
+                    "ingangsdatum": "2018-10-01",
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

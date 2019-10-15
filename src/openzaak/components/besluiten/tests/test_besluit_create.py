@@ -1,5 +1,8 @@
 from datetime import date
 
+from django.test import tag
+
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -157,3 +160,68 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "max_length")
+
+
+@tag("external-urls")
+class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_create_external_besluittype(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        url = get_operation_url("besluit_create")
+
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "GET",
+                besluittype,
+                json={
+                    "url": besluittype,
+                    "catalogus": catalogus,
+                    "zaaktypes": [],
+                    "omschrijving": "Extern Besluittype",
+                    "omschrijvingGeneriek": "",
+                    "besluitcategorie": "",
+                    "reactietermijn": "P14D",
+                    "publicatieIndicatie": True,
+                    "publicatietekst": "",
+                    "publicatietermijn": None,
+                    "toelichting": "",
+                    "informatieobjecttypes": [],
+                    "beginGeldigheid": "2018-01-01",
+                    "eindeGeldigheid": None,
+                    "concept": False,
+                },
+            )
+
+            m.register_uri(
+                "GET",
+                catalogus,
+                json={
+                    "url": catalogus,
+                    "domein": "PUB",
+                    "contactpersoonBeheerTelefoonnummer": "0612345678",
+                    "rsin": "517439943",
+                    "contactpersoonBeheerNaam": "Jan met de Pet",
+                    "contactpersoonBeheerEmailadres": "jan@petten.nl",
+                    "informatieobjecttypen": [],
+                    "zaaktypen": [],
+                    "besluittypen": [besluittype],
+                },
+            )
+
+            response = self.client.post(
+                url,
+                {
+                    "verantwoordelijke_organisatie": "517439943",  # RSIN
+                    "identificatie": "123123",
+                    "besluittype": besluittype,
+                    "datum": "2018-09-06",
+                    "toelichting": "Vergunning verleend.",
+                    "ingangsdatum": "2018-10-01",
+                    "vervaldatum": "2018-11-01",
+                    "vervalreden": VervalRedenen.tijdelijk,
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

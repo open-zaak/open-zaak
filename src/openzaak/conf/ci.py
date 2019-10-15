@@ -1,6 +1,7 @@
 """
 Continuous integration settings module.
 """
+import logging
 import os
 
 os.environ.setdefault("IS_HTTPS", "no")
@@ -15,6 +16,7 @@ CACHES = {
 }
 
 LOGGING = None  # Quiet is nice
+logging.disable(logging.CRITICAL)
 
 ENVIRONMENT = "CI"
 

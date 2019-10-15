@@ -21,11 +21,14 @@ env:
   - DJANGO_SETTINGS_MODULE=openzaak.conf.ci
   - DB_PASSWORD=
   - DB_USER=postgres
+  - ALLOWED_HOSTS=openzaak.nl
 
 before_install:
   - sudo apt-get update
   - sudo apt-get install libgdal-dev gdal-bin
   - gdal-config --version
+  # https://github.com/travis-ci/travis-ci/issues/8920
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
 install:
   - pip install -r requirements/ci.txt
