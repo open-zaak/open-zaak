@@ -772,7 +772,9 @@ class ZaakBesluitViewSet(
 
     def get_queryset(self) -> models.QuerySet:
         zaak_uuid = self.kwargs.get("zaak_uuid")  # empty on drf-yasg introspection
-        return ZaakBesluit.objects.filter(zaak__uuid=zaak_uuid)
+        # filter directly on the FK - since `ZaakBesluit` is only relevant
+        # for local fk zaken
+        return ZaakBesluit.objects.filter(_zaak__uuid=zaak_uuid)
 
     def perform_create(self, serializer):
         """
