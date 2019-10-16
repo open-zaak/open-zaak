@@ -427,6 +427,11 @@ SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
 SENDFILE_URL = PRIVATE_MEDIA_URL
 
 #
+# DJANGO-LOOSE-FK -- handle internal and external API resources
+#
+DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
+
+#
 # RAVEN/SENTRY - error monitoring
 #
 SENTRY_DSN = config("SENTRY_DSN", None)

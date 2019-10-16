@@ -18,7 +18,7 @@ from openzaak.utils.tests import JWTAuthMixin
 from ..constants import VervalRedenen
 from ..models import Besluit
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url
+from .utils import get_besluittype_response, get_operation_url
 
 
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
@@ -175,23 +175,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             m.register_uri(
                 "GET",
                 besluittype,
-                json={
-                    "url": besluittype,
-                    "catalogus": catalogus,
-                    "zaaktypes": [],
-                    "omschrijving": "Extern Besluittype",
-                    "omschrijvingGeneriek": "",
-                    "besluitcategorie": "",
-                    "reactietermijn": "P14D",
-                    "publicatieIndicatie": True,
-                    "publicatietekst": "",
-                    "publicatietermijn": None,
-                    "toelichting": "",
-                    "informatieobjecttypes": [],
-                    "beginGeldigheid": "2018-01-01",
-                    "eindeGeldigheid": None,
-                    "concept": False,
-                },
+                json=get_besluittype_response(catalogus, besluittype),
             )
 
             m.register_uri(
