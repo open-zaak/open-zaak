@@ -84,7 +84,7 @@ Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 
 **Zaken API**
 
-* 1x ZAAKen opvragen (`GET /api/v1/zaken/`)
+* 1x ZAAKen opvragen (`GET /api/v1/zaken`)
 * 1x STATUSsen opvragen (`GET /api/v1/statussen`)
 
 **Catalogi API**
@@ -92,19 +92,19 @@ Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 * 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
 * 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
 
-#### Zaken overzicht opvragen (2)
+#### Zaken overzicht opvragen van specifiek zaaktype (2)
 
-Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
+Een gefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype. Alle statussen worden opgevraagd gefiltered op de 3 beschikbare statustypen voor het betreffende zaaktype.
 
 **Zaken API**
 
-* 1x ZAAKen opvragen (`GET /api/v1/zaken/`)
-* 1x STATUSsen opvragen (`GET /api/v1/statussen`)
+* 1x ZAAKen opvragen (`GET /api/v1/zaken?zaaktype=/api/v1/zaaktypen/011..3c1`)
+* 3x STATUSsen opvragen (`GET /api/v1/statussen?statustype=/api/v1/statustypen/f82..396`)
 
 **Catalogi API**
 
-* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
-* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
+* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen/011..3c1`)
+* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen?zaaktype=/api/v1/zaaktypen/011..3c1`)
 
 #### Zaken zoeken op locatie (3)
 
