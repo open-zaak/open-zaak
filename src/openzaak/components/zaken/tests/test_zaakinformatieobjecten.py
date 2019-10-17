@@ -217,18 +217,25 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def test_relate_external_document(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-        zaak = ZaakFactory.create()
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
         zaak_url = reverse(zaak)
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
 
         with requests_mock.Mocker() as m:
-            m.get(document, json=get_eio_response(document))
+            m.get(document, json=eio_response)
 
             response = self.client.post(
                 reverse(ZaakInformatieObject),
                 {"zaak": f"http://testserver{zaak_url}", "informatieobject": document},
             )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         list_response = self.client.get(
             reverse(ZaakInformatieObject), {"zaak": f"http://testserver{zaak_url}"}

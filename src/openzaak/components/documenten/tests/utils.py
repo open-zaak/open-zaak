@@ -14,7 +14,7 @@ def get_operation_url(operation, **kwargs):
     )
 
 
-def get_eio_response(url: str) -> Dict[str, Any]:
+def get_eio_response(url: str, **overrides) -> Dict[str, Any]:
     eio_type = (
         f"https://external.catalogus.nl/api/v1/informatieobjecttypen/{uuid.uuid4()}"
     )
@@ -44,4 +44,5 @@ def get_eio_response(url: str) -> Dict[str, Any]:
         "informatieobjecttype": eio_type,
         "locked": False,
     }
+    eio.update(**overrides)
     return eio
