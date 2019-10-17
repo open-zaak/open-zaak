@@ -92,9 +92,9 @@ class ZaakEigenschapAdmin(admin.ModelAdmin):
 
 @admin.register(ZaakInformatieObject)
 class ZaakInformatieObjectAdmin(admin.ModelAdmin):
-    list_display = ["zaak", "informatieobject"]
-    list_select_related = ["zaak"]
-    raw_id_fields = ["zaak"]
+    list_display = ["zaak", "_informatieobject"]
+    list_select_related = ["zaak", "_informatieobject"]
+    raw_id_fields = ["zaak", "_informatieobject"]
 
 
 @admin.register(Resultaat)

@@ -662,7 +662,7 @@ class ZaakInformatieObject(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-    informatieobject = models.ForeignKey(
+    _informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical",
         on_delete=models.CASCADE,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
@@ -699,7 +699,10 @@ class ZaakInformatieObject(models.Model):
     class Meta:
         verbose_name = "zaakinformatieobject"
         verbose_name_plural = "zaakinformatieobjecten"
-        unique_together = ("zaak", "informatieobject")
+        unique_together = (
+            ("zaak", "_informatieobject"),
+            # ("zaak", "_informatieobject_url"),
+        )
 
     def __str__(self) -> str:
         return f"{self.zaak} - {self.informatieobject}"
