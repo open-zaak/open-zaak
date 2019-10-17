@@ -5,7 +5,7 @@ def settings(request):
     public_settings = (
         "GOOGLE_ANALYTICS_ID",
         "ENVIRONMENT",
-        "SHOW_ALERT",
+        "ENVIRONMENT_SHOWN_IN_ADMIN",
         "PROJECT_NAME",
         "SITE_TITLE",
         "API_VERSION",

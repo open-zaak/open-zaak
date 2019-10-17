@@ -314,6 +314,8 @@ class EnkelvoudigInformatieObject(APIMixin, InformatieObject):
 
     class Meta:
         unique_together = ("uuid", "versie")
+        verbose_name = _('Enkelvoudige informatie object')
+        verbose_name_plural = _('Enkelvoudige informatie objecten')
 
 
 class Gebruiksrechten(models.Model):
