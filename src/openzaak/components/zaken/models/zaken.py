@@ -11,6 +11,7 @@ from django.utils.crypto import get_random_string
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.fields import FkOrURLField
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -662,11 +663,25 @@ class ZaakInformatieObject(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
+    _informatieobject_url = models.URLField(
+        _("External informatieobject"),
+        blank=True,
+        max_length=1000,
+        help_text=_("URL to the informatieobject in an external API"),
+    )
     _informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical",
         on_delete=models.CASCADE,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
         "ook de relatieinformatie opgevraagd kan worden.",
+    )
+    informatieobject = FkOrURLField(
+        fk_field="_informatieobject",
+        url_field="_informatieobject_url",
+        help_text=_(
+            "URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
+            "API), waar ook de relatieinformatie opgevraagd kan worden."
+        ),
     )
     aard_relatie = models.CharField(
         "aard relatie", max_length=20, choices=RelatieAarden.choices

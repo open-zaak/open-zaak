@@ -88,7 +88,7 @@ class ResultaatFilter(FilterSet):
 class ZaakInformatieObjectFilter(FilterSet):
     class Meta:
         model = ZaakInformatieObject
-        fields = ("zaak", "_informatieobject")
+        fields = ("zaak", "informatieobject")
 
 
 class ZaakObjectFilter(FilterSet):
