@@ -72,20 +72,20 @@ jobs:
 
     # TODO: second stage to push resulting image
 
-    # - stage: Newman tests
-    #   name: ZGW api tests
-    #   services:
-    #     - docker
-    #   before_install: skip
-    #   install:
-    #     - npm install newman
-    #   before_script: skip
-    #   script:
-    #     - docker-compose -f docker-compose.travis.yml up -d
-    #     - bin/postman_tests.sh
-    #   after_script:
-    #     - docker-compose stop
-    #     - docker-compose rm -f
+    - stage: Newman tests
+      name: ZGW api tests
+      services:
+        - docker
+      before_install: skip
+      install:
+        - npm install newman
+      before_script: skip
+      script:
+        - docker-compose -f docker-compose.travis.yml up -d
+        - bin/postman_tests.sh
+      after_script:
+        - docker-compose stop
+        - docker-compose rm -f
 
 after_success:
   - codecov
