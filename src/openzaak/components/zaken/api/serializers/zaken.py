@@ -40,6 +40,7 @@ from openzaak.components.catalogi.models import (
     StatusType,
     ZaakType,
 )
+from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -352,9 +353,10 @@ class ZaakSerializer(
             != Archiefstatus.nog_te_archiveren
         )
         if archiefstatus:
+            # TODO: check remote ZIO.informatieobject
             # search for related informatieobjects with status != 'gearchiveerd'
             canonical_ids = self.instance.zaakinformatieobject_set.values(
-                "informatieobject_id"
+                "_informatieobject_id"
             )
             io_ids = (
                 EnkelvoudigInformatieObjectCanonical.objects.filter(
@@ -457,15 +459,17 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         if validated_attrs["__is_eindstatus"]:
             zaak = validated_attrs["zaak"]
 
+            # TODO: check remote documents!
             if zaak.zaakinformatieobject_set.exclude(
-                informatieobject__lock=""
+                _informatieobject__lock=""
             ).exists():
                 raise serializers.ValidationError(
                     "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
                     "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
                     code="informatieobject-locked",
                 )
-            canonical_ids = zaak.zaakinformatieobject_set.values("informatieobject_id")
+            # TODO: support external IO
+            canonical_ids = zaak.zaakinformatieobject_set.values("_informatieobject_id")
             io_ids = (
                 EnkelvoudigInformatieObjectCanonical.objects.filter(
                     id__in=Subquery(canonical_ids)
@@ -573,6 +577,12 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         choices=[(force_text(value), key) for key, value in RelatieAarden.choices],
     )
+    informatieobject = EnkelvoudigInformatieObjectField(
+        validators=[IsImmutableValidator()],
+        max_length=1000,
+        min_length=1,
+        help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
+    )
 
     class Meta:
         model = ZaakInformatieObject
@@ -597,10 +607,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
-            "informatieobject": {
-                "lookup_field": "uuid",
-                "validators": [IsImmutableValidator()],
-            },
+            "informatieobject": {"lookup_field": "uuid"},
         }
 
 

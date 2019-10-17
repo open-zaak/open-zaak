@@ -133,13 +133,9 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
             return
 
         if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type_id = (
-                informatieobject.enkelvoudiginformatieobject_set.select_related(
-                    "informatieobjecttype_id"
-                )
-                .values("informatieobjecttype_id", flat=True)
-                .first()
-            )
+            io_type_id = informatieobject.enkelvoudiginformatieobject_set.values_list(
+                "informatieobjecttype_id", flat=True
+            ).first()
         else:
             io_type_id = informatieobject.informatieobjecttype.id
 

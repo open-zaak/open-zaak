@@ -109,10 +109,12 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Test the (informatieobject, object) unique together validation.
         """
-        zio = ZaakInformatieObjectFactory.create()
-        ZaakInformatieobjectTypeFactory.create(
-            informatieobjecttype=zio.informatieobject.latest_version.informatieobjecttype,
-            zaaktype=zio.zaak.zaaktype,
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zio = ZaakInformatieObjectFactory.create(
+            zaak__zaaktype=zio_type.zaaktype,
+            informatieobject__latest_version__informatieobjecttype=zio_type.informatieobjecttype,
         )
         zaak_url = reverse(zio.zaak)
         io_url = reverse(zio.informatieobject.latest_version)
@@ -246,3 +248,5 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["informatieobject"], document)
+
+        # TODO: remote OIO call must be made!
