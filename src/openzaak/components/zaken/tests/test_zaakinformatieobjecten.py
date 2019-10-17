@@ -16,7 +16,10 @@ from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTyp
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import get_eio_response
+from openzaak.components.documenten.tests.utils import (
+    get_eio_response,
+    get_oio_response,
+)
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Zaak, ZaakInformatieObject
@@ -216,6 +219,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    # TODO: validation tests with bad inputs
+
     def test_relate_external_document(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
@@ -223,30 +228,53 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
-        zaak_url = reverse(zaak)
+        zaak_url = f"http://testserver{reverse(zaak)}"
         eio_response = get_eio_response(
             document,
             informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
         )
 
-        with requests_mock.Mocker() as m:
-            m.get(document, json=eio_response)
+        with self.subTest(section="zio-create"):
+            with requests_mock.Mocker() as m:
+                m.get(document, json=eio_response)
+                m.post(
+                    "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+                    json=get_oio_response(document, zaak_url),
+                    status_code=201,
+                )
 
-            response = self.client.post(
-                reverse(ZaakInformatieObject),
-                {"zaak": f"http://testserver{zaak_url}", "informatieobject": document},
+                response = self.client.post(
+                    reverse(ZaakInformatieObject),
+                    {"zaak": zaak_url, "informatieobject": document},
+                )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
             )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+            posts = [req for req in m.request_history if req.method == "POST"]
+            self.assertEqual(len(posts), 1)
+            request = posts[0]
+            self.assertEqual(
+                request.url,
+                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+            )
+            self.assertEqual(
+                request.json(),
+                {
+                    "informatieobject": document,
+                    "object": zaak_url,
+                    "objectType": "zaak",
+                },
+            )
 
-        list_response = self.client.get(
-            reverse(ZaakInformatieObject), {"zaak": f"http://testserver{zaak_url}"}
-        )
+        with self.subTest(section="zio-list"):
+            list_response = self.client.get(
+                reverse(ZaakInformatieObject), {"zaak": zaak_url}
+            )
 
-        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        data = list_response.json()
+            self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+            data = list_response.json()
 
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["informatieobject"], document)
-
-        # TODO: remote OIO call must be made!
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["informatieobject"], document)

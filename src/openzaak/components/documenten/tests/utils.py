@@ -1,11 +1,15 @@
 import uuid
 from datetime import date
-from typing import Any, Dict
+from typing import Dict, Union
 
 from django.conf import settings
 from django.utils import timezone
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
+
+from openzaak.components.zaken.api.serializers.utils import _get_oio_endpoint
+
+JsonValue = Union[str, None, int, float]
 
 
 def get_operation_url(operation, **kwargs):
@@ -14,7 +18,7 @@ def get_operation_url(operation, **kwargs):
     )
 
 
-def get_eio_response(url: str, **overrides) -> Dict[str, Any]:
+def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
     eio_type = (
         f"https://external.catalogus.nl/api/v1/informatieobjecttypen/{uuid.uuid4()}"
     )
@@ -46,3 +50,14 @@ def get_eio_response(url: str, **overrides) -> Dict[str, Any]:
     }
     eio.update(**overrides)
     return eio
+
+
+def get_oio_response(io_url: str, object_url: str) -> Dict[str, JsonValue]:
+    url = f"{_get_oio_endpoint(io_url)}/{uuid.uuid4()}"
+    oio = {
+        "url": url,
+        "informatieobject": io_url,
+        "object": object_url,
+        "objectType": "zaak",
+    }
+    return oio

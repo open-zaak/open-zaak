@@ -78,6 +78,7 @@ from .betrokkenen import (
     RolOrganisatorischeEenheidSerializer,
     RolVestigingSerializer,
 )
+from .utils import create_remote_oio
 
 logger = logging.getLogger(__name__)
 
@@ -609,6 +610,32 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
             "informatieobject": {"lookup_field": "uuid"},
         }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            zio = super().create(validated_data)
+
+        # local FK - nothing to do -> our signals create the OIO
+        if zio.informatieobject.pk:
+            return zio
+
+        # we know that we got valid URLs in the initial data
+        io_url = self.initial_data["informatieobject"]
+        zaak_url = self.initial_data["zaak"]
+
+        # manual transaction management - documents API checks that the ZIO
+        # exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the ZIO creation.
+        try:
+            create_remote_oio(io_url, zaak_url)
+        except Exception as exception:
+            zio.delete()
+            raise serializers.ValidationError(
+                _("Could not create remote relation: {exception}"),
+                params={"exception": exception},
+            )
+        return zio
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
