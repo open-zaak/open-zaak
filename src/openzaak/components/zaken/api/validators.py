@@ -9,6 +9,8 @@ from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
 
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+
 
 class RolOccurenceValidator:
     """
@@ -130,9 +132,19 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         if not informatieobject or not zaak:
             return
 
-        io = informatieobject.enkelvoudiginformatieobject_set.first()
+        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
+            io_type_id = (
+                informatieobject.enkelvoudiginformatieobject_set.select_related(
+                    "informatieobjecttype_id"
+                )
+                .values("informatieobjecttype_id", flat=True)
+                .first()
+            )
+        else:
+            io_type_id = informatieobject.informatieobjecttype.id
+
         if not zaak.zaaktype.heeft_relevant_informatieobjecttype.filter(
-            id=io.informatieobjecttype_id, concept=False
+            id=io_type_id, concept=False
         ).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 

@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
 
+from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path
@@ -125,7 +126,10 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
         ZaakInformatieObject: ObjectTypes.zaak,
     }
 
-    def create_from(self, relation: IORelation) -> models.Model:
+    def create_from(self, relation: IORelation) -> [models.Model, None]:
+        if isinstance(relation.informatieobject, ProxyMixin):
+            return None
+
         object_type = self.RELATIONS[type(relation)]
         relation_field = {object_type: getattr(relation, object_type)}
         return self.create(
@@ -135,6 +139,9 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
         )
 
     def delete_for(self, relation: IORelation) -> Tuple[int, Dict[str, int]]:
+        if isinstance(relation.informatieobject, ProxyMixin):
+            return (0, {})
+
         object_type = self.RELATIONS[type(relation)]
         relation_field = {object_type: getattr(relation, object_type)}
 

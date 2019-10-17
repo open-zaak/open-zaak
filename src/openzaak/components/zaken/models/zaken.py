@@ -31,6 +31,7 @@ from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+from ..loaders import EIOLoader
 from ..query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
 
 logger = logging.getLogger(__name__)
@@ -672,12 +673,15 @@ class ZaakInformatieObject(models.Model):
     _informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical",
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
         "ook de relatieinformatie opgevraagd kan worden.",
     )
     informatieobject = FkOrURLField(
         fk_field="_informatieobject",
         url_field="_informatieobject_url",
+        loader=EIOLoader(),
         help_text=_(
             "URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
             "API), waar ook de relatieinformatie opgevraagd kan worden."
@@ -723,7 +727,14 @@ class ZaakInformatieObject(models.Model):
         return f"{self.zaak} - {self.informatieobject}"
 
     def unique_representation(self):
-        return f"({self.zaak.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
+        zaak_repr = self.zaak.unique_representation()
+
+        if hasattr(self.informatieobject, "identificatie"):
+            doc_identificatie = self.informatieobject.identificatie
+        else:
+            doc_identificatie = self.informatieobject.latest_version.identificatie
+
+        return f"({zaak_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
         # override to set aard_relatie

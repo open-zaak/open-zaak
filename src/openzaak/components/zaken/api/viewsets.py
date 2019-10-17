@@ -459,7 +459,8 @@ class ZaakInformatieObjectViewSet(
     destroy:
     Verwijder een ZAAK-INFORMATIEOBJECT relatie.
 
-    De gespiegelde relatie in de Documenten API wordt door de Zaken API verwijderd. Consumers kunnen dit niet handmatig doen..
+    De gespiegelde relatie in de Documenten API wordt door de Zaken API
+    verwijderd. Consumers kunnen dit niet handmatig doen.
     """
 
     queryset = ZaakInformatieObject.objects.all()

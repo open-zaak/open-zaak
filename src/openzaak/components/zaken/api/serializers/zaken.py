@@ -40,9 +40,6 @@ from openzaak.components.catalogi.models import (
     StatusType,
     ZaakType,
 )
-from openzaak.components.documenten.api.serializers import (
-    EnkelvoudigInformatieObjectHyperlinkedRelatedField,
-)
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -378,8 +375,8 @@ class ZaakSerializer(
                         "archiefstatus",
                         _(
                             "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
-                            "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
-                            "waarde dan `nog_te_archiveren`."
+                            "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` "
+                            "op een andere waarde dan `nog_te_archiveren`."
                         ),
                     },
                     code="documents-not-archived",
@@ -576,15 +573,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         choices=[(force_text(value), key) for key, value in RelatieAarden.choices],
     )
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
-        lookup_field="uuid",
-        queryset=EnkelvoudigInformatieObject.objects.all(),
-        min_length=1,
-        max_length=1000,
-        help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
-        validators=[IsImmutableValidator()],
-    )
 
     class Meta:
         model = ZaakInformatieObject
@@ -609,6 +597,10 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
+            "informatieobject": {
+                "lookup_field": "uuid",
+                "validators": [IsImmutableValidator()],
+            },
         }
 
 
