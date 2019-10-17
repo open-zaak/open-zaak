@@ -1,7 +1,10 @@
+import uuid
 from datetime import datetime
 
+from django.test import tag
 from django.utils import timezone
 
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,6 +16,7 @@ from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTyp
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.documenten.tests.utils import get_eio_response
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Zaak, ZaakInformatieObject
@@ -204,3 +208,34 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Relation is gone, zaak still exists.
         self.assertFalse(ZaakInformatieObject.objects.exists())
         self.assertTrue(Zaak.objects.exists())
+
+
+@tag("external-urls")
+class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_relate_external_document(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        with requests_mock.Mocker() as m:
+            m.get(document, json=get_eio_response(document))
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": f"http://testserver{zaak_url}", "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        list_response = self.client.get(
+            reverse(ZaakInformatieObject), {"zaak": f"http://testserver{zaak_url}"}
+        )
+
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        data = list_response.json()
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["informatieobject"], document)
