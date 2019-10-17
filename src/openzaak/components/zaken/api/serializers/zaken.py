@@ -608,7 +608,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
-            "informatieobject": {"lookup_field": "uuid"},
         }
 
     def create(self, validated_data):

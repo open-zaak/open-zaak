@@ -7,6 +7,15 @@ logger = logging.getLogger(__name__)
 
 
 def _get_oio_endpoint(io_url: str) -> str:
+    """
+    Build the OIO endpoint from the EIO URL.
+
+    .. todo: TODO: clean this mess up - ideally this would use
+    gemma_zds_client.Client.from_url() & fetch the URL from the associated
+    API spec, but that requires mocking out the api spec fetch + setting up
+    the schema in the mock. A refactor in gemma-zds-client for this is
+    suitable.
+    """
     start = io_url.split("enkelvoudiginformatieobjecten")[0]
     url = f"{start}objectinformatieobjecten"
     return url

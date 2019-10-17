@@ -718,10 +718,14 @@ class ZaakInformatieObject(models.Model):
     class Meta:
         verbose_name = "zaakinformatieobject"
         verbose_name_plural = "zaakinformatieobjecten"
-        unique_together = (
-            ("zaak", "_informatieobject"),
-            # ("zaak", "_informatieobject_url"),
-        )
+        unique_together = ("zaak", "_informatieobject")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["zaak", "_informatieobject_url"],
+                condition=~models.Q(_informatieobject_url=""),
+                name="unique_zaak_and_external_document",
+            )
+        ]
 
     def __str__(self) -> str:
         return f"{self.zaak} - {self.informatieobject}"
