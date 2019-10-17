@@ -104,7 +104,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | --- | --- | --- | --- | --- |
 | url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| informatieobject | URL-referentie naar het INFORMATIEOBJECT. | string | ja | C​R​U​D |
+| informatieobject | URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden. | string | ja | C​R​U​D |
 | zaak | URL-referentie naar de ZAAK. | string | ja | C​R​U​D |
 | aardRelatieWeergave |  | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | titel | De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend is. | string | nee | C​R​U​D |

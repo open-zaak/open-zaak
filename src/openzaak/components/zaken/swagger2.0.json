@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "bearerFormat": "JWT",
+            "type": "http",
             "scheme": "bearer",
-            "type": "http"
+            "bearerFormat": "JWT"
         }
     },
     "security": [
@@ -3966,7 +3966,7 @@
             "delete": {
                 "operationId": "zaakinformatieobject_delete",
                 "summary": "Verwijder een ZAAK-INFORMATIEOBJECT relatie.",
-                "description": "De gespiegelde relatie in de Documenten API wordt door de Zaken API verwijderd. Consumers kunnen dit niet handmatig doen..",
+                "description": "De gespiegelde relatie in de Documenten API wordt door de Zaken API\nverwijderd. Consumers kunnen dit niet handmatig doen.",
                 "parameters": [
                     {
                         "name": "X-NLX-Request-Application-Id",
@@ -7487,6 +7487,7 @@
                 {
                     "name": "uuid",
                     "in": "path",
+                    "description": "Unieke resource identifier (UUID4)",
                     "required": true,
                     "type": "string",
                     "format": "uuid"
@@ -8831,7 +8832,7 @@
                 },
                 "informatieobject": {
                     "title": "Informatieobject",
-                    "description": "URL-referentie naar het INFORMATIEOBJECT.",
+                    "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.",
                     "type": "string",
                     "format": "uri",
                     "maxLength": 1000,
