@@ -193,8 +193,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
 
-FIXTURE_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "fixtures")]
-
 #
 # Sending EMAIL
 #
