@@ -49,7 +49,6 @@ RUN mkdir /app/log
 
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
 COPY ./src /app/src
-COPY ./fixtures /app/fixtures
 ARG COMMIT_HASH
 ENV GIT_SHA=${COMMIT_HASH}
 

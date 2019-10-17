@@ -78,7 +78,7 @@ jobs:
     #     - npm install newman
     #   before_script: skip
     #   script:
-    #     - docker-compose -f docker-compose-travis.yml up -d
+    #     - docker-compose -f docker-compose.travis.yml up -d
     #     - bin/postman_tests.sh
     #   after_script:
     #     - docker-compose stop
