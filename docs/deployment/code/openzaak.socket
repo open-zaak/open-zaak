@@ -1,0 +1,11 @@
+[Unit]
+Description=Socket for Open zaak production
+
+[Socket]
+ListenStream=/var/run/openzaak/production.socket
+SocketUser=openzaak
+SocketGroup=openzaak
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,20 @@
+[Unit]
+Description=Open zaak production
+After=syslog.target
+
+[Service]
+ExecStart=/srv/sites/production/env/bin/uwsgi \
+    --http :8000 \
+    --module openzaak.wsgi \
+    --chdir /srv/sites/production/src \
+    --processes 2 \
+    --threads 2 \
+    --buffer-size 32768 \
+    --socket /var/run/openzaak/production.socket
+User=openzaak
+Group=openzaak
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all

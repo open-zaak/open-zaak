@@ -15,6 +15,7 @@ __pycache__
 # Generated files
 src/openzaak/static/fonts
 src/openzaak/static/css/screen.css
+docs/_build
 
 # Coverage reports
 /reports/
