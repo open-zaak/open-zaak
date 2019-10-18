@@ -18,6 +18,7 @@ django-privates
 django-relativedelta
 
 # Admin and UI libraries
+django-admin-index
 django-better-admin-arrayfield
 
 # API libraries

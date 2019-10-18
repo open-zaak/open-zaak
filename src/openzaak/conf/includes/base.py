@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from django.urls import reverse_lazy
@@ -94,6 +95,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Optional applications.
+    "ordered_model",
+    "django_admin_index",
     "django.contrib.admin",
     "django.contrib.gis",
     # 'django.contrib.admindocs',
@@ -160,6 +163,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "openzaak.utils.context_processors.settings",
+                "django_admin_index.context_processors.dashboard",
             ],
             "loaders": TEMPLATE_LOADERS,
         },
@@ -192,8 +196,6 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
-
-FIXTURE_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "fixtures")]
 
 #
 # Sending EMAIL
@@ -329,11 +331,11 @@ SILENCED_SYSTEM_CHECKS = ["rest_framework.W001"]
 #
 # Custom settings
 #
-PROJECT_NAME = "Open zaak"
-SITE_TITLE = "Open zaak"
+PROJECT_NAME = "Open Zaak"
+SITE_TITLE = "Open Zaak"
 
 ENVIRONMENT = None
-SHOW_ALERT = True
+ENVIRONMENT_SHOWN_IN_ADMIN = True
 
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
@@ -378,12 +380,14 @@ else:
 #                            #
 ##############################
 
-# Django-axes
+#
+# DJANGO-AXES
+#
 AXES_CACHE = "axes"  # refers to CACHES setting
-AXES_LOGIN_FAILURE_LIMIT = 30  # Default: 3
+AXES_LOGIN_FAILURE_LIMIT = 5  # Default: 3
 AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 AXES_USE_USER_AGENT = False  # Default: False
-AXES_COOLOFF_TIME = 1  # One hour
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)  # One hour
 AXES_BEHIND_REVERSE_PROXY = IS_HTTPS  # We have either Ingress or Nginx
 AXES_ONLY_USER_FAILURES = (
     False
@@ -392,7 +396,9 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = (
     False
 )  # Default: False (you might want to block on username and IP)
 
-# Django-hijack
+#
+# DJANGO-HIJACK
+#
 HIJACK_LOGIN_REDIRECT_URL = reverse_lazy("home")
 HIJACK_LOGOUT_REDIRECT_URL = reverse_lazy("admin:accounts_user_changelist")
 HIJACK_REGISTER_ADMIN = False
@@ -400,7 +406,9 @@ HIJACK_REGISTER_ADMIN = False
 # See: http://django-hijack.readthedocs.io/en/latest/configuration/#allowing-get-method-for-hijack-views
 HIJACK_ALLOW_GET_REQUESTS = True
 
-# Django-CORS-middleware
+#
+# DJANGO-CORS-MIDDLEWARE
+#
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = (
     "x-requested-with",
@@ -449,3 +457,9 @@ if SENTRY_DSN:
             }
         }
     )
+
+#
+# DJANGO-ADMIN-INDEX
+#
+ADMIN_INDEX_SHOW_REMAINING_APPS_TO_SUPERUSERS = True
+ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False

@@ -1,0 +1,79 @@
+{% load static vng_api_common %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vng_api_common/libs/fontawesome/css/all.min.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+
+    {% block extra_style %}{% endblock %}
+
+    <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
+  </head>
+  <body>
+
+    {% if not settings.SITE_TITLE or not settings.PROJECT_NAME %}
+      <div class="container">
+        <div class="alert alert-danger">
+          Please add the variables <em>SITE_TITLE</em> and <em>PROJECT_NAME</em> to your <em>settings.py</em> and make
+          sure they are available via <em>context processors</em>.
+        </div>
+      </div>
+    {% endif %}
+
+    {% block content %}
+      Override <code>{% verbatim %}{% block content %}{% endverbatim %}</code>
+      to get some actual content.
+    {% endblock %}
+
+    <div class="container">
+      <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+          <div class="col-4 col-md">
+            <img class="mb-2" src="{% static 'img/logo.png' %}" alt="" height="50">
+              <small class="d-block mb-3 text-muted">Ontwikkeld door <a href="https://www.maykinmedia.nl">Maykin Media</a><br>in opdracht van <a href="https://www.dimpact.nl">Dimpact</a> &copy; {% now "Y" %}</small>
+          </div>
+          <div class="col-4 col-md">
+            <h5>Open Zaak</h5>
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="https://open-zaak.readthedocs.io/en/latest/">Documentatie</a></li>
+              <li><a class="text-muted" href="https://github.com/open-zaak/open-zaak">Code op Github</a></li>
+            </ul>
+          </div>
+          <div class="col-4 col-md">
+            <h5>Overige</h5>
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken">Zaakgericht werken volgen VNG</a></li>
+              <li><a class="text-muted" href="https://zaakgerichtwerken.vng.cloud/">API's voor Zaakgericht werken</a></li>
+              <li><a class="text-muted" href="https://commonground.nl/">Common Ground</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6 text-muted">
+            <code>{{ settings.API_VERSION }}</code>
+          </div>
+          <div class="col-6 text-muted text-right">
+            <code>{{ settings.GIT_SHA|default:"" }}</code>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
+    <script src="{% static 'vng_api_common/libs/popper/popper.min.js' %}"></script>
+    <script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

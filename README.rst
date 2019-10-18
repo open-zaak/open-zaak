@@ -11,6 +11,8 @@ Open Zaak
 
 API's voor Zaakgericht werken
 
+Ontwikkeld door `Maykin Media B.V.`_ in opdracht van `Dimpact`_.
+
 Inleiding
 =========
 
@@ -29,6 +31,7 @@ De gegevens worden ontsloten middels een `set API's`_, te weten:
 * Documenten API (`Documenten API-specificatie 1.0 RC`_)
 * Catalogi API (`Catalogi API-specificatie 1.0 RC`_)
 * Besluiten API (`Besluiten API-specificatie 1.0 RC`_)
+* Autorisatie API (`Autorisaties API-specificatie 1.0 RC`_)
 
 .. _`Common Ground`: https://commonground.nl/
 .. _`zaakgericht werken`: https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken
@@ -37,21 +40,22 @@ De gegevens worden ontsloten middels een `set API's`_, te weten:
 .. _`Documenten API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/documenten/index
 .. _`Catalogi API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index
 .. _`Besluiten API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index
+.. _`Autorisaties API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index
 
 **Open Zaak** gebruikt de code van de
 `referentie implementaties van VNG Realisatie`_ als basis om een stabiele set
-API's te realiseren die gebruikt kunnen worden bij gemeenten.
+API's te realiseren die in productie gebruikt kunnen worden bij gemeenten.
 
 .. _`referentie implementaties van VNG Realisatie`: https://github.com/VNG-Realisatie/gemma-zaken
 
 Licentie
 ========
 
-Copyright © Maykin Media 2019
-
 Licensed under the EUPL_
 
 .. _EUPL: LICENSE.md
+.. _Maykin Media B.V.: https://www.maykinmedia.nl
+.. _Dimpact: https://www.dimpact.nl
 
 .. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
     :alt: Build status

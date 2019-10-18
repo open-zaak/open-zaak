@@ -52,4 +52,4 @@ if subpath:
 # Custom settings overrides
 #
 ENVIRONMENT = "production"
-SHOW_ALERT = False
+ENVIRONMENT_SHOWN_IN_ADMIN = False
