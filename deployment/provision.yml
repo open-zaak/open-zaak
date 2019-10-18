@@ -8,4 +8,4 @@
     ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
 
   tasks:
-    - debug: msg="hello world"
+    - import_tasks: tasks/ingress.yml

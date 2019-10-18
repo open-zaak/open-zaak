@@ -1,0 +1,52 @@
+---
+
+# Tasks to set up Traefik Ingress Controller in the cluster
+# https://docs.traefik.io/user-guides/crd-acme/
+
+# Custom resources
+
+- name: Define custom resources
+  k8s:
+    state: present
+    src: "files/traefik/{{ item }}.yml"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  with_items:
+    - ingress-route
+    - ingress-route-tcp
+    - middleware
+    - tls-option
+
+# RBAC
+
+- name: Define RBAC resources
+  k8s:
+    state: present
+    src: "files/traefik/{{ item }}.yml"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  with_items:
+    - cluster-role
+    - cluster-role-binding
+
+# Service
+
+- name: Define service
+  k8s:
+    state: present
+    src: files/traefik/service.yml
+    validate:
+      fail_on_error: yes
+      strict: yes
+
+# Ingress controller
+
+- name: Define Ingress Controller
+  k8s:
+    state: present
+    src: files/traefik/deployment.yml
+    validate:
+      fail_on_error: yes
+      strict: yes
