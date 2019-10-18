@@ -40,9 +40,7 @@ from openzaak.components.catalogi.models import (
     StatusType,
     ZaakType,
 )
-from openzaak.components.documenten.api.serializers import (
-    EnkelvoudigInformatieObjectHyperlinkedRelatedField,
-)
+from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -80,6 +78,7 @@ from .betrokkenen import (
     RolOrganisatorischeEenheidSerializer,
     RolVestigingSerializer,
 )
+from .utils import create_remote_oio
 
 logger = logging.getLogger(__name__)
 
@@ -355,9 +354,10 @@ class ZaakSerializer(
             != Archiefstatus.nog_te_archiveren
         )
         if archiefstatus:
+            # TODO: check remote ZIO.informatieobject
             # search for related informatieobjects with status != 'gearchiveerd'
             canonical_ids = self.instance.zaakinformatieobject_set.values(
-                "informatieobject_id"
+                "_informatieobject_id"
             )
             io_ids = (
                 EnkelvoudigInformatieObjectCanonical.objects.filter(
@@ -378,8 +378,8 @@ class ZaakSerializer(
                         "archiefstatus",
                         _(
                             "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
-                            "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` op een andere "
-                            "waarde dan `nog_te_archiveren`."
+                            "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` "
+                            "op een andere waarde dan `nog_te_archiveren`."
                         ),
                     },
                     code="documents-not-archived",
@@ -460,15 +460,17 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         if validated_attrs["__is_eindstatus"]:
             zaak = validated_attrs["zaak"]
 
+            # TODO: check remote documents!
             if zaak.zaakinformatieobject_set.exclude(
-                informatieobject__lock=""
+                _informatieobject__lock=""
             ).exists():
                 raise serializers.ValidationError(
                     "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
                     "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
                     code="informatieobject-locked",
                 )
-            canonical_ids = zaak.zaakinformatieobject_set.values("informatieobject_id")
+            # TODO: support external IO
+            canonical_ids = zaak.zaakinformatieobject_set.values("_informatieobject_id")
             io_ids = (
                 EnkelvoudigInformatieObjectCanonical.objects.filter(
                     id__in=Subquery(canonical_ids)
@@ -576,14 +578,11 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True,
         choices=[(force_text(value), key) for key, value in RelatieAarden.choices],
     )
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
-        lookup_field="uuid",
-        queryset=EnkelvoudigInformatieObject.objects.all(),
-        min_length=1,
-        max_length=1000,
-        help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
+    informatieobject = EnkelvoudigInformatieObjectField(
         validators=[IsImmutableValidator()],
+        max_length=1000,
+        min_length=1,
+        help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
     )
 
     class Meta:
@@ -610,6 +609,32 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
         }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            zio = super().create(validated_data)
+
+        # local FK - nothing to do -> our signals create the OIO
+        if zio.informatieobject.pk:
+            return zio
+
+        # we know that we got valid URLs in the initial data
+        io_url = self.initial_data["informatieobject"]
+        zaak_url = self.initial_data["zaak"]
+
+        # manual transaction management - documents API checks that the ZIO
+        # exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the ZIO creation.
+        try:
+            create_remote_oio(io_url, zaak_url)
+        except Exception as exception:
+            zio.delete()
+            raise serializers.ValidationError(
+                _("Could not create remote relation: {exception}"),
+                params={"exception": exception},
+            )
+        return zio
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):

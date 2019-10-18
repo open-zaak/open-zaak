@@ -161,7 +161,11 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         url = reverse(ZaakInformatieObject)
 
         response = self.client.post(
-            url, {"zaak": zaak_data["url"], "informatieobject": io_url}
+            url,
+            {
+                "zaak": zaak_data["url"],
+                "informatieobject": f"http://testserver{io_url}",
+            },
         )
         zaakinformatieobject_response = response.data
 

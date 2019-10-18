@@ -1,7 +1,10 @@
+import uuid
 from datetime import datetime
 
+from django.test import tag
 from django.utils import timezone
 
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,8 +13,13 @@ from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTypeFactory
+from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
+)
+from openzaak.components.documenten.tests.utils import (
+    get_eio_response,
+    get_oio_response,
 )
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -105,10 +113,12 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Test the (informatieobject, object) unique together validation.
         """
-        zio = ZaakInformatieObjectFactory.create()
-        ZaakInformatieobjectTypeFactory.create(
-            informatieobjecttype=zio.informatieobject.latest_version.informatieobjecttype,
-            zaaktype=zio.zaak.zaaktype,
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zio = ZaakInformatieObjectFactory.create(
+            zaak__zaaktype=zio_type.zaaktype,
+            informatieobject__latest_version__informatieobjecttype=zio_type.informatieobjecttype,
         )
         zaak_url = reverse(zio.zaak)
         io_url = reverse(zio.informatieobject.latest_version)
@@ -204,3 +214,70 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Relation is gone, zaak still exists.
         self.assertFalse(ZaakInformatieObject.objects.exists())
         self.assertTrue(Zaak.objects.exists())
+
+
+@tag("external-urls")
+class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    # TODO: validation tests with bad inputs
+
+    def test_relate_external_document(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://testserver{reverse(zaak)}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
+
+        with self.subTest(section="zio-create"):
+            with requests_mock.Mocker() as m:
+                m.get(document, json=eio_response)
+                m.post(
+                    "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+                    json=get_oio_response(document, zaak_url),
+                    status_code=201,
+                )
+
+                response = self.client.post(
+                    reverse(ZaakInformatieObject),
+                    {"zaak": zaak_url, "informatieobject": document},
+                )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+            posts = [req for req in m.request_history if req.method == "POST"]
+            self.assertEqual(len(posts), 1)
+            request = posts[0]
+            self.assertEqual(
+                request.url,
+                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+            )
+            self.assertEqual(
+                request.json(),
+                {
+                    "informatieobject": document,
+                    "object": zaak_url,
+                    "objectType": "zaak",
+                },
+            )
+
+            self.assertFalse(ObjectInformatieObject.objects.exists())
+
+        with self.subTest(section="zio-list"):
+            list_response = self.client.get(
+                reverse(ZaakInformatieObject), {"zaak": zaak_url}
+            )
+
+            self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+            data = list_response.json()
+
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["informatieobject"], document)
