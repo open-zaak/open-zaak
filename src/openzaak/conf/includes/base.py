@@ -97,7 +97,6 @@ INSTALLED_APPS = [
     # Optional applications.
     "ordered_model",
     "django_admin_index",
-
     "django.contrib.admin",
     "django.contrib.gis",
     # 'django.contrib.admindocs',
