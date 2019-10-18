@@ -32,7 +32,7 @@ a:focus, a:hover {
 }
 
 #user-tools a:focus, #user-tools a:hover {
-  color: #2B579A;
+  color: #000;
 }
 
 .module h2, .module caption, .inline-group h2 {
@@ -108,8 +108,69 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   background: #333;
 }
 
+/* Many to many selector */
 .selector-chosen h2 {
   background: #2B579A !important;
+}
+
+/* Calendar widget */
+.calendar caption {
+  background: #C6C6C6 !important;
+  color: #333 !important;
+}
+
+.calendar td a:active {
+  background: #2B579A !important;
+}
+
+.calendar td a:focus, .calendar td a:hover {
+  background: #124078 !important;
+}
+
+.calendar td.selected a {
+  background: #2B579A !important;
+}
+
+.calendarbox h2 {
+  background: #C6C6C6 !important;
+  color: #333 !important;
+}
+
+/* Time widget */
+.timelist a:active {
+  background: #2B579A !important;
+}
+
+.timelist a:focus, .timelist a:hover {
+  background: #124078 !important;
+}
+
+.module.clockbox h2 {
+  /* Match the clock widget with the calendar widget */
+  background: #C6C6C6 !important;
+  color: #333 !important;
+  font-weight: bold !important;
+}
+
+/* Icons */
+.addlink {
+  background: url("../../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.changelink, .inlinechangelink {
+  background: url("../../img/admin/edit-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.deletelink {
+  background: url("../../img/admin/trash-alt-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.datetimeshortcuts .clock-icon {
+  background: url("../../img/admin/clock-regular.svg") 0 0/14px 14px no-repeat !important;
+}
+
+.datetimeshortcuts .date-icon {
+  background: url("../../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
 }
 
 /**
