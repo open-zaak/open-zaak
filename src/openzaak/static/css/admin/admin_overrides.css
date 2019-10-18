@@ -1,16 +1,20 @@
 /* Colors */
 /* Overrides */
+body {
+  overflow-y: scroll;
+}
+
 a:link, a:visited {
-  color: #447e9b;
+  color: #2B579A;
 }
 
 a:focus, a:hover {
-  color: #036;
+  color: #124078;
 }
 
 #header {
-  color: #ffc;
-  background: #417690;
+  color: #fff;
+  background: #2B579A;
   /* border-bottom: 8px solid $color_secondary; */
   position: -webkit-sticky;
   position: sticky;
@@ -28,24 +32,24 @@ a:focus, a:hover {
 }
 
 #user-tools a:focus, #user-tools a:hover {
-  color: #79aec8;
+  color: #2B579A;
 }
 
 .module h2, .module caption, .inline-group h2 {
-  background: #79aec8;
+  background: #2B579A;
 }
 
 #branding h1 {
-  color: #f5dd5d;
+  color: #F3F3F3;
 }
 
 #branding h1 a:link, #branding h1 a:visited {
-  color: #f5dd5d;
+  color: #F3F3F3;
 }
 
 div.breadcrumbs {
-  background: #79aec8;
-  color: #c4dce8;
+  background: #F3F3F3;
+  color: #2B579A;
   position: -webkit-sticky;
   position: sticky;
   top: 60px;
@@ -53,24 +57,24 @@ div.breadcrumbs {
 }
 
 div.breadcrumbs a {
-  color: #fff;
+  color: #333;
 }
 
 div.breadcrumbs a:focus, div.breadcrumbs a:hover {
-  color: #fff;
+  color: #000;
 }
 
 /* Important is used because Django templates include their own style, after ours */
 #changelist-filter a:focus, #changelist-filter a:hover {
-  color: #447e9b !important;
+  color: #2B579A !important;
 }
 
 #changelist-filter li.selected a {
-  color: #447e9b !important;
+  color: #2B579A !important;
 }
 
 #changelist-filter li.selected a:focus, #changelist-filter li.selected a:hover {
-  color: #79aec8 !important;
+  color: #2B579A !important;
 }
 
 .object-tools a:focus, .object-tools a:hover {
@@ -78,17 +82,17 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 }
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-  background: #79aec8;
+  background: #2B579A;
   color: #fff;
   /* border: 2px solid $color_dark; */
 }
 
 .button:active, input[type=submit]:active, input[type=button]:active, .button:focus, input[type=submit]:focus, input[type=button]:focus, .button:hover, input[type=submit]:hover, input[type=button]:hover {
-  background: #417690;
+  background: #124078;
 }
 
 .button.default, input[type=submit].default, .submit-row input.default {
-  background: #417690;
+  background: #124078;
 }
 
 .button.default:active, input[type=submit].default:active, .button.default:focus, input[type=submit].default:focus, .button.default:hover, input[type=submit].default:hover {
@@ -104,14 +108,20 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   background: #333;
 }
 
-/* Environment banner */
+.selector-chosen h2 {
+  background: #2B579A !important;
+}
+
+/**
+ * Environment banner
+ */
 .env {
   display: block;
   line-height: 35px;
   text-align: center;
   font-weight: bold;
   text-transform: uppercase;
-  color: #f5dd5d;
+  color: #F3F3F3;
   background-color: #333;
   position: fixed;
   top: 0;
@@ -120,25 +130,26 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   left: 50%;
   margin-left: -150px;
   z-index: 1000001;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
-/*
+/**
  * DJANGO ADMIN INDEX
  */
-/* Override for Environment banner */
 .dropdown-menu {
+  /* Override for Environment banner */
   top: 49px;
+  /* Added to attach body */
+  border-bottom: 8px solid #F3F3F3;
 }
 
-/* If you wish the breadcrumbs to disappear, do:
 .breadcrumbs {
   top: 49px !important;
 }
-*/
+
 /* Integration into color scheme */
 .dropdown-menu {
-  background-color: #417690;
+  background-color: #2B579A;
 }
 
 .dropdown-menu .dropdown-menu__item,
@@ -150,18 +161,26 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 .dropdown-menu .dropdown-menu__item.dropdown-menu__item--active,
 .dropdown-menu .dropdown-menu__item:link.dropdown-menu__item--active,
 .dropdown-menu .dropdown-menu__item:visited.dropdown-menu__item--active {
-  background-color: #79aec8;
+  background-color: #F3F3F3;
   text-decoration: none;
+  color: #2B579A;
+}
+
+.dropdown-menu .dropdown-menu__item.dropdown-menu__item--active:hover,
+.dropdown-menu .dropdown-menu__item:link.dropdown-menu__item--active:hover,
+.dropdown-menu .dropdown-menu__item:visited.dropdown-menu__item--active:hover {
+  color: #fff;
 }
 
 .dropdown-menu .dropdown-menu__item:hover,
 .dropdown-menu .dropdown-menu__item:link:hover,
 .dropdown-menu .dropdown-menu__item:visited:hover {
-  background-color: #79aec8;
+  background-color: #124078;
 }
 
 .dropdown-menu .dropdown-menu__drop {
-  background-color: #417690;
+  background-color: #2B579A;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 .dropdown-menu .dropdown-menu__link,
@@ -173,17 +192,24 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 .dropdown-menu .dropdown-menu__link:hover,
 .dropdown-menu .dropdown-menu__link:link:hover,
 .dropdown-menu .dropdown-menu__link:visited:hover {
-  background-color: #79aec8;
+  background-color: #124078;
 }
 
 .dropdown-menu .dropdown-menu__link.dropdown-menu__link--active,
 .dropdown-menu .dropdown-menu__link:link.dropdown-menu__link--active,
 .dropdown-menu .dropdown-menu__link:visited.dropdown-menu__link--active {
-  background-color: #79aec8;
+  background-color: #124078;
   text-decoration: none;
 }
 
 /* Override for wider dropdown */
 .dropdown-menu .dropdown-menu__drop {
   min-width: 250px;
+}
+
+/**
+ * Branding
+ */
+#branding h1 a:link, #branding h1 a:visited {
+  font-weight: bold;
 }

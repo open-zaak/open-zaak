@@ -1,20 +1,24 @@
 /* Colors */
-$color_primary: #79aec8;
-$color_primary_dark: #417690;
+$color_primary: #2B579A;
+$color_primary_dark: #124078;
 $color_primary_light: #c4dce8;
 
-$color_secondary: #f5dd5d;
-$color_secondary_dark: #f5dd5d;
-$color_secondary_light: #ffc;
+$color_secondary: #F3F3F3;
+$color_secondary_dark: #C6C6C6;
+$color_secondary_light: #fff;
 
-$color_link: #447e9b;
-$color_link_hover: #036;
+$color_link: #2B579A;
+$color_link_hover: #124078;
 
 $color_darkest: #000;
 $color_dark: #333;
 $color_lightest: #fff;
 
 /* Overrides */
+body {
+  overflow-y: scroll;
+}
+
 a:link, a:visited {
   color: $color_link;
 }
@@ -24,7 +28,7 @@ a:focus, a:hover {
 
 #header {
 	color: $color_secondary_light;
-  background: $color_primary_dark;
+  background: $color_primary;
   /* border-bottom: 8px solid $color_secondary; */
   position: sticky;
   top: 0;
@@ -59,17 +63,17 @@ a:focus, a:hover {
 }
 
 div.breadcrumbs {
-  background: $color_primary;
-  color: $color_primary_light;
+  background: $color_secondary;
+  color: $color_primary;
   position: sticky;
   top: 60px;
   z-index: 100000;
 
   a {
-    color: $color_lightest;
+    color: $color_dark;
 
     &:focus, &:hover {
-      color: $color_lightest;
+      color: $color_darkest;
     }
   }
 }
@@ -122,7 +126,13 @@ div.breadcrumbs {
   }
 }
 
-/* Environment banner */
+.selector-chosen h2 {
+  background: $color_primary !important;
+}
+
+/**
+ * Environment banner
+ */
 .env {
   display: block;
   line-height: 35px;
@@ -138,26 +148,27 @@ div.breadcrumbs {
   left: 50%;
   margin-left: -150px;
   z-index: 1000001;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
-/*
+/**
  * DJANGO ADMIN INDEX
  */
-/* Override for Environment banner */
+
 .dropdown-menu {
+  /* Override for Environment banner */
   top: 49px;
+  /* Added to attach body */
+  border-bottom: 8px solid $color_secondary;
 }
 
-/* If you wish the breadcrumbs to disappear, do:
 .breadcrumbs {
   top: 49px !important;
 }
-*/
 
 /* Integration into color scheme */
 .dropdown-menu {
-  background-color: $color_primary_dark;
+  background-color: $color_primary;
 
   .dropdown-menu__item,
   .dropdown-menu__item:link,
@@ -165,17 +176,23 @@ div.breadcrumbs {
     color: $color_lightest;
 
     &.dropdown-menu__item--active {
-      background-color: $color_primary;
+      background-color: $color_secondary;
       text-decoration: none;
+      color: $color_primary;
+
+      &:hover {
+        color: $color_lightest;
+      }
     }
 
     &:hover {
-      background-color: $color_primary;
+      background-color: $color_primary_dark;
     }
   }
 
   .dropdown-menu__drop {
-    background-color: $color_primary_dark;
+    background-color: $color_primary;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2)
   }
 
   .dropdown-menu__link,
@@ -184,11 +201,11 @@ div.breadcrumbs {
     color: $color_lightest;
 
     &:hover {
-      background-color: $color_primary;
+      background-color: $color_primary_dark;
     }
 
     &.dropdown-menu__link--active {
-      background-color: $color_primary;
+      background-color: $color_primary_dark;
       text-decoration: none;
     }
   }
@@ -197,3 +214,14 @@ div.breadcrumbs {
 .dropdown-menu .dropdown-menu__drop {
   min-width: 250px;
 }
+
+
+/**
+ * Branding
+ */
+#branding h1 {
+  a:link, a:visited {
+    font-weight: bold;
+  }
+}
+
