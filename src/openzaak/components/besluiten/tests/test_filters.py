@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.test import tag
 
 from rest_framework import status
@@ -50,6 +52,27 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
 
+    def test_filter_by_invalid_url(self):
+        response = self.client.get(reverse(Besluit), {"besluittype": "bla"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "invalid")
+
+    def test_filter_by_valid_url_object_does_not_exist(self):
+        response = self.client.get(
+            reverse(Besluit), {"besluittype": "https://google.com"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data,
+            OrderedDict(
+                [("count", 0), ("next", None), ("previous", None), ("results", [])]
+            ),
+        )
+
 
 class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -64,3 +87,11 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_by_invalid_url(self):
+        response = self.client.get(reverse(BesluitInformatieObject), {"besluit": "bla"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluit")
+        self.assertEqual(error["code"], "invalid")
