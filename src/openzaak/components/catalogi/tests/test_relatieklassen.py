@@ -388,3 +388,28 @@ class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
             "rstzdt.selectielijstklasse": None,
         }
         self.assertEqual(response.json(), expected)
+
+
+class ZaakInformatieobjecttypeValidationTests(APITestCase):
+    maxDiff = None
+
+    list_url = reverse_lazy(ZaakInformatieobjectType)
+
+    def test_catalogus_mismatch(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "volgnummer": 13,
+            "richting": RichtingChoices.inkomend,
+        }
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-catalogus")
