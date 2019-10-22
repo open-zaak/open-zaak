@@ -1,6 +1,6 @@
 import sys
 
-from .dev import DATABASES, INSTALLED_APPS
+from ..dev import DATABASES, INSTALLED_APPS
 
 INSTALLED_APPS += ["django_extensions"]
 

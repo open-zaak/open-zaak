@@ -33,12 +33,14 @@ urlpatterns = [
                 # API documentation
                 url(
                     r"^schema/openapi(?P<format>\.json|\.yaml)$",
-                    SchemaView.without_ui(cache_timeout=None),
+                    SchemaView.without_ui(cache_timeout=settings.SPEC_CACHE_TIMEOUT),
                     name="schema-json-besluiten",
                 ),
                 url(
                     r"^schema/$",
-                    SchemaView.with_ui("redoc", cache_timeout=None),
+                    SchemaView.with_ui(
+                        "redoc", cache_timeout=settings.SPEC_CACHE_TIMEOUT
+                    ),
                     name="schema-redoc-besluiten",
                 ),
                 # actual API

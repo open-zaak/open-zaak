@@ -14,6 +14,21 @@
     <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ settings.PROJECT_NAME }} beheer</a></h1>
 {% endblock %}
 
+{% block welcome-msg %}
+    {% trans 'Ingelogd als' %}
+    <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+{% endblock %}
+
+{% block userlinks %}
+    {% if site_url %}
+        <a href="{{ site_url }}">{{ settings.SITE_TITLE }}</a> /
+    {% endif %}
+    {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+    {% endif %}
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+{% endblock %}
+
 {% block nav-global %}{% endblock %}
 
 {% block messages %}

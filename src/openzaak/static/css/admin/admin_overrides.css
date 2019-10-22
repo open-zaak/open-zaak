@@ -5,7 +5,7 @@ body {
 }
 
 a:link, a:visited {
-  color: #2B579A;
+  color: #005DD0;
 }
 
 a:focus, a:hover {
@@ -14,7 +14,7 @@ a:focus, a:hover {
 
 #header {
   color: #fff;
-  background: #2B579A;
+  background: #2E8DD0;
   /* border-bottom: 8px solid $color_secondary; */
   position: -webkit-sticky;
   position: sticky;
@@ -36,7 +36,7 @@ a:focus, a:hover {
 }
 
 .module h2, .module caption, .inline-group h2 {
-  background: #2B579A;
+  background: #2E8DD0;
 }
 
 #branding h1 {
@@ -49,7 +49,7 @@ a:focus, a:hover {
 
 div.breadcrumbs {
   background: #F3F3F3;
-  color: #2B579A;
+  color: #2E8DD0;
   position: -webkit-sticky;
   position: sticky;
   top: 60px;
@@ -66,15 +66,15 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 
 /* Important is used because Django templates include their own style, after ours */
 #changelist-filter a:focus, #changelist-filter a:hover {
-  color: #2B579A !important;
+  color: #005DD0 !important;
 }
 
 #changelist-filter li.selected a {
-  color: #2B579A !important;
+  color: #005DD0 !important;
 }
 
 #changelist-filter li.selected a:focus, #changelist-filter li.selected a:hover {
-  color: #2B579A !important;
+  color: #2E8DD0 !important;
 }
 
 .object-tools a:focus, .object-tools a:hover {
@@ -82,7 +82,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 }
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-  background: #2B579A;
+  background: #2E8DD0;
   color: #fff;
   /* border: 2px solid $color_dark; */
 }
@@ -110,7 +110,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 
 /* Many to many selector */
 .selector-chosen h2 {
-  background: #2B579A !important;
+  background: #2E8DD0 !important;
 }
 
 /* Calendar widget */
@@ -120,7 +120,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 }
 
 .calendar td a:active {
-  background: #2B579A !important;
+  background: #2E8DD0 !important;
 }
 
 .calendar td a:focus, .calendar td a:hover {
@@ -128,7 +128,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 }
 
 .calendar td.selected a {
-  background: #2B579A !important;
+  background: #2E8DD0 !important;
 }
 
 .calendarbox h2 {
@@ -138,7 +138,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 
 /* Time widget */
 .timelist a:active {
-  background: #2B579A !important;
+  background: #2E8DD0 !important;
 }
 
 .timelist a:focus, .timelist a:hover {
@@ -199,18 +199,18 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
  */
 .dropdown-menu {
   /* Override for Environment banner */
-  top: 49px;
+  top: 48px;
   /* Added to attach body */
   border-bottom: 8px solid #F3F3F3;
 }
 
 .breadcrumbs {
-  top: 49px !important;
+  top: 48px !important;
 }
 
 /* Integration into color scheme */
 .dropdown-menu {
-  background-color: #2B579A;
+  background-color: #2E8DD0;
 }
 
 .dropdown-menu .dropdown-menu__item,
@@ -224,7 +224,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 .dropdown-menu .dropdown-menu__item:visited.dropdown-menu__item--active {
   background-color: #F3F3F3;
   text-decoration: none;
-  color: #2B579A;
+  color: #2E8DD0;
 }
 
 .dropdown-menu .dropdown-menu__item.dropdown-menu__item--active:hover,
@@ -240,7 +240,7 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
 }
 
 .dropdown-menu .dropdown-menu__drop {
-  background-color: #2B579A;
+  background-color: #2E8DD0;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
