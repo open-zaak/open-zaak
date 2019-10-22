@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.utils.translation import ugettext_lazy as _
@@ -36,8 +38,12 @@ def status_filter(queryset, name, value):
 
 
 def m2m_filter(queryset, name, value):
+    parsed = urlparse(value)
+    path = parsed.path
+    if path == "/":
+        path = ""
     try:
-        object = get_resource_for_path(value)
+        object = get_resource_for_path(path)
     except ObjectDoesNotExist:
         object = None
     return queryset.filter(**{name: object})
