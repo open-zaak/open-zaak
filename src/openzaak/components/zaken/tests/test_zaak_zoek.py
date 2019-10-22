@@ -75,7 +75,7 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                         "coordinates": [POLYGON_AMSTERDAM_CENTRUM],
                     }
                 },
-                "zaaktype": f"http://testserver{zaaktype1_url}",
+                "zaaktype": f"http://testserver.com{zaaktype1_url}",
             },
             **ZAAK_WRITE_KWARGS,
         )

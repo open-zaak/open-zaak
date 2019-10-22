@@ -521,15 +521,17 @@ class ResultaatTypeFilterAPITests(APITestCase):
     def test_filter_on_zaaktype(self):
         zt1, zt2 = ZaakTypeFactory.create_batch(2, concept=False)
         rt1 = ResultaatTypeFactory.create(zaaktype=zt1)
-        rt1_url = f"http://testserver{reverse(rt1)}"
         rt2 = ResultaatTypeFactory.create(zaaktype=zt2)
-        rt2_url = f"http://testserver{reverse(rt2)}"
-        zt1_url = "http://testserver{}".format(
-            reverse("zaaktype-detail", kwargs={"uuid": zt1.uuid})
-        )
-        zt2_url = "http://testserver{}".format(
-            reverse("zaaktype-detail", kwargs={"uuid": zt2.uuid})
-        )
+
+        rt1_uri = reverse(rt1)
+        rt2_uri = reverse(rt2)
+        rt1_url = f"http://testserver.com{rt1_uri}"
+        rt2_url = f"http://testserver.com{rt2_uri}"
+
+        zt1_uri = reverse("zaaktype-detail", kwargs={"uuid": zt1.uuid})
+        zt2_uri = reverse("zaaktype-detail", kwargs={"uuid": zt2.uuid})
+        zt1_url = "http://testserver.com{}".format(zt1_uri)
+        zt2_url = "http://testserver.com{}".format(zt2_uri)
         list_url = reverse("resultaattype-list")
 
         response = self.client.get(list_url, {"zaaktype": zt1_url})
@@ -537,10 +539,10 @@ class ResultaatTypeFilterAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
-        self.assertEqual(response_data[0]["url"], rt1_url)
-        self.assertEqual(response_data[0]["zaaktype"], zt1_url)
-        self.assertNotEqual(response_data[0]["url"], rt2_url)
-        self.assertNotEqual(response_data[0]["zaaktype"], zt2_url)
+        self.assertEqual(response_data[0]["url"], f"http://testserver{rt1_uri}")
+        self.assertEqual(response_data[0]["zaaktype"], f"http://testserver{zt1_uri}")
+        self.assertNotEqual(response_data[0]["url"], f"http://testserver{rt2_uri}")
+        self.assertNotEqual(response_data[0]["zaaktype"], f"http://testserver{zt2_uri}")
 
     def test_filter_resultaattype_status_alles(self):
         ResultaatTypeFactory.create(zaaktype__concept=True)

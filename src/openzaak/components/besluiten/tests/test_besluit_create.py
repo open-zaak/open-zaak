@@ -125,12 +125,14 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         base_uri = get_operation_url("besluitinformatieobject_list")
 
-        url1 = f"{base_uri}?besluit={besluit1_uri}"
-        response1 = self.client.get(url1)
+        response1 = self.client.get(
+            base_uri, {"besluit": f"http://testserver.com{besluit1_uri}"}
+        )
         self.assertEqual(len(response1.data), 3)
 
-        url2 = f"{base_uri}?besluit={besluit2_uri}"
-        response2 = self.client.get(url2)
+        response2 = self.client.get(
+            base_uri, {"besluit": f"http://testserver.com{besluit2_uri}"}
+        )
         self.assertEqual(len(response2.data), 2)
 
     def test_besluit_create_fail_besluittype_max_length(self):

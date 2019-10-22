@@ -35,7 +35,7 @@ class ZaakObjectFilterTestCase(JWTAuthMixin, APITestCase):
         zaakobject1_url = get_operation_url("zaakobject_read", uuid=zaakobject1.uuid)
         url = get_operation_url("zaakobject_list")
 
-        response = self.client.get(url, {"zaak": zaak_url})
+        response = self.client.get(url, {"zaak": f"http://testserver.com{zaak_url}"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
