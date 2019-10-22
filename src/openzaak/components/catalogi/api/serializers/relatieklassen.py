@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
+from ..validators import ZaakInformatieObjectTypeCatalogusValidator
 from ...constants import RichtingChoices
 from ...models import ZaakInformatieobjectType
 
@@ -28,6 +29,7 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "informatieobjecttype": {"lookup_field": "uuid"},
             "statustype": {"lookup_field": "uuid"},
         }
+        validators = [ZaakInformatieObjectTypeCatalogusValidator()]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
