@@ -36,7 +36,10 @@ def status_filter(queryset, name, value):
 
 
 def m2m_filter(queryset, name, value):
-    object = get_resource_for_path(value)
+    try:
+        object = get_resource_for_path(value)
+    except ObjectDoesNotExist:
+        object = None
     return queryset.filter(**{name: object})
 
 
