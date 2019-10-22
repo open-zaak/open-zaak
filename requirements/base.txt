@@ -61,4 +61,4 @@ unidecode==1.0.22         # via vng-api-common
 uritemplate==3.0.0        # via coreapi, drf-yasg
 urllib3==1.24.3           # via requests
 uwsgi==2.0.18
-vng-api-common==1.0.18
+vng-api-common==1.0.22
