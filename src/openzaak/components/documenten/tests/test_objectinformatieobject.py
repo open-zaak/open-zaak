@@ -253,15 +253,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             response.data[0]["informatieobject"], f"http://testserver{bio_detail_url}"
         )
 
-    def test_filter_incorrect_url(self):
-        response = self.client.get(
-            self.list_url, {"object": "http://example.com/some-url"}
-        )
-
-        self.assertEqual(response.status_code, 400)
-        error = get_validation_errors(response, "object")
-        self.assertEqual(error["code"], "invalid")
-
     def test_validate_unknown_query_params(self):
         url = reverse(ObjectInformatieObject)
 
