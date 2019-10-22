@@ -199,13 +199,13 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
  */
 .dropdown-menu {
   /* Override for Environment banner */
-  top: 49px;
+  top: 48px;
   /* Added to attach body */
   border-bottom: 8px solid #F3F3F3;
 }
 
 .breadcrumbs {
-  top: 49px !important;
+  top: 48px !important;
 }
 
 /* Integration into color scheme */
