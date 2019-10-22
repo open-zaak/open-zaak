@@ -1,12 +1,13 @@
 from unittest import skip
 
 from rest_framework import status
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse, reverse_lazy, get_validation_errors
 
 from ..constants import RichtingChoices
 from ..models import ZaakInformatieobjectType
 from .base import APITestCase
 from .factories import (
+    CatalogusFactory,
     InformatieObjectTypeFactory,
     ZaakInformatieobjectTypeArchiefregimeFactory,
     ZaakInformatieobjectTypeFactory,
@@ -64,7 +65,9 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
     def test_create_ziot(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=zaaktype.catalogus
+        )
         informatieobjecttype_url = reverse(informatieobjecttype)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -85,7 +88,9 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
     def test_create_ziot_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=zaaktype.catalogus
+        )
         informatieobjecttype_url = reverse(informatieobjecttype)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -107,7 +112,9 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
     def test_create_ziot_fail_not_concept_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=zaaktype.catalogus
+        )
         informatieobjecttype_url = reverse(informatieobjecttype)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
