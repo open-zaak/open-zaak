@@ -44,6 +44,19 @@ You need:
 * see `vars/db_credentials.example.yml` - save this file as
   `vars/db_credentials.yml` and modify with your own credentials.
 
+**Persistent storage**
+
+For multi-replica setups and secure file serving, we need a PVC storage class
+that supports `ReadWriteMany` - see
+[the Kubernetes docs](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes)
+for an overview.
+
+On Google Cloud, we can use:
+
+```shell
+[user@host]$ gcloud compute disks create --size=10GB --zone=europe-west4-b gce-nfs-disk
+```
+
 ## Provisioning
 
 The Ansible playbook `provision.yml`:

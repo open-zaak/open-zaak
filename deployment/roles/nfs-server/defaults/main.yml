@@ -1,0 +1,5 @@
+---
+
+disk_name: gce-nfs-disk
+
+disk_size: 10Gi

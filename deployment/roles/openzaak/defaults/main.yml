@@ -23,3 +23,5 @@ openzaak_version: latest
 openzaak_image: openzaak/open-zaak:{{ openzaak_version }}
 openzaak_replicas: 1
 openzaak_instance: test
+
+openzaak_storage: 10Gi

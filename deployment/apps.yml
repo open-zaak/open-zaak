@@ -11,6 +11,7 @@
     - vars/db_credentials.yml
 
   roles:
+    # - role: nfs-server
     - role: openzaak
       vars:
         db_host: "{{ db.privateIp }}"
