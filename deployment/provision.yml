@@ -8,6 +8,7 @@
     ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
 
   vars_files:
+    - vars/maykin.yml
     - vars/db_credentials.yml
 
   tasks:
