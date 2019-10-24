@@ -7,12 +7,12 @@ from ..validators import RelationCatalogValidator
 
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobjecttypes = serializers.HyperlinkedRelatedField(
+    informatieobjecttypen = serializers.HyperlinkedRelatedField(
         view_name="informatieobjecttype-detail",
         many=True,
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
-        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypes"),
+        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
     )
 
     zaaktypes = serializers.HyperlinkedRelatedField(
@@ -44,7 +44,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "publicatietekst",
             "publicatietermijn",
             "toelichting",
-            "informatieobjecttypes",
+            "informatieobjecttypen",
             "begin_geldigheid",
             "einde_geldigheid",
             "concept",
@@ -53,6 +53,6 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             UniqueTogetherValidator(
                 queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),
-            RelationCatalogValidator("informatieobjecttypes"),
+            RelationCatalogValidator("informatieobjecttypen"),
             RelationCatalogValidator("zaaktypes"),
         ]

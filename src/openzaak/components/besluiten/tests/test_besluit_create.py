@@ -36,7 +36,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        besluittype.informatieobjecttypes.add(io.informatieobjecttype)
+        besluittype.informatieobjecttypen.add(io.informatieobjecttype)
 
         with self.subTest(part="besluit_create"):
             url = get_operation_url("besluit_create")

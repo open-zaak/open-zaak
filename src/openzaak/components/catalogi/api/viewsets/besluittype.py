@@ -71,4 +71,4 @@ class BesluitTypeViewSet(
         "destroy": SCOPE_ZAAKTYPES_WRITE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
-    concept_related_fields = ["informatieobjecttypes", "zaaktypes"]
+    concept_related_fields = ["informatieobjecttypen", "zaaktypes"]

@@ -22,7 +22,7 @@ def get_besluittype_response(catalogus: str, besluittype: str) -> dict:
         "publicatietekst": "",
         "publicatietermijn": None,
         "toelichting": "",
-        "informatieobjecttypes": [],
+        "informatieobjecttypen": [],
         "beginGeldigheid": "2018-01-01",
         "eindeGeldigheid": None,
         "concept": False,

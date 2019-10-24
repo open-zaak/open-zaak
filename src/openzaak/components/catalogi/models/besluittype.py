@@ -101,7 +101,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         ),
     )
 
-    informatieobjecttypes = models.ManyToManyField(
+    informatieobjecttypen = models.ManyToManyField(
         "catalogi.InformatieObjectType",
         blank=True,
         verbose_name=_("informatieobjecttype"),

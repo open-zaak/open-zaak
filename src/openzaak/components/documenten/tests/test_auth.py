@@ -58,7 +58,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
     def test_io_list(self):
         """
-        Assert you can only list INFORMATIEOBJECTen of the informatieobjecttypes and vertrouwelijkheidaanduiding
+        Assert you can only list INFORMATIEOBJECTen of the informatieobjecttypen and vertrouwelijkheidaanduiding
         of your authorization
         """
         EnkelvoudigInformatieObjectFactory.create(

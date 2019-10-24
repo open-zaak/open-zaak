@@ -19,14 +19,14 @@ class BesluitTypeFactory(factory.django.DjangoModelFactory):
         model = BesluitType
 
     @factory.post_generation
-    def informatieobjecttypes(self, create, extracted, **kwargs):
+    def informatieobjecttypen(self, create, extracted, **kwargs):
         # optional M2M, do nothing when no arguments are passed
         if not create:
             return
 
         if extracted:
             for informatieobjecttype in extracted:
-                self.informatieobjecttypes.add(informatieobjecttype)
+                self.informatieobjecttypen.add(informatieobjecttype)
 
     @factory.post_generation
     def zaaktypes(self, create, extracted, **kwargs):

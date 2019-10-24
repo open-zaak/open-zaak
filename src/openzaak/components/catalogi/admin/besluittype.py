@@ -39,11 +39,11 @@ class BesluitTypeAdmin(GeldigheidAdminMixin, ConceptAdminMixin, admin.ModelAdmin
             {
                 "fields": (
                     "catalogus",
-                    "informatieobjecttypes",
+                    "informatieobjecttypen",
                     # 'resultaattypes',
                     "zaaktypes",
                 )
             },
         ),
     )
-    filter_horizontal = ("informatieobjecttypes", "zaaktypes")  # , 'resultaattypes'
+    filter_horizontal = ("informatieobjecttypen", "zaaktypes")  # , 'resultaattypes'
