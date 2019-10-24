@@ -35,10 +35,19 @@ class ZaaktypeGeldigheidValidator:
         self.instance = getattr(serializer, "instance", None)
 
     def __call__(self, attrs):
-        catalogus = attrs["catalogus"]
-        zaaktype_omschrijving = attrs["zaaktype_omschrijving"]
-        datum_begin_geldigheid = attrs["datum_begin_geldigheid"]
-        datum_einde_geldigheid = attrs.get("datum_einde_geldigheid")
+        catalogus = attrs.get("catalogus") or self.instance.catalogus
+        zaaktype_omschrijving = (
+            attrs.get("zaaktype_omschrijving") or self.instance.zaaktype_omschrijving
+        )
+        datum_begin_geldigheid = (
+            attrs.get("datum_begin_geldigheid") or self.instance.datum_begin_geldigheid
+        )
+        current_einde_geldigheid = (
+            self.instance.datum_einde_geldigheid if self.instance is not None else None
+        )
+        datum_einde_geldigheid = (
+            attrs.get("datum_einde_geldigheid") or current_einde_geldigheid
+        )
 
         query = ZaakType.objects.filter(
             Q(catalogus=catalogus),
@@ -65,9 +74,17 @@ class RelationCatalogValidator:
         self.relation_field = relation_field
         self.catalogus_field = catalogus_field
 
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, "instance", None)
+
     def __call__(self, attrs: dict):
         relations = attrs.get(self.relation_field)
-        catalogus = attrs.get(self.catalogus_field)
+        catalogus = attrs.get(self.catalogus_field) or self.instance.catalogus
 
         if not relations:
             return
