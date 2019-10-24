@@ -212,6 +212,104 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-zaaktype")
 
+    def test_update_eigenschap(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+
+        data = {
+            "naam": "aangepast",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": zaaktype_url,
+        }
+
+        response = self.client.put(eigenschap_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["naam"], "aangepast")
+
+        eigenschap.refresh_from_db()
+        self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+    def test_update_eigenschap_fail_not_concept_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
+        eigenschap_url = reverse(eigenschap)
+
+        data = {
+            "naam": "aangepast",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": zaaktype_url,
+        }
+
+        response = self.client.put(eigenschap_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_update_eigenschap_add_relation_to_non_concept_zaaktype_fails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+
+        data = {
+            "naam": "aangepast",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": zaaktype_url,
+        }
+
+        response = self.client.put(eigenschap_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_partial_update_eigenschap(self):
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+
+        response = self.client.patch(eigenschap_url, {"naam": "aangepast"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["naam"], "aangepast")
+
+        eigenschap.refresh_from_db()
+        self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+    def test_partial_update_eigenschap_fail_not_concept_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype)
+        eigenschap_url = reverse(eigenschap)
+
+        response = self.client.patch(eigenschap_url, {"naam": "aangepast"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_partial_update_eigenschap_add_relation_to_non_concept_zaaktype_fails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+
+        response = self.client.patch(eigenschap_url, {"zaaktype": zaaktype_url})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
 
 class EigenschapFilterAPITests(APITestCase):
     maxDiff = None

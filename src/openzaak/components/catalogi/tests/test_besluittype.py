@@ -1,10 +1,19 @@
 from rest_framework import status
 from vng_api_common.tests import get_operation_url, get_validation_errors, reverse
 
-from ..api.validators import M2MConceptCreateValidator
+from ..api.validators import (
+    ConceptUpdateValidator,
+    M2MConceptCreateValidator,
+    M2MConceptUpdateValidator,
+)
 from ..models import BesluitType
 from .base import APITestCase
-from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakTypeFactory
+from .factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
 
 
 class BesluitTypeAPITests(APITestCase):
@@ -315,6 +324,353 @@ class BesluitTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-object")
+
+    def test_update_besluittype(self):
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+        )
+
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "zaaktypes": [],
+            "omschrijving": "test",
+            "omschrijvingGeneriek": "",
+            "besluitcategorie": "",
+            "reactietermijn": "P14D",
+            "publicatieIndicatie": True,
+            "publicatietekst": "",
+            "publicatietermijn": None,
+            "toelichting": "aangepast",
+            "informatieobjecttypen": [],
+            "beginGeldigheid": "2019-01-01",
+        }
+
+        response = self.client.put(besluittype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["toelichting"], "aangepast")
+
+        besluittype.refresh_from_db()
+        self.assertEqual(besluittype.toelichting, "aangepast")
+
+    def test_update_besluittype_fail_not_concept(self):
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+        )
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "zaaktypes": [],
+            "omschrijving": "test",
+            "omschrijvingGeneriek": "",
+            "besluitcategorie": "",
+            "reactietermijn": "P14D",
+            "publicatieIndicatie": True,
+            "publicatietekst": "",
+            "publicatietermijn": None,
+            "toelichting": "",
+            "informatieobjecttypen": [],
+            "beginGeldigheid": "2019-01-01",
+        }
+
+        response = self.client.put(besluittype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ConceptUpdateValidator.code)
+
+    def test_partial_update_besluittype(self):
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+        )
+
+        response = self.client.patch(besluittype_url, {"toelichting": "ja"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["toelichting"], "ja")
+
+        besluittype.refresh_from_db()
+        self.assertEqual(besluittype.toelichting, "ja")
+
+    def test_partial_update_besluittype_fail_not_concept(self):
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+        )
+
+        response = self.client.patch(besluittype_url, {"toelichting": "same"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ConceptUpdateValidator.code)
+
+    def test_delete_besluittype_not_related_to_non_concept_resources(self):
+        zaaktype = ZaakTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(**{resource: [related]})
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.delete(besluittype_url)
+
+                self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+                self.assertFalse(BesluitType.objects.exists())
+
+    def test_delete_besluittype_related_to_non_concept_resource_fails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(**{resource: [related]})
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.delete(besluittype_url)
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
+
+    def test_update_besluittype_not_related_to_non_concept_resource(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+        informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(
+                    catalogus=catalogus, **{resource: [related]}
+                )
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                data = {
+                    "catalogus": reverse(catalogus),
+                    "zaaktypes": [],
+                    "omschrijving": "test",
+                    "omschrijvingGeneriek": "",
+                    "besluitcategorie": "",
+                    "reactietermijn": "P14D",
+                    "publicatieIndicatie": True,
+                    "publicatietekst": "",
+                    "publicatietermijn": None,
+                    "toelichting": "aangepast",
+                    "informatieobjecttypen": [],
+                    "beginGeldigheid": "2019-01-01",
+                }
+                data[resource] = [reverse(related)]
+
+                response = self.client.put(besluittype_url, data)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["toelichting"], "aangepast")
+                besluittype.delete()
+
+    def test_update_besluittype_related_to_non_concept_resource_fails(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, concept=False
+        )
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(**{resource: [related]})
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                data = {
+                    "catalogus": reverse(catalogus),
+                    "zaaktypes": [],
+                    "omschrijving": "test",
+                    "omschrijvingGeneriek": "",
+                    "besluitcategorie": "",
+                    "reactietermijn": "P14D",
+                    "publicatieIndicatie": True,
+                    "publicatietekst": "",
+                    "publicatietermijn": None,
+                    "toelichting": "aangepast",
+                    "informatieobjecttypen": [],
+                    "beginGeldigheid": "2019-01-01",
+                }
+                data[resource] = [reverse(related)]
+
+                response = self.client.put(besluittype_url, data)
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
+                besluittype.delete()
+
+    def test_update_besluittype_add_relation_to_non_concept_resource_fails(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, concept=False
+        )
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create()
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                data = {
+                    "catalogus": reverse(catalogus),
+                    "zaaktypes": [],
+                    "omschrijving": "test",
+                    "omschrijvingGeneriek": "",
+                    "besluitcategorie": "",
+                    "reactietermijn": "P14D",
+                    "publicatieIndicatie": True,
+                    "publicatietekst": "",
+                    "publicatietermijn": None,
+                    "toelichting": "aangepast",
+                    "informatieobjecttypen": [],
+                    "beginGeldigheid": "2019-01-01",
+                }
+                data[resource] = [reverse(related)]
+
+                response = self.client.put(besluittype_url, data)
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
+                besluittype.delete()
+
+    def test_partial_update_besluittype_not_related_to_non_concept_resource(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+        informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(
+                    catalogus=catalogus, **{resource: [related]}
+                )
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.patch(
+                    besluittype_url, {"toelichting": "aangepast"}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["toelichting"], "aangepast")
+                besluittype.delete()
+
+    def test_partial_update_besluittype_related_to_non_concept_resource_fails(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, concept=False
+        )
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(
+                    catalogus=catalogus, **{resource: [related]}
+                )
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.patch(
+                    besluittype_url, {"toelichting": "aangepast"}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
+                besluittype.delete()
+
+    def test_partial_update_besluittype_add_relation_to_non_concept_resource_fails(
+        self
+    ):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, concept=False
+        )
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(catalogus=catalogus)
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.patch(
+                    besluittype_url, {resource: [reverse(related)]}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+                error = get_validation_errors(response, "nonFieldErrors")
+                self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
+                besluittype.delete()
+
+    def test_partial_update_non_concept_besluittype_einde_geldigheid(self):
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(besluittype)
+
+        response = self.client.patch(besluittype_url, {"eindeGeldigheid": "2020-01-01"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
+
+    def test_partial_update_besluittype_einde_geldigheid_related_to_non_concept_resource(
+        self
+    ):
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, concept=False
+        )
+
+        for resource in ["zaaktypes", "informatieobjecttypen"]:
+            with self.subTest(resource=resource):
+                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                besluittype = BesluitTypeFactory.create(
+                    catalogus=catalogus, **{resource: [related]}
+                )
+                besluittype_url = reverse(
+                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                )
+
+                response = self.client.patch(
+                    besluittype_url, {"eindeGeldigheid": "2020-01-01"}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
+                besluittype.delete()
 
 
 class BesluitTypeFilterAPITests(APITestCase):

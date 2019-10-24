@@ -107,6 +107,104 @@ class RolTypeAPITests(APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
+    def test_update_roltype(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        roltype_url = reverse(roltype)
+
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "aangepast",
+            "omschrijvingGeneriek": RolOmschrijving.initiator,
+        }
+
+        response = self.client.put(roltype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["omschrijving"], "aangepast")
+
+        roltype.refresh_from_db()
+        self.assertEqual(roltype.omschrijving, "aangepast")
+
+    def test_update_roltype_fail_not_concept_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        roltype_url = reverse(roltype)
+
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "aangepast",
+            "omschrijvingGeneriek": RolOmschrijving.initiator,
+        }
+
+        response = self.client.put(roltype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_update_roltype_add_relation_to_non_concept_zaaktype_fails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create()
+        roltype_url = reverse(roltype)
+
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "aangepast",
+            "omschrijvingGeneriek": RolOmschrijving.initiator,
+        }
+
+        response = self.client.put(roltype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_partial_update_roltype(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        roltype_url = reverse(roltype)
+
+        response = self.client.patch(roltype_url, {"omschrijving": "aangepast"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["omschrijving"], "aangepast")
+
+        roltype.refresh_from_db()
+        self.assertEqual(roltype.omschrijving, "aangepast")
+
+    def test_partial_update_roltype_fail_not_concept_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        roltype_url = reverse(roltype)
+
+        response = self.client.patch(roltype_url, {"omschrijving": "aangepast"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_partial_update_roltype_add_relation_to_non_concept_zaaktype_fails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        roltype = RolTypeFactory.create()
+        roltype_url = reverse(roltype)
+
+        response = self.client.patch(roltype_url, {"zaaktype": zaaktype_url})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
 
 class FilterValidationTests(APITestCase):
     def test_invalid_filters(self):
