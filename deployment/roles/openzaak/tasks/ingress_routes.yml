@@ -37,5 +37,5 @@
           services:
           - name: openzaak
             port: 8000
-      tls:
-        certResolver: default
+        tls:
+          certResolver: default
