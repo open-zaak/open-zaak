@@ -28,6 +28,10 @@ spec:
         app.kubernetes.io/part-of: open-zaak
         app.kubernetes.io/managed-by: Ansible
     spec:
+      volumes:
+        - name: private-storage
+          persistentVolumeClaim:
+            claimName: openzaak-test
       containers:
       - name: openzaak
         image: {{ openzaak_image }}
@@ -59,6 +63,11 @@ spec:
                 value: localhost
           initialDelaySeconds: 30
           periodSeconds: 30
+
+        volumeMounts:
+          - name: private-storage
+            mountPath: /app/private-media
+            subPath: openzaak/{{ openzaak_instance }}/private-media
 
         env:
           # General Django settings
@@ -93,6 +102,7 @@ spec:
           - name: CACHE_AXES
             value: "cache:6379/{{ cache_db }}"
 
+
 {% if sentry_dsn %}
           - name: SENTRY_DSN
             valueFrom:
@@ -100,3 +110,5 @@ spec:
                 name: openzaak-secrets
                 key: SENTRY_DSN
 {% endif %}
+
+
