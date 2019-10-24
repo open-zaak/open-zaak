@@ -5,14 +5,12 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('catalogi', '0004_merge_20190919_1529'),
-    ]
+    dependencies = [("catalogi", "0004_merge_20190919_1529")]
 
     operations = [
         migrations.RenameField(
-            model_name='besluittype',
-            old_name='informatieobjecttypes',
-            new_name='informatieobjecttypen',
-        ),
+            model_name="besluittype",
+            old_name="informatieobjecttypes",
+            new_name="informatieobjecttypen",
+        )
     ]
