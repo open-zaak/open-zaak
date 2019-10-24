@@ -7,5 +7,9 @@
     # FIXME
     ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
 
+  vars_files:
+    - vars/db_credentials.yml
+
   tasks:
     - import_tasks: tasks/ingress.yml
+    - import_tasks: tasks/prepare_db.yml

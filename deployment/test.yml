@@ -1,5 +1,7 @@
 ---
 
+# Dummy deployment to test ingress setup
+
 apiVersion: v1
 kind: Service
 metadata:
