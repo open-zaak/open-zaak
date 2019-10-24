@@ -32,11 +32,26 @@ If you have `kubectl`, run:
 This can be used to verified that your credentials are indeed set up to point
 to the correct cluster.
 
+**Database**
+
+The deployment assumes that a PostgreSQL 11 database cluster is available.
+
+You need:
+
+* credentials for a superuser role (typically `postgres`)
+* the host (name) and port of the cluster (e.g. an ip-address and the default
+  port `5432`)
+* see `vars/db_credentials.example.yml` - save this file as
+  `vars/db_credentials.yml` and modify with your own credentials.
 
 ## Provisioning
 
-The Ansible playbook `provision.yml` sets up the basic cluster requirements,
-such as the ingress and required namespace(s):
+The Ansible playbook `provision.yml`:
+
+* sets up the basic cluster requirements, such as the ingress and required
+  namespace(s)
+* initializes the database: set up the db user, create the application database
+  and enable the required database extensions
 
 ```shell
 [user@host]$ ansible-playbook provision.yml
