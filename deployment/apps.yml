@@ -13,7 +13,7 @@
   roles:
     - role: openzaak
       vars:
-        db_host: "{{ db.host }}"
+        db_host: "{{ db.privateIp }}"
         db_port: "{{ db.port }}"
         db_name: "{{ db.name }}"
         db_username: "{{ db_user.username }}"

@@ -35,11 +35,8 @@ spec:
             - --entrypoints.websecure.Address=:4443
             - --providers.kubernetescrd
             - --certificatesresolvers.default.acme.tlschallenge
-            - --certificatesresolvers.default.acme.email=foo@you.com
+            - --certificatesresolvers.default.acme.email=info@maykinmedia.nl
             - --certificatesresolvers.default.acme.storage=acme.json
-            # Please note that this is the staging Let's Encrypt server.
-            # Once you get things working, you should remove that whole line altogether.
-            - --certificatesresolvers.default.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
           ports:
             - name: web
               containerPort: 8000
