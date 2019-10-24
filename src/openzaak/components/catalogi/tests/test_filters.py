@@ -16,6 +16,7 @@ from ..models import (
     ZaakInformatieobjectType,
     ZaakType,
 )
+from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakTypeFactory
 
 
 class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
@@ -32,6 +33,9 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        besluittype = BesluitTypeFactory.create()
+        besluittype.zaaktypes.clear()
+        besluittype.informatieobjecttypes.clear()
         for query_param in ["catalogus", "zaaktypes", "informatieobjecttypes"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -89,6 +93,9 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype.zaaktypes.clear()
+
         response = self.client.get(
             reverse(InformatieObjectType), {"catalogus": "https://google.com"}
         )
@@ -224,6 +231,9 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype.heeft_relevant_informatieobjecttype.clear()
+
         response = self.client.get(
             reverse(ZaakType), {"catalogus": "https://google.com"}
         )
