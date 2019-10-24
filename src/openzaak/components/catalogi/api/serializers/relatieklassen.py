@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
-from ..validators import ZaakInformatieObjectTypeCatalogusValidator
 from ...constants import RichtingChoices
 from ...models import ZaakInformatieobjectType
+from ..validators import ZaakInformatieObjectTypeCatalogusValidator
 
 
 class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):

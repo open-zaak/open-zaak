@@ -1,7 +1,7 @@
 from unittest import skip
 
 from rest_framework import status
-from vng_api_common.tests import reverse, reverse_lazy, get_validation_errors
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..constants import RichtingChoices
 from ..models import ZaakInformatieobjectType
