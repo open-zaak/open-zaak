@@ -45,7 +45,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
     zaaktypes = models.ManyToManyField(
         "catalogi.ZaakType",
         verbose_name=_("zaaktypes"),
-        related_name="heeft_relevant_informatieobjecttype",
+        related_name="informatieobjecttypen",
         through="catalogi.ZaakInformatieobjectType",
         help_text=_(
             "ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit INFORMATIEOBJECTTYPE"

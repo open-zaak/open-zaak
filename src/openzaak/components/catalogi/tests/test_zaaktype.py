@@ -167,7 +167,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakType.objects.get(zaaktype_omschrijving="some test")
 
         self.assertEqual(zaaktype.catalogus, self.catalogus)
-        self.assertEqual(zaaktype.besluittype_set.get(), besluittype)
+        self.assertEqual(zaaktype.besluittypen.get(), besluittype)
         self.assertEqual(zaaktype.referentieproces_naam, "ReferentieProces 0")
         self.assertEqual(
             zaaktype.zaaktypenrelaties.get().gerelateerd_zaaktype,
@@ -218,7 +218,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         data = response.json()
         self.assertEqual(
             data["detail"],
-            "Relations to a non-concept besluittype_set object can't be created",
+            "Relations to a non-concept besluittypen object can't be created",
         )
 
     def test_create_zaaktype_fail_different_catalogus_besluittypes(self):

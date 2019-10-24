@@ -66,12 +66,12 @@ class ZaakTypeViewSet(
     queryset = ZaakType.objects.prefetch_related(
         "statustypen",
         "zaaktypenrelaties",
-        "heeft_relevant_informatieobjecttype",
+        "informatieobjecttypen",
         "statustypen",
         "resultaattypen",
         "eigenschap_set",
         "roltype_set",
-        "besluittype_set",
+        "besluittypen",
     ).order_by("-pk")
     serializer_class = ZaakTypeSerializer
     lookup_field = "uuid"
@@ -85,4 +85,4 @@ class ZaakTypeViewSet(
         "destroy": SCOPE_ZAAKTYPES_WRITE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
-    concept_related_fields = ["besluittype_set"]
+    concept_related_fields = ["besluittypen"]

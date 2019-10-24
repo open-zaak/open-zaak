@@ -56,7 +56,6 @@ class ZaakTypeSerializer(
     informatieobjecttypen = HyperlinkedRelatedField(
         many=True,
         read_only=True,
-        source="heeft_relevant_informatieobjecttype",
         view_name="informatieobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
@@ -109,7 +108,6 @@ class ZaakTypeSerializer(
     besluittypen = HyperlinkedRelatedField(
         many=True,
         label=_("heeft relevante besluittypen"),
-        source="besluittype_set",
         view_name="besluittype-detail",
         lookup_field="uuid",
         queryset=BesluitType.objects.all(),
@@ -178,7 +176,7 @@ class ZaakTypeSerializer(
 
         validators = [
             ZaaktypeGeldigheidValidator(),
-            RelationCatalogValidator("besluittype_set"),
+            RelationCatalogValidator("besluittypen"),
         ]
 
     def __init__(self, *args, **kwargs):
