@@ -1,0 +1,5 @@
+---
+
+- import_tasks: namespace.yml
+- import_tasks: secrets.yml
+- import_tasks: deployments.yml

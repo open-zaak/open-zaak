@@ -7,5 +7,10 @@
     # FIXME
     ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
 
-  tasks:
-    - debug: msg="hello world"
+  vars_files:
+    - vars/db_credentials.yml
+
+  roles:
+    - role: openzaak
+      vars:
+        db_password: "{{ db_user.password }}"

@@ -1,0 +1,18 @@
+---
+
+# (Public) domain where the application can be reached
+domain: test.openzaak.nl
+
+# Django config parameters
+secret_key: override-me
+
+db_user: openzaak
+db_password: openzaak
+db_host: localhost
+db_port: 5432
+
+sentry_dsn: null
+
+# Kubernetes namespace to run in
+namespace: openzaak-test
+
