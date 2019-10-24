@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework import mixins, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -18,9 +18,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
     ConceptFilterMixin,
     ConceptDestroyMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van ZAAKTYPE-INFORMATIEOBJECTTYPE relaties.
@@ -73,20 +71,25 @@ class ZaakTypeInformatieObjectTypeViewSet(
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,
         "create": SCOPE_ZAAKTYPES_WRITE,
+        "update": SCOPE_ZAAKTYPES_WRITE,
+        "partial_update": SCOPE_ZAAKTYPES_WRITE,
         "destroy": SCOPE_ZAAKTYPES_WRITE,
     }
 
     def get_concept(self, instance):
-        return instance.zaaktype.concept and instance.informatieobjecttype.concept
-
-    def perform_create(self, serializer):
-        zaaktype = serializer.validated_data["zaaktype"]
-        informatieobjecttype = serializer.validated_data["informatieobjecttype"]
-
-        if not (zaaktype.concept and informatieobjecttype.concept):
-            msg = _("Creating relations between non-concept objects is forbidden")
-            raise PermissionDenied(detail=msg)
-        super().perform_create(serializer)
+        zaaktype = getattr(instance, "zaaktype", None) or self.get_object().zaaktype
+        informatieobjecttype = (
+            getattr(instance, "informatieobjecttype", None)
+            or self.get_object().informatieobjecttype
+        )
+        return zaaktype.concept and informatieobjecttype.concept
 
     def get_concept_filter(self):
         return {"zaaktype__concept": False, "informatieobjecttype__concept": False}
+
+    def perform_destroy(self, instance):
+        if not self.get_concept(instance):
+            msg = _("Objects related to non-concept objects can't be destroyed")
+            raise ValidationError({"nonFieldErrors": msg}, code="non-concept-relation")
+
+        super().perform_destroy(instance)

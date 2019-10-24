@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from ...models import StatusType
+from ..validators import ZaakTypeConceptValidator
 
 
 class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,3 +35,4 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "volgnummer": {"source": "statustypevolgnummer"},
             "zaaktype": {"lookup_field": "uuid"},
         }
+        validators = [ZaakTypeConceptValidator()]

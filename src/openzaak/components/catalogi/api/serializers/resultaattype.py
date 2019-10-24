@@ -20,6 +20,7 @@ from ..validators import (
     BrondatumArchiefprocedureValidator,
     ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
+    ZaakTypeConceptValidator,
 )
 
 
@@ -100,6 +101,7 @@ class ResultaatTypeSerializer(
             ProcesTypeValidator("selectielijstklasse"),
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
             BrondatumArchiefprocedureValidator(),
+            ZaakTypeConceptValidator(),
         ]
 
     def __init__(self, *args, **kwargs):

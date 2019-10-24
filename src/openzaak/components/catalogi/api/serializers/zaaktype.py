@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from drf_writable_nested import NestedCreateMixin
+from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework.serializers import (
     HyperlinkedModelSerializer,
     HyperlinkedRelatedField,
@@ -17,7 +17,13 @@ from vng_api_common.validators import ResourceValidator
 
 from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
-from ..validators import RelationCatalogValidator, ZaaktypeGeldigheidValidator
+from ..validators import (
+    ConceptUpdateValidator,
+    M2MConceptCreateValidator,
+    M2MConceptUpdateValidator,
+    RelationCatalogValidator,
+    ZaaktypeGeldigheidValidator,
+)
 
 
 class ReferentieProcesSerializer(GegevensGroepSerializer):
@@ -40,7 +46,10 @@ class ZaakTypenRelatieSerializer(ModelSerializer):
 
 
 class ZaakTypeSerializer(
-    NestedGegevensGroepMixin, NestedCreateMixin, HyperlinkedModelSerializer
+    NestedGegevensGroepMixin,
+    NestedCreateMixin,
+    NestedUpdateMixin,
+    HyperlinkedModelSerializer,
 ):
     referentieproces = ReferentieProcesSerializer(
         required=True,
@@ -177,6 +186,9 @@ class ZaakTypeSerializer(
         validators = [
             ZaaktypeGeldigheidValidator(),
             RelationCatalogValidator("besluittypen"),
+            ConceptUpdateValidator(),
+            M2MConceptCreateValidator(["besluittypen", "informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["besluittypen", "informatieobjecttypen"]),
         ]
 
     def __init__(self, *args, **kwargs):

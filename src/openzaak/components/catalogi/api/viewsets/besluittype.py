@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -8,16 +8,11 @@ from ...models import BesluitType
 from ..filters import BesluitTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import BesluitTypeSerializer
-from .mixins import ConceptMixin, M2MConceptCreateMixin
+from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
 class BesluitTypeViewSet(
-    CheckQueryParamsMixin,
-    ConceptMixin,
-    M2MConceptCreateMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    CheckQueryParamsMixin, ConceptMixin, M2MConceptDestroyMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van BESLUITTYPEn nodig voor BESLUITEN in de Besluiten
@@ -68,6 +63,8 @@ class BesluitTypeViewSet(
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,
         "create": SCOPE_ZAAKTYPES_WRITE,
+        "update": SCOPE_ZAAKTYPES_WRITE,
+        "partial_update": SCOPE_ZAAKTYPES_WRITE,
         "destroy": SCOPE_ZAAKTYPES_WRITE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }

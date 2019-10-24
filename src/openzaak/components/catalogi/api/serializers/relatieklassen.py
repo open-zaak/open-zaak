@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
@@ -36,3 +38,27 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
 
         value_display_mapping = add_choice_values_help_text(RichtingChoices)
         self.fields["richting"].help_text += f"\n\n{value_display_mapping}"
+
+    def validate(self, attrs):
+        super().validate(attrs)
+
+        if self.instance:
+            zaaktype = attrs.get("zaaktype") or self.instance.zaaktype
+            informatieobjecttype = (
+                attrs.get("informatieobjecttype") or self.instance.informatieobjecttype
+            )
+
+            if not (zaaktype.concept and informatieobjecttype.concept):
+                message = _("Objects related to non-concept objects can't be updated")
+                raise serializers.ValidationError(message, code="non-concept-relation")
+        else:
+            zaaktype = attrs.get("zaaktype")
+            informatieobjecttype = attrs.get("informatieobjecttype")
+
+            if not (zaaktype.concept and informatieobjecttype.concept):
+                message = _(
+                    "Creating relations between non-concept objects is forbidden"
+                )
+                raise serializers.ValidationError(message, code="non-concept-relation")
+
+        return attrs
