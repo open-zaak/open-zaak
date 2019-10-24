@@ -23,3 +23,13 @@
     validate:
       fail_on_error: yes
       strict: yes
+
+- name: Set up nGinx
+  k8s:
+    state: present
+    name: nginx
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'nginx.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes

@@ -4,35 +4,40 @@ kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   labels:
-    app.kubernetes.io/name: redis
+    app.kubernetes.io/name: nginx
     app.kubernetes.io/instance: "{{ openzaak_instance }}"
-    app.kubernetes.io/version: "5.0"
-    app.kubernetes.io/component: cache
+    app.kubernetes.io/version: "{{ openzaak_nginx_version }}"
+    app.kubernetes.io/component: webserver
     app.kubernetes.io/part-of: open-zaak
     app.kubernetes.io/managed-by: Ansible
 spec:
-  # single replica because objects are kept in memory
-  # TODO: share cache/storage?
-  replicas: 1
+  replicas: {{ openzaak_nginx_replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: redis
+      app.kubernetes.io/name: nginx
       app.kubernetes.io/instance: "{{ openzaak_instance }}"
       app.kubernetes.io/part-of: open-zaak
   template:
     metadata:
-      name: cache
+      name: nginx
       labels:
-        app.kubernetes.io/name: redis
+        app.kubernetes.io/name: nginx
         app.kubernetes.io/instance: "{{ openzaak_instance }}"
-        app.kubernetes.io/version: "5.0"
-        app.kubernetes.io/component: cache
+        app.kubernetes.io/version: "{{ openzaak_nginx_version }}"
+        app.kubernetes.io/component: webserver
         app.kubernetes.io/part-of: open-zaak
         app.kubernetes.io/managed-by: Ansible
     spec:
+      volumes:
+        - name: private-storage
+          persistentVolumeClaim:
+            claimName: openzaak-test
+        - name: nginx-config
+          configMap:
+            name: nginx
       containers:
-      - name: cache
-        image: redis:5.0
+      - name: nginx
+        image: nginx:{{ openzaak_nginx_version }}
 
         resources:
           requests:
@@ -44,12 +49,19 @@ spec:
 
         readinessProbe:
           tcpSocket:
-            port: 6379
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 10
 
         livenessProbe:
           tcpSocket:
-            port: 6379
+            port: 80
           initialDelaySeconds: 15
           periodSeconds: 20
+
+        volumeMounts:
+          - name: private-storage
+            mountPath: /app/private-media
+            subPath: openzaak/{{ openzaak_instance }}/private-media
+          - name: nginx-config
+            mountPath: /etc/nginx/conf.d/

@@ -5,6 +5,7 @@
 - import_tasks: services.yml
 
 - import_tasks: storage.yml
+- import_tasks: config.yml
 
 - import_tasks: deployments.yml
 

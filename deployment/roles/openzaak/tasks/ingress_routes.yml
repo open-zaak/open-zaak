@@ -17,8 +17,8 @@
         - match: Host(`{{ domain }}`)
           kind: Rule
           services:
-          - name: openzaak
-            port: 8000
+          - name: nginx
+            port: 80
 
 - name: Install HTTPS Ingress Route
   k8s:
@@ -35,7 +35,7 @@
         - match: Host(`{{ domain }}`)
           kind: Rule
           services:
-          - name: openzaak
-            port: 8000
+          - name: nginx
+            port: 80
         tls:
           certResolver: default

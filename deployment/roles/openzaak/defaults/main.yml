@@ -25,3 +25,6 @@ openzaak_replicas: 3
 openzaak_instance: test
 
 openzaak_storage: 10Gi
+
+openzaak_nginx_version: "1.17"
+openzaak_nginx_replicas: 2

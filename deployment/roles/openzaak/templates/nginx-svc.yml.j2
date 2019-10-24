@@ -1,0 +1,21 @@
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: "{{ openzaak_instance }}"
+    app.kubernetes.io/version: "{{ openzaak_nginx_version }}"
+    app.kubernetes.io/component: webserver
+    app.kubernetes.io/part-of: open-zaak
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  selector:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: "{{ openzaak_instance }}"
+    app.kubernetes.io/part-of: open-zaak
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
