@@ -1,3 +1,25 @@
 ---
 
 # Set up the required deployments
+
+# TODO: https://rancher.com/blog/2019/deploying-redis-cluster/
+
+- name: Set up Redis cache
+  k8s:
+    state: present
+    name: cache
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'redis.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+
+- name: Set up Open Zaak
+  k8s:
+    state: present
+    name: openzaak
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'deployment.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes

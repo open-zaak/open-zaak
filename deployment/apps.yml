@@ -13,4 +13,8 @@
   roles:
     - role: openzaak
       vars:
+        db_host: "{{ db.host }}"
+        db_port: "{{ db.port }}"
+        db_name: "{{ db.name }}"
+        db_username: "{{ db_user.username }}"
         db_password: "{{ db_user.password }}"

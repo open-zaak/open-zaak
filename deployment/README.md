@@ -64,3 +64,23 @@ Deploy Open Zaak and Open Notificaties:
 ```shell
 [user@host]$ ansible-playbook apps.yml
 ```
+
+
+## Troubleshooting
+
+**Missing `GOOGLE_APPLICATION_CREDENTIALS` error**
+
+If you see:
+
+```
+Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create credentials and
+re-run the application.
+```
+
+Try to (re-)log in to gcloud:
+
+```shell
+[user@host]$ gcloud auth application-default login
+```
+
+This should output a new default credentials file, which should be picked up.
