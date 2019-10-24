@@ -1,6 +1,7 @@
 from rest_framework import status
 from vng_api_common.tests import get_operation_url, get_validation_errors, reverse
 
+from ..api.validators import M2MConceptCreateValidator
 from ..models import BesluitType
 from .base import APITestCase
 from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakTypeFactory
@@ -176,13 +177,10 @@ class BesluitTypeAPITests(APITestCase):
 
         response = self.client.post(besluittype_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Relations to a non-concept zaaktypes object can't be created",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], M2MConceptCreateValidator.code)
 
     def test_create_besluittype_fail_non_concept_informatieobjecttypen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -211,13 +209,10 @@ class BesluitTypeAPITests(APITestCase):
 
         response = self.client.post(besluittype_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Relations to a non-concept informatieobjecttypen object can't be created",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], M2MConceptCreateValidator.code)
 
     def test_create_besluittype_fail_different_catalogus_for_zaaktypes(self):
         zaaktype = ZaakTypeFactory.create()
@@ -316,10 +311,10 @@ class BesluitTypeAPITests(APITestCase):
 
         response = self.client.delete(besluittype_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "non-concept-object")
 
 
 class BesluitTypeFilterAPITests(APITestCase):

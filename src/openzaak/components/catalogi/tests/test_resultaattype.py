@@ -16,6 +16,7 @@ from vng_api_common.tests import (
 )
 from zds_client.tests.mocks import mock_client
 
+from ..api.validators import ZaakTypeConceptValidator
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType
 from .base import APITestCase
@@ -237,13 +238,10 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 )
                 response = self.client.post(self.list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Creating a related object to non-concept object is forbidden",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     def test_delete_resultaattype(self):
         resultaattype = ResultaatTypeFactory.create()
@@ -264,10 +262,10 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.delete(resultaattype_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})

@@ -1,6 +1,7 @@
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
+from ..api.validators import ZaakTypeConceptValidator
 from ..models import StatusType
 from .base import APITestCase
 from .factories import RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
@@ -87,13 +88,10 @@ class StatusTypeAPITests(APITestCase):
         }
         response = self.client.post(statustype_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Creating a related object to non-concept object is forbidden",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     def test_delete_statustype(self):
         statustype = StatusTypeFactory.create()
@@ -110,10 +108,10 @@ class StatusTypeAPITests(APITestCase):
 
         response = self.client.delete(statustype_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     def test_is_eindstatus(self):
         zaaktype = ZaakTypeFactory.create()

@@ -1,6 +1,7 @@
 from rest_framework import status
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
+from ..api.validators import ZaakTypeConceptValidator
 from ..constants import FormaatChoices
 from ..models import Eigenschap
 from .base import APITestCase
@@ -184,13 +185,10 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.post(eigenschap_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Creating a related object to non-concept object is forbidden",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     def test_delete_eigenschap(self):
         eigenschap = EigenschapFactory.create()
@@ -209,10 +207,10 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.delete(informatieobjecttypee_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "non-concept-zaaktype")
 
 
 class EigenschapFilterAPITests(APITestCase):

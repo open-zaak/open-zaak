@@ -166,10 +166,10 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         response = self.client.delete(informatieobjecttypee_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "non-concept-object")
 
 
 class InformatieObjectTypeFilterAPITests(APITestCase):

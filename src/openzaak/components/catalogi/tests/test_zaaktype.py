@@ -10,6 +10,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
+from ..api.validators import M2MConceptCreateValidator
 from ..constants import AardRelatieChoices, InternExtern
 from ..models import ZaakType
 from .base import APITestCase
@@ -213,13 +214,10 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.post(zaaktype_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Relations to a non-concept besluittypen object can't be created",
-        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], M2MConceptCreateValidator.code)
 
     def test_create_zaaktype_fail_different_catalogus_besluittypes(self):
         besluittype = BesluitTypeFactory.create()
@@ -292,10 +290,10 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.delete(zaaktype_url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = response.json()
-        self.assertEqual(data["detail"], "Alleen concepten kunnen worden verwijderd.")
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "non-concept-object")
 
     def test_ophalen_servicenorm_doorlooptijd(self):
         zaaktype = ZaakTypeFactory.create()
