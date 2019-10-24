@@ -40,8 +40,6 @@ def status_filter(queryset, name, value):
 def m2m_filter(queryset, name, value):
     parsed = urlparse(value)
     path = parsed.path
-    if path == "/":
-        path = ""
     try:
         object = get_resource_for_path(path)
     except ObjectDoesNotExist:
