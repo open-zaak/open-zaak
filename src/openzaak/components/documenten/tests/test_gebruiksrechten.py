@@ -4,6 +4,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.utils.tests import JWTAuthMixin
 
+from ..models import Gebruiksrechten
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -91,3 +92,14 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
 
         eio_data = self.client.get(eio_url).json()
         self.assertIsNone(eio_data["indicatieGebruiksrecht"])
+
+    def test_validate_unknown_query_params(self):
+        GebruiksrechtenFactory.create_batch(2)
+        url = reverse(Gebruiksrechten)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")

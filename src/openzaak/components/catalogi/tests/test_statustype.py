@@ -1,5 +1,5 @@
 from rest_framework import status
-from vng_api_common.tests import reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from ..models import StatusType
 from .base import APITestCase
@@ -204,6 +204,17 @@ class StatusTypeFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{statustype2_url}")
+
+    def test_validate_unknown_query_params(self):
+        StatusTypeFactory.create_batch(2)
+        url = reverse(StatusType)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class StatusTypePaginationTestCase(APITestCase):

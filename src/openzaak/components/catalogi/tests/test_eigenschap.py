@@ -1,5 +1,5 @@
 from rest_framework import status
-from vng_api_common.tests import TypeCheckMixin, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from ..constants import FormaatChoices
 from ..models import Eigenschap
@@ -261,6 +261,17 @@ class EigenschapFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{eigenschap2_url}")
+
+    def test_validate_unknown_query_params(self):
+        EigenschapFactory.create_batch(2)
+        url = reverse(Eigenschap)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class EigenschapPaginationTestCase(APITestCase):

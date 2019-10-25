@@ -312,6 +312,17 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
 
+    def test_validate_unknown_query_params(self):
+        ApplicatieFactory.create_batch(2)
+        url = reverse(Applicatie)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]

@@ -1,4 +1,5 @@
 import uuid
+from unittest import skip
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -32,12 +33,14 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
-from ..models import ZaakInformatieObject
+from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject
 from .factories import (
+    KlantContactFactory,
     ResultaatFactory,
     StatusFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
 )
 from .utils import ZAAK_WRITE_KWARGS, isodatetime
 
@@ -556,6 +559,51 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
             with self.subTest(query_param=key, value=value):
                 response = self.client.get(url, {key: value})
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @skip("Enable when klantcontact has pagination")
+    def test_validate_klantcontact_unknown_query_params(self):
+        KlantContactFactory.create_batch(2)
+        url = reverse(KlantContact)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_validate_resultaat_unknown_query_params(self):
+        ResultaatFactory.create_batch(2)
+        url = reverse(Resultaat)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_validate_zaakinformatieobject_unknown_query_params(self):
+        ZaakInformatieObjectFactory.create_batch(2)
+        url = reverse(ZaakInformatieObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_validate_zaakobject_unknown_query_params(self):
+        ZaakObjectFactory.create_batch(2)
+        url = reverse(ZaakObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class StatusValidationTests(JWTAuthMixin, APITestCase):

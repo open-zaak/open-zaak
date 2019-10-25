@@ -2,6 +2,7 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.catalogi.tests.utils import (
@@ -9,7 +10,8 @@ from openzaak.components.catalogi.tests.utils import (
 )
 from openzaak.utils.tests import JWTAuthMixin
 
-from .factories import BesluitFactory
+from ..models import Besluit, BesluitInformatieObject
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
@@ -32,3 +34,33 @@ class ListFilterLocalFKTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["count"], 3)
+
+
+class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_validate_unknown_query_params(self):
+        BesluitFactory.create_batch(2)
+        url = reverse(Besluit)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
+
+class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_validate_unknown_query_params(self):
+        BesluitInformatieObjectFactory.create_batch(2)
+        url = reverse(BesluitInformatieObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
