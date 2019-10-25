@@ -21,13 +21,15 @@ class ConceptPublishMixin:
 
 
 class ConceptDestroyMixin:
+    message = _("Alleen concepten kunnen worden verwijderd.")
+    code = "non-concept-object"
+
     def get_concept(self, instance):
         return instance.concept
 
     def perform_destroy(self, instance):
         if not self.get_concept(instance):
-            msg = _("Alleen concepten kunnen worden verwijderd.")
-            raise ValidationError({"nonFieldErrors": msg}, code="non-concept-object")
+            raise ValidationError({"nonFieldErrors": self.message}, code=self.code)
 
         super().perform_destroy(instance)
 
@@ -57,17 +59,13 @@ class ConceptMixin(ConceptPublishMixin, ConceptDestroyMixin, ConceptFilterMixin)
 
 
 class ZaakTypeConceptDestroyMixin(ConceptDestroyMixin):
+    message = _(
+        "Objecten gerelateerd aan non-concept zaaktypen kunnen niet verwijderd worden."
+    )
+    code = "non-concept-zaaktype"
+
     def get_concept(self, instance):
         return instance.zaaktype.concept
-
-    def perform_destroy(self, instance):
-        if not self.get_concept(instance):
-            msg = _(
-                "Objecten gerelateerd aan non-concept zaaktypen kunnen niet verwijderd worden."
-            )
-            raise ValidationError({"nonFieldErrors": msg}, code="non-concept-zaaktype")
-
-        super().perform_destroy(instance)
 
 
 class ZaakTypeConceptFilterMixin(ConceptFilterMixin):
