@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -83,41 +84,3 @@ class ZaakTypeViewSet(
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
-    relation_fields = ["zaaktypenrelaties"]
-
-    def perform_create(self, serializer):
-        for field_name in self.relation_fields:
-            field = serializer.validated_data.get(field_name, [])
-            for related_object in field:
-                # TODO fix url lookup to check if concept
-                if not related_object["gerelateerd_zaaktype"]:
-                    msg = _(
-                        f"Relations to non-concept {field_name} object can't be created"
-                    )
-                    raise PermissionDenied(detail=msg)
-
-        super().perform_create(serializer)
-
-    def perform_update(self, instance):
-        for field_name in self.relation_fields:
-            field = getattr(self.get_object(), field_name)
-            # TODO fix url lookup to check if concept
-            related_non_concepts = field.filter(zaaktype__concept=False)
-            if related_non_concepts.exists():
-                msg = _(f"Objects related to non-concept {field_name} can't be updated")
-                raise PermissionDenied(detail=msg)
-
-        super().perform_update(instance)
-
-    def perform_destroy(self, instance):
-        for field_name in self.relation_fields:
-            field = getattr(instance, field_name)
-            # TODO fix url lookup to check if concept
-            related_non_concepts = field.filter(zaaktype__concept=False)
-            if related_non_concepts.exists():
-                msg = _(
-                    f"Objects related to non-concept {field_name} can't be destroyed"
-                )
-                raise PermissionDenied(detail=msg)
-
-        super().perform_destroy(instance)
