@@ -65,7 +65,7 @@ spec:
           - name: DJANGO_SETTINGS_MODULE
             value: nrc.conf.docker
           - name: ALLOWED_HOSTS
-            value: "localhost,{{ domain }}"
+            value: "localhost,{{ opennotificaties_domain }}"
           - name: SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -106,11 +106,11 @@ spec:
 
           # Caches
           - name: CACHE_DEFAULT
-            value: "cache:6379/{{ opennotificatiescache_db }}"
+            value: "cache:6379/{{ opennotificaties_cache_db }}"
           - name: CACHE_AXES
-            value: "cache:6379/{{ opennotificatiescache_db }}"
+            value: "cache:6379/{{ opennotificaties_cache_db }}"
 
-{% if sentry_dsn %}
+{% if opennotificaties_sentry_dsn %}
           - name: SENTRY_DSN
             valueFrom:
               secretKeyRef:

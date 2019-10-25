@@ -8,7 +8,7 @@
   k8s:
     state: present
     name: cache
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition: "{{ lookup('template', 'redis.yml.j2') | from_yaml }}"
     validate:
       fail_on_error: yes
@@ -18,7 +18,7 @@
   k8s:
     state: present
     name: rabbitmq
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition: "{{ lookup('template', 'rabbitmq.yml.j2') | from_yaml }}"
     validate:
       fail_on_error: yes
@@ -28,7 +28,7 @@
   k8s:
     state: present
     name: opennotificaties
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition: "{{ lookup('template', 'deployment.yml.j2') | from_yaml }}"
     validate:
       fail_on_error: yes
@@ -38,7 +38,7 @@
   k8s:
     state: present
     name: opennotificaties-worker
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition: "{{ lookup('template', 'celery.yml.j2') | from_yaml }}"
     validate:
       fail_on_error: yes

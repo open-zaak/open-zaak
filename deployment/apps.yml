@@ -9,13 +9,19 @@
 
   vars_files:
     - vars/db_credentials.yml
+    - vars/openzaak.yml
+    - vars/opennotificaties.yml
 
   roles:
-    # - role: nfs-server
     - role: openzaak
       vars:
         db_host: "{{ db.privateIp }}"
         db_port: "{{ db.port }}"
-        db_name: "{{ db.name }}"
-        db_username: "{{ db_user.username }}"
-        db_password: "{{ db_user.password }}"
+        db_name: "{{ openzaak_db_name }}"
+        db_username: "{{ openzaak_db_username }}"
+        db_password: "{{ openzaak_db_password }}"
+
+    - role: opennotificaties
+      vars:
+        opennotificaties_db_host: "{{ db.privateIp }}"
+        opennotificaties_db_port: "{{ db.port }}"

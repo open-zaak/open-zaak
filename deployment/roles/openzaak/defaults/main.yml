@@ -4,15 +4,15 @@
 domain: test.openzaak.nl
 
 # Django config parameters
-secret_key: override-me
+openzaak_secret_key: override-me
 
-db_username: openzaak
-db_password: openzaak
-db_host: localhost
-db_port: 5432
-db_name: openzaak
+openzaak_db_name: openzaak
+openzaak_db_host: localhost
+openzaak_db_port: 5432
+openzaak_db_username: openzaak
+openzaak_db_password: openzaak
 
-sentry_dsn: null
+openzaak_sentry_dsn: null
 
 cache_db: 0
 

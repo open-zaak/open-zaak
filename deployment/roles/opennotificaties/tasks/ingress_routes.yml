@@ -8,7 +8,7 @@
   k8s:
     state: present
     name: opennotificaties-https-redirect
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition:
       apiVersion: traefik.containo.us/v1alpha1
       kind: Middleware
@@ -20,7 +20,7 @@
   k8s:
     state: present
     name: opennotificaties-http
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition:
       apiVersion: traefik.containo.us/v1alpha1
       kind: IngressRoute
@@ -30,7 +30,9 @@
         routes:
         - match: Host(`{{ opennotificaties_domain }}`)
           kind: Rule
-          services: []
+          services:
+            - name: opennotificaties
+              port: 8000
           middlewares:
             - name: opennotificaties-https-redirect
 
@@ -40,7 +42,7 @@
   k8s:
     state: present
     name: opennotificaties-https-hsts
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition:
       apiVersion: traefik.containo.us/v1alpha1
       kind: Middleware
@@ -54,7 +56,7 @@
   k8s:
     state: present
     name: opennotificaties-https
-    namespace: "{{ namespace }}"
+    namespace: "{{ opennotificaties_namespace }}"
     definition:
       apiVersion: traefik.containo.us/v1alpha1
       kind: IngressRoute

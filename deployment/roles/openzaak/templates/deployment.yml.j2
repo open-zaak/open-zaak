@@ -83,13 +83,13 @@ spec:
 
           # Database settings
           - name: DB_HOST
-            value: "{{ db_host }}"
+            value: "{{ openzaak_db_host }}"
           - name: DB_NAME
-            value: "{{ db_name }}"
+            value: "{{ openzaak_db_name }}"
           - name: DB_PORT
-            value: "{{ db_port }}"
+            value: "{{ openzaak_db_port }}"
           - name: DB_USER
-            value: "{{ db_username }}"
+            value: "{{ openzaak_db_username }}"
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -103,7 +103,7 @@ spec:
             value: "cache:6379/{{ cache_db }}"
 
 
-{% if sentry_dsn %}
+{% if openzaak_sentry_dsn %}
           - name: SENTRY_DSN
             valueFrom:
               secretKeyRef:
