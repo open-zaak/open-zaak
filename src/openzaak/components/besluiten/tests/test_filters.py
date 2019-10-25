@@ -61,6 +61,7 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        BesluitFactory.create(besluittype__concept=False)
         response = self.client.get(
             reverse(Besluit), {"besluittype": "https://google.com"}
         )
@@ -95,3 +96,12 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "besluit")
         self.assertEqual(error["code"], "invalid")
+
+    def test_filter_by_valid_url_object_does_not_exist(self):
+        BesluitInformatieObjectFactory.create()
+        response = self.client.get(
+            reverse(BesluitInformatieObject), {"besluit": "https://google.com"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])

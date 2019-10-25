@@ -16,7 +16,16 @@ from ..models import (
     ZaakInformatieobjectType,
     ZaakType,
 )
-from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakTypeFactory
+from .factories import (
+    BesluitTypeFactory,
+    EigenschapFactory,
+    InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakInformatieobjectTypeFactory,
+    ZaakTypeFactory,
+)
 
 
 class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
@@ -33,7 +42,7 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype.zaaktypes.clear()
         besluittype.informatieobjecttypes.clear()
         for query_param in ["catalogus", "zaaktypes", "informatieobjecttypes"]:
@@ -68,6 +77,7 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        EigenschapFactory.create(zaaktype__concept=False)
         response = self.client.get(
             reverse(Eigenschap), {"zaaktype": "https://google.com"}
         )
@@ -93,7 +103,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype.zaaktypes.clear()
 
         response = self.client.get(
@@ -121,6 +131,7 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ResultaatTypeFactory.create(zaaktype__concept=False)
         response = self.client.get(
             reverse(ResultaatType), {"zaaktype": "https://google.com"}
         )
@@ -146,6 +157,7 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        RolTypeFactory.create(zaaktype__concept=False)
         response = self.client.get(reverse(RolType), {"zaaktype": "https://google.com"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -169,6 +181,7 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        StatusTypeFactory.create(zaaktype__concept=False)
         response = self.client.get(
             reverse(StatusType), {"zaaktype": "https://google.com"}
         )
@@ -198,6 +211,9 @@ class ZaakInformatieobjectTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
         for query_param in ["zaaktype", "informatieobjecttype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -231,7 +247,7 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype.heeft_relevant_informatieobjecttype.clear()
 
         response = self.client.get(

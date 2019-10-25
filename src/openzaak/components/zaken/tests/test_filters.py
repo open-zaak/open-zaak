@@ -7,6 +7,14 @@ from vng_api_common.tests import get_validation_errors, reverse
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Resultaat, Rol, Status, Zaak, ZaakInformatieObject, ZaakObject
+from .factories import (
+    ResultaatFactory,
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
+)
 from .utils import ZAAK_READ_KWARGS
 
 
@@ -24,6 +32,7 @@ class ResultaatFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ResultaatFactory.create()
         for query_param in ["zaak", "resultaattype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -48,6 +57,7 @@ class RolFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        RolFactory.create()
         for query_param in ["zaak", "roltype", "betrokkene"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -72,6 +82,7 @@ class StatusFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        StatusFactory.create()
         for query_param in ["zaak", "statustype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -98,6 +109,7 @@ class ZaakInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ZaakInformatieObjectFactory.create()
         for query_param in ["zaak", "informatieobject"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -122,6 +134,7 @@ class ZaakObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ZaakObjectFactory.create()
         for query_param in ["zaak", "object"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
@@ -146,6 +159,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        ZaakFactory.create()
         response = self.client.get(
             reverse(Zaak), {"zaaktype": "https://google.com"}, **ZAAK_READ_KWARGS
         )

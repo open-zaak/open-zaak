@@ -5,6 +5,10 @@ from vng_api_common.tests import get_validation_errors, reverse
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Gebruiksrechten, ObjectInformatieObject
+from .factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
+    GebruiksrechtenFactory,
+)
 
 
 class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
@@ -21,6 +25,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
+        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version__informatieobjecttype__concept=False
+        )
+        GebruiksrechtenFactory.create(informatieobject=eio)
         response = self.client.get(
             reverse(Gebruiksrechten), {"informatieobject": "https://google.com"}
         )
