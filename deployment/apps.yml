@@ -15,11 +15,8 @@
   roles:
     - role: openzaak
       vars:
-        db_host: "{{ db.privateIp }}"
-        db_port: "{{ db.port }}"
-        db_name: "{{ openzaak_db_name }}"
-        db_username: "{{ openzaak_db_username }}"
-        db_password: "{{ openzaak_db_password }}"
+        openzaak_db_host: "{{ db.privateIp }}"
+        openzaak_db_port: "{{ db.port }}"
 
     - role: opennotificaties
       vars:
