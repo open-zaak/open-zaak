@@ -10,6 +10,8 @@ export PGPORT=${DB_PORT:-5432}
 fixtures_dir=${FIXTURES_DIR:-/app/fixtures}
 
 uwsgi_port=${UWSGI_PORT:-8000}
+uwsgi_processes=${UWSGI_PROCESSES:-2}
+uwsgi_threads=${UWSGI_THREADS:-2}
 
 until pg_isready; do
   >&2 echo "Waiting for database connection..."
@@ -41,7 +43,8 @@ uwsgi \
     --static-map /static=/app/static \
     --static-map /media=/app/media  \
     --chdir src \
-    --processes 2 \
-    --threads 2 \
-    --buffer-size=32768
-    # processes & threads are needed for concurrency without nginx sitting inbetween
+    --enable-threads \
+    --processes $uwsgi_processes \
+    --threads $uwsgi_threads \
+    --buffer-size=65535 \
+    --max-requests 100
