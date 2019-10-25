@@ -12,7 +12,6 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakObjectType,
     ZaakType,
     ZaakTypenRelatie,
 )
@@ -148,12 +147,6 @@ class ZaakTypeAdmin(
             (
                 _("Toon {}").format(StatusType._meta.verbose_name_plural),
                 self._build_changelist_url(StatusType, query={"is_van": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(ZaakObjectType._meta.verbose_name_plural),
-                self._build_changelist_url(
-                    ZaakObjectType, query={"is_relevant_voor": obj.pk}
-                ),
             ),
             (
                 _("Toon {}").format(RolType._meta.verbose_name_plural),
