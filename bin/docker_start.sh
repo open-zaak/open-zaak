@@ -46,5 +46,4 @@ uwsgi \
     --enable-threads \
     --processes $uwsgi_processes \
     --threads $uwsgi_threads \
-    --buffer-size=65535 \
-    --max-requests 100
+    --buffer-size=65535
