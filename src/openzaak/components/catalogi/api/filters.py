@@ -43,7 +43,7 @@ def m2m_filter(queryset, name, value):
     try:
         object = get_resource_for_path(path)
     except ObjectDoesNotExist:
-        object = None
+        return queryset.none()
     return queryset.filter(**{name: object})
 
 
