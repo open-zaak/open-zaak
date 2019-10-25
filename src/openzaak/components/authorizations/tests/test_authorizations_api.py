@@ -287,7 +287,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     def test_filter_client_id_hit(self):
         url = get_operation_url("applicatie_list")
 
-        response = self.client.get(url, {"client_ids": "id2"})
+        response = self.client.get(url, {"clientIds": "id2"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
@@ -295,7 +295,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     def test_filter_client_id_miss(self):
         url = get_operation_url("applicatie_list")
 
-        response = self.client.get(url, {"client_ids": "id3"})
+        response = self.client.get(url, {"clientIds": "id3"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)
