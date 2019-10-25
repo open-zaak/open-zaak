@@ -4,18 +4,6 @@
 
 # HTTP
 
-- name: Set up HTTP -> HTTPS middleware
-  k8s:
-    state: present
-    name: openzaak-https-redirect
-    namespace: "{{ namespace }}"
-    definition:
-      apiVersion: traefik.containo.us/v1alpha1
-      kind: Middleware
-      spec:
-        redirectScheme:
-          scheme: https
-
 - name: Install HTTP Ingress Route
   k8s:
     state: present
@@ -34,23 +22,10 @@
           - name: nginx
             port: 80
           middlewares:
-            - name: openzaak-https-redirect
+            - name: https-redirect
+              namespace: default
 
 # HTTPS
-
-- name: Set up HTTPS HSTS Header
-  k8s:
-    state: present
-    name: openzaak-https-hsts
-    namespace: "{{ namespace }}"
-    definition:
-      apiVersion: traefik.containo.us/v1alpha1
-      kind: Middleware
-      spec:
-        headers:
-          stsSeconds: 31536000
-          stsIncludeSubdomains: yes
-          stsPreload: yes
 
 - name: Install HTTPS Ingress Route
   k8s:
@@ -70,7 +45,8 @@
           - name: nginx
             port: 80
           middlewares:
-            - name: openzaak-https-hsts
+            - name: https-hsts
+              namespace: default
         tls:
           certResolver: default
           options:

@@ -71,3 +71,31 @@
           - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
           - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
           - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+
+# Set up the Traefik middlewares
+
+- name: Configure SSL Redirect middleware
+  k8s:
+    state: present
+    name: https-redirect
+    namespace: default
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: Middleware
+      spec:
+        redirectScheme:
+          scheme: https
+
+- name: Configure HSTS middleware
+  k8s:
+    state: present
+    name: https-hsts
+    namespace: default
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: Middleware
+      spec:
+        headers:
+          stsSeconds: 31536000
+          stsIncludeSubdomains: yes
+          stsPreload: yes
