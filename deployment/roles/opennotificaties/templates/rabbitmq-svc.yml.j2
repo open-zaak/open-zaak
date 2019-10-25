@@ -1,0 +1,21 @@
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/version: "3.7"
+    app.kubernetes.io/component: async-workers
+    app.kubernetes.io/part-of: open-notificaties
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  selector:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/part-of: open-notificaties
+  ports:
+  - protocol: TCP
+    port: 5672
+    targetPort: 5672

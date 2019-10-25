@@ -1,0 +1,68 @@
+---
+
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/version: "3.7"
+    app.kubernetes.io/component: async-workers
+    app.kubernetes.io/part-of: open-notificaties
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  # TODO: cluster/HA?
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+      app.kubernetes.io/part-of: open-notificaties
+  template:
+    metadata:
+      name: opennotificaties-worker
+      labels:
+        app.kubernetes.io/name: rabbitmq
+        app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+        app.kubernetes.io/version: "3.7"
+        app.kubernetes.io/component: async-workers
+        app.kubernetes.io/part-of: open-notificaties
+        app.kubernetes.io/managed-by: Ansible
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.7
+        imagePullPolicy: Always
+
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "200Mi"
+            cpu: "250m"
+
+        readinessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          tcpSocket:
+            port: 5672
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            valueFrom:
+              secretKeyRef:
+                name: opennotificaties-secrets
+                key: RABBITMQ_DEFAULT_USER
+          - name: RABBITMQ_DEFAULT_PASS
+            valueFrom:
+              secretKeyRef:
+                name: opennotificaties-secrets
+                key: RABBITMQ_DEFAULT_PASS
+

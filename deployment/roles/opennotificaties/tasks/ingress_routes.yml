@@ -1,0 +1,76 @@
+---
+
+# Install the Traefik ingress route(s)
+
+# HTTP
+
+- name: Set up HTTP -> HTTPS middleware
+  k8s:
+    state: present
+    name: opennotificaties-https-redirect
+    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: Middleware
+      spec:
+        redirectScheme:
+          scheme: https
+
+- name: Install HTTP Ingress Route
+  k8s:
+    state: present
+    name: opennotificaties-http
+    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      spec:
+        entryPoints:
+          - web
+        routes:
+        - match: Host(`{{ opennotificaties_domain }}`)
+          kind: Rule
+          services: []
+          middlewares:
+            - name: opennotificaties-https-redirect
+
+# HTTPS
+
+- name: Set up HTTPS HSTS Header
+  k8s:
+    state: present
+    name: opennotificaties-https-hsts
+    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: Middleware
+      spec:
+        headers:
+          stsSeconds: 31536000
+          stsIncludeSubdomains: yes
+          stsPreload: yes
+
+- name: Install HTTPS Ingress Route
+  k8s:
+    state: present
+    name: opennotificaties-https
+    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      spec:
+        entryPoints:
+          - websecure
+        routes:
+        - match: Host(`{{ opennotificaties_domain }}`)
+          kind: Rule
+          services:
+          - name: opennotificaties
+            port: 8000
+          middlewares:
+            - name: opennotificaties-https-hsts
+        tls:
+          certResolver: default
+          options:
+            namespace: default
+            name: default

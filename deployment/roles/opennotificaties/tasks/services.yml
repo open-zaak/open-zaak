@@ -1,0 +1,34 @@
+---
+
+# Set up the internal services to network containers
+
+- name: Set up Redis cache service
+  k8s:
+    state: present
+    name: cache
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'redis-svc.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+
+- name: Set up RabbitMQ broker service
+  k8s:
+    state: present
+    name: rabbitmq
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'rabbitmq-svc.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+
+
+- name: Set up Open Notificaties service
+  k8s:
+    state: present
+    name: opennotificaties
+    namespace: "{{ namespace }}"
+    definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes

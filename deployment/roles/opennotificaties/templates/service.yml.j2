@@ -1,0 +1,21 @@
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: django
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/version: "{{ opennotificaties_version }}"
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: open-notificaties
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  selector:
+    app.kubernetes.io/name: django
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/part-of: open-notificaties
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
