@@ -353,6 +353,7 @@ class StatusViewSet(
 
 
 class ZaakObjectViewSet(
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
@@ -532,6 +533,7 @@ class ZaakEigenschapViewSet(
 
 
 class KlantContactViewSet(
+    CheckQueryParamsMixin,
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,

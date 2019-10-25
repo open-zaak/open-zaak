@@ -1,5 +1,6 @@
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
 
@@ -11,6 +12,7 @@ from .mixins import ConceptMixin, M2MConceptCreateMixin
 
 
 class ZaakTypeViewSet(
+    CheckQueryParamsMixin,
     ConceptMixin,
     M2MConceptCreateMixin,
     mixins.CreateModelMixin,

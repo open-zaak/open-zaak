@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
+from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
 
@@ -19,7 +20,9 @@ from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 logger = logging.getLogger(__name__)
 
 
-class ApplicatieViewSet(NotificationViewSetMixin, viewsets.ModelViewSet):
+class ApplicatieViewSet(
+    CheckQueryParamsMixin, NotificationViewSetMixin, viewsets.ModelViewSet
+):
     """
     Uitlezen en configureren van autorisaties voor applicaties.
 
