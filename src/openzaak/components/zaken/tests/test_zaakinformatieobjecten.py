@@ -162,7 +162,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.json(), expected)
 
-    def test_filter(self):
+    def test_filter_by_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
         zaak_url = reverse(zio.zaak)
         zio_list_url = reverse("zaakinformatieobject-list")
@@ -174,6 +174,23 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
+
+    def test_filter_by_informatieobject(self):
+        zio = ZaakInformatieObjectFactory.create()
+        io_url = reverse(zio.informatieobject.latest_version)
+        zio_list_url = reverse("zaakinformatieobject-list")
+
+        response = self.client.get(
+            zio_list_url,
+            {"informatieobject": f"http://testserver.com{io_url}"},
+            SERVER_NAME="testserver.com",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            response.data[0]["informatieobject"], f"http://testserver.com{io_url}"
+        )
 
     def test_update_zaak(self):
         zaak = ZaakFactory.create()
