@@ -42,6 +42,7 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .permissions import InformationObjectAuthRequired
+from .renderers import BinaryFileRenderer
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -184,6 +185,11 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
+
+    def get_renderers(self):
+        if self.action == "download":
+            return [BinaryFileRenderer]
+        return super().get_renderers()
 
     @transaction.atomic
     def perform_destroy(self, instance):
