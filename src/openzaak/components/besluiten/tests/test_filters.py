@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.test import tag
 
 from rest_framework import status
@@ -68,10 +66,7 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 

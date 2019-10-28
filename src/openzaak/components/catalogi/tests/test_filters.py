@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
@@ -54,14 +52,7 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    OrderedDict(
-                        [
-                            ("count", 0),
-                            ("next", None),
-                            ("previous", None),
-                            ("results", []),
-                        ]
-                    ),
+                    {"count": 0, "next": None, "previous": None, "results": []},
                 )
 
 
@@ -84,10 +75,7 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 
@@ -112,10 +100,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 
@@ -138,10 +123,7 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 
@@ -162,10 +144,7 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 
@@ -188,10 +167,7 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
 
@@ -224,14 +200,7 @@ class ZaakInformatieobjectTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    OrderedDict(
-                        [
-                            ("count", 0),
-                            ("next", None),
-                            ("previous", None),
-                            ("results", []),
-                        ]
-                    ),
+                    {"count": 0, "next": None, "previous": None, "results": []},
                 )
 
 
@@ -256,8 +225,5 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data,
-            OrderedDict(
-                [("count", 0), ("next", None), ("previous", None), ("results", [])]
-            ),
+            response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
