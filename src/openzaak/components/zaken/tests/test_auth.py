@@ -186,7 +186,7 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response_data = response.json()
+        response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
         self.assertEqual(
             response_data[0]["url"], f"http://testserver{reverse(status1)}"
@@ -223,7 +223,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response_data = response.json()
+        response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
         self.assertEqual(
             response_data[0]["url"], f"http://testserver{reverse(resultaat)}"
@@ -275,7 +275,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response_data = response.json()
+        response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
         self.assertEqual(
             response_data[0]["url"], f"http://testserver{reverse(zaakobject)}"
@@ -517,7 +517,7 @@ class RolReadTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response_data = response.json()
+        response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
         self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(rol)}")
 

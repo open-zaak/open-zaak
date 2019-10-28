@@ -382,7 +382,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        data = response.json()
+        data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["betrokkeneIdentificatie"]["inpBsn"], "183068142")
