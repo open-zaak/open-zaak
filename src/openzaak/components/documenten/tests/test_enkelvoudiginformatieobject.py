@@ -321,6 +321,20 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
 
+    def test_eio_download_with_accept_application_octet_stream_header(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", inhoud__data=b"inhoud1"
+        )
+
+        eio_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response._container[0], b"inhoud1")
+
 
 @override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
