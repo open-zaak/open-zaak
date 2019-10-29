@@ -1,3 +1,5 @@
+.. _introduction_open-source:
+
 Open-source (TODO)
 ==================
 
