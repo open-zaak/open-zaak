@@ -299,6 +299,8 @@ class StatusViewSet(
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
     required_scopes = {
@@ -382,6 +384,7 @@ class ZaakObjectViewSet(
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
+    pagination_class = PageNumberPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -561,6 +564,8 @@ class KlantContactViewSet(
     queryset = KlantContact.objects.all()
     serializer_class = KlantContactSerializer
     lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
     required_scopes = {
@@ -610,6 +615,8 @@ class RolViewSet(
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
     required_scopes = {
@@ -674,6 +681,8 @@ class ResultaatViewSet(
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
     required_scopes = {

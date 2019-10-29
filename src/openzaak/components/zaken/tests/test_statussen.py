@@ -25,6 +25,9 @@ class StatusTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["url"], f"http://testserver{status1_url}")
-        self.assertNotEqual(response.data[0]["url"], f"http://testserver{status2_url}")
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{status1_url}")
+        self.assertNotEqual(data[0]["url"], f"http://testserver{status2_url}")
