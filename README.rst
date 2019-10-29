@@ -31,7 +31,7 @@ De gegevens worden ontsloten middels een `set API's`_, te weten:
 * Documenten API (`Documenten API-specificatie 1.0 RC`_)
 * Catalogi API (`Catalogi API-specificatie 1.0 RC`_)
 * Besluiten API (`Besluiten API-specificatie 1.0 RC`_)
-* Autorisatie API (`Autorisaties API-specificatie 1.0 RC`_)
+* Autorisaties API (`Autorisaties API-specificatie 1.0 RC`_)
 
 De `Notificaties API`_ is nodig voor **Open Zaak** en is beschikbaar via
 `Open Notificaties`_.

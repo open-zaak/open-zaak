@@ -16,27 +16,27 @@ De performance van enkele veelgebruike API-verzoeken wordt gemeten om inzicht te
 
 **Zaken API**
 
-1. ZAAKen opvragen (`GET /api/v1/zaken`)
-2. ZAAK opvragen (`GET /api/v1/zaken/d4d..2e8`)
-3. ZAAK aanmaken (`POST /api/v1/zaken`)
+1. ZAAKen opvragen (``GET /api/v1/zaken``)
+2. ZAAK opvragen (``GET /api/v1/zaken/d4d..2e8``)
+3. ZAAK aanmaken (``POST /api/v1/zaken``)
 
 **Catalogi API**
 
-1. ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
-2. ZAAKTYPE opvragen (`GET /api/v1/zaaktypen/d4d..2e8`)
-3. ZAAKTYPE aanmaken (`POST /api/v1/zaaktypen`)
+1. ZAAKTYPEn opvragen (``GET /api/v1/zaaktypen``)
+2. ZAAKTYPE opvragen (``GET /api/v1/zaaktypen/d4d..2e8``)
+3. ZAAKTYPE aanmaken (``POST /api/v1/zaaktypen``)
 
 **Besluiten API**
 
-1. BESLUITen opvragen (`GET /api/v1/besluit`)
-2. BESLUIT opvragen (`GET /api/v1/besluit/d4d..2e8`)
-3. BESLUIT aanmaken (`POST /api/v1/besluit`)
+1. BESLUITen opvragen (``GET /api/v1/besluit``)
+2. BESLUIT opvragen (``GET /api/v1/besluit/d4d..2e8``)
+3. BESLUIT aanmaken (``POST /api/v1/besluit``)
 
 **Documenten API**
 
-1. ENKELVOUDIGINFORMATIEOBJECTen opvragen (`GET /api/v1/enkelvoudiginformatieobjecten`)
-2. ENKELVOUDIGINFORMATIEOBJECT opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/d4d..2e8`)
-3. ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
+1. ENKELVOUDIGINFORMATIEOBJECTen opvragen (``GET /api/v1/enkelvoudiginformatieobjecten``)
+2. ENKELVOUDIGINFORMATIEOBJECT opvragen (``GET /api/v1/enkelvoudiginformatieobjecten/d4d..2e8``)
+3. ENKELVOUDIGINFORMATIEOBJECT aanmaken (``POST /api/v1/enkelvoudiginformatieobjecten``)
 
 Test specificatie
 -----------------
@@ -95,13 +95,13 @@ Een ongefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype.
 
 **Zaken API**
 
-* 1x ZAAKen opvragen (`GET /api/v1/zaken`)
-* 1x STATUSsen opvragen (`GET /api/v1/statussen`)
+* 1x ZAAKen opvragen (``GET /api/v1/zaken``)
+* 1x STATUSsen opvragen (``GET /api/v1/statussen``)
 
 **Catalogi API**
 
-* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen`)
-* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen`)
+* 1x ZAAKTYPEn opvragen (``GET /api/v1/zaaktypen``)
+* 1x STATUSTYPEn opvragen (``GET /api/v1/statustypen``)
 
 Zaken overzicht opvragen van specifiek zaaktype (2)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,13 +110,13 @@ Een gefilterde lijst van zaken opvragen, samen met hun zaaktype en statustype. A
 
 **Zaken API**
 
-* 1x ZAAKen opvragen (`GET /api/v1/zaken?zaaktype=/api/v1/zaaktypen/011..3c1`)
-* 3x STATUSsen opvragen (`GET /api/v1/statussen?statustype=/api/v1/statustypen/f82..396`)
+* 1x ZAAKen opvragen (``GET /api/v1/zaken?zaaktype=/api/v1/zaaktypen/011..3c1``)
+* 3x STATUSsen opvragen (``GET /api/v1/statussen?statustype=/api/v1/statustypen/f82..396``)
 
 **Catalogi API**
 
-* 1x ZAAKTYPEn opvragen (`GET /api/v1/zaaktypen/011..3c1`)
-* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen?zaaktype=/api/v1/zaaktypen/011..3c1`)
+* 1x ZAAKTYPEn opvragen (``GET /api/v1/zaaktypen/011..3c1``)
+* 1x STATUSTYPEn opvragen (``GET /api/v1/statustypen?zaaktype=/api/v1/zaaktypen/011..3c1``)
 
 Zaken zoeken op locatie (3)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,7 +125,7 @@ Een lijst van zaken opvragen die raakvlak hebben met een bepaald geografisch geb
 
 **Zaken API**
 
-* 1x ZAAKen zoeken (`POST /api/v1/zaken/_zoek`)
+* 1x ZAAKen zoeken (``POST /api/v1/zaken/_zoek``)
 
 Zaken zoeken op persoon (4)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,7 +136,7 @@ Een lijst van zaken opvragen met een specifieke betrokkene bij die zaken.
 
 **Zaken API**
 
-* 1x ZAAKen filteren `GET /api/v1/rollen?betrokkene=https://personen/api/v1/a66c38`
+* 1x ZAAKen filteren ``GET /api/v1/rollen?betrokkene=https://personen/api/v1/a66c38``
 
 Zaak details opvragen (5)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -148,27 +148,27 @@ Een afgeronde enkele zaak opvragen, met een resultaat, een besluit, *2 zaakobjec
 
 **Zaken API**
 
-* 1x ZAAK opvragen (`GET /api/v1/zaken/d4d..2e8`)
-* 1x STATUSsen opvragen (`GET /api/v1/statussen?zaak=/api/v1/zaken/d4d..2e8`)
-* 1x RESULTAAT opvragen (`GET /api/v1/resultaten/f84..e9e`)
-* 1x ROLlen opvragen (`GET /api/v1/rollen?zaak=/api/v1/zaken/d4d..2e8`)
-* 1x ZAAKOBJECTen opvragen (`GET /api/v1/zaakobjecten?zaak=/api/v1/zaken/d4d..2e8`)
+* 1x ZAAK opvragen (``GET /api/v1/zaken/d4d..2e8``)
+* 1x STATUSsen opvragen (``GET /api/v1/statussen?zaak=/api/v1/zaken/d4d..2e8``)
+* 1x RESULTAAT opvragen (``GET /api/v1/resultaten/f84..e9e``)
+* 1x ROLlen opvragen (``GET /api/v1/rollen?zaak=/api/v1/zaken/d4d..2e8``)
+* 1x ZAAKOBJECTen opvragen (``GET /api/v1/zaakobjecten?zaak=/api/v1/zaken/d4d..2e8``)
 
 **Catalogi API**
 
-* 1x ZAAKTYPE opvragen (`GET /api/v1/zaaktypen/011..3c1`)
-* 1x STATUSTYPEn opvragen (`GET /api/v1/statustypen?zaaktype=/api/v1/zaaktypen/011..3c1`)
-* 1x BESLUITTYPE opvragen (`GET /api/v1/besluittypen?zaaktype=/api/v1/zaaktypen/011..3c1`)
-* 1x RESULTAATTYPE opvragen (`GET /api/v1/resultaattypen/712..a7c?zaaktype=/api/v1/zaaktypen/011..3c1`)
+* 1x ZAAKTYPE opvragen (``GET /api/v1/zaaktypen/011..3c1``)
+* 1x STATUSTYPEn opvragen (``GET /api/v1/statustypen?zaaktype=/api/v1/zaaktypen/011..3c1``)
+* 1x BESLUITTYPE opvragen (``GET /api/v1/besluittypen?zaaktype=/api/v1/zaaktypen/011..3c1``)
+* 1x RESULTAATTYPE opvragen (``GET /api/v1/resultaattypen/712..a7c?zaaktype=/api/v1/zaaktypen/011..3c1``)
 
 **Documenten API**
 
-* 1x OBJECTINFORMATIEOBJECTen opvragen (`GET /api/v1/objectinformatieobjecten?object=/api/v1/zaken/d4d..2e8`)
-* 3x ENKELVOUDIGINFORMATIEOBJECT opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/cd6..d90`)
+* 1x OBJECTINFORMATIEOBJECTen opvragen (``GET /api/v1/objectinformatieobjecten?object=/api/v1/zaken/d4d..2e8``)
+* 3x ENKELVOUDIGINFORMATIEOBJECT opvragen (``GET /api/v1/enkelvoudiginformatieobjecten/cd6..d90``)
 
 **Besluiten API**
 
-* 1x BESLUITen opvragen (`GET /api/v1/besluiten?zaak=/api/v1/zaken/d4d..2e8`)
+* 1x BESLUITen opvragen (``GET /api/v1/besluiten?zaak=/api/v1/zaken/d4d..2e8``)
 
 Geschiedenis opvragen (6)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,15 +177,15 @@ De gecombineerde audit trail opvragen van een zaak, een besluit en 3 documenten 
 
 **Zaken API**
 
-* 1x AUDITTRAIL opvragen (`GET /api/v1/zaken/d4d..2e8/audittrail`)
+* 1x AUDITTRAIL opvragen (``GET /api/v1/zaken/d4d..2e8/audittrail``)
 
 **Documenten API**
 
-* 3x AUDITTRAIL opvragen (`GET /api/v1/enkelvoudiginformatieobjecten/cd6..d90/audittrail`)
+* 3x AUDITTRAIL opvragen (``GET /api/v1/enkelvoudiginformatieobjecten/cd6..d90/audittrail``)
 
 **Besluiten API**
 
-* 1x AUDITTRAIL opvragen (`GET /api/v1/besluiten/a28..6d3/audittrail`)
+* 1x AUDITTRAIL opvragen (``GET /api/v1/besluiten/a28..6d3/audittrail``)
 
 Zaak aanmaken (7)
 ~~~~~~~~~~~~~~~~~
@@ -194,16 +194,16 @@ Een zaak aanmaken met een initiële status en een initiator.
 
 **Zaken API**
 
-* 1x ZAAK aanmaken (`POST /api/v1/zaken`)
-* 1x STATUS aanmaken (`POST /api/v1/status`)
-* 1x ROL aanmaken (`POST /api/v1/rollen`)
+* 1x ZAAK aanmaken (``POST /api/v1/zaken``)
+* 1x STATUS aanmaken (``POST /api/v1/status``)
+* 1x ROL aanmaken (``POST /api/v1/rollen``)
 
 Status toevoegen (8)
 ~~~~~~~~~~~~~~~~~~~~
 
 **Zaken API**
 
-* 1x STATUS aanmaken (`POST /api/v1/status`)
+* 1x STATUS aanmaken (``POST /api/v1/status``)
 
 Betrokkene toevoegen (9)
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,7 +212,7 @@ Betrokkene toevoegen (9)
 
 **Zaken API**
 
-* 1x ROL aanmaken (`POST /api/v1/rollen`)
+* 1x ROL aanmaken (``POST /api/v1/rollen``)
 
 Document toevoegen (10)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,25 +221,25 @@ Een document aanmaken en de relatie leggen met een zaak.
 
 **Zaken API**
 
-* 1x ZAAK-INFORMATIEOBJECT aanmaken (`POST /api/v1/zaakinformatieobjecten`)
+* 1x ZAAK-INFORMATIEOBJECT aanmaken (``POST /api/v1/zaakinformatieobjecten``)
 
 **Documenten API**
 
-* 1x ENKELVOUDIGINFORMATIEOBJECT aanmaken (`POST /api/v1/enkelvoudiginformatieobjecten`)
+* 1x ENKELVOUDIGINFORMATIEOBJECT aanmaken (``POST /api/v1/enkelvoudiginformatieobjecten``)
 
 Besluit toevoegen (11)
 ~~~~~~~~~~~~~~~~~~~~~~
 
 **Besluiten API**
 
-* 1x BESLUIT aanmaken (`POST /api/v1/besluiten`)
+* 1x BESLUIT aanmaken (``POST /api/v1/besluiten``)
 
 Resultaat toevoegen (12)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Zaken API**
 
-* 1x RESULTAAT aanmaken (`POST /api/v1/resultaten`)
+* 1x RESULTAAT aanmaken (``POST /api/v1/resultaten``)
 
 Test specificatie
 -----------------
