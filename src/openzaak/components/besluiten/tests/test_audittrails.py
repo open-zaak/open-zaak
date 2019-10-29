@@ -99,7 +99,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        besluit.besluittype.informatieobjecttypes.add(io.informatieobjecttype)
+        besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         url = reverse(BesluitInformatieObject)
 
         response = self.client.post(

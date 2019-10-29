@@ -44,7 +44,7 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         besluit = attrs.get("besluit")
 
         io = informatieobject.enkelvoudiginformatieobject_set.first()
-        if not besluit.besluittype.informatieobjecttypes.filter(
+        if not besluit.besluittype.informatieobjecttypen.filter(
             id=io.informatieobjecttype_id, concept=False
         ).exists():
             raise serializers.ValidationError(self.message, code=self.code)

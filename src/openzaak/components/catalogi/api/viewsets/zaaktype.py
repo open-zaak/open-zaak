@@ -1,4 +1,5 @@
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -8,16 +9,11 @@ from ...models import ZaakType
 from ..filters import ZaakTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import ZaakTypeSerializer
-from .mixins import ConceptMixin, M2MConceptCreateMixin
+from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
 class ZaakTypeViewSet(
-    CheckQueryParamsMixin,
-    ConceptMixin,
-    M2MConceptCreateMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    CheckQueryParamsMixin, ConceptMixin, M2MConceptDestroyMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van ZAAKTYPEn nodig voor ZAKEN in de Zaken API.
@@ -66,12 +62,12 @@ class ZaakTypeViewSet(
     queryset = ZaakType.objects.prefetch_related(
         "statustypen",
         "zaaktypenrelaties",
-        "heeft_relevant_informatieobjecttype",
+        "informatieobjecttypen",
         "statustypen",
         "resultaattypen",
         "eigenschap_set",
         "roltype_set",
-        "besluittype_set",
+        "besluittypen",
     ).order_by("-pk")
     serializer_class = ZaakTypeSerializer
     lookup_field = "uuid"
@@ -82,7 +78,9 @@ class ZaakTypeViewSet(
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,
         "create": SCOPE_ZAAKTYPES_WRITE,
+        "update": SCOPE_ZAAKTYPES_WRITE,
+        "partial_update": SCOPE_ZAAKTYPES_WRITE,
         "destroy": SCOPE_ZAAKTYPES_WRITE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
-    concept_related_fields = ["besluittype_set"]
+    concept_related_fields = ["besluittypen", "informatieobjecttypen"]

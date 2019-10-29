@@ -4,6 +4,7 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 
 class ConceptPublishMixin:
@@ -20,13 +21,15 @@ class ConceptPublishMixin:
 
 
 class ConceptDestroyMixin:
+    message = _("Alleen concepten kunnen worden verwijderd.")
+    code = "non-concept-object"
+
     def get_concept(self, instance):
         return instance.concept
 
     def perform_destroy(self, instance):
         if not self.get_concept(instance):
-            msg = _("Alleen concepten kunnen worden verwijderd.")
-            raise PermissionDenied(detail=msg)
+            raise ValidationError({"nonFieldErrors": self.message}, code=self.code)
 
         super().perform_destroy(instance)
 
@@ -55,17 +58,12 @@ class ConceptMixin(ConceptPublishMixin, ConceptDestroyMixin, ConceptFilterMixin)
     pass
 
 
-class ZaakTypeConceptCreateMixin:
-    def perform_create(self, serializer):
-        zaaktype = serializer.validated_data["zaaktype"]
-        if not zaaktype.concept:
-            msg = _("Creating a related object to non-concept object is forbidden")
-            raise PermissionDenied(detail=msg)
-
-        super().perform_create(serializer)
-
-
 class ZaakTypeConceptDestroyMixin(ConceptDestroyMixin):
+    message = _(
+        "Objecten gerelateerd aan non-concept zaaktypen kunnen niet verwijderd worden."
+    )
+    code = "non-concept-zaaktype"
+
     def get_concept(self, instance):
         return instance.zaaktype.concept
 
@@ -75,9 +73,7 @@ class ZaakTypeConceptFilterMixin(ConceptFilterMixin):
         return {"zaaktype__concept": False}
 
 
-class ZaakTypeConceptMixin(
-    ZaakTypeConceptCreateMixin, ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMixin
-):
+class ZaakTypeConceptMixin(ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMixin):
     """
     mixin for resources which have FK or one-to-one relations with ZaakType objects,
     which support concept functionality
@@ -101,3 +97,19 @@ class M2MConceptCreateMixin:
                     raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)
+
+
+class M2MConceptDestroyMixin:
+    def perform_destroy(self, instance):
+        for field_name in self.concept_related_fields:
+            field = getattr(instance, field_name)
+            related_non_concepts = field.filter(concept=False)
+            if related_non_concepts.exists():
+                msg = _(
+                    f"Objects related to non-concept {field_name} can't be destroyed"
+                )
+                raise ValidationError(
+                    {"nonFieldErrors": msg}, code="non-concept-relation"
+                )
+
+        super().perform_destroy(instance)

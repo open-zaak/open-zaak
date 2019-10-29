@@ -140,10 +140,10 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        self.besluittype.informatieobjecttypes.add(
+        self.besluittype.informatieobjecttypen.add(
             informatieobject.informatieobjecttype
         )
-        besluit2.besluittype.informatieobjecttypes.add(
+        besluit2.besluittype.informatieobjecttypen.add(
             informatieobject.informatieobjecttype
         )
 

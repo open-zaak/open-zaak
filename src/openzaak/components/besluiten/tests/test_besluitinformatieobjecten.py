@@ -23,7 +23,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
-        besluit.besluittype.informatieobjecttypes.add(io.informatieobjecttype)
+        besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         besluit_url = reverse(besluit)
         io_url = reverse(io)
         content = {

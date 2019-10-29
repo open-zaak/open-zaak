@@ -3,16 +3,21 @@ from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.utils import get_help_text
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
-from ..validators import RelationCatalogValidator
+from ..validators import (
+    ConceptUpdateValidator,
+    M2MConceptCreateValidator,
+    M2MConceptUpdateValidator,
+    RelationCatalogValidator,
+)
 
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobjecttypes = serializers.HyperlinkedRelatedField(
+    informatieobjecttypen = serializers.HyperlinkedRelatedField(
         view_name="informatieobjecttype-detail",
         many=True,
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
-        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypes"),
+        help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
     )
 
     zaaktypes = serializers.HyperlinkedRelatedField(
@@ -44,7 +49,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "publicatietekst",
             "publicatietermijn",
             "toelichting",
-            "informatieobjecttypes",
+            "informatieobjecttypen",
             "begin_geldigheid",
             "einde_geldigheid",
             "concept",
@@ -53,6 +58,9 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             UniqueTogetherValidator(
                 queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),
-            RelationCatalogValidator("informatieobjecttypes"),
+            RelationCatalogValidator("informatieobjecttypen"),
             RelationCatalogValidator("zaaktypes"),
+            ConceptUpdateValidator(),
+            M2MConceptCreateValidator(["zaaktypes", "informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["zaaktypes", "informatieobjecttypen"]),
         ]

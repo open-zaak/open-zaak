@@ -86,7 +86,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_cannot_set_archiefstatus_without_archiefnominatie_and_archiefactiedatum(
-        self
+        self,
     ):
         zaak = ZaakFactory.create()
         zaak_patch_url = get_operation_url("zaak_partial_update", uuid=zaak.uuid)
@@ -112,7 +112,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_can_set_archiefstatus_when_archiefnominatie_and_archiefactiedatum_already_set(
-        self
+        self,
     ):
         zaak = ZaakFactory.create(
             archiefnominatie=Archiefnominatie.vernietigen,
@@ -239,7 +239,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.archiefactiedatum)
 
     def test_add_resultaat_on_zaak_with_einddatum_causes_archiefactiedatum_to_be_set(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
@@ -281,7 +281,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.archiefactiedatum, date(2028, 10, 18))
 
     def test_add_resultaat_on_zaak_with_eigenschap_causes_archiefactiedatum_to_be_set(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
@@ -362,7 +362,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_resultaat_on_zaak_with_hoofdzaak_causes_archiefactiedatum_to_be_set(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
@@ -404,7 +404,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
 
     def test_add_resultaat_on_zaak_with_ander_datumkenmerk_causes_archiefactiedatum_to_remain_empty(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to remain empty. It needs to be manually set based on the
@@ -448,7 +448,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.archiefactiedatum)
 
     def test_add_resultaat_on_zaak_with_zaakobject_causes_archiefactiedatum_to_be_set(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
@@ -494,7 +494,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
 
     def test_add_resultaat_on_zaak_with_procestermijn_causes_archiefactiedatum_to_be_set(
-        self
+        self,
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.

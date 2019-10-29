@@ -8,15 +8,11 @@ from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
 from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import InformatieObjectTypeSerializer
-from .mixins import ConceptMixin
+from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
 class InformatieObjectTypeViewSet(
-    CheckQueryParamsMixin,
-    ConceptMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    CheckQueryParamsMixin, ConceptMixin, M2MConceptDestroyMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van INFORMATIEOBJECTTYPEn nodig voor
@@ -69,6 +65,9 @@ class InformatieObjectTypeViewSet(
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,
         "create": SCOPE_ZAAKTYPES_WRITE,
+        "update": SCOPE_ZAAKTYPES_WRITE,
+        "partial_update": SCOPE_ZAAKTYPES_WRITE,
         "destroy": SCOPE_ZAAKTYPES_WRITE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
+    concept_related_fields = ["besluittypen", "zaaktypes"]

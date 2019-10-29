@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -12,11 +12,7 @@ from .mixins import ZaakTypeConceptMixin
 
 
 class EigenschapViewSet(
-    CheckQueryParamsMixin,
-    ZaakTypeConceptMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van EIGENSCHAPpen van een ZAAKTYPE.
@@ -69,5 +65,7 @@ class EigenschapViewSet(
         "list": SCOPE_ZAAKTYPES_READ,
         "retrieve": SCOPE_ZAAKTYPES_READ,
         "create": SCOPE_ZAAKTYPES_WRITE,
+        "update": SCOPE_ZAAKTYPES_WRITE,
+        "partial_update": SCOPE_ZAAKTYPES_WRITE,
         "destroy": SCOPE_ZAAKTYPES_WRITE,
     }
