@@ -1,5 +1,6 @@
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
 
@@ -9,7 +10,9 @@ from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..serializers import CatalogusSerializer
 
 
-class CatalogusViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
+class CatalogusViewSet(
+    CheckQueryParamsMixin, mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet
+):
     """
     Opvragen en bewerken van CATALOGUSsen.
 

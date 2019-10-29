@@ -1,5 +1,5 @@
 from rest_framework import status
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_operation_url, get_validation_errors, reverse
 
 from ..models import BesluitType
 from .base import APITestCase
@@ -405,6 +405,17 @@ class BesluitTypeFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{besluittype1_url}")
+
+    def test_validate_unknown_query_params(self):
+        BesluitTypeFactory.create_batch(2)
+        url = reverse(BesluitType)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class BesluitTypePaginationTestCase(APITestCase):

@@ -24,6 +24,7 @@ from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 
 class BesluitViewSet(
+    CheckQueryParamsMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     ListFilterByAuthorizationsMixin,

@@ -287,7 +287,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     def test_filter_client_id_hit(self):
         url = get_operation_url("applicatie_list")
 
-        response = self.client.get(url, {"client_ids": "id2"})
+        response = self.client.get(url, {"clientIds": "id2"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
@@ -295,7 +295,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     def test_filter_client_id_miss(self):
         url = get_operation_url("applicatie_list")
 
-        response = self.client.get(url, {"client_ids": "id3"})
+        response = self.client.get(url, {"clientIds": "id3"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)
@@ -311,6 +311,17 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+
+    def test_validate_unknown_query_params(self):
+        ApplicatieFactory.create_batch(2)
+        url = reverse(Applicatie)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):

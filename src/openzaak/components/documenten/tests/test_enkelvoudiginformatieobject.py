@@ -310,6 +310,17 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "pending-relations")
 
+    def test_validate_unknown_query_params(self):
+        EnkelvoudigInformatieObjectFactory.create_batch(2)
+        url = reverse(EnkelvoudigInformatieObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
 
 @override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):

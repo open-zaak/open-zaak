@@ -1,9 +1,8 @@
 from unittest import skip
 
-from django.urls import reverse
-
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import get_validation_errors, reverse
 
 from ..models import InformatieObjectType
 from .base import APITestCase
@@ -225,6 +224,17 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         self.assertEqual(
             data[0]["url"], f"http://testserver{informatieobjecttype2_url}"
         )
+
+    def test_validate_unknown_query_params(self):
+        InformatieObjectTypeFactory.create_batch(2)
+        url = reverse(InformatieObjectType)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class InformatieObjectTypePaginationTestCase(APITestCase):

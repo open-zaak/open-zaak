@@ -261,6 +261,16 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "object")
         self.assertEqual(error["code"], "invalid")
 
+    def test_validate_unknown_query_params(self):
+        url = reverse(ObjectInformatieObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
 
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

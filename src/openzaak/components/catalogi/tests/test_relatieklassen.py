@@ -1,7 +1,7 @@
 from unittest import skip
 
 from rest_framework import status
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..constants import RichtingChoices
 from ..models import ZaakInformatieobjectType
@@ -272,6 +272,17 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{ziot4_url}")
+
+    def test_validate_unknown_query_params(self):
+        ZaakInformatieobjectTypeFactory.create_batch(2)
+        url = reverse(ZaakInformatieobjectType)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
 
 
 class ZaakInformatieobjectTypePaginationTestCase(APITestCase):
