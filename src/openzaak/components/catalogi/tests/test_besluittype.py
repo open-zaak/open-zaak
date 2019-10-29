@@ -256,7 +256,7 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(error["code"], "relations-incorrect-catalogus")
 
     def test_create_besluittype_fail_different_catalogus_for_informatieobjecttypen(
-        self
+        self,
     ):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
@@ -610,7 +610,7 @@ class BesluitTypeAPITests(APITestCase):
                 besluittype.delete()
 
     def test_partial_update_besluittype_add_relation_to_non_concept_resource_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
@@ -646,7 +646,7 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
 
     def test_partial_update_besluittype_einde_geldigheid_related_to_non_concept_resource(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)

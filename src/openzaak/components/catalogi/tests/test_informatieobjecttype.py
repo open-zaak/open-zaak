@@ -397,7 +397,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.delete()
 
     def test_partial_update_informatieobjecttype_not_related_to_non_concept_zaaktype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -416,7 +416,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.delete()
 
     def test_partial_update_informatieobjecttype_not_related_to_non_concept_besluittype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -434,7 +434,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.delete()
 
     def test_partial_update_informatieobjecttype_related_to_non_concept_zaaktype_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
@@ -456,7 +456,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.delete()
 
     def test_partial_update_informatieobjecttype_related_to_non_concept_besluittype_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
@@ -490,7 +490,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
 
     def test_partial_update_informatieobjecttype_einde_geldigheid_related_to_non_concept_zaaktype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
@@ -510,7 +510,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.delete()
 
     def test_partial_update_informatieobjecttype_einde_geldigheid_related_to_non_concept_besluittype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)

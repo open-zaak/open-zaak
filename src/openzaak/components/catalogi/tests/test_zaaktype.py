@@ -829,7 +829,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
     def test_partial_update_zaaktype_not_related_to_non_concept_informatieobjecttype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -871,7 +871,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
     def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -894,7 +894,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
     def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -917,7 +917,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
     def test_partial_update_zaaktype_add_relation_to_non_concept_besluittype_fails(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -956,7 +956,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
 
     def test_partial_update_zaaktype_einde_geldigheid_related_to_non_concept_besluittype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
@@ -974,7 +974,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
     def test_partial_update_zaaktype_einde_geldigheid_related_to_non_concept_informatieobjecttype(
-        self
+        self,
     ):
         catalogus = CatalogusFactory.create()
 
