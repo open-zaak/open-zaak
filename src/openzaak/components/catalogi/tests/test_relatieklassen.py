@@ -163,7 +163,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
     def test_update_ziot(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=zaaktype.catalogus)
         informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakInformatieobjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
@@ -188,7 +188,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
     def test_partial_update_ziot(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=zaaktype.catalogus)
         informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakInformatieobjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
