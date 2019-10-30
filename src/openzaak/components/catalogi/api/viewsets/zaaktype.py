@@ -14,8 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 
 
 class ZaakTypeViewSet(
@@ -97,14 +97,14 @@ class ZaakTypeViewSet(
         instance = self.get_object()
 
         # check related objects
-        besluittypen = instance.besluittype_set.all()
-        informatieobjecttypen = instance.heeft_relevant_informatieobjecttype.all()
-
-        for types in [besluittypen, informatieobjecttypen]:
-            for relative_type in types:
-                if relative_type.concept:
-                    msg = _("All relative resources should be published")
-                    raise PermissionDenied(detail=msg)
+        if (
+            instance.besluittypen.filter(concept=True).exists()
+            or instance.informatieobjecttypen.filter(concept=True).exists()
+        ):
+            msg = _("All related resources should be published")
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="concept-relation"
+            )
 
         instance.concept = False
         instance.save()
