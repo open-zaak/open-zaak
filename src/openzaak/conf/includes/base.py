@@ -280,6 +280,7 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+        "vng_api_common": {"handlers": ["console"], "level": "INFO", "propagate": True},
         "django.request": {"handlers": ["django"], "level": "ERROR", "propagate": True},
         "django.template": {
             "handlers": ["console"],

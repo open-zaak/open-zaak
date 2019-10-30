@@ -272,7 +272,9 @@ class RolTypeFilterAPITests(APITestCase):
         roltype1_url = reverse(roltype1)
         zaaktype1_url = reverse(zaaktype1)
 
-        response = self.client.get(roltype_list_url, {"zaaktype": zaaktype1_url})
+        response = self.client.get(
+            roltype_list_url, {"zaaktype": f"http://testserver.com{zaaktype1_url}"}
+        )
 
         self.assertEqual(response.status_code, 200)
 

@@ -168,7 +168,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zio_list_url = reverse("zaakinformatieobject-list")
 
         response = self.client.get(
-            zio_list_url, {"zaak": f"http://testserver{zaak_url}"}
+            zio_list_url, {"zaak": f"http://testserver.com{zaak_url}"}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -229,7 +229,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
-        zaak_url = f"http://testserver{reverse(zaak)}"
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
         eio_response = get_eio_response(
             document,
             informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",

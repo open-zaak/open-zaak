@@ -95,7 +95,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
-            bio_list_url, {"besluit": f"http://testserver{besluit_url}"}
+            bio_list_url, {"besluit": f"http://testserver.com{besluit_url}"}
         )
 
         self.assertEqual(response.status_code, 200)

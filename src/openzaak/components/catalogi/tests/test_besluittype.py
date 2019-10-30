@@ -724,7 +724,7 @@ class BesluitTypeFilterAPITests(APITestCase):
         besluittype1 = BesluitTypeFactory.create(concept=False)
         besluittype2 = BesluitTypeFactory.create(concept=False)
         zaaktype1 = besluittype1.zaaktypes.get()
-        zaaktype1_url = reverse(zaaktype1)
+        zaaktype1_url = f"http://testserver.com{reverse(zaaktype1)}"
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(besluittype1)
 
@@ -744,7 +744,7 @@ class BesluitTypeFilterAPITests(APITestCase):
         besluittype1.informatieobjecttypen.add(iot1)
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(besluittype1)
-        iot1_url = reverse(iot1)
+        iot1_url = f"http://testserver.com{reverse(iot1)}"
 
         response = self.client.get(
             besluittype_list_url, {"informatieobjecttypen": iot1_url}

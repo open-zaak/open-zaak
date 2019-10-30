@@ -68,8 +68,6 @@ class ObjectFilter(URLModelChoiceFilter):
             self.field_name = "zaak"
         elif isinstance(value, Besluit):
             self.field_name = "besluit"
-        elif value is not None:
-            raise TypeError("The 'object' should be the link to Zaak or Besluit object")
 
         return super().filter(qs, value)
 

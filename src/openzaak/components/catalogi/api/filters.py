@@ -1,3 +1,7 @@
+from urllib.parse import urlparse
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import URLValidator
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
@@ -34,7 +38,12 @@ def status_filter(queryset, name, value):
 
 
 def m2m_filter(queryset, name, value):
-    object = get_resource_for_path(value)
+    parsed = urlparse(value)
+    path = parsed.path
+    try:
+        object = get_resource_for_path(path)
+    except ObjectDoesNotExist:
+        return queryset.none()
     return queryset.filter(**{name: object})
 
 
@@ -135,6 +144,7 @@ class BesluitTypeFilter(FilterSet):
         help_text=_(
             "ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE"
         ),
+        validators=[URLValidator()],
     )
     informatieobjecttypen = filters.CharFilter(
         field_name="informatieobjecttypen",
@@ -143,6 +153,7 @@ class BesluitTypeFilter(FilterSet):
             "Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
             "BESLUITTYPE worden vastgelegd."
         ),
+        validators=[URLValidator()],
     )
     status = filters.CharFilter(
         field_name="concept", method=status_filter, help_text=STATUS_HELP_TEXT
