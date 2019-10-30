@@ -31,7 +31,7 @@ Software requirements
 At least the following software must be present on the server system:
 
 * Python 3.7 (with virtualenv, which is present by default).
-* A PostgreSQL database server (at least version 10) with Postgis enabled. You
+* A PostgreSQL database server (at least version 10) with PostGIS enabled. You
   can make use of a remote database or run it on the same server.
 * Redis as message broker and cache. May be on the same machine, or a remote
   service.
