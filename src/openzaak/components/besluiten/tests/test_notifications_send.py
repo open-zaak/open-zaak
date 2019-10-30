@@ -27,7 +27,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
         Check if notifications will be send when Besluit is created
         """
         client = mock_client.return_value
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         url = get_operation_url("besluit_create")
         data = {

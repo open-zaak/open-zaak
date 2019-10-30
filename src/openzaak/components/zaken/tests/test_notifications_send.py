@@ -29,7 +29,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
         """
         client = mock_client.return_value
         url = get_operation_url("zaak_create")
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",

@@ -21,7 +21,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     def _create_besluit(self, **HEADERS):
         url = reverse(Besluit)
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
         besluit_data = {

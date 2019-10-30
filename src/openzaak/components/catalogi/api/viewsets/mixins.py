@@ -2,7 +2,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
@@ -80,23 +79,6 @@ class ZaakTypeConceptMixin(ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMix
     """
 
     pass
-
-
-class M2MConceptCreateMixin:
-
-    concept_related_fields = []
-
-    def perform_create(self, serializer):
-        for field_name in self.concept_related_fields:
-            field = serializer.validated_data.get(field_name, [])
-            for related_object in field:
-                if not related_object.concept:
-                    msg = _(
-                        f"Relations to a non-concept {field_name} object can't be created"
-                    )
-                    raise PermissionDenied(detail=msg)
-
-        super().perform_create(serializer)
 
 
 class M2MConceptDestroyMixin:

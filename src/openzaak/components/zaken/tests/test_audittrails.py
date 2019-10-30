@@ -27,7 +27,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     def _create_zaak(self, **headers):
         url = reverse(Zaak)
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_data = {
             "zaaktype": zaaktype_url,

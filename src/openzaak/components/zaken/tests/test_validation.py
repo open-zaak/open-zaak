@@ -57,7 +57,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
     def test_validate_zaaktype_invalid(self):
@@ -98,6 +98,28 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_validate_zaaktype_unpublished(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": zaaktype_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        validation_error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(validation_error["code"], "not-published")
 
     def test_validation_camelcase(self):
         url = reverse("zaak-list")

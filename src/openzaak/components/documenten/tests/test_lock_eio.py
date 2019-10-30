@@ -104,7 +104,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_create_ignores_lock(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")
         data = {

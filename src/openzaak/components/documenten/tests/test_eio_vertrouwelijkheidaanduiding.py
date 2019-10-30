@@ -25,7 +25,8 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
         from informatieobjecttype
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
+            concept=False,
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = reverse("enkelvoudiginformatieobject-list")
@@ -58,7 +59,8 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
         Assert the explicit set of vertrouwelijkheidaanduiding
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
+            concept=False,
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = reverse("enkelvoudiginformatieobject-list")

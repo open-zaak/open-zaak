@@ -45,7 +45,9 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], UntilTodayValidator.code)
 
     def test_duplicate_rsin_identificatie(self):
-        besluit = BesluitFactory.create(identificatie="123456")
+        besluit = BesluitFactory.create(
+            identificatie="123456", besluittype__concept=False
+        )
         besluittype_url = reverse(besluit.besluittype)
 
         response = self.client.post(
@@ -90,7 +92,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         )
 
     def test_validate_besluittype_valid(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         url = reverse("besluit-list")
 
@@ -129,8 +131,29 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_zaaktype_besluittype_relation(self):
+    def test_besluittype_unpublished(self):
         besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(besluittype)
+        url = reverse("besluit-list")
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijkeOrganisatie": "000000000",
+                "identificatie": "123456",
+                "besluittype": f"http://testserver{besluittype_url}",
+                "datum": "2018-09-06",
+                "ingangsdatum": "2018-10-01",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "not-published")
+
+    def test_zaaktype_besluittype_relation(self):
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
@@ -152,37 +175,10 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_no_zaaktype_besluittype_relation(self):
-        besluittype = BesluitTypeFactory.create()
+        besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("besluit-list")
-
-        response = self.client.post(
-            list_url,
-            {
-                "verantwoordelijkeOrganisatie": "000000000",
-                "identificatie": "123456",
-                "besluittype": f"http://testserver{besluittype_url}",
-                "zaak": f"http://testserver{zaak_url}",
-                "datum": "2018-09-06",
-                "ingangsdatum": "2018-10-01",
-            },
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "zaaktype-mismatch")
-
-    def test_relation_with_non_published_zaaktype(self):
-        zaak = ZaakFactory.create(zaaktype__concept=True)
-        zaak_url = reverse(zaak)
-        besluittype = BesluitTypeFactory.create()
-        besluittype_url = reverse(besluittype)
-        besluittype.zaaktypes.add(zaak.zaaktype)
         list_url = reverse("besluit-list")
 
         response = self.client.post(

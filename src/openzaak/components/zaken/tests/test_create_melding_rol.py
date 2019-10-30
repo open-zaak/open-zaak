@@ -43,7 +43,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         """
         Maak een zaak voor een melding.
         """
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url("zaak_create")
         data = {

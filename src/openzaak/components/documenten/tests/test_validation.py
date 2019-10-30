@@ -52,6 +52,19 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "bad-url")
 
+    def test_validate_informatieobjecttype_unpublished(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        url = reverse("enkelvoudiginformatieobject-list")
+
+        response = self.client.post(
+            url, {"informatieobjecttype": informatieobjecttype_url}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "informatieobjecttype")
+        self.assertEqual(error["code"], "not-published")
+
     def test_integriteit(self):
         url = reverse("enkelvoudiginformatieobject-list")
 
@@ -110,7 +123,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         en ?ter vaststelling? zijn niet van toepassing op ontvangen
         informatieobjecten.
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create()
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         invalid_statuses = (Statussen.in_bewerking, Statussen.ter_vaststelling)
         data = {

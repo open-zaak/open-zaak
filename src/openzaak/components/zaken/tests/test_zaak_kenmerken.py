@@ -48,7 +48,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_create_zaak_with_kenmerken(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url("zaak_create")
         data = {
@@ -91,7 +91,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         )
 
     def test_update_zaak_with_kenmerken(self):
-        zaak = ZaakFactory.create()
+        zaak = ZaakFactory.create(zaaktype__concept=False)
         kenmerk_1 = zaak.zaakkenmerk_set.create(kenmerk="kenmerk 1", bron="bron 1")
         self.assertEqual(zaak.zaakkenmerk_set.count(), 1)
 
@@ -117,7 +117,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         )
 
     def test_full_flow(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url("zaak_create")
         zaakobject_create_url = get_operation_url("zaakobject_create")

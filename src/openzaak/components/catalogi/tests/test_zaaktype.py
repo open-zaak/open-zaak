@@ -282,6 +282,33 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(zaaktype.concept, False)
 
+    def test_publish_zaaktype_fail_not_concept_besluittype(self):
+        zaaktype = ZaakTypeFactory.create()
+        besluittype = BesluitTypeFactory.create()
+        zaaktype.besluittypen.add(besluittype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
+
+    def test_publish_zaaktype_fail_not_concept_iotype(self):
+        zaaktype = ZaakTypeFactory.create()
+        ZaakInformatieobjectTypeFactory.create(zaaktype=zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
+
     def test_delete_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
