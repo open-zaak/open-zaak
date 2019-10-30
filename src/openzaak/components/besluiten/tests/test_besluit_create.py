@@ -158,8 +158,12 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "max_length")
+        max_length_errors = [
+            e
+            for e in response.data["invalid_params"]
+            if e["name"] == "besluittype" and e["code"] == "max_length"
+        ]
+        self.assertEqual(len(max_length_errors), 1)
 
 
 @tag("external-urls")
