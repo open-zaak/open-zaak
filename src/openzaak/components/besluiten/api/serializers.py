@@ -48,7 +48,11 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             # per BRC API spec!
-            "besluittype": {"lookup_field": "uuid", "max_length": 200, "validators": [PublishValidator()]},
+            "besluittype": {
+                "lookup_field": "uuid",
+                "max_length": 200,
+                "validators": [PublishValidator()],
+            },
             # per BRC API spec!
             "zaak": {"lookup_field": "uuid", "max_length": 200},
             "identificatie": {"validators": [IsImmutableValidator()]},

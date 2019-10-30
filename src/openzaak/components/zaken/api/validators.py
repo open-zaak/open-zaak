@@ -139,9 +139,7 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         else:
             io_type_id = informatieobject.informatieobjecttype.id
 
-        if not zaak.zaaktype.informatieobjecttypen.filter(
-            id=io_type_id
-        ).exists():
+        if not zaak.zaaktype.informatieobjecttypen.filter(id=io_type_id).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 

@@ -293,8 +293,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(error['code'], 'concept-relation')
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
 
     def test_publish_zaaktype_fail_not_concept_iotype(self):
         zaaktype = ZaakTypeFactory.create()
@@ -306,8 +306,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, 'nonFieldErrors')
-        self.assertEqual(error['code'], 'concept-relation')
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
 
     def test_delete_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
