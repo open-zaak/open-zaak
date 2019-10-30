@@ -2,6 +2,8 @@
 Measuring performance
 =====================
 
+.. todo:: This document is in Dutch and is considered for translation.
+
 Goal
 ====
 
@@ -254,22 +256,22 @@ Om de praktijk verder te benaderen wordt voor elk scenario een bepaalde wachttij
 De wachttijd staat voor de snelheid waarmee gebruikers bepaalde acties in het virtuele systeem uitvoeren en daarmee de belasting die ze veroorzaken.
 
 === ==============================  ======  ======  ======  ======
-#   Scenario                        Verdeling       Wachttijd
+#   Scenario                        Verdeling       Wachttijd (m)
 --- ------------------------------  --------------  --------------
-.   .                               Abs.    %       Gem.    Spr.
+.   .                               Abs.    %       Avg.    Range
 === ==============================  ======  ======  ======  ======
-1   Zaken overzicht opvragen        20      20%     2       0 - 4
-2   ... voor specifiek zaaktype     10      10%     2       0 - 4
-3   Zaken zoeken op locatie         1       1%      1       0 - 2
-4   Zaken zoeken op persoon         10      10%     1       0 - 2
-5   Zaak details opvragen           8       8%      2       0 - 4
-6   Geschiedenis opvragen           2       2%      3       0 - 6
-7   Zaak aanmaken                   10      10%     5       0 - 10
-8   Status toevoegen                20      20%     2       0 - 4
-9   Betrokkene toevoegen            3       3%      3       0 - 6
-10  Document toevoegen              12      12%     4       0 - 8
-11  Besluit toevoegen               2       2%      3       0 - 6
-12  Resultaat toevoegen             2       2%      3       0 - 6
+1   Zaken overzicht opvragen        20      20%     2.5     0 - 5
+2   ... voor specifiek zaaktype     10      10%     2.5     0 - 5
+3   Zaken zoeken op locatie         1       1%      2.5     0 - 5
+4   Zaken zoeken op persoon         10      10%     2.5     0 - 5
+5   Zaak details opvragen           8       8%      2.5     0 - 5
+6   Geschiedenis opvragen           2       2%      2.5     0 - 5
+7   Zaak aanmaken                   10      10%     2.5     0 - 5
+8   Status toevoegen                20      20%     2.5     0 - 5
+9   Betrokkene toevoegen            3       3%      2.5     0 - 5
+10  Document toevoegen              12      12%     2.5     0 - 5
+11  Besluit toevoegen               2       2%      2.5     0 - 5
+12  Resultaat toevoegen             2       2%      2.5     0 - 5
 .   **Totaal**                      100     100%
 === ==============================  ======  ======  ======  ======
 
@@ -287,5 +289,3 @@ De volgende test data wordt gebruikt om een realistische dataset te simuleren:
 * 1.000.000 documenten in de Documenten API
 * 1.000.000 besluiten in de Besluiten API
 * 1 catalogus met 100 zaaktypen in de Catalogi API
-
-De volledige testset is beschreven in de technische bijlage.
