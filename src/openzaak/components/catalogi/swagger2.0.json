@@ -1101,7 +1101,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -2788,7 +2788,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -3858,7 +3858,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -4979,7 +4979,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -6066,7 +6066,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -7135,7 +7135,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -8225,7 +8225,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
@@ -9309,7 +9309,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "(zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)"
                         ]
                     }
                 ]
