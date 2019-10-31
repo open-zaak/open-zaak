@@ -48,7 +48,7 @@ from openzaak.components.documenten.models import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
-from openzaak.utils.validators import PublishValidator
+from openzaak.utils.validators import LooseFkIsImmutableValidator, PublishValidator
 
 from ...brondatum import BrondatumCalculator
 from ...constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -280,7 +280,7 @@ class ZaakSerializer(
                         "Resultaat",
                         settings.REFERENTIELIJSTEN_API_SPEC,
                         get_auth=get_auth,
-                    )
+                    ),
                 ]
             },
             "hoofdzaak": {
@@ -580,7 +580,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         choices=[(force_text(value), key) for key, value in RelatieAarden.choices],
     )
     informatieobject = EnkelvoudigInformatieObjectField(
-        validators=[IsImmutableValidator()],
+        validators=[LooseFkIsImmutableValidator(instance_path="canonical")],
         max_length=1000,
         min_length=1,
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
