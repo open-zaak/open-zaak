@@ -1,7 +1,8 @@
 from rest_framework import status
-from vng_api_common.constants import RolOmschrijving
+from vng_api_common.constants import ComponentTypes, RolOmschrijving
 from vng_api_common.tests import get_validation_errors, reverse
 
+from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..api.validators import ZaakTypeConceptValidator
 from ..models import RolType
 from .base import APITestCase
@@ -10,6 +11,9 @@ from .factories import RolTypeFactory, ZaakTypeFactory
 
 class RolTypeAPITests(APITestCase):
     maxDiff = None
+    heeft_alle_autorisaties = False
+    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
         roltype1 = RolTypeFactory.create(zaaktype__concept=True)

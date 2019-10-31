@@ -6,10 +6,15 @@ from django.test import override_settings
 from django.urls import reverse as django_reverse
 
 from rest_framework import status
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
+from ..api.scopes import (
+    SCOPE_ZAAKTYPES_FORCED_DELETE,
+    SCOPE_ZAAKTYPES_READ,
+    SCOPE_ZAAKTYPES_WRITE,
+)
 from ..api.validators import (
     ConceptUpdateValidator,
     M2MConceptCreateValidator,
@@ -32,6 +37,9 @@ from .utils import get_operation_url
 
 class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     maxDiff = None
+    heeft_alle_autorisaties = False
+    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
         zaaktype1 = ZaakTypeFactory.create(concept=True)  # noqa

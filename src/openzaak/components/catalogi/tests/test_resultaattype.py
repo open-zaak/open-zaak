@@ -7,6 +7,7 @@ import requests_mock
 from rest_framework import status
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
+    ComponentTypes,
 )
 from vng_api_common.tests import (
     TypeCheckMixin,
@@ -16,6 +17,7 @@ from vng_api_common.tests import (
 )
 from zds_client.tests.mocks import mock_client
 
+from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..api.validators import ZaakTypeConceptValidator
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType
@@ -34,6 +36,9 @@ RESULTAATTYPEOMSCHRIJVING_URL = "http://example.com/omschrijving/1"
 
 class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     maxDiff = None
+    heeft_alle_autorisaties = False
+    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    component = ComponentTypes.ztc
 
     list_url = reverse_lazy(ResultaatType)
 
