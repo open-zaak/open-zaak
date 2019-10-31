@@ -200,6 +200,46 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
+    def test_update(self):
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = reverse(besluit)
+
+        besluittype_url = reverse(besluit.besluittype)
+        response = self.client.put(
+            besluit_url,
+            {
+                "identificatie": besluit.identificatie,
+                "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
+                "datum": "2019-01-01",
+                "ingangsdatum": "2018-01-01",
+                "besluittype": f"http://testserver{besluittype_url}",
+                "toelichting": "aangepast",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["toelichting"], "aangepast")
+
+        besluit.refresh_from_db()
+        self.assertEqual(besluit.toelichting, "aangepast")
+
+    def test_update_besluittype_fails(self):
+        besluit = BesluitFactory.create()
+        besluit_url = reverse(besluit)
+
+        besluittype = BesluitTypeFactory.create()
+        besluittype_url = reverse(besluittype)
+        response = self.client.patch(
+            besluit_url, {"besluittype": f"http://testserver{besluittype_url}"}
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], IsImmutableValidator.code)
+
 
 class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
 
