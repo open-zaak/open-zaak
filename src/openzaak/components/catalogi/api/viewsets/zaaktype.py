@@ -69,7 +69,7 @@ class ZaakTypeViewSet(
     Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
     """
 
-    queryset = ZaakType.objects.prefetch_related(
+    queryset = ZaakType.objects.select_related('catalogus').prefetch_related(
         "statustypen",
         "zaaktypenrelaties",
         "informatieobjecttypen",
