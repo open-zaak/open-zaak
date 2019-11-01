@@ -315,7 +315,7 @@ class Zaak(APIMixin, models.Model):
 
     @property
     def current_status_uuid(self):
-        status = self.status_set.order_by("-datum_status_gezet").first()
+        status = self.status_set.first()
         return status.uuid if status else None
 
     def unique_representation(self):

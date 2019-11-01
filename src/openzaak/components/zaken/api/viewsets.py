@@ -190,7 +190,14 @@ class ZaakViewSet(
     - `klantcontact` - alle klantcontacten bij een zaak
     """
 
-    queryset = Zaak.objects.prefetch_related("deelzaken").order_by("-pk")
+    queryset = Zaak.objects\
+        .select_related("zaaktype")\
+        .prefetch_related("deelzaken")\
+        .prefetch_related("relevante_andere_zaken") \
+        .prefetch_related("zaakkenmerk_set") \
+        .prefetch_related(models.Prefetch('status_set', Status.objects.order_by('-datum_status_gezet'))) \
+        .prefetch_related("resultaat") \
+        .order_by("-pk")
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend, OrderingFilter)
