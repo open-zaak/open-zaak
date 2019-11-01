@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
+from ..scopes import SCOPE_ZAAKTYPES_FORCED_DELETE
+
 
 class ConceptPublishMixin:
     @swagger_auto_schema(request_body=no_body)
@@ -27,8 +29,14 @@ class ConceptDestroyMixin:
         return instance.concept
 
     def perform_destroy(self, instance):
-        if not self.get_concept(instance):
-            raise ValidationError({"nonFieldErrors": self.message}, code=self.code)
+        forced_delete = self.request.jwt_auth.has_auth(
+            scopes=SCOPE_ZAAKTYPES_FORCED_DELETE,
+            init_component=self.queryset.model._meta.app_label,
+        )
+
+        if not forced_delete:
+            if not self.get_concept(instance):
+                raise ValidationError({"nonFieldErrors": self.message}, code=self.code)
 
         super().perform_destroy(instance)
 
@@ -83,15 +91,21 @@ class ZaakTypeConceptMixin(ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMix
 
 class M2MConceptDestroyMixin:
     def perform_destroy(self, instance):
-        for field_name in self.concept_related_fields:
-            field = getattr(instance, field_name)
-            related_non_concepts = field.filter(concept=False)
-            if related_non_concepts.exists():
-                msg = _(
-                    f"Objects related to non-concept {field_name} can't be destroyed"
-                )
-                raise ValidationError(
-                    {"nonFieldErrors": msg}, code="non-concept-relation"
-                )
+        forced_delete = self.request.jwt_auth.has_auth(
+            scopes=SCOPE_ZAAKTYPES_FORCED_DELETE,
+            init_component=self.queryset.model._meta.app_label,
+        )
+
+        if not forced_delete:
+            for field_name in self.concept_related_fields:
+                field = getattr(instance, field_name)
+                related_non_concepts = field.filter(concept=False)
+                if related_non_concepts.exists():
+                    msg = _(
+                        f"Objects related to non-concept {field_name} can't be destroyed"
+                    )
+                    raise ValidationError(
+                        {"nonFieldErrors": msg}, code="non-concept-relation"
+                    )
 
         super().perform_destroy(instance)

@@ -6,7 +6,11 @@ from openzaak.utils.permissions import AuthRequired
 
 from ...models import StatusType
 from ..filters import StatusTypeFilter
-from ..scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
+from ..scopes import (
+    SCOPE_ZAAKTYPES_FORCED_DELETE,
+    SCOPE_ZAAKTYPES_READ,
+    SCOPE_ZAAKTYPES_WRITE,
+)
 from ..serializers import StatusTypeSerializer
 from .mixins import ZaakTypeConceptMixin
 
@@ -66,5 +70,5 @@ class StatusTypeViewSet(
         "create": SCOPE_ZAAKTYPES_WRITE,
         "update": SCOPE_ZAAKTYPES_WRITE,
         "partial_update": SCOPE_ZAAKTYPES_WRITE,
-        "destroy": SCOPE_ZAAKTYPES_WRITE,
+        "destroy": SCOPE_ZAAKTYPES_WRITE | SCOPE_ZAAKTYPES_FORCED_DELETE,
     }

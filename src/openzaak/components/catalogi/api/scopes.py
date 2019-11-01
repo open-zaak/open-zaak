@@ -23,3 +23,12 @@ SCOPE_ZAAKTYPES_WRITE = Scope(
 * schrijfoperaties uit te voeren in de API. Alle resources zijn beschikbaar.
 """,
 )
+
+SCOPE_ZAAKTYPES_FORCED_DELETE = Scope(
+    "zaaktypes.geforceerd_verwijderen",
+    description="""
+**Laat toe om**:
+
+* Gepubliceerde types geforceerd te verwijderen. Alle resources zijn beschikbaar.
+""",
+)
