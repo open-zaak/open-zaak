@@ -316,6 +316,7 @@ class EnkelvoudigInformatieObject(APIMixin, InformatieObject):
         unique_together = ("uuid", "versie")
         verbose_name = _("Enkelvoudige informatie object")
         verbose_name_plural = _("Enkelvoudige informatie objecten")
+        indexes = [models.Index(fields=['canonical', '-versie'])]
 
 
 class Gebruiksrechten(models.Model):
