@@ -302,7 +302,7 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.all()
+    queryset = Status.objects.select_related('statustype').select_related('zaak').all()
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
@@ -620,7 +620,15 @@ class RolViewSet(
 
     """
 
-    queryset = Rol.objects.all()
+    queryset = Rol.objects\
+        .select_related('roltype') \
+        .select_related('zaak') \
+        .prefetch_related('natuurlijkpersoon') \
+        .prefetch_related('nietnatuurlijkpersoon') \
+        .prefetch_related('vestiging') \
+        .prefetch_related('organisatorischeeenheid') \
+        .prefetch_related('medewerker') \
+        .all()
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
