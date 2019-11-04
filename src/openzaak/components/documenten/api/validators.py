@@ -1,8 +1,9 @@
 from collections import OrderedDict
+
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from django.utils.translation import ugettext_lazy as _
 
 from ..validators import validate_status
 

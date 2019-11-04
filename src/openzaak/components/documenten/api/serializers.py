@@ -35,7 +35,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
-from .validators import StatusValidator, InformatieObjectUniqueValidator
+from .validators import InformatieObjectUniqueValidator, StatusValidator
 
 
 class AnyFileType:
