@@ -1,6 +1,8 @@
+from collections import OrderedDict
 from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
+from django.utils.translation import ugettext_lazy as _
 
 from ..validators import validate_status
 
@@ -23,3 +25,22 @@ class StatusValidator:
             )
         except ValidationError as exc:
             raise serializers.ValidationError(exc.error_dict)
+
+
+class InformatieObjectUniqueValidator:
+    """
+    Validate that the relation between the object and informatieobject does not
+    exist yet in the Documenten component
+    """
+
+    message = _("The fields object and infromatieobject must make a unique set.")
+    code = "unique"
+
+    def __call__(self, context: OrderedDict):
+        informatieobject = context["informatieobject"]
+        oios = informatieobject.objectinformatieobject_set.filter(
+            **{context["object_type"]: context["object"]}
+        )
+
+        if oios:
+            raise serializers.ValidationError(detail=self.message, code=self.code)
