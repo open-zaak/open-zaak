@@ -8,7 +8,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
-from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -215,3 +218,27 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_external_besluittype_fail_bad_url(self):
+        url = reverse(Besluit)
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijke_organisatie": "517439943",  # RSIN
+                "identificatie": "123123",
+                "besluittype": "http://example.com",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "bad-url")
