@@ -190,14 +190,19 @@ class ZaakViewSet(
     - `klantcontact` - alle klantcontacten bij een zaak
     """
 
-    queryset = Zaak.objects\
-        .select_related("zaaktype")\
-        .prefetch_related("deelzaken")\
-        .prefetch_related("relevante_andere_zaken") \
-        .prefetch_related("zaakkenmerk_set") \
-        .prefetch_related(models.Prefetch('status_set', Status.objects.order_by('-datum_status_gezet'))) \
-        .prefetch_related("resultaat") \
+    queryset = (
+        Zaak.objects.select_related("zaaktype")
+        .prefetch_related("deelzaken")
+        .prefetch_related("relevante_andere_zaken")
+        .prefetch_related("zaakkenmerk_set")
+        .prefetch_related(
+            models.Prefetch(
+                "status_set", Status.objects.order_by("-datum_status_gezet")
+            )
+        )
+        .prefetch_related("resultaat")
         .order_by("-pk")
+    )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend, OrderingFilter)
@@ -302,7 +307,7 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.select_related('statustype').select_related('zaak').all()
+    queryset = Status.objects.select_related("statustype").select_related("zaak").all()
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
@@ -620,15 +625,16 @@ class RolViewSet(
 
     """
 
-    queryset = Rol.objects\
-        .select_related('roltype') \
-        .select_related('zaak') \
-        .prefetch_related('natuurlijkpersoon') \
-        .prefetch_related('nietnatuurlijkpersoon') \
-        .prefetch_related('vestiging') \
-        .prefetch_related('organisatorischeeenheid') \
-        .prefetch_related('medewerker') \
+    queryset = (
+        Rol.objects.select_related("roltype")
+        .select_related("zaak")
+        .prefetch_related("natuurlijkpersoon")
+        .prefetch_related("nietnatuurlijkpersoon")
+        .prefetch_related("vestiging")
+        .prefetch_related("organisatorischeeenheid")
+        .prefetch_related("medewerker")
         .all()
+    )
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"

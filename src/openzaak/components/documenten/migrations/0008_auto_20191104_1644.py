@@ -5,17 +5,20 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('documenten', '0007_auto_20190918_0842'),
-    ]
+    dependencies = [("documenten", "0007_auto_20190918_0842")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='enkelvoudiginformatieobject',
-            options={'verbose_name': 'Enkelvoudige informatie object', 'verbose_name_plural': 'Enkelvoudige informatie objecten'},
+            name="enkelvoudiginformatieobject",
+            options={
+                "verbose_name": "Enkelvoudige informatie object",
+                "verbose_name_plural": "Enkelvoudige informatie objecten",
+            },
         ),
         migrations.AddIndex(
-            model_name='enkelvoudiginformatieobject',
-            index=models.Index(fields=['canonical', '-versie'], name='documenten__canonic_31cc4e_idx'),
+            model_name="enkelvoudiginformatieobject",
+            index=models.Index(
+                fields=["canonical", "-versie"], name="documenten__canonic_31cc4e_idx"
+            ),
         ),
     ]

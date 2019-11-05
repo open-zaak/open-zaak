@@ -1,11 +1,12 @@
 from django.utils import timezone
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
 from openzaak.utils.tests import JWTAuthMixin
 
-from .factories import ZaakFactory, StatusFactory
+from .factories import StatusFactory, ZaakFactory
 from .utils import ZAAK_READ_KWARGS
 
 
@@ -24,8 +25,8 @@ class ZaakStatusTests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(zaak_url, **ZAAK_READ_KWARGS)
 
-        self.assertEqual(response.status_code, status. HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
 
-        self.assertEqual(data['status'], f'http://testserver{status_last_url}')
+        self.assertEqual(data["status"], f"http://testserver{status_last_url}")
