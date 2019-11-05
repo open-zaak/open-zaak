@@ -60,13 +60,13 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
-    def test_validate_zaaktype_invalid(self):
+    def test_validate_zaaktype_bad_url(self):
         url = reverse("zaak-list")
 
         response = self.client.post(
             url,
             {
-                "zaaktype": "https://example.com/foo/bar",
+                "zaaktype": "https://example.co/foo/bar",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-06-11",
@@ -79,6 +79,27 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "zaaktype")
         self.assertEqual(validation_error["code"], "bad-url")
+        self.assertEqual(validation_error["name"], "zaaktype")
+
+    def test_validate_zaaktype_invalid_resource(self):
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": "https://example.com",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(validation_error["code"], "invalid-resource")
         self.assertEqual(validation_error["name"], "zaaktype")
 
     def test_validate_zaaktype_valid(self, *mocks):
