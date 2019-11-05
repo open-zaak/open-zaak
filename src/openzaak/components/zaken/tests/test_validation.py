@@ -534,6 +534,25 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_update_informatieobject_fails(self):
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = reverse(io)
+
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject__latest_version__informatieobjecttype=io.informatieobjecttype
+        )
+        zio_url = reverse(zio)
+
+        response = self.client.patch(
+            zio_url, {"informatieobject": f"http://testserver{io_url}"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        validation_error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(validation_error["code"], IsImmutableValidator.code)
+
 
 class FilterValidationTests(JWTAuthMixin, APITestCase):
     """

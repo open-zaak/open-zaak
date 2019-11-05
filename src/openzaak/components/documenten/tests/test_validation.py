@@ -5,6 +5,7 @@ from django.test import override_settings, tag
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
@@ -107,6 +108,24 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         cases = (("soort", "invalid_choice", ""), ("datum", "null", None))
 
         self.assertGegevensGroepValidation(url, "ondertekening", base_body, cases)
+
+    def test_update_informatieobjecttype_fails(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = reverse(eio)
+
+        iotype = InformatieObjectTypeFactory.create()
+        iotype_url = reverse(iotype)
+
+        response = self.client.patch(
+            eio_url, {"informatieobjecttype": f"http://testserver{iotype_url}"}
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "informatieobjecttype")
+        self.assertEqual(error["code"], IsImmutableValidator.code)
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
