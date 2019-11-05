@@ -12,7 +12,10 @@ from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
-from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
+    ZaakInformatieobjectTypeFactory,
+)
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -175,7 +178,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
 
-    def test_filter_by_informatieobject(self):
+    def test_filter_by_local_informatieobject(self):
         zio = ZaakInformatieObjectFactory.create()
         io_url = reverse(zio.informatieobject.latest_version)
         zio_list_url = reverse("zaakinformatieobject-list")
@@ -191,6 +194,43 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.data[0]["informatieobject"], f"http://testserver.com{io_url}"
         )
+
+    def test_filter_by_external_informatieobject(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
+
+        with requests_mock.Mocker() as m:
+            m.get(document, json=eio_response)
+            m.post(
+                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+                json=get_oio_response(document, zaak_url),
+                status_code=201,
+            )
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        io_url = response.data["informatieobject"]
+        zio_list_url = reverse("zaakinformatieobject-list")
+
+        response = self.client.get(
+            zio_list_url, {"informatieobject": io_url}, SERVER_NAME="testserver.com"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["informatieobject"], io_url)
 
     def test_update_zaak(self):
         zaak = ZaakFactory.create()
