@@ -461,10 +461,6 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ObjectInformatieObjectViewSet(
-    # NotificationCreateMixin,
-    # NotificationDestroyMixin,
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
@@ -513,8 +509,6 @@ class ObjectInformatieObjectViewSet(
     serializer_class = ObjectInformatieObjectSerializer
     filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"
-    # notifications_kanaal = KANAAL_DOCUMENTEN
-    # notifications_main_resource_key = "informatieobject"
     permission_classes = (InformationObjectAuthRequired,)
     permission_main_object = "informatieobject"
     required_scopes = {
@@ -525,8 +519,6 @@ class ObjectInformatieObjectViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
-    audit = AUDIT_DRC
-    audittrail_main_resource_key = "informatieobject"
 
     def perform_create(self, serializer):
         # object was already created by BIO/ZIO creation,

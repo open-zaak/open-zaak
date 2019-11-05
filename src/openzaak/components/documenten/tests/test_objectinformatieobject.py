@@ -39,7 +39,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
-        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
 
         response = self.client.post(
             self.list_url,
@@ -50,16 +49,12 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             },
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
-            response.data,
-            {
-                "url": f"http://testserver{oio_url}",
-                "informatieobject": f"http://testserver{eio_url}",
-                "object": f"http://testserver{zaak_url}",
-                "object_type": "zaak",
-            },
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_besluit(self):
         besluit = BesluitFactory.create()
@@ -85,16 +80,12 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             },
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            response.data,
-            {
-                "url": f"http://testserver{oio_url}",
-                "object": f"http://testserver{besluit_url}",
-                "informatieobject": f"http://testserver{eio_url}",
-                "object_type": "besluit",
-            },
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_other_fail(self):
         besluit = BesluitFactory.create()

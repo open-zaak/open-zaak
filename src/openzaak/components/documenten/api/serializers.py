@@ -35,7 +35,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
-from .validators import StatusValidator
+from .validators import InformatieObjectUniqueValidator, StatusValidator
 
 
 class AnyFileType:
@@ -466,6 +466,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
         extra_kwargs = {"url": {"lookup_field": "uuid"}}
+        validators = [InformatieObjectUniqueValidator()]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
