@@ -17,16 +17,7 @@ class EigenschapAdmin(admin.ModelAdmin):
     # Details
     fieldsets = (
         (_("Algemeen"), {"fields": ("eigenschapnaam", "definitie", "toelichting")}),
-        (
-            _("Relaties"),
-            {
-                "fields": (
-                    "zaaktype",
-                    "specificatie_van_eigenschap",
-                    "referentie_naar_eigenschap",
-                )
-            },
-        ),
+        (_("Relaties"), {"fields": ("zaaktype", "specificatie_van_eigenschap",)},),
     )
 
 

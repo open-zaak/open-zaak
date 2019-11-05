@@ -27,7 +27,6 @@ class StatusTypeAdmin(admin.ModelAdmin):
                     "statustype_omschrijving",
                     "statustype_omschrijving_generiek",
                     "statustypevolgnummer",
-                    "doorlooptijd_status",
                     "informeren",
                     "statustekst",
                     "toelichting",
