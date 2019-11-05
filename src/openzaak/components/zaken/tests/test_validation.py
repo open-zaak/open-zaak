@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -63,10 +64,13 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def test_validate_zaaktype_bad_url(self):
         url = reverse("zaak-list")
 
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com/zrc/zaken/1234", status_code=404)
+
         response = self.client.post(
             url,
             {
-                "zaaktype": "https://example.co/foo/bar",
+                "zaaktype": "https://example.com/zrc/zaken/1234",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-06-11",
@@ -708,7 +712,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    def test_statustype_invalid_resource(self):
+    def test_statustype_bad_url(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse("status-list")
@@ -726,6 +730,25 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "statustype")
         self.assertEqual(error["code"], "bad-url")
+
+    def test_statustype_invalid_resource(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": "https://example.com",
+                "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "statustype")
+        self.assertEqual(error["code"], "invalid-resource")
 
     def test_statustype_zaaktype_mismatch(self):
         zaak = ZaakFactory.create()
@@ -840,7 +863,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "resultaattype")
         self.assertEqual(validation_error["code"], IsImmutableValidator.code)
 
-    def test_resultaattype_invalid_resource(self):
+    def test_resultaattype_bad_url(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         list_url = reverse("resultaat-list")
@@ -854,6 +877,20 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "resultaattype")
         self.assertEqual(validation_error["code"], "bad-url")
+
+    def test_resultaattype_invalid_resource(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("resultaat-list")
+
+        response = self.client.post(
+            list_url, {"zaak": zaak_url, "resultaattype": "https://example.com"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "resultaattype")
+        self.assertEqual(validation_error["code"], "invalid-resource")
 
     def test_resultaattype_incorrect_zaaktype(self):
         zaak = ZaakFactory.create()
@@ -941,6 +978,22 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "eigenschap")
         self.assertEqual(validation_error["code"], "bad-url")
+
+    def test_eigenschap_invalid_resource(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        response = self.client.post(
+            list_url,
+            {"zaak": zaak_url, "eigenschap": "http://example.com", "waarde": "test"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "eigenschap")
+        self.assertEqual(validation_error["code"], "invalid-resource")
 
 
 class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):

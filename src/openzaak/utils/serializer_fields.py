@@ -1,7 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
-from vng_api_common.validators import URLValidator
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from vng_api_common.validators import URLValidator
 
 
 class LengthValidationMixin:
