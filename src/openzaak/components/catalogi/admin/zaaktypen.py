@@ -99,7 +99,6 @@ class ZaakTypeAdmin(
                     "zaaktype_identificatie",
                     "zaaktype_omschrijving",
                     "zaaktype_omschrijving_generiek",
-                    "zaakcategorie",
                     "doel",
                     "aanleiding",
                     "toelichting",
@@ -113,15 +112,10 @@ class ZaakTypeAdmin(
                     "verlenging_mogelijk",
                     "verlengingstermijn",
                     "trefwoorden",
-                    "archiefclassificatiecode",
                     "vertrouwelijkheidaanduiding",
-                    "verantwoordelijke",
                     "producten_of_diensten",
-                    "formulier",  # m2m
                     "verantwoordingsrelatie",
                     "versiedatum",  # ??
-                    "broncatalogus",  #
-                    "bronzaaktype",  # dit is het model
                 )
             },
         ),

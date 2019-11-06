@@ -15,10 +15,7 @@ class RolTypeAdmin(admin.ModelAdmin):
 
     # Details
     fieldsets = (
-        (
-            _("Algemeen"),
-            {"fields": ("omschrijving", "omschrijving_generiek", "soort_betrokkene")},
-        ),
+        (_("Algemeen"), {"fields": ("omschrijving", "omschrijving_generiek")},),
         (_("Relaties"), {"fields": ("zaaktype",)}),
     )
     raw_id_fields = ("zaaktype",)

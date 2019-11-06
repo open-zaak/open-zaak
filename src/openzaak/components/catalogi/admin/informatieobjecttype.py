@@ -22,18 +22,7 @@ class InformatieObjectTypeAdmin(
 
     # Details
     fieldsets = (
-        (
-            _("Algemeen"),
-            {
-                "fields": (
-                    "omschrijving",
-                    "trefwoord",
-                    "vertrouwelijkheidaanduiding",
-                    "model",
-                    "toelichting",
-                )
-            },
-        ),
-        (_("Relaties"), {"fields": ("catalogus", "omschrijving_generiek")}),
+        (_("Algemeen"), {"fields": ("omschrijving", "vertrouwelijkheidaanduiding",)},),
+        (_("Relaties"), {"fields": ("catalogus",)}),
     )
     inlines = (ZaakInformatieobjectTypeInline,)  # zaaktypes
