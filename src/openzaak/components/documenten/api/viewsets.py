@@ -166,8 +166,9 @@ class EnkelvoudigInformatieObjectViewSet(
     """
 
     queryset = (
-        EnkelvoudigInformatieObject.objects.select_related("canonical")
-        .select_related("informatieobjecttype")
+        EnkelvoudigInformatieObject.objects.select_related(
+            "canonical", "informatieobjecttype"
+        )
         .order_by("canonical", "-versie")
         .distinct("canonical")
     )

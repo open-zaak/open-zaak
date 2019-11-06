@@ -192,15 +192,15 @@ class ZaakViewSet(
 
     queryset = (
         Zaak.objects.select_related("zaaktype")
-        .prefetch_related("deelzaken")
-        .prefetch_related("relevante_andere_zaken")
-        .prefetch_related("zaakkenmerk_set")
         .prefetch_related(
+            "deelzaken",
+            "relevante_andere_zaken",
+            "zaakkenmerk_set",
+            "resultaat",
             models.Prefetch(
                 "status_set", Status.objects.order_by("-datum_status_gezet")
-            )
+            ),
         )
-        .prefetch_related("resultaat")
         .order_by("-pk")
     )
     serializer_class = ZaakSerializer
@@ -307,7 +307,7 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.select_related("statustype").select_related("zaak").all()
+    queryset = Status.objects.select_related("statustype", "zaak").all()
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
@@ -626,13 +626,14 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("roltype")
-        .select_related("zaak")
-        .prefetch_related("natuurlijkpersoon")
-        .prefetch_related("nietnatuurlijkpersoon")
-        .prefetch_related("vestiging")
-        .prefetch_related("organisatorischeeenheid")
-        .prefetch_related("medewerker")
+        Rol.objects.select_related("roltype", "zaak")
+        .prefetch_related(
+            "natuurlijkpersoon",
+            "nietnatuurlijkpersoon",
+            "vestiging",
+            "organisatorischeeenheid",
+            "medewerker",
+        )
         .all()
     )
     serializer_class = RolSerializer
