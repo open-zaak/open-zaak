@@ -509,7 +509,13 @@ class ObjectInformatieObjectViewSet(
     endpoint bij het synchroniseren van relaties.
     """
 
-    queryset = ObjectInformatieObject.objects.all()
+    queryset = (
+        ObjectInformatieObject.objects.select_related(
+            "zaak", "besluit", "informatieobject"
+        )
+        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .all()
+    )
     serializer_class = ObjectInformatieObjectSerializer
     filterset_class = ObjectInformatieObjectFilter
     lookup_field = "uuid"

@@ -1,3 +1,5 @@
+from django.db.models import Prefetch
+
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
@@ -7,6 +9,7 @@ from vng_api_common.audittrails.viewsets import (
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import Besluit, BesluitInformatieObject
@@ -165,7 +168,11 @@ class BesluitInformatieObjectViewSet(
     Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
     """
 
-    queryset = BesluitInformatieObject.objects.all()
+    queryset = (
+        BesluitInformatieObject.objects.select_related('besluit, "informatieobject')
+        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .all()
+    )
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
     lookup_field = "uuid"

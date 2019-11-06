@@ -479,7 +479,11 @@ class ZaakInformatieObjectViewSet(
     verwijderd. Consumers kunnen dit niet handmatig doen.
     """
 
-    queryset = ZaakInformatieObject.objects.all()
+    queryset = (
+        ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
+        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
+        .all()
+    )
     filterset_class = ZaakInformatieObjectFilter
     serializer_class = ZaakInformatieObjectSerializer
     lookup_field = "uuid"
