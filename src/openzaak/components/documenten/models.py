@@ -210,7 +210,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
 
     @property
     def latest_version(self):
-        versies = self.enkelvoudiginformatieobject_set.order_by("-versie")
+        # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
+        versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
 
@@ -317,6 +318,7 @@ class EnkelvoudigInformatieObject(APIMixin, InformatieObject):
         verbose_name = _("Enkelvoudige informatie object")
         verbose_name_plural = _("Enkelvoudige informatie objecten")
         indexes = [models.Index(fields=["canonical", "-versie"])]
+        ordering = ["canonical", "-versie"]
 
 
 class Gebruiksrechten(models.Model):
