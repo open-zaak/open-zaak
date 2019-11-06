@@ -426,7 +426,11 @@ class GebruiksrechtenViewSet(
       `null` gezet.
     """
 
-    queryset = Gebruiksrechten.objects.all()
+    queryset = (
+        Gebruiksrechten.objects.select_related("informatieobject")
+        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .all()
+    )
     serializer_class = GebruiksrechtenSerializer
     filterset_class = GebruiksrechtenFilter
     lookup_field = "uuid"
