@@ -140,20 +140,9 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ZaakInformatieobjectType.objects.filter(id=ziot.id))
 
-    def test_delete_ziot_fail_not_concept_zaaktype(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(zaaktype__concept=False)
-        ziot_url = reverse(ziot)
-
-        response = self.client.delete(ziot_url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "non-concept-relation")
-
-    def test_delete_ziot_fail_not_concept_informatieobjecttype(self):
+    def test_delete_ziot_fail_not_concept(self):
         ziot = ZaakInformatieobjectTypeFactory.create(
-            informatieobjecttype__concept=False
+            zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot_url = reverse(ziot)
 
@@ -293,18 +282,29 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         ziot3 = ZaakInformatieobjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
-        ziot4 = ZaakInformatieobjectTypeFactory.create(
+        ZaakInformatieobjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot1_url = reverse(ziot1)
+        ziot2_url = reverse(ziot2)
+        ziot3_url = reverse(ziot3)
 
         response = self.client.get(self.list_url, {"status": "concept"})
         self.assertEqual(response.status_code, 200)
 
         data = response.json()["results"]
 
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{ziot1_url}")
+        self.assertEqual(len(data), 3)
+
+        urls = {obj["url"] for obj in data}
+        self.assertEqual(
+            urls,
+            {
+                f"http://testserver{ziot1_url}",
+                f"http://testserver{ziot2_url}",
+                f"http://testserver{ziot3_url}",
+            },
+        )
 
     def test_filter_ziot_status_definitief(self):
         ziot1 = ZaakInformatieobjectTypeFactory.create(

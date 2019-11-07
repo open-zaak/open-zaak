@@ -1,3 +1,6 @@
+from typing import Union
+
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -42,7 +45,7 @@ class ConceptDestroyMixin:
 
 
 class ConceptFilterMixin:
-    def get_concept_filter(self):
+    def get_concept_filter(self) -> Union[dict, models.Q]:
         return {"concept": False}
 
     def get_queryset(self):
@@ -56,7 +59,11 @@ class ConceptFilterMixin:
         if "status" in query_params:
             return qs
 
-        return qs.filter(**self.get_concept_filter())
+        filters = self.get_concept_filter()
+        if not isinstance(filters, models.Q):
+            filters = models.Q(**filters)
+
+        return qs.filter(filters)
 
 
 class ConceptMixin(ConceptPublishMixin, ConceptDestroyMixin, ConceptFilterMixin):
