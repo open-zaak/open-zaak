@@ -220,32 +220,32 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         ztiot1, ztiot2 = ZaakInformatieobjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        url = f"http://testserver{reverse(ztiot1)}"
+        url = f"http://openzaak.nl{reverse(ztiot1)}"
         zaaktype1_uri = reverse(ztiot1.zaaktype)
         zaaktype2_uri = reverse(ztiot2.zaaktype)
         zaaktype1_url = f"http://openzaak.nl{zaaktype1_uri}"
 
-        response = self.client.get(self.list_url, {"zaaktype": zaaktype1_url})
+        response = self.client.get(self.list_url, {"zaaktype": zaaktype1_url}, HTTP_HOST="openzaak.nl")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
 
         self.assertEqual(data[0]["url"], url)
-        self.assertEqual(data[0]["zaaktype"], f"http://testserver{zaaktype1_uri}")
-        self.assertNotEqual(data[0]["zaaktype"], f"http://testserver{zaaktype2_uri}")
+        self.assertEqual(data[0]["zaaktype"], f"http://openzaak.nl{zaaktype1_uri}")
+        self.assertNotEqual(data[0]["zaaktype"], f"http://openzaak.nl{zaaktype2_uri}")
 
     def test_filter_informatieobjecttype(self):
         ztiot1, ztiot2 = ZaakInformatieobjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
-        url = f"http://testserver{reverse(ztiot1)}"
+        url = f"http://openzaak.nl{reverse(ztiot1)}"
         informatieobjecttype1_uri = reverse(ztiot1.informatieobjecttype)
         informatieobjecttype2_uri = reverse(ztiot2.informatieobjecttype)
         informatieobjecttype1_url = f"http://openzaak.nl{informatieobjecttype1_uri}"
 
         response = self.client.get(
-            self.list_url, {"informatieobjecttype": informatieobjecttype1_url}
+            self.list_url, {"informatieobjecttype": informatieobjecttype1_url}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -255,11 +255,11 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], url)
         self.assertEqual(
             data[0]["informatieobjecttype"],
-            f"http://testserver{informatieobjecttype1_uri}",
+            f"http://openzaak.nl{informatieobjecttype1_uri}",
         )
         self.assertNotEqual(
             data[0]["informatieobjecttype"],
-            f"http://testserver{informatieobjecttype2_uri}",
+            f"http://openzaak.nl{informatieobjecttype2_uri}",
         )
 
     def test_filter_ziot_status_alles(self):
