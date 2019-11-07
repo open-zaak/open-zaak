@@ -43,10 +43,23 @@
 
 # Ingress controller
 
+- name: Define Ingress Service account
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        namespace: default
+        name: traefik-ingress-controller
+    validate:
+      fail_on_error: yes
+      strict: yes
+
 - name: Define Ingress Controller
   k8s:
     state: present
-    src: files/traefik/deployment.yml
+    definition: "{{ lookup('template', 'files/traefik/deployment.yml') | from_yaml }}"
     validate:
       fail_on_error: yes
       strict: yes

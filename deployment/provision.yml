@@ -4,8 +4,7 @@
   hosts: localhost
 
   vars:
-    # FIXME
-    ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
+    acme_email: info@maykinmedia.nl
 
   vars_files:
     - vars/maykin.yml

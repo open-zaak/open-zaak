@@ -67,7 +67,7 @@ The Ansible playbook `provision.yml`:
   and enable the required database extensions
 
 ```shell
-[user@host]$ ansible-playbook provision.yml
+[user@host]$ ./deploy.sh provision.yml
 ```
 
 ## Application
@@ -75,7 +75,7 @@ The Ansible playbook `provision.yml`:
 Deploy Open Zaak and Open Notificaties:
 
 ```shell
-[user@host]$ ansible-playbook apps.yml
+[user@host]$ ./deploy.sh apps.yml
 ```
 
 

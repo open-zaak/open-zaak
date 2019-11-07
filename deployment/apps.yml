@@ -3,10 +3,6 @@
 - name: Deploy the Open Zaak apps in the cluster
   hosts: localhost
 
-  vars:
-    # FIXME
-    ansible_python_interpreter: /home/bbt/.virtualenvs/open-zaak/bin/python
-
   vars_files:
     - vars/db_credentials.yml
     - vars/openzaak.yml

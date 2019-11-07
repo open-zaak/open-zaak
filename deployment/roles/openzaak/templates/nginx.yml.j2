@@ -42,20 +42,25 @@ spec:
         resources:
           requests:
             memory: "100Mi"
-            cpu: "100m"
-          limits:
-            memory: "200Mi"
             cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
 
         readinessProbe:
-          tcpSocket:
+          httpGet:
             port: 80
+            path: /
+            httpHeaders:
+              - name: Host
+                value: localhost
           initialDelaySeconds: 5
           periodSeconds: 10
 
         livenessProbe:
-          tcpSocket:
+          httpGet:
             port: 80
+            path: /_health/
           initialDelaySeconds: 15
           periodSeconds: 20
 
