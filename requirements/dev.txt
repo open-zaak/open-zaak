@@ -62,7 +62,7 @@ markupsafe==1.0
 oyaml==0.7
 packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
-pip-tools==4.1.0
+pip-tools==4.2.0
 psycopg2==2.8.3
 pygments==2.4.2           # via sphinx
 pyjwt==1.6.4
