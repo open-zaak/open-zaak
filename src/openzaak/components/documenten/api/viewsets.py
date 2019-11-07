@@ -165,9 +165,13 @@ class EnkelvoudigInformatieObjectViewSet(
     ontgrendeld wordt.
     """
 
-    queryset = EnkelvoudigInformatieObject.objects.order_by(
-        "canonical", "-versie"
-    ).distinct("canonical")
+    queryset = (
+        EnkelvoudigInformatieObject.objects.select_related(
+            "canonical", "informatieobjecttype"
+        )
+        .order_by("canonical", "-versie")
+        .distinct("canonical")
+    )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
     pagination_class = PageNumberPagination
