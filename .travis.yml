@@ -73,6 +73,9 @@ jobs:
     # TODO: second stage to push resulting image
 
     - stage: Newman tests
+      language: node_js
+      node_js:
+        - 8
       name: ZGW api tests
       services:
         - docker

@@ -35,6 +35,11 @@ services:
       - DJANGO_SETTINGS_MODULE=nrc.conf.docker
       - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$0nry%j#1z2@%hq9+1doh1bl+86w)730}
       - DB_HOST=db_notifications
+      - IS_HTTPS=no
+      - ALLOWED_HOSTS=*
+      - DEBUG=yes
+    volumes:
+      - ./fixtures_notificaties:/app/fixtures
     ports:
       - 8001:8000
     depends_on:
