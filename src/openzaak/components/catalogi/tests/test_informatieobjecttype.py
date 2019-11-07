@@ -138,6 +138,23 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
         self.assertEqual(informatieobjecttype.concept, True)
 
+    def test_create_informatieobjecttype_fail_not_unique(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        list_url = get_operation_url("informatieobjecttype_list")
+        data = {
+            "catalogus": f"http://testserver{reverse(informatieobjecttype.catalogus)}",
+            "omschrijving": informatieobjecttype.omschrijving,
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "beginGeldigheid": "2019-01-01",
+        }
+
+        response = self.client.post(list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unique")
+
     def test_publish_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttypee_url = get_operation_url(
