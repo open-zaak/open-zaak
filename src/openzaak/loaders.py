@@ -15,7 +15,12 @@ class AuthorizedRequestsLoader(BaseLoader):
 
         client_auth = APICredential.get_auth(url)
         headers = client_auth.credentials() if client_auth else {}
-        response = requests.get(url, headers=headers)
+
+        try:
+            response = requests.get(url, headers=headers)
+        except requests.exceptions.RequestException as exc:
+            raise FetchError(exc.args[0]) from exc
+
         try:
             response.raise_for_status()
         except requests.HTTPError as exc:
