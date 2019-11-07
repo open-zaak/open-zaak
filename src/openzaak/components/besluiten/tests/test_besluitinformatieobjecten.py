@@ -95,7 +95,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
-            bio_list_url, {"besluit": f"http://testserver.com{besluit_url}"}
+            bio_list_url, {"besluit": f"http://openzaak.nl{besluit_url}"}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -109,14 +109,14 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             bio_list_url,
-            {"informatieobject": f"http://testserver.com{io_url}"},
-            SERVER_NAME="testserver.com",
+            {"informatieobject": f"http://openzaak.nl{io_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver.com{io_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{io_url}"
         )
 
     def test_update_besluit(self):

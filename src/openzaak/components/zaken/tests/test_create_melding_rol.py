@@ -148,7 +148,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         rollen_list_url = get_operation_url("rol_list")
 
         response = self.client.get(
-            rollen_list_url, {"zaak": f"http://testserver.com{zaak_url}"}
+            rollen_list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -8,10 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
-from openzaak.components.catalogi.tests.factories import (
-    BesluitTypeFactory,
-    CatalogusFactory,
-)
+from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -129,12 +126,12 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         base_uri = get_operation_url("besluitinformatieobject_list")
 
         response1 = self.client.get(
-            base_uri, {"besluit": f"http://testserver.com{besluit1_uri}"}
+            base_uri, {"besluit": f"http://openzaak.nl{besluit1_uri}"}
         )
         self.assertEqual(len(response1.data), 3)
 
         response2 = self.client.get(
-            base_uri, {"besluit": f"http://testserver.com{besluit2_uri}"}
+            base_uri, {"besluit": f"http://openzaak.nl{besluit2_uri}"}
         )
         self.assertEqual(len(response2.data), 2)
 

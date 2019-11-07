@@ -9,7 +9,6 @@ from ..constants import RichtingChoices
 from ..models import ZaakInformatieobjectType
 from .base import APITestCase
 from .factories import (
-    CatalogusFactory,
     InformatieObjectTypeFactory,
     ZaakInformatieobjectTypeArchiefregimeFactory,
     ZaakInformatieobjectTypeFactory,
@@ -224,7 +223,7 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         url = f"http://testserver{reverse(ztiot1)}"
         zaaktype1_uri = reverse(ztiot1.zaaktype)
         zaaktype2_uri = reverse(ztiot2.zaaktype)
-        zaaktype1_url = f"http://testserver.com{zaaktype1_uri}"
+        zaaktype1_url = f"http://openzaak.nl{zaaktype1_uri}"
 
         response = self.client.get(self.list_url, {"zaaktype": zaaktype1_url})
 
@@ -243,7 +242,7 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         url = f"http://testserver{reverse(ztiot1)}"
         informatieobjecttype1_uri = reverse(ztiot1.informatieobjecttype)
         informatieobjecttype2_uri = reverse(ztiot2.informatieobjecttype)
-        informatieobjecttype1_url = f"http://testserver.com{informatieobjecttype1_uri}"
+        informatieobjecttype1_url = f"http://openzaak.nl{informatieobjecttype1_uri}"
 
         response = self.client.get(
             self.list_url, {"informatieobjecttype": informatieobjecttype1_url}

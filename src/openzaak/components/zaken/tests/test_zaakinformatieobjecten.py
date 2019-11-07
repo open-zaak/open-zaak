@@ -12,10 +12,7 @@ from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
-from openzaak.components.catalogi.tests.factories import (
-    InformatieObjectTypeFactory,
-    ZaakInformatieobjectTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -103,7 +100,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         }
 
         # Send to the API
-        response = self.client.post(self.list_url, content)
+        self.client.post(self.list_url, content)
 
         oio = ZaakInformatieObject.objects.get()
 
@@ -171,7 +168,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zio_list_url = reverse("zaakinformatieobject-list")
 
         response = self.client.get(
-            zio_list_url, {"zaak": f"http://testserver.com{zaak_url}"}
+            zio_list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -185,14 +182,14 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             zio_list_url,
-            {"informatieobject": f"http://testserver.com{io_url}"},
-            SERVER_NAME="testserver.com",
+            {"informatieobject": f"http://openzaak.nl{io_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver.com{io_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{io_url}"
         )
 
     def test_filter_by_external_informatieobject(self):
@@ -202,7 +199,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
-        zaak_url = f"http://testserver.com{reverse(zaak)}"
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         eio_response = get_eio_response(
             document,
             informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
@@ -225,7 +222,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zio_list_url = reverse("zaakinformatieobject-list")
 
         response = self.client.get(
-            zio_list_url, {"informatieobject": io_url}, SERVER_NAME="testserver.com"
+            zio_list_url, {"informatieobject": io_url}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -286,7 +283,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
-        zaak_url = f"http://testserver.com{reverse(zaak)}"
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         eio_response = get_eio_response(
             document,
             informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",

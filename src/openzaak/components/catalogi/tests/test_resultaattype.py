@@ -530,13 +530,13 @@ class ResultaatTypeFilterAPITests(APITestCase):
 
         rt1_uri = reverse(rt1)
         rt2_uri = reverse(rt2)
-        rt1_url = f"http://testserver.com{rt1_uri}"
-        rt2_url = f"http://testserver.com{rt2_uri}"
+        rt1_url = f"http://openzaak.nl{rt1_uri}"
+        rt2_url = f"http://openzaak.nl{rt2_uri}"
 
         zt1_uri = reverse("zaaktype-detail", kwargs={"uuid": zt1.uuid})
         zt2_uri = reverse("zaaktype-detail", kwargs={"uuid": zt2.uuid})
-        zt1_url = "http://testserver.com{}".format(zt1_uri)
-        zt2_url = "http://testserver.com{}".format(zt2_uri)
+        zt1_url = "http://openzaak.nl{}".format(zt1_uri)
+        zt2_url = "http://openzaak.nl{}".format(zt2_uri)
         list_url = reverse("resultaattype-list")
 
         response = self.client.get(list_url, {"zaaktype": zt1_url})
