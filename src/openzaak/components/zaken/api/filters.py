@@ -1,4 +1,5 @@
 from django_filters import filters
+from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
@@ -86,6 +87,10 @@ class ResultaatFilter(FilterSet):
 
 
 class ZaakInformatieObjectFilter(FilterSet):
+    informatieobject = FkOrUrlFieldFilter(
+        queryset=ZaakInformatieObject.objects.all(), instance_path="canonical"
+    )
+
     class Meta:
         model = ZaakInformatieObject
         fields = ("zaak", "informatieobject")

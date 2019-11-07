@@ -89,18 +89,35 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.json(), expected)
 
-    def test_filter(self):
+    def test_filter_by_besluit(self):
         bio = BesluitInformatieObjectFactory.create()
         besluit_url = reverse(bio.besluit)
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
-            bio_list_url, {"besluit": f"http://testserver.com{besluit_url}"}
+            bio_list_url, {"besluit": f"http://openzaak.nl{besluit_url}"}
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["besluit"], f"http://testserver{besluit_url}")
+
+    def test_filter_by_informatieobject(self):
+        bio = BesluitInformatieObjectFactory.create()
+        io_url = reverse(bio.informatieobject.latest_version)
+        bio_list_url = reverse("besluitinformatieobject-list")
+
+        response = self.client.get(
+            bio_list_url,
+            {"informatieobject": f"http://openzaak.nl{io_url}"},
+            HTTP_HOST="openzaak.nl",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            response.data[0]["informatieobject"], f"http://openzaak.nl{io_url}"
+        )
 
     def test_update_besluit(self):
         bio = BesluitInformatieObjectFactory.create()

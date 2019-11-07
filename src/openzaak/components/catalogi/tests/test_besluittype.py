@@ -1,6 +1,6 @@
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_operation_url, get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
 from ..api.validators import (
@@ -729,7 +729,7 @@ class BesluitTypeFilterAPITests(APITestCase):
         besluittype1 = BesluitTypeFactory.create(concept=False)
         besluittype2 = BesluitTypeFactory.create(concept=False)
         zaaktype1 = besluittype1.zaaktypes.get()
-        zaaktype1_url = f"http://testserver.com{reverse(zaaktype1)}"
+        zaaktype1_url = f"http://openzaak.nl{reverse(zaaktype1)}"
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(besluittype1)
 
@@ -749,7 +749,7 @@ class BesluitTypeFilterAPITests(APITestCase):
         besluittype1.informatieobjecttypen.add(iot1)
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(besluittype1)
-        iot1_url = f"http://testserver.com{reverse(iot1)}"
+        iot1_url = f"http://openzaak.nl{reverse(iot1)}"
 
         response = self.client.get(
             besluittype_list_url, {"informatieobjecttypen": iot1_url}
