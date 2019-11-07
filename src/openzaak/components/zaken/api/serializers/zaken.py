@@ -280,7 +280,7 @@ class ZaakSerializer(
                         "Resultaat",
                         settings.REFERENTIELIJSTEN_API_SPEC,
                         get_auth=get_auth,
-                    ),
+                    )
                 ]
             },
             "hoofdzaak": {
