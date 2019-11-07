@@ -539,7 +539,9 @@ class ResultaatTypeFilterAPITests(APITestCase):
         zt2_url = "http://openzaak.nl{}".format(zt2_uri)
         list_url = reverse("resultaattype-list")
 
-        response = self.client.get(list_url, {"zaaktype": zt1_url}, HTTP_HOST="openzaak.nl")
+        response = self.client.get(
+            list_url, {"zaaktype": zt1_url}, HTTP_HOST="openzaak.nl"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = response.json()["results"]
@@ -547,7 +549,9 @@ class ResultaatTypeFilterAPITests(APITestCase):
         self.assertEqual(response_data[0]["url"], f"http://openzaak.nl{rt1_uri}")
         self.assertEqual(response_data[0]["zaaktype"], f"http://openzaak.nl{zt1_uri}")
         self.assertNotEqual(response_data[0]["url"], f"http://openzaak.nl{rt2_uri}")
-        self.assertNotEqual(response_data[0]["zaaktype"], f"http://openzaak.nl{zt2_uri}")
+        self.assertNotEqual(
+            response_data[0]["zaaktype"], f"http://openzaak.nl{zt2_uri}"
+        )
 
     def test_filter_resultaattype_status_alles(self):
         ResultaatTypeFactory.create(zaaktype__concept=True)

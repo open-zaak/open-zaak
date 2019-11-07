@@ -225,7 +225,9 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         zaaktype2_uri = reverse(ztiot2.zaaktype)
         zaaktype1_url = f"http://openzaak.nl{zaaktype1_uri}"
 
-        response = self.client.get(self.list_url, {"zaaktype": zaaktype1_url}, HTTP_HOST="openzaak.nl")
+        response = self.client.get(
+            self.list_url, {"zaaktype": zaaktype1_url}, HTTP_HOST="openzaak.nl"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -245,7 +247,9 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         informatieobjecttype1_url = f"http://openzaak.nl{informatieobjecttype1_uri}"
 
         response = self.client.get(
-            self.list_url, {"informatieobjecttype": informatieobjecttype1_url}, HTTP_HOST="openzaak.nl"
+            self.list_url,
+            {"informatieobjecttype": informatieobjecttype1_url},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

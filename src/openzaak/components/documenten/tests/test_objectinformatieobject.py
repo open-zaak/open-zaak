@@ -202,7 +202,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         eio_detail_url = reverse(bio.informatieobject.latest_version)
 
         response = self.client.get(
-            self.list_url, {"informatieobject": f"http://openzaak.nl{eio_detail_url}"}, HTTP_HOST="openzaak.nl"
+            self.list_url,
+            {"informatieobject": f"http://openzaak.nl{eio_detail_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
@@ -218,7 +220,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zio.zaak)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
+            self.list_url,
+            {"object": f"http://openzaak.nl{zaak_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
@@ -234,7 +238,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(bio.besluit)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://openzaak.nl{besluit_url}"}, HTTP_HOST="openzaak.nl"
+            self.list_url,
+            {"object": f"http://openzaak.nl{besluit_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)

@@ -168,7 +168,9 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zio_list_url = reverse("zaakinformatieobject-list")
 
         response = self.client.get(
-            zio_list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
+            zio_list_url,
+            {"zaak": f"http://openzaak.nl{zaak_url}"},
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
@@ -327,7 +329,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="zio-list"):
             list_response = self.client.get(
-                reverse(ZaakInformatieObject), {"zaak": zaak_url}, HTTP_HOST="openzaak.nl"
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url},
+                HTTP_HOST="openzaak.nl",
             )
 
             self.assertEqual(list_response.status_code, status.HTTP_200_OK)
