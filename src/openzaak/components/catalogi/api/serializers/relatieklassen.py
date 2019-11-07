@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 
 from ...constants import RichtingChoices
@@ -31,7 +32,13 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "informatieobjecttype": {"lookup_field": "uuid"},
             "statustype": {"lookup_field": "uuid"},
         }
-        validators = [ZaakInformatieObjectTypeCatalogusValidator()]
+        validators = [
+            ZaakInformatieObjectTypeCatalogusValidator(),
+            UniqueTogetherValidator(
+                queryset=ZaakInformatieobjectType.objects.all(),
+                fields=["zaaktype", "volgnummer"],
+            ),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
