@@ -1,8 +1,6 @@
-from urllib.parse import urlparse
-
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField, FKOrURLValidator, Resolver
+from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from vng_api_common.validators import IsImmutableValidator
 

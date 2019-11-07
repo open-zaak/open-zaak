@@ -82,6 +82,25 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.json(), expected_response)
 
+    def test_create_invalid_informatieobject(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        content = {
+            "zaak": f"http://testserver{zaak_url}",
+            "informatieobject": "invalidurl",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "bad-url")
+
     @freeze_time("2018-09-20 12:00:00")
     def test_registratiedatum_ignored(self):
         zaak = ZaakFactory.create()
