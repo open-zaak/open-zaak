@@ -131,6 +131,25 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-relation")
 
+    def test_create_ziot_fail_not_unique(self):
+        ziot = ZaakInformatieobjectTypeFactory(volgnummer=1)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=ziot.zaaktype.catalogus
+        )
+        data = {
+            "zaaktype": f"http://testserver.com{reverse(ziot.zaaktype)}",
+            "informatieobjecttype": f"http://testserver.com{reverse(informatieobjecttype)}",
+            "volgnummer": ziot.volgnummer,
+            "richting": RichtingChoices.inkomend,
+        }
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unique")
+
     def test_delete_ziot(self):
         ziot = ZaakInformatieobjectTypeFactory.create()
         ziot_url = reverse(ziot)
