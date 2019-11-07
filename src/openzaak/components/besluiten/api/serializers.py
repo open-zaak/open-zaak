@@ -17,9 +17,9 @@ from openzaak.utils.validators import LooseFkIsImmutableValidator, PublishValida
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
 from .validators import (
+    BesluittypeInformatieobjecttypeRelationValidator,
     BesluittypeZaaktypeValidator,
     UniekeIdentificatieValidator,
-    ZaaktypeInformatieobjecttypeRelationValidator,
 )
 
 
@@ -91,7 +91,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=BesluitInformatieObject.objects.all(),
                 fields=["besluit", "informatieobject"],
             ),
-            ZaaktypeInformatieobjecttypeRelationValidator(),
+            BesluittypeInformatieobjecttypeRelationValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

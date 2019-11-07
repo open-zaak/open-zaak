@@ -262,7 +262,7 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_validate_no_informatieobjecttype_zaaktype_relation(self):
+    def test_validate_no_informatieobjecttype_besluittype_relation(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
         besluit_url = reverse(besluit)
@@ -283,5 +283,5 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(
-            error["code"], "missing-zaaktype-informatieobjecttype-relation"
+            error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
