@@ -126,12 +126,12 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         base_uri = get_operation_url("besluitinformatieobject_list")
 
         response1 = self.client.get(
-            base_uri, {"besluit": f"http://openzaak.nl{besluit1_uri}"}
+            base_uri, {"besluit": f"http://openzaak.nl{besluit1_uri}"}, HTTP_HOST="openzaak.nl"
         )
         self.assertEqual(len(response1.data), 3)
 
         response2 = self.client.get(
-            base_uri, {"besluit": f"http://openzaak.nl{besluit2_uri}"}
+            base_uri, {"besluit": f"http://openzaak.nl{besluit2_uri}"}, HTTP_HOST="openzaak.nl"
         )
         self.assertEqual(len(response2.data), 2)
 

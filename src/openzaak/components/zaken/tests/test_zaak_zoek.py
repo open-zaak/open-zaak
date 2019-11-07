@@ -78,6 +78,7 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "zaaktype": f"http://openzaak.nl{zaaktype1_url}",
             },
             **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

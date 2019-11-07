@@ -148,7 +148,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         rollen_list_url = get_operation_url("rol_list")
 
         response = self.client.get(
-            rollen_list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}
+            rollen_list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -157,12 +157,12 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 3)
 
         expected_urls = {
-            f"http://testserver{get_operation_url('rol_read', uuid=rol.uuid)}"
+            f"http://openzaak.nl{get_operation_url('rol_read', uuid=rol.uuid)}"
             for rol in rollen1
         }
 
         received_urls = {rol["url"] for rol in response_data}
         self.assertEqual(received_urls, expected_urls)
 
-        rol2_url = f"http://testserver{get_operation_url('rol_read', uuid=rol2.uuid)}"
+        rol2_url = f"http://openzaak.nl{get_operation_url('rol_read', uuid=rol2.uuid)}"
         self.assertNotIn(rol2_url, received_urls)

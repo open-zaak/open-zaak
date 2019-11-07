@@ -202,13 +202,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         eio_detail_url = reverse(bio.informatieobject.latest_version)
 
         response = self.client.get(
-            self.list_url, {"informatieobject": f"http://openzaak.nl{eio_detail_url}"},
+            self.list_url, {"informatieobject": f"http://openzaak.nl{eio_detail_url}"}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{eio_detail_url}"
         )
 
     def test_filter_zaak(self):
@@ -218,13 +218,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zio.zaak)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://openzaak.nl{zaak_url}"}
+            self.list_url, {"object": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver{eio_detail_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{eio_detail_url}"
         )
 
     def test_filter_besluit(self):
@@ -234,13 +234,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         besluit_url = reverse(bio.besluit)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://openzaak.nl{besluit_url}"}
+            self.list_url, {"object": f"http://openzaak.nl{besluit_url}"}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://testserver{bio_detail_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{bio_detail_url}"
         )
 
     def test_validate_unknown_query_params(self):
