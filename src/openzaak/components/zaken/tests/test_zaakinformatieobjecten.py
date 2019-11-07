@@ -94,9 +94,11 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Send to the API
         response = self.client.post(self.list_url, content)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
 
-        error = get_validation_errors(response, "informatieobject", index=1)
+        error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "bad-url")
 
     @freeze_time("2018-09-20 12:00:00")
