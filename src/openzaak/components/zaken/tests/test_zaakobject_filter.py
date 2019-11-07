@@ -35,14 +35,16 @@ class ZaakObjectFilterTestCase(JWTAuthMixin, APITestCase):
         zaakobject1_url = get_operation_url("zaakobject_read", uuid=zaakobject1.uuid)
         url = get_operation_url("zaakobject_list")
 
-        response = self.client.get(url, {"zaak": f"http://openzaak.nl{zaak_url}"})
+        response = self.client.get(
+            url, {"zaak": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()["results"]
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{zaakobject1_url}")
+        self.assertEqual(data[0]["url"], f"http://openzaak.nl{zaakobject1_url}")
 
     def test_filter_object(self):
         zaakobject1 = ZaakObjectFactory.create(object="http://example.com/objects/1")

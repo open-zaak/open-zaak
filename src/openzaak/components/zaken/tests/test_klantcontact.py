@@ -21,3 +21,14 @@ class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 2)
+
+    def test_list_klantcontact_page(self):
+        KlantContactFactory.create_batch(2)
+        list_url = reverse("klantcontact-list")
+
+        response = self.client.get(list_url, {"page": 1})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 2)
