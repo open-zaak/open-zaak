@@ -33,9 +33,11 @@ class BesluittypeZaaktypeValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
-class ZaaktypeInformatieobjecttypeRelationValidator:
-    code = "missing-zaaktype-informatieobjecttype-relation"
-    message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
+class BesluittypeInformatieobjecttypeRelationValidator:
+    code = "missing-besluittype-informatieobjecttype-relation"
+    message = _(
+        "Het informatieobjecttype hoort niet bij het besluitype van de besluit."
+    )
 
     def __call__(self, attrs):
         informatieobject = attrs.get("informatieobject")
