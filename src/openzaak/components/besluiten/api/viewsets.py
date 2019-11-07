@@ -165,7 +165,11 @@ class BesluitInformatieObjectViewSet(
     Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
     """
 
-    queryset = BesluitInformatieObject.objects.all()
+    queryset = (
+        BesluitInformatieObject.objects.select_related("besluit", "informatieobject")
+        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        .all()
+    )
     serializer_class = BesluitInformatieObjectSerializer
     filterset_class = BesluitInformatieObjectFilter
     lookup_field = "uuid"
