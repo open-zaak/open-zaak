@@ -18,7 +18,7 @@ django-cors-middleware==1.3.1
 django-extra-fields==1.2.4
 django-filter==2.0.0
 django-ipware==2.1.0
-django-loose-fk==0.5.6
+django-loose-fk==0.5.7
 django-markup==1.3
 django-ordered-model==2.1.0
 django-privates==1.0.1.post0
