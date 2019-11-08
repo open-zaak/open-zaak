@@ -1,0 +1,13 @@
+---
+
+- name: Set up the required namespace
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ opennotificaties_namespace }}"
+    validate:
+      fail_on_error: yes
+      strict: yes

@@ -1,0 +1,53 @@
+---
+
+- name: Initialize a Kubernetes cluster
+  hosts: localhost
+
+  vars:
+    acme_email: info@maykinmedia.nl
+
+  vars_files:
+    - vars/maykin.yml
+    - vars/db_credentials.yml
+    - vars/openzaak.yml
+    - vars/opennotificaties.yml
+
+  roles:
+
+    # Set up Open Zaak database
+    - role: app-database
+      vars:
+        # from vars/openzaak.yml
+        app_db_name: "{{ openzaak_db_name }}"
+        app_db_user: "{{ openzaak_db_username }}"
+        app_db_password: "{{ openzaak_db_password }}"
+        app_db_extensions:
+          - postgis
+          - pg_trgm
+
+        # from vars/db_credentials.yml
+        app_db_host: "{{ db.host }}"
+        app_db_port: "{{ db.port }}"
+        app_db_login_user: "{{ db_superuser.username }}"
+        app_db_login_password: "{{ db_superuser.password }}"
+
+    # Set up Open Notificaties database
+    - role: app-database
+      vars:
+        # from vars/opennotificaties.yml
+        app_db_name: "{{ opennotificaties_db_name }}"
+        app_db_user: "{{ opennotificaties_db_username }}"
+        app_db_password: "{{ opennotificaties_db_password }}"
+        app_db_extensions:
+          - pg_trgm
+
+        # from vars/db_credentials.yml
+        app_db_host: "{{ db.host }}"
+        app_db_port: "{{ db.port }}"
+        app_db_login_user: "{{ db_superuser.username }}"
+        app_db_login_password: "{{ db_superuser.password }}"
+
+    - role: nfs-server
+
+  tasks:
+    - import_tasks: tasks/ingress.yml

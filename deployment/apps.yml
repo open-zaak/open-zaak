@@ -1,0 +1,20 @@
+---
+
+- name: Deploy the Open Zaak apps in the cluster
+  hosts: localhost
+
+  vars_files:
+    - vars/db_credentials.yml
+    - vars/openzaak.yml
+    - vars/opennotificaties.yml
+
+  roles:
+    - role: openzaak
+      vars:
+        openzaak_db_host: "{{ db.privateIp }}"
+        openzaak_db_port: "{{ db.port }}"
+
+    - role: opennotificaties
+      vars:
+        opennotificaties_db_host: "{{ db.privateIp }}"
+        opennotificaties_db_port: "{{ db.port }}"

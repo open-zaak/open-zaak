@@ -1,0 +1,21 @@
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/version: "5.0"
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/part-of: open-notificaties
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: "{{ opennotificaties_instance }}"
+    app.kubernetes.io/part-of: open-notificaties
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379

@@ -1,0 +1,72 @@
+---
+
+kind: Deployment
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/instance: "{{ openzaak_instance }}"
+    app.kubernetes.io/version: "{{ openzaak_nginx_version }}"
+    app.kubernetes.io/component: webserver
+    app.kubernetes.io/part-of: open-zaak
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  replicas: {{ openzaak_nginx_replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx
+      app.kubernetes.io/instance: "{{ openzaak_instance }}"
+      app.kubernetes.io/part-of: open-zaak
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/instance: "{{ openzaak_instance }}"
+        app.kubernetes.io/version: "{{ openzaak_nginx_version }}"
+        app.kubernetes.io/component: webserver
+        app.kubernetes.io/part-of: open-zaak
+        app.kubernetes.io/managed-by: Ansible
+    spec:
+      volumes:
+        - name: private-storage
+          persistentVolumeClaim:
+            claimName: openzaak-test
+        - name: nginx-config
+          configMap:
+            name: nginx
+      containers:
+      - name: nginx
+        image: nginx:{{ openzaak_nginx_version }}
+
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "250m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /
+            httpHeaders:
+              - name: Host
+                value: localhost
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            port: 80
+            path: /_health/
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+        volumeMounts:
+          - name: private-storage
+            mountPath: /app/private-media
+            subPath: openzaak/{{ openzaak_instance }}/private-media
+          - name: nginx-config
+            mountPath: /etc/nginx/conf.d/

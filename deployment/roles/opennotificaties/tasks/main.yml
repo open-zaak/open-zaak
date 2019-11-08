@@ -1,0 +1,7 @@
+---
+
+- import_tasks: namespace.yml
+- import_tasks: secrets.yml
+- import_tasks: services.yml
+- import_tasks: deployments.yml
+- import_tasks: ingress_routes.yml

@@ -1,0 +1,22 @@
+---
+
+# Requires the following variables to be externally defined:
+#
+# - app_db_name: name of the application database
+# - app_db_user: username of the application database user
+# - app_db_password: password of the application database user
+#
+# Example usage:
+#
+# - role: app-database
+#   vars:
+#     app_db_name: app
+#     app_db_user: app-user
+#     app_db_password: secret
+
+app_db_host: localhost
+app_db_port: 5432
+app_db_login_user: postgres
+app_db_login_password: ""
+
+app_db_extensions: []
