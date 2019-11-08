@@ -1,0 +1,12 @@
+[
+    {
+        "model": "datamodel.kanaal",
+        "pk": 1,
+        "fields": {
+            "uuid": "cf5d946e-f31b-47dd-8a3c-61926249b9c5",
+            "naam": "autorisaties",
+            "documentatie_link": "",
+            "filters": "[]"
+        }
+    }
+]
