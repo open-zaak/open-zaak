@@ -250,7 +250,32 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], io_url)
 
-    def test_update_zaak(self):
+    def test_update_zaak_and_informatieobject_fails(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        zio = ZaakInformatieObjectFactory.create()
+        zio_detail_url = reverse(zio)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
+
+        response = self.client.put(
+            zio_detail_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "informatieobject": f"http://testserver{io_url}",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        for field in ["zaak", "informatieobject"]:
+            with self.subTest(field=field):
+                error = get_validation_errors(response, field)
+                self.assertEqual(error["code"], IsImmutableValidator.code)
+
+    def test_partial_update_zaak_and_informatieobject_fails(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         zio = ZaakInformatieObjectFactory.create()
@@ -274,6 +299,68 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=field):
                 error = get_validation_errors(response, field)
                 self.assertEqual(error["code"], IsImmutableValidator.code)
+
+    def test_update_zio_metadata(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
+
+        ziot = ZaakInformatieobjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
+        )
+
+        zio = ZaakInformatieObjectFactory.create(
+            zaak=zaak, informatieobject=io.canonical
+        )
+        zio_detail_url = reverse(zio)
+
+        response = self.client.put(
+            zio_detail_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "informatieobject": f"http://testserver{io_url}",
+                "titel": "updated title",
+                "beschrijving": "same",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(response.data["titel"], "updated title")
+        self.assertEqual(response.data["beschrijving"], "same")
+
+        zio.refresh_from_db()
+        self.assertEqual(zio.titel, "updated title")
+        self.assertEqual(zio.beschrijving, "same")
+
+    def test_partial_update_zio_metadata(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
+
+        ziot = ZaakInformatieobjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
+        )
+
+        zio = ZaakInformatieObjectFactory.create(
+            zaak=zaak, informatieobject=io.canonical
+        )
+        zio_detail_url = reverse(zio)
+
+        response = self.client.patch(
+            zio_detail_url, {"titel": "updated title", "beschrijving": "same"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(response.data["titel"], "updated title")
+        self.assertEqual(response.data["beschrijving"], "same")
+
+        zio.refresh_from_db()
+        self.assertEqual(zio.titel, "updated title")
+        self.assertEqual(zio.beschrijving, "same")
 
     @freeze_time("2018-09-19T12:25:19+0200")
     def test_delete(self):
