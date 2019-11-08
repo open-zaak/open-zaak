@@ -530,7 +530,7 @@ class ZaakEigenschapViewSet(
     Een specifieke ZAAKEIGENSCHAP opvragen.
     """
 
-    queryset = ZaakEigenschap.objects.all()
+    queryset = ZaakEigenschap.objects.select_related("zaak", "eigenschap").all()
     serializer_class = ZaakEigenschapSerializer
     permission_classes = (ZaakNestedAuthRequired,)
     lookup_field = "uuid"
@@ -579,7 +579,7 @@ class KlantContactViewSet(
     Een specifiek KLANTCONTACT bij een ZAAK opvragen.
     """
 
-    queryset = KlantContact.objects.all()
+    queryset = KlantContact.objects.select_related("zaak").all()
     serializer_class = KlantContactSerializer
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
