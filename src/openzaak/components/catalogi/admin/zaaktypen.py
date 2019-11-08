@@ -5,6 +5,7 @@ from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
+    link_to_related_objects,
 )
 
 from ..models import (
@@ -138,22 +139,8 @@ class ZaakTypeAdmin(
 
     def get_object_actions(self, obj):
         return (
-            (
-                _("Toon {}").format(StatusType._meta.verbose_name_plural),
-                self._build_changelist_url(StatusType, query={"is_van": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(RolType._meta.verbose_name_plural),
-                self._build_changelist_url(RolType, query={"is_van": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(Eigenschap._meta.verbose_name_plural),
-                self._build_changelist_url(Eigenschap, query={"is_van": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(ResultaatType._meta.verbose_name_plural),
-                self._build_changelist_url(
-                    ResultaatType, query={"is_relevant_voor": obj.pk}
-                ),
-            ),
+            link_to_related_objects(StatusType, obj),
+            link_to_related_objects(RolType, obj),
+            link_to_related_objects(Eigenschap, obj),
+            link_to_related_objects(ResultaatType, obj),
         )

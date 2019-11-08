@@ -21,6 +21,7 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
         "selectielijstklasse",
         "uuid",
     )
+    list_filter = ("zaaktype",)
     ordering = ("zaaktype", "omschrijving")
     search_fields = (
         "omschrijving",

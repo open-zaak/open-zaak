@@ -1,8 +1,36 @@
+from typing import Tuple
 from urllib.parse import urlencode
 
+from django.db.models.base import Model, ModelBase
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+
+
+def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
+    """
+    Link to the admin list of ``model`` objects related to ``obj``.
+
+    Introspects the model field relations so that the filter query params can
+    be automatically derived and kept in sync when field names change.
+    """
+    main_model = obj._meta.model
+    relation_fields = [
+        field
+        for field in model._meta.get_fields()
+        if getattr(field, "related_model", None) is main_model
+    ]
+    # TODO: if multiple relations to the same model happen, we need to explicitly
+    # pass the field name
+    assert len(relation_fields) == 1
+
+    query = {relation_fields[0].name: obj.pk}
+    view_name = f"admin:{model._meta.app_label}_{model._meta.model_name}_changelist"
+    changelist_url = f"{reverse(view_name)}?{urlencode(query)}"
+    return (
+        _("Toon {verbose_name}").format(verbose_name=model._meta.verbose_name_plural),
+        changelist_url,
+    )
 
 
 class ObjectActionsAdminMixin(object):
