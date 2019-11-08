@@ -1,10 +1,16 @@
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.notifications.viewsets import NotificationViewSetMixin
+from vng_api_common.notifications.viewsets import (
+    NotificationCreateMixin,
+    NotificationDestroyMixin,
+    NotificationViewSetMixin,
+)
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
@@ -105,11 +111,15 @@ class BesluitViewSet(
 
 
 class BesluitInformatieObjectViewSet(
-    NotificationViewSetMixin,
-    AuditTrailViewsetMixin,
+    NotificationCreateMixin,
+    NotificationDestroyMixin,
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
-    viewsets.ModelViewSet,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
 ):
     """
     Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties.
