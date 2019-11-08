@@ -35,9 +35,9 @@ def sync_oio(
     if signal is post_save:
         created = kwargs["created"]
 
-        # we block update!
+        # in case of an update, nothing else needs to happen regarding OIOs
         if not created:
-            raise RuntimeError("Updates to relation information are not allowed.")
+            return
 
         # loading fixtures -> skip
         if kwargs["raw"]:
