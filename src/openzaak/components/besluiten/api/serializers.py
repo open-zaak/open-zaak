@@ -1,18 +1,17 @@
 """
 Serializers of the Besluit Registratie Component REST API
 """
-from django_loose_fk.drf import FKOrURLField
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
-from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.utils.validators import LooseFkIsImmutableValidator, PublishValidator
+from openzaak.utils.validators import LooseFkIsImmutableValidator, PublishValidator, LooseFkResourceValidator
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
@@ -53,7 +52,11 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             "besluittype": {
                 "lookup_field": "uuid",
                 "max_length": 200,
-                "validators": [LooseFkIsImmutableValidator(), PublishValidator()],
+                "validators": [
+                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
+                    LooseFkIsImmutableValidator(),
+                    PublishValidator()
+                ],
             },
             # per BRC API spec!
             "zaak": {"lookup_field": "uuid", "max_length": 200},
