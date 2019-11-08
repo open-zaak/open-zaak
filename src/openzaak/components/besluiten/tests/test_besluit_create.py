@@ -181,7 +181,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         url = get_operation_url("besluit_create")
 
-        with requests_mock.Mocker() as m:
+        with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
                 "GET",
                 besluittype,
@@ -228,7 +228,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             {
                 "verantwoordelijke_organisatie": "517439943",  # RSIN
                 "identificatie": "123123",
-                "besluittype": "http://example.com",
+                "besluittype": "abcd",
                 "datum": "2018-09-06",
                 "toelichting": "Vergunning verleend.",
                 "ingangsdatum": "2018-10-01",
@@ -243,3 +243,76 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "bad-url")
+
+    def test_create_external_besluittype_fail_not_json_url(self):
+        url = reverse(Besluit)
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijke_organisatie": "517439943",  # RSIN
+                "identificatie": "123123",
+                "besluittype": "http://example.com",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_besluittype_fail_invalid_schema(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        url = get_operation_url("besluit_create")
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.register_uri(
+                "GET",
+                besluittype,
+                json={
+                    "url": besluittype,
+                    "catalogus": catalogus,
+                    "zaaktypes": [],
+                    "informatieobjecttypen": [],
+                    "beginGeldigheid": "2018-01-01",
+                    "eindeGeldigheid": None,
+                    "concept": False,
+                },
+            )
+            m.register_uri(
+                "GET",
+                catalogus,
+                json={
+                    "url": catalogus,
+                    "domein": "PUB",
+                    "informatieobjecttypen": [],
+                    "zaaktypen": [],
+                    "besluittypen": [besluittype],
+                },
+            )
+
+            response = self.client.post(
+                url,
+                {
+                    "verantwoordelijke_organisatie": "517439943",  # RSIN
+                    "identificatie": "123123",
+                    "besluittype": besluittype,
+                    "datum": "2018-09-06",
+                    "toelichting": "Vergunning verleend.",
+                    "ingangsdatum": "2018-10-01",
+                    "vervaldatum": "2018-11-01",
+                    "vervalreden": VervalRedenen.tijdelijk,
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "invalid-resource")
+

@@ -295,8 +295,6 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    # TODO: validation tests with bad inputs
-
     def test_relate_external_document(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
@@ -311,7 +309,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
 
         with self.subTest(section="zio-create"):
-            with requests_mock.Mocker() as m:
+            with requests_mock.Mocker(real_http=True) as m:
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -358,3 +356,57 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(len(data), 1)
             self.assertEqual(data[0]["informatieobject"], document)
+
+    def test_create_zio_fail_bad_url(self):
+        zaak = ZaakFactory.create(zaaktype__concept=False)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        list_url = reverse(ZaakInformatieObject)
+        data = {"zaak": zaak_url, "informatieobject": "abcd"}
+
+        response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, 'informatieobject')
+        self.assertEqual(error['code'], 'bad-url')
+
+    def test_create_zio_fail_not_json(self):
+        zaak = ZaakFactory.create(zaaktype__concept=False)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        list_url = reverse(ZaakInformatieObject)
+        data = {"zaak": zaak_url, "informatieobject": "http://example.com"}
+
+        response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, 'informatieobject')
+        self.assertEqual(error['code'], 'invalid-resource')
+
+    def test_create_zio_fail_invalid_schema(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakInformatieobjectTypeFactory.create(
+             informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(document, json={
+                "url": document,
+                "beschrijving": "",
+                "ontvangstdatum": None,
+                "informatieobjecttype": f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+                "locked": False,
+            })
+
+            response = self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, 'informatieobject')
+        self.assertEqual(error['code'], 'invalid-resource')
