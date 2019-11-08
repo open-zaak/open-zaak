@@ -1368,10 +1368,10 @@ paths:
           format: uri
       - name: informatieobject
         in: query
-        description: ''
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API)
         required: false
         schema:
-          type: string
+          type: uri
       responses:
         '200':
           description: OK
