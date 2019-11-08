@@ -20,7 +20,11 @@ class PublishValidator(FKOrURLValidator):
     def __call__(self, value):
         # loose-fk field
         if value and isinstance(value, str):
-            super().__call__(value)
+            # not to double FKOrURLValidator
+            try:
+                super().__call__(value)
+            except serializers.ValidationError:
+                return
             value = self.resolver.resolve(self.host, value)
 
         if value.concept:
@@ -56,7 +60,12 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
 
         # loose-fk field
         if new_value and isinstance(new_value, str):
-            super().__call__(new_value)
+            # not to double FKOrURLValidator
+            try:
+                super().__call__(new_value)
+            except serializers.ValidationError:
+                return
+
             new_value = self.resolver.resolve(self.host, new_value)
 
         if self.instance_path:
