@@ -12,6 +12,7 @@ from vng_api_common.constants import (
 from vng_api_common.validators import ResourceValidator
 
 from openzaak.forms.widgets import BooleanRadio
+from openzaak.selectielijst.admin import get_selectielijst_resultaat_choices
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType, ZaakType
@@ -45,6 +46,15 @@ class ResultaatTypeForm(forms.ModelForm):
     class Meta:
         model = ResultaatType
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            proces_type = self.instance.zaaktype.selectielijst_procestype
+            self.fields[
+                "selectielijstklasse"
+            ].choices = get_selectielijst_resultaat_choices(proces_type)
 
     def clean(self):
         super().clean()
