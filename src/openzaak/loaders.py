@@ -1,7 +1,7 @@
 import json
 
 import requests
-from django_loose_fk.loaders import BaseLoader, FetchError
+from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 
 
 class AuthorizedRequestsLoader(BaseLoader):
@@ -29,6 +29,6 @@ class AuthorizedRequestsLoader(BaseLoader):
         try:
             data = response.json()
         except json.JSONDecodeError as exc:
-            raise FetchError(exc.args[0]) from exc
+            raise FetchJsonError(exc.args[0]) from exc
 
         return data
