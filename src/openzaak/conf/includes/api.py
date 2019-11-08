@@ -50,7 +50,7 @@ REFERENTIELIJSTEN_API_SPEC = (
 VRL_API_SPEC = "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml?v=3"
 
 ztc_repo = "vng-Realisatie/gemma-zaaktypecatalogus"
-ztc_commit = "9c51082d6399060bff6bee2e23d0f22472bfa47f"
+ztc_commit = "6d599e0a49f8348bf70abb47c683fb542a0b6e6d"
 ZTC_API_SPEC = (
     f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
 )
