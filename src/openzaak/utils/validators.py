@@ -3,6 +3,9 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from vng_api_common.validators import IsImmutableValidator
+from vng_api_common.oas import fetcher, obj_has_shape
+from urllib.parse import urlparse
+from ..loaders import AuthorizedRequestsLoader
 
 
 class PublishValidator(FKOrURLValidator):
@@ -64,3 +67,39 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
             raise serializers.ValidationError(
                 IsImmutableValidator.message, code=IsImmutableValidator.code
             )
+
+
+class LooseFkResourceValidator(FKOrURLValidator):
+    resource_message = _(
+        "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
+    )
+    resource_code = "invalid-resource"
+
+    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
+        self.resource = resource
+        self.oas_schema = oas_schema
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, value: str):
+        # not to double FKOrURLValidator
+        try:
+            super().__call__(value)
+        except serializers.ValidationError:
+            return
+
+        # if local - do nothing
+        parsed = urlparse(value)
+        is_local = parsed.netloc == self.host
+        if is_local:
+            return
+
+        obj = AuthorizedRequestsLoader.fetch_object(value)
+
+        # check if the shape matches
+        schema = fetcher.fetch(self.oas_schema)
+        if not obj_has_shape(obj, schema, self.resource):
+            raise serializers.ValidationError(
+                self.resource_message.format(url=value, resource=self.resource), code=self.resource_code
+            )
+
+        return obj
