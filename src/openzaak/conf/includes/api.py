@@ -69,4 +69,7 @@ ZRC_API_SPEC = (
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
-REFERENTIELIJSTEN_API = "https://referentielijsten-api.vng.cloud/api/v1/"
+REFERENTIELIJSTEN_API = {
+    "scheme": "https",
+    "host": "referentielijsten-api.vng.cloud",
+}

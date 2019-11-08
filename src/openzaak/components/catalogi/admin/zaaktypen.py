@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.db.models import Field
+from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
+from openzaak.selectielijst.admin import get_procestype_field
 from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
@@ -144,3 +147,8 @@ class ZaakTypeAdmin(
             link_to_related_objects(Eigenschap, obj),
             link_to_related_objects(ResultaatType, obj),
         )
+
+    def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):
+        if db_field.name == "selectielijst_procestype":
+            return get_procestype_field(db_field, request, **kwargs)
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
