@@ -315,4 +315,3 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "invalid-resource")
-

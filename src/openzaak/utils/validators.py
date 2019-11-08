@@ -1,10 +1,12 @@
+from urllib.parse import urlparse
+
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
-from vng_api_common.validators import IsImmutableValidator
 from vng_api_common.oas import fetcher, obj_has_shape
-from urllib.parse import urlparse
+from vng_api_common.validators import IsImmutableValidator
+
 from ..loaders import AuthorizedRequestsLoader
 
 
@@ -108,7 +110,8 @@ class LooseFkResourceValidator(FKOrURLValidator):
         schema = fetcher.fetch(self.oas_schema)
         if not obj_has_shape(obj, schema, self.resource):
             raise serializers.ValidationError(
-                self.resource_message.format(url=value, resource=self.resource), code=self.resource_code
+                self.resource_message.format(url=value, resource=self.resource),
+                code=self.resource_code,
             )
 
         return obj

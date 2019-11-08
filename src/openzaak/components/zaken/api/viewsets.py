@@ -393,9 +393,7 @@ class ZaakObjectViewSet(
     Een specifiek ZAAKOBJECT opvragen.
     """
 
-    queryset = ZaakObject.objects\
-        .select_related("zaak") \
-        .all()
+    queryset = ZaakObject.objects.select_related("zaak").all()
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"

@@ -2,6 +2,7 @@
 Serializers of the Besluit Registratie Component REST API
 """
 from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
@@ -11,7 +12,11 @@ from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectHyperlinkedRelatedField,
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.utils.validators import LooseFkIsImmutableValidator, PublishValidator, LooseFkResourceValidator
+from openzaak.utils.validators import (
+    LooseFkIsImmutableValidator,
+    LooseFkResourceValidator,
+    PublishValidator,
+)
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
@@ -55,7 +60,7 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
                     LooseFkIsImmutableValidator(),
-                    PublishValidator()
+                    PublishValidator(),
                 ],
             },
             # per BRC API spec!
