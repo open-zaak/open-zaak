@@ -123,7 +123,27 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response.data[0]["informatieobject"], f"http://openzaak.nl{io_url}"
         )
 
-    def test_update_besluit(self):
+    def test_put_besluit_not_allowed(self):
+        bio = BesluitInformatieObjectFactory.create()
+        bio_detail_url = reverse(bio)
+        besluit = BesluitFactory.create()
+        besluit_url = reverse(besluit)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(io)
+
+        response = self.client.put(
+            bio_detail_url,
+            {
+                "besluit": f"http://testserver{besluit_url}",
+                "informatieobject": f"http://testserver{io_url}",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, response.data
+        )
+
+    def test_patch_besluit_not_allowed(self):
         bio = BesluitInformatieObjectFactory.create()
         bio_detail_url = reverse(bio)
         besluit = BesluitFactory.create()
@@ -140,13 +160,8 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, response.data
         )
-
-        for field in ["besluit", "informatieobject"]:
-            with self.subTest(field=field):
-                error = get_validation_errors(response, field)
-                self.assertEqual(error["code"], IsImmutableValidator.code)
 
     def test_delete(self):
         bio = BesluitInformatieObjectFactory.create()
