@@ -59,7 +59,11 @@ class EigenschapViewSet(
     concept betreft.
     """
 
-    queryset = Eigenschap.objects.all().order_by("-pk")
+    queryset = (
+        Eigenschap.objects.all()
+        .select_related("specificatie_van_eigenschap", "zaaktype")
+        .order_by("-pk")
+    )
     serializer_class = EigenschapSerializer
     filterset_class = EigenschapFilter
     lookup_field = "uuid"

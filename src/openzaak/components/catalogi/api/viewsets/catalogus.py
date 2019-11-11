@@ -51,7 +51,11 @@ class CatalogusViewSet(
     ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn zijn.
     """
 
-    queryset = Catalogus.objects.all().order_by("-pk")
+    queryset = (
+        Catalogus.objects.all()
+        .prefetch_related("besluittype_set", "zaaktype_set", "informatieobjecttype_set")
+        .order_by("-pk")
+    )
     serializer_class = CatalogusSerializer
     filter_class = CatalogusFilter
     lookup_field = "uuid"

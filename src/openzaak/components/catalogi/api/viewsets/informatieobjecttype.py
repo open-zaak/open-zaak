@@ -59,7 +59,9 @@ class InformatieObjectTypeViewSet(
     betreft.
     """
 
-    queryset = InformatieObjectType.objects.all().order_by("-pk")
+    queryset = (
+        InformatieObjectType.objects.all().select_related("catalogus").order_by("-pk")
+    )
     serializer_class = InformatieObjectTypeSerializer
     filterset_class = InformatieObjectTypeFilter
     lookup_field = "uuid"
