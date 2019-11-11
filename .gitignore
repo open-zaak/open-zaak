@@ -20,6 +20,7 @@ docs/_build
 # Coverage reports
 /reports/
 /htmlcov/
+.coverage
 
 # Environment
 src/openzaak/conf/includes/local.py
