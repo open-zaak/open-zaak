@@ -7,11 +7,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..constants import FormaatChoices
-from .validators import (
-    validate_kardinaliteit,
-    validate_letters_numbers_underscores,
-    validate_letters_numbers_underscores_spaces,
-)
+from .validators import validate_kardinaliteit, validate_letters_numbers_underscores
 
 
 class EigenschapSpecificatie(models.Model):
@@ -98,15 +94,23 @@ class EigenschapSpecificatie(models.Model):
                     )
                 )
 
-        elif self.formaat == FormaatChoices.datum:
-            if self.lengte != 8:
-                raise ValidationError(_("Als formaat datum is, moet de lengte 8 zijn."))
+        else:
+            try:
+                length = int(self.lengte)
+            except ValueError:
+                raise ValidationError(_("Voer een getal in als lengte"), code="invalid")
 
-        elif self.formaat == FormaatChoices.datum_tijd:
-            if self.lengte != 14:
-                raise ValidationError(
-                    _("Als formaat datum/tijd is, moet de lengte 14 zijn.")
-                )
+            if self.formaat == FormaatChoices.datum:
+                if length != 8:
+                    raise ValidationError(
+                        _("Als formaat datum is, moet de lengte 8 zijn.")
+                    )
+
+            elif self.formaat == FormaatChoices.datum_tijd:
+                if length != 14:
+                    raise ValidationError(
+                        _("Als formaat datum/tijd is, moet de lengte 14 zijn.")
+                    )
 
 
 class Eigenschap(models.Model):

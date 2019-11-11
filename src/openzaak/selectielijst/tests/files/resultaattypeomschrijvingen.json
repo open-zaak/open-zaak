@@ -1,0 +1,20 @@
+[
+  {
+    "definitie": "foobar",
+    "omschrijving": "Afgewezen",
+    "opmerking": "",
+    "url": "https://referentielijsten-api.vng.cloud/api/v1/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+  },
+  {
+    "definitie": "foobar",
+    "omschrijving": "Ingetrokken",
+    "opmerking": "",
+    "url": "https://referentielijsten-api.vng.cloud/api/v1/resultaattypeomschrijvingen/a6a0bd73-262a-401a-b629-9c4a908c69b5"
+  },
+  {
+    "definitie": "foobar",
+    "omschrijving": "Toegekend",
+    "opmerking": "",
+    "url": "https://referentielijsten-api.vng.cloud/api/v1/resultaattypeomschrijvingen/fb65d251-1518-4185-865f-b8bdcfad07b1"
+  }
+]

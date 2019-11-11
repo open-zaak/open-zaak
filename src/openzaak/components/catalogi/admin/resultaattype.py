@@ -4,6 +4,10 @@ from django.utils.translation import ugettext_lazy as _
 from relativedeltafield import RelativeDeltaField
 
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
+from openzaak.selectielijst.admin import (
+    get_resultaattype_omschrijving_field,
+    get_selectielijstklasse_field,
+)
 
 from ..models import ResultaatType
 from .forms import ResultaatTypeForm
@@ -21,6 +25,7 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
         "selectielijstklasse",
         "uuid",
     )
+    list_filter = ("zaaktype",)
     ordering = ("zaaktype", "omschrijving")
     search_fields = (
         "omschrijving",
@@ -56,4 +61,11 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if isinstance(db_field, RelativeDeltaField):
             kwargs["form_class"] = RelativeDeltaFormField
+
+        if db_field.name == "selectielijstklasse":
+            return get_selectielijstklasse_field(db_field, request, **kwargs)
+
+        if db_field.name == "resultaattypeomschrijving":
+            return get_resultaattype_omschrijving_field(db_field, request, **kwargs)
+
         return super().formfield_for_dbfield(db_field, request, **kwargs)

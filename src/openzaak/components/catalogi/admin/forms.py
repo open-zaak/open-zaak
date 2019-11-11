@@ -1,5 +1,7 @@
 from django import forms
 from django.conf import settings
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 import requests
@@ -10,6 +12,7 @@ from vng_api_common.constants import (
 from vng_api_common.validators import ResourceValidator
 
 from openzaak.forms.widgets import BooleanRadio
+from openzaak.selectielijst.admin import get_selectielijst_resultaat_choices
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import ResultaatType, ZaakType
@@ -43,6 +46,15 @@ class ResultaatTypeForm(forms.ModelForm):
     class Meta:
         model = ResultaatType
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            proces_type = self.instance.zaaktype.selectielijst_procestype
+            self.fields[
+                "selectielijstklasse"
+            ].choices = get_selectielijst_resultaat_choices(proces_type)
 
     def clean(self):
         super().clean()
@@ -86,12 +98,28 @@ class ResultaatTypeForm(forms.ModelForm):
 
         procestype = response.json()["procesType"]
         if procestype != zaaktype.selectielijst_procestype:
-            msg = _(
-                "De selectielijstklasse hoort niet bij het selectielijst procestype van het zaaktype"
-            )
-            self.add_error(
-                "selectielijstklasse", forms.ValidationError(msg, code="invalid")
-            )
+            if not zaaktype.selectielijst_procestype:
+                edit_zaaktype = reverse(
+                    "admin:catalogi_zaaktype_change", args=(zaaktype.pk,)
+                )
+                err = format_html(
+                    '{msg} <a href="{url}#id_selectielijst_procestype">{url_text}</a>',
+                    msg=_(
+                        "Er is geen Selectielijst-procestype gedefinieerd op het zaaktype!"
+                    ),
+                    url=edit_zaaktype,
+                    url_text=_("Zaaktype bewerken"),
+                )
+
+                self.add_error("selectielijstklasse", err)
+            else:
+                msg = _(
+                    "De selectielijstklasse hoort niet bij het selectielijst "
+                    "procestype van het zaaktype"
+                )
+                self.add_error(
+                    "selectielijstklasse", forms.ValidationError(msg, code="invalid")
+                )
 
     def _clean_brondatum_archiefprocedure_afleidingswijze(self):
         """
