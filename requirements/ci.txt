@@ -4,6 +4,7 @@
 #
 #    pip-compile --no-index --output-file=requirements/ci.txt requirements/base.txt requirements/test-tools.in
 #
+beautifulsoup4==4.8.1     # via webtest
 certifi==2018.4.16
 chardet==3.0.4
 coreapi==2.3.3
@@ -26,6 +27,7 @@ django-redis==4.10.0
 django-relativedelta==1.0.5
 django-sendfile2==0.4.2
 django-solo==1.1.3
+django-webtest==1.9.7
 django==2.2.4
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
@@ -61,6 +63,7 @@ requests-mock==1.6.0
 requests==2.21.0
 ruamel.yaml==0.15.37
 six==1.11.0
+soupsieve==1.9.5          # via beautifulsoup4
 sqlparse==0.3.0
 tblib==1.4.0
 text-unidecode==1.2       # via faker
@@ -69,3 +72,6 @@ uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
 vng-api-common==1.0.31
+waitress==1.3.1           # via webtest
+webob==1.8.5              # via webtest
+webtest==2.0.33           # via django-webtest
