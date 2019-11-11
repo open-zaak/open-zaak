@@ -1,3 +1,4 @@
+from django.core.cache import caches
 from django.db.models import Model
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -74,3 +75,13 @@ class JWTAuthMixin:
             user_representation=self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
+
+
+class ClearCachesMixin:
+    def setUp(self):
+        self._clear_caches()
+        self.addCleanup(self._clear_caches)
+
+    def _clear_caches(self):
+        for cache in caches.all():
+            cache.clear()
