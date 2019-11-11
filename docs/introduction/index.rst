@@ -39,4 +39,5 @@ to create a production-grade product that can be used by municipalities.
 
    architecture
    performance/scenarios
+   performance/apachebench
    open-source
