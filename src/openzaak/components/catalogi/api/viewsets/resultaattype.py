@@ -59,7 +59,7 @@ class ResultaatTypeViewSet(
     een concept betreft.
     """
 
-    queryset = ResultaatType.objects.all().order_by("-pk")
+    queryset = ResultaatType.objects.all().select_related("zaaktype").order_by("-pk")
     serializer_class = ResultaatTypeSerializer
     filter_class = ResultaatTypeFilter
     lookup_field = "uuid"

@@ -66,7 +66,11 @@ class ZaakTypeInformatieObjectTypeViewSet(
     het bijbehorende ZAAKTYPE een concept betreft.
     """
 
-    queryset = ZaakInformatieobjectType.objects.all().order_by("-pk")
+    queryset = (
+        ZaakInformatieobjectType.objects.all()
+        .select_related("zaaktype", "informatieobjecttype")
+        .order_by("-pk")
+    )
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
     filterset_class = ZaakInformatieobjectTypeFilter
     lookup_field = "uuid"

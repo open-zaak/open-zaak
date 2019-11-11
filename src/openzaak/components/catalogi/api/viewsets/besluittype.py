@@ -57,7 +57,12 @@ class BesluitTypeViewSet(
     Verwijder een BESLUITTYPE. Dit kan alleen als het een concept betreft.
     """
 
-    queryset = BesluitType.objects.all().order_by("-pk")
+    queryset = (
+        BesluitType.objects.all()
+        .select_related("catalogus")
+        .prefetch_related("informatieobjecttypen", "zaaktypes")
+        .order_by("-pk")
+    )
     serializer_class = BesluitTypeSerializer
     filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
