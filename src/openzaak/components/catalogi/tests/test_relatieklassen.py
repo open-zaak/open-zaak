@@ -375,7 +375,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(ziot.volgnummer, 12)
 
     def test_partial_update_ziot_not_concept_zaaktype_and_informatieobjecttype_fails(
-        self
+        self,
     ):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
