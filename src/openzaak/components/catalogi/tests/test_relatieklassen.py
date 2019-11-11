@@ -105,10 +105,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
 
         response = self.client.post(self.list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "non-concept-relation")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_ziot_not_concept_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
@@ -126,13 +123,10 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
 
         response = self.client.post(self.list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "non-concept-relation")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_ziot_fail_not_concept_zaaktype_and_informatieobjecttype(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=zaaktype.catalogus
