@@ -10,5 +10,6 @@ There are several ways to install Open Zaak.
    :maxdepth: 1
 
    hardware
+   deployment/kubernetes
    deployment/linux
    deployment/containers

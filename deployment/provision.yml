@@ -5,6 +5,8 @@
 
   vars:
     acme_email: info@maykinmedia.nl
+    needs_ingress: yes
+    needs_nfs: no
 
   vars_files:
     - vars/maykin.yml
@@ -48,6 +50,9 @@
         app_db_login_password: "{{ db_superuser.password }}"
 
     - role: nfs-server
+      when: needs_nfs
+
 
   tasks:
     - import_tasks: tasks/ingress.yml
+      when: needs_ingress
