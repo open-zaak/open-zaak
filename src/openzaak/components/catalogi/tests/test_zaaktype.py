@@ -67,7 +67,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertResponseTypes(
             response_data,
             (
-                ("identificatie", int),
+                ("identificatie", str),
                 ("omschrijving", str),
                 ("omschrijvingGeneriek", str),
                 ("catalogus", str),
