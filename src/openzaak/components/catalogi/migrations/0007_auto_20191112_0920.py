@@ -6,16 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalogi', '0006_auto_20191024_1000'),
+        ("catalogi", "0006_auto_20191024_1000"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='statustype',
-            options={'ordering': ('zaaktype', '-statustypevolgnummer'), 'verbose_name': 'Statustype', 'verbose_name_plural': 'Statustypen'},
+            name="statustype",
+            options={
+                "ordering": ("zaaktype", "-statustypevolgnummer"),
+                "verbose_name": "Statustype",
+                "verbose_name_plural": "Statustypen",
+            },
         ),
         migrations.AddIndex(
-            model_name='statustype',
-            index=models.Index(fields=['zaaktype', '-statustypevolgnummer'], name='catalogi_st_zaaktyp_0f22d4_idx'),
+            model_name="statustype",
+            index=models.Index(
+                fields=["zaaktype", "-statustypevolgnummer"],
+                name="catalogi_st_zaaktyp_0f22d4_idx",
+            ),
         ),
     ]

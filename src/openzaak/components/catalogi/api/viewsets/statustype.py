@@ -58,10 +58,12 @@ class StatusTypeViewSet(
     concept betreft.
     """
 
-    queryset = StatusType.objects\
-        .select_related("zaaktype")\
-        .prefetch_related("zaaktype__statustypen")\
-        .order_by("-pk").all()
+    queryset = (
+        StatusType.objects.select_related("zaaktype")
+        .prefetch_related("zaaktype__statustypen")
+        .order_by("-pk")
+        .all()
+    )
     serializer_class = StatusTypeSerializer
     filterset_class = StatusTypeFilter
     lookup_field = "uuid"

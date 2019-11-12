@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from ..factories import ZaakTypeFactory, StatusTypeFactory
+from ..factories import StatusTypeFactory, ZaakTypeFactory
 
 
 class StatustypeTests(TestCase):
