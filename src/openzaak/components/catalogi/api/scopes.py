@@ -25,7 +25,7 @@ SCOPE_ZAAKTYPES_WRITE = Scope(
 )
 
 SCOPE_ZAAKTYPES_FORCED_DELETE = Scope(
-    "zaaktypes.geforceerd_verwijderen",
+    "zaaktypes.geforceerd-verwijderen",
     description="""
 **Laat toe om**:
 
