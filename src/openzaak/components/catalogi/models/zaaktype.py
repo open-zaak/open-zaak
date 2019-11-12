@@ -11,6 +11,8 @@ from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import DaysDurationField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
+from vng_api_common.utils import generate_unique_identification
+from vng_api_common.validators import alphanumeric_excluding_diacritic
 
 from ..constants import InternExtern
 from .mixins import ConceptMixin, GeldigheidMixin
@@ -140,12 +142,14 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
-    zaaktype_identificatie = models.PositiveIntegerField(  # N5, integer with max_length of 5
+    zaaktype_identificatie = models.CharField(
         _("identificatie"),
-        validators=[MaxValueValidator(99999)],
+        max_length=50,
+        blank=True,
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
+        validators=[alphanumeric_excluding_diacritic],
         db_index=True,
     )
     zaaktype_omschrijving = models.CharField(
@@ -353,14 +357,21 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
+    IDENTIFICATIE_PREFIX = "ZAAKTYPE"
+
     class Meta:
         verbose_name = _("Zaaktype")
         verbose_name_plural = _("Zaaktypen")
 
-    def __str__(self):
-        return "{} - {}".format(self.catalogus, self.zaaktype_identificatie)
+    def __str__(self) -> str:
+        return self.zaaktype_identificatie
 
     def save(self, *args, **kwargs):
+        if not self.zaaktype_identificatie:
+            self.zaaktype_identificatie = generate_unique_identification(
+                self, "versiedatum", identification_field="zaaktype_identificatie"
+            )
+
         if not self.verlenging_mogelijk:
             self.verlengingstermijn = None
         elif not self.verlengingstermijn:
