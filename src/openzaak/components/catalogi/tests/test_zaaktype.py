@@ -191,6 +191,49 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         self.assertEqual(zaaktype.concept, True)
 
+    def test_create_zaaktype_generate_unique_identificatie(self):
+        zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
+
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.data["identificatie"], "ZAAKTYPE-2018-0000000002")
+
+        zaaktype2 = ZaakType.objects.get(zaaktype_omschrijving="some test")
+
+        self.assertNotEqual(
+            zaaktype1.zaaktype_identificatie, zaaktype2.zaaktype_identificatie
+        )
+
     def test_create_zaaktype_fail_besluittype_non_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False, catalogus=self.catalogus)
         besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
