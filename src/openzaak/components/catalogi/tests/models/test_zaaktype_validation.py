@@ -17,7 +17,7 @@ class ZaaktypeValidationTests(TestCase):
     def test_same_id_different_dates(self):
         zaaktype = ZaakTypeFactory.create(
             zaaktype_omschrijving="test",
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid="2018-01-01",
             datum_einde_geldigheid="2018-12-31",
         )
@@ -27,7 +27,7 @@ class ZaaktypeValidationTests(TestCase):
             data={
                 "uuid": uuid.uuid4(),
                 "catalogus": catalogus.id,
-                "zaaktype_identificatie": 1,
+                "identificatie": 1,
                 "zaaktype_omschrijving": "test",
                 "datum_begin_geldigheid": "2019-01-01",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -54,7 +54,7 @@ class ZaaktypeValidationTests(TestCase):
     def test_same_id_overlapping_dates(self):
         zaaktype = ZaakTypeFactory.create(
             zaaktype_omschrijving="test",
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid="2018-01-01",
             datum_einde_geldigheid="2018-12-31",
         )
@@ -64,7 +64,7 @@ class ZaaktypeValidationTests(TestCase):
             data={
                 "uuid": uuid.uuid4(),
                 "catalogus": catalogus.id,
-                "zaaktype_identificatie": 1,
+                "identificatie": 1,
                 "zaaktype_omschrijving": "test",
                 "datum_begin_geldigheid": "2018-10-01",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -96,7 +96,7 @@ class ZaaktypeValidationTests(TestCase):
     def test_same_id_no_end_date(self):
         zaaktype = ZaakTypeFactory.create(
             zaaktype_omschrijving="test",
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid="2018-01-01",
         )
         catalogus = zaaktype.catalogus
@@ -105,7 +105,7 @@ class ZaaktypeValidationTests(TestCase):
             data={
                 "uuid": uuid.uuid4(),
                 "catalogus": catalogus.id,
-                "zaaktype_identificatie": 1,
+                "identificatie": 1,
                 "zaaktype_omschrijving": "test",
                 "datum_begin_geldigheid": "2019-01-01",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,

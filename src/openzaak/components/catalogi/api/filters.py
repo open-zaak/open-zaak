@@ -122,7 +122,7 @@ class ZaakTypeFilter(FilterSet):
         field_name="concept", method=status_filter, help_text=STATUS_HELP_TEXT
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
-    identificatie = filters.NumberFilter(field_name="zaaktype_identificatie")
+    identificatie = filters.NumberFilter(field_name="identificatie")
 
     class Meta:
         model = ZaakType

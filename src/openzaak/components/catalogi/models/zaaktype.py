@@ -142,7 +142,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
-    zaaktype_identificatie = models.CharField(
+    identificatie = models.CharField(
         _("identificatie"),
         max_length=50,
         blank=True,
@@ -364,13 +364,11 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         verbose_name_plural = _("Zaaktypen")
 
     def __str__(self) -> str:
-        return self.zaaktype_identificatie
+        return self.identificatie
 
     def save(self, *args, **kwargs):
-        if not self.zaaktype_identificatie:
-            self.zaaktype_identificatie = generate_unique_identification(
-                self, "versiedatum", identification_field="zaaktype_identificatie"
-            )
+        if not self.identificatie:
+            self.identificatie = generate_unique_identification(self, "versiedatum")
 
         if not self.verlenging_mogelijk:
             self.verlengingstermijn = None
