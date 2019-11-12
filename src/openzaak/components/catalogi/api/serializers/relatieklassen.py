@@ -55,14 +55,14 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
                 attrs.get("informatieobjecttype") or self.instance.informatieobjecttype
             )
 
-            if not (zaaktype.concept and informatieobjecttype.concept):
+            if not (zaaktype.concept or informatieobjecttype.concept):
                 message = _("Objects related to non-concept objects can't be updated")
                 raise serializers.ValidationError(message, code="non-concept-relation")
         else:
             zaaktype = attrs.get("zaaktype")
             informatieobjecttype = attrs.get("informatieobjecttype")
 
-            if not (zaaktype.concept and informatieobjecttype.concept):
+            if not (zaaktype.concept or informatieobjecttype.concept):
                 message = _(
                     "Creating relations between non-concept objects is forbidden"
                 )
