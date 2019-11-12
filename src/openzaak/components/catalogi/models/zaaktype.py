@@ -390,7 +390,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
                 "de periode van 'Doorlooptijd behandeling'."
             )
 
-        if self.catalogus_id:
+        if self.catalogus_id and self.datum_begin_geldigheid:
             query = ZaakType.objects.filter(
                 Q(catalogus=self.catalogus),
                 Q(zaaktype_omschrijving=self.zaaktype_omschrijving),
