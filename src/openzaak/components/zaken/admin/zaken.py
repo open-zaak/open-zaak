@@ -60,6 +60,7 @@ class ZaakAdmin(admin.ModelAdmin):
         ResultaatInline,
         RelevanteZaakRelatieInline,
     ]
+    raw_id_fields = ["zaaktype", "hoofdzaak"]
 
 
 @admin.register(Status)
