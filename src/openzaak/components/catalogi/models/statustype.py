@@ -2,7 +2,6 @@ import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -87,19 +86,14 @@ class StatusType(models.Model):
         unique_together = ("zaaktype", "statustypevolgnummer")
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
+        ordering = ("zaaktype", "-statustypevolgnummer")
 
     def is_eindstatus(self):
         """
-        Een `StatusType` betreft een eindstatus als het volgnummer van het
-        `StatusType` de hoogste is binnen het `ZaakType`.
-
-        # TODO: Can be cached on the model.
+        Sorting by statustypevolgnummer desc is performed in StatusType.Meta.ordering
         """
-        max_statustypevolgnummer = self.zaaktype.statustypen.aggregate(
-            result=Max("statustypevolgnummer")
-        )["result"]
-
-        return max_statustypevolgnummer == self.statustypevolgnummer
+        last_statustype = self.zaaktype.statustypen.first()
+        return last_statustype == self
 
     def __str__(self):
         return "{} - {}".format(self.zaaktype, self.statustypevolgnummer)
