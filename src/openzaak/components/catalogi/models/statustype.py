@@ -86,6 +86,7 @@ class StatusType(models.Model):
         unique_together = ("zaaktype", "statustypevolgnummer")
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
+        indexes = [models.Index(fields=["zaaktype", "-statustypevolgnummer"])]
         ordering = ("zaaktype", "-statustypevolgnummer")
 
     def is_eindstatus(self):
