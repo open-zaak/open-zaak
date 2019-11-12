@@ -37,3 +37,5 @@ drf-writable-nested
 # WSGI servers & monitoring - production oriented
 uwsgi
 raven  # error monitoring sentry
+
+dictdiffer # Used to show diffs for audittrails in admin

@@ -17,6 +17,7 @@ commonmark==0.9.1         # via recommonmark
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
+dictdiffer==0.8.0
 django-admin-index==1.1.0
 django-appconf==1.0.2
 django-axes==4.4.0

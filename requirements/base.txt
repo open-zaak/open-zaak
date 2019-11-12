@@ -8,6 +8,7 @@ certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
+dictdiffer==0.8.0
 django-admin-index==1.1.0
 django-appconf==1.0.2     # via django-axes
 django-axes==4.4.0
