@@ -18,11 +18,4 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Statustypen",
             },
         ),
-        migrations.AddIndex(
-            model_name="statustype",
-            index=models.Index(
-                fields=["zaaktype", "-statustypevolgnummer"],
-                name="catalogi_st_zaaktyp_0f22d4_idx",
-            ),
-        ),
     ]
