@@ -20,6 +20,7 @@ django-relativedelta
 # Admin and UI libraries
 django-admin-index
 django-better-admin-arrayfield
+django-import-export
 
 # API libraries
 djangorestframework
