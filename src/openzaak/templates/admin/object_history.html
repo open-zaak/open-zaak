@@ -1,22 +1,11 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/object_history.html" %}
 {% load i18n admin_urls %}
 {% load static %}
 
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ module_name }}</a>
-&rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
-&rsaquo; {% trans 'History' %}
-</div>
-{% endblock %}
-
 {% block content %}
-<div id="content-main">
-<div class="module">
-
 {% if object.audittrail %}
+<div id="content-main-audittrail">
+<div class="module">
     <table id="change-history">
         <thead>
         <tr>
@@ -105,13 +94,17 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
+</div>
 {% endif %}
-</div>
-</div>
+
+{% if object.audittrail and action_list %}
+    <h1>{% trans "Changes made via the admin." %}
+{% endif %}
+{{ block.super }}
 
 <link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
 <script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
-<script src="{% static 'vng_api_common/libs/popper/popper.min.js' %}"></script>
 <script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
 
 {% endblock %}
