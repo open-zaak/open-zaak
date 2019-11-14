@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 import requests
+from import_export.forms import ImportForm as _ImportForm
 from rest_framework.exceptions import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -355,3 +356,7 @@ class ResultaatTypeForm(forms.ModelForm):
                         value=afleidingswijze_label,
                     )
                     self.add_error(field, forms.ValidationError(msg, code="required"))
+
+
+class ImportForm(_ImportForm):
+    generate_new_uuids = forms.BooleanField(initial=False, required=False)

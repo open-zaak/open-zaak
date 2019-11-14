@@ -1,10 +1,15 @@
+from django import forms
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 from openzaak.utils.admin import EditInlineAdminMixin, ListObjectActionsAdminMixin
 
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .besluittype import BesluitTypeAdmin
+from .forms import ImportForm
 from .informatieobjecttype import InformatieObjectTypeAdmin
 from .zaaktypen import ZaakTypeAdmin
 
@@ -26,8 +31,25 @@ class InformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "catalogus"
 
 
+class CatalogusResource(resources.ModelResource):
+    class Meta:
+        model = Catalogus
+        exclude = ("id",)
+        import_id_fields = ("uuid",)
+
+    def __init__(self, *args, **kwargs):
+        import_without_uuids = kwargs.pop("import_without_uuids", False)
+        super().__init__(*args, **kwargs)
+
+        # To ensure that new UUIDs are generated if this is desired
+        if import_without_uuids:
+            self.fields.pop("uuid")
+            self._meta.import_id_fields = ("domein",)
+
+
 @admin.register(Catalogus)
-class CatalogusAdmin(ListObjectActionsAdminMixin, admin.ModelAdmin):
+class CatalogusAdmin(ListObjectActionsAdminMixin, ImportExportModelAdmin):
+    resource_class = CatalogusResource
     model = Catalogus
 
     # List
@@ -69,3 +91,18 @@ class CatalogusAdmin(ListObjectActionsAdminMixin, admin.ModelAdmin):
                 ),
             ),
         )
+
+    def get_import_form(self):
+        # Use the custom import form which allows importing with or without
+        # UUIDs
+        return ImportForm
+
+    def get_import_resource_kwargs(self, request, *args, **kwargs):
+        data = super().get_import_resource_kwargs(request, *args, **kwargs)
+
+        if request.POST.get("generate_new_uuids", None) == "on":
+            self.import_without_uuids = True
+
+        if getattr(self, "import_without_uuids", False):
+            data["import_without_uuids"] = True
+        return data

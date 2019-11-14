@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     "ordered_model",
     "django_admin_index",
     "django.contrib.admin",
+    "import_export",
     "django.contrib.gis",
     # 'django.contrib.admindocs',
     # 'django.contrib.humanize',
