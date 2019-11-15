@@ -142,8 +142,6 @@ class AuditTrailAdminMixin(object):
         basename = model._meta.object_name.lower()
 
         viewset = self.get_viewset(request)
-        self.add_version_to_request(request, obj.uuid)
-
         data = data_after or data_before
         if viewset.basename == viewset.audit.main_resource:
             main_object = data["url"]

@@ -5,6 +5,7 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import generate_jwt_auth, reverse
+from openzaak.accounts.models import User
 
 
 class JWTAuthMixin:
@@ -85,3 +86,21 @@ class ClearCachesMixin:
     def _clear_caches(self):
         for cache in caches.all():
             cache.clear()
+
+
+class AdminTestMixin:
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = User.objects.create_superuser(
+            username="demo", email="demo@demo.com", password="demo", first_name='first', last_name='last'
+        )
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.client.login(username="demo", password="demo")
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        self.client.logout()
