@@ -15,7 +15,7 @@
             <th scope="col">{% trans 'Resultaat' %}</th>
             <th scope="col">{% trans 'Gebruiker' %}</th>
             <th scope="col">{% trans 'Applicatie' %}</th>
-            <th scope="col">{% trans 'Hoofdobject' %}</th>
+            <th scope="col">{% trans 'Object' %}</th>
             <th scope="col">{% trans 'Toelichting' %}</th>
             <th scope="col">{% trans 'Wijzigingen' %}</th>
         </tr>
@@ -29,7 +29,7 @@
                 <td>{{ audit.resultaat }}</td>
                 <td>{{ audit.gebruikers_weergave }}</td>
                 <td>{{ audit.applicatie_weergave }}</td>
-                <td>{{ audit.hoofd_object }}</td>
+                <td>{{ audit.resource_url }}</td>
                 <td>{{ audit.toelichting }}</td>
                 <td><button class="btn btn-primary" data-toggle="modal" data-target="#myModal-{{forloop.counter}}">{% trans 'Toon wijzigingen' %}</button></td>
             </tr>
