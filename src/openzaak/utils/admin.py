@@ -5,6 +5,9 @@ from django.db.models.base import Model, ModelBase
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.constants import CommonResourceAction
+from rest_framework.settings import api_settings
 
 
 def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
@@ -118,3 +121,58 @@ class DynamicArrayMixin:
     class Media:
         js = ("js/min/django_better_admin_arrayfield.min.js",)
         css = {"all": ("css/min/django_better_admin_arrayfield.min.css",)}
+
+
+class AuditTrailAdminMixin(object):
+    viewset = None
+
+    def get_viewset(self, request):
+        if not self.viewset:
+            raise NotImplementedError("'viewset' property should be included to the Admin class")
+        return self.viewset(request=request, format_kwarg=None)
+
+    def save_model(self, request, obj, form, change):
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+
+        viewset = self.get_viewset(request)
+        version, scheme = viewset.determine_version(request, version=api_settings.DEFAULT_VERSION, uuid=obj.uuid)
+        request.version, request.versioning_scheme = version, scheme
+
+        action = 'update' if change else 'create'
+
+        # data before
+        data_before = None
+        if change:
+            obj_before = model.objects.filter(pk=obj.pk).get()
+            serializer_before = viewset.get_serializer(obj_before)
+            data_before = serializer_before.data
+
+        super().save_model(request, obj, form, change)
+
+        # data after
+        serializer = viewset.get_serializer(obj)
+        data = serializer.data
+
+        if viewset.basename == viewset.audit.main_resource:
+            main_object = data["url"]
+        else:
+            main_object = data[viewset.audit.main_resource]
+
+        trail = AuditTrail(
+            bron=viewset.audit.component_name,
+            applicatie_weergave="admin",
+            actie=action,
+            actie_weergave=CommonResourceAction.labels.get(action, ""),
+            gebruikers_id=request.user.id,
+            gebruikers_weergave=request.user.get_full_name(),
+            resultaat=0,
+            hoofd_object=main_object,
+            resource=basename,
+            resource_url=data["url"],
+            resource_weergave=obj.unique_representation(),
+            oud=data_before,
+            nieuw=data,
+        )
+        trail.save()
+
