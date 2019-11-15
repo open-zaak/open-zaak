@@ -143,7 +143,7 @@ class AuditTrailAdminMixin(object):
 
         viewset = self.get_viewset(request)
         data = data_after or data_before
-        if viewset.basename == viewset.audit.main_resource:
+        if basename == viewset.audit.main_resource:
             main_object = data["url"]
         else:
             main_object = data[viewset.audit.main_resource]
