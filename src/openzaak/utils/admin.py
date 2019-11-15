@@ -131,29 +131,20 @@ class AuditTrailAdminMixin(object):
             raise NotImplementedError("'viewset' property should be included to the Admin class")
         return self.viewset(request=request, format_kwarg=None)
 
-    def save_model(self, request, obj, form, change):
+    def add_version_to_request(self, request, uuid):
+        # add versioning to request
+        viewset = self.get_viewset(request)
+        version, scheme = viewset.determine_version(request, version=api_settings.DEFAULT_VERSION, uuid=uuid)
+        request.version, request.versioning_scheme = version, scheme
+
+    def trail(self, obj, request, action, data_before, data_after):
         model = obj.__class__
         basename = model._meta.object_name.lower()
 
         viewset = self.get_viewset(request)
-        version, scheme = viewset.determine_version(request, version=api_settings.DEFAULT_VERSION, uuid=obj.uuid)
-        request.version, request.versioning_scheme = version, scheme
+        self.add_version_to_request(request, obj.uuid)
 
-        action = 'update' if change else 'create'
-
-        # data before
-        data_before = None
-        if change:
-            obj_before = model.objects.filter(pk=obj.pk).get()
-            serializer_before = viewset.get_serializer(obj_before)
-            data_before = serializer_before.data
-
-        super().save_model(request, obj, form, change)
-
-        # data after
-        serializer = viewset.get_serializer(obj)
-        data = serializer.data
-
+        data = data_after or data_before
         if viewset.basename == viewset.audit.main_resource:
             main_object = data["url"]
         else:
@@ -172,7 +163,47 @@ class AuditTrailAdminMixin(object):
             resource_url=data["url"],
             resource_weergave=obj.unique_representation(),
             oud=data_before,
-            nieuw=data,
+            nieuw=data_after,
         )
         trail.save()
 
+    def save_model(self, request, obj, form, change):
+        model = obj.__class__
+        viewset = self.get_viewset(request)
+        self.add_version_to_request(request, obj.uuid)
+
+        action = CommonResourceAction.update if change else CommonResourceAction.create
+
+       # data before
+        data_before = None
+        if change:
+            obj_before = model.objects.filter(pk=obj.pk).get()
+            serializer_before = viewset.get_serializer(obj_before)
+            data_before = serializer_before.data
+
+        super().save_model(request, obj, form, change)
+
+        # data after
+        serializer = viewset.get_serializer(obj)
+        data = serializer.data
+
+        self.trail(obj, request, action, data_before, data)
+
+    def delete_model(self, request, obj):
+        viewset = self.get_viewset(request)
+        self.add_version_to_request(request, obj.uuid)
+
+        action = CommonResourceAction.destroy
+
+        # data before
+        serializer = viewset.get_serializer(obj)
+        data = serializer.data
+
+        super().delete_model(request, obj)
+
+        self.trail(obj, request, action, data, None)
+
+    def delete_queryset(self, request, queryset):
+        # data before
+        for obj in queryset:
+            self.delete_model(request, obj)
