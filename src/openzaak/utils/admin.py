@@ -172,7 +172,7 @@ class AuditTrailAdminMixin(object):
 
         action = CommonResourceAction.update if change else CommonResourceAction.create
 
-       # data before
+        # data before
         data_before = None
         if change:
             obj_before = model.objects.filter(pk=obj.pk).get()

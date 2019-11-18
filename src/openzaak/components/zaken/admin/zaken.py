@@ -91,10 +91,11 @@ class KlantContactAdmin(admin.ModelAdmin):
 
 
 @admin.register(ZaakEigenschap)
-class ZaakEigenschapAdmin(admin.ModelAdmin):
+class ZaakEigenschapAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "eigenschap", "waarde"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ZaakEigenschapViewSet
 
 
 @admin.register(ZaakInformatieObject)
