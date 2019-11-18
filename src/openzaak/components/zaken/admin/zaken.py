@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from openzaak.components.zaken.api.viewsets import StatusViewSet, ZaakViewSet
+from openzaak.components.zaken.api import viewsets
 from openzaak.utils.admin import AuditTrailAdminMixin
 
 from ..models import (
@@ -64,7 +64,7 @@ class ZaakAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
         RelevanteZaakRelatieInline,
     ]
     raw_id_fields = ["zaaktype", "hoofdzaak"]
-    viewset = ZaakViewSet
+    viewset = viewsets.ZaakViewSet
 
 
 @admin.register(Status)
@@ -72,14 +72,15 @@ class StatusAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "datum_status_gezet"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
-    viewset = StatusViewSet
+    viewset = viewsets.StatusViewSet
 
 
 @admin.register(ZaakObject)
-class ZaakObjectAdmin(admin.ModelAdmin):
+class ZaakObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "object", "relatieomschrijving"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ZaakObjectViewSet
 
 
 @admin.register(KlantContact)
