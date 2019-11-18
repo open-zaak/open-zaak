@@ -1,13 +1,14 @@
 from django.contrib import admin
 
 from privates.admin import PrivateMediaMixin
-
+from openzaak.utils.admin import AuditTrailAdminMixin
 from .models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from .api import viewsets
 
 
 class GebruiksrechtenInline(admin.TabularInline):
@@ -39,19 +40,21 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(PrivateMediaMixin, admin.ModelAd
 
 
 @admin.register(EnkelvoudigInformatieObject)
-class EnkelvoudigInformatieObjectAdmin(admin.ModelAdmin):
+class EnkelvoudigInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ("identificatie", "uuid", "bronorganisatie", "titel", "versie")
     list_filter = ("bronorganisatie",)
     search_fields = ("identificatie", "uuid")
     ordering = ("-begin_registratie",)
     raw_id_fields = ("canonical",)
+    viewset = viewsets.EnkelvoudigInformatieObjectViewSet
 
 
 @admin.register(Gebruiksrechten)
-class GebruiksrechtenAdmin(admin.ModelAdmin):
+class GebruiksrechtenAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ("uuid", "informatieobject")
     list_filter = ("informatieobject",)
     raw_id_fields = ("informatieobject",)
+    viewset = viewsets.GebruiksrechtenViewSet
 
 
 @admin.register(ObjectInformatieObject)

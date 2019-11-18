@@ -145,6 +145,8 @@ class AuditTrailAdminMixin(object):
         data = data_after or data_before
         if basename == viewset.audit.main_resource:
             main_object = data["url"]
+        elif hasattr(viewset, "audittrail_main_resource_key"):
+            main_object = data[viewset.audittrail_main_resource_key]
         else:
             main_object = data[viewset.audit.main_resource]
 
