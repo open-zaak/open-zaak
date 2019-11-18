@@ -5,6 +5,7 @@ from django.db.models.base import Model, ModelBase
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_string
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import CommonResourceAction
 from rest_framework.settings import api_settings
@@ -129,7 +130,13 @@ class AuditTrailAdminMixin(object):
     def get_viewset(self, request):
         if not self.viewset:
             raise NotImplementedError("'viewset' property should be included to the Admin class")
-        return self.viewset(request=request, format_kwarg=None)
+        viewset = self.viewset
+
+        if isinstance(viewset, str):
+            # import module for viewsets with FkOrURLField fields used as filters
+            viewset = import_string(viewset)
+
+        return viewset(request=request, format_kwarg=None)
 
     def add_version_to_request(self, request, uuid):
         # add versioning to request
