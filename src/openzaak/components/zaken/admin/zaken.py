@@ -84,10 +84,11 @@ class ZaakObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(KlantContact)
-class KlantContactAdmin(admin.ModelAdmin):
+class KlantContactAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "identificatie", "datumtijd", "kanaal"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.KlantContactViewSet
 
 
 @admin.register(ZaakEigenschap)
@@ -107,7 +108,16 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(Resultaat)
-class ResultaatAdmin(admin.ModelAdmin):
+class ResultaatAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "toelichting"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ResultaatViewSet
+
+
+@admin.register(Rol)
+class RolAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "betrokkene", "betrokkene_type"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
+    viewset = viewsets.RolViewSet
