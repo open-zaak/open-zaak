@@ -3,12 +3,13 @@ from urllib.parse import urlencode
 
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_string
+
+from rest_framework.settings import api_settings
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import CommonResourceAction
-from rest_framework.settings import api_settings
 
 
 def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
@@ -129,7 +130,9 @@ class AuditTrailAdminMixin(object):
 
     def get_viewset(self, request):
         if not self.viewset:
-            raise NotImplementedError("'viewset' property should be included to the Admin class")
+            raise NotImplementedError(
+                "'viewset' property should be included to the Admin class"
+            )
         viewset = self.viewset
 
         if isinstance(viewset, str):
@@ -141,7 +144,9 @@ class AuditTrailAdminMixin(object):
     def add_version_to_request(self, request, uuid):
         # add versioning to request
         viewset = self.get_viewset(request)
-        version, scheme = viewset.determine_version(request, version=api_settings.DEFAULT_VERSION, uuid=uuid)
+        version, scheme = viewset.determine_version(
+            request, version=api_settings.DEFAULT_VERSION, uuid=uuid
+        )
         request.version, request.versioning_scheme = version, scheme
 
     def trail(self, obj, request, action, data_before, data_after):

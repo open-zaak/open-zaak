@@ -1,14 +1,16 @@
 from django.contrib import admin
 
 from privates.admin import PrivateMediaMixin
+
 from openzaak.utils.admin import AuditTrailAdminMixin
+
+from .api import viewsets
 from .models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
 )
-from .api import viewsets
 
 
 class GebruiksrechtenInline(admin.TabularInline):

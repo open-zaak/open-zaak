@@ -3,13 +3,14 @@ import uuid
 from django.test import TestCase
 from django.urls import reverse
 
-from openzaak.components.zaken.models import Zaak
-from ..factories import ZaakFactory
-from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from vng_api_common.audittrails.models import AuditTrail
-from openzaak.utils.tests import AdminTestMixin
-from ..utils import get_operation_url
 
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
+from openzaak.components.zaken.models import Zaak
+from openzaak.utils.tests import AdminTestMixin
+
+from ..factories import ZaakFactory
+from ..utils import get_operation_url
 
 inline_data = {
     "status_set-TOTAL_FORMS": 3,
@@ -43,7 +44,7 @@ inline_data = {
     "relevante_andere_zaken-TOTAL_FORMS": 3,
     "relevante_andere_zaken-INITIAL_FORMS": 0,
     "relevante_andere_zaken-MIN_NUM_FORMS": 0,
-    "relevante_andere_zaken-MAX_NUM_FORMS": 1000
+    "relevante_andere_zaken-MAX_NUM_FORMS": 1000,
 }
 
 
@@ -53,7 +54,7 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
     def test_create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
-        add_url = reverse('admin:zaken_zaak_add')
+        add_url = reverse("admin:zaken_zaak_add")
         data = {
             "uuid": uuid.uuid4(),
             "zaaktype": zaaktype.id,
@@ -62,7 +63,7 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
             "verantwoordelijke_organisatie": "517439943",
             "startdatum": "15-11-2019",
             "vertrouwelijkheidaanduiding": "openbaar",
-            "archiefstatus": "nog_te_archiveren"
+            "archiefstatus": "nog_te_archiveren",
         }
         data.update(inline_data)
 
@@ -81,21 +82,21 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{zaak_url}'),
-        self.assertEqual(audittrail.resource, 'zaak'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{zaak_url}'),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
+        self.assertEqual(audittrail.resource, "zaak"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource_weergave, zaak.unique_representation()),
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
-        self.assertEqual(new_data['verantwoordelijke_organisatie'], '517439943')
+        self.assertEqual(new_data["verantwoordelijke_organisatie"], "517439943")
 
     def test_change_zaak(self):
-        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding='intern')
+        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding="intern")
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        change_url = reverse('admin:zaken_zaak_change', args=(zaak.pk,))
+        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
         data = {
             "uuid": zaak.uuid,
             "zaaktype": zaak.zaaktype.id,
@@ -104,7 +105,7 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
             "verantwoordelijke_organisatie": "517439943",
             "startdatum": "15-11-2019",
             "vertrouwelijkheidaanduiding": "openbaar",
-            "archiefstatus": "nog_te_archiveren"
+            "archiefstatus": "nog_te_archiveren",
         }
         data.update(inline_data)
 
@@ -119,22 +120,26 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{zaak_url}'),
-        self.assertEqual(audittrail.resource, 'zaak'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{zaak_url}'),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
+        self.assertEqual(audittrail.resource, "zaak"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource_weergave, zaak.unique_representation()),
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
-        self.assertEqual(old_data['vertrouwelijkheidaanduiding'], 'intern')
-        self.assertEqual(new_data['vertrouwelijkheidaanduiding'], 'openbaar')
+        self.assertEqual(old_data["vertrouwelijkheidaanduiding"], "intern")
+        self.assertEqual(new_data["vertrouwelijkheidaanduiding"], "openbaar")
 
     def test_delete_zaak_action(self):
-        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding='intern')
+        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding="intern")
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        change_list_url = reverse('admin:zaken_zaak_changelist')
-        data = {'action': 'delete_selected', '_selected_action': [zaak.id], 'post': 'yes'}
+        change_list_url = reverse("admin:zaken_zaak_changelist")
+        data = {
+            "action": "delete_selected",
+            "_selected_action": [zaak.id],
+            "post": "yes",
+        }
 
         self.client.post(change_list_url, data)
 
@@ -146,23 +151,23 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{zaak_url}'),
-        self.assertEqual(audittrail.resource, 'zaak'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{zaak_url}'),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
+        self.assertEqual(audittrail.resource, "zaak"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource_weergave, zaak.unique_representation()),
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data['vertrouwelijkheidaanduiding'], 'intern')
+        self.assertEqual(old_data["vertrouwelijkheidaanduiding"], "intern")
 
     def test_delete_zaak(self):
-        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding='intern')
+        zaak = ZaakFactory.create(vertrouwelijkheidaanduiding="intern")
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        delete_url = reverse('admin:zaken_zaak_delete', args=(zaak.pk,))
-        data = {'post': 'yes'}
+        delete_url = reverse("admin:zaken_zaak_delete", args=(zaak.pk,))
+        data = {"post": "yes"}
 
         self.client.post(delete_url, data)
 
@@ -174,14 +179,14 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{zaak_url}'),
-        self.assertEqual(audittrail.resource, 'zaak'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{zaak_url}'),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
+        self.assertEqual(audittrail.resource, "zaak"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource_weergave, zaak.unique_representation()),
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data['vertrouwelijkheidaanduiding'], 'intern')
+        self.assertEqual(old_data["vertrouwelijkheidaanduiding"], "intern")

@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from openzaak.utils.admin import AuditTrailAdminMixin
 
 from .models import Besluit, BesluitInformatieObject
@@ -28,4 +29,6 @@ class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 @admin.register(BesluitInformatieObject)
 class BesluitInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ("besluit", "informatieobject")
-    viewset = "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    viewset = (
+        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    )

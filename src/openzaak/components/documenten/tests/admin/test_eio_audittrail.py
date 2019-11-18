@@ -1,15 +1,20 @@
 import uuid
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from ..factories import EnkelvoudigInformatieObjectFactory, EnkelvoudigInformatieObjectCanonicalFactory
-from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from vng_api_common.audittrails.models import AuditTrail
+
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.utils.tests import AdminTestMixin
+
+from ..factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
+    EnkelvoudigInformatieObjectFactory,
+)
 from ..utils import get_operation_url
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
@@ -17,8 +22,10 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
     def test_create_informatieobject(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(latest_version=None)
-        add_url = reverse('admin:documenten_enkelvoudiginformatieobject_add')
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
         data = {
             "uuid": uuid.uuid4(),
             "informatieobjecttype": informatieobjecttype.id,
@@ -40,7 +47,9 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 
         informatieobject = EnkelvoudigInformatieObject.objects.get()
-        informatieobject_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=informatieobject.uuid)
+        informatieobject_url = get_operation_url(
+            "enkelvoudiginformatieobject_read", uuid=informatieobject.uuid
+        )
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -50,21 +59,32 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource, 'enkelvoudiginformatieobject'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource_weergave, informatieobject.unique_representation()),
+        self.assertEqual(
+            audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        self.assertEqual(
+            audittrail.resource_url, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(
+            audittrail.resource_weergave, informatieobject.unique_representation()
+        ),
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
-        self.assertEqual(new_data['beschrijving'], 'desc')
+        self.assertEqual(new_data["beschrijving"], "desc")
 
     def test_change_informatieobject(self):
-        informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving='old')
-        informatieobject_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=informatieobject.uuid)
-        change_url = reverse('admin:documenten_enkelvoudiginformatieobject_change', args=(informatieobject.pk,))
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving="old")
+        informatieobject_url = get_operation_url(
+            "enkelvoudiginformatieobject_read", uuid=informatieobject.uuid
+        )
+        change_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(informatieobject.pk,),
+        )
         data = {
             "uuid": informatieobject.uuid,
             "informatieobjecttype": informatieobject.informatieobjecttype.id,
@@ -92,22 +112,38 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource, 'enkelvoudiginformatieobject'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource_weergave, informatieobject.unique_representation()),
+        self.assertEqual(
+            audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        self.assertEqual(
+            audittrail.resource_url, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(
+            audittrail.resource_weergave, informatieobject.unique_representation()
+        ),
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
-        self.assertEqual(old_data['beschrijving'], 'old')
-        self.assertEqual(new_data['beschrijving'], 'new')
+        self.assertEqual(old_data["beschrijving"], "old")
+        self.assertEqual(new_data["beschrijving"], "new")
 
     def test_delete_informatieobject_action(self):
-        informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving='desc')
-        informatieobject_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=informatieobject.uuid)
-        change_list_url = reverse('admin:documenten_enkelvoudiginformatieobject_changelist')
-        data = {'action': 'delete_selected', '_selected_action': [informatieobject.id], 'post': 'yes'}
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="desc"
+        )
+        informatieobject_url = get_operation_url(
+            "enkelvoudiginformatieobject_read", uuid=informatieobject.uuid
+        )
+        change_list_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_changelist"
+        )
+        data = {
+            "action": "delete_selected",
+            "_selected_action": [informatieobject.id],
+            "post": "yes",
+        }
 
         self.client.post(change_list_url, data)
 
@@ -119,23 +155,36 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource, 'enkelvoudiginformatieobject'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource_weergave, informatieobject.unique_representation()),
+        self.assertEqual(
+            audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        self.assertEqual(
+            audittrail.resource_url, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(
+            audittrail.resource_weergave, informatieobject.unique_representation()
+        ),
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data['beschrijving'], 'desc')
+        self.assertEqual(old_data["beschrijving"], "desc")
 
     def test_delete_informatieobject(self):
-        informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving='desc')
-        informatieobject_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=informatieobject.uuid)
-        delete_url = reverse('admin:documenten_enkelvoudiginformatieobject_delete', args=(informatieobject.pk,))
-        data = {'post': 'yes'}
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="desc"
+        )
+        informatieobject_url = get_operation_url(
+            "enkelvoudiginformatieobject_read", uuid=informatieobject.uuid
+        )
+        delete_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete",
+            args=(informatieobject.pk,),
+        )
+        data = {"post": "yes"}
 
         self.client.post(delete_url, data)
 
@@ -147,14 +196,20 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f'{self.user.id}'),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource, 'enkelvoudiginformatieobject'),
-        self.assertEqual(audittrail.resource_url, f'http://testserver{informatieobject_url}'),
-        self.assertEqual(audittrail.resource_weergave, informatieobject.unique_representation()),
+        self.assertEqual(
+            audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        self.assertEqual(
+            audittrail.resource_url, f"http://testserver{informatieobject_url}"
+        ),
+        self.assertEqual(
+            audittrail.resource_weergave, informatieobject.unique_representation()
+        ),
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data['beschrijving'], 'desc')
+        self.assertEqual(old_data["beschrijving"], "desc")
