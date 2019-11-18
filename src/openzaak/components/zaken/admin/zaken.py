@@ -98,10 +98,11 @@ class ZaakEigenschapAdmin(admin.ModelAdmin):
 
 
 @admin.register(ZaakInformatieObject)
-class ZaakInformatieObjectAdmin(admin.ModelAdmin):
+class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "_informatieobject", "_informatieobject_url"]
     list_select_related = ["zaak", "_informatieobject"]
     raw_id_fields = ["zaak", "_informatieobject"]
+    viewset = viewsets.ZaakInformatieObjectViewSet
 
 
 @admin.register(Resultaat)
