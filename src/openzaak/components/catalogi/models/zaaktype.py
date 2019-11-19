@@ -421,7 +421,8 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
                     "Zaaktype-omschrijving moet uniek zijn binnen de CATALOGUS."
                 )
 
-        self._clean_geldigheid(self)
+        # TODO left only api validation
+        # self._clean_geldigheid(self)
 
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         kwargs["version"] = "1"

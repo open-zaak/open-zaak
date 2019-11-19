@@ -177,3 +177,45 @@ class ZaakTypeAdmin(
         obj.versiedatum = obj.datum_begin_geldigheid
 
         super().save_model(request, obj, form, change)
+
+    def create_new_version(self, obj):
+        old_pk = obj.pk
+
+        # TODO add validation for end date
+        # FIXME need obj.save() ????
+
+        # new obj
+        version_date = date.today()
+
+        obj.pk = None
+        obj.uuid = uuid.uuid4()
+        obj.datum_begin_geldigheid = version_date
+        obj.versiedatum = version_date
+        obj.datum_einde_geldigheid = None
+        obj.save()
+
+    def response_change(self, request, obj):
+        opts = self.model._meta
+        preserved_filters = self.get_preserved_filters(request)
+        msg_dict = {
+            'name': opts.verbose_name,
+            'obj': format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
+        }
+
+        if "_addVersion" in request.POST:
+            self.create_new_version(obj)
+
+            msg = format_html(
+                _('The new version of {name} "{obj}" was successfully created'),
+                **msg_dict
+            )
+            self.message_user(request, msg, messages.SUCCESS)
+
+            redirect_url = reverse('admin:%s_%s_change' %
+                                   (opts.app_label, opts.model_name),
+                                   args=(obj.pk,),
+                                   current_app=self.admin_site.name)
+            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            return HttpResponseRedirect(redirect_url)
+
+        return super().response_change(request, obj)
