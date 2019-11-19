@@ -1,8 +1,9 @@
+import json
 import os
 
 from django.conf import settings
 
-from requests_mock import Mocker
+from requests_mock import Mocker, MockException
 
 MOCK_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files",)
 
@@ -26,3 +27,17 @@ def mock_resource_list(m: Mocker, resource: str) -> None:
     file = os.path.join(MOCK_FILES_DIR, f"{resource}.json")
     with open(file, "rb") as response_data:
         m.get(url, content=response_data.read())
+
+
+def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
+    file = os.path.join(MOCK_FILES_DIR, f"{resource}.json")
+
+    with open(file, "r") as response_data:
+        content = json.load(response_data)
+
+    for procestype_data in content:
+        if procestype_data["url"] == url:
+            m.get(url, json=procestype_data)
+            return
+
+    raise MockException(f"{url} is not found in the file {file}")
