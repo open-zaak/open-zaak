@@ -13,6 +13,7 @@ from openzaak.utils.permissions import AuthRequired
 
 from ...models import ZaakType
 from ..filters import ZaakTypeFilter
+from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
     SCOPE_ZAAKTYPES_FORCED_DELETE,
     SCOPE_ZAAKTYPES_READ,
@@ -101,6 +102,7 @@ class ZaakTypeViewSet(
         "destroy": SCOPE_ZAAKTYPES_WRITE | SCOPE_ZAAKTYPES_FORCED_DELETE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
+    notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
     @swagger_auto_schema(request_body=no_body)
