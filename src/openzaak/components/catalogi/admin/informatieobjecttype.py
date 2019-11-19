@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import InformatieObjectType, ZaakInformatieobjectType
-from .mixins import ConceptAdminMixin, GeldigheidAdminMixin
+from .mixins import GeldigheidAdminMixin, PublishAdminMixin
 
 
 class ZaakInformatieobjectTypeInline(admin.TabularInline):
@@ -13,7 +13,7 @@ class ZaakInformatieobjectTypeInline(admin.TabularInline):
 
 @admin.register(InformatieObjectType)
 class InformatieObjectTypeAdmin(
-    GeldigheidAdminMixin, ConceptAdminMixin, admin.ModelAdmin
+    GeldigheidAdminMixin, PublishAdminMixin, admin.ModelAdmin
 ):
     list_display = ("catalogus", "omschrijving")
     list_filter = ("catalogus",)

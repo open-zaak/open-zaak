@@ -1,0 +1,12 @@
+{% extends "admin/submit_line.html" %}
+{% load i18n admin_urls %}
+
+{% block submit-row %}
+    {% if original.concept == True %}
+        <input type="submit" value="{% trans 'Publish' %}" name="_publish"/>
+
+        {% comment %} <a href="{% url 'admin:zaaktype-publish' original.id %}">{% trans 'Publish' %}</a> {% endcomment %}
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}

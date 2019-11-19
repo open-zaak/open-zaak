@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import BesluitType
-from .mixins import ConceptAdminMixin, GeldigheidAdminMixin
+from .mixins import GeldigheidAdminMixin, PublishAdminMixin
 
 
 @admin.register(BesluitType)
-class BesluitTypeAdmin(GeldigheidAdminMixin, ConceptAdminMixin, admin.ModelAdmin):
+class BesluitTypeAdmin(GeldigheidAdminMixin, PublishAdminMixin, admin.ModelAdmin):
     # List
     list_display = ("catalogus", "omschrijving", "besluitcategorie")
 
