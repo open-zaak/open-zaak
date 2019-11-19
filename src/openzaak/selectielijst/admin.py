@@ -4,6 +4,7 @@ Integrations of selectielijst API into Django admin.
 from typing import Optional
 
 from django import forms
+from django.contrib.admin import widgets
 from django.db.models import Field
 from django.http import HttpRequest
 
@@ -27,10 +28,14 @@ def get_procestype_field(
 
 
 def get_selectielijst_resultaat_choices(proces_type: Optional[str] = None):
-    choices = (
-        (resultaat["url"], f"{resultaat['volledigNummer']} - {resultaat['naam']}")
-        for resultaat in get_resultaten(proces_type)
-    )
+    choices = []
+    for resultaat in get_resultaten(proces_type):
+        description = f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+        if resultaat["bewaartermijn"]:
+            description = description + f" - {resultaat['bewaartermijn']}"
+        if resultaat["omschrijving"]:
+            description = description + f" - {resultaat['omschrijving']}"
+        choices.append((resultaat["url"], description))
     return choices
 
 
@@ -42,6 +47,7 @@ def get_selectielijstklasse_field(
         choices=get_selectielijst_resultaat_choices,
         required=not db_field.blank,
         help_text=db_field.help_text,
+        widget=widgets.AdminRadioSelect(attrs={"id": "selectielijst-scroll"}),
     )
 
 

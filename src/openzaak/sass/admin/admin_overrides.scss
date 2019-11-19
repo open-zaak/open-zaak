@@ -173,6 +173,11 @@ div.breadcrumbs {
   color: $color_dark !important;
   font-weight: bold !important;
 }
+/* Radiobutton widget for Selectielijstklasse*/
+#selectielijst-scroll {
+  max-height: 400px;
+  overflow-y: scroll;
+}
 
 /* Icons */
 .addlink {

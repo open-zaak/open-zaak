@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from relativedeltafield import RelativeDeltaField
+from zds_client import Client
 
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 from openzaak.selectielijst.admin import (
@@ -35,12 +36,24 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
         "uuid",
     )
 
+    def get_zaaktype_procestype(self, obj):
+        url = obj.zaaktype.selectielijst_procestype
+        client = Client("selectielijst")
+        procestype = client.retrieve("procestype", url)
+        return f"{procestype['nummer']} - {procestype['naam']}"
+
     # Details
     fieldsets = (
         (_("Algemeen"), {"fields": ("zaaktype", "omschrijving", "toelichting")}),
         (
             _("Gemeentelijke selectielijst"),
-            {"fields": ("resultaattypeomschrijving", "selectielijstklasse")},
+            {
+                "fields": (
+                    "get_zaaktype_procestype",
+                    "resultaattypeomschrijving",
+                    "selectielijstklasse",
+                )
+            },
         ),
         (
             _("Bepaling brondatum archiefprocedure"),
@@ -57,6 +70,9 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
         ),
     )
     raw_id_fields = ("zaaktype",)
+    readonly_fields = ("get_zaaktype_procestype",)
+
+    get_zaaktype_procestype.short_description = "zaaktype procestype"
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if isinstance(db_field, RelativeDeltaField):

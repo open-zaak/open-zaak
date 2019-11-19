@@ -152,6 +152,12 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   font-weight: bold !important;
 }
 
+/* Radiobutton widget for Selectielijstklasse*/
+#selectielijst-scroll {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
 /* Icons */
 .addlink {
   background: url("../../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
