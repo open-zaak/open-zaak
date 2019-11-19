@@ -67,7 +67,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertResponseTypes(
             response_data,
             (
-                ("identificatie", int),
+                ("identificatie", str),
                 ("omschrijving", str),
                 ("omschrijvingGeneriek", str),
                 ("catalogus", str),
@@ -76,7 +76,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         expected = {
             "url": f"http://testserver{zaaktype_detail_url}",
-            "identificatie": zaaktype.zaaktype_identificatie,
+            "identificatie": zaaktype.identificatie,
             "productenOfDiensten": ["https://example.com/product/123"],
             "publicatieIndicatie": zaaktype.publicatie_indicatie,
             "trefwoorden": [],
@@ -190,6 +190,47 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "http://example.com/zaaktype/1",
         )
         self.assertEqual(zaaktype.concept, True)
+
+    def test_create_zaaktype_generate_unique_identificatie(self):
+        zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
+
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.data["identificatie"], "ZAAKTYPE-2018-0000000002")
+
+        zaaktype2 = ZaakType.objects.get(zaaktype_omschrijving="some test")
+
+        self.assertNotEqual(zaaktype1.identificatie, zaaktype2.identificatie)
 
     def test_create_zaaktype_fail_besluittype_non_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False, catalogus=self.catalogus)
@@ -1051,7 +1092,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
     def test_overlap_specified_dates(self):
         ZaakTypeFactory.create(
             catalogus=self.catalogus,
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid=date(2019, 1, 1),
             datum_einde_geldigheid=date(2020, 1, 1),
             zaaktype_omschrijving="zaaktype",
@@ -1090,7 +1131,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
     def test_overlap_open_end_date(self):
         ZaakTypeFactory.create(
             catalogus=self.catalogus,
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid=date(2019, 1, 1),
             datum_einde_geldigheid=None,
             zaaktype_omschrijving="zaaktype",
@@ -1129,7 +1170,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
     def test_no_overlap(self):
         ZaakTypeFactory.create(
             catalogus=self.catalogus,
-            zaaktype_identificatie=1,
+            identificatie=1,
             datum_begin_geldigheid=date(2019, 1, 1),
             datum_einde_geldigheid=date(2020, 1, 1),
             zaaktype_omschrijving="zaaktype",
@@ -1207,8 +1248,8 @@ class ZaakTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{zaaktype2_url}")
 
     def test_filter_identificatie(self):
-        zaaktype1 = ZaakTypeFactory.create(concept=False, zaaktype_identificatie=123)
-        zaaktype2 = ZaakTypeFactory.create(concept=False, zaaktype_identificatie=456)
+        zaaktype1 = ZaakTypeFactory.create(concept=False, identificatie=123)
+        zaaktype2 = ZaakTypeFactory.create(concept=False, identificatie=456)
         zaaktype_list_url = get_operation_url("zaaktype_list")
         zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
 

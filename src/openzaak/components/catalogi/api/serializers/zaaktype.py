@@ -167,7 +167,6 @@ class ZaakTypeSerializer(
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
-            "identificatie": {"source": "zaaktype_identificatie"},
             "omschrijving": {"source": "zaaktype_omschrijving"},
             "omschrijving_generiek": {"source": "zaaktype_omschrijving_generiek"},
             "catalogus": {"lookup_field": "uuid"},
