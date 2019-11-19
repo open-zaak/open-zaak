@@ -66,7 +66,7 @@ paths:
         schema:
           type: string
           format: uri
-      - name: zaaktypes
+      - name: zaaktypen
         in: query
         description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
         required: false
@@ -929,7 +929,7 @@ paths:
       - besluittypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -2312,7 +2312,7 @@ paths:
       - eigenschappen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -3190,7 +3190,7 @@ paths:
       - informatieobjecttypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -4111,7 +4111,7 @@ paths:
       - resultaattypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -5005,7 +5005,7 @@ paths:
       - roltypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -5883,7 +5883,7 @@ paths:
       - statustypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -6781,7 +6781,7 @@ paths:
       - zaaktype-informatieobjecttypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -7669,7 +7669,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - (zaaktypes.schrijven | zaaktypes.geforceerd_verwijderen)
+        - (zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -7778,7 +7778,7 @@ components:
     BesluitType:
       required:
       - catalogus
-      - zaaktypes
+      - zaaktypen
       - publicatieIndicatie
       - informatieobjecttypen
       - beginGeldigheid
@@ -7798,7 +7798,7 @@ components:
           description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
           type: string
           format: uri
-        zaaktypes:
+        zaaktypen:
           description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
           type: array
           items:
