@@ -11,9 +11,9 @@ from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
 from ..api.scopes import (
-    SCOPE_ZAAKTYPES_FORCED_DELETE,
-    SCOPE_ZAAKTYPES_READ,
-    SCOPE_ZAAKTYPES_WRITE,
+    SCOPE_CATALOGI_FORCED_DELETE,
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
 )
 from ..api.validators import (
     ConceptUpdateValidator,
@@ -38,7 +38,7 @@ from .utils import get_operation_url
 class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
-    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):

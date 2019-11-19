@@ -249,7 +249,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -423,7 +423,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -584,7 +584,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -765,7 +765,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -946,7 +946,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -1101,7 +1101,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -1152,7 +1152,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -1383,7 +1383,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -1557,7 +1557,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -1718,7 +1718,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -1936,7 +1936,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -2110,7 +2110,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -2271,7 +2271,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -2452,7 +2452,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -2633,7 +2633,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -2788,7 +2788,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -3006,7 +3006,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -3180,7 +3180,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -3341,7 +3341,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -3522,7 +3522,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -3703,7 +3703,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -3858,7 +3858,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -3909,7 +3909,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -4127,7 +4127,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -4301,7 +4301,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -4462,7 +4462,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -4643,7 +4643,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -4824,7 +4824,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -4979,7 +4979,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -5214,7 +5214,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -5388,7 +5388,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -5549,7 +5549,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -5730,7 +5730,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -5911,7 +5911,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -6066,7 +6066,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -6283,7 +6283,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -6457,7 +6457,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -6618,7 +6618,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -6799,7 +6799,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -6980,7 +6980,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -7135,7 +7135,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -7373,7 +7373,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -7547,7 +7547,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -7708,7 +7708,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -7889,7 +7889,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -8070,7 +8070,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -8225,7 +8225,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -8457,7 +8457,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -8631,7 +8631,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -8792,7 +8792,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.lezen"
+                            "catalogi.lezen"
                         ]
                     }
                 ]
@@ -8973,7 +8973,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -9154,7 +9154,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]
@@ -9309,7 +9309,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaaktypes.schrijven | zaaktypes.geforceerd-verwijderen)"
+                            "(catalogi.schrijven | catalogi.geforceerd-verwijderen)"
                         ]
                     }
                 ]
@@ -9360,7 +9360,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaaktypes.schrijven"
+                            "catalogi.schrijven"
                         ]
                     }
                 ]

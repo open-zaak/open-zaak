@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase as _APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from ..api.scopes import SCOPE_ZAAKTYPES_FORCED_DELETE, SCOPE_ZAAKTYPES_WRITE
+from ..api.scopes import SCOPE_CATALOGI_FORCED_DELETE, SCOPE_CATALOGI_WRITE
 from ..models import (
     BesluitType,
     Eigenschap,
@@ -63,7 +63,7 @@ class ReadTests(AuthCheckMixin, _APITestCase):
 
 class PublishedTypesForcedDeletionTests(APITestCase):
     heeft_alle_autorisaties = False
-    scopes = [SCOPE_ZAAKTYPES_FORCED_DELETE]
+    scopes = [SCOPE_CATALOGI_FORCED_DELETE]
     component = ComponentTypes.ztc
 
     def test_force_delete_besluittype_not_concept(self):

@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
-from ..scopes import SCOPE_ZAAKTYPES_FORCED_DELETE
+from ..scopes import SCOPE_CATALOGI_FORCED_DELETE
 
 
 class ConceptPublishMixin:
@@ -33,7 +33,7 @@ class ConceptDestroyMixin:
 
     def perform_destroy(self, instance):
         forced_delete = self.request.jwt_auth.has_auth(
-            scopes=SCOPE_ZAAKTYPES_FORCED_DELETE,
+            scopes=SCOPE_CATALOGI_FORCED_DELETE,
             init_component=self.queryset.model._meta.app_label,
         )
 
@@ -99,7 +99,7 @@ class ZaakTypeConceptMixin(ZaakTypeConceptDestroyMixin, ZaakTypeConceptFilterMix
 class M2MConceptDestroyMixin:
     def perform_destroy(self, instance):
         forced_delete = self.request.jwt_auth.has_auth(
-            scopes=SCOPE_ZAAKTYPES_FORCED_DELETE,
+            scopes=SCOPE_CATALOGI_FORCED_DELETE,
             init_component=self.queryset.model._meta.app_label,
         )
 
