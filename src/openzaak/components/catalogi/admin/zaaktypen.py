@@ -1,7 +1,15 @@
-from django.contrib import admin
+from datetime import date
+import uuid
+from urllib.parse import quote as urlquote
+
+from django.contrib import admin, messages
 from django.db.models import Field
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
+from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.http import HttpResponseRedirect
+from django.utils.html import format_html
 
 from openzaak.selectielijst.admin import get_procestype_field
 from openzaak.utils.admin import (
@@ -121,7 +129,6 @@ class ZaakTypeAdmin(
                     "vertrouwelijkheidaanduiding",
                     "producten_of_diensten",
                     "verantwoordingsrelatie",
-                    "versiedatum",  # ??
                 )
             },
         ),
@@ -132,8 +139,10 @@ class ZaakTypeAdmin(
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
         (_("Relaties"), {"fields": ("catalogus",)}),
+        (_("Geldigheid"), {"fields": ("versiedatum", "datum_begin_geldigheid", "datum_einde_geldigheid")}),
     )
     raw_id_fields = ("catalogus",)
+    readonly_fields = ("versiedatum", )
     inlines = (
         ZaakTypenRelatieInline,
         StatusTypeInline,
@@ -163,3 +172,8 @@ class ZaakTypeAdmin(
         if db_field.name == "selectielijst_procestype":
             return get_procestype_field(db_field, request, **kwargs)
         return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        obj.versiedatum = obj.datum_begin_geldigheid
+
+        super().save_model(request, obj, form, change)
