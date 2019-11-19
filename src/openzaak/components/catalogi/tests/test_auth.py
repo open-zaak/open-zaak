@@ -79,9 +79,9 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         zaaktype = ZaakTypeFactory.create(concept=False)
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(besluittype)
 
@@ -199,7 +199,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         zaaktype_url = reverse(zaaktype)
 
         besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, zaaktypes=[zaaktype], concept=False
+            catalogus=catalogus, zaaktypen=[zaaktype], concept=False
         )
 
         response = self.client.delete(zaaktype_url)
@@ -214,7 +214,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         zaaktype_url = reverse(zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus, concept=False, zaaktypes=[]
+            catalogus=catalogus, concept=False, zaaktypen=[]
         )
         ZaakInformatieobjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype

@@ -31,7 +31,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
-        besluittype.zaaktypes.add(zaak.zaaktype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
@@ -278,7 +278,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
                 json={
                     "url": besluittype,
                     "catalogus": catalogus,
-                    "zaaktypes": [],
+                    "zaaktypen": [],
                     "informatieobjecttypen": [],
                     "beginGeldigheid": "2018-01-01",
                     "eindeGeldigheid": None,

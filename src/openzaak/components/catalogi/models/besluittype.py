@@ -112,9 +112,9 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         ),
     )
 
-    zaaktypes = models.ManyToManyField(
+    zaaktypen = models.ManyToManyField(
         "catalogi.ZaakType",
-        verbose_name=_("zaaktypes"),
+        verbose_name=_("zaaktypen"),
         related_name="besluittypen",
         help_text=_(
             "ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE"

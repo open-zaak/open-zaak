@@ -583,7 +583,7 @@ class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
         self.ziot = ZaakInformatieobjectTypeFactory.create(
             zaaktype__catalogus=self.catalogus,
             informatieobjecttype__catalogus=self.catalogus,
-            informatieobjecttype__zaaktypes=None,
+            informatieobjecttype__zaaktypen=None,
             volgnummer=1,
         )
 

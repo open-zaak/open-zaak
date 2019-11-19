@@ -61,7 +61,7 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("informatieobjecttypen", "zaaktypes")
+        .prefetch_related("informatieobjecttypen", "zaaktypen")
         .order_by("-pk")
     )
     serializer_class = BesluitTypeSerializer
@@ -79,4 +79,4 @@ class BesluitTypeViewSet(
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
     notifications_kanaal = KANAAL_BESLUITTYPEN
-    concept_related_fields = ["informatieobjecttypen", "zaaktypes"]
+    concept_related_fields = ["informatieobjecttypen", "zaaktypen"]

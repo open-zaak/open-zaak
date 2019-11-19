@@ -157,7 +157,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
-        besluittype.zaaktypes.add(zaak.zaaktype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
         list_url = reverse("besluit-list")
 
         response = self.client.post(

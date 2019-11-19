@@ -78,4 +78,4 @@ class InformatieObjectTypeViewSet(
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
-    concept_related_fields = ["besluittypen", "zaaktypes"]
+    concept_related_fields = ["besluittypen", "zaaktypen"]
