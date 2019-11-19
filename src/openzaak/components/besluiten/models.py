@@ -13,6 +13,8 @@ from vng_api_common.validators import (
     alphanumeric_excluding_diacritic,
 )
 
+from openzaak.utils.mixins import AuditTrailMixin
+
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
 
@@ -21,7 +23,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["Besluit", "BesluitInformatieObject"]
 
 
-class Besluit(APIMixin, models.Model):
+class Besluit(AuditTrailMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )

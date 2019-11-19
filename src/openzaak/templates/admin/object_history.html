@@ -1,0 +1,110 @@
+{% extends "admin/object_history.html" %}
+{% load i18n admin_urls %}
+{% load static %}
+
+{% block content %}
+{% if object.audittrail %}
+<div id="content-main-audittrail">
+<div class="module">
+    <table id="change-history">
+        <thead>
+        <tr>
+            <th scope="col">{% trans 'Aanmaakdatum' %}</th>
+            <th scope="col">{% trans 'UUID' %}</th>
+            <th scope="col">{% trans 'Actie' %}</th>
+            <th scope="col">{% trans 'Resultaat' %}</th>
+            <th scope="col">{% trans 'Gebruiker' %}</th>
+            <th scope="col">{% trans 'Applicatie' %}</th>
+            <th scope="col">{% trans 'Object' %}</th>
+            <th scope="col">{% trans 'Toelichting' %}</th>
+            <th scope="col">{% trans 'Wijzigingen' %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for audit, changes in object.audittrail %}
+            <tr>
+                <th scope="row">{{ audit.aanmaakdatum }}</th>
+                <td>{{ audit.uuid }}</td>
+                <td>{{ audit.actie_weergave }}</td>
+                <td>{{ audit.resultaat }}</td>
+                <td>{{ audit.gebruikers_weergave }}</td>
+                <td>{{ audit.applicatie_weergave }}</td>
+                <td>{{ audit.resource_url }}</td>
+                <td>{{ audit.toelichting }}</td>
+                <td><button class="btn btn-primary" data-toggle="modal" data-target="#myModal-{{forloop.counter}}">{% trans 'Toon wijzigingen' %}</button></td>
+            </tr>
+
+            <div class="modal hide fade" tabindex="-1" id="myModal-{{forloop.counter}}" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Gewijzigde velden</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container bordered">
+                                <div class="row">
+                                    <div class="col">
+                                        <h4>{% trans 'Veld' %}</h4>
+                                    </div>
+                                    <div class="col">
+                                        <h4>{% trans 'Oud' %}</h4>
+                                    </div>
+                                    <div class="col">
+                                        <h4>{% trans 'Nieuw' %}</h4>
+                                    </div>
+                                </div>
+                                {% for change in changes %}
+                                    {% if change.0 == 'add' %}
+                                        {% for field, diff in change.1.items %}
+                                            <div class="row">
+                                                <div class="col"><code>{{ field }}</code></div>
+                                                <div class="col"></div>
+                                                <div class="col"><p>{{ diff }}</p></div>
+                                            </div>
+                                            <hr/>
+                                        {% endfor %}
+                                    {% elif change.0 == 'change' %}
+                                        {% for field, diff in change.1.items %}
+                                            <div class="row">
+                                                <div class="col"><code>{{ field }}</code></div>
+                                                <div class="col">{{ diff.0 }}</div>
+                                                <div class="col lg-2">{{ diff.1 }}</div>
+                                            </div>
+                                            <hr/>
+                                        {% endfor %}
+                                    {% elif change.0 == 'remove' %}
+                                        {% for field, diff in change.1.items %}
+                                            <div class="row">
+                                                <div class="col"><code>{{ field }}</code></div>
+                                                <div class="col">{{ diff }}</div>
+                                                <div class="col lg-2"></div>
+                                            </div>
+                                            <hr/>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endif %}
+
+{% if object.audittrail and action_list %}
+    <h1>{% trans "Changes made via the admin." %}
+{% endif %}
+{{ block.super }}
+
+<link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
+<script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
+<script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
+
+{% endblock %}

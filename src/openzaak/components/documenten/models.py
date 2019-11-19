@@ -13,6 +13,8 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.utils.mixins import AuditTrailMixin
+
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from .query import (
     InformatieobjectQuerySet,
@@ -215,7 +217,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         return versies.first()
 
 
-class EnkelvoudigInformatieObject(APIMixin, InformatieObject):
+class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     """
     Stores the content of a specific version of an
     EnkelvoudigInformatieObjectCanonical

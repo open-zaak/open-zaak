@@ -30,6 +30,8 @@ from vng_api_common.models import APICredential, APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.utils.mixins import AuditTrailMixin
+
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 from ..loaders import EIOLoader
 from ..query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
@@ -50,7 +52,7 @@ __all__ = [
 ]
 
 
-class Zaak(APIMixin, models.Model):
+class Zaak(AuditTrailMixin, APIMixin, models.Model):
     """
     Modelleer de structuur van een ZAAK.
 
