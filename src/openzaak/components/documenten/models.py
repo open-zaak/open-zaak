@@ -322,6 +322,13 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         indexes = [models.Index(fields=["canonical", "-versie"])]
         ordering = ["canonical", "-versie"]
 
+    @property
+    def locked(self) -> bool:
+        if self.pk:
+            return bool(self.canonical.lock)
+
+        raise NotImplementedError
+
 
 class Gebruiksrechten(models.Model):
     uuid = models.UUIDField(

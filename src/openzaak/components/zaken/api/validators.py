@@ -276,6 +276,13 @@ class EndStatusIOsUnlockedValidator:
         if not zaak:
             return
 
-        # TODO: check remote documents!
-        if zaak.zaakinformatieobject_set.exclude(_informatieobject__lock="").exists():
+        local_zios = zaak.zaakinformatieobject_set.filter(
+            _informatieobject__isnull=False,
+        )
+        if local_zios.exclude(_informatieobject__lock="").exists():
             raise serializers.ValidationError(self.message, code=self.code)
+
+        remote_zios = zaak.zaakinformatieobject_set.exclude(_informatieobject_url="")
+        for zio in remote_zios:
+            if zio.informatieobject.locked:
+                raise serializers.ValidationError(self.message, code=self.code)
