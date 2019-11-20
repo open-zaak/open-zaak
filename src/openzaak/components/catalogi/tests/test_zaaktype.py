@@ -942,7 +942,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["aanleiding"], "aangepast")
         zaaktype.delete()
 
@@ -1000,6 +1000,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2018-03-01",
+            versiedatum="2018-03-01",
             datum_einde_geldigheid="2019-01-01",
         )
         zaaktype_url = reverse(zaaktype)
@@ -1007,6 +1008,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_for_besluittype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2015-01-01",
+            versiedatum="2018-03-01",
             datum_einde_geldigheid="2016-01-01",
         )
         besluittype = BesluitTypeFactory.create(
@@ -1196,7 +1198,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
             "referentieproces": {"naam": "ref", "link": "https://example.com"},
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],
-            "versiedatum": "2019-02-01",
+            "versiedatum": "2020-02-01",
         }
 
         response = self.client.post(self.url, data)
@@ -1444,3 +1446,37 @@ class ZaaktypeValidationTests(APITestCase):
 
         error = get_validation_errors(response, "selectielijstProcestype")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_zaaktype_fail_versiedatum(self):
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-02",
+        }
+
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], 'versiedatum-mismatch')
