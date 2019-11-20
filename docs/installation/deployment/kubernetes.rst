@@ -18,7 +18,10 @@ This documentation will sketch out the architecture, document the initial
 requirements and teach you how to deploy on K8s.
 
 This setup is tested against a Google Cloud Kubernetes cluster with 4vCPU and
-15G of memory.
+15G of memory - two ``n2-standard-2`` nodes. See the documentation for the
+available `machine types`_.
+
+.. _machine types: https://cloud.google.com/compute/docs/machine-types#n2_standard_machine_types
 
 Assumed/required knowledge level of Kubernetes
 ==============================================
@@ -329,7 +332,7 @@ override.
 Configuring Open Notificaties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To deploy Open Zaak, some variables need to be set (in ``vars/opennotificaties.yml``):
+To deploy Open Notificaties, some variables need to be set (in ``vars/opennotificaties.yml``):
 
 * ``opennotificaties``: the domain name, e.g. ``notificaties.gemeente.nl``
 * ``opennotificaties_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
@@ -338,8 +341,8 @@ To deploy Open Zaak, some variables need to be set (in ``vars/opennotificaties.y
 See ``roles/opennotificaties/defaults/main.yml`` for other possible variables to
 override.
 
-Deplying the applications
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Deploying the applications
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the ``apps.yml`` playbook using:
 
