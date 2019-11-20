@@ -6,6 +6,7 @@ from openzaak.utils.permissions import AuthRequired
 
 from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
+from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
     SCOPE_ZAAKTYPES_FORCED_DELETE,
     SCOPE_ZAAKTYPES_READ,
@@ -76,4 +77,5 @@ class InformatieObjectTypeViewSet(
         "destroy": SCOPE_ZAAKTYPES_WRITE | SCOPE_ZAAKTYPES_FORCED_DELETE,
         "publish": SCOPE_ZAAKTYPES_WRITE,
     }
+    notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypes"]
