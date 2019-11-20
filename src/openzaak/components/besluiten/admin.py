@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from openzaak.utils.admin import AuditTrailAdminMixin
+
 from .models import Besluit, BesluitInformatieObject
 
 
@@ -10,7 +12,7 @@ class BesluitInformatieObjectInline(admin.TabularInline):
 
 
 @admin.register(Besluit)
-class BesluitAdmin(admin.ModelAdmin):
+class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ("verantwoordelijke_organisatie", "identificatie", "datum")
     list_filter = ("datum", "ingangsdatum")
     date_hierarchy = "datum"
@@ -21,3 +23,12 @@ class BesluitAdmin(admin.ModelAdmin):
         "zaak",
     )
     inlines = (BesluitInformatieObjectInline,)
+    viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
+
+
+@admin.register(BesluitInformatieObject)
+class BesluitInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
+    list_display = ("besluit", "informatieobject")
+    viewset = (
+        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    )

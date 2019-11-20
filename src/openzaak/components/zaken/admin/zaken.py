@@ -1,5 +1,8 @@
 from django.contrib import admin
 
+from openzaak.components.zaken.api import viewsets
+from openzaak.utils.admin import AuditTrailAdminMixin
+
 from ..models import (
     KlantContact,
     RelevanteZaakRelatie,
@@ -48,7 +51,7 @@ class RelevanteZaakRelatieInline(admin.TabularInline):
 
 
 @admin.register(Zaak)
-class ZaakAdmin(admin.ModelAdmin):
+class ZaakAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["identificatie"]
     inlines = [
         StatusInline,
@@ -61,45 +64,60 @@ class ZaakAdmin(admin.ModelAdmin):
         RelevanteZaakRelatieInline,
     ]
     raw_id_fields = ["zaaktype", "hoofdzaak"]
+    viewset = viewsets.ZaakViewSet
 
 
 @admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+class StatusAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "datum_status_gezet"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.StatusViewSet
 
 
 @admin.register(ZaakObject)
-class ZaakObjectAdmin(admin.ModelAdmin):
+class ZaakObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "object", "relatieomschrijving"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ZaakObjectViewSet
 
 
 @admin.register(KlantContact)
-class KlantContactAdmin(admin.ModelAdmin):
+class KlantContactAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "identificatie", "datumtijd", "kanaal"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.KlantContactViewSet
 
 
 @admin.register(ZaakEigenschap)
-class ZaakEigenschapAdmin(admin.ModelAdmin):
+class ZaakEigenschapAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "eigenschap", "waarde"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ZaakEigenschapViewSet
 
 
 @admin.register(ZaakInformatieObject)
-class ZaakInformatieObjectAdmin(admin.ModelAdmin):
+class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "_informatieobject", "_informatieobject_url"]
     list_select_related = ["zaak", "_informatieobject"]
     raw_id_fields = ["zaak", "_informatieobject"]
+    viewset = viewsets.ZaakInformatieObjectViewSet
 
 
 @admin.register(Resultaat)
-class ResultaatAdmin(admin.ModelAdmin):
+class ResultaatAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["zaak", "toelichting"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
+    viewset = viewsets.ResultaatViewSet
+
+
+@admin.register(Rol)
+class RolAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "betrokkene", "betrokkene_type"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
+    viewset = viewsets.RolViewSet

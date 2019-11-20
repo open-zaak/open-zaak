@@ -1,10 +1,16 @@
 from typing import Tuple
 from urllib.parse import urlencode
 
+from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+
+from rest_framework.settings import api_settings
+from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.constants import CommonResourceAction
 
 
 def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
@@ -118,3 +124,108 @@ class DynamicArrayMixin:
     class Media:
         js = ("js/min/django_better_admin_arrayfield.min.js",)
         css = {"all": ("css/min/django_better_admin_arrayfield.min.css",)}
+
+
+class AuditTrailAdminMixin(object):
+    viewset = None
+
+    def get_viewset(self, request):
+        if not self.viewset:
+            raise NotImplementedError(
+                "'viewset' property should be included to the Admin class"
+            )
+        viewset = self.viewset
+
+        if isinstance(viewset, str):
+            # import module for viewsets with FkOrURLField fields used as filters
+            viewset = import_string(viewset)
+
+        return viewset(request=request, format_kwarg=None)
+
+    def add_version_to_request(self, request, uuid):
+        # add versioning to request
+        viewset = self.get_viewset(request)
+        version, scheme = viewset.determine_version(
+            request, version=api_settings.DEFAULT_VERSION, uuid=uuid
+        )
+        request.version, request.versioning_scheme = version, scheme
+
+    def trail(self, obj, request, action, data_before, data_after):
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+
+        viewset = self.get_viewset(request)
+        data = data_after or data_before
+        if basename == viewset.audit.main_resource:
+            main_object = data["url"]
+        elif hasattr(viewset, "audittrail_main_resource_key"):
+            main_object = data[viewset.audittrail_main_resource_key]
+        else:
+            main_object = data[viewset.audit.main_resource]
+
+        trail = AuditTrail(
+            bron=viewset.audit.component_name,
+            applicatie_weergave="admin",
+            actie=action,
+            actie_weergave=CommonResourceAction.labels.get(action, ""),
+            gebruikers_id=request.user.id,
+            gebruikers_weergave=request.user.get_full_name(),
+            resultaat=0,
+            hoofd_object=main_object,
+            resource=basename,
+            resource_url=data["url"],
+            resource_weergave=obj.unique_representation(),
+            oud=data_before,
+            nieuw=data_after,
+        )
+        trail.save()
+
+    def save_model(self, request, obj, form, change):
+        model = obj.__class__
+        viewset = self.get_viewset(request)
+        self.add_version_to_request(request, obj.uuid)
+
+        action = CommonResourceAction.update if change else CommonResourceAction.create
+
+        # data before
+        data_before = None
+        if change:
+            obj_before = model.objects.filter(pk=obj.pk).get()
+            serializer_before = viewset.get_serializer(obj_before)
+            data_before = serializer_before.data
+
+        super().save_model(request, obj, form, change)
+
+        # data after
+        serializer = viewset.get_serializer(obj)
+        data = serializer.data
+
+        self.trail(obj, request, action, data_before, data)
+
+    def delete_model(self, request, obj):
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+
+        viewset = self.get_viewset(request)
+        self.add_version_to_request(request, obj.uuid)
+
+        action = CommonResourceAction.destroy
+
+        # data before
+        serializer = viewset.get_serializer(obj)
+        data = serializer.data
+
+        if basename == viewset.audit.main_resource:
+            with transaction.atomic():
+                super().delete_model(request, obj)
+                AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
+                return
+
+        super().delete_model(request, obj)
+
+        self.trail(obj, request, action, data, None)
+
+    def delete_queryset(self, request, queryset):
+        # data before
+        for obj in queryset:
+            self.delete_model(request, obj)
