@@ -41,7 +41,6 @@ from openzaak.components.catalogi.models import (
     ZaakType,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -75,6 +74,7 @@ from ..validators import (
     NotSelfValidator,
     RolOccurenceValidator,
     UniekeIdentificatieValidator,
+    ZaakArchiveIOsArchivedValidator,
     ZaaktypeInformatieobjecttypeRelationValidator,
 )
 from .betrokkenen import (
@@ -296,7 +296,10 @@ class ZaakSerializer(
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
         }
         # Replace a default "unique together" constraint.
-        validators = [UniekeIdentificatieValidator()]
+        validators = [
+            UniekeIdentificatieValidator(),
+            ZaakArchiveIOsArchivedValidator(),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -348,63 +351,6 @@ class ZaakSerializer(
                     },
                     code="invalid-products-services",
                 )
-
-        # Archiving
-        default_archiefstatus = (
-            self.instance.archiefstatus
-            if self.instance
-            else Archiefstatus.nog_te_archiveren
-        )
-        archiefstatus = (
-            attrs.get("archiefstatus", default_archiefstatus)
-            != Archiefstatus.nog_te_archiveren
-        )
-        if archiefstatus:
-            # TODO: check remote ZIO.informatieobject
-            # search for related informatieobjects with status != 'gearchiveerd'
-            canonical_ids = self.instance.zaakinformatieobject_set.values(
-                "_informatieobject_id"
-            )
-            io_ids = (
-                EnkelvoudigInformatieObjectCanonical.objects.filter(
-                    id__in=Subquery(canonical_ids)
-                )
-                .annotate(last=Max("enkelvoudiginformatieobject"))
-                .values("last")
-            )
-
-            if (
-                EnkelvoudigInformatieObject.objects.filter(id__in=Subquery(io_ids))
-                .exclude(status=Statussen.gearchiveerd)
-                .exists()
-            ):
-
-                raise serializers.ValidationError(
-                    {
-                        "archiefstatus",
-                        _(
-                            "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
-                            "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` "
-                            "op een andere waarde dan `nog_te_archiveren`."
-                        ),
-                    },
-                    code="documents-not-archived",
-                )
-
-            for attr in ["archiefnominatie", "archiefactiedatum"]:
-                if not attrs.get(
-                    attr, getattr(self.instance, attr) if self.instance else None
-                ):
-                    raise serializers.ValidationError(
-                        {
-                            attr: _(
-                                "Moet van een waarde voorzien zijn als de 'Archiefstatus' een waarde heeft anders dan "
-                                "'nog_te_archiveren'."
-                            )
-                        },
-                        code=f"{attr}-not-set",
-                    )
-        # End archiving
 
         return attrs
 
