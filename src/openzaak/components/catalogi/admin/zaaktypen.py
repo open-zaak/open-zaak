@@ -151,6 +151,7 @@ class ZaakTypeAdmin(
         ResultaatTypeInline,
     )
     change_form_template = 'admin/catalogi/change_form_zaaktype.html'
+    exclude_copy_relation = ("zaak", )
 
     def _publish_validation_errors(self, obj):
         errors = []
@@ -182,9 +183,6 @@ class ZaakTypeAdmin(
     def create_new_version(self, obj):
         old_pk = obj.pk
 
-        # TODO add validation for end date
-        # FIXME need obj.save() ????
-
         # new obj
         version_date = date.today()
 
@@ -194,6 +192,30 @@ class ZaakTypeAdmin(
         obj.versiedatum = version_date
         obj.datum_einde_geldigheid = None
         obj.save()
+
+        related_objects = [
+            f for f in obj._meta.get_fields(include_hidden=True)
+            if (f.auto_created and not f.concrete)
+        ]
+
+        # related objects
+        for relation in related_objects:
+            if relation.name in self.exclude_copy_relation:
+                continue
+
+            # m2m relation included in the loop below as one_to_many
+            if relation.one_to_many or relation.one_to_one:
+                remote_model = relation.related_model
+                remote_field = relation.field.name
+
+                related_queryset = remote_model.objects.filter(**{remote_field: old_pk})
+                for related_obj in related_queryset:
+                    related_obj.pk = None
+                    setattr(related_obj, remote_field, obj)
+
+                    if hasattr(related_obj, 'uuid'):
+                        related_obj.uuid = uuid.uuid4()
+                    related_obj.save()
 
     def response_change(self, request, obj):
         opts = self.model._meta
