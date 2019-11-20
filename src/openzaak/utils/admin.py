@@ -1,6 +1,7 @@
 from typing import Tuple
 from urllib.parse import urlencode
 
+from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
 from django.utils.module_loading import import_string
@@ -202,6 +203,9 @@ class AuditTrailAdminMixin(object):
         self.trail(obj, request, action, data_before, data)
 
     def delete_model(self, request, obj):
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+
         viewset = self.get_viewset(request)
         self.add_version_to_request(request, obj.uuid)
 
@@ -210,6 +214,12 @@ class AuditTrailAdminMixin(object):
         # data before
         serializer = viewset.get_serializer(obj)
         data = serializer.data
+
+        if basename == viewset.audit.main_resource:
+            with transaction.atomic():
+                super().delete_model(request, obj)
+                AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
+                return
 
         super().delete_model(request, obj)
 

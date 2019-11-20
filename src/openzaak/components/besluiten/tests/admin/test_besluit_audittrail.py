@@ -23,7 +23,7 @@ inline_data = {
 class BesluitAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 
-    def test_create_besluit(self):
+    def _create_besluit(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         add_url = reverse("admin:besluiten_besluit_add")
         data = {
@@ -40,7 +40,10 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(Besluit.objects.count(), 1)
 
-        besluit = Besluit.objects.get()
+        return Besluit.objects.get()
+
+    def test_create_besluit(self):
+        besluit = self._create_besluit()
         besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
 
         self.assertEqual(AuditTrail.objects.count(), 1)
@@ -99,8 +102,10 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(new_data["toelichting"], "new")
 
     def test_delete_besluit_action(self):
-        besluit = BesluitFactory.create(toelichting="desc")
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
+        besluit = self._create_besluit()
+
+        self.assertEqual(AuditTrail.objects.count(), 1)
+
         change_list_url = reverse("admin:besluiten_besluit_changelist")
         data = {
             "action": "delete_selected",
@@ -111,49 +116,17 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.client.post(change_list_url, data)
 
         self.assertEqual(Besluit.objects.count(), 0)
-
-        audittrail = AuditTrail.objects.get()
-
-        self.assertEqual(audittrail.bron, "BRC")
-        self.assertEqual(audittrail.actie, "destroy")
-        self.assertEqual(audittrail.resultaat, 0)
-        self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource, "besluit"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation()),
-        self.assertEqual(audittrail.nieuw, None)
-
-        old_data = audittrail.oud
-
-        self.assertEqual(old_data["toelichting"], "desc")
+        self.assertEqual(AuditTrail.objects.count(), 0)
 
     def test_delete_besluit(self):
-        besluit = BesluitFactory.create(toelichting="desc")
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
+        besluit = self._create_besluit()
+
+        self.assertEqual(AuditTrail.objects.count(), 1)
+
         delete_url = reverse("admin:besluiten_besluit_delete", args=(besluit.pk,))
         data = {"post": "yes"}
 
         self.client.post(delete_url, data)
 
         self.assertEqual(Besluit.objects.count(), 0)
-
-        audittrail = AuditTrail.objects.get()
-
-        self.assertEqual(audittrail.bron, "BRC")
-        self.assertEqual(audittrail.actie, "destroy")
-        self.assertEqual(audittrail.resultaat, 0)
-        self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource, "besluit"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation()),
-        self.assertEqual(audittrail.nieuw, None)
-
-        old_data = audittrail.oud
-
-        self.assertEqual(old_data["toelichting"], "desc")
+        self.assertEqual(AuditTrail.objects.count(), 0)
