@@ -150,6 +150,7 @@ class ZaakTypeAdmin(
         EigenschapInline,
         ResultaatTypeInline,
     )
+    change_form_template = 'admin/catalogi/change_form_zaaktype.html'
 
     def _publish_validation_errors(self, obj):
         errors = []
@@ -202,7 +203,7 @@ class ZaakTypeAdmin(
             'obj': format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
         }
 
-        if "_addVersion" in request.POST:
+        if "_addversion" in request.POST:
             self.create_new_version(obj)
 
             msg = format_html(
