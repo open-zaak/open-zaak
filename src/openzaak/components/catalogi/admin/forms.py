@@ -64,17 +64,18 @@ class ZaakTypeForm(forms.ModelForm):
                 default_value = default_value()
             self.cleaned_data[name] = default_value
 
-        if '_addversion' in self.data:
+        if "_addversion" in self.data:
             self._clean_datum_einde_geldigheid()
 
     def _clean_datum_einde_geldigheid(self):
         datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")
 
         if not datum_einde_geldigheid:
-            msg = _("datum_einde_geldigheid is required if the new version is being created")
+            msg = _(
+                "datum_einde_geldigheid is required if the new version is being created"
+            )
             self.add_error(
-                "datum_einde_geldigheid",
-                forms.ValidationError(msg, code="invalid"),
+                "datum_einde_geldigheid", forms.ValidationError(msg, code="invalid"),
             )
 
 

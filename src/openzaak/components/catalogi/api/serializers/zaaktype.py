@@ -19,11 +19,11 @@ from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
 from ..validators import (
     ConceptUpdateValidator,
+    GeldigheidVersiedatumValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
     ZaaktypeGeldigheidValidator,
-    GeldigheidVersiedatumValidator,
 )
 
 

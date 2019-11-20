@@ -472,9 +472,9 @@ class GeldigheidVersiedatumValidator:
 
         if datum_begin_geldigheid != versiedatum:
             msg = _(
-                    "De datum_begin_geldigheid moet gelijk zijn aan een "
-                    "Versiedatum van het gerelateerde zaaktype."
-                )
+                "De datum_begin_geldigheid moet gelijk zijn aan een "
+                "Versiedatum van het gerelateerde zaaktype."
+            )
             raise ValidationError(msg, code=self.code)
 
         # current_einde_geldigheid = (

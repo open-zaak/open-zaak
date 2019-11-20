@@ -1,15 +1,14 @@
-from datetime import date
 import uuid
+from datetime import date
 from urllib.parse import quote as urlquote
 
 from django.contrib import admin, messages
-from django.db.models import Field
-from django.http import HttpRequest
-from django.utils.translation import ugettext_lazy as _
-from django.urls import reverse
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
-from django.http import HttpResponseRedirect
+from django.db.models import Field
+from django.http import HttpRequest, HttpResponseRedirect
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from openzaak.selectielijst.admin import get_procestype_field
 from openzaak.utils.admin import (
@@ -29,7 +28,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import PublishAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -67,11 +66,7 @@ class ZaakTypenRelatieInline(admin.TabularInline):
 
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
-    ListObjectActionsAdminMixin,
-    GeldigheidAdminMixin,
-    PublishAdminMixin,
-    DynamicArrayMixin,
-    admin.ModelAdmin,
+    ListObjectActionsAdminMixin, PublishAdminMixin, DynamicArrayMixin, admin.ModelAdmin,
 ):
     model = ZaakType
     form = ZaakTypeForm
@@ -139,10 +134,19 @@ class ZaakTypeAdmin(
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
         (_("Relaties"), {"fields": ("catalogus",)}),
-        (_("Geldigheid"), {"fields": ("versiedatum", "datum_begin_geldigheid", "datum_einde_geldigheid")}),
+        (
+            _("Geldigheid"),
+            {
+                "fields": (
+                    "versiedatum",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
+                )
+            },
+        ),
     )
     raw_id_fields = ("catalogus",)
-    readonly_fields = ("versiedatum", )
+    readonly_fields = ("versiedatum",)
     inlines = (
         ZaakTypenRelatieInline,
         StatusTypeInline,
@@ -150,8 +154,8 @@ class ZaakTypeAdmin(
         EigenschapInline,
         ResultaatTypeInline,
     )
-    change_form_template = 'admin/catalogi/change_form_zaaktype.html'
-    exclude_copy_relation = ("zaak", )
+    change_form_template = "admin/catalogi/change_form_zaaktype.html"
+    exclude_copy_relation = ("zaak",)
 
     def _publish_validation_errors(self, obj):
         errors = []
@@ -194,7 +198,8 @@ class ZaakTypeAdmin(
         obj.save()
 
         related_objects = [
-            f for f in obj._meta.get_fields(include_hidden=True)
+            f
+            for f in obj._meta.get_fields(include_hidden=True)
             if (f.auto_created and not f.concrete)
         ]
 
@@ -213,7 +218,7 @@ class ZaakTypeAdmin(
                     related_obj.pk = None
                     setattr(related_obj, remote_field, obj)
 
-                    if hasattr(related_obj, 'uuid'):
+                    if hasattr(related_obj, "uuid"):
                         related_obj.uuid = uuid.uuid4()
                     related_obj.save()
 
@@ -221,8 +226,8 @@ class ZaakTypeAdmin(
         opts = self.model._meta
         preserved_filters = self.get_preserved_filters(request)
         msg_dict = {
-            'name': opts.verbose_name,
-            'obj': format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
+            "name": opts.verbose_name,
+            "obj": format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
         }
 
         if "_addversion" in request.POST:
@@ -234,11 +239,14 @@ class ZaakTypeAdmin(
             )
             self.message_user(request, msg, messages.SUCCESS)
 
-            redirect_url = reverse('admin:%s_%s_change' %
-                                   (opts.app_label, opts.model_name),
-                                   args=(obj.pk,),
-                                   current_app=self.admin_site.name)
-            redirect_url = add_preserved_filters({'preserved_filters': preserved_filters, 'opts': opts}, redirect_url)
+            redirect_url = reverse(
+                "admin:%s_%s_change" % (opts.app_label, opts.model_name),
+                args=(obj.pk,),
+                current_app=self.admin_site.name,
+            )
+            redirect_url = add_preserved_filters(
+                {"preserved_filters": preserved_filters, "opts": opts}, redirect_url
+            )
             return HttpResponseRedirect(redirect_url)
 
         return super().response_change(request, obj)

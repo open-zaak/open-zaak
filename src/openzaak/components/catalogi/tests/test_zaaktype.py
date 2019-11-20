@@ -1479,4 +1479,4 @@ class ZaaktypeValidationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], 'versiedatum-mismatch')
+        self.assertEqual(error["code"], "versiedatum-mismatch")
