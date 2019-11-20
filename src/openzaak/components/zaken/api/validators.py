@@ -224,8 +224,17 @@ class ZaakArchiveIOsArchivedValidator:
     def validate_remote_eios_archived(
         self, attrs: dict, error: serializers.ValidationError
     ):
-        pass
-        # import bpdb; bpdb.set_trace()
+        remote_zios = self.instance.zaakinformatieobject_set.exclude(
+            _informatieobject_url=""
+        )
+        # This is a very naive approach to load all the remote objects - it happens
+        # sequentially, while futures.concurrent _could_ be used. Let's see first
+        # how performance is in this setup. Because we're looping and exiting as
+        # soon as an error condition is found, we can reduce unnecessary network
+        # calls.
+        for zio in remote_zios:
+            if zio.informatieobject.status != Statussen.gearchiveerd:
+                raise error
 
     def validate_extra_attributes(self, attrs: dict):
         for attr in ["archiefnominatie", "archiefactiedatum"]:
