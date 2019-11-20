@@ -41,6 +41,7 @@ from openzaak.components.catalogi.models import (
     ZaakType,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -374,7 +375,7 @@ class ZaakSerializer(
 
             if (
                 EnkelvoudigInformatieObject.objects.filter(id__in=Subquery(io_ids))
-                .exclude(status="gearchiveerd")
+                .exclude(status=Statussen.gearchiveerd)
                 .exists()
             ):
 
