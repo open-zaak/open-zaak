@@ -70,6 +70,7 @@ from ...models import (
 from ..validators import (
     CorrectZaaktypeValidator,
     DateNotInFutureValidator,
+    EndStatusIOsUnlockedValidator,
     HoofdzaakValidator,
     NotSelfValidator,
     RolOccurenceValidator,
@@ -393,7 +394,10 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "datum_status_gezet",
             "statustoelichting",
         )
-        validators = [CorrectZaaktypeValidator("statustype")]
+        validators = [
+            CorrectZaaktypeValidator("statustype"),
+            EndStatusIOsUnlockedValidator(),
+        ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
@@ -401,26 +405,26 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
         }
 
+    def to_internal_value(self, data: dict) -> dict:
+        """
+        Convert the data to native Python objects.
+
+        This runs before self.validate(...) is called.
+        """
+        attrs = super().to_internal_value(data)
+
+        statustype = attrs["statustype"]
+        attrs["__is_eindstatus"] = statustype.is_eindstatus()
+        return attrs
+
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)
-
-        statustype = validated_attrs["statustype"]
-        validated_attrs["__is_eindstatus"] = statustype.is_eindstatus()
 
         # validate that all InformationObjects have indicatieGebruiksrecht set
         # and are unlocked
         if validated_attrs["__is_eindstatus"]:
             zaak = validated_attrs["zaak"]
 
-            # TODO: check remote documents!
-            if zaak.zaakinformatieobject_set.exclude(
-                _informatieobject__lock=""
-            ).exists():
-                raise serializers.ValidationError(
-                    "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
-                    "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden.",
-                    code="informatieobject-locked",
-                )
             # TODO: support external IO
             canonical_ids = zaak.zaakinformatieobject_set.values("_informatieobject_id")
             io_ids = (

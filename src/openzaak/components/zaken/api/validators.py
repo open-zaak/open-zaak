@@ -250,3 +250,32 @@ class ZaakArchiveIOsArchivedValidator:
                     },
                     code=f"{attr}-not-set",
                 )
+
+
+class EndStatusIOsUnlockedValidator:
+    """
+    Validate that related InformatieObjects are unlocked when the end status is
+    being set.
+
+    The serializer sets the __is_eindstatus attribute in the data dict as
+    part of the to_internal_value method.
+    """
+
+    code = "informatieobject-locked"
+    message = (
+        "Er zijn gerelateerde informatieobjecten die nog gelocked zijn."
+        "Deze informatieobjecten moet eerst unlocked worden voordat de zaak afgesloten kan worden."
+    )
+
+    def __call__(self, attrs: dict):
+        if not attrs.get("__is_eindstatus"):
+            return
+
+        zaak = attrs.get("zaak")
+        # earlier validation failed possibly
+        if not zaak:
+            return
+
+        # TODO: check remote documents!
+        if zaak.zaakinformatieobject_set.exclude(_informatieobject__lock="").exists():
+            raise serializers.ValidationError(self.message, code=self.code)
