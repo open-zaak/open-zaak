@@ -2,7 +2,7 @@ import uuid
 from unittest import skip
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 import requests_mock
 from freezegun import freeze_time
@@ -31,6 +31,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.documenten.tests.utils import get_eio_response
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
@@ -1040,3 +1041,83 @@ class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "object")
         self.assertEqual(validation_error["code"], "bad-url")
+
+
+@tag("external-urls")
+@requests_mock.Mocker()
+class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
+    """
+    Test validation with remote documents involved.
+    """
+
+    heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.zaaktype_url = reverse(cls.zaaktype)
+        cls.statustype_url = reverse(cls.statustype)
+        cls.statustype_end_url = reverse(cls.statustype_end)
+
+    def test_eindstatus_with_informatieobject_unlocked(self, m):
+        REMOTE_DOCUMENT = "https://external.nl/documenten/123"
+        m.get(
+            REMOTE_DOCUMENT, json=get_eio_response(REMOTE_DOCUMENT, locked=False),
+        )
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=REMOTE_DOCUMENT)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=self.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": self.statustype_end_url,
+                "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_eindstatus_with_informatieobject_lock(self, m):
+        REMOTE_DOCUMENT = "https://external.nl/documenten/123"
+        m.get(
+            REMOTE_DOCUMENT, json=get_eio_response(REMOTE_DOCUMENT, locked=True),
+        )
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=REMOTE_DOCUMENT)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=self.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": self.statustype_end_url,
+                "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "informatieobject-locked")
