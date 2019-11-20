@@ -1000,7 +1000,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2018-03-01",
-            versiedatum="2018-03-01",
+            versiedatum=date(2018, 3, 1),
             datum_einde_geldigheid="2019-01-01",
         )
         zaaktype_url = reverse(zaaktype)
@@ -1008,7 +1008,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_for_besluittype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2015-01-01",
-            versiedatum="2018-03-01",
+            versiedatum=date(2018, 3, 1),
             datum_einde_geldigheid="2016-01-01",
         )
         besluittype = BesluitTypeFactory.create(

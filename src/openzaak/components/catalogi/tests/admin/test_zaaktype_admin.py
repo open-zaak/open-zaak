@@ -149,9 +149,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
 
         # check that the new zaak has the same identificator
-        self.assertEqual(
-            zaaktype_new.zaaktype_identificatie, zaaktype_old.zaaktype_identificatie
-        )
+        self.assertEqual(zaaktype_new.identificatie, zaaktype_old.identificatie)
         # check version dates
         self.assertEqual(zaaktype_new.datum_einde_geldigheid, None)
         self.assertEqual(zaaktype_new.datum_begin_geldigheid, date(2019, 11, 1))
