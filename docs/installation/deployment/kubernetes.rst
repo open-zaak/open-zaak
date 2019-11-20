@@ -20,6 +20,83 @@ requirements and teach you how to deploy on K8s.
 This setup is tested against a Google Cloud Kubernetes cluster with 4vCPU and
 15G of memory.
 
+Assumed/required knowledge level of Kubernetes
+==============================================
+
+Kubernetes is a complex infrastructure with a lot of moving parts and a steep
+learning curve.
+
+We assume you have some familiarity with the following concepts:
+
+* `Namespaces`_
+* `Deployments`_
+* `Services`_
+* `Ingresses`_
+* `Persistent volumes`_
+
+Additionally, familiarity with the `kubectl`_ command line tool is a big
+advantage.
+
+You should be able to save a ``kube-config`` file and optionally specify its
+location via the ``KUBECONFIG`` environment variable.
+
+.. _Namespaces: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+.. _Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+.. _Services: https://kubernetes.io/docs/concepts/services-networking/service/
+.. _Ingresses: https://kubernetes.io/docs/concepts/services-networking/ingress/
+.. _Persistent volumes: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+.. _kubectl: https://kubernetes.io/docs/reference/kubectl/overview/
+
+Target platform
+---------------
+
+This guide is written and tested against a Kubernetes cluster on Google Cloud.
+
+Google cloud resources can be managed with the `gcloud`_ command line tool, or
+alternatively in the cloud console via point and click.
+
+We have collected a number of example commands to spin up an environment.
+
+**Creating a cluster**
+
+See the documentation to `create a cluster`_ and the prerequisites. We assume
+a Google Cloud project name of ``gemeente``.
+
+.. code-block:: shell
+
+  [user@host]$ gcloud container --project "gemeente" clusters create "test-cluster" \
+      --zone "europe-west4-b" \
+      --cluster-version "1.14.8-gke.12" \
+      --machine-type "n2-standard-2" \
+      --num-nodes "2"
+
+**Creating a database**
+
+From the documentation to `create an SQL instance`_:
+
+.. code-block:: shell
+
+  [user@host]$ gcloud sql instances create test \
+    --assign-ip \
+    --region europe-west4 \
+    --zone europe-west4-b \
+    --database-version POSTGRES_11 \
+    --root-password letmein \
+    --cpu 2 \
+    --memory 7GiB
+
+In your Google Cloud console you can then configure the remote networks that
+are allowed to access this instance. You should at least include the network
+from where you are deploying.
+
+Additionally, it's recommended to set up a `private IP`_ so connections from
+the Kubernetes cluster are allowed.
+
+.. _gcloud: https://cloud.google.com/sdk/install
+.. _create a cluster: https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster
+.. _create an SQL instance: https://cloud.google.com/sql/docs/postgres/cloud-sdk
+.. _private IP: https://cloud.google.com/sql/docs/postgres/private-ip
+
 Application architecture
 ========================
 
@@ -269,11 +346,6 @@ Run the ``apps.yml`` playbook using:
 .. code-block:: shell
 
     (env) [user@host]$ ./deploy.sh apps.yml
-
-
-
-
-
 
 .. _Kubernetes: https://kubernetes.io/
 .. _NGINX: https://www.nginx.com/
