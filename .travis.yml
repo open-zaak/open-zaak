@@ -70,8 +70,6 @@ jobs:
       before_script: skip
       script: docker build .
 
-    # TODO: second stage to push resulting image
-
     - stage: Newman tests
       language: node_js
       node_js:
@@ -89,6 +87,23 @@ jobs:
       after_script:
         - docker-compose stop
         - docker-compose rm -f
+
+    - stage: Push Docker image(s)
+      before_install: skip
+      install: skip
+      before_script: skip
+      script: skip
+      after_success: skip
+      deploy:
+        - provider: script
+          script: bin/docker_push.sh latest
+          on:
+            branch: master
+
+        - provider: script
+          script: bin/docker_push.sh $TRAVIS_TAG
+          on:
+            tags: true
 
 after_success:
   - codecov
