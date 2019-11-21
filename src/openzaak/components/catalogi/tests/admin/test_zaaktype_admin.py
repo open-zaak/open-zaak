@@ -127,7 +127,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         zaakobjecttype_old = ZaakObjectTypeFactory.create(is_relevant_voor=zaaktype_old)
         zaaktypenrelatie_old = ZaakTypenRelatieFactory.create(zaaktype=zaaktype_old)
         # m2m relations
-        besluittype = BesluitTypeFactory.create(zaaktypes=[zaaktype_old])
+        besluittype = BesluitTypeFactory.create(zaaktypen=[zaaktype_old])
         informatieobjecttype = ZaakInformatieobjectTypeFactory.create(
             zaaktype=zaaktype_old
         ).informatieobjecttype
