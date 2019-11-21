@@ -1,16 +1,19 @@
 import uuid
 
-from django.test import TestCase
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.models import Zaak
-from openzaak.utils.tests import AdminTestMixin
 
 from ..factories import ZaakFactory
 from ..utils import get_operation_url
+
+from django_webtest import WebTest
+
+from openzaak.accounts.tests.factories import SuperUserFactory
+
 
 inline_data = {
     "status_set-TOTAL_FORMS": 3,
@@ -48,8 +51,15 @@ inline_data = {
 }
 
 
-class ZaakAdminTests(AdminTestMixin, TestCase):
-    heeft_alle_autorisaties = True
+class ZaakAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
 
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -162,4 +172,15 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.client.post(delete_url, data)
 
         self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(AuditTrail.objects.count(), 0)
+
+    def test_save_zaak_without_change(self):
+        zaak = ZaakFactory.create()
+        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        get_response = self.app.get(change_url)
+
+        form = get_response.form
+        form.submit()
+
         self.assertEqual(AuditTrail.objects.count(), 0)

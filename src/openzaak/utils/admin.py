@@ -181,6 +181,10 @@ class AuditTrailAdminMixin(object):
         trail.save()
 
     def save_model(self, request, obj, form, change):
+        if change and not form.has_changed():
+            super().save_model(request, obj, form, change)
+            return
+
         model = obj.__class__
         viewset = self.get_viewset(request)
         self.add_version_to_request(request, obj.uuid)
