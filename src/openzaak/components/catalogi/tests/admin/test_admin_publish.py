@@ -112,7 +112,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
         )
-        BesluitTypeFactory.create(concept=True, zaaktypes=[zaaktype])
+        BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         response = self.app.get(url)
