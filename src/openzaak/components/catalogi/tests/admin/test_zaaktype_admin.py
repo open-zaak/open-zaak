@@ -77,7 +77,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         form["handeling_initiator"] = "test"
         form["onderwerp"] = "test"
         form["handeling_behandelaar"] = "test"
-        form["doorlooptijd_behandeling"] = "12 00:00"
+        form["doorlooptijd_behandeling_days"] = 12
         form["opschorting_en_aanhouding_mogelijk"].select(False)
         form["verlenging_mogelijk"].select(False)
         form["vertrouwelijkheidaanduiding"].select("openbaar")
