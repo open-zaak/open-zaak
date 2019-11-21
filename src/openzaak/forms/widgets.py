@@ -21,3 +21,7 @@ class RelativeDeltaWidget(forms.TextInput):
         if isinstance(value, relativedelta):
             return format_relativedelta(value)
         return super().format_value(value)
+
+
+class SplitRelativeDeltaWidget(RelativeDeltaWidget):
+    pass

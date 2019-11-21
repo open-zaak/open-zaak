@@ -8,10 +8,12 @@ from django.utils.translation import ugettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import DaysDurationField, VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
+
+from openzaak.utils.fields import DurationField
 
 from ..constants import InternExtern
 from .mixins import ConceptMixin, GeldigheidMixin
@@ -233,14 +235,14 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "https://www.gemmaonline.nl/index.php/Imztc_2.1/doc/attribuutsoort/zaaktype.handeling_behandelaar"
         ),
     )
-    doorlooptijd_behandeling = DaysDurationField(
+    doorlooptijd_behandeling = DurationField(
         _("doorlooptijd behandeling"),
         help_text=_(
             "De periode waarbinnen volgens wet- en regelgeving een ZAAK van het ZAAKTYPE "
             "afgerond dient te zijn, in kalenderdagen."
         ),
     )
-    servicenorm_behandeling = DaysDurationField(
+    servicenorm_behandeling = DurationField(
         _("servicenorm behandeling"),
         blank=True,
         null=True,
@@ -263,14 +265,14 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "ZAAKen van dit ZAAKTYPE kan worden verlengd."
         ),
     )
-    verlengingstermijn = DaysDurationField(
+    verlengingstermijn = DurationField(
         _("verlengingstermijn"),
         blank=True,
         null=True,
         help_text=_(
-            "De termijn in dagen waarmee de Doorlooptijd behandeling van "
-            "ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen een waarde "
-            "bevatten als verlenging mogelijk is."
+            "De termijn (typisch een aantal dagen) waarmee de Doorlooptijd "
+            "behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag "
+            "alleen een waarde bevatten als verlenging mogelijk is."
         ),
     )
 
