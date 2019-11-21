@@ -4,10 +4,13 @@ from django.utils.timezone import make_aware
 
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.components.zaken.models import Status, Rol, Resultaat
-from openzaak.components.catalogi.tests.factories import StatusTypeFactory, RolTypeFactory, ResultaatTypeFactory
+from openzaak.components.zaken.models import Status, Rol, Resultaat, KlantContact, \
+    ZaakObject, ZaakEigenschap, ZaakInformatieObject
+from openzaak.components.catalogi.tests.factories import StatusTypeFactory, RolTypeFactory, \
+    ResultaatTypeFactory
 
-from ..factories import ZaakFactory, StatusFactory, RolFactory, ResultaatFactory
+from ..factories import ZaakFactory, StatusFactory, RolFactory, ResultaatFactory, \
+    KlantContactFactory, ZaakObjectFactory, ZaakEigenschapFactory, ZaakInformatieObjectFactory
 from ..utils import get_operation_url
 
 from django_webtest import WebTest
@@ -188,6 +191,159 @@ class ZaakAdminInlineTests(WebTest):
 
         new_data = audittrail.nieuw
         self.assertEqual(new_data["uuid"], str(rol.uuid))
+
+    def test_klantcontact_delete(self):
+        klantcontact = KlantContactFactory.create(zaak=self.zaak)
+        klantcontact_url = get_operation_url("klantcontact_read", uuid=klantcontact.uuid)
+
+        get_response = self.app.get(self.change_url)
+
+        form = get_response.form
+        form['klantcontact_set-0-DELETE'] = True
+        form.submit()
+
+        self.assertEqual(KlantContact.objects.count(), 0)
+
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "destroy")
+        self.assertEqual(audittrail.resource, "klantcontact"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{klantcontact_url}"),
+        self.assertEqual(audittrail.resource_weergave, klantcontact.unique_representation()),
+        self.assertEqual(audittrail.nieuw, None)
+
+        old_data = audittrail.oud
+        self.assertEqual(old_data["uuid"], str(klantcontact.uuid))
+
+    def test_klantcontact_change(self):
+        klantcontact = KlantContactFactory.create(zaak=self.zaak, identificatie="old")
+        klantcontact_url = get_operation_url("klantcontact_read", uuid=klantcontact.uuid)
+
+        get_response = self.app.get(self.change_url)
+
+        form = get_response.form
+        form['klantcontact_set-0-identificatie'] = 'new'
+        form.submit()
+
+        klantcontact.refresh_from_db()
+        self.assertEqual(klantcontact.identificatie, "new")
+
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "update")
+        self.assertEqual(audittrail.resource, "klantcontact"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{klantcontact_url}"),
+        self.assertEqual(audittrail.resource_weergave, klantcontact.unique_representation()),
+
+        old_data, new_data = audittrail.oud, audittrail.nieuw
+        self.assertEqual(old_data["identificatie"], "old")
+        self.assertEqual(new_data["identificatie"], "new")
+
+    def test_klantcontact_add(self):
+        get_response = self.app.get(self.change_url)
+        form = get_response.form
+
+        form['klantcontact_set-0-identificatie'] = "12345"
+        form['klantcontact_set-0-datumtijd_0'] = '01-01-2019'
+        form['klantcontact_set-0-datumtijd_1'] = '10:00:00'
+        form.submit()
+
+        self.assertEqual(KlantContact.objects.count(), 1)
+
+        klantcontact = KlantContact.objects.get()
+        klantcontact_url = get_operation_url("klantcontact_read", uuid=klantcontact.uuid)
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "create")
+        self.assertEqual(audittrail.resource, "klantcontact"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{klantcontact_url}"),
+        self.assertEqual(audittrail.resource_weergave, klantcontact.unique_representation())
+        self.assertEqual(audittrail.oud, None)
+
+        new_data = audittrail.nieuw
+        self.assertEqual(new_data["uuid"], str(klantcontact.uuid))
+
+    def test_zaakobject_delete(self):
+        zaakobject = ZaakObjectFactory.create(zaak=self.zaak)
+        zaakobject_url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        get_response = self.app.get(self.change_url)
+
+        form = get_response.form
+        form['zaakobject_set-0-DELETE'] = True
+        form.submit()
+
+        self.assertEqual(ZaakObject.objects.count(), 0)
+
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "destroy")
+        self.assertEqual(audittrail.resource, "zaakobject"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaakobject_url}"),
+        self.assertEqual(audittrail.resource_weergave, zaakobject.unique_representation()),
+        self.assertEqual(audittrail.nieuw, None)
+
+        old_data = audittrail.oud
+        self.assertEqual(old_data["uuid"], str(zaakobject.uuid))
+
+    def test_zaakobject_change(self):
+        zaakobject = ZaakObjectFactory.create(zaak=self.zaak, relatieomschrijving="old")
+        zaakobject_url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        get_response = self.app.get(self.change_url)
+
+        form = get_response.form
+        form['zaakobject_set-0-object_type'] = 'adres'
+        form['zaakobject_set-0-relatieomschrijving'] = 'new'
+
+        form.submit()
+
+        zaakobject.refresh_from_db()
+        self.assertEqual(zaakobject.relatieomschrijving, "new")
+
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "update")
+        self.assertEqual(audittrail.resource, "zaakobject"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaakobject_url}"),
+        self.assertEqual(audittrail.resource_weergave, zaakobject.unique_representation()),
+
+        old_data, new_data = audittrail.oud, audittrail.nieuw
+        self.assertEqual(old_data["relatieomschrijving"], "old")
+        self.assertEqual(new_data["relatieomschrijving"], "new")
+
+    def test_zaakobject_add(self):
+        get_response = self.app.get(self.change_url)
+        form = get_response.form
+
+        form['zaakobject_set-0-object_type'] = 'adres'
+        form['zaakobject_set-0-relatieomschrijving'] = 'new'
+        form.submit()
+
+        self.assertEqual(ZaakObject.objects.count(), 1)
+
+        zaakobject = ZaakObject.objects.get()
+        zaakobject_url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "create")
+        self.assertEqual(audittrail.resource, "zaakobject"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaakobject_url}"),
+        self.assertEqual(audittrail.resource_weergave, zaakobject.unique_representation())
+        self.assertEqual(audittrail.oud, None)
+
+        new_data = audittrail.nieuw
+        self.assertEqual(new_data["uuid"], str(zaakobject.uuid))
+
+
+
+
 
     def test_resultaat_delete(self):
         resultaat = ResultaatFactory.create(zaak=self.zaak)
