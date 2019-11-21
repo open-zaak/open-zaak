@@ -21,6 +21,9 @@ class ConceptAdminMixin(object):
 
 
 class PublishAdminMixin:
+    def _publish_validation_errors(self, obj):
+        return []
+
     def response_post_save_change(self, request, obj):
         if "_publish" in request.POST:
             # Clear messages
@@ -28,10 +31,15 @@ class PublishAdminMixin:
             for i in storage:
                 pass
 
-            obj.concept = False
-            obj.save()
-            msg = _("The resource has been published successfully!")
-            self.message_user(request, msg, level=messages.SUCCESS)
+            errors = self._publish_validation_errors(obj)
+            if errors:
+                for error in errors:
+                    self.message_user(request, error, level=messages.ERROR)
+            else:
+                obj.concept = False
+                obj.save()
+                msg = _("The resource has been published successfully!")
+                self.message_user(request, msg, level=messages.SUCCESS)
 
             return HttpResponseRedirect(request.path)
         else:
