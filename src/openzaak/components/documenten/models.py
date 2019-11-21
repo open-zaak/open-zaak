@@ -315,6 +315,8 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         db_index=True,
     )
 
+    _locked = False
+
     class Meta:
         unique_together = ("uuid", "versie")
         verbose_name = _("Enkelvoudige informatie object")
@@ -322,12 +324,15 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         indexes = [models.Index(fields=["canonical", "-versie"])]
         ordering = ["canonical", "-versie"]
 
-    @property
-    def locked(self) -> bool:
+    def _get_locked(self) -> bool:
         if self.pk:
             return bool(self.canonical.lock)
+        return self._locked
 
-        raise NotImplementedError
+    def _set_locked(self, value: bool) -> None:
+        self._locked = value
+
+    locked = property(_get_locked, _set_locked)
 
 
 class Gebruiksrechten(models.Model):

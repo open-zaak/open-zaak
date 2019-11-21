@@ -2,6 +2,7 @@ import json
 
 import requests
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
+from djangorestframework_camel_case.util import underscoreize
 
 
 class AuthorizedRequestsLoader(BaseLoader):
@@ -31,4 +32,4 @@ class AuthorizedRequestsLoader(BaseLoader):
         except json.JSONDecodeError as exc:
             raise FetchJsonError(exc.args[0]) from exc
 
-        return data
+        return underscoreize(data)
