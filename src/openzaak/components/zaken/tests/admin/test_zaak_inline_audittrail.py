@@ -58,7 +58,6 @@ class ZaakAdminInlineTests(WebTest):
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
-
         self.assertEqual(old_data["uuid"], str(status.uuid))
 
     def test_status_change(self):
@@ -92,9 +91,25 @@ class ZaakAdminInlineTests(WebTest):
         get_response = self.app.get(self.change_url)
         form = get_response.form
 
-        # form['status_set-0-statustype_0'] = str(statustype.id)
+        form['status_set-0-statustype'] = statustype.id
         form['status_set-0-datum_status_gezet_0'] = '01-01-2019'
+        form['status_set-0-datum_status_gezet_1'] = '10:00:00'
+        form['status_set-0-statustoelichting'] = 'desc'
         form.submit()
 
-        print(Status.objects.count())
+        self.assertEqual(Status.objects.count(), 1)
+
+        status = Status.objects.get()
+        status_url = get_operation_url("status_read", uuid=status.uuid)
+        audittrail = AuditTrail.objects.get()
+
+        self.assertZaakAudittrail(audittrail)
+        self.assertEqual(audittrail.actie, "create")
+        self.assertEqual(audittrail.resource, "status"),
+        self.assertEqual(audittrail.resource_url, f"http://testserver{status_url}"),
+        self.assertEqual(audittrail.resource_weergave, status.unique_representation())
+        self.assertEqual(audittrail.oud, None)
+
+        new_data = audittrail.nieuw
+        self.assertEqual(new_data["uuid"], str(status.uuid))
 
