@@ -185,10 +185,6 @@ class AuditTrailAdminMixin(object):
         trail.save()
 
     def save_model(self, request, obj, form, change):
-        if change and not form.has_changed():
-            super().save_model(request, obj, form, change)
-            return
-
         model = obj.__class__
         viewset = self.get_viewset(request)
         action = CommonResourceAction.update if change else CommonResourceAction.create
@@ -204,7 +200,8 @@ class AuditTrailAdminMixin(object):
         # data after
         data = self.get_serializer_data(request, viewset, obj)
 
-        self.trail(obj, viewset, request, action, data_before, data)
+        if data_before != data:
+            self.trail(obj, viewset, request, action, data_before, data)
 
     def delete_model(self, request, obj):
         model = obj.__class__
@@ -269,3 +266,17 @@ class AuditTrailAdminMixin(object):
         for obj in formset.new_objects:
             data_after = self.get_serializer_data(request, viewset, obj)
             self.trail(obj, viewset, request, CommonResourceAction.create, None, data_after)
+
+
+class AuditTrailInlineAdminMixin(object):
+    viewset = None
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+
+        viewset = self.viewset
+        if isinstance(viewset, str):
+            viewset = import_string(viewset)
+
+        formset.viewset = viewset(request=request, format_kwarg=None)
+        return formset
