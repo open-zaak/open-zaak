@@ -17,6 +17,8 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 
+from ..models import Zaak
+
 
 class RolOccurenceValidator:
     """
@@ -258,7 +260,7 @@ class EndStatusIOsUnlockedValidator:
     being set.
 
     The serializer sets the __is_eindstatus attribute in the data dict as
-    part of the to_internal_value method.
+    part of the ``to_internal_value`` method.
     """
 
     code = "informatieobject-locked"
@@ -286,3 +288,54 @@ class EndStatusIOsUnlockedValidator:
         for zio in remote_zios:
             if zio.informatieobject.locked:
                 raise serializers.ValidationError(self.message, code=self.code)
+
+
+class EndStatusIOsIndicatieGebruiksrechtValidator:
+    """
+    Validate that related InformatieObjects have ``indicatieGebruiksrecht`` set
+    when the end status is being set.
+
+    The serializer sets the __is_eindstatus attribute in the data dict as
+    part of the ``to_internal_value`` method.
+    """
+
+    code = "indicatiegebruiksrecht-unset"
+    message = (
+        "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
+        "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten."
+    )
+
+    def __call__(self, attrs: dict):
+        if not attrs.get("__is_eindstatus"):
+            return
+
+        zaak = attrs.get("zaak")
+        # earlier validation failed possibly
+        if not zaak:
+            return
+
+        self.validate_local_eios_indicatie_set(zaak)
+        self.validate_remote_eios_indicatie_set(zaak)
+
+    def validate_local_eios_indicatie_set(self, zaak: Zaak):
+        canonical_ids = zaak.zaakinformatieobject_set.values("_informatieobject_id")
+        io_ids = (
+            EnkelvoudigInformatieObjectCanonical.objects.filter(
+                id__in=Subquery(canonical_ids)
+            )
+            .annotate(last=Max("enkelvoudiginformatieobject"))
+            .values("last")
+        )
+
+        if (
+            EnkelvoudigInformatieObject.objects.filter(id__in=Subquery(io_ids))
+            .filter(indicatie_gebruiksrecht__isnull=True)
+            .exists()
+        ):
+            raise serializers.ValidationError(self.message, self.code)
+
+    def validate_remote_eios_indicatie_set(self, zaak: Zaak):
+        remote_zios = zaak.zaakinformatieobject_set.exclude(_informatieobject_url="")
+        for zio in remote_zios:
+            if zio.informatieobject.indicatie_gebruiksrecht is None:
+                raise serializers.ValidationError(self.message, self.code)

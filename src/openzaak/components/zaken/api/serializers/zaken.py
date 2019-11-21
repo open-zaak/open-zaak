@@ -2,7 +2,6 @@ import logging
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Max, Subquery
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -41,10 +40,6 @@ from openzaak.components.catalogi.models import (
     ZaakType,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    EnkelvoudigInformatieObjectCanonical,
-)
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
@@ -70,6 +65,7 @@ from ...models import (
 from ..validators import (
     CorrectZaaktypeValidator,
     DateNotInFutureValidator,
+    EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
     HoofdzaakValidator,
     NotSelfValidator,
@@ -397,6 +393,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         validators = [
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
+            EndStatusIOsIndicatieGebruiksrechtValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -424,32 +421,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # and are unlocked
         if validated_attrs["__is_eindstatus"]:
             zaak = validated_attrs["zaak"]
-
-            # TODO: support external IO
-            canonical_ids = zaak.zaakinformatieobject_set.values("_informatieobject_id")
-            io_ids = (
-                EnkelvoudigInformatieObjectCanonical.objects.filter(
-                    id__in=Subquery(canonical_ids)
-                )
-                .annotate(last=Max("enkelvoudiginformatieobject"))
-                .values("last")
-            )
-
-            if (
-                EnkelvoudigInformatieObject.objects.filter(id__in=Subquery(io_ids))
-                .filter(indicatie_gebruiksrecht__isnull=True)
-                .exists()
-            ):
-
-                # zios = zaak.zaakinformatieobject_set.all()
-                # for zio in zios:
-                #     informatieobject = zio.informatieobject
-                #     if informatieobject.latest_version.indicatie_gebruiksrecht is None:
-                raise serializers.ValidationError(
-                    "Er zijn gerelateerde informatieobjecten waarvoor `indicatieGebruiksrecht` nog niet "
-                    "gespecifieerd is. Je moet deze zetten voor je de zaak kan afsluiten.",
-                    code="indicatiegebruiksrecht-unset",
-                )
 
             brondatum_calculator = BrondatumCalculator(
                 zaak, validated_attrs["datum_status_gezet"]
