@@ -1121,3 +1121,35 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(validation_error["code"], "informatieobject-locked")
+
+    def test_status_with_informatieobject_indicatie_gebruiksrecht_null(self, m):
+        REMOTE_DOCUMENT = "https://external.nl/documenten/123"
+        m.get(
+            REMOTE_DOCUMENT,
+            json=get_eio_response(REMOTE_DOCUMENT, indicatieGebruiksrecht=None),
+        )
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=REMOTE_DOCUMENT)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            zaaktype=self.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": self.statustype_end_url,
+                "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "indicatiegebruiksrecht-unset")
