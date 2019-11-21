@@ -1,6 +1,6 @@
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.db.models import Field
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
 from openzaak.selectielijst.admin import get_procestype_field
