@@ -58,4 +58,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
         verbose_name_plural = _("Informatieobjecttypen")
 
     def __str__(self):
-        return "{} - {}".format(self.catalogus, self.omschrijving)
+        representation = "{} - {}".format(self.catalogus, self.omschrijving)
+        if self.concept:
+            representation = "{} (CONCEPT)".format(representation)
+        return representation

@@ -127,7 +127,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         unique_together = ("catalogus", "omschrijving")
 
     def __str__(self):
-        """
-        Unieke aanduiding van CATALOGUS in combinatie met Besluittype-omschrijving
-        """
-        return f"{self.catalogus} - {self.omschrijving}"
+        representation = f"{self.catalogus} - {self.omschrijving}"
+        if self.concept:
+            representation = "{} (CONCEPT)".format(representation)
+        return representation
