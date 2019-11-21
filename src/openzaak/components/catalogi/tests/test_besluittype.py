@@ -2,7 +2,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
-from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
+from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
     ConceptUpdateValidator,
     M2MConceptCreateValidator,
@@ -21,7 +21,7 @@ from .factories import (
 class BesluitTypeAPITests(APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
-    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
@@ -45,7 +45,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype = BesluitTypeFactory.create(
             catalogus=self.catalogus, publicatie_indicatie=True
         )
-        zaaktype = besluittype.zaaktypes.get()
+        zaaktype = besluittype.zaaktypen.get()
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         besluittype_detail_url = reverse(
             "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -63,7 +63,7 @@ class BesluitTypeAPITests(APITestCase):
         expected = {
             "url": f"http://testserver{besluittype_detail_url}",
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "Besluittype",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -104,15 +104,15 @@ class BesluitTypeAPITests(APITestCase):
             data["informatieobjecttypen"][0], f"http://testserver{iot1_url}"
         )
 
-    def test_get_detail_related_zaaktypes(self):
-        """Retrieve the details of a single `BesluitType` object with related zaaktypes."""
+    def test_get_detail_related_zaaktypen(self):
+        """Retrieve the details of a single `BesluitType` object with related zaaktypen."""
         besluittype = BesluitTypeFactory.create(
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype2 = ZaakTypeFactory.create(catalogus=self.catalogus)
-        besluittype.zaaktypes.clear()
-        besluittype.zaaktypes.add(zaaktype1)
+        besluittype.zaaktypen.clear()
+        besluittype.zaaktypen.add(zaaktype1)
 
         besluittype_detail_url = reverse(
             "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -124,8 +124,8 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         data = response.json()
-        self.assertEqual(len(data["zaaktypes"]), 1)
-        self.assertEqual(data["zaaktypes"][0], f"http://testserver{zaaktype1_url}")
+        self.assertEqual(len(data["zaaktypen"]), 1)
+        self.assertEqual(data["zaaktypen"][0], f"http://testserver{zaaktype1_url}")
 
     def test_create_besluittype(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -139,7 +139,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -160,11 +160,11 @@ class BesluitTypeAPITests(APITestCase):
 
         self.assertEqual(besluittype.omschrijving, "test")
         self.assertEqual(besluittype.catalogus, self.catalogus)
-        self.assertEqual(besluittype.zaaktypes.get(), zaaktype)
+        self.assertEqual(besluittype.zaaktypen.get(), zaaktype)
         self.assertEqual(besluittype.informatieobjecttypen.get(), informatieobjecttype)
         self.assertEqual(besluittype.concept, True)
 
-    def test_create_besluittype_fail_non_concept_zaaktypes(self):
+    def test_create_besluittype_fail_non_concept_zaaktypen(self):
         zaaktype = ZaakTypeFactory.create(concept=False, catalogus=self.catalogus)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -176,7 +176,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -208,7 +208,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -228,7 +228,7 @@ class BesluitTypeAPITests(APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], M2MConceptCreateValidator.code)
 
-    def test_create_besluittype_fail_different_catalogus_for_zaaktypes(self):
+    def test_create_besluittype_fail_different_catalogus_for_zaaktypen(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -240,7 +240,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -272,7 +272,7 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [f"http://testserver{zaaktype_url}"],
+            "zaaktypen": [f"http://testserver{zaaktype_url}"],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -338,7 +338,7 @@ class BesluitTypeAPITests(APITestCase):
 
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [],
+            "zaaktypen": [],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -366,7 +366,7 @@ class BesluitTypeAPITests(APITestCase):
         )
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [],
+            "zaaktypen": [],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
@@ -417,9 +417,9 @@ class BesluitTypeAPITests(APITestCase):
         zaaktype = ZaakTypeFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(
                     "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -434,9 +434,9 @@ class BesluitTypeAPITests(APITestCase):
         zaaktype = ZaakTypeFactory.create(concept=False)
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(
                     "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -454,9 +454,9 @@ class BesluitTypeAPITests(APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(
                     catalogus=catalogus, **{resource: [related]}
                 )
@@ -466,7 +466,7 @@ class BesluitTypeAPITests(APITestCase):
 
                 data = {
                     "catalogus": reverse(catalogus),
-                    "zaaktypes": [],
+                    "zaaktypen": [],
                     "omschrijving": "test",
                     "omschrijvingGeneriek": "",
                     "besluitcategorie": "",
@@ -493,9 +493,9 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, concept=False
         )
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(
                     "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -503,7 +503,7 @@ class BesluitTypeAPITests(APITestCase):
 
                 data = {
                     "catalogus": reverse(catalogus),
-                    "zaaktypes": [],
+                    "zaaktypen": [],
                     "omschrijving": "test",
                     "omschrijvingGeneriek": "",
                     "besluitcategorie": "",
@@ -532,9 +532,9 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, concept=False
         )
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create()
                 besluittype_url = reverse(
                     "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -542,7 +542,7 @@ class BesluitTypeAPITests(APITestCase):
 
                 data = {
                     "catalogus": reverse(catalogus),
-                    "zaaktypes": [],
+                    "zaaktypen": [],
                     "omschrijving": "test",
                     "omschrijvingGeneriek": "",
                     "besluitcategorie": "",
@@ -569,9 +569,9 @@ class BesluitTypeAPITests(APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(
                     catalogus=catalogus, **{resource: [related]}
                 )
@@ -594,9 +594,9 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, concept=False
         )
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(
                     catalogus=catalogus, **{resource: [related]}
                 )
@@ -623,9 +623,9 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, concept=False
         )
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(catalogus=catalogus)
                 besluittype_url = reverse(
                     "besluittype-detail", kwargs={"uuid": besluittype.uuid}
@@ -659,9 +659,9 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, concept=False
         )
 
-        for resource in ["zaaktypes", "informatieobjecttypen"]:
+        for resource in ["zaaktypen", "informatieobjecttypen"]:
             with self.subTest(resource=resource):
-                related = zaaktype if resource == "zaaktypes" else informatieobjecttype
+                related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(
                     catalogus=catalogus, **{resource: [related]}
                 )
@@ -725,15 +725,15 @@ class BesluitTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{besluittype2_url}")
 
-    def test_filter_zaaktypes(self):
+    def test_filter_zaaktypen(self):
         besluittype1 = BesluitTypeFactory.create(concept=False)
         besluittype2 = BesluitTypeFactory.create(concept=False)
-        zaaktype1 = besluittype1.zaaktypes.get()
+        zaaktype1 = besluittype1.zaaktypen.get()
         zaaktype1_url = f"http://openzaak.nl{reverse(zaaktype1)}"
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(besluittype1)
 
-        response = self.client.get(besluittype_list_url, {"zaaktypes": zaaktype1_url})
+        response = self.client.get(besluittype_list_url, {"zaaktypen": zaaktype1_url})
 
         self.assertEqual(response.status_code, 200)
 
@@ -812,7 +812,7 @@ class BesluitTypeValidationTests(APITestCase):
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "zaaktypes": [],
+            "zaaktypen": [],
             "omschrijving": "test",
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",

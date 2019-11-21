@@ -14,7 +14,7 @@ class ZaakInformatieobjectTypeFactory(factory.django.DjangoModelFactory):
     )
     informatieobjecttype = factory.SubFactory(
         "openzaak.components.catalogi.tests.factories.InformatieObjectTypeFactory",
-        zaaktypes=None,
+        zaaktypen=None,
     )
     volgnummer = factory.sequence(lambda x: x)
     richting = RichtingChoices.inkomend

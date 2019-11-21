@@ -4,7 +4,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
+from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..constants import RichtingChoices
 from ..models import ZaakInformatieobjectType
 from .base import APITestCase
@@ -19,7 +19,7 @@ from .factories import (
 class ZaakInformatieobjectTypeAPITests(APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
-    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
     list_url = reverse_lazy(ZaakInformatieobjectType)
@@ -583,7 +583,7 @@ class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
         self.ziot = ZaakInformatieobjectTypeFactory.create(
             zaaktype__catalogus=self.catalogus,
             informatieobjecttype__catalogus=self.catalogus,
-            informatieobjecttype__zaaktypes=None,
+            informatieobjecttype__zaaktypen=None,
             volgnummer=1,
         )
 

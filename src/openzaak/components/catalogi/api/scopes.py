@@ -6,8 +6,8 @@ writes are not supported yet in the API.
 """
 from vng_api_common.scopes import Scope
 
-SCOPE_ZAAKTYPES_READ = Scope(
-    "zaaktypes.lezen",
+SCOPE_CATALOGI_READ = Scope(
+    "catalogi.lezen",
     description="""
 **Laat toe om**:
 
@@ -15,8 +15,8 @@ SCOPE_ZAAKTYPES_READ = Scope(
 """,
 )
 
-SCOPE_ZAAKTYPES_WRITE = Scope(
-    "zaaktypes.schrijven",
+SCOPE_CATALOGI_WRITE = Scope(
+    "catalogi.schrijven",
     description="""
 **Laat toe om**:
 
@@ -24,8 +24,8 @@ SCOPE_ZAAKTYPES_WRITE = Scope(
 """,
 )
 
-SCOPE_ZAAKTYPES_FORCED_DELETE = Scope(
-    "zaaktypes.geforceerd-verwijderen",
+SCOPE_CATALOGI_FORCED_DELETE = Scope(
+    "catalogi.geforceerd-verwijderen",
     description="""
 **Laat toe om**:
 

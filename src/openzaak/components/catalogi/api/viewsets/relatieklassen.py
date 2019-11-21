@@ -11,9 +11,9 @@ from openzaak.utils.permissions import AuthRequired
 from ...models import ZaakInformatieobjectType
 from ..filters import ZaakInformatieobjectTypeFilter
 from ..scopes import (
-    SCOPE_ZAAKTYPES_FORCED_DELETE,
-    SCOPE_ZAAKTYPES_READ,
-    SCOPE_ZAAKTYPES_WRITE,
+    SCOPE_CATALOGI_FORCED_DELETE,
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
 )
 from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
@@ -77,12 +77,12 @@ class ZaakTypeInformatieObjectTypeViewSet(
     pagination_class = PageNumberPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
-        "list": SCOPE_ZAAKTYPES_READ,
-        "retrieve": SCOPE_ZAAKTYPES_READ,
-        "create": SCOPE_ZAAKTYPES_WRITE,
-        "update": SCOPE_ZAAKTYPES_WRITE,
-        "partial_update": SCOPE_ZAAKTYPES_WRITE,
-        "destroy": SCOPE_ZAAKTYPES_WRITE | SCOPE_ZAAKTYPES_FORCED_DELETE,
+        "list": SCOPE_CATALOGI_READ,
+        "retrieve": SCOPE_CATALOGI_READ,
+        "create": SCOPE_CATALOGI_WRITE,
+        "update": SCOPE_CATALOGI_WRITE,
+        "partial_update": SCOPE_CATALOGI_WRITE,
+        "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
 
     def get_concept(self, instance):
@@ -98,7 +98,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
 
     def perform_destroy(self, instance):
         forced_delete = self.request.jwt_auth.has_auth(
-            scopes=SCOPE_ZAAKTYPES_FORCED_DELETE,
+            scopes=SCOPE_CATALOGI_FORCED_DELETE,
             init_component=self.queryset.model._meta.app_label,
         )
 

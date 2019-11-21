@@ -30,7 +30,7 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):
-        for query_param in ["catalogus", "zaaktypes", "informatieobjecttypen"]:
+        for query_param in ["catalogus", "zaaktypen", "informatieobjecttypen"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(reverse(BesluitType), {query_param: "bla"})
 
@@ -41,9 +41,9 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype.zaaktypes.clear()
+        besluittype.zaaktypen.clear()
         besluittype.informatieobjecttypen.clear()
-        for query_param in ["catalogus", "zaaktypes", "informatieobjecttypen"]:
+        for query_param in ["catalogus", "zaaktypen", "informatieobjecttypen"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
                     reverse(BesluitType), {query_param: "https://google.com"}
@@ -92,7 +92,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype.zaaktypes.clear()
+        informatieobjecttype.zaaktypen.clear()
 
         response = self.client.get(
             reverse(InformatieObjectType), {"catalogus": "https://google.com"}

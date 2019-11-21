@@ -29,7 +29,7 @@ class BesluittypeZaaktypeValidator:
         if not zaak:
             return
 
-        if not besluittype.zaaktypes.filter(id=zaak.zaaktype_id).exists():
+        if not besluittype.zaaktypen.filter(id=zaak.zaaktype_id).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 

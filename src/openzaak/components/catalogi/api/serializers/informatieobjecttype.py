@@ -32,8 +32,8 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         )
         validators = [
             ConceptUpdateValidator(),
-            M2MConceptCreateValidator(["besluittypen", "zaaktypes"]),
-            M2MConceptUpdateValidator(["besluittypen", "zaaktypes"]),
+            M2MConceptCreateValidator(["besluittypen", "zaaktypen"]),
+            M2MConceptUpdateValidator(["besluittypen", "zaaktypen"]),
             UniqueTogetherValidator(
                 queryset=InformatieObjectType.objects.all(),
                 fields=["catalogus", "omschrijving"],

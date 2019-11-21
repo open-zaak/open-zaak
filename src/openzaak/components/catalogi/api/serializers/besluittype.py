@@ -20,12 +20,12 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
     )
 
-    zaaktypes = serializers.HyperlinkedRelatedField(
+    zaaktypen = serializers.HyperlinkedRelatedField(
         many=True,
         view_name="zaaktype-detail",
         lookup_field="uuid",
         queryset=ZaakType.objects.all(),
-        help_text=get_help_text("catalogi.BesluitType", "zaaktypes"),
+        help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
     class Meta:
@@ -40,7 +40,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             "url",
             "catalogus",
-            "zaaktypes",
+            "zaaktypen",
             "omschrijving",
             "omschrijving_generiek",
             "besluitcategorie",
@@ -59,8 +59,8 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),
             RelationCatalogValidator("informatieobjecttypen"),
-            RelationCatalogValidator("zaaktypes"),
+            RelationCatalogValidator("zaaktypen"),
             ConceptUpdateValidator(),
-            M2MConceptCreateValidator(["zaaktypes", "informatieobjecttypen"]),
-            M2MConceptUpdateValidator(["zaaktypes", "informatieobjecttypen"]),
+            M2MConceptCreateValidator(["zaaktypen", "informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["zaaktypen", "informatieobjecttypen"]),
         ]

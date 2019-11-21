@@ -4,7 +4,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
-from ..api.scopes import SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE
+from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ConceptUpdateValidator, M2MConceptUpdateValidator
 from ..models import InformatieObjectType
 from .base import APITestCase
@@ -21,7 +21,7 @@ from .utils import get_operation_url
 class InformatieObjectTypeAPITests(APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
-    scopes = [SCOPE_ZAAKTYPES_READ, SCOPE_ZAAKTYPES_WRITE]
+    scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
@@ -47,7 +47,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=self.catalogus,
-            zaaktypes=None,
+            zaaktypen=None,
             datum_begin_geldigheid="2019-01-01",
         )
         informatieobjecttype_detail_url = get_operation_url(
@@ -82,7 +82,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_is_relevant_voor(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=self.catalogus,
-            zaaktypes=None,
+            zaaktypen=None,
             model=["http://www.example.com"],
             trefwoord=["abc", "def"],
         )

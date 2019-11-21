@@ -8,9 +8,9 @@ from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
 from ..kanalen import KANAAL_INFORMATIEOBJECTTYPEN
 from ..scopes import (
-    SCOPE_ZAAKTYPES_FORCED_DELETE,
-    SCOPE_ZAAKTYPES_READ,
-    SCOPE_ZAAKTYPES_WRITE,
+    SCOPE_CATALOGI_FORCED_DELETE,
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
 )
 from ..serializers import InformatieObjectTypeSerializer
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
@@ -69,13 +69,13 @@ class InformatieObjectTypeViewSet(
     pagination_class = PageNumberPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
-        "list": SCOPE_ZAAKTYPES_READ,
-        "retrieve": SCOPE_ZAAKTYPES_READ,
-        "create": SCOPE_ZAAKTYPES_WRITE,
-        "update": SCOPE_ZAAKTYPES_WRITE,
-        "partial_update": SCOPE_ZAAKTYPES_WRITE,
-        "destroy": SCOPE_ZAAKTYPES_WRITE | SCOPE_ZAAKTYPES_FORCED_DELETE,
-        "publish": SCOPE_ZAAKTYPES_WRITE,
+        "list": SCOPE_CATALOGI_READ,
+        "retrieve": SCOPE_CATALOGI_READ,
+        "create": SCOPE_CATALOGI_WRITE,
+        "update": SCOPE_CATALOGI_WRITE,
+        "partial_update": SCOPE_CATALOGI_WRITE,
+        "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
+        "publish": SCOPE_CATALOGI_WRITE,
     }
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
-    concept_related_fields = ["besluittypen", "zaaktypes"]
+    concept_related_fields = ["besluittypen", "zaaktypen"]
