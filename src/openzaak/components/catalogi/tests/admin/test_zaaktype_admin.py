@@ -7,7 +7,8 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
 from openzaak.utils.tests import ClearCachesMixin
 
-from ..factories import ZaakTypeFactory
+from ...models import ZaakType
+from ..factories import CatalogusFactory, ZaakTypeFactory
 
 
 @requests_mock.Mocker()
@@ -60,3 +61,34 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
             field.value,
             "https://referentielijsten-api.vng.cloud/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
+
+    def test_submit_zaaktype_required_fields(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling"] = "12 00:00"
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["producten_of_diensten"] = "https://example.com/foobarbaz"
+        form["versiedatum"] = "21-11-2019"
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+
+        response = form.submit()
+
+        # redirect on succesfull create, 200 on validation errors, 500 on db errors
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.count(), 1)
