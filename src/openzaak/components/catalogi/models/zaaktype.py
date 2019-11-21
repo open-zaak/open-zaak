@@ -363,8 +363,11 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         verbose_name = _("Zaaktype")
         verbose_name_plural = _("Zaaktypen")
 
-    def __str__(self) -> str:
-        return self.identificatie
+    def __str__(self):
+        representation = "{} - {}".format(self.catalogus, self.identificatie)
+        if self.concept:
+            representation = "{} (CONCEPT)".format(representation)
+        return representation
 
     def save(self, *args, **kwargs):
         if not self.identificatie:

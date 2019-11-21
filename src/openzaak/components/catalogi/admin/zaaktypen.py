@@ -21,7 +21,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import ConceptAdminMixin, GeldigheidAdminMixin
+from .mixins import GeldigheidAdminMixin, PublishAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -59,7 +59,7 @@ class ZaakTypenRelatieInline(admin.TabularInline):
 class ZaakTypeAdmin(
     ListObjectActionsAdminMixin,
     GeldigheidAdminMixin,
-    ConceptAdminMixin,
+    PublishAdminMixin,
     DynamicArrayMixin,
     admin.ModelAdmin,
 ):
@@ -139,6 +139,15 @@ class ZaakTypeAdmin(
         EigenschapInline,
         ResultaatTypeInline,
     )
+
+    def _publish_validation_errors(self, obj):
+        errors = []
+        if (
+            obj.besluittypen.filter(concept=True).exists()
+            or obj.informatieobjecttypen.filter(concept=True).exists()
+        ):
+            errors.append(_("All related resources should be published"))
+        return errors
 
     def get_object_actions(self, obj):
         return (
