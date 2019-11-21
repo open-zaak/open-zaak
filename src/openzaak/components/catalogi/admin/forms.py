@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 import requests
+from django_better_admin_arrayfield.forms.fields import DynamicArrayField
 from rest_framework.exceptions import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -40,6 +41,26 @@ class ZaakTypeForm(forms.ModelForm):
         self.fields[
             "verantwoordingsrelatie"
         ].help_text += " Gebruik een komma om waarden van elkaar te onderscheiden."
+
+    def clean(self):
+        for name, field in self.fields.items():
+            if not isinstance(field, DynamicArrayField):
+                continue
+
+            model_field = self._meta.model._meta.get_field(name)
+            if model_field.null:
+                continue
+
+            if name not in self.cleaned_data:
+                continue  # didn't pass field level validation
+
+            if self.cleaned_data[name] is not None:
+                continue  # non-empty value, no need to correct anything
+
+            default_value = model_field.default
+            if callable(default_value):
+                default_value = default_value()
+            self.cleaned_data[name] = default_value
 
 
 class ResultaatTypeForm(forms.ModelForm):
