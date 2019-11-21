@@ -5,6 +5,7 @@ from django.utils.timezone import make_aware
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import Status
+from openzaak.components.catalogi.tests.factories import StatusTypeFactory
 
 from ..factories import ZaakFactory, StatusFactory
 from ..utils import get_operation_url
@@ -18,37 +19,39 @@ class ZaakAdminInlineTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
+        cls.zaak = ZaakFactory.create()
 
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
+        self.zaak_url = get_operation_url("zaak_read", uuid=self.zaak.uuid)
+        self.change_url = reverse("admin:zaken_zaak_change", args=(self.zaak.pk,))
 
-    def test_delete_inline(self):
-        zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        status = StatusFactory.create(zaak=zaak)
+    def assertZaakAudittrail(self, audittrail):
+        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertEqual(audittrail.resultaat, 0)
+        self.assertEqual(audittrail.applicatie_weergave, "admin")
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{self.zaak_url}"),
+
+    def test_status_delete(self):
+        status = StatusFactory.create(zaak=self.zaak)
         status_url = get_operation_url("status_read", uuid=status.uuid)
-        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
-        get_response = self.app.get(change_url)
+        get_response = self.app.get(self.change_url)
 
         form = get_response.form
         form['status_set-0-DELETE'] = True
         form.submit()
 
-        # print(get_response)
         self.assertEqual(Status.objects.count(), 0)
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertZaakAudittrail(audittrail)
         self.assertEqual(audittrail.actie, "destroy")
-        self.assertEqual(audittrail.resultaat, 0)
-        self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource, "status"),
         self.assertEqual(audittrail.resource_url, f"http://testserver{status_url}"),
         self.assertEqual(audittrail.resource_weergave, status.unique_representation()),
@@ -58,14 +61,11 @@ class ZaakAdminInlineTests(WebTest):
 
         self.assertEqual(old_data["uuid"], str(status.uuid))
 
-    def test_change_inline(self):
-        zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        status = StatusFactory.create(zaak=zaak, datum_status_gezet=make_aware(datetime(2018, 1, 1)))
+    def test_status_change(self):
+        status = StatusFactory.create(zaak=self.zaak, datum_status_gezet=make_aware(datetime(2018, 1, 1)))
         status_url = get_operation_url("status_read", uuid=status.uuid)
-        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
-        get_response = self.app.get(change_url)
+        get_response = self.app.get(self.change_url)
 
         form = get_response.form
         form['status_set-0-datum_status_gezet_0'] = '01-01-2019'
@@ -76,13 +76,8 @@ class ZaakAdminInlineTests(WebTest):
 
         audittrail = AuditTrail.objects.get()
 
-        self.assertEqual(audittrail.bron, "ZRC")
+        self.assertZaakAudittrail(audittrail)
         self.assertEqual(audittrail.actie, "update")
-        self.assertEqual(audittrail.resultaat, 0)
-        self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
         self.assertEqual(audittrail.resource, "status"),
         self.assertEqual(audittrail.resource_url, f"http://testserver{status_url}"),
         self.assertEqual(audittrail.resource_weergave, status.unique_representation()),
@@ -91,15 +86,15 @@ class ZaakAdminInlineTests(WebTest):
         self.assertEqual(old_data["datum_status_gezet"], "2018-01-01T00:00:00Z")
         self.assertEqual(new_data["datum_status_gezet"], "2019-01-01T00:00:00Z")
 
-    def test_add_inline(self):
-        zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+    def test_status_add(self):
+        statustype = StatusTypeFactory.create(zaaktype=self.zaak.zaaktype)
 
-        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
-
-        get_response = self.app.get(change_url)
+        get_response = self.app.get(self.change_url)
         form = get_response.form
 
+        # form['status_set-0-statustype_0'] = str(statustype.id)
         form['status_set-0-datum_status_gezet_0'] = '01-01-2019'
         form.submit()
+
+        print(Status.objects.count())
 
