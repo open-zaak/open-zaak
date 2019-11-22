@@ -15,7 +15,7 @@ from ..scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import ZaakTypeInformatieObjectTypeSerializer
+from ..serializers import ZaakInformatieobjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
 
 
@@ -83,7 +83,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
         .select_related("zaaktype", "informatieobjecttype")
         .order_by("-pk")
     )
-    serializer_class = ZaakTypeInformatieObjectTypeSerializer
+    serializer_class = ZaakInformatieobjectTypeSerializer
     filterset_class = ZaakInformatieobjectTypeFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination

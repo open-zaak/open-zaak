@@ -9,7 +9,7 @@ from ...models import ZaakInformatieobjectType
 from ..validators import ZaakInformatieObjectTypeCatalogusValidator
 
 
-class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
+class ZaakInformatieobjectTypeSerializer(serializers.HyperlinkedModelSerializer):
     """
     Represent a ZaakTypeInformatieObjectType.
 
