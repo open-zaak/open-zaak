@@ -36,6 +36,7 @@ class StatusTypeInline(EditInlineAdminMixin, admin.TabularInline):
 class RolTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = RolType
     fields = RolTypeAdmin.list_display
+    fk_name = "zaaktype"
 
 
 class EigenschapInline(EditInlineAdminMixin, admin.TabularInline):
@@ -47,6 +48,7 @@ class EigenschapInline(EditInlineAdminMixin, admin.TabularInline):
 class ResultaatTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = ResultaatType
     fields = ResultaatTypeAdmin.list_display
+    fk_name = "zaaktype"
 
 
 class ZaakTypenRelatieInline(admin.TabularInline):

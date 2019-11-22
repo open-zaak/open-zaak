@@ -1,7 +1,6 @@
 import uuid
 
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
