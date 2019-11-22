@@ -97,7 +97,6 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         form["verlenging_mogelijk"].select(False)
         form["vertrouwelijkheidaanduiding"].select("openbaar")
         form["producten_of_diensten"] = "https://example.com/foobarbaz"
-        form["versiedatum"] = "21-11-2019"
         form["referentieproces_naam"] = "test"
         form["catalogus"] = catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
