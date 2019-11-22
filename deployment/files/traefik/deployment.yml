@@ -9,7 +9,7 @@ metadata:
     app: traefik
 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: traefik
@@ -37,7 +37,8 @@ spec:
             - --providers.kubernetescrd
             - --certificatesResolvers.default.acme.email={{ acme_email }}
             - --certificatesResolvers.default.acme.storage=acme.json
-            - --certificatesResolvers.default.acme.tlsChallenge=true
+            - --certificatesResolvers.default.acme.httpChallenge=true
+            - --certificatesResolvers.default.acme.httpChallenge.entryPoint=web
           ports:
             - name: web
               containerPort: 8000
