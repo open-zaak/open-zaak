@@ -13,7 +13,7 @@ def get_besluittype_response(catalogus: str, besluittype: str) -> dict:
     return {
         "url": besluittype,
         "catalogus": catalogus,
-        "zaaktypes": [],
+        "zaaktypen": [],
         "omschrijving": "Extern Besluittype",
         "omschrijvingGeneriek": "",
         "besluitcategorie": "",
