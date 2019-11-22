@@ -1,20 +1,10 @@
-import json
 import os
-import zipfile
-from copy import copy
-from uuid import uuid4
 
-from django.core.management import call_command
-from django.core.management.base import CommandError
-from django.test import TestCase, override_settings
 from django.urls import reverse
 
-import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
-from openzaak.utils.tests import ClearCachesMixin
 
 from ...models import (
     BesluitType,
@@ -36,8 +26,6 @@ from ..factories import (
     ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,
 )
-
-# PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 class CatalogusAdminImportExportTests(WebTest):

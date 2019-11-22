@@ -11,11 +11,7 @@ from openzaak.utils.admin import EditInlineAdminMixin, ListObjectActionsAdminMix
 from ..models import (
     BesluitType,
     Catalogus,
-    Eigenschap,
     InformatieObjectType,
-    ResultaatType,
-    RolType,
-    StatusType,
     ZaakInformatieobjectType,
     ZaakType,
 )
