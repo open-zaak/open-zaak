@@ -3,6 +3,9 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
+from django.test import tag
+
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -19,9 +22,11 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.documenten.tests.utils import get_eio_response
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import (
@@ -532,3 +537,35 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2028, 10, 18))
+
+
+@tag("external-urls")
+@requests_mock.Mocker()
+class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
+    """
+    Test archiving with remote documents involved.
+    """
+
+    heeft_alle_autorisaties = True
+
+    def test_cannot_set_archiefstatus_when_not_all_documents_are_gearchiveerd(self, m):
+        REMOTE_DOCUMENT = "https://external.nl/documenten/123"
+
+        m.get(
+            REMOTE_DOCUMENT,
+            json=get_eio_response(REMOTE_DOCUMENT, status=Statussen.ter_vaststelling),
+        )
+
+        zaak = ZaakFactory.create(
+            archiefnominatie=Archiefnominatie.vernietigen,
+            archiefactiedatum=date.today(),
+        )
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=REMOTE_DOCUMENT)
+        zaak_patch_url = get_operation_url("zaak_partial_update", uuid=zaak.uuid)
+        data = {"archiefstatus": Archiefstatus.gearchiveerd}
+
+        response = self.client.patch(zaak_patch_url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )

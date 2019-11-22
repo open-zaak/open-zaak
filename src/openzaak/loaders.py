@@ -2,6 +2,7 @@ import json
 
 import requests
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
+from djangorestframework_camel_case.util import underscoreize
 
 
 class AuthorizedRequestsLoader(BaseLoader):
@@ -10,7 +11,7 @@ class AuthorizedRequestsLoader(BaseLoader):
     """
 
     @staticmethod
-    def fetch_object(url: str) -> dict:
+    def fetch_object(url: str, do_underscoreize=True) -> dict:
         from vng_api_common.models import APICredential
 
         client_auth = APICredential.get_auth(url)
@@ -31,4 +32,7 @@ class AuthorizedRequestsLoader(BaseLoader):
         except json.JSONDecodeError as exc:
             raise FetchJsonError(exc.args[0]) from exc
 
-        return data
+        if not do_underscoreize:
+            return data
+
+        return underscoreize(data)

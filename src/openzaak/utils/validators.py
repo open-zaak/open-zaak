@@ -104,7 +104,7 @@ class LooseFkResourceValidator(FKOrURLValidator):
         if is_local:
             return
 
-        obj = AuthorizedRequestsLoader.fetch_object(value)
+        obj = AuthorizedRequestsLoader.fetch_object(value, do_underscoreize=False)
 
         # check if the shape matches
         schema = fetcher.fetch(self.oas_schema)
