@@ -1,11 +1,13 @@
 from django import forms
+from django.core import validators
 
-from .widgets import RelativeDeltaWidget
+from .widgets import SplitRelativeDeltaWidget
 
 
 class RelativeDeltaField(forms.CharField):
-    widget = RelativeDeltaWidget
+    widget = SplitRelativeDeltaWidget
     empty_strings_allowed = False
+    empty_values = list(validators.EMPTY_VALUES) + ["P0D"]
 
     def __init__(self, *args, **kwargs):
         assert "empty_value" not in kwargs, "empty_value may not be provided"

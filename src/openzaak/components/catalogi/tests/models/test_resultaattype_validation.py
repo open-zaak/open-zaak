@@ -389,7 +389,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             "brondatum_archiefprocedure_datumkenmerk": "foo",
             "brondatum_archiefprocedure_objecttype": "adres",
             "brondatum_archiefprocedure_registratie": "ORC",
-            "brondatum_archiefprocedure_procestermijn": "P30D",
+            "brondatum_archiefprocedure_procestermijn_days": 30,
         }
         data.update(kwargs)
         return ResultaatTypeForm(data=data)
@@ -509,7 +509,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             Afleidingswijze.termijn,
             zaaktype,
             resultaat_url,
-            **{"brondatum_archiefprocedure_procestermijn": ""}
+            **{"brondatum_archiefprocedure_procestermijn_days": ""}
         )
 
         valid = form.is_valid()

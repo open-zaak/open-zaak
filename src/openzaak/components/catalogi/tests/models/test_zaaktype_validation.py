@@ -37,7 +37,7 @@ class ZaaktypeValidationTests(TestCase):
                 "handeling_initiator": "aanvragen",
                 "onderwerp": "Klacht",
                 "handeling_behandelaar": "behandelen",
-                "doorlooptijd_behandeling": "10 00:00",
+                "doorlooptijd_behandeling_days": "10",
                 "verantwoordelijke": "data",
                 "versiedatum": "2019-01-01",
                 "producten_of_diensten": ["http://example.com/producten_of_diensten/1"],
