@@ -21,15 +21,12 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import (
-    DaysDurationField,
-    RSINField,
-    VertrouwelijkheidsAanduidingField,
-)
+from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APICredential, APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.utils.fields import DurationField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -215,12 +212,12 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
             "Omschrijving van de reden voor het verlengen van de behandeling van de zaak."
         ),
     )
-    verlenging_duur = DaysDurationField(
+    verlenging_duur = DurationField(
         _("duur verlenging"),
         blank=True,
         null=True,
         help_text=_(
-            "Het aantal werkbare dagen waarmee de doorlooptijd van de "
+            "Het aantal kalenderdagen waarmee de doorlooptijd van de "
             "behandeling van de ZAAK is verlengd (of verkort) ten opzichte "
             "van de eerder gecommuniceerde doorlooptijd."
         ),

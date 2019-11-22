@@ -17,15 +17,7 @@ class BooleanRadio(forms.RadioSelect):
         return {True: True, "True": True, "False": False, False: False}[value]
 
 
-# TODO: should live in vng-api-common
-class RelativeDeltaWidget(forms.TextInput):
-    def format_value(self, value):
-        if isinstance(value, relativedelta):
-            return format_relativedelta(value)
-        return super().format_value(value)
-
-
-class SplitRelativeDeltaWidget(RelativeDeltaWidget):
+class SplitRelativeDeltaWidget(forms.Widget):
     """
     Present durations as a split widget.
 

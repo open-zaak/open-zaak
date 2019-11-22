@@ -4,13 +4,15 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 import requests
-from relativedeltafield import RelativeDeltaField, parse_relativedelta
+from relativedeltafield import parse_relativedelta
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     ZaakobjectTypes,
 )
 from vng_api_common.descriptors import GegevensGroepType
+
+from openzaak.utils.fields import DurationField
 
 
 class ResultaatType(models.Model):
@@ -105,7 +107,7 @@ class ResultaatType(models.Model):
         ),
     )
 
-    archiefactietermijn = RelativeDeltaField(
+    archiefactietermijn = DurationField(
         _("archiefactietermijn"),
         null=True,
         blank=True,
@@ -167,7 +169,7 @@ class ResultaatType(models.Model):
             "De naam van de registratie waarvan het procesobject deel uit maakt."
         ),
     )
-    brondatum_archiefprocedure_procestermijn = RelativeDeltaField(
+    brondatum_archiefprocedure_procestermijn = DurationField(
         _("procestermijn"),
         null=True,
         blank=True,

@@ -3,7 +3,7 @@ import uuid as _uuid
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from vng_api_common.fields import DaysDurationField
+from openzaak.utils.fields import DurationField
 
 from .mixins import ConceptMixin, GeldigheidMixin
 
@@ -50,13 +50,13 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         help_text=_("Typering van de aard van BESLUITen van het BESLUITTYPE."),
     )
 
-    reactietermijn = DaysDurationField(
+    reactietermijn = DurationField(
         _("reactietermijn"),
         blank=True,
         null=True,
         help_text=_(
-            "Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, waarbinnen verweer tegen "
-            "een besluit van het besluittype mogelijk is."
+            "De duur (typisch een aantal dagen), gerekend vanaf de verzend- of publicatiedatum, "
+            "waarbinnen verweer tegen een besluit van het besluittype mogelijk is."
         ),
     )
 
@@ -76,13 +76,13 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         ),
     )
 
-    publicatietermijn = DaysDurationField(
+    publicatietermijn = DurationField(
         _("publicatietermijn"),
         blank=True,
         null=True,
         help_text=_(
-            "Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum, dat BESLUITen van dit "
-            "BESLUITTYPE gepubliceerd moeten blijven."
+            "De duur (typisch een aantal dagen), gerekend vanaf de verzend- of publicatiedatum, "
+            "dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten blijven."
         ),
     )
 
