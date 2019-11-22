@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, Union
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
-from relativedeltafield import format_relativedelta
+from relativedeltafield import format_relativedelta, parse_relativedelta
 
 
 class BooleanRadio(forms.RadioSelect):
@@ -57,13 +57,16 @@ class SplitRelativeDeltaWidget(forms.Widget):
         )
         return format_relativedelta(duration)
 
-    def get_context(self, name, value, attrs=None):
+    def get_context(self, name, value: Union[relativedelta, str], attrs=None):
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
 
         value = value or relativedelta()
         final_attrs = self.build_attrs(attrs)
         final_attrs.update({"min": 0})
+
+        if isinstance(value, str):
+            value = parse_relativedelta(value)
 
         years_widget = self._build_subwidget_context(
             name, value, final_attrs, "years", _("# jaren"), required=True
