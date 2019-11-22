@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
@@ -476,17 +474,3 @@ class GeldigheidVersiedatumValidator:
                 "Versiedatum van het gerelateerde zaaktype."
             )
             raise ValidationError(msg, code=self.code)
-
-        # current_einde_geldigheid = (
-        #     self.instance.datum_einde_geldigheid if self.instance is not None else None
-        # )
-        # datum_einde_geldigheid = (
-        #     attrs.get("datum_einde_geldigheid") or current_einde_geldigheid
-        # )
-        # if datum_einde_geldigheid:
-        #     if datum_einde_geldigheid + timedelta(days=1) != versiedatum:
-        #         msg =_(
-        #                 "'Datum einde geldigheid' moet gelijk zijn aan de dag "
-        #                 "voor een Versiedatum van het gerelateerde zaaktype."
-        #             )
-        #         raise ValidationError(msg, code=self.code)
