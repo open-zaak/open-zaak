@@ -261,19 +261,30 @@ class AuditTrailAdminMixin(object):
         for obj in formset.deleted_objects:
             data_before = obj_before_data[obj.uuid]
 
-            self.trail(obj, viewset, request, CommonResourceAction.destroy, data_before, None)
+            self.trail(
+                obj, viewset, request, CommonResourceAction.destroy, data_before, None
+            )
 
         # change existing
         for obj, changed_data in formset.changed_objects:
             data_before = obj_before_data[obj.uuid]
             data_after = self.get_serializer_data(request, viewset, obj)
 
-            self.trail(obj, viewset, request, CommonResourceAction.update, data_before, data_after)
+            self.trail(
+                obj,
+                viewset,
+                request,
+                CommonResourceAction.update,
+                data_before,
+                data_after,
+            )
 
         # add new
         for obj in formset.new_objects:
             data_after = self.get_serializer_data(request, viewset, obj)
-            self.trail(obj, viewset, request, CommonResourceAction.create, None, data_after)
+            self.trail(
+                obj, viewset, request, CommonResourceAction.create, None, data_after
+            )
 
 
 class AuditTrailInlineAdminMixin(object):

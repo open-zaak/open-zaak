@@ -9,7 +9,9 @@ class BesluitInformatieObjectInline(AuditTrailInlineAdminMixin, admin.TabularInl
     model = BesluitInformatieObject
     extra = 0
     readonly_fields = ("uuid",)
-    viewset = "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    viewset = (
+        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    )
 
 
 @admin.register(Besluit)

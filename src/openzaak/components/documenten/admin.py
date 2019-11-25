@@ -19,7 +19,9 @@ class GebruiksrechtenInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     viewset = viewsets.GebruiksrechtenViewSet
 
 
-class EnkelvoudigInformatieObjectInline(AuditTrailInlineAdminMixin, admin.StackedInline):
+class EnkelvoudigInformatieObjectInline(
+    AuditTrailInlineAdminMixin, admin.StackedInline
+):
     model = EnkelvoudigInformatieObject
     extra = 1
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
@@ -30,7 +32,9 @@ def unlock(modeladmin, request, queryset):
 
 
 @admin.register(EnkelvoudigInformatieObjectCanonical)
-class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, PrivateMediaMixin, admin.ModelAdmin):
+class EnkelvoudigInformatieObjectCanonicalAdmin(
+    AuditTrailAdminMixin, PrivateMediaMixin, admin.ModelAdmin
+):
     list_display = ["__str__", "get_not_lock_display"]
     inlines = [EnkelvoudigInformatieObjectInline, GebruiksrechtenInline]
     private_media_fields = ("inhoud",)

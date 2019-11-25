@@ -1,17 +1,17 @@
 import uuid
 
+from django.test import TestCase
 from django.urls import reverse
 
+from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.models import Zaak
+from openzaak.utils.tests import AdminTestMixin
 
 from ..factories import ZaakFactory
 from ..utils import get_operation_url
-from django.test import TestCase
-from openzaak.utils.tests import AdminTestMixin
-from django_webtest import WebTest
 
 inline_data = {
     "status_set-TOTAL_FORMS": 3,
@@ -50,7 +50,6 @@ inline_data = {
 
 
 class ZaakAdminTests(AdminTestMixin, WebTest):
-
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
