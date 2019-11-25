@@ -9,11 +9,9 @@ from openzaak.components.zaken.models import Zaak
 
 from ..factories import ZaakFactory
 from ..utils import get_operation_url
-
+from django.test import TestCase
+from openzaak.utils.tests import AdminTestMixin
 from django_webtest import WebTest
-
-from openzaak.accounts.tests.factories import SuperUserFactory
-
 
 inline_data = {
     "status_set-TOTAL_FORMS": 3,
@@ -51,15 +49,7 @@ inline_data = {
 }
 
 
-class ZaakAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
+class ZaakAdminTests(AdminTestMixin, WebTest):
 
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -175,6 +165,7 @@ class ZaakAdminTests(WebTest):
         self.assertEqual(AuditTrail.objects.count(), 0)
 
     def test_save_zaak_without_change(self):
+        self.app.set_user(self.user)
         zaak = ZaakFactory.create()
         change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
