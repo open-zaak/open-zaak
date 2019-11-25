@@ -16,6 +16,8 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | identificatie | De unieke aanduiding van een KLANTCONTACT | string | nee | C​R​U​D |
 | datumtijd | De datum en het tijdstip waarop het KLANTCONTACT begint | string | ja | C​R​U​D |
 | kanaal | Het communicatiekanaal waarlangs het KLANTCONTACT gevoerd wordt | string | nee | C​R​U​D |
+| onderwerp | Het onderwerp waarover contact is geweest met de klant. | string | nee | C​R​U​D |
+| toelichting | Een toelichting die inhoudelijk het contact met de klant beschrijft. | string | nee | C​R​U​D |
 
 ## Resultaat
 
@@ -48,7 +50,7 @@ Uitleg bij mogelijke waarden:
 * `vestiging` - Vestiging
 * `organisatorische_eenheid` - Organisatorische eenheid
 * `medewerker` - Medewerker | string | ja | C​R​U​D |
-| roltype |  URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK. | string | ja | C​R​U​D |
+| roltype | URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK. | string | ja | C​R​U​D |
 | omschrijving | Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | omschrijvingGeneriek | Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
 
@@ -212,6 +214,7 @@ Uitleg bij mogelijke waarden:
 | hoofdzaak | URL-referentie naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is. | string | nee | C​R​U​D |
 | deelzaken | URL-referenties naar deel ZAAKen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | relevanteAndereZaken | Een lijst van relevante andere zaken. | array | nee | C​R​U​D |
+| eigenschappen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | status | Indien geen status bekend is, dan is de waarde &#39;null&#39; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | kenmerken | Lijst van kenmerken. Merk op dat refereren naar gerelateerde objecten beter kan via `ZaakObject`. | array | nee | C​R​U​D |
 | archiefnominatie | Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.

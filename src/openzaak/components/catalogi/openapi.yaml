@@ -1,55 +1,48 @@
 openapi: 3.0.0
 info:
-  title: Open Zaak API
-  description: 'Een API om een zaaktypecatalogus (ZTC) te benaderen.
-
-
-    De zaaktypecatalogus helpt gemeenten om het proces vanuit de ''vraag van een
-
-    klant'' (productaanvraag, melding, aangifte, informatieverzoek e.d.) tot en met
-
-    het leveren van een passend antwoord daarop in te richten, inclusief de
-
-    bijbehorende informatievoorziening.
-
-
-    Een CATALOGUS bestaat uit ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn en
-
-    wordt typisch gebruikt om een ZAAK (in de Zaken API), INFORMATIEOBJECT (in de
-
-    Documenten API) en BESLUIT (in de Besluiten API) te voorzien van type,
-
-    standaardwaarden en processtructuur.
-
-
-    **Afhankelijkheden**
-
-
-    Deze API is afhankelijk van:
-
-
-    * Gemeentelijke Selectielijst API
-
-    * Autorisaties API *(optioneel)*
-
-
-    **Autorisatie**
-
-
-    Deze API vereist autorisatie. Je kan de
-
-    [token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te
-
-    genereren.
-
-    '
+  title: Catalogi API
+  description: "Een API om een zaaktypecatalogus (ZTC) te benaderen.\n\nDe zaaktypecatalogus\
+    \ helpt gemeenten om het proces vanuit de 'vraag van een\nklant' (productaanvraag,\
+    \ melding, aangifte, informatieverzoek e.d.) tot en met\nhet leveren van een passend\
+    \ antwoord daarop in te richten, inclusief de\nbijbehorende informatievoorziening.\n\
+    \nEen CATALOGUS bestaat uit ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn en\n\
+    wordt typisch gebruikt om een ZAAK (in de Zaken API), INFORMATIEOBJECT (in de\n\
+    Documenten API) en BESLUIT (in de Besluiten API) te voorzien van type,\nstandaardwaarden\
+    \ en processtructuur.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\
+    \n* Gemeentelijke Selectielijst API\n* Autorisaties API *(optioneel)*\n\n\n###\
+    \ Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\
+    \nDe tokens die gebruikt worden voor autorisatie zijn [jwt.io][JWT's] (JSON web\n\
+    token). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\
+    \n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een\
+    \ `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het\
+    \ `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client\
+    \ ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"\
+    user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\
+    \n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp\
+    \ is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\
+    \n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\n\
+    vrije velden met als enige beperking dat de lengte maximaal de lengte van\nde\
+    \ overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\
+    \n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `zaaktypen`.\n\
+    \n**Main resource**\n\n`zaaktype`\n\n\n\n**Kenmerken**\n\n* `catalogus`: URL-referentie\
+    \ naar de CATALOGUS waartoe dit ZAAKTYPE behoort.\n\n**Resources en acties**\n\
+    - `zaaktype`: create, update, destroy\n\n\nDeze API publiceert notificaties op\
+    \ het kanaal `besluittypen`.\n\n**Main resource**\n\n`besluittype`\n\n\n\n**Kenmerken**\n\
+    \n* `catalogus`: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.\n\
+    \n**Resources en acties**\n- `besluittype`: create, update, destroy\n\n\nDeze\
+    \ API publiceert notificaties op het kanaal `informatieobjecttypen`.\n\n**Main\
+    \ resource**\n\n`informatieobjecttype`\n\n\n\n**Kenmerken**\n\n* `catalogus`:\
+    \ URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.\n\
+    \n**Resources en acties**\n- `informatieobjecttype`: create, update, destroy\n\
+    \n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
+    * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
   contact:
-    url: https://zaakgerichtwerken.vng.cloud
-    email: standaarden.ondersteuning@vng.nl
+    url: https://www.maykinmedia.nl
+    email: support@maykinmedia.nl
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 0.1.0
+  version: 1.0.0
 security:
 - JWT-Claims: []
 paths:
@@ -6093,7 +6086,12 @@ paths:
       description: 'Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan. Dit kan alleen
         als het
 
-        bijbehorende ZAAKTYPE een concept betreft.'
+        bijbehorende ZAAKTYPE een concept betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -6365,7 +6363,12 @@ paths:
       description: 'Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel
         bij. Dit kan
 
-        alleen als het bijbehorende ZAAKTYPE een concept betreft.'
+        alleen als het bijbehorende ZAAKTYPE een concept betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -6512,7 +6515,12 @@ paths:
       description: 'Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij. Dit
         kan alleen
 
-        als het bijbehorende ZAAKTYPE een concept betreft.'
+        als het bijbehorende ZAAKTYPE een concept betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -6659,7 +6667,12 @@ paths:
       description: 'Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen
         als
 
-        het bijbehorende ZAAKTYPE een concept betreft.'
+        het bijbehorende ZAAKTYPE een concept betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `zaaktype` of `informatieobjecttype` is nog niet gepubliceerd'
       responses:
         '204':
           description: No content
@@ -6805,10 +6818,11 @@ paths:
           format: uri
       - name: identificatie
         in: query
-        description: ''
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
         required: false
         schema:
-          type: number
+          type: string
       - name: trefwoorden
         in: query
         description: Multiple values may be separated by commas.
@@ -6986,7 +7000,8 @@ paths:
         \ `catalogus` URL, dit moet een catalogus binnen dezelfde API zijn\n- Uniciteit\
         \ `catalogus` en `omschrijving`. Dezelfde omeschrijving mag enkel\n  opnieuw\
         \ gebruikt worden als het zaaktype een andere geldigheidsperiode\n  kent dan\
-        \ bestaande zaaktypen."
+        \ bestaande zaaktypen.\n- `deelzaaktypen` moeten tot dezelfde catalogus behoren\
+        \ als het ZAAKTYPE."
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -7258,7 +7273,12 @@ paths:
       description: 'Werk een ZAAKTYPE in zijn geheel bij. Dit kan alleen als het een
         concept
 
-        betreft.'
+        betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.'
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -7402,8 +7422,13 @@ paths:
     patch:
       operationId: zaaktype_partial_update
       summary: Werk een ZAAKTYPE deels bij.
-      description: Werk een ZAAKTYPE deels bij. Dit kan alleen als het een concept
+      description: 'Werk een ZAAKTYPE deels bij. Dit kan alleen als het een concept
         betreft.
+
+
+        Er wordt gevalideerd op:
+
+        - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.'
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -7824,8 +7849,9 @@ components:
           maxLength: 40
         reactietermijn:
           title: Reactietermijn
-          description: Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum,
-            waarbinnen verweer tegen een besluit van het besluittype mogelijk is.
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
+            mogelijk is.
           type: string
           format: duration
           nullable: true
@@ -7841,8 +7867,9 @@ components:
           type: string
         publicatietermijn:
           title: Publicatietermijn
-          description: Het aantal dagen, gerekend vanaf de verzend- of publicatiedatum,
-            dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten blijven.
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            blijven.
           type: string
           format: duration
           nullable: true
@@ -8425,6 +8452,7 @@ components:
           type: string
           format: duration
           nullable: true
+      nullable: true
     ResultaatType:
       required:
       - zaaktype
@@ -8544,7 +8572,7 @@ components:
           title: Omschrijving
           description: Omschrijving van de aard van de ROL.
           type: string
-          maxLength: 20
+          maxLength: 100
           minLength: 1
         omschrijvingGeneriek:
           title: Omschrijving generiek
@@ -8751,7 +8779,6 @@ components:
           maxLength: 255
     ZaakType:
       required:
-      - identificatie
       - omschrijving
       - vertrouwelijkheidaanduiding
       - doel
@@ -8786,9 +8813,8 @@ components:
           title: Identificatie
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
             het ZAAKTYPE voorkomt.
-          type: integer
-          maximum: 99999
-          minimum: 0
+          type: string
+          maxLength: 50
         omschrijving:
           title: Omschrijving
           description: Omschrijving van de aard van ZAAKen van het ZAAKTYPE.
@@ -8916,9 +8942,9 @@ components:
           type: boolean
         verlengingstermijn:
           title: Verlengingstermijn
-          description: De termijn in dagen waarmee de Doorlooptijd behandeling van
-            ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen een waarde bevatten
-            als verlenging mogelijk is.
+          description: De termijn (typisch een aantal dagen) waarmee de Doorlooptijd
+            behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen
+            een waarde bevatten als verlenging mogelijk is.
           type: string
           format: duration
           nullable: true
@@ -9037,6 +9063,16 @@ components:
             title: heeft relevante besluittypen
             description: URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen
               dit ZAAKTYPE.
+            type: string
+            format: uri
+          uniqueItems: true
+        deelzaaktypen:
+          description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
+            bij ZAAKen van dit ZAAKTYPE.
+          type: array
+          items:
+            description: De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen
+              bij ZAAKen van dit ZAAKTYPE.
             type: string
             format: uri
           uniqueItems: true

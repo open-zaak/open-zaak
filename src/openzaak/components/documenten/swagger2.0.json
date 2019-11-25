@@ -1,17 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "DOCUMENTEN API",
-        "description": "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\nIn een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een \nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens. \nINFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden \ngerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben. \n\nGEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT\n(buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd\nof gehandhaafd.\n\nDe typering van INFORMATIEOBJECTen is in de Catalogi API (ZTC) ondergebracht in\nde vorm van INFORMATIEOBJECTTYPEn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n* Zaken API *(optioneel)*\n\n**Autorisatie**\n\nDeze API vereist autorisatie. Je kan de\n[token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te\ngenereren.\n\n**Notificaties**\n\nDeze API publiceert notificaties op het kanaal `documenten`.\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n",
+        "title": "Documenten API",
+        "description": "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\nIn een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een\nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens.\nINFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden\ngerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben.\n\nGEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT\n(buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd\nof gehandhaafd.\n\nDe typering van INFORMATIEOBJECTen is in de Catalogi API (ZTC) ondergebracht in\nde vorm van INFORMATIEOBJECTTYPEn.\n\n**Uploaden van bestanden**\n\nBinnen deze API bestaan een aantal endpoints die binaire data ontvangen, al\ndan niet base64-encoded. Webservers moeten op deze endpoints een minimale\nrequest body size van 4.0 GiB ondersteunen. Dit omvat de JSON van de\nmetadata EN de base64-encoded bestandsdata. Hou hierbij rekening met de\noverhead van base64, die ongeveer 33% bedraagt in worst-case scenario's. Dit\nbetekent dat bij een limiet van 4GB het bestand maximaal ongeveer 3GB groot\nmag zijn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n* Zaken API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [jwt.io][JWT's] (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `documenten`.\n\n**Main resource**\n\n`enkelvoudiginformatieobject`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.\n* `informatieobjecttype`: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n",
         "contact": {
-            "url": "https://zaakgerichtwerken.vng.cloud",
-            "email": "standaarden.ondersteuning@vng.nl"
+            "url": "https://www.maykinmedia.nl",
+            "email": "support@maykinmedia.nl"
         },
         "license": {
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "0.1.0"
+        "version": "1.0.0"
     },
     "basePath": "/documenten/api/v1",
     "consumes": [
@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "bearerFormat": "JWT",
+            "type": "http",
             "scheme": "bearer",
-            "type": "http"
+            "bearerFormat": "JWT"
         }
     },
     "security": [
@@ -230,19 +230,12 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "post": {
                 "operationId": "enkelvoudiginformatieobject_create",
                 "summary": "Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.",
-                "description": "**Er wordt gevalideerd op**\n- geldigheid `informatieobjecttype` URL",
+                "description": "**Er wordt gevalideerd op**\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn",
                 "parameters": [
                     {
                         "name": "data",
@@ -421,17 +414,24 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "413": {
+                        "description": "Request entity too large",
+                        "schema": {
+                            "$ref": "#/definitions/Fout"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
                     }
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.aanmaken"
-                        ]
-                    }
                 ]
             },
             "parameters": []
@@ -936,19 +936,12 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "put": {
                 "operationId": "enkelvoudiginformatieobject_update",
                 "summary": "Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.",
-                "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL\n\n*TODO*\n- valideer immutable attributes",
+                "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n- status NIET `definitief`\n\n*TODO*\n- valideer immutable attributes",
                 "parameters": [
                     {
                         "name": "data",
@@ -1134,23 +1127,30 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "413": {
+                        "description": "Request entity too large",
+                        "schema": {
+                            "$ref": "#/definitions/Fout"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
                     }
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "patch": {
                 "operationId": "enkelvoudiginformatieobject_partial_update",
                 "summary": "Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.",
-                "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL\n\n*TODO*\n- valideer immutable attributes",
+                "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n- status NIET `definitief`\n\n*TODO*\n- valideer immutable attributes",
                 "parameters": [
                     {
                         "name": "data",
@@ -1336,23 +1336,30 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "413": {
+                        "description": "Request entity too large",
+                        "schema": {
+                            "$ref": "#/definitions/Fout"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
                     }
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.bijwerken"
-                        ]
-                    }
                 ]
             },
             "delete": {
                 "operationId": "enkelvoudiginformatieobject_delete",
                 "summary": "Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.",
-                "description": "Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies,\nsamen met alle gerelateerde resources binnen deze API.\n\n**Gerelateerde resources**\n- OBJECT-INFORMATIEOBJECT\n- GEBRUIKSRECHTen\n- audit trail regels",
+                "description": "Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies,\nsamen met alle gerelateerde resources binnen deze API. Dit is alleen mogelijk\nals er geen OBJECTINFORMATIEOBJECTen relateerd zijn aan het (ENKELVOUDIG)\nINFORMATIEOBJECT.\n\n**Gerelateerde resources**\n- GEBRUIKSRECHTen\n- audit trail regels",
                 "parameters": [
                     {
                         "name": "X-NLX-Request-Application-Id",
@@ -1517,13 +1524,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.verwijderen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1689,13 +1689,6 @@
                 ],
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lezen"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -1868,13 +1861,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "documenten.lock"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -2044,13 +2030,6 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
-                ],
-                "security": [
-                    {
-                        "JWT-Claims": [
-                            "(documenten.lock | documenten.geforceerd-unlock)"
-                        ]
-                    }
                 ]
             },
             "parameters": [
@@ -3943,7 +3922,8 @@
                     "type": "string",
                     "format": "date"
                 }
-            }
+            },
+            "x-nullable": true
         },
         "Integriteit": {
             "title": "integriteit",
@@ -3988,7 +3968,8 @@
                     "type": "string",
                     "format": "date"
                 }
-            }
+            },
+            "x-nullable": true
         },
         "EnkelvoudigInformatieObject": {
             "required": [
@@ -4477,7 +4458,7 @@
                 }
             }
         },
-        "Wijzgingen": {
+        "Wijzigingen": {
             "title": "Wijzigingen",
             "type": "object",
             "properties": {
@@ -4612,7 +4593,7 @@
                     "readOnly": true
                 },
                 "wijzigingen": {
-                    "$ref": "#/definitions/Wijzgingen"
+                    "$ref": "#/definitions/Wijzigingen"
                 }
             }
         },
@@ -4797,7 +4778,7 @@
                 },
                 "lock": {
                     "title": "Lock",
-                    "description": "Lock must be provided during updating the document (PATCH, PUT), not while creating it",
+                    "description": "Tijdens het updaten van een document (PATCH, PUT) moet het `lock` veld opgegeven worden. Bij het aanmaken (POST) mag het geen waarde hebben.",
                     "type": "string",
                     "minLength": 1
                 }
@@ -4808,7 +4789,7 @@
             "properties": {
                 "lock": {
                     "title": "Lock",
-                    "description": "Hash string, which represents id of the lock",
+                    "description": "Hash string, wordt gebruikt als ID voor de lock",
                     "type": "string",
                     "readOnly": true,
                     "minLength": 1
@@ -4820,7 +4801,7 @@
             "properties": {
                 "lock": {
                     "title": "Lock",
-                    "description": "Hash string, which represents id of the lock",
+                    "description": "Hash string, wordt gebruikt als ID voor de lock",
                     "type": "string",
                     "maxLength": 100
                 }
