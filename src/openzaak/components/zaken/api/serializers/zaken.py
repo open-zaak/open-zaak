@@ -140,6 +140,14 @@ class ZaakSerializer(
     NestedUpdateMixin,
     serializers.HyperlinkedModelSerializer,
 ):
+    eigenschappen = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        view_name="zaakeigenschap-detail",
+        parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
+        source="zaakeigenschap_set",
+    )
     zaaktype = LengthHyperlinkedRelatedField(
         view_name="zaaktype-detail",
         lookup_field="uuid",
@@ -243,6 +251,7 @@ class ZaakSerializer(
             "hoofdzaak",
             "deelzaken",
             "relevante_andere_zaken",
+            "eigenschappen",
             # read-only veld, on-the-fly opgevraagd
             "status",
             # Writable inline resource, as opposed to eigenschappen for demo
@@ -606,7 +615,16 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
 class KlantContactSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = KlantContact
-        fields = ("url", "uuid", "zaak", "identificatie", "datumtijd", "kanaal")
+        fields = (
+            "url",
+            "uuid",
+            "zaak",
+            "identificatie",
+            "datumtijd",
+            "kanaal",
+            "onderwerp",
+            "toelichting",
+        )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
