@@ -103,11 +103,28 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
     toelichting = models.TextField(
         max_length=1000, blank=True, help_text="Een toelichting op de zaak."
     )
-    zaaktype = models.ForeignKey(
+
+    _zaaktype_url = models.URLField(
+        _("extern zaaktype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern ZAAKTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
         on_delete=models.CASCADE,
-        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt",
+        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
     )
+    zaaktype = FkOrURLField(
+        fk_field="_zaaktype",
+        url_field="_zaaktype_url",
+        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
+    )
+
     registratiedatum = models.DateField(
         help_text="De datum waarop de zaakbehandelende organisatie de ZAAK "
         "heeft geregistreerd. Indien deze niet opgegeven wordt, "
