@@ -204,7 +204,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         default="",
         blank=True,
         max_length=100,
-        help_text=_("Hash string, which represents id of the lock"),
+        help_text="Hash string, wordt gebruikt als ID voor de lock",
     )
 
     def __str__(self):

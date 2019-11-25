@@ -43,6 +43,7 @@ from .filters import (
 from .kanalen import KANAAL_DOCUMENTEN
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
+from .schema import EIOAutoSchema
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -90,7 +91,9 @@ class EnkelvoudigInformatieObjectViewSet(
     Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.
 
     **Er wordt gevalideerd op**
-    - geldigheid `informatieobjecttype` URL
+    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
+      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
+    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
 
     list:
     Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
@@ -117,7 +120,10 @@ class EnkelvoudigInformatieObjectViewSet(
 
     **Er wordt gevalideerd op**
     - correcte `lock` waarde
-    - geldigheid `informatieobjecttype` URL
+    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
+      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
+    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
+    - status NIET `definitief`
 
     *TODO*
     - valideer immutable attributes
@@ -129,7 +135,10 @@ class EnkelvoudigInformatieObjectViewSet(
 
     **Er wordt gevalideerd op**
     - correcte `lock` waarde
-    - geldigheid `informatieobjecttype` URL
+    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
+      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
+    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
+    - status NIET `definitief`
 
     *TODO*
     - valideer immutable attributes
@@ -138,10 +147,11 @@ class EnkelvoudigInformatieObjectViewSet(
     Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.
 
     Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies,
-    samen met alle gerelateerde resources binnen deze API.
+    samen met alle gerelateerde resources binnen deze API. Dit is alleen mogelijk
+    als er geen OBJECTINFORMATIEOBJECTen relateerd zijn aan het (ENKELVOUDIG)
+    INFORMATIEOBJECT.
 
     **Gerelateerde resources**
-    - OBJECT-INFORMATIEOBJECT
     - GEBRUIKSRECHTen
     - audit trail regels
 
@@ -189,6 +199,8 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
+
+    swagger_schema = EIOAutoSchema
 
     def get_renderers(self):
         if self.action == "download":
@@ -590,6 +602,3 @@ class ObjectInformatieObjectViewSet(
                 },
                 code="inconsistent-relation",
             )
-
-        # nothing to do, the 'relation' info is dealt with through signals
-        pass

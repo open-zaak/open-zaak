@@ -329,10 +329,9 @@ class EnkelvoudigInformatieObjectWithLockSerializer(
 
     lock = serializers.CharField(
         write_only=True,
-        help_text=_(
-            "Lock must be provided during updating the document (PATCH, PUT), "
-            "not while creating it"
-        ),
+        help_text="Tijdens het updaten van een document (PATCH, PUT) moet het "
+        "`lock` veld opgegeven worden. Bij het aanmaken (POST) mag "
+        "het geen waarde hebben.",
     )
 
     class Meta(EnkelvoudigInformatieObjectSerializer.Meta):
