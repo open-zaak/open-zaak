@@ -1,6 +1,11 @@
 from django.conf import settings
 
 from drf_yasg import openapi
+from vng_api_common.notifications.utils import notification_documentation
+
+from openzaak.utils.apidoc import DOC_AUTH_JWT
+
+from .kanalen import KANAAL_BESLUITTYPEN, KANAAL_INFORMATIEOBJECTTYPEN, KANAAL_ZAAKTYPEN
 
 description = f"""Een API om een zaaktypecatalogus (ZTC) te benaderen.
 
@@ -21,16 +26,15 @@ Deze API is afhankelijk van:
 * Gemeentelijke Selectielijst API
 * Autorisaties API *(optioneel)*
 
-**Autorisatie**
+{DOC_AUTH_JWT}
 
-Deze API vereist autorisatie. Je kan de
-[token-tool](https://zaken-auth.vng.cloud/) gebruiken om JWT-tokens te
-genereren.
-"""
-# **Notificaties**
-#
-# Deze API publiceert notificaties op het kanaal `{KANAAL_CATALOGI.label}`.
-"""
+### Notificaties
+
+{notification_documentation(KANAAL_ZAAKTYPEN)}
+
+{notification_documentation(KANAAL_BESLUITTYPEN)}
+
+{notification_documentation(KANAAL_INFORMATIEOBJECTTYPEN)}
 
 **Handige links**
 
@@ -39,12 +43,11 @@ genereren.
 """
 
 info = openapi.Info(
-    title=f"{settings.PROJECT_NAME} API",
+    title=f"Catalogi API",
     default_version=settings.API_VERSION,
     description=description,
     contact=openapi.Contact(
-        email="standaarden.ondersteuning@vng.nl",
-        url="https://zaakgerichtwerken.vng.cloud",
+        email="support@maykinmedia.nl", url="https://www.maykinmedia.nl"
     ),
     license=openapi.License(
         name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"
