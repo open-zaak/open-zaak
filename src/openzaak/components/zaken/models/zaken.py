@@ -773,6 +773,18 @@ class KlantContact(models.Model):
         max_length=20,
         help_text="Het communicatiekanaal waarlangs het KLANTCONTACT gevoerd wordt",
     )
+    onderwerp = models.CharField(
+        blank=True,
+        max_length=200,
+        help_text=_("Het onderwerp waarover contact is geweest met de klant."),
+    )
+    toelichting = models.CharField(
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "Een toelichting die inhoudelijk het contact met de klant beschrijft."
+        ),
+    )
 
     objects = ZaakRelatedQuerySet.as_manager()
 
