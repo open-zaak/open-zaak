@@ -197,7 +197,7 @@ class ResultaatType(models.Model):
             "registratie",
             "procestermijn",
         ),
-        none_for_empty=True,
+        none_for_empty=False,
     )
 
     # meta-information - this is mostly informative
