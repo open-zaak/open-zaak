@@ -185,8 +185,12 @@ class AuditTrailAdminMixin(object):
         trail.save()
 
     def save_model(self, request, obj, form, change):
-        model = obj.__class__
         viewset = self.get_viewset(request)
+        if not viewset:
+            super().save_model(request, obj, form, change)
+            return
+
+        model = obj.__class__
         action = CommonResourceAction.update if change else CommonResourceAction.create
 
         # data before
@@ -204,9 +208,13 @@ class AuditTrailAdminMixin(object):
             self.trail(obj, viewset, request, action, data_before, data)
 
     def delete_model(self, request, obj):
+        viewset = self.get_viewset(request)
+        if not viewset:
+            super().delete_model(request, obj)
+            return
+
         model = obj.__class__
         basename = model._meta.object_name.lower()
-        viewset = self.get_viewset(request)
         action = CommonResourceAction.destroy
 
         data = self.get_serializer_data(request, viewset, obj)
