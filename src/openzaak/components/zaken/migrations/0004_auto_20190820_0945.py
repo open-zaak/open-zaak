@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
             model_name="rol",
             name="roltype",
             field=models.ForeignKey(
-                help_text=" URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+                help_text="URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
                 on_delete=django.db.models.deletion.CASCADE,
                 to="catalogi.RolType",
             ),

@@ -9,7 +9,10 @@ from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
-from rest_framework_nested.relations import NestedHyperlinkedIdentityField
+from rest_framework_nested.relations import (
+    NestedHyperlinkedIdentityField,
+    NestedHyperlinkedRelatedField,
+)
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.constants import (
     Archiefnominatie,
