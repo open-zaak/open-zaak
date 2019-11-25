@@ -308,6 +308,36 @@ class ZaakInformatieObjectTypeCatalogusValidator:
             raise ValidationError(self.message, code=self.code)
 
 
+class DeelzaaktypeCatalogusValidator:
+    code = "relations-incorrect-catalogus"
+    message = _("Hoofd- en deelzaaktypen moeten tot dezelfde catalogus behoren")
+
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        self.instance = serializer.instance
+
+    def __call__(self, attrs: dict):
+        default_deelzaaktypen = (
+            self.instance.deelzaaktypen.all() if self.instance else []
+        )
+        default_catalogus = self.instance.catalogus if self.instance else None
+
+        deelzaaktypen = attrs.get("deelzaaktypen") or default_deelzaaktypen
+        catalogus = attrs.get("catalogus") or default_catalogus
+
+        # can't run validator...
+        if catalogus is None:
+            return
+
+        if any(
+            deelzaaktype.catalogus_id != catalogus.id for deelzaaktype in deelzaaktypen
+        ):
+            raise ValidationError({"deelzaaktypen": self.message}, code=self.code)
+
+
 class ConceptUpdateValidator:
     message = _("Het is niet toegestaan om een non-concept object bij te werken")
     code = "non-concept-object"

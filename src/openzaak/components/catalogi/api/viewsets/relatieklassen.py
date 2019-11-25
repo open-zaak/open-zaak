@@ -37,6 +37,9 @@ class ZaakTypeInformatieObjectTypeViewSet(
     Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan. Dit kan alleen als het
     bijbehorende ZAAKTYPE een concept betreft.
 
+    Er wordt gevalideerd op:
+    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
+
     list:
     Alle ZAAKTYPE-INFORMATIEOBJECTTYPE relaties opvragen.
 
@@ -53,17 +56,26 @@ class ZaakTypeInformatieObjectTypeViewSet(
     Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij. Dit kan
     alleen als het bijbehorende ZAAKTYPE een concept betreft.
 
+    Er wordt gevalideerd op:
+    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
+
     partial_update:
     Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
 
     Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij. Dit kan alleen
     als het bijbehorende ZAAKTYPE een concept betreft.
 
+    Er wordt gevalideerd op:
+    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
+
     destroy:
     Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
 
     Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen als
     het bijbehorende ZAAKTYPE een concept betreft.
+
+    Er wordt gevalideerd op:
+    - `zaaktype` of `informatieobjecttype` is nog niet gepubliceerd
     """
 
     queryset = (

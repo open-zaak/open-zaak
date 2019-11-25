@@ -351,6 +351,16 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     #
     # relaties
     #
+    deelzaaktypen = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        blank=True,
+        related_name="hoofdzaaktypen",
+        help_text=_(
+            "De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen bij "
+            "ZAAKen van dit ZAAKTYPE."
+        ),
+    )
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
         verbose_name=_("maakt deel uit van"),

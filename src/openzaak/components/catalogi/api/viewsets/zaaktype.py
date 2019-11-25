@@ -3,10 +3,11 @@ from django.utils.translation import ugettext_lazy as _
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
+from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
@@ -46,6 +47,7 @@ class ZaakTypeViewSet(
     - Uniciteit `catalogus` en `omschrijving`. Dezelfde omeschrijving mag enkel
       opnieuw gebruikt worden als het zaaktype een andere geldigheidsperiode
       kent dan bestaande zaaktypen.
+    - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
 
     list:
     Alle ZAAKTYPEn opvragen.
@@ -63,10 +65,16 @@ class ZaakTypeViewSet(
     Werk een ZAAKTYPE in zijn geheel bij. Dit kan alleen als het een concept
     betreft.
 
+    Er wordt gevalideerd op:
+    - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
+
     partial_update:
     Werk een ZAAKTYPE deels bij.
 
     Werk een ZAAKTYPE deels bij. Dit kan alleen als het een concept betreft.
+
+    Er wordt gevalideerd op:
+    - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.
 
     destroy:
     Verwijder een ZAAKTYPE.
@@ -114,6 +122,7 @@ class ZaakTypeViewSet(
         if (
             instance.besluittypen.filter(concept=True).exists()
             or instance.informatieobjecttypen.filter(concept=True).exists()
+            or instance.deelzaaktypen.filter(concept=True).exists()
         ):
             msg = _("All related resources should be published")
             raise ValidationError(
