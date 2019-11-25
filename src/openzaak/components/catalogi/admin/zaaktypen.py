@@ -21,7 +21,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import NewVersionMixin, PublishAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -59,8 +59,8 @@ class ZaakTypenRelatieInline(admin.TabularInline):
 
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
+    NewVersionMixin,
     ListObjectActionsAdminMixin,
-    GeldigheidAdminMixin,
     PublishAdminMixin,
     DynamicArrayMixin,
     admin.ModelAdmin,
@@ -121,7 +121,6 @@ class ZaakTypeAdmin(
                     "vertrouwelijkheidaanduiding",
                     "producten_of_diensten",
                     "verantwoordingsrelatie",
-                    "versiedatum",  # ??
                 )
             },
         ),
@@ -132,8 +131,19 @@ class ZaakTypeAdmin(
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
         (_("Relaties"), {"fields": ("catalogus",)}),
+        (
+            _("Geldigheid"),
+            {
+                "fields": (
+                    "versiedatum",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
+                )
+            },
+        ),
     )
     raw_id_fields = ("catalogus",)
+    readonly_fields = ("versiedatum",)
     inlines = (
         ZaakTypenRelatieInline,
         StatusTypeInline,
@@ -141,6 +151,8 @@ class ZaakTypeAdmin(
         EigenschapInline,
         ResultaatTypeInline,
     )
+    change_form_template = "admin/catalogi/change_form_zaaktype.html"
+    exclude_copy_relation = ("zaak",)
 
     def _publish_validation_errors(self, obj):
         errors = []
@@ -163,3 +175,8 @@ class ZaakTypeAdmin(
         if db_field.name == "selectielijst_procestype":
             return get_procestype_field(db_field, request, **kwargs)
         return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        obj.versiedatum = obj.datum_begin_geldigheid
+
+        super().save_model(request, obj, form, change)

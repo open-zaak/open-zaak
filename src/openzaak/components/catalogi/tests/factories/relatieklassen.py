@@ -1,6 +1,7 @@
 import factory
+import factory.fuzzy
 
-from ...constants import RichtingChoices
+from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import (
     ZaakInformatieobjectType,
     ZaakInformatieobjectTypeArchiefregime,
@@ -39,6 +40,7 @@ class ZaakTypenRelatieFactory(factory.django.DjangoModelFactory):
         "openzaak.components.catalogi.tests.factories.ZaakTypeFactory"
     )
     gerelateerd_zaaktype = factory.Faker("url")
+    aard_relatie = factory.fuzzy.FuzzyChoice(choices=AardRelatieChoices.values)
 
     class Meta:
         model = ZaakTypenRelatie

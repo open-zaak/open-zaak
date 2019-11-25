@@ -942,7 +942,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["aanleiding"], "aangepast")
         zaaktype.delete()
 
@@ -1000,6 +1000,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2018-03-01",
+            versiedatum=date(2018, 3, 1),
             datum_einde_geldigheid="2019-01-01",
         )
         zaaktype_url = reverse(zaaktype)
@@ -1007,6 +1008,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_for_besluittype = ZaakTypeFactory.create(
             catalogus=catalogus,
             datum_begin_geldigheid="2015-01-01",
+            versiedatum=date(2018, 3, 1),
             datum_einde_geldigheid="2016-01-01",
         )
         besluittype = BesluitTypeFactory.create(
@@ -1196,7 +1198,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
             "referentieproces": {"naam": "ref", "link": "https://example.com"},
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],
-            "versiedatum": "2019-02-01",
+            "versiedatum": "2020-02-01",
         }
 
         response = self.client.post(self.url, data)
