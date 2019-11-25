@@ -29,6 +29,7 @@ class ZaakTypeViewSet(
     ConceptDestroyMixin,
     ConceptFilterMixin,
     M2MConceptDestroyMixin,
+    NotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
