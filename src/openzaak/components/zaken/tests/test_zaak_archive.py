@@ -452,7 +452,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertIsNone(zaak.archiefactiedatum)
 
-    def test_add_resultaat_on_zaak_with_zaakobject_causes_archiefactiedatum_to_be_set(
+    def test_add_resultaat_on_zaak_with_remote_zaakobjecten_causes_archiefactiedatum_to_be_set(
         self,
     ):
         """
@@ -460,17 +460,23 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         """
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        zaak_object = ZaakObjectFactory.create(zaak=zaak)
+        zaak_object1 = ZaakObjectFactory.create(zaak=zaak)
+        zaak_object2 = ZaakObjectFactory.create(
+            zaak=zaak, object_type=zaak_object1.object_type
+        )
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
             brondatum_archiefprocedure_datumkenmerk="einddatum",
-            brondatum_archiefprocedure_objecttype=zaak_object.object_type,
+            brondatum_archiefprocedure_objecttype=zaak_object1.object_type,
             zaaktype=zaak.zaaktype,
         )
         resultaattype_url = reverse(resultaattype)
-        responses = {zaak_object.object: {"einddatum": isodatetime(2019, 1, 1)}}
+        responses = {
+            zaak_object1.object: {"einddatum": isodatetime(2019, 1, 1)},
+            zaak_object2.object: {"einddatum": isodatetime(2022, 1, 1)},
+        }
 
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
@@ -496,7 +502,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         zaak.refresh_from_db()
-        self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2032, 1, 1))
 
     def test_add_resultaat_on_zaak_with_procestermijn_causes_archiefactiedatum_to_be_set(
         self,
