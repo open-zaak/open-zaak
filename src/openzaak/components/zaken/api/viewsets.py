@@ -195,7 +195,7 @@ class ZaakViewSet(
     """
 
     queryset = (
-        Zaak.objects.select_related("zaaktype")
+        Zaak.objects.select_related("_zaaktype")
         .prefetch_related(
             "deelzaken",
             "relevante_andere_zaken",
