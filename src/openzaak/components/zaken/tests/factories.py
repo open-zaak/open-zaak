@@ -63,6 +63,13 @@ class ZaakObjectFactory(factory.django.DjangoModelFactory):
         model = "zaken.ZaakObject"
 
 
+class WozWaardeFactory(factory.django.DjangoModelFactory):
+    zaakobject = factory.SubFactory(ZaakObjectFactory)
+
+    class Meta:
+        model = "zaken.WozWaarde"
+
+
 class RolFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     betrokkene = factory.Faker("url")
