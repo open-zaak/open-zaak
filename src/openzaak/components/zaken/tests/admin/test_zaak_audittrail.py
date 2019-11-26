@@ -56,7 +56,7 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         add_url = reverse("admin:zaken_zaak_add")
         data = {
             "uuid": uuid.uuid4(),
-            "zaaktype": zaaktype.id,
+            "_zaaktype": zaaktype.id,
             "bronorganisatie": "517439943",
             "registratiedatum": "15-11-2019",
             "verantwoordelijke_organisatie": "517439943",
@@ -101,7 +101,7 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
         data = {
             "uuid": zaak.uuid,
-            "zaaktype": zaak.zaaktype.id,
+            "_zaaktype": zaak.zaaktype.id,
             "bronorganisatie": "517439943",
             "registratiedatum": "15-11-2019",
             "verantwoordelijke_organisatie": "517439943",

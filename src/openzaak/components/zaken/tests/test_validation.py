@@ -133,7 +133,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             url,
             {
-                "zaaktype": zaaktype_url,
+                "zaaktype": f'http://testserver{zaaktype_url}',
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
