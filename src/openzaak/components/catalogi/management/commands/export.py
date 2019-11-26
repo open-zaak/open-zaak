@@ -60,6 +60,10 @@ class Command(BaseCommand):
                 serialized = serializer(instance, context={"request": request})
                 data = serialized.data
 
+                # Because BesluitType is imported before ZaakType, related
+                # ZaakTypen do not exist yet at the time of importing, so the
+                # relations will be left empty when importing BesluitTypen and
+                # they will be set when importing ZaakTypen
                 if resource == "BesluitType":
                     data["zaaktypen"] = []
                 results.append(data)

@@ -1,6 +1,7 @@
 import os
 
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 
 from django_webtest import WebTest
 
@@ -132,7 +133,8 @@ class CatalogusAdminImportExportTests(WebTest):
             response = form.submit("_import")
 
         self.assertIn(
-            "validation error occurred while deserializing a Catalogus", response.text
+            _("A validation error occurred while deserializing a Catalogus"),
+            response.text,
         )
         self.assertEqual(Catalogus.objects.count(), 1)
 
