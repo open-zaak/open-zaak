@@ -131,17 +131,33 @@ def get_brondatum(
                 )
             )
 
+        dates = []
         for zaak_object in zaak.zaakobject_set.filter(object_type=objecttype):
-            object = zaak_object._get_object()
-            if datum_kenmerk in object:
-                try:
-                    return parse_isodatetime(object[datum_kenmerk]).date()
-                except ValueError:
-                    raise DetermineProcessEndDateException(
-                        _('Geen geldige datumwaarde in attribuut "{}": {}').format(
-                            datum_kenmerk, object[datum_kenmerk]
-                        )
+            if zaak_object.object:
+                remote_object = zaak_object._get_object()
+                value = remote_object.get(datum_kenmerk)
+            else:
+                local_object = getattr(zaak_object, objecttype.replace("_", ""))
+                value = getattr(local_object, datum_kenmerk, None)
+
+            if value is None:
+                raise DetermineProcessEndDateException(
+                    _("{} geen geldig attribuut voor ZaakObject van type {}").format(
+                        datum_kenmerk, objecttype
                     )
+                )
+
+            try:
+                dates.append(parse_isodatetime(value).date())
+            except ValueError:
+                raise DetermineProcessEndDateException(
+                    _('Geen geldige datumwaarde in attribuut "{}": {}').format(
+                        datum_kenmerk, value
+                    )
+                )
+
+        if dates:
+            return max(dates)
 
         raise DetermineProcessEndDateException(
             _(
