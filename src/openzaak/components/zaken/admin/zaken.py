@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from openzaak.components.zaken.api import viewsets
-from openzaak.utils.admin import AuditTrailAdminMixin
+from openzaak.utils.admin import AuditTrailAdminMixin, AuditTrailInlineAdminMixin
 
 from ..models import (
     KlantContact,
@@ -16,33 +16,40 @@ from ..models import (
 )
 
 
-class StatusInline(admin.TabularInline):
+class StatusInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Status
+    viewset = viewsets.StatusViewSet
 
 
-class ZaakObjectInline(admin.TabularInline):
+class ZaakObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakObject
+    viewset = viewsets.ZaakObjectViewSet
 
 
-class ZaakEigenschapInline(admin.TabularInline):
+class ZaakEigenschapInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakEigenschap
+    viewset = viewsets.ZaakEigenschapViewSet
 
 
-class ZaakInformatieObjectInline(admin.TabularInline):
+class ZaakInformatieObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakInformatieObject
+    viewset = viewsets.ZaakInformatieObjectViewSet
 
 
-class KlantContactInline(admin.TabularInline):
+class KlantContactInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = KlantContact
+    viewset = viewsets.KlantContactViewSet
 
 
-class RolInline(admin.TabularInline):
+class RolInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Rol
     raw_id_fields = ["zaak"]
+    viewset = viewsets.RolViewSet
 
 
-class ResultaatInline(admin.TabularInline):
+class ResultaatInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Resultaat
+    viewset = viewsets.ResultaatViewSet
 
 
 class RelevanteZaakRelatieInline(admin.TabularInline):

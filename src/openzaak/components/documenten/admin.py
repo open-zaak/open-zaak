@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from privates.admin import PrivateMediaMixin
 
-from openzaak.utils.admin import AuditTrailAdminMixin
+from openzaak.utils.admin import AuditTrailAdminMixin, AuditTrailInlineAdminMixin
 
 from .api import viewsets
 from .models import (
@@ -13,14 +13,18 @@ from .models import (
 )
 
 
-class GebruiksrechtenInline(admin.TabularInline):
+class GebruiksrechtenInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Gebruiksrechten
     extra = 1
+    viewset = viewsets.GebruiksrechtenViewSet
 
 
-class EnkelvoudigInformatieObjectInline(admin.StackedInline):
+class EnkelvoudigInformatieObjectInline(
+    AuditTrailInlineAdminMixin, admin.StackedInline
+):
     model = EnkelvoudigInformatieObject
     extra = 1
+    viewset = viewsets.EnkelvoudigInformatieObjectViewSet
 
 
 def unlock(modeladmin, request, queryset):
@@ -28,7 +32,9 @@ def unlock(modeladmin, request, queryset):
 
 
 @admin.register(EnkelvoudigInformatieObjectCanonical)
-class EnkelvoudigInformatieObjectCanonicalAdmin(PrivateMediaMixin, admin.ModelAdmin):
+class EnkelvoudigInformatieObjectCanonicalAdmin(
+    AuditTrailAdminMixin, PrivateMediaMixin, admin.ModelAdmin
+):
     list_display = ["__str__", "get_not_lock_display"]
     inlines = [EnkelvoudigInformatieObjectInline, GebruiksrechtenInline]
     private_media_fields = ("inhoud",)
@@ -39,6 +45,9 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(PrivateMediaMixin, admin.ModelAd
 
     get_not_lock_display.short_description = "free to change"
     get_not_lock_display.boolean = True
+
+    def get_viewset(self, request):
+        return None
 
 
 @admin.register(EnkelvoudigInformatieObject)

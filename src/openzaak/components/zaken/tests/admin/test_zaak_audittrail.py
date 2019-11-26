@@ -3,6 +3,7 @@ import uuid
 from django.test import TestCase
 from django.urls import reverse
 
+from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
@@ -48,9 +49,7 @@ inline_data = {
 }
 
 
-class ZaakAdminTests(AdminTestMixin, TestCase):
-    heeft_alle_autorisaties = True
-
+class ZaakAdminTests(AdminTestMixin, WebTest):
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
@@ -162,4 +161,16 @@ class ZaakAdminTests(AdminTestMixin, TestCase):
         self.client.post(delete_url, data)
 
         self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(AuditTrail.objects.count(), 0)
+
+    def test_save_zaak_without_change(self):
+        self.app.set_user(self.user)
+        zaak = ZaakFactory.create()
+        change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        get_response = self.app.get(change_url)
+
+        form = get_response.form
+        form.submit()
+
         self.assertEqual(AuditTrail.objects.count(), 0)

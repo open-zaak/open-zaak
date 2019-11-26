@@ -142,20 +142,24 @@ class AuditTrailAdminMixin(object):
 
         return viewset(request=request, format_kwarg=None)
 
-    def add_version_to_request(self, request, uuid):
+    def add_version_to_request(self, request, viewset, uuid):
         # add versioning to request
-        viewset = self.get_viewset(request)
         version, scheme = viewset.determine_version(
             request, version=api_settings.DEFAULT_VERSION, uuid=uuid
         )
         request.version, request.versioning_scheme = version, scheme
 
-    def trail(self, obj, request, action, data_before, data_after):
+    def get_serializer_data(self, request, viewset, obj):
+        self.add_version_to_request(request, viewset, obj)
+
+        serializer = viewset.get_serializer(obj)
+        return serializer.data
+
+    def trail(self, obj, viewset, request, action, data_before, data_after):
         model = obj.__class__
         basename = model._meta.object_name.lower()
-
-        viewset = self.get_viewset(request)
         data = data_after or data_before
+
         if basename == viewset.audit.main_resource:
             main_object = data["url"]
         elif hasattr(viewset, "audittrail_main_resource_key"):
@@ -181,39 +185,39 @@ class AuditTrailAdminMixin(object):
         trail.save()
 
     def save_model(self, request, obj, form, change):
-        model = obj.__class__
         viewset = self.get_viewset(request)
-        self.add_version_to_request(request, obj.uuid)
+        if not viewset:
+            super().save_model(request, obj, form, change)
+            return
 
+        model = obj.__class__
         action = CommonResourceAction.update if change else CommonResourceAction.create
 
         # data before
         data_before = None
         if change:
             obj_before = model.objects.filter(pk=obj.pk).get()
-            serializer_before = viewset.get_serializer(obj_before)
-            data_before = serializer_before.data
+            data_before = self.get_serializer_data(request, viewset, obj_before)
 
         super().save_model(request, obj, form, change)
 
         # data after
-        serializer = viewset.get_serializer(obj)
-        data = serializer.data
+        data = self.get_serializer_data(request, viewset, obj)
 
-        self.trail(obj, request, action, data_before, data)
+        if data_before != data:
+            self.trail(obj, viewset, request, action, data_before, data)
 
     def delete_model(self, request, obj):
+        viewset = self.get_viewset(request)
+        if not viewset:
+            super().delete_model(request, obj)
+            return
+
         model = obj.__class__
         basename = model._meta.object_name.lower()
-
-        viewset = self.get_viewset(request)
-        self.add_version_to_request(request, obj.uuid)
-
         action = CommonResourceAction.destroy
 
-        # data before
-        serializer = viewset.get_serializer(obj)
-        data = serializer.data
+        data = self.get_serializer_data(request, viewset, obj)
 
         if basename == viewset.audit.main_resource:
             with transaction.atomic():
@@ -223,9 +227,75 @@ class AuditTrailAdminMixin(object):
 
         super().delete_model(request, obj)
 
-        self.trail(obj, request, action, data, None)
+        self.trail(obj, viewset, request, action, data, None)
 
     def delete_queryset(self, request, queryset):
         # data before
         for obj in queryset:
             self.delete_model(request, obj)
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Given an inline formset save it to the database.
+        """
+        if not hasattr(formset, "viewset"):
+            super().save_formset(request, form, formset, change)
+            return
+
+        viewset = formset.viewset
+
+        # we need to save data before update/delete
+        obj_before_data = {}
+        for form in formset.initial_forms:
+            obj = form.instance
+            if obj.pk is None:
+                continue
+
+            obj_before = obj.__class__.objects.get(pk=obj.pk)
+            data = self.get_serializer_data(request, viewset, obj_before)
+            obj_before_data.update({obj.uuid: data})
+
+        super().save_formset(request, form, formset, change)
+
+        # delete existing
+        for obj in formset.deleted_objects:
+            data_before = obj_before_data[obj.uuid]
+
+            self.trail(
+                obj, viewset, request, CommonResourceAction.destroy, data_before, None
+            )
+
+        # change existing
+        for obj, changed_data in formset.changed_objects:
+            data_before = obj_before_data[obj.uuid]
+            data_after = self.get_serializer_data(request, viewset, obj)
+
+            self.trail(
+                obj,
+                viewset,
+                request,
+                CommonResourceAction.update,
+                data_before,
+                data_after,
+            )
+
+        # add new
+        for obj in formset.new_objects:
+            data_after = self.get_serializer_data(request, viewset, obj)
+            self.trail(
+                obj, viewset, request, CommonResourceAction.create, None, data_after
+            )
+
+
+class AuditTrailInlineAdminMixin(object):
+    viewset = None
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+
+        viewset = self.viewset
+        if isinstance(viewset, str):
+            viewset = import_string(viewset)
+
+        formset.viewset = viewset(request=request, format_kwarg=None)
+        return formset
