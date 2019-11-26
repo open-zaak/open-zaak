@@ -642,7 +642,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_create_external_besluittype_fail_not_json_url(self):
+    def test_create_external_zaaktype_fail_not_json_url(self):
         response = self.client.post(
             self.list_url,
             {
@@ -660,7 +660,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "invalid-resource")
 
-    def test_create_external_besluittype_fail_invalid_schema(self):
+    def test_create_external_zaaktype_fail_invalid_schema(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
