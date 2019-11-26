@@ -129,7 +129,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
 
         # Creeer Zaak
         data = {
-            "zaaktype": f'http://testserver{zaaktype_url}',
+            "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "bronorganisatie": "517439943",
             "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,

@@ -43,17 +43,11 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "opschortingEnAanhoudingMogelijk": False,
         "verlengingMogelijk": False,
         "verlengingstermijn": None,
-        "trefwoorden": [
-           "qwerty"
-        ],
+        "trefwoorden": ["qwerty"],
         "publicatieIndicatie": False,
         "publicatietekst": "",
-        "verantwoordingsrelatie": [
-           "qwerty"
-        ],
-        "productenOfDiensten": [
-           "https://example.com/product/123"
-        ],
+        "verantwoordingsrelatie": ["qwerty"],
+        "productenOfDiensten": ["https://example.com/product/123"],
         "selectielijstProcestype": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         "referentieproces": {},
         "statustypen": [],
@@ -65,5 +59,5 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "gerelateerdeZaaktypen": [],
         "beginGeldigheid": "2019-11-20",
         "versiedatum": "2019-11-20",
-        "concept": False
+        "concept": False,
     }

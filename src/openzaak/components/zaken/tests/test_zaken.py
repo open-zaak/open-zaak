@@ -2,11 +2,11 @@ import unittest
 from datetime import date
 
 from django.contrib.gis.geos import Point
-from django.utils import timezone
 from django.test import tag
+from django.utils import timezone
 
-from dateutil.relativedelta import relativedelta
 import requests_mock
+from dateutil.relativedelta import relativedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -39,9 +39,9 @@ from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
     get_operation_url,
+    get_zaaktype_response,
     isodatetime,
     utcdatetime,
-    get_zaaktype_response
 )
 
 
@@ -590,9 +590,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
-                "GET",
-                zaaktype,
-                json=get_zaaktype_response(catalogus, zaaktype),
+                "GET", zaaktype, json=get_zaaktype_response(catalogus, zaaktype),
             )
             m.register_uri(
                 "GET",
