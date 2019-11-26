@@ -1,16 +1,21 @@
+import os
 import uuid
 from datetime import date
 from urllib.parse import quote as urlquote
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.core.files.base import ContentFile
 from django.core.management import CommandError, call_command
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+
+from privates.storages import private_media_storage
 
 from ..models import ZaakInformatieobjectType
 from .forms import CatalogusImportForm
@@ -59,7 +64,6 @@ class PublishAdminMixin:
             return super().response_post_save_change(request, obj)
 
 
-<<<<<<< HEAD
 class NewVersionMixin(object):
     exclude_copy_relation = []
 
@@ -115,7 +119,7 @@ class NewVersionMixin(object):
 
             msg = format_html(
                 _('The new version of {name} "{obj}" was successfully created'),
-                **msg_dict
+                **msg_dict,
             )
             self.message_user(request, msg, messages.SUCCESS)
 
@@ -130,7 +134,8 @@ class NewVersionMixin(object):
             return HttpResponseRedirect(redirect_url)
 
         return super().response_change(request, obj)
-=======
+
+
 class CatalogusImportExportMixin:
     def import_view(self, request):
         form = CatalogusImportForm(request.POST, request.FILES)
@@ -138,7 +143,14 @@ class CatalogusImportExportMixin:
         if "_import" in request.POST:
             if form.is_valid():
                 try:
-                    call_command("import", form.cleaned_data["file"])
+                    import_file = form.cleaned_data["file"]
+                    path = private_media_storage.save(
+                        f"uploads/imports/{import_file.name}",
+                        ContentFile(import_file.read()),
+                    )
+                    call_command(
+                        "import", os.path.join(settings.PRIVATE_MEDIA_ROOT, path)
+                    )
                     self.message_user(
                         request,
                         _("Catalogus successfully imported"),
@@ -198,8 +210,10 @@ class CatalogusImportExportMixin:
                 pass
 
             resource_list, id_list = self.get_related_objects(obj)
+
+            filename = f"{obj.domein}.zip"
             call_command(
-                "export", f"{obj.domein}.zip", resource=resource_list, ids=id_list,
+                "export", filename, resource=resource_list, ids=id_list,
             )
 
             self.message_user(
@@ -207,7 +221,14 @@ class CatalogusImportExportMixin:
                 _(f"Catalogus {obj} was successfully exported"),
                 level=messages.SUCCESS,
             )
-            return HttpResponseRedirect(request.path)
+            # return HttpResponseRedirect(request.path)
+            with open(filename, "rb") as f:
+                response = HttpResponse(f, content_type="application/zip")
+                os.remove(filename)
+                response["Content-Length"] = len(response.content)
+                response["Content-Disposition"] = "attachment;filename={}".format(
+                    filename
+                )
+                return response
         else:
             return super().response_post_save_change(request, obj)
->>>>>>> PR feedback
