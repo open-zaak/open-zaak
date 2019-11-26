@@ -3,8 +3,10 @@ from datetime import date
 
 from django.contrib.gis.geos import Point
 from django.utils import timezone
+from django.test import tag
 
 from dateutil.relativedelta import relativedelta
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -39,6 +41,7 @@ from .utils import (
     get_operation_url,
     isodatetime,
     utcdatetime,
+    get_zaaktype_response
 )
 
 
@@ -574,3 +577,133 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             zaak.archiefactiedatum, date(2030, 5, 3)  # 2020-05-03 + 10 years
         )
+
+
+@tag("external-urls")
+class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    list_url = get_operation_url("zaak_create")
+
+    def test_create_external_zaaktype(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.register_uri(
+                "GET",
+                zaaktype,
+                json=get_zaaktype_response(catalogus, zaaktype),
+            )
+            m.register_uri(
+                "GET",
+                catalogus,
+                json={
+                    "url": catalogus,
+                    "domein": "PUB",
+                    "contactpersoonBeheerTelefoonnummer": "0612345678",
+                    "rsin": "517439943",
+                    "contactpersoonBeheerNaam": "Jan met de Pet",
+                    "contactpersoonBeheerEmailadres": "jan@petten.nl",
+                    "informatieobjecttypen": [],
+                    "zaaktypen": [zaaktype],
+                    "besluittypen": [],
+                },
+            )
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaaktype": zaaktype,
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-12-24",
+                    "startdatum": "2018-12-24",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_external_zaaktype_fail_bad_url(self):
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": "abcd",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "bad-url")
+
+    def test_create_external_besluittype_fail_not_json_url(self):
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": "http://example.com",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_besluittype_fail_invalid_schema(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.register_uri(
+                "GET",
+                zaaktype,
+                json={
+                    "url": zaaktype,
+                    "catalogus": catalogus,
+                    "identificatie": "12345",
+                    "omschrijving": "Main zaaktype",
+                    "vertrouwelijkheidaanduiding": "openbaar",
+                    "concept": False,
+                },
+            )
+            m.register_uri(
+                "GET",
+                catalogus,
+                json={
+                    "url": catalogus,
+                    "domein": "PUB",
+                    "informatieobjecttypen": [],
+                    "zaaktypen": [zaaktype],
+                    "besluittypen": [],
+                },
+            )
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaaktype": zaaktype,
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-12-24",
+                    "startdatum": "2018-12-24",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "invalid-resource")
