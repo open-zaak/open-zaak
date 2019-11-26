@@ -7,6 +7,8 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import URLValidator
 
+from openzaak.utils.auth import get_auth
+
 from ...models import ZaakObject
 from .address import ObjectAdresSerializer
 from .betrokkenen import (
@@ -97,7 +99,10 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "object": {"required": False, "validators": [URLValidator()]},
+            "object": {
+                "required": False,
+                "validators": [URLValidator(get_auth=get_auth)],
+            },
         }
 
     def __init__(self, *args, **kwargs):
