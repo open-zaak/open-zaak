@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
@@ -38,7 +39,9 @@ class CatalogusAdminImportExportTests(WebTest):
         super().setUp()
 
         self.app.set_user(self.user)
-        self.filename = "TEST.zip"
+        self.filename = os.path.join(
+            settings.PRIVATE_MEDIA_ROOT, "uploads/imports/TEST.zip"
+        )
 
     def test_export_import_catalogus_with_relations(self):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -69,7 +72,9 @@ class CatalogusAdminImportExportTests(WebTest):
         response = self.app.get(url)
         form = response.forms["catalogus_form"]
 
-        response = form.submit("_export").follow()
+        response = form.submit("_export")
+
+        data = response.content
 
         catalogus.delete()
         url = reverse("admin:catalogi_catalogus_import")
@@ -77,12 +82,11 @@ class CatalogusAdminImportExportTests(WebTest):
         response = self.app.get(url)
 
         form = response.form
-        with open(self.filename, "rb") as f:
-            form["file"] = (
-                self.filename,
-                f.read(),
-            )
-            response = form.submit("_import")
+        form["file"] = (
+            self.filename,
+            data,
+        )
+        response = form.submit("_import")
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -118,19 +122,20 @@ class CatalogusAdminImportExportTests(WebTest):
         response = self.app.get(url)
         form = response.forms["catalogus_form"]
 
-        response = form.submit("_export").follow()
+        response = form.submit("_export")
+
+        data = response.content
 
         url = reverse("admin:catalogi_catalogus_import")
 
         response = self.app.get(url)
 
         form = response.form
-        with open(self.filename, "rb") as f:
-            form["file"] = (
-                self.filename,
-                f.read(),
-            )
-            response = form.submit("_import")
+        form["file"] = (
+            self.filename,
+            data,
+        )
+        response = form.submit("_import")
 
         self.assertIn(
             _("A validation error occurred while deserializing a Catalogus"),
