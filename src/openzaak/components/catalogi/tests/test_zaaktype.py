@@ -111,6 +111,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "eindeGeldigheid": None,
             "versiedatum": "2018-01-01",
             "concept": True,
+            "deelzaaktypen": [],
         }
         self.assertEqual(response_data, expected)
 

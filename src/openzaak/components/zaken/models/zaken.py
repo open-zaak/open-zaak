@@ -217,7 +217,7 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Het aantal kalenderdagen waarmee de doorlooptijd van de "
+            "Het aantal werkbare dagen waarmee de doorlooptijd van de "
             "behandeling van de ZAAK is verlengd (of verkort) ten opzichte "
             "van de eerder gecommuniceerde doorlooptijd."
         ),
@@ -455,7 +455,7 @@ class Rol(models.Model):
     roltype = models.ForeignKey(
         "catalogi.RolType",
         on_delete=models.CASCADE,
-        help_text=" URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+        help_text="URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
     )
     omschrijving = models.CharField(
         _("omschrijving"),
@@ -772,6 +772,18 @@ class KlantContact(models.Model):
         blank=True,
         max_length=20,
         help_text="Het communicatiekanaal waarlangs het KLANTCONTACT gevoerd wordt",
+    )
+    onderwerp = models.CharField(
+        blank=True,
+        max_length=200,
+        help_text=_("Het onderwerp waarover contact is geweest met de klant."),
+    )
+    toelichting = models.CharField(
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "Een toelichting die inhoudelijk het contact met de klant beschrijft."
+        ),
     )
 
     objects = ZaakRelatedQuerySet.as_manager()

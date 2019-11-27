@@ -19,6 +19,7 @@ from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
 from ..validators import (
     ConceptUpdateValidator,
+    DeelzaaktypeCatalogusValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
@@ -159,6 +160,7 @@ class ZaakTypeSerializer(
             "informatieobjecttypen",
             "roltypen",
             "besluittypen",
+            "deelzaaktypen",
             "gerelateerde_zaaktypen",
             "begin_geldigheid",
             "einde_geldigheid",
@@ -180,6 +182,7 @@ class ZaakTypeSerializer(
                     ResourceValidator("ProcesType", settings.REFERENTIELIJSTEN_API_SPEC)
                 ]
             },
+            "deelzaaktypen": {"lookup_field": "uuid"},
         }
 
         validators = [
@@ -188,6 +191,7 @@ class ZaakTypeSerializer(
             ConceptUpdateValidator(),
             M2MConceptCreateValidator(["besluittypen", "informatieobjecttypen"]),
             M2MConceptUpdateValidator(["besluittypen", "informatieobjecttypen"]),
+            DeelzaaktypeCatalogusValidator(),
         ]
 
     def __init__(self, *args, **kwargs):

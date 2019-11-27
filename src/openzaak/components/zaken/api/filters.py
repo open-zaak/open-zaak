@@ -3,7 +3,15 @@ from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
-from ..models import Resultaat, Rol, Status, Zaak, ZaakInformatieObject, ZaakObject
+from ..models import (
+    KlantContact,
+    Resultaat,
+    Rol,
+    Status,
+    Zaak,
+    ZaakInformatieObject,
+    ZaakObject,
+)
 
 
 class ZaakFilter(FilterSet):
@@ -100,3 +108,9 @@ class ZaakObjectFilter(FilterSet):
     class Meta:
         model = ZaakObject
         fields = ("zaak", "object", "object_type")
+
+
+class KlantContactFilter(FilterSet):
+    class Meta:
+        model = KlantContact
+        fields = ("zaak",)

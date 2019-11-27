@@ -34,7 +34,7 @@ class RolType(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
     omschrijving = models.CharField(
         _("omschrijving"),
-        max_length=20,
+        max_length=100,
         help_text=_("Omschrijving van de aard van de ROL."),
     )
     omschrijving_generiek = models.CharField(

@@ -50,6 +50,7 @@ class ResultaatTypeSerializer(
     brondatum_archiefprocedure = BrondatumArchiefprocedureSerializer(
         label=_("Brondatum archiefprocedure"),
         required=False,
+        allow_null=True,
         help_text=(
             "Specificatie voor het bepalen van de brondatum voor de "
             "start van de Archiefactietermijn (=brondatum) van het zaakdossier."

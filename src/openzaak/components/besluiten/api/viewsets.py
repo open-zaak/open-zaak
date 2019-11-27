@@ -51,6 +51,7 @@ class BesluitViewSet(
     - geldigheid `besluittype` URL
     - geldigheid `zaak` URL
     - `datum` in het verleden of nu
+    - publicatie `besluittype` - `concept` moet `false` zijn
 
     list:
     Alle BESLUITen opvragen.
@@ -71,6 +72,7 @@ class BesluitViewSet(
     - geldigheid `besluittype` URL
     - geldigheid `zaak` URL
     - `datum` in het verleden of nu
+    - publicatie `besluittype` - `concept` moet `false` zijn
 
     partial_update:
     Werk een BESLUIT deels bij.
@@ -81,6 +83,7 @@ class BesluitViewSet(
     - geldigheid `besluittype` URL
     - geldigheid `zaak` URL
     - `datum` in het verleden of nu
+    - publicatie `besluittype` - `concept` moet `false` zijn
 
     destroy:
     Verwijder een BESLUIT.

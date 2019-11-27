@@ -42,6 +42,7 @@ from ..models import (
 )
 from .audits import AUDIT_ZRC
 from .filters import (
+    KlantContactFilter,
     ResultaatFilter,
     RolFilter,
     StatusFilter,
@@ -100,6 +101,7 @@ class ZaakViewSet(
 
     **Er wordt gevalideerd op**:
     - `zaaktype` moet een geldige URL zijn.
+    - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
       "nvt" is.
@@ -130,6 +132,7 @@ class ZaakViewSet(
 
     **Er wordt gevalideerd op**
     - `zaaktype` mag niet gewijzigd worden.
+    - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `identificatie` mag niet gewijzigd worden.
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
@@ -155,6 +158,7 @@ class ZaakViewSet(
 
     **Er wordt gevalideerd op**
     - `zaaktype` mag niet gewijzigd worden.
+    - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `identificatie` mag niet gewijzigd worden.
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
@@ -581,6 +585,7 @@ class KlantContactViewSet(
 
     queryset = KlantContact.objects.select_related("zaak").all()
     serializer_class = KlantContactSerializer
+    filterset_class = KlantContactFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
 
@@ -752,12 +757,11 @@ class ZaakBesluitViewSet(
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
+    # Because of the database-FK nature, ZaakBesluit is pretty much an alias
+    # for Besluit. We are handling Besluit-objects here and filtering them on
+    # the relevant Zaak.
     """
-    Read and edit Zaak-Besluit relations.
-
-    Because of the database-FK nature, ZaakBesluit is pretty much an alias
-    for Besluit. We are handling Besluit-objects here and filtering them on
-    the relevant Zaak.
+    Opvragen en beheren van zaak-besluiten.
 
     list:
     Alle ZAAKBESLUITen opvragen.
