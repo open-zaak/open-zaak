@@ -1,0 +1,84 @@
+---
+
+apiVersion: v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: inway
+    app.kubernetes.io/component: inway
+    app.kubernetes.io/part-of: nlx
+    app.kubernetes.io/instance: "{{ nlx_inway_version }}"
+    app.kubernetes.io/managed-by: Ansible
+spec:
+  replicas: {{ nlx_inway_replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: inway
+      app.kubernetes.io/part-of: nlx
+      app.kubernetes.io/instance: "{{ nlx_inway_version }}"
+  template:
+    metadata:
+      name: inway
+      labels:
+        app.kubernetes.io/name: inway
+        app.kubernetes.io/component: inway
+        app.kubernetes.io/part-of: nlx
+        app.kubernetes.io/instance: "{{ nlx_inway_version }}"
+        app.kubernetes.io/managed-by: Ansible
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: gke-open-zaak-default-pool-7ae0b36c-1k2h
+      containers:
+        - name: inway
+          image: "{{ nlx_inway_image }}"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "250Mi"
+              cpu: "2"
+
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 5
+            periodSeconds: 30
+
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 15
+            periodSeconds: 30
+
+          env:
+            - name: DIRECTORY_REGISTRATION_ADDRESS
+              value: "{{ nlx_inway_directory_registration_address }}"
+            - name: SERVICE_CONFIG
+              value: "/inway-config/service-config.toml"
+            - name: SELF_ADDRESS
+              value: "{{ nlx_inway_self_address }}:443"
+
+            - name: TLS_NLX_ROOT_CERT
+              value: "/certs/root.crt"
+            - name: TLS_ORG_CERT
+              value: "/certs/org.crt"
+            - name: TLS_ORG_KEY
+              value: "/certs/org.key"
+
+            # TODO: enable logdb
+            - name: DISABLE_LOGDB
+              value: "1"
+          volumeMounts:
+            - name: certs
+              mountPath: "/certs"
+            - name: inway-config
+              mountPath: "/inway-config"
+      volumes:
+        - name: certs
+          secret:
+            secretName: certs
+        - name: inway-config
+          configMap:
+            name: inway

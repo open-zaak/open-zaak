@@ -7,6 +7,7 @@
     - vars/db_credentials.yml
     - vars/openzaak.yml
     - vars/opennotificaties.yml
+    - vars/nlx.yml
 
   roles:
     - role: openzaak
@@ -18,3 +19,40 @@
       vars:
         opennotificaties_db_host: "{{ db.privateIp }}"
         opennotificaties_db_port: "{{ db.port }}"
+
+    - role: nlx
+      vars:
+        nlx_instance: test
+        nlx_inway_self_address: inway.openzaak.nl
+        nlx_inway_services:
+          - name: openzaak-zaken
+            endpoint_url: http://nginx.openzaak-test/zaken/api/v1
+            documentation_url: https://test.openzaak.nl/zaken/
+            authorization_model: none
+            api_specification_document_url: https://test.openzaak.nl/zaken/api/v1/schema/openapi.json
+
+          # - name: openzaak-documenten
+          #   endpoint_url: https://test.openzaak.nl/documenten/api/v1
+          #   documentation_url: https://test.openzaak.nl/documenten/
+          #   authorization_model: none
+          #   api_specification_document_url: https://test.openzaak.nl/documenten/api/v1/schema/openapi.json
+
+          # - name: openzaak-catalogi
+          #   endpoint_url: https://test.openzaak.nl/catalogi/api/v1
+          #   documentation_url: https://test.openzaak.nl/catalogi/
+          #   authorization_model: none
+          #   api_specification_document_url: https://test.openzaak.nl/catalogi/api/v1/schema/openapi.json
+
+          # - name: openzaak-besluiten
+          #   endpoint_url: https://test.openzaak.nl/besluiten/api/v1
+          #   documentation_url: https://test.openzaak.nl/besluiten/
+          #   authorization_model: none
+          #   api_specification_document_url: https://test.openzaak.nl/besluiten/api/v1/schema/openapi.json
+
+          # - name: openzaak-authorizations
+          #   endpoint_url: https://test.openzaak.nl/authorizations/api/v1
+          #   documentation_url: https://test.openzaak.nl/authorizations/
+          #   authorization_model: none
+          #   api_specification_document_url: https://test.openzaak.nl/authorizations/api/v1/schema/openapi.json
+      tags:
+        - nlx
