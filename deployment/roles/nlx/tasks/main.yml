@@ -8,4 +8,3 @@
 - import_tasks: configs.yml
 - import_tasks: services.yml
 - import_tasks: deployments.yml
-- import_tasks: ingress.yml
