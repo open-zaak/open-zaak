@@ -1,0 +1,11 @@
+/*
+ Project/app specific overrides, coupled to the data model.
+
+ Generic overrides should go in _admin_index.scss
+ */
+
+/* Radiobutton widget for Selectielijstklasse*/
+#selectielijst-scroll {
+  max-height: 400px;
+  overflow-y: scroll;
+}
