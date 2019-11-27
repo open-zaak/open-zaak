@@ -148,15 +148,6 @@ class ZaakSerializer(
         parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
         source="zaakeigenschap_set",
     )
-    zaaktype = LengthHyperlinkedRelatedField(
-        view_name="zaaktype-detail",
-        lookup_field="uuid",
-        queryset=ZaakType.objects.all(),
-        max_length=1000,
-        min_length=1,
-        validators=[IsImmutableValidator(), PublishValidator()],
-        help_text=get_help_text("zaken.Zaak", "zaaktype"),
-    )
     status = serializers.HyperlinkedRelatedField(
         source="current_status_uuid",
         read_only=True,
@@ -266,6 +257,16 @@ class ZaakSerializer(
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_SPEC),
+                    LooseFkIsImmutableValidator(),
+                    PublishValidator(),
+                ],
+            },
             "zaakgeometrie": {
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
             },

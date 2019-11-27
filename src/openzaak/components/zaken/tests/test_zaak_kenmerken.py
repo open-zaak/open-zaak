@@ -52,7 +52,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         zaaktype_url = reverse(zaaktype)
         zaak_create_url = get_operation_url("zaak_create")
         data = {
-            "zaaktype": zaaktype_url,
+            "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "bronorganisatie": "517439943",
             "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
@@ -129,7 +129,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
 
         # Creeer Zaak
         data = {
-            "zaaktype": zaaktype_url,
+            "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "bronorganisatie": "517439943",
             "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
