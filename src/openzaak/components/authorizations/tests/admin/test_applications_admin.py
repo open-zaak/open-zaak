@@ -39,3 +39,58 @@ class ApplicationsTests(WebTest):
         self.assertEqual(applicatie.client_ids, ["foo"])
         self.assertEqual(credential.identifier, "foo")
         self.assertEqual(credential.secret, "bar")
+
+    def test_show_related_jwt_secrets(self):
+        application = Applicatie.objects.create(label="test", client_ids=["foo"])
+        JWTSecret.objects.create(identifier="foo", secret="bar")
+        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+
+        form = self.app.get(url).form
+
+        self.assertEqual(form["credentials-0-identifier"].value, "foo")
+        self.assertEqual(form["credentials-0-secret"].value, "bar")
+
+        # nothing changes, check that our data doesn't get screwed on save
+        form.submit().follow()
+
+        application.refresh_from_db()
+        self.assertEqual(application.client_ids, ["foo"])
+        self.assertEqual(JWTSecret.objects.count(), 1)
+        credential = JWTSecret.objects.get()
+        self.assertEqual(credential.identifier, "foo")
+        self.assertEqual(credential.secret, "bar")
+
+    def test_delete_jwt_secret(self):
+        application = Applicatie.objects.create(label="test", client_ids=["foo"])
+        JWTSecret.objects.create(identifier="foo", secret="bar")
+        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+
+        form = self.app.get(url).form
+
+        form["credentials-0-DELETE"].checked = True
+
+        form.submit().follow()
+
+        application.refresh_from_db()
+        self.assertFalse(JWTSecret.objects.exists())
+        self.assertEqual(application.client_ids, [])
+
+    def test_change_jwt_secret(self):
+        application = Applicatie.objects.create(label="test", client_ids=["foo"])
+        JWTSecret.objects.create(identifier="foo", secret="bar")
+        url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
+
+        form = self.app.get(url).form
+
+        form["credentials-0-identifier"] = "baz"
+        form["credentials-0-secret"] = "quux"
+
+        # nothing changes, check that our data doesn't get screwed on save
+        form.submit().follow()
+
+        application.refresh_from_db()
+        self.assertEqual(application.client_ids, ["baz"])
+        self.assertEqual(JWTSecret.objects.count(), 1)
+        credential = JWTSecret.objects.get()
+        self.assertEqual(credential.identifier, "baz")
+        self.assertEqual(credential.secret, "quux")
