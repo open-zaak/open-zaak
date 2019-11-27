@@ -61,3 +61,17 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "versiedatum": "2019-11-20",
         "concept": False,
     }
+
+
+def get_catalogus_response(catalogus: str, zaaktype: str) -> dict:
+    return {
+        "url": catalogus,
+        "domein": "PUB",
+        "contactpersoonBeheerTelefoonnummer": "0612345678",
+        "rsin": "517439943",
+        "contactpersoonBeheerNaam": "Jan met de Pet",
+        "contactpersoonBeheerEmailadres": "jan@petten.nl",
+        "informatieobjecttypen": [],
+        "zaaktypen": [zaaktype],
+        "besluittypen": [],
+    }

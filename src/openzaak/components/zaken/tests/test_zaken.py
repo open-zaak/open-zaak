@@ -38,6 +38,7 @@ from .factories import StatusFactory, ZaakFactory
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
+    get_catalogus_response,
     get_operation_url,
     get_zaaktype_response,
     isodatetime,
@@ -593,19 +594,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
                 "GET", zaaktype, json=get_zaaktype_response(catalogus, zaaktype),
             )
             m.register_uri(
-                "GET",
-                catalogus,
-                json={
-                    "url": catalogus,
-                    "domein": "PUB",
-                    "contactpersoonBeheerTelefoonnummer": "0612345678",
-                    "rsin": "517439943",
-                    "contactpersoonBeheerNaam": "Jan met de Pet",
-                    "contactpersoonBeheerEmailadres": "jan@petten.nl",
-                    "informatieobjecttypen": [],
-                    "zaaktypen": [zaaktype],
-                    "besluittypen": [],
-                },
+                "GET", catalogus, json=get_catalogus_response(catalogus, zaaktype),
             )
 
             response = self.client.post(
@@ -678,15 +667,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
                 },
             )
             m.register_uri(
-                "GET",
-                catalogus,
-                json={
-                    "url": catalogus,
-                    "domein": "PUB",
-                    "informatieobjecttypen": [],
-                    "zaaktypen": [zaaktype],
-                    "besluittypen": [],
-                },
+                "GET", catalogus, json=get_catalogus_response(catalogus, zaaktype),
             )
 
             response = self.client.post(
@@ -705,3 +686,35 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_zaaktype_fail_not_published(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+
+        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
+        zaaktype_data["concept"] = True
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.register_uri("GET", zaaktype, json=zaaktype_data)
+            m.register_uri(
+                "GET", catalogus, json=get_catalogus_response(catalogus, zaaktype)
+            )
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaaktype": zaaktype,
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-12-24",
+                    "startdatum": "2018-12-24",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "not-published")

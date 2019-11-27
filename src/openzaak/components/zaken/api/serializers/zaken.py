@@ -266,7 +266,6 @@ class ZaakSerializer(
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
-                "help_text": get_help_text("zaken.Zaak", "zaaktype"),
             },
             "zaakgeometrie": {
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
