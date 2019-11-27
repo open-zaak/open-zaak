@@ -141,13 +141,11 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
             return
 
         if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type_id = informatieobject.enkelvoudiginformatieobject_set.values_list(
-                "informatieobjecttype_id", flat=True
-            ).first()
+            io_type = informatieobject.latest_version.informatieobjecttype
         else:
-            io_type_id = informatieobject.informatieobjecttype.id
+            io_type = informatieobject.informatieobjecttype
 
-        if not zaak.zaaktype.informatieobjecttypen.filter(id=io_type_id).exists():
+        if not zaak.zaaktype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
 

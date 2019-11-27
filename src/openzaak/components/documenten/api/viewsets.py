@@ -177,7 +177,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
     queryset = (
         EnkelvoudigInformatieObject.objects.select_related(
-            "canonical", "informatieobjecttype"
+            "canonical", "_informatieobjecttype"
         )
         .order_by("canonical", "-versie")
         .distinct("canonical")

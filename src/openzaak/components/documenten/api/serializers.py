@@ -20,13 +20,12 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.besluiten.models import Besluit
-from openzaak.components.catalogi.models import InformatieObjectType
 from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
-from openzaak.utils.validators import IsImmutableValidator, PublishValidator
+from openzaak.utils.validators import IsImmutableValidator, PublishValidator, LooseFkResourceValidator, \
+    LooseFkIsImmutableValidator
 
 from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from ..models import (
@@ -147,17 +146,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     url = serializers.HyperlinkedIdentityField(
         view_name="enkelvoudiginformatieobject-detail", lookup_field="uuid"
     )
-    informatieobjecttype = LengthHyperlinkedRelatedField(
-        view_name="informatieobjecttype-detail",
-        lookup_field="uuid",
-        queryset=InformatieObjectType.objects,
-        max_length=200,
-        min_length=1,
-        help_text=get_help_text(
-            "documenten.EnkelvoudigInformatieObject", "informatieobjecttype"
-        ),
-        validators=[IsImmutableValidator(), PublishValidator()],
-    )
     inhoud = AnyBase64File(
         view_name="enkelvoudiginformatieobject-download",
         help_text=_(
@@ -227,7 +215,20 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "informatieobjecttype",  # van-relatie,
             "locked",
         )
-        extra_kwargs = {"taal": {"min_length": 3}}
+        extra_kwargs = {
+            "taal": {"min_length": 3},
+            "informatieobjecttype": {
+                "lookup_field": "uuid",
+                "max_length": 200,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
+                    LooseFkIsImmutableValidator(),
+                    PublishValidator(),
+                ],
+                "help_text": get_help_text("documenten.EnkelvoudigInformatieObject", "informatieobjecttype"),
+            },
+        }
         read_only_fields = ["versie", "begin_registratie"]
         validators = [StatusValidator()]
 
