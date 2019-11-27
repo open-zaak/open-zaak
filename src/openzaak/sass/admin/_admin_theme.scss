@@ -108,8 +108,8 @@ div.breadcrumbs {
     input[type=submit] {
     }
     .cancel-link {
-    background: $color_primary_light;
-    color: $color_lightest;
+      background: $color_primary_light;
+      color: $color_lightest;
       &:active, &:focus, &:hover {
         background: $color_dark;
       }
@@ -267,6 +267,47 @@ div.breadcrumbs {
   min-width: 250px;
 }
 
+/**
+ * DJANGO-BETTER-ADMIN-ARRAYFIELD
+ * Some elements are marked as !important because the style is loaded after
+ * this theme.
+ */
+.dynamic-array-widget {
+  button {
+    background: $color_primary !important;
+    color: $color_lightest !important;
+    &:hover {
+      background: $color_primary_dark !important;
+      /* border: 2px solid $color_dark !important; */
+    }
+
+    /* Substitute theme style above with icon. Solves translation string as well. */
+    &.add-array-item {
+      background: url('../../img/admin/plus-square-regular.svg') 0 0/14px 14px no-repeat !important;
+      width: 14px;
+      line-height: 16px;
+      text-indent: -9999px;
+      white-space: nowrap;
+      margin: 0 0 5px 170px;
+      display: block;
+
+      &:focus {
+        outline-width: 0;
+      }
+    }
+  }
+
+  /* Substitute with icon */
+  .remove {
+    background: url('../../img/admin/trash-alt-regular.svg') 0 0/14px 14px no-repeat;
+    width: 14px;
+    line-height: 16px;
+
+    .remove_sign {
+      display: none;
+    }
+  }
+}
 
 /**
  * Branding
