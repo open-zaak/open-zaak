@@ -2,7 +2,7 @@
 
 # Kubernetes namespace
 nlx_namespace: nlx
-nlx_instance: proeftuin
+nlx_instance: test
 
 nlx_inway_version: latest
 nlx_inway_image: nlxio/inway:{{ nlx_inway_version }}
@@ -11,15 +11,15 @@ nlx_inway_image: nlxio/inway:{{ nlx_inway_version }}
 nlx_inway_services: []
 # Example:
 # nlx_inway_services:
-#   - name: zrc
-#     endpoint_url: http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl/api/v1
-#     documentation_url = "http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl"
+#   - name: zaken
+#     endpoint_url: https://test.openzaak.nl/zaken/api/v1
+#     documentation_url = "http://test.openzaak.nl/zaken"
 #     authorization_model = "none"
-#     api_specification_document_url = "http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl/api/v1/schema/openapi.json"
+#     api_specification_document_url = "http://test.openzaak.nl/zaken/api/v1/schema/openapi.json"
 
 nlx_inway_replicas: 1
 nlx_inway_directory_registration_address: directory-registration-api.demo.nlx.io:443
-nlx_inway_self_address: inway.utrechtproeftuin.nl
+nlx_inway_self_address: inway.openzaak.nl
 
 # Certificates
 
