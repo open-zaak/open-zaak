@@ -70,7 +70,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         url = reverse("enkelvoudiginformatieobject-list")
 
         response = self.client.post(
-            url, {"informatieobjecttype": informatieobjecttype_url}
+            url, {"informatieobjecttype": f'http://testserver{informatieobjecttype_url}'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -163,7 +163,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
             "auteur": "dummy",
             "taal": "nld",
             "inhoud": "aGVsbG8gd29ybGQ=",
-            "informatieobjecttype": informatieobjecttype_url,
+            "informatieobjecttype": f'http://testserver{informatieobjecttype_url}',
             "ontvangstdatum": "2018-12-24",
         }
 

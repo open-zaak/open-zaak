@@ -119,7 +119,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
             "inhoud": b64encode(b"some file content").decode("utf-8"),
             "link": "http://een.link",
             "beschrijving": "test_beschrijving",
-            "informatieobjecttype": informatieobjecttype_url,
+            "informatieobjecttype": f'http://testserver{informatieobjecttype_url}',
             "vertrouwelijkheidaanduiding": "openbaar",
             "lock": uuid.uuid4().hex,
         }
