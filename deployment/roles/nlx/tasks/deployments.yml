@@ -1,0 +1,13 @@
+---
+
+- name: Install inway deployment
+  k8s:
+    state: present
+    name: inway
+    namespace: "{{ nlx_namespace }}"
+    definition: "{{ lookup('template', 'inway.yml.j2') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  tags:
+    - inway

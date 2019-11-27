@@ -1,0 +1,63 @@
+---
+
+# Kubernetes namespace
+nlx_namespace: nlx
+nlx_instance: proeftuin
+
+nlx_inway_version: latest
+nlx_inway_image: nlxio/inway:{{ nlx_inway_version }}
+
+# Service config - which services are reachable through NLX?
+nlx_inway_services: []
+# Example:
+# nlx_inway_services:
+#   - name: zrc
+#     endpoint_url: http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl/api/v1
+#     documentation_url = "http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl"
+#     authorization_model = "none"
+#     api_specification_document_url = "http://gemma-zrc.k8s.dc1.proeftuin.utrecht.nl/api/v1/schema/openapi.json"
+
+nlx_inway_replicas: 1
+nlx_inway_directory_registration_address: directory-registration-api.demo.nlx.io:443
+nlx_inway_self_address: inway.utrechtproeftuin.nl
+
+# Certificates
+
+# Demo network root certificate
+nlx_root_cert: |
+  -----BEGIN CERTIFICATE-----
+  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
+  -----END CERTIFICATE-----
+
+# Follow https://docs.nlx.io/try-nlx/retrieve-a-demo-certificate/
+nlx_inway_key: "PROVIDE THIS YOURSELF"
+nlx_inway_cert: "PROVIDE THIS YOURSELF"

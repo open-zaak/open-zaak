@@ -1,0 +1,10 @@
+[services]
+{% for service in nlx_inway_services %}
+    [services.{{ service.name }}]
+    endpoint-url = "{{ service.endpoint_url }}"
+{% if service.documentation_url %}    documentation-url = "{{ service.documentation_url }}"{% endif %}
+
+    authorization-model = "{{ service.authorization_model }}"
+{% if service.api_specification_document_url %}    api-specification-document-url = "{{ service.api_specification_document_url }}"{% endif %}
+
+{% endfor %}

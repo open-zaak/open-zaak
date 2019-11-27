@@ -1,0 +1,21 @@
+---
+
+- name: Install HTTPS Ingress Route
+  k8s:
+    state: present
+    name: inway
+    namespace: "{{ nlx_namespace }}"
+    definition:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      spec:
+        entryPoints:
+          - websecure
+        routes:
+        - match: Host(`{{ nlx_inway_self_address }}`)
+          kind: Rule
+          services:
+          - name: inway
+            port: 8443
+        tls:
+          passthrough: yes

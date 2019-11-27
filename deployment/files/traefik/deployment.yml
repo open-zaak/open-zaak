@@ -28,10 +28,9 @@ spec:
               cpu: "250m"
             limits:
               memory: "200Mi"
-              cpu: "500m"
+              cpu: "2"
           args:
             - --api.insecure
-            - --accesslog
             - --entrypoints.web.Address=:80
             - --entrypoints.websecure.Address=:443
             - --providers.kubernetescrd

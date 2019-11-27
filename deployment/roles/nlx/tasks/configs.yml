@@ -1,0 +1,37 @@
+---
+
+- name: Set up Inway configmap
+  k8s:
+    state: present
+    name: inway
+    namespace: "{{ nlx_namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      data:
+        service-config.toml: "{{ lookup('template', 'inway-config.toml.j2') }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  register: nlx_inway_config
+  tags:
+    - inway
+
+- name: Set up certificates
+  k8s:
+    state: present
+    name: certs
+    namespace: "{{ nlx_namespace }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      data:
+        root.crt: "{{ nlx_root_cert | b64encode }}"
+        org.key: "{{ nlx_inway_key | b64encode }}"
+        org.crt: "{{ nlx_inway_cert | b64encode }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  tags:
+    - inway
