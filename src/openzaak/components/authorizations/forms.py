@@ -11,6 +11,11 @@ class ApplicatieForm(forms.ModelForm):
         # doing stuff with JWTSecret
         fields = ("uuid", "label", "heeft_alle_autorisaties")
 
+    def save(self, *args, **kwargs):
+        if self.instance.client_ids is None:
+            self.instance.client_ids = []
+        return super().save(*args, **kwargs)
+
 
 class CredentialsBaseFormSet(forms.BaseModelFormSet):
     def __init__(self, *args, **kwargs):
@@ -26,6 +31,10 @@ class CredentialsBaseFormSet(forms.BaseModelFormSet):
         self.instance = instance
 
         super().__init__(*args, **kwargs)
+
+    @classmethod
+    def get_default_prefix(cls):
+        return "credentials"
 
     def save(self, *args, **kwargs):
         commit = kwargs.get("commit", True)
