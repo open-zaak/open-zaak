@@ -35,7 +35,7 @@ class ResultaatType(models.Model):
     In uitzonderingsgevallen kan er sprake van zijn dat documenten van een bepaald
     INFORMATIEOBJECTTYPE in zaakdossiers bij zaken van het ZAAKTYPE een afwijkend
     archiefregime hebben ten opzichte van het zaakdossier. Privacy-gevoeligheid kan er reden
-    voor zijn om documenten van een ZAAKINFORMATIEOBJECTTYPE eerder te vernietigen dan het
+    voor zijn om documenten van een ZAAKTYPEINFORMATIEOBJECTTYPE eerder te vernietigen dan het
     zaakdossier als geheel. Specifieke wetgeving, zoals die voor de BAG, leidt er daarentegen toe
     dat een Omgevingsvergunning (activiteit bouwen) ten eeuwige dage bewaard moet blijven
     terwijl het zaakdossier na 20 jaar vernietigd dient te worden. De relatiesoort ‘RESULTAATTYPE

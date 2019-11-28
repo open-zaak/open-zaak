@@ -10,7 +10,7 @@ from openzaak.utils.tests import ClearCachesMixin
 from ..factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -93,7 +93,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         iot = InformatieObjectTypeFactory.create(
             concept=True, vertrouwelijkheidaanduiding="openbaar"
         )
-        iot.zaakinformatieobjecttype_set.all().delete()
+        iot.zaaktypeinformatieobjecttype_set.all().delete()
         url = reverse("admin:catalogi_informatieobjecttype_change", args=(iot.pk,))
 
         response = self.app.get(url)
@@ -173,7 +173,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=True, zaaktype=zaaktype
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))

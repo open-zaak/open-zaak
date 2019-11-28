@@ -3,13 +3,13 @@ import factory.fuzzy
 
 from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import (
-    ZaakInformatieobjectType,
-    ZaakInformatieobjectTypeArchiefregime,
+    ZaakTypeInformatieObjectType,
+    ZaakTypeInformatieObjectTypeArchiefregime,
     ZaakTypenRelatie,
 )
 
 
-class ZaakInformatieobjectTypeFactory(factory.django.DjangoModelFactory):
+class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(
         "openzaak.components.catalogi.tests.factories.ZaakTypeFactory"
     )
@@ -21,18 +21,18 @@ class ZaakInformatieobjectTypeFactory(factory.django.DjangoModelFactory):
     richting = RichtingChoices.inkomend
 
     class Meta:
-        model = ZaakInformatieobjectType
+        model = ZaakTypeInformatieObjectType
 
 
-class ZaakInformatieobjectTypeArchiefregimeFactory(factory.django.DjangoModelFactory):
-    zaak_informatieobject_type = factory.SubFactory(ZaakInformatieobjectTypeFactory)
+class ZaakTypeInformatieObjectTypeArchiefregimeFactory(factory.django.DjangoModelFactory):
+    zaak_informatieobject_type = factory.SubFactory(ZaakTypeInformatieObjectTypeFactory)
     resultaattype = factory.SubFactory(
         "openzaak.components.catalogi.tests.factories.ResultaatTypeFactory"
     )
     archiefactietermijn = 7
 
     class Meta:
-        model = ZaakInformatieobjectTypeArchiefregime
+        model = ZaakTypeInformatieObjectTypeArchiefregime
 
 
 class ZaakTypenRelatieFactory(factory.django.DjangoModelFactory):

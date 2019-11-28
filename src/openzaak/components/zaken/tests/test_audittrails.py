@@ -9,7 +9,7 @@ from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 from openzaak.components.documenten.tests.factories import (
@@ -155,7 +155,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
         url = reverse(ZaakInformatieObject)

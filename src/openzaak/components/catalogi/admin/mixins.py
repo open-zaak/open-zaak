@@ -17,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from privates.storages import private_media_storage
 
-from ..models import ZaakInformatieobjectType
+from ..models import ZaakTypeInformatieObjectType
 from .forms import CatalogusImportForm
 
 
@@ -178,8 +178,8 @@ class CatalogusImportExportMixin:
             resources[field] = list(
                 getattr(obj, f"{field.lower()}_set").values_list("pk", flat=True)
             )
-        resources["ZaakInformatieobjectType"] = list(
-            ZaakInformatieobjectType.objects.filter(
+        resources["ZaakTypeInformatieObjectType"] = list(
+            ZaakTypeInformatieObjectType.objects.filter(
                 zaaktype__in=resources["ZaakType"],
                 informatieobjecttype__in=resources["InformatieObjectType"],
             ).values_list("pk", flat=True)

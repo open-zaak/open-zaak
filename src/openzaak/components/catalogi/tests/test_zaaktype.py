@@ -27,7 +27,7 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypenRelatieFactory,
@@ -348,7 +348,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_publish_zaaktype_fail_not_concept_iotype(self):
         zaaktype = ZaakTypeFactory.create()
-        ZaakInformatieobjectTypeFactory.create(zaaktype=zaaktype)
+        ZaakTypeInformatieObjectTypeFactory.create(zaaktype=zaaktype)
 
         zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
 
@@ -527,7 +527,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -578,7 +578,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -644,7 +644,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -794,7 +794,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -916,7 +916,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -981,7 +981,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -1063,7 +1063,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 

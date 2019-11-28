@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..constants import AardRelatieChoices, ArchiefNominatieChoices, RichtingChoices
 
 
-class ZaakInformatieobjectType(models.Model):
+class ZaakTypeInformatieObjectType(models.Model):
     """
     ZAAK-INFORMATIEOBJECT-TYPE
 
@@ -74,7 +74,7 @@ class ZaakInformatieobjectType(models.Model):
         return "{} - {}".format(self.zaaktype, self.volgnummer)
 
 
-class ZaakInformatieobjectTypeArchiefregime(models.Model):
+class ZaakTypeInformatieObjectTypeArchiefregime(models.Model):
     """
     ZAAK-INFORMATIETOBJECT-TYPE ARCHIEFREGIME
 
@@ -84,7 +84,7 @@ class ZaakInformatieobjectTypeArchiefregime(models.Model):
     """
 
     zaak_informatieobject_type = models.ForeignKey(
-        "catalogi.ZaakInformatieobjectType",
+        "catalogi.ZaakTypeInformatieObjectType",
         on_delete=models.CASCADE,
         verbose_name=_("zaakinformatie object type"),
     )
@@ -101,7 +101,7 @@ class ZaakInformatieobjectTypeArchiefregime(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "Verwijzing naar de voor het ZAAKINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de "
+            "Verwijzing naar de voor het ZAAKTYPEINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de "
             "Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie."
         ),
     )

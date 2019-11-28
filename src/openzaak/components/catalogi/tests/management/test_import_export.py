@@ -13,7 +13,7 @@ from ...models import (
     InformatieObjectType,
     RolType,
     StatusType,
-    ZaakInformatieobjectType,
+    ZaakTypeInformatieObjectType,
     ZaakType,
 )
 from ..factories import (
@@ -23,7 +23,7 @@ from ..factories import (
     InformatieObjectTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -72,7 +72,7 @@ class ExportCatalogiTests(TestCase):
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype.zaaktypen.set([zaaktype])
         besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         statustype = StatusTypeFactory.create(
@@ -90,7 +90,7 @@ class ExportCatalogiTests(TestCase):
             "Eigenschap",
             "InformatieObjectType",
             "BesluitType",
-            "ZaakInformatieobjectType",
+            "ZaakTypeInformatieObjectType",
         ]
         ids = [
             [catalogus.id],
@@ -112,7 +112,7 @@ class ExportCatalogiTests(TestCase):
             self.assertIn("Eigenschap.json", f.namelist())
             self.assertIn("InformatieObjectType.json", f.namelist())
             self.assertIn("BesluitType.json", f.namelist())
-            self.assertIn("ZaakInformatieobjectType.json", f.namelist())
+            self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
 
     def tearDown(self):
         os.remove(self.filepath)
@@ -170,7 +170,7 @@ class ImportCatalogiTests(TestCase):
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype.zaaktypen.set([zaaktype])
         besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         statustype = StatusTypeFactory.create(
@@ -188,7 +188,7 @@ class ImportCatalogiTests(TestCase):
             "Eigenschap",
             "InformatieObjectType",
             "BesluitType",
-            "ZaakInformatieobjectType",
+            "ZaakTypeInformatieObjectType",
         ]
         ids = [
             [catalogus.id],
@@ -209,7 +209,7 @@ class ImportCatalogiTests(TestCase):
         besluittype = BesluitType.objects.get()
         informatieobjecttype = InformatieObjectType.objects.get()
         zaaktype = ZaakType.objects.get()
-        ziot = ZaakInformatieobjectType.objects.get()
+        ziot = ZaakTypeInformatieObjectType.objects.get()
         roltype = RolType.objects.get()
         statustype = StatusType.objects.get()
         eigenschap = Eigenschap.objects.get()

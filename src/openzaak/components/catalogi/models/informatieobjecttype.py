@@ -46,7 +46,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
         "catalogi.ZaakType",
         verbose_name=_("zaaktypen"),
         related_name="informatieobjecttypen",
-        through="catalogi.ZaakInformatieobjectType",
+        through="catalogi.ZaakTypeInformatieObjectType",
         help_text=_(
             "ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit INFORMATIEOBJECTTYPE"
         ),

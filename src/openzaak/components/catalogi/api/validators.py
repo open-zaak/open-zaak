@@ -282,7 +282,7 @@ class BrondatumArchiefprocedureValidator:
             raise ValidationError(error_dict)
 
 
-class ZaakInformatieObjectTypeCatalogusValidator:
+class ZaakTypeInformatieObjectTypeCatalogusValidator:
     code = "relations-incorrect-catalogus"
     message = _("The zaaktype has catalogus different from informatieobjecttype")
 

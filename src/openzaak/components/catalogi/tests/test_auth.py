@@ -16,7 +16,7 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakInformatieobjectType,
+    ZaakTypeInformatieObjectType,
     ZaakType,
 )
 from .base import APITestCase
@@ -28,7 +28,7 @@ from .factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -111,7 +111,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         zaaktype = ZaakTypeFactory.create(concept=False)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -137,16 +137,16 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         self.assertFalse(InformatieObjectType.objects.exists())
 
     def test_force_delete_ziot_not_concept_zaaktype(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(zaaktype__concept=False)
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(zaaktype__concept=False)
         ziot_url = reverse(ziot)
 
         response = self.client.delete(ziot_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakInformatieobjectType.objects.exists())
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
 
     def test_force_delete_ziot_not_concept_informatieobjecttype(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False
         )
         ziot_url = reverse(ziot)
@@ -154,7 +154,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         response = self.client.delete(ziot_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakInformatieobjectType.objects.exists())
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.exists())
 
     def test_force_delete_resultaattype_not_concept_zaaktype(self):
         resultaattype = ResultaatTypeFactory.create(zaaktype__concept=False)
@@ -216,7 +216,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, concept=False, zaaktypen=[]
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 

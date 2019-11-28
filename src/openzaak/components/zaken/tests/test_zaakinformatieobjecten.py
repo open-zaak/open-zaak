@@ -12,7 +12,7 @@ from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
-from openzaak.components.catalogi.tests.factories import ZaakInformatieobjectTypeFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeInformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -40,7 +40,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
 
@@ -109,7 +109,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
         content = {
@@ -132,7 +132,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Test the (informatieobject, object) unique together validation.
         """
-        zio_type = ZaakInformatieobjectTypeFactory.create(
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zio = ZaakInformatieObjectFactory.create(
@@ -216,7 +216,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_filter_by_external_informatieobject(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-        zio_type = ZaakInformatieobjectTypeFactory.create(
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
@@ -306,7 +306,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
         )
 
@@ -340,7 +340,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
         )
 
@@ -385,7 +385,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def test_relate_external_document(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-        zio_type = ZaakInformatieobjectTypeFactory.create(
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
@@ -473,7 +473,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def test_create_zio_fail_invalid_schema(self):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-        zio_type = ZaakInformatieobjectTypeFactory.create(
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)

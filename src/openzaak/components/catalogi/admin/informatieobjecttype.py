@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import InformatieObjectType, ZaakInformatieobjectType
+from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
 from .mixins import GeldigheidAdminMixin, PublishAdminMixin
 
 
-class ZaakInformatieobjectTypeInline(admin.TabularInline):
-    model = ZaakInformatieobjectType
+class ZaakTypeInformatieObjectTypeInline(admin.TabularInline):
+    model = ZaakTypeInformatieObjectType
     extra = 1
     raw_id_fields = ("zaaktype", "statustype")
 
@@ -25,4 +25,4 @@ class InformatieObjectTypeAdmin(
         (_("Algemeen"), {"fields": ("omschrijving", "vertrouwelijkheidaanduiding",)},),
         (_("Relaties"), {"fields": ("catalogus",)}),
     )
-    inlines = (ZaakInformatieobjectTypeInline,)  # zaaktypes
+    inlines = (ZaakTypeInformatieObjectTypeInline,)  # zaaktypes

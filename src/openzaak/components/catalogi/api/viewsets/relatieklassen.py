@@ -8,14 +8,14 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import ZaakInformatieobjectType
-from ..filters import ZaakInformatieobjectTypeFilter
+from ...models import ZaakTypeInformatieObjectType
+from ..filters import ZaakTypeInformatieObjectTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import ZaakInformatieobjectTypeSerializer
+from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
 
 
@@ -79,12 +79,12 @@ class ZaakTypeInformatieObjectTypeViewSet(
     """
 
     queryset = (
-        ZaakInformatieobjectType.objects.all()
+        ZaakTypeInformatieObjectType.objects.all()
         .select_related("zaaktype", "informatieobjecttype")
         .order_by("-pk")
     )
-    serializer_class = ZaakInformatieobjectTypeSerializer
-    filterset_class = ZaakInformatieobjectTypeFilter
+    serializer_class = ZaakTypeInformatieObjectTypeSerializer
+    filterset_class = ZaakTypeInformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
     permission_classes = (AuthRequired,)

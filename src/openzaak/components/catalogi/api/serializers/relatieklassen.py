@@ -5,11 +5,11 @@ from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 
 from ...constants import RichtingChoices
-from ...models import ZaakInformatieobjectType
-from ..validators import ZaakInformatieObjectTypeCatalogusValidator
+from ...models import ZaakTypeInformatieObjectType
+from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator
 
 
-class ZaakInformatieobjectTypeSerializer(serializers.HyperlinkedModelSerializer):
+class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
     """
     Represent a ZaakTypeInformatieObjectType.
 
@@ -17,7 +17,7 @@ class ZaakInformatieobjectTypeSerializer(serializers.HyperlinkedModelSerializer)
     """
 
     class Meta:
-        model = ZaakInformatieobjectType
+        model = ZaakTypeInformatieObjectType
         fields = (
             "url",
             "zaaktype",
@@ -33,9 +33,9 @@ class ZaakInformatieobjectTypeSerializer(serializers.HyperlinkedModelSerializer)
             "statustype": {"lookup_field": "uuid"},
         }
         validators = [
-            ZaakInformatieObjectTypeCatalogusValidator(),
+            ZaakTypeInformatieObjectTypeCatalogusValidator(),
             UniqueTogetherValidator(
-                queryset=ZaakInformatieobjectType.objects.all(),
+                queryset=ZaakTypeInformatieObjectType.objects.all(),
                 fields=["zaaktype", "volgnummer"],
             ),
         ]

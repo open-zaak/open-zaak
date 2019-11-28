@@ -12,7 +12,7 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 from .utils import get_operation_url
@@ -94,7 +94,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
 
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype,
             informatieobjecttype=informatieobjecttype,
             volgnummer=1,
@@ -259,7 +259,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         zaaktype = ZaakTypeFactory.create()
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -288,7 +288,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         zaaktype = ZaakTypeFactory.create(concept=False)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -322,7 +322,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -369,7 +369,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
         zaaktype = ZaakTypeFactory.create(concept=False, catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -424,7 +424,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -460,7 +460,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
@@ -516,7 +516,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus, concept=False)
-        ZaakInformatieobjectTypeFactory(
+        ZaakTypeInformatieObjectTypeFactory(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 

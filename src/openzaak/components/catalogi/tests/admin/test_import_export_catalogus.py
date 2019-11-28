@@ -15,7 +15,7 @@ from ...models import (
     InformatieObjectType,
     RolType,
     StatusType,
-    ZaakInformatieobjectType,
+    ZaakTypeInformatieObjectType,
     ZaakType,
 )
 from ..factories import (
@@ -25,7 +25,7 @@ from ..factories import (
     InformatieObjectTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -57,7 +57,7 @@ class CatalogusAdminImportExportTests(WebTest):
         besluittype.zaaktypen.all().delete()
         besluittype.zaaktypen.set([zaaktype])
         besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         statustype = StatusTypeFactory.create(
@@ -92,7 +92,7 @@ class CatalogusAdminImportExportTests(WebTest):
         besluittype = BesluitType.objects.get()
         informatieobjecttype = InformatieObjectType.objects.get()
         zaaktype = ZaakType.objects.get()
-        ziot = ZaakInformatieobjectType.objects.get()
+        ziot = ZaakTypeInformatieObjectType.objects.get()
         roltype = RolType.objects.get()
         statustype = StatusType.objects.get()
         eigenschap = Eigenschap.objects.get()
