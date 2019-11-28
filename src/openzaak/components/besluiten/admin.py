@@ -31,7 +31,7 @@ class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 
 @admin.register(BesluitInformatieObject)
 class BesluitInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ("besluit", "informatieobject")
+    list_display = ("besluit", "_informatieobject", "_informatieobject_url")
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
