@@ -734,6 +734,50 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
 
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_400(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        BesluitFactory.create(zaak=zaak, vervaldatum=None)
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "archiefactiedatum-error")
+
     def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_400(
         self,
     ):

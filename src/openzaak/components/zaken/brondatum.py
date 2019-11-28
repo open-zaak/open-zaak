@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Union
 
-from django.db.models import Max, Min
+from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
@@ -222,6 +222,12 @@ def get_brondatum(
         max_vervaldatum = zaakbesluiten.aggregate(Max("vervaldatum"))[
             "vervaldatum__max"
         ]
+        if max_vervaldatum is None:
+            raise DetermineProcessEndDateException(
+                _(
+                    "Besluit.vervaldatum moet gezet worden voordat de zaak kan worden afgesloten"
+                )
+            )
         return max_vervaldatum
 
     raise ValueError(f'Onbekende "Afleidingswijze": {afleidingswijze}')
