@@ -40,7 +40,6 @@ from openzaak.components.catalogi.models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakType,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.utils.auth import get_auth
