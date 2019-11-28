@@ -5,6 +5,7 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.fields import FkOrURLField
 from privates.fields import PrivateMediaFileField
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType
@@ -155,12 +156,27 @@ class InformatieObject(models.Model):
         ),
     )
 
-    informatieobjecttype = models.ForeignKey(
+    _informatieobjecttype_url = models.URLField(
+        _("extern informatieobjecttype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
         on_delete=models.CASCADE,
         help_text=_(
-            "URL-referentie naar het INFORMATIEOBJECTTYPE (in de " "Catalogi API)."
+            "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),
+        null=True,
+        blank=True,
+    )
+    informatieobjecttype = FkOrURLField(
+        fk_field="_informatieobjecttype",
+        url_field="_informatieobjecttype_url",
+        help_text="URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
     )
 
     objects = InformatieobjectQuerySet.as_manager()

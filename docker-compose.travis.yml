@@ -63,7 +63,7 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - IS_HTTPS=no
-      - ALLOWED_HOSTS=*
+      - ALLOWED_HOSTS=localhost
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - DEBUG=yes

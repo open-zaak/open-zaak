@@ -45,6 +45,6 @@ class BesluittypeInformatieobjecttypeRelationValidator:
 
         io = informatieobject.enkelvoudiginformatieobject_set.first()
         if not besluit.besluittype.informatieobjecttypen.filter(
-            id=io.informatieobjecttype_id
+            uuid=io.informatieobjecttype.uuid
         ).exists():
             raise serializers.ValidationError(self.message, code=self.code)

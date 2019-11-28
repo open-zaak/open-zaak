@@ -61,3 +61,30 @@ def get_oio_response(io_url: str, object_url: str) -> Dict[str, JsonValue]:
         "objectType": "zaak",
     }
     return oio
+
+
+def get_informatieobjecttype_response(
+    catalogus: str, informatieobjecttype: str
+) -> dict:
+    return {
+        "url": informatieobjecttype,
+        "catalogus": catalogus,
+        "omschrijving": "some desc",
+        "vertrouwelijkheidaanduiding": "openbaar",
+        "beginGeldigheid": "2019-11-18",
+        "concept": False,
+    }
+
+
+def get_catalogus_response(catalogus: str, informatieobjecttype: str) -> dict:
+    return {
+        "url": catalogus,
+        "domein": "PUB",
+        "contactpersoonBeheerTelefoonnummer": "0612345678",
+        "rsin": "517439943",
+        "contactpersoonBeheerNaam": "Jan met de Pet",
+        "contactpersoonBeheerEmailadres": "jan@petten.nl",
+        "informatieobjecttypen": [informatieobjecttype],
+        "zaaktypen": [],
+        "besluittypen": [],
+    }

@@ -223,7 +223,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         eio_response = get_eio_response(
             document,
-            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+            informatieobjecttype=f"http://openzaak.nl{reverse(zio_type.informatieobjecttype)}",
         )
 
         with requests_mock.Mocker() as m:
@@ -237,6 +237,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 reverse(ZaakInformatieObject),
                 {"zaak": zaak_url, "informatieobject": document},
+                HTTP_HOST="openzaak.nl",
             )
 
         io_url = response.data["informatieobject"]

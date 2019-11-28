@@ -76,7 +76,7 @@ class AuthorizationsFilterMixin:
             )
             vertrouwelijkheidaanduiding_whens.append(
                 When(
-                    **{"informatieobjecttype": informatieobjecttype},
+                    **{"_informatieobjecttype": informatieobjecttype},
                     then=Value(choice_item.order),
                 )
             )
@@ -88,7 +88,7 @@ class AuthorizationsFilterMixin:
         # * apply the filtering to limit cases within case-types to the maximal
         #   confidentiality level
         filters = {
-            "informatieobjecttype__in": informatieobjecttypen,
+            "_informatieobjecttype__in": informatieobjecttypen,
             "_va_order__lte": Case(
                 *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
             ),
