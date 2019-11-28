@@ -62,6 +62,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_bad_url(self):
         url = reverse("zaak-list")
 
@@ -86,6 +87,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], "bad-url")
         self.assertEqual(validation_error["name"], "zaaktype")
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_invalid_resource(self):
         url = reverse("zaak-list")
 

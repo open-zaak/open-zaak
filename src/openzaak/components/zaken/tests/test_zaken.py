@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 
 from django.contrib.gis.geos import Point
-from django.test import tag
+from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
@@ -581,6 +581,7 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = get_operation_url("zaak_create")
