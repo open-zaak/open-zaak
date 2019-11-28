@@ -9,8 +9,8 @@ from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,

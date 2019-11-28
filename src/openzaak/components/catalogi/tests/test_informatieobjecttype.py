@@ -12,8 +12,8 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 from .utils import get_operation_url
 

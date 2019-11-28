@@ -24,7 +24,9 @@ class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
         model = ZaakTypeInformatieObjectType
 
 
-class ZaakTypeInformatieObjectTypeArchiefregimeFactory(factory.django.DjangoModelFactory):
+class ZaakTypeInformatieObjectTypeArchiefregimeFactory(
+    factory.django.DjangoModelFactory
+):
     zaak_informatieobject_type = factory.SubFactory(ZaakTypeInformatieObjectTypeFactory)
     resultaattype = factory.SubFactory(
         "openzaak.components.catalogi.tests.factories.ResultaatTypeFactory"

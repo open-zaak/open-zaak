@@ -1,12 +1,11 @@
-import json
 import io
+import json
 import zipfile
 
 from django.apps import apps
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.core.files.uploadedfile import InMemoryUploadedFile
-
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.test import APIRequestFactory
@@ -32,10 +31,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--import_file", type=str, help=_("The name of the .zip file to import from")
+            "--import_file",
+            type=str,
+            help=_("The name of the .zip file to import from"),
         )
         parser.add_argument(
-            "--import_file_content", type=bytes, help=_("The .zip file content to import from")
+            "--import_file_content",
+            type=bytes,
+            help=_("The .zip file content to import from"),
         )
 
     @transaction.atomic
@@ -44,7 +47,11 @@ class Command(BaseCommand):
         import_file_content = options.pop("import_file_content")
 
         if import_file and import_file_content:
-            raise CommandError(_("Please use either the --import_file or --import_file_content argument"))
+            raise CommandError(
+                _(
+                    "Please use either the --import_file or --import_file_content argument"
+                )
+            )
 
         if import_file_content:
             import_file = io.BytesIO(import_file_content)

@@ -12,7 +12,9 @@ from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
-from openzaak.components.catalogi.tests.factories import ZaakTypeInformatieObjectTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    ZaakTypeInformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,

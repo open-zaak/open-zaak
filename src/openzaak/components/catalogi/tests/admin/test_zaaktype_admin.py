@@ -19,9 +19,9 @@ from ..factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
 )
 

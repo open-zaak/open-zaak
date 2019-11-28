@@ -11,8 +11,8 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakTypeInformatieObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 from .factories import (
     BesluitTypeFactory,
@@ -21,8 +21,8 @@ from .factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 

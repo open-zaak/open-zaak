@@ -10,9 +10,9 @@ from ..models import ZaakTypeInformatieObjectType
 from .base import APITestCase
 from .factories import (
     InformatieObjectTypeFactory,
+    ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeArchiefregimeFactory,
     ZaakTypeInformatieObjectTypeFactory,
-    ZaakTypeFactory,
 )
 
 

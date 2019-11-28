@@ -1,5 +1,5 @@
-import os
 import io
+import os
 
 from django.conf import settings
 from django.urls import reverse
@@ -16,8 +16,8 @@ from ...models import (
     InformatieObjectType,
     RolType,
     StatusType,
-    ZaakTypeInformatieObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 from ..factories import (
     BesluitTypeFactory,
@@ -26,8 +26,8 @@ from ..factories import (
     InformatieObjectTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 
@@ -86,7 +86,10 @@ class CatalogusAdminImportExportTests(WebTest):
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
-        form["file"] = ("test.zip", f.read(),)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
         response = form.submit("_import")
 
         imported_catalogus = Catalogus.objects.get()
@@ -135,7 +138,10 @@ class CatalogusAdminImportExportTests(WebTest):
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
-        form["file"] = ("test.zip", f.read(),)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
         response = form.submit("_import")
 
         self.assertIn(

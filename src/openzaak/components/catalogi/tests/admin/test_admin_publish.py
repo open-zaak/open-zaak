@@ -10,8 +10,8 @@ from openzaak.utils.tests import ClearCachesMixin
 from ..factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 

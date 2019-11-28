@@ -18,14 +18,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--archive_name",
-            help=_("Name of the archive to write data to"),
-            type=str
+            "--archive_name", help=_("Name of the archive to write data to"), type=str
         )
         parser.add_argument(
             "--response",
             help=_("HttpResponse object to which the output data should be written"),
-            type=HttpResponse
+            type=HttpResponse,
         )
         parser.add_argument(
             "--resource",
@@ -46,13 +44,17 @@ class Command(BaseCommand):
         response = options.pop("response")
 
         if response and archive_name:
-            raise CommandError(_("Please use either the --archive_name or --response argument"))
+            raise CommandError(
+                _("Please use either the --archive_name or --response argument")
+            )
 
         all_resources = options.pop("resource")
         all_ids = options.pop("ids")
 
         if len(all_resources) != len(all_ids):
-            raise CommandError(_("The number of resources supplied does not match the number of IDs"))
+            raise CommandError(
+                _("The number of resources supplied does not match the number of IDs")
+            )
 
         factory = APIRequestFactory()
         request = factory.get("/")

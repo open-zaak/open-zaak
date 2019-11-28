@@ -1,10 +1,8 @@
-import os
 import uuid
 from datetime import date
 from urllib.parse import quote as urlquote
 
 from django.apps import apps
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.management import CommandError, call_command
@@ -141,9 +139,7 @@ class CatalogusImportExportMixin:
             if form.is_valid():
                 try:
                     import_file = form.cleaned_data["file"]
-                    call_command(
-                        "import", import_file_content=import_file.read()
-                    )
+                    call_command("import", import_file_content=import_file.read())
                     self.message_user(
                         request,
                         _("Catalogus successfully imported"),
@@ -208,7 +204,9 @@ class CatalogusImportExportMixin:
             response["Content-Disposition"] = "attachment;filename={}".format(
                 f"{obj.domein}.zip"
             )
-            call_command("export", response=response, resource=resource_list, ids=id_list,)
+            call_command(
+                "export", response=response, resource=resource_list, ids=id_list,
+            )
 
             response["Content-Length"] = len(response.content)
 

@@ -16,8 +16,8 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakTypeInformatieObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 from .base import APITestCase
 from .factories import (
@@ -28,8 +28,8 @@ from .factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 

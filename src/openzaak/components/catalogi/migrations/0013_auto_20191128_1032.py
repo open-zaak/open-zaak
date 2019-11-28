@@ -6,21 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalogi', '0012_auto_20191122_1414'),
+        ("catalogi", "0012_auto_20191122_1414"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='ZaakInformatieobjectTypeArchiefregime',
-            new_name='ZaakTypeInformatieObjectTypeArchiefregime',
+            old_name="ZaakInformatieobjectTypeArchiefregime",
+            new_name="ZaakTypeInformatieObjectTypeArchiefregime",
         ),
         migrations.RenameModel(
-            old_name='ZaakInformatieobjectType',
-            new_name='ZaakTypeInformatieObjectType',
+            old_name="ZaakInformatieobjectType",
+            new_name="ZaakTypeInformatieObjectType",
         ),
         migrations.AlterField(
-            model_name='zaaktypeinformatieobjecttypearchiefregime',
-            name='selectielijstklasse',
-            field=models.CharField(blank=True, help_text='Verwijzing naar de voor het ZAAKTYPEINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.', max_length=500, null=True, verbose_name='selectielijstklasse'),
+            model_name="zaaktypeinformatieobjecttypearchiefregime",
+            name="selectielijstklasse",
+            field=models.CharField(
+                blank=True,
+                help_text="Verwijzing naar de voor het ZAAKTYPEINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie.",
+                max_length=500,
+                null=True,
+                verbose_name="selectielijstklasse",
+            ),
         ),
     ]

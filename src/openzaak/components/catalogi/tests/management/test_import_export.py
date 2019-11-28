@@ -38,7 +38,10 @@ class ExportCatalogiTests(TestCase):
         catalogus = CatalogusFactory.create()
 
         call_command(
-            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export",
+            archive_name=self.filepath,
+            resource=["Catalogus"],
+            ids=[[catalogus.id]],
         )
 
         with zipfile.ZipFile(self.filepath, "r") as f:
@@ -125,7 +128,10 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export",
+            archive_name=self.filepath,
+            resource=["Catalogus"],
+            ids=[[catalogus.id]],
         )
 
         catalogus.delete()
@@ -152,10 +158,15 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus_fail_validation(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export",
+            archive_name=self.filepath,
+            resource=["Catalogus"],
+            ids=[[catalogus.id]],
         )
 
-        self.assertRaises(CommandError, call_command, "import", import_file=self.filepath)
+        self.assertRaises(
+            CommandError, call_command, "import", import_file=self.filepath
+        )
 
     def test_import_catalogus_with_relations(self):
         catalogus = CatalogusFactory.create(rsin="000000000")

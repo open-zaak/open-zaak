@@ -25,8 +25,8 @@ from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,

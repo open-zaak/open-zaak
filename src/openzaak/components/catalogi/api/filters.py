@@ -17,8 +17,8 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakTypeInformatieObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 
 # custom filter to show concept and non-concepts
