@@ -14,9 +14,10 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import reverse
+from vng_api_common.tests import get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
     StatusTypeFactory,
@@ -30,6 +31,7 @@ from openzaak.components.documenten.tests.utils import get_eio_response
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import (
+    RelevanteZaakRelatieFactory,
     WozWaardeFactory,
     ZaakEigenschapFactory,
     ZaakFactory,
@@ -599,6 +601,319 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2028, 10, 18))
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_ingangsdatum_besluit_causes_archiefactiedatum_to_be_set(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        BesluitFactory.create(zaak=zaak, ingangsdatum="2020-01-01")
+        BesluitFactory.create(zaak=zaak, ingangsdatum="2018-01-01")
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2025, 1, 1))
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_ingangsdatum_besluit_without_besluiten_gives_400(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "archiefactiedatum-error")
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, None)
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_causes_archiefactiedatum_to_be_set(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        BesluitFactory.create(zaak=zaak, vervaldatum="2021-01-01")
+        BesluitFactory.create(zaak=zaak, vervaldatum="2020-01-01")
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_400(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        BesluitFactory.create(zaak=zaak, vervaldatum=None)
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "archiefactiedatum-error")
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_400(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "archiefactiedatum-error")
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, None)
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_causes_archiefactiedatum_to_be_set(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(einddatum="2022-01-01")
+        zaak3 = ZaakFactory.create(einddatum="2025-01-01")
+        RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak2)
+        RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak3)
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2030, 1, 1))
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_without_relevante_zaken_gives_400(
+        self,
+    ):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "archiefactiedatum-error")
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, None)
 
 
 @tag("external-urls")

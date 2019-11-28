@@ -20,6 +20,8 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
 )
 
+from ..constants import AardZaakRelatie
+
 
 class ZaakFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
@@ -33,6 +35,15 @@ class ZaakFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.Zaak"
+
+
+class RelevanteZaakRelatieFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    url = factory.SubFactory(ZaakFactory)
+    aard_relatie = AardZaakRelatie.vervolg
+
+    class Meta:
+        model = "zaken.RelevanteZaakRelatie"
 
 
 class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):

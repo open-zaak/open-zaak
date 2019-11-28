@@ -182,8 +182,17 @@ def get_brondatum(
             )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak:
-        # TODO: Determine what this means...
-        raise NotImplementedError
+        relevante_zaken = Zaak.objects.filter(
+            pk__in=zaak.relevante_andere_zaken.values_list("url", flat=True)
+        )
+        if not relevante_zaken.exists():
+            # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
+            raise DetermineProcessEndDateException(
+                _(
+                    "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
+                )
+            )
+        return relevante_zaken.aggregate(Max("einddatum"))["einddatum__max"]
 
     elif (
         afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit
@@ -203,7 +212,22 @@ def get_brondatum(
     elif (
         afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit
     ):
-        # TODO: Relation from Zaak to Besluit is not implemented yet...
-        raise NotImplementedError
+        zaakbesluiten = zaak.besluit_set.all()
+        if not zaakbesluiten.exists():
+            # Cannot use vervaldatum_besluit if Zaak has no Besluiten
+            raise DetermineProcessEndDateException(
+                _("Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.")
+            )
+
+        max_vervaldatum = zaakbesluiten.aggregate(Max("vervaldatum"))[
+            "vervaldatum__max"
+        ]
+        if max_vervaldatum is None:
+            raise DetermineProcessEndDateException(
+                _(
+                    "Besluit.vervaldatum moet gezet worden voordat de zaak kan worden afgesloten"
+                )
+            )
+        return max_vervaldatum
 
     raise ValueError(f'Onbekende "Afleidingswijze": {afleidingswijze}')
