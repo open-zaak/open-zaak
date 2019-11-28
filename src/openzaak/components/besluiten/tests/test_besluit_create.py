@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.test import tag
+from django.test import tag, override_settings
 
 import requests_mock
 from freezegun import freeze_time
@@ -173,6 +173,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(ALLOWED_HOSTS=['testserver'])
 class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

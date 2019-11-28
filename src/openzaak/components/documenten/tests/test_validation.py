@@ -14,6 +14,7 @@ from ..constants import OndertekeningSoorten, Statussen
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
+@override_settings(ALLOWED_HOSTS=['testserver'])
 class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

@@ -222,11 +222,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_SPEC),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
-                "help_text": get_help_text("documenten.EnkelvoudigInformatieObject", "informatieobjecttype"),
             },
         }
         read_only_fields = ["versie", "begin_registratie"]
