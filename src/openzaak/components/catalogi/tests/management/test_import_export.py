@@ -1,16 +1,21 @@
 import json
 import os
 import zipfile
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
+
+import requests_mock
+from zds_client.tests.mocks import mock_client
 
 from ...models import (
     BesluitType,
     Catalogus,
     Eigenschap,
     InformatieObjectType,
+    ResultaatType,
     RolType,
     StatusType,
     ZaakType,
@@ -21,6 +26,7 @@ from ..factories import (
     CatalogusFactory,
     EigenschapFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -33,6 +39,7 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 class ExportCatalogiTests(TestCase):
     def setUp(self):
         self.filepath = os.path.join(PATH, "export_test.zip")
+        self.addCleanup(lambda: os.remove(self.filepath))
 
     def test_export_catalogus(self):
         catalogus = CatalogusFactory.create()
@@ -82,6 +89,7 @@ class ExportCatalogiTests(TestCase):
             zaaktype=zaaktype, statustype_omschrijving="bla"
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
@@ -90,6 +98,7 @@ class ExportCatalogiTests(TestCase):
             "ZaakType",
             "StatusType",
             "RolType",
+            "ResultaatType",
             "Eigenschap",
             "InformatieObjectType",
             "BesluitType",
@@ -100,6 +109,7 @@ class ExportCatalogiTests(TestCase):
             [zaaktype.id],
             [statustype.id],
             [roltype.id],
+            [resultaattype.id],
             [eigenschap.id],
             [informatieobjecttype.id],
             [besluittype.id],
@@ -112,18 +122,17 @@ class ExportCatalogiTests(TestCase):
             self.assertIn("ZaakType.json", f.namelist())
             self.assertIn("StatusType.json", f.namelist())
             self.assertIn("RolType.json", f.namelist())
+            self.assertIn("ResultaatType.json", f.namelist())
             self.assertIn("Eigenschap.json", f.namelist())
             self.assertIn("InformatieObjectType.json", f.namelist())
             self.assertIn("BesluitType.json", f.namelist())
             self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
 
-    def tearDown(self):
-        os.remove(self.filepath)
-
 
 class ImportCatalogiTests(TestCase):
     def setUp(self):
         self.filepath = os.path.join(PATH, "export_test.zip")
+        self.addCleanup(lambda: os.remove(self.filepath))
 
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
@@ -168,7 +177,10 @@ class ImportCatalogiTests(TestCase):
             CommandError, call_command, "import", import_file=self.filepath
         )
 
-    def test_import_catalogus_with_relations(self):
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_import_catalogus_with_relations(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000")
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
@@ -188,6 +200,14 @@ class ImportCatalogiTests(TestCase):
             zaaktype=zaaktype, statustype_omschrijving="bla"
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            omschrijving_generiek="bla",
+            brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
+            brondatum_archiefprocedure_datumkenmerk="datum",
+            brondatum_archiefprocedure_registratie="bla",
+            brondatum_archiefprocedure_objecttype="besluit",
+        )
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
@@ -196,6 +216,7 @@ class ImportCatalogiTests(TestCase):
             "ZaakType",
             "StatusType",
             "RolType",
+            "ResultaatType",
             "Eigenschap",
             "InformatieObjectType",
             "BesluitType",
@@ -206,6 +227,7 @@ class ImportCatalogiTests(TestCase):
             [zaaktype.id],
             [statustype.id],
             [roltype.id],
+            [resultaattype.id],
             [eigenschap.id],
             [informatieobjecttype.id],
             [besluittype.id],
@@ -214,7 +236,29 @@ class ImportCatalogiTests(TestCase):
         call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
 
         catalogus.delete()
-        call_command("import", import_file=self.filepath)
+
+        responses = {
+            resultaattype.resultaattypeomschrijving: {
+                "url": resultaattype.resultaattypeomschrijving,
+                "omschrijving": "bla",
+                "definitie": "bla",
+                "opmerking": "adasdasd",
+            },
+            resultaattype.selectielijstklasse: {
+                "url": resultaattype.selectielijstklasse,
+                "procesType": zaaktype.selectielijst_procestype,
+                "nummer": 1,
+                "naam": "bla",
+                "herkomst": "adsad",
+                "waardering": "blijvend_bewaren",
+                "procestermijn": "P5Y",
+            },
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
+            with mock_client(responses):
+                call_command("import", import_file=self.filepath)
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -222,6 +266,7 @@ class ImportCatalogiTests(TestCase):
         zaaktype = ZaakType.objects.get()
         ziot = ZaakTypeInformatieObjectType.objects.get()
         roltype = RolType.objects.get()
+        resultaattype = ResultaatType.objects.get()
         statustype = StatusType.objects.get()
         eigenschap = Eigenschap.objects.get()
 
@@ -239,6 +284,7 @@ class ImportCatalogiTests(TestCase):
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
 
         self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertEqual(resultaattype.zaaktype, zaaktype)
         self.assertEqual(statustype.zaaktype, zaaktype)
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
@@ -280,6 +326,3 @@ class ImportCatalogiTests(TestCase):
 
         self.assertEqual(zaaktype2.catalogus, imported_catalogus)
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "test2")
-
-    def tearDown(self):
-        os.remove(self.filepath)
