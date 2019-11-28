@@ -24,8 +24,12 @@ from vng_api_common.utils import get_help_text
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
-from openzaak.utils.validators import IsImmutableValidator, PublishValidator, LooseFkResourceValidator, \
-    LooseFkIsImmutableValidator
+from openzaak.utils.validators import (
+    IsImmutableValidator,
+    LooseFkIsImmutableValidator,
+    LooseFkResourceValidator,
+    PublishValidator,
+)
 
 from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from ..models import (
@@ -222,7 +226,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator(
+                        "InformatieObjectType", settings.ZTC_API_SPEC
+                    ),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],

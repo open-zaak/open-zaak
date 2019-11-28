@@ -1,4 +1,5 @@
 from django.test import override_settings
+
 import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
@@ -110,7 +111,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    @override_settings(ALLOWED_HOSTS=['testserver'])
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_besluittype_invalid(self):
         list_url = reverse("besluit-list")
 

@@ -4,8 +4,8 @@ import uuid as _uuid
 from django.db import models, transaction
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from django_loose_fk.fields import FkOrURLField
 
+from django_loose_fk.fields import FkOrURLField
 from privates.fields import PrivateMediaFileField
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType

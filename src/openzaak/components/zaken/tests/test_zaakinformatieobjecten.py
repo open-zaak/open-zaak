@@ -237,7 +237,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 reverse(ZaakInformatieObject),
                 {"zaak": zaak_url, "informatieobject": document},
-                HTTP_HOST="openzaak.nl"
+                HTTP_HOST="openzaak.nl",
             )
 
         io_url = response.data["informatieobject"]

@@ -63,15 +63,17 @@ def get_oio_response(io_url: str, object_url: str) -> Dict[str, JsonValue]:
     return oio
 
 
-def get_informatieobjecttype_response(catalogus: str, informatieobjecttype: str) -> dict:
+def get_informatieobjecttype_response(
+    catalogus: str, informatieobjecttype: str
+) -> dict:
     return {
         "url": informatieobjecttype,
         "catalogus": catalogus,
         "omschrijving": "some desc",
         "vertrouwelijkheidaanduiding": "openbaar",
         "beginGeldigheid": "2019-11-18",
-        "concept": False
-        }
+        "concept": False,
+    }
 
 
 def get_catalogus_response(catalogus: str, informatieobjecttype: str) -> dict:

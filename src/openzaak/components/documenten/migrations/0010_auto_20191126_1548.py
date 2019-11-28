@@ -20,6 +20,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="enkelvoudiginformatieobject",
             name="_informatieobjecttype_url",
-            field=models.URLField(blank=True, help_text='URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).', max_length=1000, verbose_name='extern informatieobjecttype'),
+            field=models.URLField(
+                blank=True,
+                help_text="URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
+                max_length=1000,
+                verbose_name="extern informatieobjecttype",
+            ),
         ),
     ]

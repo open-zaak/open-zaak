@@ -2,10 +2,10 @@ import uuid
 from base64 import b64encode
 from datetime import date
 
-import requests_mock
 from django.test import override_settings, tag
 from django.utils import timezone
 
+import requests_mock
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
@@ -18,7 +18,11 @@ from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
-from .utils import get_operation_url, get_catalogus_response, get_informatieobjecttype_response
+from .utils import (
+    get_catalogus_response,
+    get_informatieobjecttype_response,
+    get_operation_url,
+)
 
 
 @freeze_time("2018-06-27")
@@ -606,7 +610,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @temp_private_root()
-@override_settings(ALLOWED_HOSTS=['testserver'])
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse(EnkelvoudigInformatieObject)
@@ -617,10 +621,14 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
-                "GET", informatieobjecttype, json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
+                "GET",
+                informatieobjecttype,
+                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
             )
             m.register_uri(
-                "GET", catalogus, json=get_catalogus_response(catalogus, informatieobjecttype)
+                "GET",
+                catalogus,
+                json=get_catalogus_response(catalogus, informatieobjecttype),
             )
 
             response = self.client.post(
@@ -669,7 +677,7 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "bad-url")
 
-    @override_settings(ALLOWED_HOSTS=['testserver'])
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
         response = self.client.post(
             self.list_url,
@@ -701,14 +709,14 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
-                "GET", informatieobjecttype,
-                json={
-                    "url": informatieobjecttype,
-                    "catalogus": catalogus,
-                },
+                "GET",
+                informatieobjecttype,
+                json={"url": informatieobjecttype, "catalogus": catalogus,},
             )
             m.register_uri(
-                "GET", catalogus, json=get_catalogus_response(catalogus, informatieobjecttype)
+                "GET",
+                catalogus,
+                json=get_catalogus_response(catalogus, informatieobjecttype),
             )
 
             response = self.client.post(
@@ -738,15 +746,19 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def test_create_external_informatieobjecttype_fail_non_pulish(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         informatieobjecttype = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        informatieobjecttype_data = get_informatieobjecttype_response(catalogus, informatieobjecttype)
-        informatieobjecttype_data['concept'] = True
+        informatieobjecttype_data = get_informatieobjecttype_response(
+            catalogus, informatieobjecttype
+        )
+        informatieobjecttype_data["concept"] = True
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
                 "GET", informatieobjecttype, json=informatieobjecttype_data,
             )
             m.register_uri(
-                "GET", catalogus, json=get_catalogus_response(catalogus, informatieobjecttype)
+                "GET",
+                catalogus,
+                json=get_catalogus_response(catalogus, informatieobjecttype),
             )
 
             response = self.client.post(

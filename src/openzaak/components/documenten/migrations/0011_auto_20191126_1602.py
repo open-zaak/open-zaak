@@ -16,8 +16,7 @@ class Migration(migrations.Migration):
             model_name="enkelvoudiginformatieobject",
             name="informatieobjecttype",
             field=django_loose_fk.fields.FkOrURLField(
-                fk_field="_informatieobjecttype",
-                url_field="_informatieobjecttype_url",
+                fk_field="_informatieobjecttype", url_field="_informatieobjecttype_url",
             ),
             preserve_default=False,
         ),

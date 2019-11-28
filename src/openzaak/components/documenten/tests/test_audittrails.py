@@ -49,7 +49,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "inhoud": b64encode(b"some file content").decode("utf-8"),
             "link": "http://een.link",
             "beschrijving": "test_beschrijving",
-            "informatieobjecttype": f'http://testserver{informatieobjecttype_url}',
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 

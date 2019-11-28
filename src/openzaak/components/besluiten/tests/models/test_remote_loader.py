@@ -11,7 +11,7 @@ from ..factories import BesluitFactory
 from ..utils import get_besluittype_response
 
 
-@override_settings(ALLOWED_HOSTS=['testserver'])
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class BesluitTests(TestCase):
     def test_remote_besluittype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
