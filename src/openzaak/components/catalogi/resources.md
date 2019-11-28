@@ -156,6 +156,25 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | isEindstatus | Geeft aan dat dit STATUSTYPE een eindstatus betreft. Dit gegeven is afgeleid uit alle STATUSTYPEn van dit ZAAKTYPE met het hoogste volgnummer. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
 | informeren | Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang. | boolean | nee | C​R​U​D |
 
+## ZaakTypeInformatieObjectType
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaaktypeinformatieobjecttype)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaaktype | URL-referentie naar het ZAAKTYPE. | string | ja | C​R​U​D |
+| informatieobjecttype | URL-referentie naar het INFORMATIEOBJECTTYPE. | string | ja | C​R​U​D |
+| volgnummer | Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het ZAAKTYPE. | integer | ja | C​R​U​D |
+| richting | Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
+
+Uitleg bij mogelijke waarden:
+
+* `inkomend` - Inkomend
+* `intern` - Intern
+* `uitgaand` - Uitgaand | string | ja | C​R​U​D |
+| statustype | URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn verplicht aanwezig moeten zijn. | string | nee | C​R​U​D |
+
 ## ZaakTypenRelatie
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaaktypenrelatie)
