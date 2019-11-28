@@ -399,7 +399,7 @@ class Gebruiksrechten(models.Model):
 
     def unique_representation(self):
         informatieobject = self.informatieobject.latest_version
-        return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden}"
+        return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
 class ObjectInformatieObject(models.Model):
