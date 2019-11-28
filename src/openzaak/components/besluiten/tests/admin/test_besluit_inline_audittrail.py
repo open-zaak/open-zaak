@@ -81,12 +81,12 @@ class BesluitAdminInlineTests(AdminTestMixin, WebTest):
 
         form = get_response.form
         form[
-            "besluitinformatieobject_set-0-informatieobject"
+            "besluitinformatieobject_set-0-_informatieobject"
         ] = informatieobject_new.canonical.id
         form.submit()
 
         bio.refresh_from_db()
-        self.assertEqual(bio.informatieobject, informatieobject_new.canonical)
+        self.assertEqual(bio._informatieobject, informatieobject_new.canonical)
 
         audittrail = AuditTrail.objects.get()
 
@@ -125,7 +125,7 @@ class BesluitAdminInlineTests(AdminTestMixin, WebTest):
             "besluitinformatieobject_set-MIN_NUM_FORMS": 0,
             "besluitinformatieobject_set-MAX_NUM_FORMS": 1000,
             "besluitinformatieobject_set-0-besluit": self.besluit.id,
-            "besluitinformatieobject_set-0-informatieobject": informatieobject.canonical.id,
+            "besluitinformatieobject_set-0-_informatieobject": informatieobject.canonical.id,
         }
 
         self.client.post(self.change_url, data)
