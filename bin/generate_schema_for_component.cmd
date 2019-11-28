@@ -1,4 +1,5 @@
 @echo off
+SETLOCAL
 
 REM Run this script from the root of the repository
 

@@ -41,9 +41,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
         response = self.app.get(url)
 
-        # Verify that the publish button is visible
+        # Verify that the publish button is visible and enabled
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
         form = response.forms["zaaktype_form"]
 
@@ -52,9 +56,11 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
 
-        # Verify that the publish button is not on the page anymore
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNone(publish_button)
+        # Verify that the publish button is disabled
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNotNone(publish_button)
 
     def test_publish_besluittype(self, m):
         besluittype = BesluitTypeFactory.create(concept=True)
@@ -62,9 +68,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
         response = self.app.get(url)
 
-        # Verify that the publish button is visible
+        # Verify that the publish button is visible and enabled
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
         form = response.forms["besluittype_form"]
 
@@ -73,9 +83,11 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         besluittype.refresh_from_db()
         self.assertFalse(besluittype.concept)
 
-        # Verify that the publish button is not on the page anymore
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNone(publish_button)
+        # Verify that the publish button is disabled
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNotNone(publish_button)
 
     def test_publish_informatieobjecttype(self, m):
         iot = InformatieObjectTypeFactory.create(
@@ -86,9 +98,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
         response = self.app.get(url)
 
-        # Verify that the publish button is visible
+        # Verify that the publish button is visible and enabled
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
         form = response.forms["informatieobjecttype_form"]
 
@@ -97,9 +113,11 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         iot.refresh_from_db()
         self.assertFalse(iot.concept)
 
-        # Verify that the publish button is not on the page anymore
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNone(publish_button)
+        # Verify that the publish button is disabled
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNotNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
         mock_oas_get(m)
@@ -117,9 +135,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
         response = self.app.get(url)
 
-        # Verify that the publish button is visible
+        # Verify that the publish button is visible and enabled
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
         form = response.forms["zaaktype_form"]
 
@@ -132,9 +154,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         error_message = response.html.find("li", {"class": "error"})
         self.assertIn("should be published", error_message.text)
 
-        # Verify that the publish button is not on the page anymore
+        # Verify that the publish button is still visible and enabled.
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
         mock_oas_get(m)
@@ -154,9 +180,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
         response = self.app.get(url)
 
-        # Verify that the publish button is visible
+        # Verify that the publish button is visible and enabled
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
         form = response.forms["zaaktype_form"]
 
@@ -169,6 +199,10 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         error_message = response.html.find("li", {"class": "error"})
         self.assertIn("should be published", error_message.text)
 
-        # Verify that the publish button is not on the page anymore
+        # Verify that the publish button is still visible and enabled.
         publish_button = response.html.find("input", {"name": "_publish"})
         self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)

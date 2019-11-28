@@ -67,6 +67,7 @@ class NewVersionMixin(object):
         obj.datum_begin_geldigheid = version_date
         obj.versiedatum = version_date
         obj.datum_einde_geldigheid = None
+        obj.concept = True
         obj.save()
 
         related_objects = [
