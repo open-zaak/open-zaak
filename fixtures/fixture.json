@@ -52,11 +52,33 @@
         }
     },
     {
+        "model": "authorizations.applicatie",
+        "pk": 3,
+        "fields": {
+            "uuid": "f78d0bca-8099-4eea-a8fd-40e2f0a1ba75",
+            "client_ids": "[\"openzaak\"]",
+            "label": "openzaak",
+            "heeft_alle_autorisaties": true
+        }
+    },
+    {
         "model": "vng_api_common.apicredential",
         "pk": 1,
         "fields": {
             "api_root": "http://notifications:8000/api/v1/",
             "label": "notificaties",
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "vng_api_common.apicredential",
+        "pk": 4,
+        "fields": {
+            "api_root": "http://localhost:8000/",
+            "label": "openzaak",
             "client_id": "openzaak",
             "secret": "openzaak",
             "user_id": "openzaak",
