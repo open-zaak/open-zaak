@@ -142,6 +142,3 @@ class CatalogusAdminImportExportTests(WebTest):
             response.text,
         )
         self.assertEqual(Catalogus.objects.count(), 1)
-
-    def tearDown(self):
-        os.remove(self.filename)

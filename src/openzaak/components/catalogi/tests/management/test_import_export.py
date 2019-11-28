@@ -38,7 +38,7 @@ class ExportCatalogiTests(TestCase):
         catalogus = CatalogusFactory.create()
 
         call_command(
-            "export", self.filepath, resource=[["Catalogus"]], ids=[[str(catalogus.id)]]
+            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
         with zipfile.ZipFile(self.filepath, "r") as f:
@@ -83,24 +83,24 @@ class ExportCatalogiTests(TestCase):
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
         resources = [
-            ["Catalogus"],
-            ["ZaakType"],
-            ["StatusType"],
-            ["RolType"],
-            ["Eigenschap"],
-            ["InformatieObjectType"],
-            ["BesluitType"],
-            ["ZaakInformatieobjectType"],
+            "Catalogus",
+            "ZaakType",
+            "StatusType",
+            "RolType",
+            "Eigenschap",
+            "InformatieObjectType",
+            "BesluitType",
+            "ZaakInformatieobjectType",
         ]
         ids = [
-            [str(catalogus.id)],
-            [str(zaaktype.id)],
-            [str(statustype.id)],
-            [str(roltype.id)],
-            [str(eigenschap.id)],
-            [str(informatieobjecttype.id)],
-            [str(besluittype.id)],
-            [str(ziot.id)],
+            [catalogus.id],
+            [zaaktype.id],
+            [statustype.id],
+            [roltype.id],
+            [eigenschap.id],
+            [informatieobjecttype.id],
+            [besluittype.id],
+            [ziot.id],
         ]
         call_command("export", self.filepath, resource=resources, ids=ids)
 
@@ -125,7 +125,7 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", self.filepath, resource=[["Catalogus"]], ids=[[str(catalogus.id)]]
+            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
         catalogus.delete()
@@ -152,7 +152,7 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus_fail_validation(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", self.filepath, resource=[["Catalogus"]], ids=[[str(catalogus.id)]]
+            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
         self.assertRaises(CommandError, call_command, "import", self.filepath)
@@ -181,24 +181,24 @@ class ImportCatalogiTests(TestCase):
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
         resources = [
-            ["Catalogus"],
-            ["ZaakType"],
-            ["StatusType"],
-            ["RolType"],
-            ["Eigenschap"],
-            ["InformatieObjectType"],
-            ["BesluitType"],
-            ["ZaakInformatieobjectType"],
+            "Catalogus",
+            "ZaakType",
+            "StatusType",
+            "RolType",
+            "Eigenschap",
+            "InformatieObjectType",
+            "BesluitType",
+            "ZaakInformatieobjectType",
         ]
         ids = [
-            [str(catalogus.id)],
-            [str(zaaktype.id)],
-            [str(statustype.id)],
-            [str(roltype.id)],
-            [str(eigenschap.id)],
-            [str(informatieobjecttype.id)],
-            [str(besluittype.id)],
-            [str(ziot.id)],
+            [catalogus.id],
+            [zaaktype.id],
+            [statustype.id],
+            [roltype.id],
+            [eigenschap.id],
+            [informatieobjecttype.id],
+            [besluittype.id],
+            [ziot.id],
         ]
         call_command("export", self.filepath, resource=resources, ids=ids)
 
@@ -245,12 +245,12 @@ class ImportCatalogiTests(TestCase):
         )
 
         resources = [
-            ["Catalogus"],
-            ["ZaakType"],
+            "Catalogus",
+            "ZaakType",
         ]
         ids = [
-            [str(catalogus.id)],
-            [",".join([str(zaaktype1.id), str(zaaktype2.id)])],
+            [catalogus.id],
+            [zaaktype1.id, zaaktype2.id],
         ]
         call_command("export", self.filepath, resource=resources, ids=ids)
 

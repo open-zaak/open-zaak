@@ -148,6 +148,7 @@ class CatalogusImportExportMixin:
                         f"uploads/imports/{import_file.name}",
                         ContentFile(import_file.read()),
                     )
+                    abs_path = os.path.join(settings.PRIVATE_MEDIA_ROOT, path)
                     call_command(
                         "import", os.path.join(settings.PRIVATE_MEDIA_ROOT, path)
                     )
@@ -156,6 +157,7 @@ class CatalogusImportExportMixin:
                         _("Catalogus successfully imported"),
                         level=messages.SUCCESS,
                     )
+                    os.remove(abs_path)
                     return HttpResponseRedirect(
                         reverse("admin:catalogi_catalogus_changelist")
                     )
@@ -197,8 +199,8 @@ class CatalogusImportExportMixin:
         id_list = []
         for resource, ids in resources.items():
             if ids:
-                resource_list.append([resource])
-                id_list.append([",".join(str(id) for id in ids)])
+                resource_list.append(resource)
+                id_list.append(ids)
 
         return resource_list, id_list
 
@@ -212,16 +214,13 @@ class CatalogusImportExportMixin:
             resource_list, id_list = self.get_related_objects(obj)
 
             filename = f"{obj.domein}.zip"
-            call_command(
-                "export", filename, resource=resource_list, ids=id_list,
-            )
-
+            res = call_command("export", filename, resource=resource_list, ids=id_list,)
             self.message_user(
                 request,
-                _(f"Catalogus {obj} was successfully exported"),
+                _("Catalogus {} was successfully exported").format(obj),
                 level=messages.SUCCESS,
             )
-            # return HttpResponseRedirect(request.path)
+
             with open(filename, "rb") as f:
                 response = HttpResponse(f, content_type="application/zip")
                 os.remove(filename)

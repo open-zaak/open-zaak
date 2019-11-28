@@ -12,7 +12,7 @@ from openzaak.components.catalogi.api import serializers
 
 
 class Command(BaseCommand):
-    help = _("Export the objects with the ids for the specified resource as json")
+    help = "Export the objects with the ids for the specified resource as json"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -20,9 +20,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--resource",
-            "--input",
             action="append",
-            nargs="*",
+            type=str,
             help=_("Name of the resource to export objects for"),
         )
         parser.add_argument(
@@ -30,43 +29,38 @@ class Command(BaseCommand):
             help=_("IDs of objects to be exported for the resource"),
             action="append",
             nargs="*",
-            type=str,
+            type=int,
         )
 
     def handle(self, *args, **options):
         archive_name = options.pop("archive_name")
-        resources = options.pop("resource")
-        ids = options.pop("ids")
+        all_resources = options.pop("resource")
+        all_ids = options.pop("ids")
 
         filenames = []
 
-        for resource, id_list in zip(resources, ids):
-            resource = resource[0]
-            parsed_ids = [int(i) for i in id_list[0].split(",")]
+        factory = APIRequestFactory()
+        request = factory.get("/")
+        setattr(request, "versioning_scheme", URLPathVersioning())
+        setattr(request, "version", "1")
 
-            results = []
-
+        for resource, ids in zip(all_resources, all_ids):
             model = apps.get_model("catalogi", resource)
             serializer = getattr(serializers, f"{resource}Serializer")
-            objects = model.objects.filter(id__in=parsed_ids)
+            objects = model.objects.filter(id__in=ids)
 
-            factory = APIRequestFactory()
-            request = factory.get("/")
+            serialized = serializer(
+                instance=objects, many=True, context={"request": request}
+            )
+            results = serialized.data
 
-            setattr(request, "versioning_scheme", URLPathVersioning())
-            setattr(request, "version", "1")
-
-            for instance in objects:
-                serialized = serializer(instance, context={"request": request})
-                data = serialized.data
-
-                # Because BesluitType is imported before ZaakType, related
-                # ZaakTypen do not exist yet at the time of importing, so the
-                # relations will be left empty when importing BesluitTypen and
-                # they will be set when importing ZaakTypen
-                if resource == "BesluitType":
+            # Because BesluitType is imported before ZaakType, related
+            # ZaakTypen do not exist yet at the time of importing, so the
+            # relations will be left empty when importing BesluitTypen and
+            # they will be set when importing ZaakTypen
+            if resource == "BesluitType":
+                for data in results:
                     data["zaaktypen"] = []
-                results.append(data)
 
             if results:
                 with zipfile.ZipFile(archive_name, "a") as zip_file:

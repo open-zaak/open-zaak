@@ -25,7 +25,7 @@ IMPORT_ORDER = [
 
 
 class Command(BaseCommand):
-    help = _("Import Catalogi data from a .zip file")
+    help = "Import Catalogi data from a .zip file"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -36,6 +36,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         import_file = options.pop("import_file")
         uuid_mapping = {}
+
+        factory = APIRequestFactory()
+        request = factory.get("/")
+        setattr(request, "versioning_scheme", URLPathVersioning())
+        setattr(request, "version", "1")
 
         with zipfile.ZipFile(import_file, "r") as zip_file:
             for resource in IMPORT_ORDER:
@@ -48,12 +53,6 @@ class Command(BaseCommand):
 
                     model = apps.get_model("catalogi", resource)
                     serializer = getattr(serializers, f"{resource}Serializer")
-
-                    factory = APIRequestFactory()
-                    request = factory.get("/")
-
-                    setattr(request, "versioning_scheme", URLPathVersioning())
-                    setattr(request, "version", "1")
 
                     for entry in data:
                         deserialized = serializer(
@@ -68,6 +67,6 @@ class Command(BaseCommand):
                         else:
                             raise CommandError(
                                 _(
-                                    f"A validation error occurred while deserializing a {resource}\n{deserialized.errors}"
-                                )
+                                    "A validation error occurred while deserializing a {}\n{}"
+                                ).format(resource, deserialized.errors)
                             )
