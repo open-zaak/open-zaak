@@ -179,7 +179,7 @@ class BesluitInformatieObjectViewSet(
     """
 
     queryset = (
-        BesluitInformatieObject.objects.select_related("besluit", "informatieobject")
+        BesluitInformatieObject.objects.select_related("besluit", "_informatieobject")
         .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
         .all()
     )

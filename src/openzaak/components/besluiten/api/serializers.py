@@ -8,10 +8,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
-from openzaak.components.documenten.api.serializers import (
-    EnkelvoudigInformatieObjectHyperlinkedRelatedField,
-)
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -25,6 +21,7 @@ from .validators import (
     BesluittypeZaaktypeValidator,
     UniekeIdentificatieValidator,
 )
+from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
@@ -80,15 +77,15 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
-        lookup_field="uuid",
-        queryset=EnkelvoudigInformatieObject.objects,
-        help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
-        "API) waarin (een deel van) het besluit beschreven is.",
+    informatieobject = EnkelvoudigInformatieObjectField(
+        validators=[
+            LooseFkIsImmutableValidator(instance_path="canonical"),
+            LooseFkResourceValidator(
+                "EnkelvoudigInformatieObject", settings.DRC_API_SPEC
+            ),
+        ],
         max_length=1000,
         min_length=1,
-        validators=[IsImmutableValidator()],
     )
 
     class Meta:
