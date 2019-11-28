@@ -13,8 +13,8 @@ from ...models import (
     InformatieObjectType,
     RolType,
     StatusType,
-    ZaakTypeInformatieObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 from ..factories import (
     BesluitTypeFactory,
@@ -23,8 +23,8 @@ from ..factories import (
     InformatieObjectTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 PATH = os.path.abspath(os.path.dirname(__file__))
@@ -38,7 +38,7 @@ class ExportCatalogiTests(TestCase):
         catalogus = CatalogusFactory.create()
 
         call_command(
-            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
         with zipfile.ZipFile(self.filepath, "r") as f:
@@ -102,7 +102,7 @@ class ExportCatalogiTests(TestCase):
             [besluittype.id],
             [ziot.id],
         ]
-        call_command("export", self.filepath, resource=resources, ids=ids)
+        call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
 
         with zipfile.ZipFile(self.filepath, "r") as f:
             self.assertIn("Catalogus.json", f.namelist())
@@ -125,11 +125,11 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
         catalogus.delete()
-        call_command("import", self.filepath)
+        call_command("import", import_file=self.filepath)
 
         imported_catalogus = Catalogus.objects.get()
         self.assertEqual(imported_catalogus.domein, catalogus.domein)
@@ -152,10 +152,10 @@ class ImportCatalogiTests(TestCase):
     def test_import_catalogus_fail_validation(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
-            "export", self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
+            "export", archive_name=self.filepath, resource=["Catalogus"], ids=[[catalogus.id]]
         )
 
-        self.assertRaises(CommandError, call_command, "import", self.filepath)
+        self.assertRaises(CommandError, call_command, "import", import_file=self.filepath)
 
     def test_import_catalogus_with_relations(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
@@ -200,10 +200,10 @@ class ImportCatalogiTests(TestCase):
             [besluittype.id],
             [ziot.id],
         ]
-        call_command("export", self.filepath, resource=resources, ids=ids)
+        call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
 
         catalogus.delete()
-        call_command("import", self.filepath)
+        call_command("import", import_file=self.filepath)
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -252,10 +252,10 @@ class ImportCatalogiTests(TestCase):
             [catalogus.id],
             [zaaktype1.id, zaaktype2.id],
         ]
-        call_command("export", self.filepath, resource=resources, ids=ids)
+        call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
 
         catalogus.delete()
-        call_command("import", self.filepath)
+        call_command("import", import_file=self.filepath)
 
         imported_catalogus = Catalogus.objects.get()
         zaaktypen = ZaakType.objects.all()

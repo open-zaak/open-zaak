@@ -1,4 +1,5 @@
 import os
+import io
 
 from django.conf import settings
 from django.urls import reverse
@@ -82,10 +83,10 @@ class CatalogusAdminImportExportTests(WebTest):
         response = self.app.get(url)
 
         form = response.form
-        form["file"] = (
-            self.filename,
-            data,
-        )
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = ("test.zip", f.read(),)
         response = form.submit("_import")
 
         imported_catalogus = Catalogus.objects.get()
@@ -131,10 +132,10 @@ class CatalogusAdminImportExportTests(WebTest):
         response = self.app.get(url)
 
         form = response.form
-        form["file"] = (
-            self.filename,
-            data,
-        )
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = ("test.zip", f.read(),)
         response = form.submit("_import")
 
         self.assertIn(

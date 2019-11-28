@@ -7,15 +7,12 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
-from django.core.files.base import ContentFile
 from django.core.management import CommandError, call_command
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-
-from privates.storages import private_media_storage
 
 from ..models import ZaakTypeInformatieObjectType
 from .forms import CatalogusImportForm
@@ -144,20 +141,14 @@ class CatalogusImportExportMixin:
             if form.is_valid():
                 try:
                     import_file = form.cleaned_data["file"]
-                    path = private_media_storage.save(
-                        f"uploads/imports/{import_file.name}",
-                        ContentFile(import_file.read()),
-                    )
-                    abs_path = os.path.join(settings.PRIVATE_MEDIA_ROOT, path)
                     call_command(
-                        "import", os.path.join(settings.PRIVATE_MEDIA_ROOT, path)
+                        "import", import_file_content=import_file.read()
                     )
                     self.message_user(
                         request,
                         _("Catalogus successfully imported"),
                         level=messages.SUCCESS,
                     )
-                    os.remove(abs_path)
                     return HttpResponseRedirect(
                         reverse("admin:catalogi_catalogus_changelist")
                     )
@@ -213,21 +204,19 @@ class CatalogusImportExportMixin:
 
             resource_list, id_list = self.get_related_objects(obj)
 
-            filename = f"{obj.domein}.zip"
-            res = call_command("export", filename, resource=resource_list, ids=id_list,)
+            response = HttpResponse(content_type="application/zip")
+            response["Content-Disposition"] = "attachment;filename={}".format(
+                f"{obj.domein}.zip"
+            )
+            call_command("export", response=response, resource=resource_list, ids=id_list,)
+
+            response["Content-Length"] = len(response.content)
+
             self.message_user(
                 request,
                 _("Catalogus {} was successfully exported").format(obj),
                 level=messages.SUCCESS,
             )
-
-            with open(filename, "rb") as f:
-                response = HttpResponse(f, content_type="application/zip")
-                os.remove(filename)
-                response["Content-Length"] = len(response.content)
-                response["Content-Disposition"] = "attachment;filename={}".format(
-                    filename
-                )
-                return response
+            return response
         else:
             return super().response_post_save_change(request, obj)

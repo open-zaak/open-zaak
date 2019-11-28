@@ -1,8 +1,10 @@
+import io
 import json
 import zipfile
 
 from django.apps import apps
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.test import APIRequestFactory
@@ -16,7 +18,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "archive_name", help=_("Name of the archive to write data to")
+            "--archive_name",
+            help=_("Name of the archive to write data to"),
+            type=str
+        )
+        parser.add_argument(
+            "--response",
+            help=_("HttpResponse object to which the output data should be written"),
+            type=HttpResponse
         )
         parser.add_argument(
             "--resource",
@@ -34,15 +43,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         archive_name = options.pop("archive_name")
+        response = options.pop("response")
+
+        if response and archive_name:
+            raise CommandError(_("Please use either the --archive_name or --response argument"))
+
         all_resources = options.pop("resource")
         all_ids = options.pop("ids")
 
-        filenames = []
+        if len(all_resources) != len(all_ids):
+            raise CommandError(_("The number of resources supplied does not match the number of IDs"))
 
         factory = APIRequestFactory()
         request = factory.get("/")
         setattr(request, "versioning_scheme", URLPathVersioning())
         setattr(request, "version", "1")
+
+        results = []
 
         for resource, ids in zip(all_resources, all_ids):
             model = apps.get_model("catalogi", resource)
@@ -52,16 +69,26 @@ class Command(BaseCommand):
             serialized = serializer(
                 instance=objects, many=True, context={"request": request}
             )
-            results = serialized.data
+            data = serialized.data
 
             # Because BesluitType is imported before ZaakType, related
             # ZaakTypen do not exist yet at the time of importing, so the
             # relations will be left empty when importing BesluitTypen and
             # they will be set when importing ZaakTypen
             if resource == "BesluitType":
-                for data in results:
-                    data["zaaktypen"] = []
+                for entry in data:
+                    entry["zaaktypen"] = []
 
-            if results:
+            if data:
+                results.append((resource, data))
+
+        if response:
+            f = io.BytesIO()
+            for resource, data in results:
+                with zipfile.ZipFile(f, "a") as zip_file:
+                    zip_file.writestr(f"{resource}.json", json.dumps(data))
+            response.content = f.getvalue()
+        else:
+            for resource, data in results:
                 with zipfile.ZipFile(archive_name, "a") as zip_file:
-                    zip_file.writestr(f"{resource}.json", json.dumps(results))
+                    zip_file.writestr(f"{resource}.json", json.dumps(data))
