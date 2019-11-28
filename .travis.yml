@@ -92,9 +92,8 @@ jobs:
       before_install: skip
       install: skip
       before_script: skip
-      script:
-        - exit 0
-      after_success: skip
+      script: echo "noop"
+      after_success: echo "trigger deploy?"
       deploy:
         - provider: script
           script: bin/docker_push.sh latest

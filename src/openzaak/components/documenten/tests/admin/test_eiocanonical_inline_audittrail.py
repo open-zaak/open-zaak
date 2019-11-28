@@ -137,7 +137,9 @@ class EioAdminInlineTests(WebTest):
         self.assertEqual(new_data["identificatie"], "12345")
 
     def test_gebruiksrechten_delete(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(canonical=self.canonical)
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical=self.canonical, identificatie="short",
+        )
         eio_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=eio.uuid)
         gebruiksrechten = GebruiksrechtenFactory.create(informatieobject=self.canonical)
         gebruiksrechten_url = get_operation_url(
