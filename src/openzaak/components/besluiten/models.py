@@ -17,7 +17,7 @@ from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
-# from openzaak.loaders import EIOLoader
+from openzaak.components.documenten.loaders import EIOLoader
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +213,7 @@ class BesluitInformatieObject(models.Model):
     informatieobject = FkOrURLField(
         fk_field="_informatieobject",
         url_field="_informatieobject_url",
-        # loader=EIOLoader(),
+        loader=EIOLoader(),
         help_text=_(
             "URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
             "API) waarin (een deel van) het besluit beschreven is.",

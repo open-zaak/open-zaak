@@ -30,7 +30,7 @@ from openzaak.utils.fields import DurationField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-from ..loaders import EIOLoader
+from openzaak.components.documenten.loaders import EIOLoader
 from ..query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
 
 logger = logging.getLogger(__name__)
