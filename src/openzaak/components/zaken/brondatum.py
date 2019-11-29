@@ -182,17 +182,27 @@ def get_brondatum(
             )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak:
-        relevante_zaken = Zaak.objects.filter(
-            pk__in=zaak.relevante_andere_zaken.values_list("url", flat=True)
-        )
-        if not relevante_zaken.exists():
+        relevante_zaken = zaak.relevante_andere_zaken
+        if relevante_zaken.count() == 0:
             # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
             raise DetermineProcessEndDateException(
                 _(
                     "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
                 )
             )
-        return relevante_zaken.aggregate(Max("einddatum"))["einddatum__max"]
+
+        # internal
+        relevante_zaken_internal = Zaak.objects.filter(
+            pk__in=relevante_zaken.filter(_relevant_zaak__isnull=False).values_list("_relevant_zaak", flat=True)
+        )
+        einddatum__max_internal = relevante_zaken_internal.aggregate(Max("einddatum"))["einddatum__max"]
+
+        # external
+        einddatum__max_external = None
+        for relevante_zaak in relevante_zaken.filter(_relevant_zaak__isnull=True):
+            einddatum = relevante_zaak.url.einddatum
+            einddatum__max_external = max(einddatum__max_external, einddatum)
+        return max(einddatum__max_internal, einddatum__max_internal)
 
     elif (
         afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit
