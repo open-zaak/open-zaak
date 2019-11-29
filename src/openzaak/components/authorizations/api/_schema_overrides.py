@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from vng_api_common.inspectors.view import AutoSchema
+from openzaak.utils.schema import AutoSchema
 
 
 class ApplicatieConsumerAutoSchema(AutoSchema):

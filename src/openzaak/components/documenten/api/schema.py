@@ -5,11 +5,12 @@ from django.conf import settings
 from drf_yasg import openapi
 from humanize import naturalsize
 from rest_framework import status
-from vng_api_common.inspectors.view import HTTP_STATUS_CODE_TITLES, AutoSchema
+from vng_api_common.inspectors.view import HTTP_STATUS_CODE_TITLES
 from vng_api_common.notifications.utils import notification_documentation
 from vng_api_common.serializers import FoutSerializer
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
+from openzaak.utils.schema import AutoSchema
 
 from .kanalen import KANAAL_DOCUMENTEN
 

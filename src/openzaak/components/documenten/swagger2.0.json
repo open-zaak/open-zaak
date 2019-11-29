@@ -230,6 +230,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.lezen"
+                        ]
+                    }
                 ]
             },
             "post": {
@@ -432,6 +439,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.aanmaken"
+                        ]
+                    }
                 ]
             },
             "parameters": []
@@ -936,6 +950,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.lezen"
+                        ]
+                    }
                 ]
             },
             "put": {
@@ -1145,6 +1166,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "patch": {
@@ -1354,6 +1382,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.bijwerken"
+                        ]
+                    }
                 ]
             },
             "delete": {
@@ -1524,6 +1559,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.verwijderen"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -1689,6 +1731,13 @@
                 ],
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.lezen"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -1861,6 +1910,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.lock"
+                        ]
+                    }
                 ]
             },
             "parameters": [
@@ -2030,6 +2086,13 @@
                 },
                 "tags": [
                     "enkelvoudiginformatieobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "(documenten.lock | documenten.geforceerd-unlock)"
+                        ]
+                    }
                 ]
             },
             "parameters": [

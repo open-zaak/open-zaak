@@ -502,6 +502,9 @@ paths:
                 $ref: '#/components/schemas/Fout'
       tags:
       - applicaties
+      security:
+      - JWT-Claims:
+        - autorisaties.lezen
     parameters: []
   /applicaties/{uuid}:
     get:
