@@ -1,11 +1,11 @@
 import logging
-import requests
-from vng_api_common.models import APICredential
 
 from django.conf import settings
 from django.contrib.sites.models import Site
 
+import requests
 from rest_framework.reverse import reverse
+from vng_api_common.models import APICredential
 
 logger = logging.getLogger(__name__)
 

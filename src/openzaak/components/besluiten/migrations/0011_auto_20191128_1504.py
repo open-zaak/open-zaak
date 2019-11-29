@@ -7,8 +7,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('documenten', '0010_auto_20191122_1923'),
-        ('besluiten', '0010_auto_20191010_1544'),
+        ("documenten", "0010_auto_20191122_1923"),
+        ("besluiten", "0010_auto_20191010_1544"),
     ]
 
     operations = [
@@ -18,13 +18,17 @@ class Migration(migrations.Migration):
             new_name="_informatieobject",
         ),
         migrations.AlterUniqueTogether(
-            name='besluitinformatieobject',
-            unique_together={('besluit', '_informatieobject')},
+            name="besluitinformatieobject",
+            unique_together={("besluit", "_informatieobject")},
         ),
         migrations.AddField(
-            model_name='besluitinformatieobject',
-            name='_informatieobject_url',
-            field=models.URLField(blank=True, help_text='URL to the informatieobject in an external API',
-                                  max_length=1000, verbose_name='External informatieobject'),
+            model_name="besluitinformatieobject",
+            name="_informatieobject_url",
+            field=models.URLField(
+                blank=True,
+                help_text="URL to the informatieobject in an external API",
+                max_length=1000,
+                verbose_name="External informatieobject",
+            ),
         ),
     ]

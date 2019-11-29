@@ -52,7 +52,9 @@ def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
     return eio
 
 
-def get_oio_response(io_url: str, object_url: str, object_type: str = 'zaak') -> Dict[str, JsonValue]:
+def get_oio_response(
+    io_url: str, object_url: str, object_type: str = "zaak"
+) -> Dict[str, JsonValue]:
     url = f"{_get_oio_endpoint(io_url)}/{uuid.uuid4()}"
     oio = {
         "url": url,

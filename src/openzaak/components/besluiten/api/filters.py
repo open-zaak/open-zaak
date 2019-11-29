@@ -1,5 +1,5 @@
-from vng_api_common.filtersets import FilterSet
 from django_loose_fk.filters import FkOrUrlFieldFilter
+from vng_api_common.filtersets import FilterSet
 
 from ..models import Besluit, BesluitInformatieObject
 

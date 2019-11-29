@@ -13,11 +13,11 @@ from vng_api_common.validators import (
     alphanumeric_excluding_diacritic,
 )
 
+from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
-from openzaak.components.documenten.loaders import EIOLoader
 
 logger = logging.getLogger(__name__)
 
@@ -208,7 +208,7 @@ class BesluitInformatieObject(models.Model):
         blank=True,
         null=True,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
-                  "API) waarin (een deel van) het besluit beschreven is.",
+        "API) waarin (een deel van) het besluit beschreven is.",
     )
     informatieobject = FkOrURLField(
         fk_field="_informatieobject",

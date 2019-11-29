@@ -1,17 +1,22 @@
-from django.test import tag, override_settings
 import uuid
+
+from django.test import override_settings, tag
+
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.tests.utils import (
+    get_eio_response,
+    get_oio_response,
+)
 from openzaak.utils.tests import JWTAuthMixin
-from openzaak.components.documenten.tests.utils import get_eio_response, get_oio_response
-from openzaak.components.documenten.models import ObjectInformatieObject
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -199,7 +204,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
         informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
         informatieobjecttype.besluittypen.add(besluit.besluittype)
-        eio_response = get_eio_response(document, informatieobjecttype=informatieobjecttype_url)
+        eio_response = get_eio_response(
+            document, informatieobjecttype=informatieobjecttype_url
+        )
 
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker(real_http=True) as m:
@@ -239,12 +246,12 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="bio-list"):
             list_response = self.client.get(
-                self.list_url,
-                {"besluit": besluit_url},
-                HTTP_HOST="openzaak.nl",
+                self.list_url, {"besluit": besluit_url}, HTTP_HOST="openzaak.nl",
             )
 
-            self.assertEqual(list_response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(
+                list_response.status_code, status.HTTP_200_OK, response.data
+            )
             data = list_response.json()
 
             self.assertEqual(len(data), 1)
@@ -298,8 +305,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             )
 
             response = self.client.post(
-                self.list_url,
-                {"besluit": besluit_url, "informatieobject": document},
+                self.list_url, {"besluit": besluit_url, "informatieobject": document},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

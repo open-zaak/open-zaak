@@ -4,6 +4,7 @@ from rest_framework import serializers
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
+
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 
@@ -49,5 +50,7 @@ class BesluittypeInformatieobjecttypeRelationValidator:
         else:
             io_type = informatieobject.informatieobjecttype
 
-        if not besluit.besluittype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+        if not besluit.besluittype.informatieobjecttypen.filter(
+            uuid=io_type.uuid
+        ).exists():
             raise serializers.ValidationError(self.message, code=self.code)

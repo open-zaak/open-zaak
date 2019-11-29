@@ -9,6 +9,8 @@ from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
+from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -22,8 +24,6 @@ from .validators import (
     BesluittypeZaaktypeValidator,
     UniekeIdentificatieValidator,
 )
-from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.api.utils import create_remote_oio
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
