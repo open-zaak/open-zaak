@@ -13,6 +13,7 @@ from vng_api_common.validators import (
     alphanumeric_excluding_diacritic,
 )
 
+from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -194,11 +195,29 @@ class BesluitInformatieObject(models.Model):
     besluit = models.ForeignKey(
         Besluit, on_delete=models.CASCADE, help_text="URL-referentie naar het BESLUIT."
     )
-    informatieobject = models.ForeignKey(
+
+    _informatieobject_url = models.URLField(
+        _("External informatieobject"),
+        blank=True,
+        max_length=1000,
+        help_text=_("URL to the informatieobject in an external API"),
+    )
+    _informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical",
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
         "API) waarin (een deel van) het besluit beschreven is.",
+    )
+    informatieobject = FkOrURLField(
+        fk_field="_informatieobject",
+        url_field="_informatieobject_url",
+        loader=EIOLoader(),
+        help_text=_(
+            "URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
+            "API) waarin (een deel van) het besluit beschreven is.",
+        ),
     )
 
     objects = BesluitInformatieObjectQuerySet.as_manager()
@@ -206,10 +225,24 @@ class BesluitInformatieObject(models.Model):
     class Meta:
         verbose_name = "besluitinformatieobject"
         verbose_name_plural = "besluitinformatieobjecten"
-        unique_together = (("besluit", "informatieobject"),)
+        unique_together = ("besluit", "_informatieobject")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["besluit", "_informatieobject_url"],
+                condition=~models.Q(_informatieobject_url=""),
+                name="unique_besluit_and_external_document",
+            )
+        ]
 
     def __str__(self):
         return str(self.uuid)
 
     def unique_representation(self):
-        return f"({self.besluit.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
+        besluit_repr = self.besluit.unique_representation()
+
+        if hasattr(self.informatieobject, "identificatie"):
+            doc_identificatie = self.informatieobject.identificatie
+        else:
+            doc_identificatie = self.informatieobject.latest_version.identificatie
+
+        return f"({besluit_repr}) - {doc_identificatie}"

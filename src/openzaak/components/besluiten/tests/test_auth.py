@@ -135,7 +135,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         informatieobject = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
-        informatieobject_url = reverse(informatieobject)
+        informatieobject_url = f"http://testserver{reverse(informatieobject)}"
 
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()

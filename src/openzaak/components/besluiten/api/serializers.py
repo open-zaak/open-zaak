@@ -2,16 +2,15 @@
 Serializers of the Besluit Registratie Component REST API
 """
 from django.conf import settings
+from django.db import transaction
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
-from openzaak.components.documenten.api.serializers import (
-    EnkelvoudigInformatieObjectHyperlinkedRelatedField,
-)
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -80,15 +79,15 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
-        lookup_field="uuid",
-        queryset=EnkelvoudigInformatieObject.objects,
-        help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
-        "API) waarin (een deel van) het besluit beschreven is.",
+    informatieobject = EnkelvoudigInformatieObjectField(
+        validators=[
+            LooseFkIsImmutableValidator(instance_path="canonical"),
+            LooseFkResourceValidator(
+                "EnkelvoudigInformatieObject", settings.DRC_API_SPEC
+            ),
+        ],
         max_length=1000,
         min_length=1,
-        validators=[IsImmutableValidator()],
     )
 
     class Meta:
@@ -105,3 +104,29 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "besluit": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
         }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            bio = super().create(validated_data)
+
+        # local FK - nothing to do -> our signals create the OIO
+        if bio.informatieobject.pk:
+            return bio
+
+        # we know that we got valid URLs in the initial data
+        io_url = self.initial_data["informatieobject"]
+        besluit_url = self.initial_data["besluit"]
+
+        # manual transaction management - documents API checks that the BIO
+        # exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the BIO creation.
+        try:
+            create_remote_oio(io_url, besluit_url, "besluit")
+        except Exception as exception:
+            bio.delete()
+            raise serializers.ValidationError(
+                _("Could not create remote relation: {exception}"),
+                params={"exception": exception},
+            )
+        return bio

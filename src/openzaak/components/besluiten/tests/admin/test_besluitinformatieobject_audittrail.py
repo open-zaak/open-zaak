@@ -26,7 +26,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "besluit": besluit.id,
-            "informatieobject": informatieobject.canonical.id,
+            "_informatieobject": informatieobject.canonical.id,
         }
 
         self.client.post(add_url, data)
@@ -65,7 +65,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": bio.uuid,
             "besluit": besluit_new.id,
-            "informatieobject": bio.informatieobject.id,
+            "_informatieobject": bio.informatieobject.id,
         }
 
         self.client.post(change_url, data)

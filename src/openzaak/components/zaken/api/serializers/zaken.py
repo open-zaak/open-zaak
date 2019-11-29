@@ -40,9 +40,9 @@ from openzaak.components.catalogi.models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakType,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
@@ -84,7 +84,6 @@ from .betrokkenen import (
     RolOrganisatorischeEenheidSerializer,
     RolVestigingSerializer,
 )
-from .utils import create_remote_oio
 
 logger = logging.getLogger(__name__)
 

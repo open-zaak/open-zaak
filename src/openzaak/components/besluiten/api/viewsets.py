@@ -179,8 +179,8 @@ class BesluitInformatieObjectViewSet(
     """
 
     queryset = (
-        BesluitInformatieObject.objects.select_related("besluit", "informatieobject")
-        .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+        BesluitInformatieObject.objects.select_related("besluit", "_informatieobject")
+        .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
         .all()
     )
     serializer_class = BesluitInformatieObjectSerializer
