@@ -21,7 +21,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
     def test_zet_eigenschappen(self):
         zaak = ZaakFactory.create()
-        eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
+        eigenschap = EigenschapFactory.create(
+            eigenschapnaam="foobar", zaaktype=zaak.zaaktype
+        )
         url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         eigenschap_url = reverse(eigenschap)
