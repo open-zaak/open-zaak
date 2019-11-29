@@ -2,10 +2,11 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import RolType
+from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(RolType)
-class RolTypeAdmin(admin.ModelAdmin):
+class RolTypeAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
     model = RolType
 
     # List

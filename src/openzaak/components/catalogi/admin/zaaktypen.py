@@ -21,7 +21,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import NewVersionMixin, PublishAdminMixin
+from .mixins import NewVersionMixin, PublishAdminMixin, CatalogusContextAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -63,6 +63,7 @@ class ZaakTypeAdmin(
     ListObjectActionsAdminMixin,
     PublishAdminMixin,
     DynamicArrayMixin,
+    CatalogusContextAdminMixin,
     admin.ModelAdmin,
 ):
     model = ZaakType

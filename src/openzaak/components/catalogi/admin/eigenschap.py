@@ -2,10 +2,11 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import Eigenschap, EigenschapSpecificatie
+from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(Eigenschap)
-class EigenschapAdmin(admin.ModelAdmin):
+class EigenschapAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
     model = Eigenschap
 
     # List
@@ -22,7 +23,7 @@ class EigenschapAdmin(admin.ModelAdmin):
 
 
 @admin.register(EigenschapSpecificatie)
-class EigenschapSpecificatieAdmin(admin.ModelAdmin):
+class EigenschapSpecificatieAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
     # List
     list_display = ("groep", "formaat", "lengte", "kardinaliteit")  # Add is_van
     # list_filter = ('rsin', )  # Add is_van

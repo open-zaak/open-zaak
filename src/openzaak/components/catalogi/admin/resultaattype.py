@@ -10,10 +10,11 @@ from openzaak.selectielijst.admin import (
 
 from ..models import ResultaatType
 from .forms import ResultaatTypeForm
+from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(ResultaatType)
-class ResultaatTypeAdmin(admin.ModelAdmin):
+class ResultaatTypeAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
     model = ResultaatType
     form = ResultaatTypeForm
 

@@ -299,3 +299,57 @@ class AuditTrailInlineAdminMixin(object):
 
         formset.viewset = viewset(request=request, format_kwarg=None)
         return formset
+
+
+class ExtraContextAdminMixin(object):
+    """
+    Add this mixin to your admin class to make use of the new function
+    `self.get_extra_context` that allows you to add variables to all admin
+    views without overriding all of them.
+
+    By default, it adds no extra context.
+    """
+    def get_extra_context(self, request, object_id=None):
+        """
+        Override this function to add addition context via the `extra_context`
+        parameter. Be arare that `extra_context` can be `None`.
+
+        :param request: The `Request` object.
+        :param object_id: The ID of the object in case it's an object view.
+        :return: A `dict`.
+        """
+        return {}
+
+    def _get_extra_context(self, request, extra_context, object_id=None):
+        extra_context = extra_context or {}
+        extra_context.update(self.get_extra_context(request, object_id))
+        return extra_context
+
+    def changelist_view(self, request, extra_context=None):
+        return super().changelist_view(
+            request, extra_context=self._get_extra_context(request, extra_context)
+        )
+
+    def add_view(self, request, form_url='', extra_context=None):
+        return super().add_view(
+            request, form_url=form_url,
+            extra_context=self._get_extra_context(request, extra_context)
+        )
+
+    def history_view(self, request, object_id, extra_context=None):
+        return super().history_view(
+            request, object_id,
+            extra_context=self._get_extra_context(request, extra_context, object_id)
+        )
+
+    def delete_view(self, request, object_id, extra_context=None):
+        return super().delete_view(
+            request, object_id,
+            extra_context=self._get_extra_context(request, extra_context, object_id)
+        )
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        return super().change_view(
+            request, object_id, form_url=form_url,
+            extra_context=self._get_extra_context(request, extra_context, object_id)
+        )

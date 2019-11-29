@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
+from .mixins import CatalogusContextAdminMixin
 from ..models import StatusType
 
 
 @admin.register(StatusType)
-class StatusTypeAdmin(admin.ModelAdmin):
+class StatusTypeAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
     model = StatusType
 
     # List
