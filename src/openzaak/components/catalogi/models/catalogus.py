@@ -76,7 +76,7 @@ class Catalogus(models.Model):
     class Meta:
         unique_together = ("domein", "rsin")
         verbose_name = _("catalogus")
-        verbose_name_plural = _("catalogussen")
+        verbose_name_plural = _("catalogi")
 
     def __str__(self):
         return "{} - {}".format(self.domein, self.rsin)
