@@ -162,7 +162,13 @@ class CatalogusAdminImportExportTests(WebTest):
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
     def test_import_catalogus_already_exists(self):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        catalogus = CatalogusFactory.create(
+            rsin="000000000",
+            domein="TEST",
+            contactpersoon_beheer_naam="bla",
+            contactpersoon_beheer_telefoonnummer="0612345678",
+            contactpersoon_beheer_emailadres="test@test.nl",
+        )
 
         url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
 

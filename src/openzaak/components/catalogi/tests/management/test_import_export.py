@@ -315,7 +315,7 @@ class ImportCatalogiTests(TestCase):
         call_command("import", import_file=self.filepath)
 
         imported_catalogus = Catalogus.objects.get()
-        zaaktypen = ZaakType.objects.all()
+        zaaktypen = ZaakType.objects.order_by("id")
         self.assertEqual(zaaktypen.count(), 2)
 
         zaaktype1 = zaaktypen[0]
