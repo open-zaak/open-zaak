@@ -3,7 +3,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.test import tag
+from django.test import tag, override_settings
 
 import requests_mock
 from rest_framework import status
@@ -824,6 +824,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, None)
 
+    @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_causes_archiefactiedatum_to_be_set(
         self,
     ):
@@ -846,9 +847,13 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": f'http://testserver.com{zaak_url}',
+            "resultaattype": f'http://testserver.com{resultaattype_url}',
+            "toelichting": ""
+        }
 
-        response = self.client.post(resultaat_create_url, data)
+        response = self.client.post(resultaat_create_url, data, HTTP_HOST='testserver.com')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -857,12 +862,12 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
-            "zaak": zaak_url,
-            "statustype": statustype_url,
+            "zaak":  f'http://testserver.com{zaak_url}',
+            "statustype":  f'http://testserver.com{statustype_url}',
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
-        response = self.client.post(status_create_url, data)
+        response = self.client.post(status_create_url, data, HTTP_HOST='testserver.com')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
