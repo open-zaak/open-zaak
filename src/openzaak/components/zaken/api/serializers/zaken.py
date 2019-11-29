@@ -83,7 +83,7 @@ from .betrokkenen import (
     RolOrganisatorischeEenheidSerializer,
     RolVestigingSerializer,
 )
-from .utils import create_remote_oio
+from openzaak.components.documenten.api.utils import create_remote_oio
 
 logger = logging.getLogger(__name__)
 
