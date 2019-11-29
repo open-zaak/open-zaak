@@ -2,6 +2,7 @@
 Serializers of the Besluit Registratie Component REST API
 """
 from django.conf import settings
+from django.db import transaction
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -22,6 +23,7 @@ from .validators import (
     UniekeIdentificatieValidator,
 )
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.documenten.api.utils import create_remote_oio
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
@@ -102,3 +104,29 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "besluit": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
         }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            bio = super().create(validated_data)
+
+        # local FK - nothing to do -> our signals create the OIO
+        if bio.informatieobject.pk:
+            return bio
+
+        # we know that we got valid URLs in the initial data
+        io_url = self.initial_data["informatieobject"]
+        besluit_url = self.initial_data["besluit"]
+
+        # manual transaction management - documents API checks that the BIO
+        # exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the BIO creation.
+        try:
+            create_remote_oio(io_url, besluit_url, "besluit")
+        except Exception as exception:
+            bio.delete()
+            raise serializers.ValidationError(
+                _("Could not create remote relation: {exception}"),
+                params={"exception": exception},
+            )
+        return bio
