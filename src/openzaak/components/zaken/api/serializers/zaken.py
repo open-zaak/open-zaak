@@ -113,21 +113,11 @@ class OpschortingSerializer(GegevensGroepSerializer):
 
 
 class RelevanteZaakSerializer(serializers.ModelSerializer):
-    url = LengthHyperlinkedRelatedField(
-        queryset=Zaak.objects.all(),
-        view_name="zaak-detail",
-        lookup_field="uuid",
-        min_length=1,
-        max_length=1000,
-        help_text=_("URL-referentie naar de ZAAK."),
-    )
-
     class Meta:
         model = RelevanteZaakRelatie
         fields = ("url", "aard_relatie")
         extra_kwargs = {
             "url": {
-                "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)],

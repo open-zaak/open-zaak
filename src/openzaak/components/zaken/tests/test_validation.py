@@ -197,6 +197,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "communicatiekanaal")
         self.assertIsNone(error)
 
+    @override_settings(ALLOWED_HOSTS=['testserver'])
     def test_relevante_andere_zaken_invalid(self):
         url = reverse("zaak-list")
 
