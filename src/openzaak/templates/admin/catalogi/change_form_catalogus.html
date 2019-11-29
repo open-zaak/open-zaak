@@ -1,0 +1,8 @@
+{% extends 'admin/catalogi/change_form.html' %}
+{% load i18n %}
+
+{% block extra_submit_buttons %}
+    {{ block.super }}
+
+    <input type="submit" value="{% trans 'Export' %}" name="_export"/>
+{% endblock %}

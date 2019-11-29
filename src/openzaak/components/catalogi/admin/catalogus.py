@@ -34,6 +34,7 @@ class CatalogusAdmin(
 ):
     model = Catalogus
     change_list_template = "admin/catalogus_change_list.html"
+    change_form_template = "admin/catalogi/change_form_catalogus.html"
 
     # List
     list_display = ("domein", "rsin", "uuid")
