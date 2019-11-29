@@ -238,4 +238,11 @@ class BesluitInformatieObject(models.Model):
         return str(self.uuid)
 
     def unique_representation(self):
-        return f"({self.besluit.unique_representation()}) - {self.informatieobject.latest_version.identificatie}"
+        besluit_repr = self.besluit.unique_representation()
+
+        if hasattr(self.informatieobject, "identificatie"):
+            doc_identificatie = self.informatieobject.identificatie
+        else:
+            doc_identificatie = self.informatieobject.latest_version.identificatie
+
+        return f"({besluit_repr}) - {doc_identificatie}"
