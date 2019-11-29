@@ -48,7 +48,7 @@ class ResultaatType(models.Model):
     )
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
-        verbose_name=_("is relevant voor"),
+        # verbose_name=_("is relevant voor"),
         on_delete=models.CASCADE,
         related_name="resultaattypen",
         help_text=_(

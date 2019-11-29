@@ -1,19 +1,21 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
+from openzaak.utils.admin import UUIDAdminMixin
+
 from ..models import Eigenschap, EigenschapSpecificatie
 from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(Eigenschap)
-class EigenschapAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
+class EigenschapAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
     model = Eigenschap
 
     # List
     list_display = ("eigenschapnaam", "zaaktype")
     list_filter = ("zaaktype", "eigenschapnaam")
     ordering = ("zaaktype", "eigenschapnaam")
-    search_fields = ("eigenschapnaam", "definitie", "toelichting")
+    search_fields = ("uuid", "eigenschapnaam", "definitie", "toelichting")
 
     # Details
     fieldsets = (

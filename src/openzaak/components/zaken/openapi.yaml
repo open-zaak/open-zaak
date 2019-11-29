@@ -24,13 +24,9 @@ info:
     \n**Main resource**\n\n`zaak`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het\
     \ RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft\
     \ gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef\n\
-    * `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS\
-    \ waar deze voorkomt\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate\
-    \ waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is.\n\n**Resources\
-    \ en acties**\n- `zaak`: create, update, destroy\n- `status`: create\n- `zaakobject`:\
-    \ create\n- `zaakinformatieobject`: create\n- `zaakeigenschap`: create\n- `klantcontact`:\
-    \ create\n- `rol`: create\n- `resultaat`: create, update, destroy\n- `zaakbesluit`:\
-    \ create\n\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
+    * `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`:\
+    \ Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid\
+    \ bestemd is.\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
     * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
   contact:
     url: https://www.maykinmedia.nl
@@ -4116,8 +4112,7 @@ paths:
           type: string
       - name: zaaktype
         in: query
-        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS
-          waar deze voorkomt
+        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
         required: false
         schema:
           type: string
@@ -9108,8 +9103,7 @@ components:
           maxLength: 1000
         zaaktype:
           title: Zaaktype
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de
-            CATALOGUS waar deze voorkomt
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           type: string
           format: uri
           maxLength: 1000
@@ -9379,8 +9373,7 @@ components:
           minLength: 1
         zaaktype:
           title: Zaaktype
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de
-            CATALOGUS waar deze voorkomt
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           type: string
           minLength: 1
         archiefnominatie:

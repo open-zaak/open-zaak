@@ -1,18 +1,21 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from .mixins import CatalogusContextAdminMixin
+from openzaak.utils.admin import UUIDAdminMixin
+
 from ..models import StatusType
+from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(StatusType)
-class StatusTypeAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
+class StatusTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
     model = StatusType
 
     # List
     list_display = ("statustype_omschrijving", "statustypevolgnummer", "zaaktype")
     list_filter = ("zaaktype", "informeren")
     search_fields = (
+        "uuid",
         "statustype_omschrijving",
         "statustype_omschrijving_generiek",
         "statustypevolgnummer",

@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from urllib.parse import quote as urlquote, parse_qsl
+from urllib.parse import parse_qsl, quote as urlquote
 
 from django.apps import apps
 from django.contrib import messages
@@ -228,19 +228,26 @@ class CatalogusContextAdminMixin(ExtraContextAdminMixin):
         zaaktype = None
         catalogus = None
 
-        _changelist_filters = dict(parse_qsl(request.GET.get('_changelist_filters')))
-        zaaktype_pk = _changelist_filters.get('zaaktype', request.GET.get('zaaktype'))
-        catalogus_pk = _changelist_filters.get('catalogus', request.GET.get('catalogus'))
+        _changelist_filters = dict(parse_qsl(request.GET.get("_changelist_filters")))
+        zaaktype_pk = _changelist_filters.get(
+            "zaaktype__id__exact", request.GET.get("zaaktype__id__exact")
+        )
+        catalogus_pk = _changelist_filters.get(
+            "catalogus__id__exact", request.GET.get("catalogus__id__exact")
+        )
 
         if zaaktype_pk:
-            zaaktype = ZaakType.objects.select_related('catalogus').filter(pk=int(zaaktype_pk)).first()
+            zaaktype = (
+                ZaakType.objects.select_related("catalogus")
+                .filter(pk=int(zaaktype_pk))
+                .first()
+            )
             catalogus = zaaktype.catalogus
         elif catalogus_pk:
             catalogus = Catalogus.objects.get(pk=int(catalogus_pk))
 
-        context.update({
-            'zaaktype': zaaktype,
-            'catalogus': catalogus,
-        })
+        context.update(
+            {"zaaktype": zaaktype, "catalogus": catalogus,}
+        )
 
         return context

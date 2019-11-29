@@ -24,7 +24,7 @@ class StatusType(models.Model):
     # relations
     zaaktype = models.ForeignKey(
         "ZaakType",
-        verbose_name=_("is van"),
+        # verbose_name=_("is van"),
         related_name="statustypen",
         on_delete=models.CASCADE,
         help_text=_(
@@ -96,4 +96,4 @@ class StatusType(models.Model):
         return last_statustype == self
 
     def __str__(self):
-        return "{} - {}".format(self.zaaktype, self.statustypevolgnummer)
+        return self.statustype_omschrijving

@@ -25,6 +25,12 @@ class Catalogus(models.Model):
     KING bepaalt niet op voorhand welke waarden 'Domein' kan aannemen, maar registreert wel alle gebruikte waarden.
     """
 
+    _admin_name = models.CharField(
+        _("naam"),
+        max_length=100,
+        help_text="Naam voor interne doeleinden. Dit attribuut wordt niet ontsloten via de API.",
+    )
+
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -79,4 +85,4 @@ class Catalogus(models.Model):
         verbose_name_plural = _("catalogi")
 
     def __str__(self):
-        return "{} - {}".format(self.domein, self.rsin)
+        return self._admin_name

@@ -95,7 +95,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
         on_delete=models.CASCADE,
-        verbose_name=_("catalogus"),
+        # verbose_name=_("catalogus"),
         help_text=_(
             "URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort."
         ),
@@ -104,7 +104,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
     informatieobjecttypen = models.ManyToManyField(
         "catalogi.InformatieObjectType",
         blank=True,
-        verbose_name=_("informatieobjecttype"),
+        # verbose_name=_("informatieobjecttype"),
         related_name="besluittypen",
         help_text=_(
             "URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten van dit "
@@ -114,7 +114,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
 
     zaaktypen = models.ManyToManyField(
         "catalogi.ZaakType",
-        verbose_name=_("zaaktypen"),
+        # verbose_name=_("zaaktypen"),
         related_name="besluittypen",
         help_text=_(
             "ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE"
