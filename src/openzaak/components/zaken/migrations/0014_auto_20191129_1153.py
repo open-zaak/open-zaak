@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('zaken', '0013_merge_20191127_1502'),
+        ("zaken", "0013_merge_20191127_1502"),
     ]
 
     operations = [
@@ -15,8 +15,13 @@ class Migration(migrations.Migration):
             model_name="relevantezaakrelatie", old_name="url", new_name="_relevant_zaak"
         ),
         migrations.AddField(
-            model_name='relevantezaakrelatie',
-            name='_relevant_zaak_url',
-            field=models.URLField(blank=True, help_text='URL-referentie naar extern ZAAK (in een andere zaken API)', max_length=1000, verbose_name='extern relevant zaak'),
+            model_name="relevantezaakrelatie",
+            name="_relevant_zaak_url",
+            field=models.URLField(
+                blank=True,
+                help_text="URL-referentie naar extern ZAAK (in een andere zaken API)",
+                max_length=1000,
+                verbose_name="extern relevant zaak",
+            ),
         ),
     ]

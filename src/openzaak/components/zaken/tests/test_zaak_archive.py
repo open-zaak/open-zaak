@@ -3,7 +3,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.test import tag, override_settings
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -38,7 +38,7 @@ from .factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime, get_zaak_response
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url, get_zaak_response, isodatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
@@ -848,12 +848,14 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
         data = {
-            "zaak": f'http://testserver.com{zaak_url}',
-            "resultaattype": f'http://testserver.com{resultaattype_url}',
-            "toelichting": ""
+            "zaak": f"http://testserver.com{zaak_url}",
+            "resultaattype": f"http://testserver.com{resultaattype_url}",
+            "toelichting": "",
         }
 
-        response = self.client.post(resultaat_create_url, data, HTTP_HOST='testserver.com')
+        response = self.client.post(
+            resultaat_create_url, data, HTTP_HOST="testserver.com"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -862,12 +864,12 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
-            "zaak":  f'http://testserver.com{zaak_url}',
-            "statustype":  f'http://testserver.com{statustype_url}',
+            "zaak": f"http://testserver.com{zaak_url}",
+            "statustype": f"http://testserver.com{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
-        response = self.client.post(status_create_url, data, HTTP_HOST='testserver.com')
+        response = self.client.post(status_create_url, data, HTTP_HOST="testserver.com")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -959,14 +961,14 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         """
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        zaaktype_url = f'http://testserver.com{reverse(zaak.zaaktype)}'
+        zaaktype_url = f"http://testserver.com{reverse(zaak.zaaktype)}"
 
         zaak2 = "https://external.nl/zaken/123"
         zaak2_data = get_zaak_response(zaak2, zaaktype_url)
-        zaak2_data['einddatum'] = "2022-01-01"
+        zaak2_data["einddatum"] = "2022-01-01"
         zaak3 = "https://external.nl/zaken/456"
         zaak3_data = get_zaak_response(zaak3, zaaktype_url)
-        zaak3_data['einddatum'] = "2025-01-01"
+        zaak3_data["einddatum"] = "2025-01-01"
         RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak2)
         RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak3)
 
@@ -980,12 +982,14 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
         data = {
-            "zaak": f'http://testserver.com{zaak_url}',
-            "resultaattype": f'http://testserver.com{resultaattype_url}',
-            "toelichting": ""
+            "zaak": f"http://testserver.com{zaak_url}",
+            "resultaattype": f"http://testserver.com{resultaattype_url}",
+            "toelichting": "",
         }
 
-        response = self.client.post(resultaat_create_url, data, HTTP_HOST='testserver.com')
+        response = self.client.post(
+            resultaat_create_url, data, HTTP_HOST="testserver.com"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -994,15 +998,17 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
-            "zaak":  f'http://testserver.com{zaak_url}',
-            "statustype":  f'http://testserver.com{statustype_url}',
+            "zaak": f"http://testserver.com{zaak_url}",
+            "statustype": f"http://testserver.com{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri("GET", zaak2, json=zaak2_data)
             m.register_uri("GET", zaak3, json=zaak3_data)
-            response = self.client.post(status_create_url, data, HTTP_HOST='testserver.com')
+            response = self.client.post(
+                status_create_url, data, HTTP_HOST="testserver.com"
+            )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         #

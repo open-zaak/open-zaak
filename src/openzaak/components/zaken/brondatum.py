@@ -193,9 +193,13 @@ def get_brondatum(
 
         # internal
         relevante_zaken_internal = Zaak.objects.filter(
-            pk__in=relevante_zaken.filter(_relevant_zaak__isnull=False).values_list("_relevant_zaak", flat=True)
+            pk__in=relevante_zaken.filter(_relevant_zaak__isnull=False).values_list(
+                "_relevant_zaak", flat=True
+            )
         )
-        einddatum_max_internal = relevante_zaken_internal.aggregate(Max("einddatum"))["einddatum__max"]
+        einddatum_max_internal = relevante_zaken_internal.aggregate(Max("einddatum"))[
+            "einddatum__max"
+        ]
 
         # external
         einddatum_max_external = None
