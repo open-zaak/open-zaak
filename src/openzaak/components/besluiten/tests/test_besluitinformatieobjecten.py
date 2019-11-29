@@ -1,12 +1,17 @@
+from django.test import tag, override_settings
+import uuid
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
-from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
+from openzaak.components.documenten.tests.utils import get_eio_response, get_oio_response
+from openzaak.components.documenten.models import ObjectInformatieObject
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -176,3 +181,128 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Relation is gone, besluit still exists.
         self.assertFalse(BesluitInformatieObject.objects.exists())
         self.assertTrue(Besluit.objects.exists())
+
+
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    list_url = reverse(BesluitInformatieObject)
+
+    def test_create_bio_external_document(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=besluit.besluittype.catalogus, concept=False
+        )
+        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype.besluittypen.add(besluit.besluittype)
+        eio_response = get_eio_response(document, informatieobjecttype=informatieobjecttype_url)
+
+        with self.subTest(section="bio-create"):
+            with requests_mock.Mocker(real_http=True) as m:
+                m.get(document, json=eio_response)
+                m.post(
+                    "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+                    json=get_oio_response(document, besluit_url, "besluit"),
+                    status_code=201,
+                )
+
+                response = self.client.post(
+                    self.list_url,
+                    {"besluit": besluit_url, "informatieobject": document},
+                )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+            posts = [req for req in m.request_history if req.method == "POST"]
+            self.assertEqual(len(posts), 1)
+            request = posts[0]
+            self.assertEqual(
+                request.url,
+                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+            )
+            self.assertEqual(
+                request.json(),
+                {
+                    "informatieobject": document,
+                    "object": besluit_url,
+                    "objectType": "besluit",
+                },
+            )
+
+            self.assertFalse(ObjectInformatieObject.objects.exists())
+
+        with self.subTest(section="bio-list"):
+            list_response = self.client.get(
+                self.list_url,
+                {"besluit": besluit_url},
+                HTTP_HOST="openzaak.nl",
+            )
+
+            self.assertEqual(list_response.status_code, status.HTTP_200_OK, response.data)
+            data = list_response.json()
+
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["informatieobject"], document)
+
+    def test_create_bio_fail_bad_url(self):
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        data = {"besluit": besluit_url, "informatieobject": "abcd"}
+
+        response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "bad-url")
+
+    def test_create_bio_fail_not_json(self):
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        data = {"besluit": besluit_url, "informatieobject": "http://example.com"}
+
+        response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_bio_fail_invalid_schema(self):
+        base = "https://external.documenten.nl/api/v1/"
+        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=besluit.besluittype.catalogus, concept=False
+        )
+        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype.besluittypen.add(besluit.besluittype)
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(
+                document,
+                json={
+                    "url": document,
+                    "beschrijving": "",
+                    "ontvangstdatum": None,
+                    "informatieobjecttype": informatieobjecttype_url,
+                    "locked": False,
+                },
+            )
+
+            response = self.client.post(
+                self.list_url,
+                {"besluit": besluit_url, "informatieobject": document},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "invalid-resource")
