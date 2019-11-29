@@ -5887,7 +5887,7 @@ paths:
         format: uuid
   /zaaktype-informatieobjecttypen:
     get:
-      operationId: zaaktypeinformatieobjecttype_list
+      operationId: zaakinformatieobjecttype_list
       summary: Alle ZAAKTYPE-INFORMATIEOBJECTTYPE relaties opvragen.
       description: Deze lijst kan gefilterd wordt met query-string parameters.
       parameters:
@@ -6081,7 +6081,7 @@ paths:
       - JWT-Claims:
         - catalogi.lezen
     post:
-      operationId: zaaktypeinformatieobjecttype_create
+      operationId: zaakinformatieobjecttype_create
       summary: Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan.
       description: 'Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan. Dit kan alleen
         als het
@@ -6228,7 +6228,7 @@ paths:
     parameters: []
   /zaaktype-informatieobjecttypen/{uuid}:
     get:
-      operationId: zaaktypeinformatieobjecttype_read
+      operationId: zaakinformatieobjecttype_read
       summary: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       description: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       responses:
@@ -6358,7 +6358,7 @@ paths:
       - JWT-Claims:
         - catalogi.lezen
     put:
-      operationId: zaaktypeinformatieobjecttype_update
+      operationId: zaakinformatieobjecttype_update
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij.
       description: 'Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel
         bij. Dit kan
@@ -6510,7 +6510,7 @@ paths:
       - JWT-Claims:
         - catalogi.schrijven
     patch:
-      operationId: zaaktypeinformatieobjecttype_partial_update
+      operationId: zaakinformatieobjecttype_partial_update
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
       description: 'Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij. Dit
         kan alleen
@@ -6662,7 +6662,7 @@ paths:
       - JWT-Claims:
         - catalogi.schrijven
     delete:
-      operationId: zaaktypeinformatieobjecttype_delete
+      operationId: zaakinformatieobjecttype_delete
       summary: Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
       description: 'Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen
         als
