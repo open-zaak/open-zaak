@@ -6,35 +6,35 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..constants import RichtingChoices
-from ..models import ZaakInformatieobjectType
+from ..models import ZaakTypeInformatieObjectType
 from .base import APITestCase
 from .factories import (
     InformatieObjectTypeFactory,
-    ZaakInformatieobjectTypeArchiefregimeFactory,
-    ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeArchiefregimeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 
-class ZaakInformatieobjectTypeAPITests(APITestCase):
+class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
-    list_url = reverse_lazy(ZaakInformatieobjectType)
+    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
     def test_get_list_default_definitief(self):
-        ziot1 = ZaakInformatieobjectTypeFactory.create(
+        ziot1 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ziot2 = ZaakInformatieobjectTypeFactory.create(
+        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ziot3 = ZaakInformatieobjectTypeFactory.create(
+        ziot3 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
-        ziot4 = ZaakInformatieobjectTypeFactory.create(
+        ziot4 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot4_url = reverse(ziot4)
@@ -48,7 +48,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{ziot4_url}")
 
     def test_get_detail(self):
-        ztiot = ZaakInformatieobjectTypeFactory.create()
+        ztiot = ZaakTypeInformatieObjectTypeFactory.create()
         url = reverse(ztiot)
         zaaktype_url = reverse(ztiot.zaaktype)
         informatieobjecttype_url = reverse(ztiot.informatieobjecttype)
@@ -84,7 +84,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        ziot = ZaakInformatieobjectType.objects.get(volgnummer=13)
+        ziot = ZaakTypeInformatieObjectType.objects.get(volgnummer=13)
 
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
@@ -147,7 +147,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(error["code"], "non-concept-relation")
 
     def test_create_ziot_fail_not_unique(self):
-        ziot = ZaakInformatieobjectTypeFactory(volgnummer=1)
+        ziot = ZaakTypeInformatieObjectTypeFactory(volgnummer=1)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=ziot.zaaktype.catalogus
         )
@@ -166,25 +166,25 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(error["code"], "unique")
 
     def test_delete_ziot(self):
-        ziot = ZaakInformatieobjectTypeFactory.create()
+        ziot = ZaakTypeInformatieObjectTypeFactory.create()
         ziot_url = reverse(ziot)
 
         response = self.client.delete(ziot_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakInformatieobjectType.objects.filter(id=ziot.id))
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.filter(id=ziot.id))
 
     def test_delete_ziot_not_concept_zaaktype(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(zaaktype__concept=False)
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(zaaktype__concept=False)
         ziot_url = reverse(ziot)
 
         response = self.client.delete(ziot_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakInformatieobjectType.objects.filter(id=ziot.id))
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.filter(id=ziot.id))
 
     def test_delete_ziot_not_concept_informatieobjecttype(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False
         )
         ziot_url = reverse(ziot)
@@ -192,10 +192,10 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         response = self.client.delete(ziot_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ZaakInformatieobjectType.objects.filter(id=ziot.id))
+        self.assertFalse(ZaakTypeInformatieObjectType.objects.filter(id=ziot.id))
 
     def test_delete_ziot_fail_not_concept(self):
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot_url = reverse(ziot)
@@ -214,7 +214,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -241,7 +241,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -261,7 +261,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -288,7 +288,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus, concept=False
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -315,7 +315,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus, concept=False
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -341,7 +341,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -361,7 +361,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus, concept=False
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -383,7 +383,7 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
             catalogus=zaaktype.catalogus, concept=False
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        ziot = ZaakInformatieobjectTypeFactory.create(
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ziot_url = reverse(ziot)
@@ -396,12 +396,12 @@ class ZaakInformatieobjectTypeAPITests(APITestCase):
         self.assertEqual(error["code"], "non-concept-relation")
 
 
-class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
+class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
-    list_url = reverse_lazy(ZaakInformatieobjectType)
+    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
     def test_filter_zaaktype(self):
-        ztiot1, ztiot2 = ZaakInformatieobjectTypeFactory.create_batch(
+        ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
         url = f"http://openzaak.nl{reverse(ztiot1)}"
@@ -422,7 +422,7 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         self.assertNotEqual(data[0]["zaaktype"], f"http://openzaak.nl{zaaktype2_uri}")
 
     def test_filter_informatieobjecttype(self):
-        ztiot1, ztiot2 = ZaakInformatieobjectTypeFactory.create_batch(
+        ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
         url = f"http://openzaak.nl{reverse(ztiot1)}"
@@ -451,16 +451,16 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         )
 
     def test_filter_ziot_status_alles(self):
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
 
@@ -472,16 +472,16 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 4)
 
     def test_filter_ziot_status_concept(self):
-        ziot1 = ZaakInformatieobjectTypeFactory.create(
+        ziot1 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ziot2 = ZaakInformatieobjectTypeFactory.create(
+        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ziot3 = ZaakInformatieobjectTypeFactory.create(
+        ziot3 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot1_url = reverse(ziot1)
@@ -506,16 +506,16 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         )
 
     def test_filter_ziot_status_definitief(self):
-        ziot1 = ZaakInformatieobjectTypeFactory.create(
+        ziot1 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ziot2 = ZaakInformatieobjectTypeFactory.create(
+        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ziot3 = ZaakInformatieobjectTypeFactory.create(
+        ziot3 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
-        ziot4 = ZaakInformatieobjectTypeFactory.create(
+        ziot4 = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
         )
         ziot4_url = reverse(ziot4)
@@ -529,8 +529,8 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{ziot4_url}")
 
     def test_validate_unknown_query_params(self):
-        ZaakInformatieobjectTypeFactory.create_batch(2)
-        url = reverse(ZaakInformatieobjectType)
+        ZaakTypeInformatieObjectTypeFactory.create_batch(2)
+        url = reverse(ZaakTypeInformatieObjectType)
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -540,12 +540,12 @@ class ZaakInformatieobjectTypeFilterAPITests(APITestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
-class ZaakInformatieobjectTypePaginationTestCase(APITestCase):
+class ZaakTypeInformatieObjectTypePaginationTestCase(APITestCase):
     maxDiff = None
-    list_url = reverse_lazy(ZaakInformatieobjectType)
+    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
     def test_pagination_default(self):
-        ZaakInformatieobjectTypeFactory.create_batch(
+        ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
 
@@ -559,7 +559,7 @@ class ZaakInformatieobjectTypePaginationTestCase(APITestCase):
         self.assertIsNone(response_data["next"])
 
     def test_pagination_page_param(self):
-        ZaakInformatieobjectTypeFactory.create_batch(
+        ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
         )
 
@@ -574,13 +574,13 @@ class ZaakInformatieobjectTypePaginationTestCase(APITestCase):
 
 
 @skip("Not MVP yet")
-class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
+class ZaakTypeInformatieObjectTypeArchiefregimeAPITests(APITestCase):
     maxDiff = None
 
     def setUp(self):
         super().setUp()
 
-        self.ziot = ZaakInformatieobjectTypeFactory.create(
+        self.ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__catalogus=self.catalogus,
             informatieobjecttype__catalogus=self.catalogus,
             informatieobjecttype__zaaktypen=None,
@@ -590,7 +590,7 @@ class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
         self.informatieobjecttype = self.ziot.informatieobjecttype
         self.zaaktype = self.ziot.zaaktype
 
-        self.rstiotarc = ZaakInformatieobjectTypeArchiefregimeFactory.create(
+        self.rstiotarc = ZaakTypeInformatieObjectTypeArchiefregimeFactory.create(
             zaak_informatieobject_type=self.ziot,
             resultaattype__is_relevant_voor=self.zaaktype,
             resultaattype__bepaalt_afwijkend_archiefregime_van=None,
@@ -649,10 +649,10 @@ class ZaakInformatieobjectTypeArchiefregimeAPITests(APITestCase):
         self.assertEqual(response.json(), expected)
 
 
-class ZaakInformatieobjecttypeValidationTests(APITestCase):
+class ZaakTypeInformatieObjectTypeValidationTests(APITestCase):
     maxDiff = None
 
-    list_url = reverse_lazy(ZaakInformatieobjectType)
+    list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
     def test_catalogus_mismatch(self):
         zaaktype = ZaakTypeFactory.create()

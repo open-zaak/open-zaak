@@ -19,9 +19,9 @@ from ..factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
     ZaakObjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
 )
 
@@ -127,7 +127,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         zaaktypenrelatie_old = ZaakTypenRelatieFactory.create(zaaktype=zaaktype_old)
         # m2m relations
         besluittype = BesluitTypeFactory.create(zaaktypen=[zaaktype_old])
-        informatieobjecttype = ZaakInformatieobjectTypeFactory.create(
+        informatieobjecttype = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype_old
         ).informatieobjecttype
         # not copied

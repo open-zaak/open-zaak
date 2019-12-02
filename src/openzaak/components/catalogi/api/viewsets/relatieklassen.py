@@ -7,9 +7,10 @@ from rest_framework.pagination import PageNumberPagination
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.schema import AutoSchema
 
-from ...models import ZaakInformatieobjectType
-from ..filters import ZaakInformatieobjectTypeFilter
+from ...models import ZaakTypeInformatieObjectType
+from ..filters import ZaakTypeInformatieObjectTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
     SCOPE_CATALOGI_READ,
@@ -17,6 +18,12 @@ from ..scopes import (
 )
 from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
+
+
+class ZaakTypeInformatieObjectTypeSchema(AutoSchema):
+    def get_operation_id(self, operation_keys=None):
+        operation_id = super().get_operation_id(operation_keys=operation_keys)
+        return f"zaakinformatieobjecttype_{operation_keys[-1]}"
 
 
 class ZaakTypeInformatieObjectTypeViewSet(
@@ -79,12 +86,12 @@ class ZaakTypeInformatieObjectTypeViewSet(
     """
 
     queryset = (
-        ZaakInformatieobjectType.objects.all()
+        ZaakTypeInformatieObjectType.objects.all()
         .select_related("zaaktype", "informatieobjecttype")
         .order_by("-pk")
     )
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
-    filterset_class = ZaakInformatieobjectTypeFilter
+    filterset_class = ZaakTypeInformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
     permission_classes = (AuthRequired,)
@@ -96,6 +103,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+    swagger_schema = ZaakTypeInformatieObjectTypeSchema
 
     def get_concept(self, instance):
         ziot = self.get_object()

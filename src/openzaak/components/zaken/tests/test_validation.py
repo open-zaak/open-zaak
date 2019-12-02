@@ -25,8 +25,8 @@ from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -546,7 +546,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
 

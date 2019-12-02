@@ -11,8 +11,8 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakInformatieobjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 from .factories import (
     BesluitTypeFactory,
@@ -21,8 +21,8 @@ from .factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakInformatieobjectTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 
@@ -171,14 +171,14 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
         )
 
 
-class ZaakInformatieobjectTypeFilterTests(JWTAuthMixin, APITestCase):
+class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):
         for query_param in ["zaaktype", "informatieobjecttype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(ZaakInformatieobjectType), {query_param: "bla"}
+                    reverse(ZaakTypeInformatieObjectType), {query_param: "bla"}
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -187,13 +187,13 @@ class ZaakInformatieobjectTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        ZaakInformatieobjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
         for query_param in ["zaaktype", "informatieobjecttype"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(ZaakInformatieobjectType),
+                    reverse(ZaakTypeInformatieObjectType),
                     {query_param: "https://google.com"},
                 )
 

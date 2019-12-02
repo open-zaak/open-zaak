@@ -17,8 +17,8 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
-    ZaakInformatieobjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
 )
 
 # custom filter to show concept and non-concepts
@@ -62,7 +62,7 @@ class RolTypeFilter(FilterSet):
         fields = ("zaaktype", "omschrijving_generiek", "status")
 
 
-class ZaakInformatieobjectTypeFilter(FilterSet):
+class ZaakTypeInformatieObjectTypeFilter(FilterSet):
     status = filters.CharFilter(
         field_name="zaaktype__concept",
         method="status_filter_m2m",
@@ -70,7 +70,7 @@ class ZaakInformatieobjectTypeFilter(FilterSet):
     )
 
     class Meta:
-        model = ZaakInformatieobjectType
+        model = ZaakTypeInformatieObjectType
         fields = ("zaaktype", "informatieobjecttype", "richting", "status")
 
     def status_filter_m2m(self, queryset, name, value):

@@ -392,3 +392,7 @@ class ResultaatTypeForm(forms.ModelForm):
                         value=afleidingswijze_label,
                     )
                     self.add_error(field, forms.ValidationError(msg, code="required"))
+
+
+class CatalogusImportForm(forms.Form):
+    file = forms.FileField()
