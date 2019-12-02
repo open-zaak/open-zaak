@@ -23,13 +23,13 @@ from openzaak.components.documenten.tests.utils import (
     get_eio_response,
     get_oio_response,
     get_informatieobjecttype_response,
-    get_catalogus_response as get_catalogus_documenten
+    get_catalogus_response
 )
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Zaak, ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
-from .utils import get_zaaktype_response, get_catalogus_response
+from .utils import get_zaaktype_response
 
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
@@ -593,7 +593,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(informatieobjecttype, json=get_informatieobjecttype_response(catalogus, informatieobjecttype))
-            m.get(catalogus, json=get_catalogus_documenten(catalogus, informatieobjecttype))
+            m.get(catalogus, json=get_catalogus_response(catalogus, informatieobjecttype))
             m.get(self.document, json=get_eio_response(self.document, informatieobjecttype=informatieobjecttype))
 
             response = self.client.post(
