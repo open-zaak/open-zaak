@@ -957,7 +957,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
     def test_create_eigenschap(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        eigenschap = EigenschapFactory.create()
+        eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
         eigenschap_url = reverse(eigenschap)
         list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 

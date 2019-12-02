@@ -75,6 +75,7 @@ from ..validators import (
     RolOccurenceValidator,
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
+    ZaakEigenschapZaakTypeValidator,
     ZaaktypeInformatieobjecttypeRelationValidator,
 )
 from .betrokkenen import (
@@ -602,6 +603,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             "zaak": {"lookup_field": "uuid"},
             "naam": {"source": "_naam", "read_only": True},
         }
+        validators = [ZaakEigenschapZaakTypeValidator("eigenschap")]
 
     def validate(self, attrs):
         super().validate(attrs)

@@ -140,10 +140,12 @@ class Application:
         ] = statustype_overlast_geconstateerd
 
     def registreer_domein_data(self):
-        eigenschap_objecttype = EigenschapFactory.create(eigenschapnaam="melding_type")
+        eigenschap_objecttype = EigenschapFactory.create(
+            eigenschapnaam="melding_type", zaaktype=self.references["zaaktype"]
+        )
         eigenschap_objecttype_url = reverse(eigenschap_objecttype)
         eigenschap_naam_boot = EigenschapFactory.create(
-            eigenschapnaam="waternet_naam_boot"
+            eigenschapnaam="waternet_naam_boot", zaaktype=self.references["zaaktype"]
         )
         eigenschap_naam_boot_url = reverse(eigenschap_naam_boot)
         zaak_uuid = self.references["zaak_url"].rsplit("/")[-1]

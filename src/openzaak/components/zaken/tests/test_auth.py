@@ -435,7 +435,7 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_zaakeigenschap_limited_to_authorized_zaken(self):
-        eigenschap = EigenschapFactory.create()
+        eigenschap = EigenschapFactory.create(zaaktype=self.zaaktype)
         zaak1 = ZaakFactory.create(
             zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,

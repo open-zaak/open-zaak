@@ -6,7 +6,7 @@ ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/52
 """
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import EigenschapFactory
 from openzaak.utils.tests import JWTAuthMixin
@@ -21,7 +21,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
     def test_zet_eigenschappen(self):
         zaak = ZaakFactory.create()
-        eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
+        eigenschap = EigenschapFactory.create(
+            eigenschapnaam="foobar", zaaktype=zaak.zaaktype
+        )
         url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         eigenschap_url = reverse(eigenschap)
@@ -74,3 +76,24 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                         ("waarde", str),
                     ),
                 )
+
+    def test_create_zaakeigenschap_not_in_zaaktypen_fails(self):
+        zaak = ZaakFactory.create()
+        eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
+        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        eigenschap_url = reverse(eigenschap)
+        data = {
+            "zaak": zaak_url,
+            "eigenschap": eigenschap_url,
+            "waarde": "overlast_water",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "zaaktype-mismatch")
