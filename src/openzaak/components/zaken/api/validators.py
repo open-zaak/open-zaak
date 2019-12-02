@@ -18,6 +18,7 @@ from openzaak.components.documenten.models import (
 )
 
 from ..models import Zaak
+from openzaak.loaders import AuthorizedRequestsLoader
 
 
 class RolOccurenceValidator:
@@ -140,13 +141,30 @@ class ZaaktypeInformatieobjecttypeRelationValidator:
         if not informatieobject or not zaak:
             return
 
+        zaaktype = zaak.zaaktype
+
         if not isinstance(informatieobject, EnkelvoudigInformatieObject):
             io_type = informatieobject.latest_version.informatieobjecttype
         else:
             io_type = informatieobject.informatieobjecttype
 
-        if not zaak.zaaktype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+        # zaaktype and informatieobjecttype should be both internal or external
+        if bool(zaaktype.pk) != bool(io_type.pk):
             raise serializers.ValidationError(self.message, code=self.code)
+
+        # local zaaktype
+        if zaaktype.pk:
+            if not zaaktype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+                raise serializers.ValidationError(self.message, code=self.code)
+
+        # external zaaktype - workaround since loose-fk field doesn't support m2m relations
+        else:
+            zaaktype_url = zaaktype._loose_fk_data["url"]
+            iotype_url = io_type._loose_fk_data["url"]
+            zaaktype_data = AuthorizedRequestsLoader.fetch_object(zaaktype_url, do_underscoreize=False)
+            related_iotypes = [iotype for iotype in zaaktype_data.get("informatieobjecttypen", []) if iotype == iotype_url]
+            if not related_iotypes:
+                raise serializers.ValidationError(self.message, code=self.code)
 
 
 class DateNotInFutureValidator:
