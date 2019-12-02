@@ -33,24 +33,3 @@ class BesluittypeZaaktypeValidator:
 
         if not besluittype.zaaktypen.filter(uuid=zaak.zaaktype.uuid).exists():
             raise serializers.ValidationError(self.message, code=self.code)
-
-
-class BesluittypeInformatieobjecttypeRelationValidator:
-    code = "missing-besluittype-informatieobjecttype-relation"
-    message = _(
-        "Het informatieobjecttype hoort niet bij het besluitype van de besluit."
-    )
-
-    def __call__(self, attrs):
-        informatieobject = attrs.get("informatieobject")
-        besluit = attrs.get("besluit")
-
-        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type = informatieobject.latest_version.informatieobjecttype
-        else:
-            io_type = informatieobject.informatieobjecttype
-
-        if not besluit.besluittype.informatieobjecttypen.filter(
-            uuid=io_type.uuid
-        ).exists():
-            raise serializers.ValidationError(self.message, code=self.code)

@@ -3,6 +3,7 @@ Serializers of the Besluit Registratie Component REST API
 """
 from django.conf import settings
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -15,12 +16,12 @@ from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
     PublishValidator,
+    ObjecttypeInformatieobjecttypeRelationValidator
 )
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
 from .validators import (
-    BesluittypeInformatieobjecttypeRelationValidator,
     BesluittypeZaaktypeValidator,
     UniekeIdentificatieValidator,
 )
@@ -98,7 +99,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=BesluitInformatieObject.objects.all(),
                 fields=["besluit", "informatieobject"],
             ),
-            BesluittypeInformatieobjecttypeRelationValidator(),
+            ObjecttypeInformatieobjecttypeRelationValidator("besluit", "besluittype"),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

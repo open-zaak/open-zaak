@@ -50,6 +50,7 @@ from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
     PublishValidator,
+    ObjecttypeInformatieobjecttypeRelationValidator,
 )
 
 from ...brondatum import BrondatumCalculator
@@ -76,7 +77,6 @@ from ..validators import (
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
     ZaakEigenschapZaakTypeValidator,
-    ZaaktypeInformatieobjecttypeRelationValidator,
 )
 from .betrokkenen import (
     RolMedewerkerSerializer,
@@ -547,7 +547,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=ZaakInformatieObject.objects.all(),
                 fields=["zaak", "informatieobject"],
             ),
-            ZaaktypeInformatieobjecttypeRelationValidator(),
+            ObjecttypeInformatieobjecttypeRelationValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

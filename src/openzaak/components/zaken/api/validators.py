@@ -131,42 +131,6 @@ class CorrectZaaktypeValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
-class ZaaktypeInformatieobjecttypeRelationValidator:
-    code = "missing-zaaktype-informatieobjecttype-relation"
-    message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
-
-    def __call__(self, attrs):
-        informatieobject = attrs.get("informatieobject")
-        zaak = attrs.get("zaak")
-        if not informatieobject or not zaak:
-            return
-
-        zaaktype = zaak.zaaktype
-
-        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type = informatieobject.latest_version.informatieobjecttype
-        else:
-            io_type = informatieobject.informatieobjecttype
-
-        # zaaktype and informatieobjecttype should be both internal or external
-        if bool(zaaktype.pk) != bool(io_type.pk):
-            raise serializers.ValidationError(self.message, code=self.code)
-
-        # local zaaktype
-        if zaaktype.pk:
-            if not zaaktype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
-                raise serializers.ValidationError(self.message, code=self.code)
-
-        # external zaaktype - workaround since loose-fk field doesn't support m2m relations
-        else:
-            zaaktype_url = zaaktype._loose_fk_data["url"]
-            iotype_url = io_type._loose_fk_data["url"]
-            zaaktype_data = AuthorizedRequestsLoader.fetch_object(zaaktype_url, do_underscoreize=False)
-            related_iotypes = [iotype for iotype in zaaktype_data.get("informatieobjecttypen", []) if iotype == iotype_url]
-            if not related_iotypes:
-                raise serializers.ValidationError(self.message, code=self.code)
-
-
 class DateNotInFutureValidator:
     code = "date-in-future"
     message = _("Deze datum mag niet in de toekomst zijn")

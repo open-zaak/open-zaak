@@ -6,6 +6,7 @@ from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.validators import IsImmutableValidator
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 from ..loaders import AuthorizedRequestsLoader
 
@@ -115,3 +116,46 @@ class LooseFkResourceValidator(FKOrURLValidator):
             )
 
         return obj
+
+
+class ObjecttypeInformatieobjecttypeRelationValidator:
+    code = "missing-{}-informatieobjecttype-relation"
+    message = _("Het informatieobjecttype hoort niet bij het {} van de {}.")
+
+    def __init__(self, object_field: str = 'zaak', objecttype_field: str = 'zaaktype'):
+        self.object_field = object_field
+        self.objecttype_field = objecttype_field
+
+    def __call__(self, attrs):
+        code = self.code.format(self.objecttype_field)
+        message = self.message.format(self.objecttype_field, self.object_field)
+
+        informatieobject = attrs.get("informatieobject")
+        object = attrs.get(self.object_field)
+        if not informatieobject or not object:
+            return
+
+        objecttype = getattr(object, self.objecttype_field)
+
+        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
+            io_type = informatieobject.latest_version.informatieobjecttype
+        else:
+            io_type = informatieobject.informatieobjecttype
+
+        # zaaktype/besluittype and informatieobjecttype should be both internal or external
+        if bool(objecttype.pk) != bool(io_type.pk):
+            raise serializers.ValidationError(message, code=code)
+
+        # local zaaktype/besluittype
+        if objecttype.pk:
+            if not objecttype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
+                raise serializers.ValidationError(message, code=code)
+
+        # external zaaktype/besluittype - workaround since loose-fk field doesn't support m2m relations
+        else:
+            objecttype_url = objecttype._loose_fk_data["url"]
+            iotype_url = io_type._loose_fk_data["url"]
+            objecttype_data = AuthorizedRequestsLoader.fetch_object(objecttype_url, do_underscoreize=False)
+            related_iotypes = [iotype for iotype in objecttype_data.get("informatieobjecttypen", []) if iotype == iotype_url]
+            if not related_iotypes:
+                raise serializers.ValidationError(message, code=code)
