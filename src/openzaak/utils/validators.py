@@ -6,6 +6,7 @@ from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.validators import IsImmutableValidator
+
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 from ..loaders import AuthorizedRequestsLoader
@@ -122,7 +123,7 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
     code = "missing-{}-informatieobjecttype-relation"
     message = _("Het informatieobjecttype hoort niet bij het {} van de {}.")
 
-    def __init__(self, object_field: str = 'zaak', objecttype_field: str = 'zaaktype'):
+    def __init__(self, object_field: str = "zaak", objecttype_field: str = "zaaktype"):
         self.object_field = object_field
         self.objecttype_field = objecttype_field
 
@@ -155,7 +156,13 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         else:
             objecttype_url = objecttype._loose_fk_data["url"]
             iotype_url = io_type._loose_fk_data["url"]
-            objecttype_data = AuthorizedRequestsLoader.fetch_object(objecttype_url, do_underscoreize=False)
-            related_iotypes = [iotype for iotype in objecttype_data.get("informatieobjecttypen", []) if iotype == iotype_url]
+            objecttype_data = AuthorizedRequestsLoader.fetch_object(
+                objecttype_url, do_underscoreize=False
+            )
+            related_iotypes = [
+                iotype
+                for iotype in objecttype_data.get("informatieobjecttypen", [])
+                if iotype == iotype_url
+            ]
             if not related_iotypes:
                 raise serializers.ValidationError(message, code=code)

@@ -15,16 +15,13 @@ from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
+    ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
-    ObjecttypeInformatieobjecttypeRelationValidator
 )
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
-from .validators import (
-    BesluittypeZaaktypeValidator,
-    UniekeIdentificatieValidator,
-)
+from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):

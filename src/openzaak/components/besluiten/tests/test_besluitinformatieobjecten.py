@@ -13,10 +13,10 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.documenten.tests.utils import (
-    get_eio_response,
-    get_oio_response,
-    get_informatieobjecttype_response,
     get_catalogus_response,
+    get_eio_response,
+    get_informatieobjecttype_response,
+    get_oio_response,
 )
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -339,13 +339,15 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl"
+                HTTP_HOST="openbesluit.nl",
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], 'missing-besluittype-informatieobjecttype-relation')
+        self.assertEqual(
+            error["code"], "missing-besluittype-informatieobjecttype-relation"
+        )
 
     def test_besluittype_external_iotype_external_success(self):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
@@ -358,14 +360,26 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(besluittype, json=besluittype_data)
-            m.get(informatieobjecttype, json=get_informatieobjecttype_response(catalogus, informatieobjecttype))
-            m.get(self.document, json=get_eio_response(self.document, informatieobjecttype=informatieobjecttype))
-            m.post(f"{self.base}objectinformatieobjecten", json=get_oio_response(self.document, besluit_url), status_code=201)
+            m.get(
+                informatieobjecttype,
+                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
+            )
+            m.get(
+                self.document,
+                json=get_eio_response(
+                    self.document, informatieobjecttype=informatieobjecttype
+                ),
+            )
+            m.post(
+                f"{self.base}objectinformatieobjecten",
+                json=get_oio_response(self.document, besluit_url),
+                status_code=201,
+            )
 
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl"
+                HTTP_HOST="openbesluit.nl",
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -379,19 +393,29 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(besluittype, json=get_besluittype_response(catalogus, besluittype))
-            m.get(informatieobjecttype, json=get_informatieobjecttype_response(catalogus, informatieobjecttype))
-            m.get(self.document, json=get_eio_response(self.document, informatieobjecttype=informatieobjecttype))
+            m.get(
+                informatieobjecttype,
+                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
+            )
+            m.get(
+                self.document,
+                json=get_eio_response(
+                    self.document, informatieobjecttype=informatieobjecttype
+                ),
+            )
 
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl"
+                HTTP_HOST="openbesluit.nl",
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], 'missing-besluittype-informatieobjecttype-relation')
+        self.assertEqual(
+            error["code"], "missing-besluittype-informatieobjecttype-relation"
+        )
 
     def test_besluittype_internal_iotype_external(self):
         besluit = BesluitFactory.create()
@@ -400,20 +424,32 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
         with requests_mock.Mocker(real_http=True) as m:
-            m.get(informatieobjecttype, json=get_informatieobjecttype_response(catalogus, informatieobjecttype))
-            m.get(catalogus, json=get_catalogus_response(catalogus, informatieobjecttype))
-            m.get(self.document, json=get_eio_response(self.document, informatieobjecttype=informatieobjecttype))
+            m.get(
+                informatieobjecttype,
+                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
+            )
+            m.get(
+                catalogus, json=get_catalogus_response(catalogus, informatieobjecttype)
+            )
+            m.get(
+                self.document,
+                json=get_eio_response(
+                    self.document, informatieobjecttype=informatieobjecttype
+                ),
+            )
 
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl"
+                HTTP_HOST="openbesluit.nl",
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], 'missing-besluittype-informatieobjecttype-relation')
+        self.assertEqual(
+            error["code"], "missing-besluittype-informatieobjecttype-relation"
+        )
 
     def test_besluittype_external_iotype_internal(self):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
@@ -433,11 +469,12 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl"
+                HTTP_HOST="openbesluit.nl",
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], 'missing-besluittype-informatieobjecttype-relation')
-
+        self.assertEqual(
+            error["code"], "missing-besluittype-informatieobjecttype-relation"
+        )

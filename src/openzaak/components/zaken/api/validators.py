@@ -16,9 +16,9 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.loaders import AuthorizedRequestsLoader
 
 from ..models import Zaak
-from openzaak.loaders import AuthorizedRequestsLoader
 
 
 class RolOccurenceValidator:

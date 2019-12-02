@@ -49,8 +49,8 @@ from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
-    PublishValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
+    PublishValidator,
 )
 
 from ...brondatum import BrondatumCalculator
