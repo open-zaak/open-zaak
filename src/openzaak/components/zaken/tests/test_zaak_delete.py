@@ -1,7 +1,8 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (
@@ -94,3 +95,15 @@ class US349TestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["resultaat"], resultaat_url)
+
+    def test_delete_zaak_with_related_besluit(self):
+        zaak = ZaakFactory.create()
+        zaak_url = f"http://testserver{reverse(zaak)}"
+        BesluitFactory.create(zaak=zaak)
+
+        response = self.client.delete(zaak_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "pending-besluit-relation")
