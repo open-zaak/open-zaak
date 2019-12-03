@@ -350,3 +350,11 @@ class CatalogusAdminImportExportTests(WebTest):
             response.text,
         )
         self.assertEqual(Catalogus.objects.count(), 1)
+
+    def test_export_button_not_visible_on_create_new_catalogus(self):
+        url = reverse("admin:catalogi_catalogus_add")
+
+        response = self.app.get(url)
+
+        export_button = response.html.find("input", {"name": "_export"})
+        self.assertIsNone(export_button)
