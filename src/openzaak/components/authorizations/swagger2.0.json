@@ -569,6 +569,13 @@
                 },
                 "tags": [
                     "applicaties"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "autorisaties.lezen"
+                        ]
+                    }
                 ]
             },
             "parameters": []

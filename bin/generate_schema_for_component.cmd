@@ -16,7 +16,7 @@ if "%1"=="" (
 set SUBPATH=/%1/api
 set SCHEMA_PATH=src/openzaak/components/%1
 
-echo Generating Swagger schema
+echo Generating Swagger schema for %1...
 python src\manage.py generate_swagger_component^
     %SCHEMA_PATH%\swagger2.0.json^
     --overwrite^
@@ -30,7 +30,7 @@ call .\node_modules\.bin\swagger2openapi %SCHEMA_PATH%\swagger2.0.json -o %SCHEM
 REM call npm run convert
 python src\manage.py patch_error_contenttypes %SCHEMA_PATH%\openapi.yaml
 
-echo Generating resources document
+echo Generating resources document...
 python src\manage.py generate_swagger_component^
     %SCHEMA_PATH%\resources.md^
     --overwrite^
@@ -38,3 +38,5 @@ python src\manage.py generate_swagger_component^
     --url https://example.com/api/v1^
     --to-markdown-table^
     --component=%1
+
+echo Done.

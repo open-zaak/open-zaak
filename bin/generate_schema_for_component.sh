@@ -17,7 +17,7 @@ fi
 export SUBPATH=/$1/api
 export SCHEMA_PATH=src/openzaak/components/$1
 
-echo "Generating Swagger schema"
+echo "Generating Swagger schema for $1..."
 src/manage.py generate_swagger_component \
     $SCHEMA_PATH/swagger2.0.json \
     --overwrite \
@@ -30,7 +30,7 @@ echo "Converting Swagger to OpenAPI 3.0..."
 npm run convert
 src/manage.py patch_error_contenttypes $SCHEMA_PATH/openapi.yaml
 
-echo "Generating resources document"
+echo "Generating resources document..."
 src/manage.py generate_swagger_component \
     $SCHEMA_PATH/resources.md \
     --overwrite \
@@ -38,3 +38,5 @@ src/manage.py generate_swagger_component \
     --url https://example.com/api/v1 \
     --to-markdown-table \
     --component=$1
+
+echo "Done."
