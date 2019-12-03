@@ -4,5 +4,5 @@
 {% block extra_submit_buttons %}
     {{ block.super }}
 
-    <input type="submit" value="{% trans 'Exporteren' %}" name="_export">
+    {% if original %}<input type="submit" value="{% trans 'Exporteren' %}" name="_export"/>{% endif %}
 {% endblock %}
