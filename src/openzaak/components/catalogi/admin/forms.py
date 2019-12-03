@@ -38,9 +38,12 @@ class ZaakTypeForm(forms.ModelForm):
         self.fields[
             "trefwoorden"
         ].help_text += " Gebruik een komma om waarden van elkaar te onderscheiden."
+        self.fields["trefwoorden"].required = True
+
         self.fields[
             "verantwoordingsrelatie"
         ].help_text += " Gebruik een komma om waarden van elkaar te onderscheiden."
+        self.fields["verantwoordingsrelatie"].required = True
 
     def clean(self):
         super().clean()
