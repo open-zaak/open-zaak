@@ -96,7 +96,9 @@ class ResultaatFilter(FilterSet):
 
 class ZaakInformatieObjectFilter(FilterSet):
     informatieobject = FkOrUrlFieldFilter(
-        queryset=ZaakInformatieObject.objects.all(), instance_path="canonical"
+        queryset=ZaakInformatieObject.objects.all(),
+        instance_path="canonical",
+        help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
     )
 
     class Meta:
