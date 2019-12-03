@@ -97,6 +97,8 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         form["opschorting_en_aanhouding_mogelijk"].select(False)
         form["verlenging_mogelijk"].select(False)
         form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["trefwoorden"] = ["ja"]
+        form["verantwoordingsrelatie"] = "bla"
         form["producten_of_diensten"] = "https://example.com/foobarbaz"
         form["referentieproces_naam"] = "test"
         form["catalogus"] = catalogus.pk

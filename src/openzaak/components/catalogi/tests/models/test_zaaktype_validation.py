@@ -42,8 +42,8 @@ class ZaaktypeValidationTests(TestCase):
                 "versiedatum": "2019-01-01",
                 "producten_of_diensten": ["http://example.com/producten_of_diensten/1"],
                 "referentieproces_naam": "test",
-                "trefwoorden": [],
-                "verantwoordingsrelatie": [],
+                "trefwoorden": ["test"],
+                "verantwoordingsrelatie": "test",
             }
         )
 
