@@ -1,0 +1,11 @@
+{% if catalogus %}
+    &rsaquo;
+    <a href="{% url 'admin:catalogi_catalogus_changelist' %}">Catalogi [<strong>{{ catalogus }}</strong>]</a>
+
+    {% if zaaktype %}
+        &rsaquo;
+        <a href="{% url 'admin:catalogi_zaaktype_changelist' %}?catalogus={{ catalogus.pk }}">
+            Zaaktypen [<strong>{{ zaaktype }}</strong>]
+        </a>
+    {% endif %}
+{% endif %}

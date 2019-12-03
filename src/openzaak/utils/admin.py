@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -30,7 +31,7 @@ def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
     # pass the field name
     assert len(relation_fields) == 1
 
-    query = {relation_fields[0].name: obj.pk}
+    query = {f"{relation_fields[0].name}__id__exact": obj.pk}
     view_name = f"admin:{model._meta.app_label}_{model._meta.model_name}_changelist"
     changelist_url = f"{reverse(view_name)}?{urlencode(query)}"
     return (
@@ -299,3 +300,79 @@ class AuditTrailInlineAdminMixin(object):
 
         formset.viewset = viewset(request=request, format_kwarg=None)
         return formset
+
+
+class ExtraContextAdminMixin(object):
+    """
+    Add this mixin to your admin class to make use of the new function
+    `self.get_extra_context` that allows you to add variables to all admin
+    views without overriding all of them.
+
+    By default, it adds no extra context.
+    """
+
+    def get_extra_context(self, request, object_id=None):
+        """
+        Override this function to add addition context via the `extra_context`
+        parameter. Be arare that `extra_context` can be `None`.
+
+        :param request: The `Request` object.
+        :param object_id: The ID of the object in case it's an object view.
+        :return: A `dict`.
+        """
+        return {}
+
+    def _get_extra_context(self, request, extra_context, object_id=None):
+        extra_context = extra_context or {}
+        extra_context.update(self.get_extra_context(request, object_id))
+        return extra_context
+
+    def changelist_view(self, request, extra_context=None):
+        return super().changelist_view(
+            request, extra_context=self._get_extra_context(request, extra_context)
+        )
+
+    def add_view(self, request, form_url="", extra_context=None):
+        return super().add_view(
+            request,
+            form_url=form_url,
+            extra_context=self._get_extra_context(request, extra_context),
+        )
+
+    def history_view(self, request, object_id, extra_context=None):
+        return super().history_view(
+            request,
+            object_id,
+            extra_context=self._get_extra_context(request, extra_context, object_id),
+        )
+
+    def delete_view(self, request, object_id, extra_context=None):
+        return super().delete_view(
+            request,
+            object_id,
+            extra_context=self._get_extra_context(request, extra_context, object_id),
+        )
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        return super().change_view(
+            request,
+            object_id,
+            form_url=form_url,
+            extra_context=self._get_extra_context(request, extra_context, object_id),
+        )
+
+
+class UUIDAdminMixin:
+    def get_list_display(self, request):
+        list_display = super().get_list_display(request)
+        return tuple(list_display) + ("_get_uuid_display",)
+
+    def _get_uuid_display(self, obj):
+        return format_html(
+            '<code class="copy-action" data-copy-value="{val}" title="{val}">{shortval}</span>'.format(
+                val=str(obj.uuid), shortval=str(obj.uuid)[:6]
+            )
+        )
+
+    _get_uuid_display.short_description = "UUID"
+    _get_uuid_display.allow_tags = True

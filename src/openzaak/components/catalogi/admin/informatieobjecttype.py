@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
+from openzaak.utils.admin import UUIDAdminMixin
+
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
-from .mixins import GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
 
 
 class ZaakTypeInformatieObjectTypeInline(admin.TabularInline):
@@ -13,11 +15,15 @@ class ZaakTypeInformatieObjectTypeInline(admin.TabularInline):
 
 @admin.register(InformatieObjectType)
 class InformatieObjectTypeAdmin(
-    GeldigheidAdminMixin, PublishAdminMixin, admin.ModelAdmin
+    UUIDAdminMixin,
+    CatalogusContextAdminMixin,
+    GeldigheidAdminMixin,
+    PublishAdminMixin,
+    admin.ModelAdmin,
 ):
-    list_display = ("catalogus", "omschrijving")
+    list_display = ("omschrijving", "catalogus")
     list_filter = ("catalogus",)
-    search_fields = ("omschrijving", "trefwoord", "toelichting")
+    search_fields = ("uuid", "omschrijving", "trefwoord", "toelichting")
     ordering = ("catalogus", "omschrijving")
 
     # Details

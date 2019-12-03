@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from urllib.parse import quote as urlquote
+from urllib.parse import parse_qsl, quote as urlquote
 
 from django.apps import apps
 from django.contrib import messages
@@ -12,7 +12,9 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from ..models import ZaakTypeInformatieObjectType
+from openzaak.utils.admin import ExtraContextAdminMixin
+
+from ..models import Catalogus, ZaakType, ZaakTypeInformatieObjectType
 from .forms import CatalogusImportForm
 
 
@@ -218,3 +220,35 @@ class CatalogusImportExportMixin:
             return response
         else:
             return super().response_post_save_change(request, obj)
+
+
+class CatalogusContextAdminMixin(ExtraContextAdminMixin):
+    def get_extra_context(self, request, *args, **kwargs):
+        context = super().get_extra_context(request, *args, **kwargs)
+
+        zaaktype = None
+        catalogus = None
+
+        _changelist_filters = dict(parse_qsl(request.GET.get("_changelist_filters")))
+        zaaktype_pk = _changelist_filters.get(
+            "zaaktype__id__exact", request.GET.get("zaaktype__id__exact")
+        )
+        catalogus_pk = _changelist_filters.get(
+            "catalogus__id__exact", request.GET.get("catalogus__id__exact")
+        )
+
+        if zaaktype_pk:
+            zaaktype = (
+                ZaakType.objects.select_related("catalogus")
+                .filter(pk=int(zaaktype_pk))
+                .first()
+            )
+            catalogus = zaaktype.catalogus
+        elif catalogus_pk:
+            catalogus = Catalogus.objects.get(pk=int(catalogus_pk))
+
+        context.update(
+            {"zaaktype": zaaktype, "catalogus": catalogus,}
+        )
+
+        return context

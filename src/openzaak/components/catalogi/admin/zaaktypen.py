@@ -8,6 +8,7 @@ from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
     link_to_related_objects,
 )
 
@@ -21,7 +22,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import NewVersionMixin, PublishAdminMixin
+from .mixins import CatalogusContextAdminMixin, NewVersionMixin, PublishAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -61,8 +62,10 @@ class ZaakTypenRelatieInline(admin.TabularInline):
 class ZaakTypeAdmin(
     NewVersionMixin,
     ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
     PublishAdminMixin,
     DynamicArrayMixin,
+    CatalogusContextAdminMixin,
     admin.ModelAdmin,
 ):
     model = ZaakType
@@ -70,11 +73,10 @@ class ZaakTypeAdmin(
 
     # List
     list_display = (
-        "identificatie",
         "zaaktype_omschrijving",
+        "identificatie",
+        "versiedatum",
         "catalogus",
-        "uuid",
-        "get_absolute_api_url",
     )
     list_filter = (
         "catalogus",
@@ -86,6 +88,7 @@ class ZaakTypeAdmin(
     )
     ordering = ("catalogus", "identificatie")
     search_fields = (
+        "uuid",
         "identificatie",
         "zaaktype_omschrijving",
         "zaaktype_omschrijving_generiek",
@@ -95,6 +98,7 @@ class ZaakTypeAdmin(
         "onderwerp",
         "toelichting",
     )
+    date_hierarchy = "versiedatum"
 
     # Details
     fieldsets = (

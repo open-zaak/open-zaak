@@ -189,7 +189,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | bronorganisatie | Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef | string | ja | C​R​U​D |
 | omschrijving | Een korte omschrijving van de zaak. | string | nee | C​R​U​D |
 | toelichting | Een toelichting op de zaak. | string | nee | C​R​U​D |
-| zaaktype | URL-referentie naar het ZAAKTYPE (in de Catalogi API) in de CATALOGUS waar deze voorkomt | string | ja | C​R​U​D |
+| zaaktype | URL-referentie naar het ZAAKTYPE (in de Catalogi API). | string | ja | C​R​U​D |
 | registratiedatum | De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt. | string | nee | C​R​U​D |
 | verantwoordelijkeOrganisatie | Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef | string | ja | C​R​U​D |
 | startdatum | De datum waarop met de uitvoering van de zaak is gestart | string | ja | C​R​U​D |

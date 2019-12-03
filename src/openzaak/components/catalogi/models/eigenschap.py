@@ -186,7 +186,7 @@ class Eigenschap(models.Model):
     )
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
-        verbose_name=_("is van"),
+        # verbose_name=_("is van"),
         help_text=_(
             "URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is."
         ),
@@ -199,7 +199,7 @@ class Eigenschap(models.Model):
         verbose_name_plural = _("Eigenschappen")
 
     def __str__(self):
-        return "{} - {}".format(self.zaaktype, self.eigenschapnaam)
+        return self.eigenschapnaam
 
     def clean(self):
         """

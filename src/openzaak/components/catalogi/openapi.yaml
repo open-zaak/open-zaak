@@ -8186,7 +8186,7 @@ components:
           type: string
           maxLength: 1000
         zaaktype:
-          title: Is van
+          title: Zaaktype
           description: URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze
             EIGENSCHAP van belang is.
           type: string
@@ -8209,7 +8209,7 @@ components:
           maxLength: 1000
           minLength: 1
         catalogus:
-          title: Maakt deel uit van
+          title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
             behoort.
           type: string
@@ -8563,7 +8563,7 @@ components:
           maxLength: 1000
           minLength: 1
         zaaktype:
-          title: Is van
+          title: Zaaktype
           description: URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken
             kunnen zijn.
           type: string
@@ -8636,7 +8636,7 @@ components:
           type: string
           maxLength: 1000
         zaaktype:
-          title: Is van
+          title: Zaaktype
           description: URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen
             van dit STATUSTYPE bereikt kunnen worden.
           type: string
@@ -8996,7 +8996,7 @@ components:
         referentieproces:
           $ref: '#/components/schemas/ReferentieProces'
         catalogus:
-          title: Maakt deel uit van
+          title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
           type: string
           format: uri

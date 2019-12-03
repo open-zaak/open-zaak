@@ -1,14 +1,25 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
+from openzaak.utils.admin import UUIDAdminMixin
+
 from ..models import BesluitType
-from .mixins import GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
 
 
 @admin.register(BesluitType)
-class BesluitTypeAdmin(GeldigheidAdminMixin, PublishAdminMixin, admin.ModelAdmin):
+class BesluitTypeAdmin(
+    UUIDAdminMixin,
+    CatalogusContextAdminMixin,
+    GeldigheidAdminMixin,
+    PublishAdminMixin,
+    admin.ModelAdmin,
+):
     # List
-    list_display = ("catalogus", "omschrijving", "besluitcategorie")
+    list_display = ("omschrijving", "catalogus", "besluitcategorie")
+    list_filter = ("catalogus",)
+    search_fields = ("uuid", "omschrijving", "besluitcategorie", "toelichting")
+    ordering = ("catalogus", "omschrijving")
 
     # Details
     fieldsets = (

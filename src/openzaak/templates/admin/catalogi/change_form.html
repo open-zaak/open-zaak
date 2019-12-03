@@ -1,6 +1,10 @@
 {% extends 'admin/change_form.html' %}
 {% load i18n %}
 
+{% block breadcrumbs_pre_changelist %}
+    {% include 'admin/catalogi/includes/catalogus_breadcrumb.html' %}
+{% endblock %}
+
 {% block submit_buttons_bottom %}
     {{ block.super }}
 

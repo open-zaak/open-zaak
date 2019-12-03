@@ -35,7 +35,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
     )
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
-        verbose_name=_("maakt deel uit van"),
+        # verbose_name=_("maakt deel uit van"),
         on_delete=models.CASCADE,
         help_text=(
             "URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort."
@@ -44,7 +44,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
 
     zaaktypen = models.ManyToManyField(
         "catalogi.ZaakType",
-        verbose_name=_("zaaktypen"),
+        # verbose_name=_("zaaktypen"),
         related_name="informatieobjecttypen",
         through="catalogi.ZaakTypeInformatieObjectType",
         help_text=_(
@@ -58,7 +58,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
         verbose_name_plural = _("Informatieobjecttypen")
 
     def __str__(self):
-        representation = "{} - {}".format(self.catalogus, self.omschrijving)
+        representation = self.omschrijving
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation

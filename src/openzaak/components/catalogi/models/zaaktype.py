@@ -363,7 +363,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     )
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
-        verbose_name=_("maakt deel uit van"),
+        # verbose_name=_("maakt deel uit van"),
         on_delete=models.CASCADE,
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
@@ -375,10 +375,9 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         verbose_name_plural = _("Zaaktypen")
 
     def __str__(self):
-        representation = "{} - {}".format(self.catalogus, self.identificatie)
-        if self.concept:
-            representation = "{} (CONCEPT)".format(representation)
-        return representation
+        return "{} ({})".format(
+            self.zaaktype_omschrijving, "CONCEPT" if self.concept else self.versiedatum
+        )
 
     def save(self, *args, **kwargs):
         if not self.identificatie:

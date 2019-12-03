@@ -98,13 +98,10 @@
 </div>
 {% endif %}
 
-{% if object.audittrail and action_list %}
-    <h1>{% trans "Changes made via the admin." %}
-{% endif %}
-{{ block.super }}
+        {% if object.audittrail and action_list %}
+            <h1>{% trans "Changes made via the admin." %}</h1>
+        {% endif %}
 
-<link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
-<script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
-<script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
+    {{ block.super }}
 
 {% endblock %}

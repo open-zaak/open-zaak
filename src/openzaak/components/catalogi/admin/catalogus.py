@@ -2,7 +2,12 @@ from django.contrib import admin
 from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import EditInlineAdminMixin, ListObjectActionsAdminMixin
+from openzaak.utils.admin import (
+    EditInlineAdminMixin,
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    link_to_related_objects,
+)
 
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .besluittype import BesluitTypeAdmin
@@ -30,21 +35,30 @@ class InformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
 
 @admin.register(Catalogus)
 class CatalogusAdmin(
-    ListObjectActionsAdminMixin, CatalogusImportExportMixin, admin.ModelAdmin
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    CatalogusImportExportMixin,
+    admin.ModelAdmin,
 ):
     model = Catalogus
     change_list_template = "admin/catalogus_change_list.html"
     change_form_template = "admin/catalogi/change_form_catalogus.html"
 
     # List
-    list_display = ("domein", "rsin", "uuid")
+    list_display = ("_admin_name", "domein", "rsin")
     list_filter = ("domein", "rsin")
     ordering = ("domein", "rsin")
-    search_fields = ("domein", "rsin", "contactpersoon_beheer_naam")
+    search_fields = (
+        "uuid",
+        "_admin_name",
+        "domein",
+        "rsin",
+        "contactpersoon_beheer_naam",
+    )
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("domein", "rsin")}),
+        (_("Algemeen"), {"fields": ("_admin_name", "domein", "rsin")}),
         (
             _("Contactpersoon beheer"),
             {
@@ -71,18 +85,7 @@ class CatalogusAdmin(
 
     def get_object_actions(self, obj):
         return (
-            (
-                _("Toon {}").format(ZaakType._meta.verbose_name_plural),
-                self._build_changelist_url(ZaakType, query={"catalogus": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(BesluitType._meta.verbose_name_plural),
-                self._build_changelist_url(BesluitType, query={"catalogus": obj.pk}),
-            ),
-            (
-                _("Toon {}").format(InformatieObjectType._meta.verbose_name_plural),
-                self._build_changelist_url(
-                    InformatieObjectType, query={"catalogus": obj.pk}
-                ),
-            ),
+            link_to_related_objects(ZaakType, obj),
+            link_to_related_objects(BesluitType, obj),
+            link_to_related_objects(InformatieObjectType, obj),
         )

@@ -7,13 +7,15 @@ from openzaak.selectielijst.admin import (
     get_resultaattype_omschrijving_field,
     get_selectielijstklasse_field,
 )
+from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import ResultaatType
 from .forms import ResultaatTypeForm
+from .mixins import CatalogusContextAdminMixin
 
 
 @admin.register(ResultaatType)
-class ResultaatTypeAdmin(admin.ModelAdmin):
+class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
     model = ResultaatType
     form = ResultaatTypeForm
 
@@ -22,16 +24,15 @@ class ResultaatTypeAdmin(admin.ModelAdmin):
         "omschrijving",
         "omschrijving_generiek",
         "selectielijstklasse",
-        "uuid",
     )
     list_filter = ("zaaktype",)
     ordering = ("zaaktype", "omschrijving")
     search_fields = (
+        "uuid",
         "omschrijving",
         "omschrijving_generiek",
         "selectielijstklasse",
         "toelichting",
-        "uuid",
     )
 
     def get_zaaktype_procestype(self, obj):

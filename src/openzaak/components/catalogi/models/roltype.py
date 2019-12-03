@@ -46,7 +46,7 @@ class RolType(models.Model):
     )
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
-        verbose_name=_("is van"),
+        # verbose_name=_("is van"),
         on_delete=models.CASCADE,
         help_text=_(
             "URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn."
@@ -59,4 +59,4 @@ class RolType(models.Model):
         verbose_name_plural = _("Roltypen")
 
     def __str__(self):
-        return "{} - {}".format(self.zaaktype, self.omschrijving)
+        return self.omschrijving
