@@ -35,7 +35,10 @@ class InformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
 
 @admin.register(Catalogus)
 class CatalogusAdmin(
-    ListObjectActionsAdminMixin, UUIDAdminMixin, CatalogusImportExportMixin, admin.ModelAdmin
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    CatalogusImportExportMixin,
+    admin.ModelAdmin,
 ):
     model = Catalogus
     change_list_template = "admin/catalogus_change_list.html"

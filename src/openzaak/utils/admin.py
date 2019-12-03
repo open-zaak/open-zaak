@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -367,9 +368,7 @@ class UUIDAdminMixin:
         return tuple(list_display) + ("_get_uuid_display",)
 
     def _get_uuid_display(self, obj):
-        from django.utils.safestring import mark_safe
-
-        return mark_safe(
+        return format_html(
             '<code class="copy-action" data-copy-value="{val}" title="{val}">{shortval}</span>'.format(
                 val=str(obj.uuid), shortval=str(obj.uuid)[:6]
             )
