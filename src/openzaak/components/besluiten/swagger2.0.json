@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "type": "http",
+            "bearerFormat": "JWT",
             "scheme": "bearer",
-            "bearerFormat": "JWT"
+            "type": "http"
         }
     },
     "security": [
@@ -1557,9 +1557,10 @@
                     {
                         "name": "informatieobject",
                         "in": "query",
-                        "description": "",
+                        "description": "URL-referentie naar het INFORMATIEOBJECT (in de Documenten API) waarin (een deel van) het besluit beschreven is.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     }
                 ],
                 "responses": {

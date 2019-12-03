@@ -1341,10 +1341,12 @@ paths:
           format: uri
       - name: informatieobject
         in: query
-        description: ''
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API)
+          waarin (een deel van) het besluit beschreven is.
         required: false
         schema:
           type: string
+          format: uri
       responses:
         '200':
           description: OK
@@ -1940,9 +1942,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     Besluit:
       required:
