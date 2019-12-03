@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -106,6 +107,46 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         # redirect on succesfull create, 200 on validation errors, 500 on db errors
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.count(), 1)
+
+    def test_submit_zaaktype_trefwoorden_and_verantwoordingsrelatie_required(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        # form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["producten_of_diensten"] = "https://example.com/foobarbaz"
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+
+        response = form.submit()
+
+        # redirect on succesfull create, 200 on validation errors, 500 on db errors
+        self.assertEqual(response.status_code, 200)
+
+        verantwoordingsrelatie_error = response.html.find(
+            "div", {"field-verantwoordingsrelatie"}
+        ).ul.li
+        self.assertEqual(
+            verantwoordingsrelatie_error.text, _("This field is required.")
+        )
+
+        trefwoorden_error = response.html.find("div", {"field-trefwoorden"}).ul.li
+        self.assertEqual(trefwoorden_error.text, _("This field is required."))
+        self.assertEqual(ZaakType.objects.count(), 0)
 
     @freeze_time("2019-11-01")
     def test_create_new_version(self, m):
