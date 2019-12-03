@@ -2,13 +2,12 @@ import uuid
 from datetime import date
 from urllib.parse import parse_qsl, quote as urlquote
 
-from django.apps import apps
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.management import CommandError, call_command
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
@@ -145,74 +144,15 @@ class NewVersionMixin(object):
         return super().response_change(request, obj)
 
 
-class CatalogusImportExportMixin:
-    def import_view(self, request):
-        if "_import" in request.POST:
-            form = CatalogusImportForm(request.POST, request.FILES)
-            if form.is_valid():
-                try:
-                    import_file = form.cleaned_data["file"]
-                    generate_new_uuids = form.cleaned_data["generate_new_uuids"]
-                    call_command(
-                        "import",
-                        import_file_content=import_file.read(),
-                        generate_new_uuids=generate_new_uuids,
-                    )
-                    self.message_user(
-                        request,
-                        _("Catalogus successfully imported"),
-                        level=messages.SUCCESS,
-                    )
-                    return HttpResponseRedirect(
-                        reverse("admin:catalogi_catalogus_changelist")
-                    )
-                except CommandError as exc:
-                    self.message_user(request, exc, level=messages.ERROR)
-        else:
-            form = CatalogusImportForm()
-
-        context = dict(self.admin_site.each_context(request), form=form)
-
-        return TemplateResponse(
-            request, "admin/catalogi/import_catalogus.html", context
-        )
+class ExportMixin:
+    resource_name = ""
 
     def get_related_objects(self, obj):
-        resources = {}
-
-        resources["Catalogus"] = [obj.pk]
-
-        # Resources with foreign keys to catalogus
-        fields = ["InformatieObjectType", "BesluitType", "ZaakType"]
-        for field in fields:
-            resources[field] = list(
-                getattr(obj, f"{field.lower()}_set").values_list("pk", flat=True)
-            )
-        resources["ZaakTypeInformatieObjectType"] = list(
-            ZaakTypeInformatieObjectType.objects.filter(
-                zaaktype__in=resources["ZaakType"],
-                informatieobjecttype__in=resources["InformatieObjectType"],
-            ).values_list("pk", flat=True)
-        )
-
-        # Resources with foreign keys to  ZaakType
-        fields = ["ResultaatType", "RolType", "StatusType", "Eigenschap"]
-        for field in fields:
-            model = apps.get_model("catalogi", field)
-            resources[field] = list(
-                model.objects.filter(zaaktype__in=resources["ZaakType"]).values_list(
-                    "pk", flat=True
-                )
-            )
-
-        resource_list = []
-        id_list = []
-        for resource, ids in resources.items():
-            if ids:
-                resource_list.append(resource)
-                id_list.append(ids)
-
-        return resource_list, id_list
+        """
+        Must be implemented to retrieve the objects that have to be exported
+        along with the main object
+        """
+        return [], []
 
     def response_post_save_change(self, request, obj):
         if "_export" in request.POST:
@@ -224,8 +164,9 @@ class CatalogusImportExportMixin:
             resource_list, id_list = self.get_related_objects(obj)
 
             response = HttpResponse(content_type="application/zip")
+            filename = str(obj).replace(" ", "")
             response["Content-Disposition"] = "attachment;filename={}".format(
-                f"{obj.domein}.zip"
+                f"{filename}.zip"
             )
             call_command(
                 "export", response=response, resource=resource_list, ids=id_list,
@@ -235,7 +176,9 @@ class CatalogusImportExportMixin:
 
             self.message_user(
                 request,
-                _("Catalogus {} was successfully exported").format(obj),
+                _("{} {} was successfully exported").format(
+                    self.resource_name.capitalize(), obj
+                ),
                 level=messages.SUCCESS,
             )
             return response
@@ -273,3 +216,42 @@ class CatalogusContextAdminMixin(ExtraContextAdminMixin):
         )
 
         return context
+
+
+class ImportMixin:
+    resource_name = ""
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "import/",
+                self.admin_site.admin_view(self.import_view),
+                name=f"catalogi_{self.resource_name}_import",
+            )
+        ]
+        return my_urls + urls
+
+    def import_view(self, request):
+        form = ImportForm(request.POST, request.FILES)
+        context = dict(self.admin_site.each_context(request), form=form)
+        if "_import" in request.POST:
+            if form.is_valid():
+                try:
+                    import_file = form.cleaned_data["file"]
+                    call_command("import", import_file_content=import_file.read())
+                    self.message_user(
+                        request,
+                        _("{} successfully imported").format(
+                            self.resource_name.capitalize()
+                        ),
+                        level=messages.SUCCESS,
+                    )
+                    return HttpResponseRedirect(
+                        reverse(f"admin:catalogi_{self.resource_name}_changelist")
+                    )
+                except CommandError as exc:
+                    self.message_user(request, exc, level=messages.ERROR)
+        return TemplateResponse(
+            request, f"admin/catalogi/import_{self.resource_name}.html", context
+        )
