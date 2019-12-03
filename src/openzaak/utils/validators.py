@@ -159,10 +159,5 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
             objecttype_data = AuthorizedRequestsLoader.fetch_object(
                 objecttype_url, do_underscoreize=False
             )
-            related_iotypes = [
-                iotype
-                for iotype in objecttype_data.get("informatieobjecttypen", [])
-                if iotype == iotype_url
-            ]
-            if not related_iotypes:
+            if iotype_url not in objecttype_data.get("informatieobjecttypen", []):
                 raise serializers.ValidationError(message, code=code)
