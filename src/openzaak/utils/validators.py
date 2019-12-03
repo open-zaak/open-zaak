@@ -145,7 +145,10 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
 
         # zaaktype/besluittype and informatieobjecttype should be both internal or external
         if bool(objecttype.pk) != bool(io_type.pk):
-            raise serializers.ValidationError(message, code=code)
+            msg_diff = "The informatieobjecttype and the {} from the {} should be hosted in the same component".format(
+                self.objecttype_field, self.object_field
+            )
+            raise serializers.ValidationError(msg_diff, code=code)
 
         # local zaaktype/besluittype
         if objecttype.pk:
