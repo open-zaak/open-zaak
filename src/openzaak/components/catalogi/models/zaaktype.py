@@ -392,7 +392,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        from ..utils import get_overlapping_zaaktypes
+        from ..utils import compare_relativedeltas, get_overlapping_zaaktypes
 
         super().clean()
 
@@ -406,7 +406,9 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         if (
             self.doorlooptijd_behandeling
             and self.servicenorm_behandeling  # noqa
-            and self.servicenorm_behandeling > self.doorlooptijd_behandeling
+            and compare_relativedeltas(
+                self.servicenorm_behandeling, self.doorlooptijd_behandeling
+            )
         ):  # noqa
             raise ValidationError(
                 "'Servicenorm behandeling' periode mag niet langer zijn dan "
