@@ -40,7 +40,7 @@ drf-yasg==1.16.0
 factory-boy==2.12.0
 faker==2.0.1              # via factory-boy
 freezegun==0.3.12
-gemma-zds-client==0.11.0
+gemma-zds-client==0.13.0
 humanize==0.5.1
 idna==2.6
 inflection==0.3.1

@@ -34,7 +34,7 @@ drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3
 drf-yasg==1.16.0
-gemma-zds-client==0.11.0  # via vng-api-common
+gemma-zds-client==0.13.0  # via vng-api-common
 humanize==0.5.1
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
