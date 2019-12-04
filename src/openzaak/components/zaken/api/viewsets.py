@@ -10,6 +10,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -272,6 +273,19 @@ class ZaakViewSet(
                 msg = "Modifying a closed case with current scope is forbidden"
                 raise PermissionDenied(detail=msg)
         super().perform_update(serializer)
+
+    def perform_destroy(self, instance: Zaak):
+        if instance.besluit_set.exists():
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "All related Besluit objects should be destroyed before destroying the zaak"
+                    )
+                },
+                code="pending-besluit-relation",
+            )
+
+        super().perform_destroy(instance)
 
 
 class StatusViewSet(
