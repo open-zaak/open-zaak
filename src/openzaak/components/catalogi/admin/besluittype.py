@@ -16,7 +16,7 @@ class BesluitTypeAdmin(
     admin.ModelAdmin,
 ):
     # List
-    list_display = ("omschrijving", "catalogus", "besluitcategorie")
+    list_display = ("omschrijving", "besluitcategorie", "catalogus", "is_published")
     list_filter = ("catalogus",)
     search_fields = ("uuid", "omschrijving", "besluitcategorie", "toelichting")
     ordering = ("catalogus", "omschrijving")

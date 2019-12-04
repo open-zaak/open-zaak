@@ -60,6 +60,18 @@ class PublishAdminMixin:
         else:
             return super().response_post_save_change(request, obj)
 
+    def is_published(self, obj):
+        """
+        Helper to show publish status in admin list views.
+
+        :param obj: The model instance.
+        :return: `True` if the instance was published.
+        """
+        return not obj.concept
+
+    is_published.short_description = _("gepubliceerd")
+    is_published.boolean = True
+
 
 class NewVersionMixin(object):
     exclude_copy_relation = []
@@ -135,9 +147,8 @@ class NewVersionMixin(object):
 
 class CatalogusImportExportMixin:
     def import_view(self, request):
-        form = CatalogusImportForm(request.POST, request.FILES)
-        context = dict(self.admin_site.each_context(request), form=form)
         if "_import" in request.POST:
+            form = CatalogusImportForm(request.POST, request.FILES)
             if form.is_valid():
                 try:
                     import_file = form.cleaned_data["file"]
@@ -152,6 +163,11 @@ class CatalogusImportExportMixin:
                     )
                 except CommandError as exc:
                     self.message_user(request, exc, level=messages.ERROR)
+        else:
+            form = CatalogusImportForm()
+
+        context = dict(self.admin_site.each_context(request), form=form)
+
         return TemplateResponse(
             request, "admin/catalogi/import_catalogus.html", context
         )

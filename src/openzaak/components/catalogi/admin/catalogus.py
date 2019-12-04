@@ -10,26 +10,34 @@ from openzaak.utils.admin import (
 )
 
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
-from .besluittype import BesluitTypeAdmin
-from .informatieobjecttype import InformatieObjectTypeAdmin
 from .mixins import CatalogusImportExportMixin
-from .zaaktypen import ZaakTypeAdmin
 
 
 class ZaakTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakType
-    fields = ZaakTypeAdmin.list_display
+    fields = (
+        "zaaktype_omschrijving",
+        "identificatie",
+        "versiedatum",
+    )
     fk_name = "catalogus"
 
 
 class BesluitTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = BesluitType
-    fields = BesluitTypeAdmin.list_display
+    fields = (
+        "omschrijving",
+        "besluitcategorie",
+        "catalogus",
+    )
 
 
 class InformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = InformatieObjectType
-    fields = InformatieObjectTypeAdmin.list_display
+    fields = (
+        "omschrijving",
+        "catalogus",
+    )
     fk_name = "catalogus"
 
 
@@ -41,7 +49,7 @@ class CatalogusAdmin(
     admin.ModelAdmin,
 ):
     model = Catalogus
-    change_list_template = "admin/catalogus_change_list.html"
+    change_list_template = "admin/catalogi/change_list_catalogus.html"
     change_form_template = "admin/catalogi/change_form_catalogus.html"
 
     # List

@@ -4,7 +4,7 @@
 
     {% if zaaktype %}
         &rsaquo;
-        <a href="{% url 'admin:catalogi_zaaktype_changelist' %}?catalogus={{ catalogus.pk }}">
+        <a href="{% url 'admin:catalogi_zaaktype_changelist' %}?catalogus__id__exact={{ catalogus.pk }}">
             Zaaktypen [<strong>{{ zaaktype }}</strong>]
         </a>
     {% endif %}

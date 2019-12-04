@@ -76,7 +76,7 @@ class ZaakTypeAdmin(
         "zaaktype_omschrijving",
         "identificatie",
         "versiedatum",
-        "catalogus",
+        "is_published",
     )
     list_filter = (
         "catalogus",
