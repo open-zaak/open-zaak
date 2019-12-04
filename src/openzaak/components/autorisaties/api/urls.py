@@ -13,7 +13,7 @@ router.register("applicaties", ApplicatieViewSet)
 
 # set the path to schema file
 class SchemaView(_SchemaView):
-    schema_path = settings.SPEC_URL["authorizations"]
+    schema_path = settings.SPEC_URL["autorisaties"]
 
 
 urlpatterns = [
@@ -25,14 +25,14 @@ urlpatterns = [
                 url(
                     r"^schema/openapi(?P<format>\.json|\.yaml)$",
                     SchemaView.without_ui(cache_timeout=settings.SPEC_CACHE_TIMEOUT),
-                    name="schema-json-authorizations",
+                    name="schema-json-autorisaties",
                 ),
                 url(
                     r"^schema/$",
                     SchemaView.with_ui(
                         "redoc", cache_timeout=settings.SPEC_CACHE_TIMEOUT
                     ),
-                    name="schema-redoc-authorizations",
+                    name="schema-redoc-autorisaties",
                 ),
                 # actual API
                 url(r"^", include(router.urls)),

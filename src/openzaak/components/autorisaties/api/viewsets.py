@@ -10,11 +10,10 @@ from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.permissions import AuthRequired
-
 from ._schema_overrides import ApplicatieConsumerAutoSchema
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
+from .permissions import AutorisatiesAuthRequired
 from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 
 logger = logging.getLogger(__name__)
@@ -99,7 +98,7 @@ class ApplicatieViewSet(
     _filterset_class = ApplicatieFilter
     pagination_class = PageNumberPagination
     lookup_field = "uuid"
-    permission_classes = (AuthRequired,)
+    permission_classes = (AutorisatiesAuthRequired,)
     required_scopes = {
         "list": SCOPE_AUTORISATIES_LEZEN,
         "retrieve": SCOPE_AUTORISATIES_LEZEN,

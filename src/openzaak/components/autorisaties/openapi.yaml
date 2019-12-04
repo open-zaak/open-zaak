@@ -1099,7 +1099,7 @@ paths:
         type: string
         format: uuid
 servers:
-- url: /authorizations/api/v1
+- url: /autorisaties/api/v1
 components:
   requestBodies:
     Applicatie:

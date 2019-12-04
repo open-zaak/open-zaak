@@ -5,11 +5,11 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
 EXPECTED_VERSIONS = (
-    ("authorizations", "0.1.0"),
-    ("besluiten", "0.1.0"),
-    ("catalogi", "0.1.0"),
-    ("documenten", "0.1.0"),
-    ("zaken", "0.1.0"),
+    ("autorisaties", "1.0.0"),
+    ("besluiten", "1.0.0"),
+    ("catalogi", "1.0.0"),
+    ("documenten", "1.0.0"),
+    ("zaken", "1.0.0"),
 )
 
 

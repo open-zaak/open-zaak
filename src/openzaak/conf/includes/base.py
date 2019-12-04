@@ -121,7 +121,7 @@ INSTALLED_APPS = [
     "openzaak",
     "openzaak.accounts",
     "openzaak.utils",
-    "openzaak.components.authorizations",
+    "openzaak.components.autorisaties",
     "openzaak.components.zaken",
     "openzaak.components.besluiten",
     "openzaak.components.documenten",
@@ -137,7 +137,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "openzaak.components.authorizations.middleware.AuthMiddleware",
+    "openzaak.components.autorisaties.middleware.AuthMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -356,8 +356,8 @@ SPEC_URL = {
     "catalogi": os.path.join(
         BASE_DIR, "src", "openzaak", "components", "catalogi", "openapi.yaml"
     ),
-    "authorizations": os.path.join(
-        BASE_DIR, "src", "openzaak", "components", "authorizations", "openapi.yaml"
+    "autorisaties": os.path.join(
+        BASE_DIR, "src", "openzaak", "components", "autorisaties", "openapi.yaml"
     ),
 }
 

@@ -11,7 +11,7 @@ from vng_api_common.middleware import (
 )
 
 COMPONENT_MAPPING = {
-    "authorizations": ComponentTypes.ac,
+    "autorisaties": ComponentTypes.ac,
     "zaken": ComponentTypes.zrc,
     "catalogi": ComponentTypes.ztc,
     "documenten": ComponentTypes.drc,
