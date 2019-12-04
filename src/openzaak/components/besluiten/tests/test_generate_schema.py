@@ -1,13 +1,12 @@
 from io import StringIO
 
 from django.core.management import call_command
-from django.test import override_settings
 
 from rest_framework.test import APITestCase
 
 
-class CreateNotifKanaalTestCase(APITestCase):
-    def test_kanaal_create_with_name(self):
+class GenerateSchemaTestCase(APITestCase):
+    def test_generate_schema_besluiten(self):
         stdout = StringIO()
         call_command(
             "generate_swagger_component",
