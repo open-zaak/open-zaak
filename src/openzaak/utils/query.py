@@ -44,23 +44,43 @@ class LooseFkAuthorizationsFilterMixin:
     vertrouwelijkheidaanduiding_use = True
     authorizations_lookup = None
 
+    @property
+    def prefix(self):
+        return (
+            "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
+        )
+
     def get_loose_fk_object(
         self, authorization, local=True
     ) -> Union[models.Model, str]:
+        loose_fk_url = getattr(authorization, self.loose_fk_field)
         if local:
-            zaaktype_path = urlparse(authorization.zaaktype).path
-            zaaktype = get_resource_for_path(zaaktype_path)
+            loose_fk_object_path = urlparse(loose_fk_url).path
+            loose_fk_object = get_resource_for_path(loose_fk_object_path)
         else:
-            zaaktype = authorization.zaaktype
-        return zaaktype
+            loose_fk_object = loose_fk_url
+        return loose_fk_object
 
-    def filter_by_auth_query(
-        self, scope, authorizations, local=True
-    ) -> models.QuerySet:
-        prefix = (
-            "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
+    def build_queryset(self, filters) -> models.QuerySet:
+        if self.vertrouwelijkheidaanduiding_use:
+            # annotate the queryset so we can map a string value to a logical number
+            order_case = VertrouwelijkheidsAanduiding.get_order_expression(
+                f"{self.prefix}vertrouwelijkheidaanduiding"
+            )
+            annotations = {"_va_order": order_case}
+            # bring it all together now to build the resulting queryset
+            queryset = self.annotate(**annotations).filter(**filters)
+
+        else:
+            del filters["_va_order__lte"]
+            queryset = self.filter(**filters)
+        return queryset
+
+    def get_filters(self, scope, authorizations, local=True) -> dict:
+        prefix = self.prefix
+        loose_fk_field = (
+            f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
         )
-        loose_fk_field = self.loose_fk_field if local else f"_{self.loose_fk_field}_url"
 
         # keep a list of allowed loose-fk objects
         loose_fk_objecten = []
@@ -91,24 +111,18 @@ class LooseFkAuthorizationsFilterMixin:
         # * only allow the white-listed loose-fk objects, explicitly
         # * apply the filtering to limit cases within case-types to the maximal
         #   confidentiality level
-        filters = {f"{prefix}{loose_fk_field}__in": loose_fk_objecten}
-
-        if self.vertrouwelijkheidaanduiding_use:
-            # annotate the queryset so we can map a string value to a logical number
-            order_case = VertrouwelijkheidsAanduiding.get_order_expression(
-                f"{prefix}vertrouwelijkheidaanduiding"
-            )
-            annotations = {f"{prefix}_va_order": order_case}
-            filters[f"{prefix}_va_order__lte"] = Case(
+        filters = {
+            f"{prefix}{loose_fk_field}__in": loose_fk_objecten,
+            "_va_order__lte": Case(
                 *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
-            )
-            # bring it all together now to build the resulting queryset
-            queryset = self.annotate(**annotations).filter(**filters)
+            ),
+        }
+        return filters
 
-        else:
-            queryset = self.filter(**filters)
-
-        return queryset
+    def ids_by_auth(self, scope, authorizations, local=True) -> models.QuerySet:
+        filters = self.get_filters(scope, authorizations, local)
+        queryset = self.build_queryset(filters)
+        return queryset.values_list("pk", flat=True)
 
     def filter_for_authorizations(
         self, scope: Scope, authorizations: models.QuerySet
@@ -122,18 +136,13 @@ class LooseFkAuthorizationsFilterMixin:
         for auth in authorizations:
             loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).netloc
             allowed_hosts = settings.ALLOWED_HOSTS
-
             if validate_host(loose_fk_host, allowed_hosts):
                 authorizations_local.append(auth)
             else:
                 authorizarions_external.append(auth)
 
-        queryset_local = self.filter_by_auth_query(
-            scope, authorizations_local, local=True
-        ).values_list("pk", flat=True)
-        queryset_external = self.filter_by_auth_query(
-            scope, authorizarions_external, local=False
-        ).values_list("pk", flat=True)
-        queryset = self.filter(pk__in=queryset_local.union(queryset_external))
+        ids_local = self.ids_by_auth(scope, authorizations_local, local=True)
+        ids_external = self.ids_by_auth(scope, authorizarions_external, local=False)
+        queryset = self.filter(pk__in=ids_local.union(ids_external))
 
         return queryset

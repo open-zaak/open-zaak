@@ -1,4 +1,5 @@
 from django.db import models
+
 from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
 
 
@@ -27,8 +28,9 @@ class ZaakAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
     :return: a queryset of filtered results according to the
       authorizations provided
     """
+
     vertrouwelijkheidaanduiding_use = True
-    loose_fk_field = 'zaaktype'
+    loose_fk_field = "zaaktype"
 
 
 class ZaakQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):
