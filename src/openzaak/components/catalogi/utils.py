@@ -20,7 +20,7 @@ def get_overlapping_zaaktypes(
         | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
     )
     if einde_geldigheid is not None:
-        query = query.filter(datum_begin_geldigheid__lte=einde_geldigheid)
+        query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
 
     if instance:
         query = query.exclude(pk=instance.pk)
