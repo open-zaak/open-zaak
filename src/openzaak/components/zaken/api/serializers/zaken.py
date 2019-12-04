@@ -49,6 +49,7 @@ from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
+    ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
 )
 
@@ -76,7 +77,6 @@ from ..validators import (
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
     ZaakEigenschapZaakTypeValidator,
-    ZaaktypeInformatieobjecttypeRelationValidator,
 )
 from .betrokkenen import (
     RolMedewerkerSerializer,
@@ -545,7 +545,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 queryset=ZaakInformatieObject.objects.all(),
                 fields=["zaak", "informatieobject"],
             ),
-            ZaaktypeInformatieobjecttypeRelationValidator(),
+            ObjecttypeInformatieobjecttypeRelationValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

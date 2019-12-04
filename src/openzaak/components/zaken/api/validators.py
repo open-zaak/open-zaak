@@ -130,25 +130,6 @@ class CorrectZaaktypeValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
-class ZaaktypeInformatieobjecttypeRelationValidator:
-    code = "missing-zaaktype-informatieobjecttype-relation"
-    message = _("Het informatieobjecttype hoort niet bij het zaaktype van de zaak.")
-
-    def __call__(self, attrs):
-        informatieobject = attrs.get("informatieobject")
-        zaak = attrs.get("zaak")
-        if not informatieobject or not zaak:
-            return
-
-        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type = informatieobject.latest_version.informatieobjecttype
-        else:
-            io_type = informatieobject.informatieobjecttype
-
-        if not zaak.zaaktype.informatieobjecttypen.filter(uuid=io_type.uuid).exists():
-            raise serializers.ValidationError(self.message, code=self.code)
-
-
 class DateNotInFutureValidator:
     code = "date-in-future"
     message = _("Deze datum mag niet in de toekomst zijn")
