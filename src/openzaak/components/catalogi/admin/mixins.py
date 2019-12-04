@@ -60,6 +60,18 @@ class PublishAdminMixin:
         else:
             return super().response_post_save_change(request, obj)
 
+    def is_published(self, obj):
+        """
+        Helper to show publish status in admin list views.
+
+        :param obj: The model instance.
+        :return: `True` if the instance was published.
+        """
+        return not obj.concept
+
+    is_published.short_description = _("gepubliceerd")
+    is_published.boolean = True
+
 
 class NewVersionMixin(object):
     exclude_copy_relation = []

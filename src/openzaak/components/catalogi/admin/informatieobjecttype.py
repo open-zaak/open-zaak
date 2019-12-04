@@ -21,7 +21,7 @@ class InformatieObjectTypeAdmin(
     PublishAdminMixin,
     admin.ModelAdmin,
 ):
-    list_display = ("omschrijving", "catalogus")
+    list_display = ("omschrijving", "catalogus", "is_published")
     list_filter = ("catalogus",)
     search_fields = ("uuid", "omschrijving", "trefwoord", "toelichting")
     ordering = ("catalogus", "omschrijving")
