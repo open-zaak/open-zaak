@@ -346,9 +346,26 @@ class RelevanteZaakRelatie(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, related_name="relevante_andere_zaken"
     )
-    url = models.ForeignKey(
-        Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
+
+    _relevant_zaak_url = models.URLField(
+        _("extern relevant zaak"),
+        blank=True,
+        max_length=1000,
+        help_text=_("URL-referentie naar extern ZAAK (in een andere zaken API)"),
     )
+    _relevant_zaak = models.ForeignKey(
+        Zaak,
+        on_delete=models.CASCADE,
+        help_text=_("URL-referentie naar de ZAAK."),
+        null=True,
+        blank=True,
+    )
+    url = FkOrURLField(
+        fk_field="_relevant_zaak",
+        url_field="_relevant_zaak_url",
+        help_text=_("URL-referentie naar de ZAAK."),
+    )
+
     aard_relatie = models.CharField(
         max_length=20,
         choices=AardZaakRelatie.choices,

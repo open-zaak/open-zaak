@@ -3,7 +3,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -38,7 +38,7 @@ from .factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url, get_zaak_response, isodatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
@@ -824,6 +824,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, None)
 
+    @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_causes_archiefactiedatum_to_be_set(
         self,
     ):
@@ -846,9 +847,15 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": f"http://testserver.com{zaak_url}",
+            "resultaattype": f"http://testserver.com{resultaattype_url}",
+            "toelichting": "",
+        }
 
-        response = self.client.post(resultaat_create_url, data)
+        response = self.client.post(
+            resultaat_create_url, data, HTTP_HOST="testserver.com"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -857,12 +864,12 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         statustype_url = reverse(statustype)
         data = {
-            "zaak": zaak_url,
-            "statustype": statustype_url,
+            "zaak": f"http://testserver.com{zaak_url}",
+            "statustype": f"http://testserver.com{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
-        response = self.client.post(status_create_url, data)
+        response = self.client.post(status_create_url, data, HTTP_HOST="testserver.com")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -917,7 +924,6 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@requests_mock.Mocker()
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     """
     Test archiving with remote documents involved.
@@ -925,6 +931,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    @requests_mock.Mocker()
     def test_cannot_set_archiefstatus_when_not_all_documents_are_gearchiveerd(self, m):
         REMOTE_DOCUMENT = "https://external.nl/documenten/123"
 
@@ -946,3 +953,64 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
+
+    @override_settings(ALLOWED_HOSTS=["testserver.com"])
+    def test_add_resultaat_on_zaak_with_external_gerelateerde_zaak_(self):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaaktype_url = f"http://testserver.com{reverse(zaak.zaaktype)}"
+
+        zaak2 = "https://external.nl/zaken/123"
+        zaak2_data = get_zaak_response(zaak2, zaaktype_url)
+        zaak2_data["einddatum"] = "2022-01-01"
+        zaak3 = "https://external.nl/zaken/456"
+        zaak3_data = get_zaak_response(zaak3, zaaktype_url)
+        zaak3_data["einddatum"] = "2025-01-01"
+        RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak2)
+        RelevanteZaakRelatieFactory.create(zaak=zaak, url=zaak3)
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P5Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak,
+            brondatum_archiefprocedure_procestermijn=None,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {
+            "zaak": f"http://testserver.com{zaak_url}",
+            "resultaattype": f"http://testserver.com{resultaattype_url}",
+            "toelichting": "",
+        }
+
+        response = self.client.post(
+            resultaat_create_url, data, HTTP_HOST="testserver.com"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": f"http://testserver.com{zaak_url}",
+            "statustype": f"http://testserver.com{statustype_url}",
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.register_uri("GET", zaak2, json=zaak2_data)
+            m.register_uri("GET", zaak3, json=zaak3_data)
+            response = self.client.post(
+                status_create_url, data, HTTP_HOST="testserver.com"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        #
+        # zaak.refresh_from_db()
+        # self.assertEqual(zaak.archiefactiedatum, date(2030, 1, 1))

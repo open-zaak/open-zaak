@@ -75,3 +75,31 @@ def get_catalogus_response(catalogus: str, zaaktype: str) -> dict:
         "zaaktypen": [zaaktype],
         "besluittypen": [],
     }
+
+
+def get_zaak_response(zaak: str, zaaktype: str) -> dict:
+    return {
+        "url": zaak,
+        "uuid": "d781cd1b-f100-4051-9543-153b93299da4",
+        "identificatie": "ZAAK-2019-0000000001",
+        "bronorganisatie": "517439943",
+        "omschrijving": "some zaak",
+        "toelichting": "",
+        "zaaktype": zaaktype,
+        "registratiedatum": "2019-11-15",
+        "verantwoordelijkeOrganisatie": "517439943",
+        "startdatum": "2019-11-15",
+        "communicatiekanaal": "",
+        "productenOfDiensten": [],
+        "vertrouwelijkheidaanduiding": "openbaar",
+        "betalingsindicatie": "",
+        "betalingsindicatieWeergave": "",
+        "verlenging": {},
+        "opschorting": {},
+        "selectielijstklasse": "",
+        "deelzaken": [],
+        "relevanteAndereZaken": [],
+        "eigenschappen": [],
+        "kenmerken": [],
+        "archiefstatus": "nog_te_archiveren",
+    }

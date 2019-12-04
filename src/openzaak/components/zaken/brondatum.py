@@ -182,17 +182,33 @@ def get_brondatum(
             )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak:
-        relevante_zaken = Zaak.objects.filter(
-            pk__in=zaak.relevante_andere_zaken.values_list("url", flat=True)
-        )
-        if not relevante_zaken.exists():
+        relevante_zaken = zaak.relevante_andere_zaken
+        if relevante_zaken.count() == 0:
             # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
             raise DetermineProcessEndDateException(
                 _(
                     "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
                 )
             )
-        return relevante_zaken.aggregate(Max("einddatum"))["einddatum__max"]
+
+        # internal
+        relevante_zaken_internal = Zaak.objects.filter(
+            pk__in=relevante_zaken.filter(_relevant_zaak__isnull=False).values_list(
+                "_relevant_zaak", flat=True
+            )
+        )
+        einddatum_max_internal = relevante_zaken_internal.aggregate(Max("einddatum"))[
+            "einddatum__max"
+        ]
+
+        # external
+        einddatum_max_external = None
+        for relevante_zaak in relevante_zaken.filter(_relevant_zaak__isnull=True):
+            einddatum_str = relevante_zaak.url.einddatum
+            einddatum = datetime.strptime(einddatum_str, "%Y-%m-%d").date()
+            einddatum_max_external = max_with_none(einddatum, einddatum_max_external)
+
+        return max_with_none(einddatum_max_internal, einddatum_max_external)
 
     elif (
         afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit
@@ -231,3 +247,7 @@ def get_brondatum(
         return max_vervaldatum
 
     raise ValueError(f'Onbekende "Afleidingswijze": {afleidingswijze}')
+
+
+def max_with_none(*args):
+    return max(filter(lambda x: x is not None, args)) if any(args) else None
