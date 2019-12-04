@@ -35,13 +35,6 @@ class ZaakTypeForm(forms.ModelForm):
         self.fields["verlenging_mogelijk"].widget.required = True
         self.fields["publicatie_indicatie"].widget.required = True
 
-        self.fields[
-            "trefwoorden"
-        ].help_text += " Gebruik een komma om waarden van elkaar te onderscheiden."
-        self.fields[
-            "verantwoordingsrelatie"
-        ].help_text += " Gebruik een komma om waarden van elkaar te onderscheiden."
-
     def clean(self):
         super().clean()
 
