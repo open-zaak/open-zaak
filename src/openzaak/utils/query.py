@@ -1,9 +1,10 @@
+from typing import Union
 from urllib.parse import urlparse
 
-from typing import Union
+from django.conf import settings
 from django.db import models
 from django.db.models import Case, IntegerField, Value, When
-from django.conf import settings
+from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
@@ -43,7 +44,9 @@ class LooseFkAuthorizationsFilterMixin:
     vertrouwelijkheidaanduiding_use = True
     authorizations_lookup = None
 
-    def get_loose_fk_object(self, authorization, local=True) -> Union[models.Model, str]:
+    def get_loose_fk_object(
+        self, authorization, local=True
+    ) -> Union[models.Model, str]:
         if local:
             zaaktype_path = urlparse(authorization.zaaktype).path
             zaaktype = get_resource_for_path(zaaktype_path)
@@ -51,7 +54,9 @@ class LooseFkAuthorizationsFilterMixin:
             zaaktype = authorization.zaaktype
         return zaaktype
 
-    def filter_by_auth_query(self, scope, authorizations, local=True) -> models.QuerySet:
+    def filter_by_auth_query(
+        self, scope, authorizations, local=True
+    ) -> models.QuerySet:
         prefix = (
             "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
         )
@@ -76,7 +81,10 @@ class LooseFkAuthorizationsFilterMixin:
                 authorization.max_vertrouwelijkheidaanduiding
             )
             vertrouwelijkheidaanduiding_whens.append(
-                When(**{f"{prefix}{loose_fk_field}": loose_fk_object}, then=Value(choice_item.order))
+                When(
+                    **{f"{prefix}{loose_fk_field}": loose_fk_object},
+                    then=Value(choice_item.order),
+                )
             )
 
         # filtering:
@@ -91,7 +99,9 @@ class LooseFkAuthorizationsFilterMixin:
                 f"{prefix}vertrouwelijkheidaanduiding"
             )
             annotations = {f"{prefix}_va_order": order_case}
-            filters[f"{prefix}_va_order__lte"] = Case(*vertrouwelijkheidaanduiding_whens, output_field=IntegerField())
+            filters[f"{prefix}_va_order__lte"] = Case(
+                *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
+            )
             # bring it all together now to build the resulting queryset
             queryset = self.annotate(**annotations).filter(**filters)
 
@@ -104,19 +114,26 @@ class LooseFkAuthorizationsFilterMixin:
         self, scope: Scope, authorizations: models.QuerySet
     ) -> models.QuerySet:
 
-        #todo implement error if no loose-fk field
+        # todo implement error if no loose-fk field
 
         authorizations_local = []
         authorizarions_external = []
 
         for auth in authorizations:
-            loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname
-            if loose_fk_host in settings.ALLOWED_HOSTS:
+            loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).netloc
+            allowed_hosts = settings.ALLOWED_HOSTS
+
+            if validate_host(loose_fk_host, allowed_hosts):
                 authorizations_local.append(auth)
             else:
                 authorizarions_external.append(auth)
 
-        queryset_local = self.filter_by_auth_query(scope, authorizations_local, local=True)
-        queryset_external = self.filter_by_auth_query(scope, authorizarions_external, local=False)
+        queryset_local = self.filter_by_auth_query(
+            scope, authorizations_local, local=True
+        ).values_list("pk", flat=True)
+        queryset_external = self.filter_by_auth_query(
+            scope, authorizarions_external, local=False
+        ).values_list("pk", flat=True)
+        queryset = self.filter(pk__in=queryset_local.union(queryset_external))
 
-        return queryset_local.union(queryset_external)
+        return queryset
