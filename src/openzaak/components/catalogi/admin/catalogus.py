@@ -41,7 +41,7 @@ class CatalogusAdmin(
     admin.ModelAdmin,
 ):
     model = Catalogus
-    change_list_template = "admin/catalogus_change_list.html"
+    change_list_template = "admin/catalogi/change_list_catalogus.html"
     change_form_template = "admin/catalogi/change_form_catalogus.html"
 
     # List

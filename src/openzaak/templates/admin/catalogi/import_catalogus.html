@@ -1,13 +1,30 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-{% block title %} {% trans "Import Catalogus" %} {{ block.super }} {% endblock %}
+{% block title %} {% trans "Importeer catalogus" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:catalogi_catalogus_changelist' %}">{% trans 'Catalogi' %}</a>
+&rsaquo; {% trans 'Importeer catalogus' %}
+</div>
+{% endblock %}
 
 {% block content %}
-    <form action="" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form }}
+    <h1>{% trans 'Importeer catalogus' %}</h1>
+    <div id="content-main">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div>
+                <fieldset class="module aligned ">
+                    {% csrf_token %}
+                    {{ form }}
+                </fieldset>
 
-        <input type="submit" value="{% trans 'Import' %}" name="_import"/>
-    </form>
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Importeren' %}" name="_import">
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}

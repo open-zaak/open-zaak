@@ -395,4 +395,8 @@ class ResultaatTypeForm(forms.ModelForm):
 
 
 class CatalogusImportForm(forms.Form):
-    file = forms.FileField()
+    file = forms.FileField(
+        label=_("bestand"),
+        required=True,
+        help_text=_("Het ZIP-bestand met de catalogus."),
+    )
