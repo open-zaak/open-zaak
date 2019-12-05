@@ -105,6 +105,12 @@ COMPONENT_TO_PREFIXES_MAP = {
     ComponentTypes.ac: ("notificaties", "autorisaties"),
 }
 
+COMPONENT_TO_FIELDS_MAP = {
+    ComponentTypes.zrc: ("zaaktypen", "vertrouwelijkheidaanduiding"),
+    ComponentTypes.drc: ("informatieobjecttypen", "vertrouwelijkheidaanduiding"),
+    ComponentTypes.brc: ("zaaktypen",),
+}
+
 
 class RelatedTypeSelectionMethods(DjangoChoices):
     all_current = ChoiceItem("all_current", _("Alle huidige {verbose_name_plural}"))
@@ -189,3 +195,4 @@ class AutorisatieForm(forms.Form):
 # TODO: validate overlap zaaktypen between different auths
 # TODO: support external zaaktypen
 # TODO: validate dependent fields
+AutorisatieFormSet = forms.formset_factory(AutorisatieForm, extra=3)

@@ -34,9 +34,15 @@
 
             <p>Suh</p>
 
-            <fieldset>
-                {{ form.as_p }}
-            </fieldset>
+            <div>
+                {{ formset.management_form }}
+            </div>
+
+            {% for form in formset %}
+                <fieldset>
+                    {{ form.as_p }}
+                </fieldset>
+            {% endfor %}
 
         </div>
 
