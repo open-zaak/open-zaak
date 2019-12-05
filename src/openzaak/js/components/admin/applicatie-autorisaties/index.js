@@ -1,10 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import { AutorisatieFormSet } from './autorisatie-formset';
 
 const Component = props => {
     return (
-        <div> Admin React! </div>
+        <div>
+            <AutorisatieFormSet extra={3} />
+        </div>
     )
 }
 
