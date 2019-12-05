@@ -13,6 +13,7 @@ from ..models import (
     Rol,
     Status,
     Zaak,
+    ZaakBesluit,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
@@ -148,3 +149,10 @@ class RolAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
+
+
+@admin.register(ZaakBesluit)
+class ZaakBesluitAdmin(admin.ModelAdmin):
+    list_display = ["zaak", "_besluit", "_besluit_url"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]

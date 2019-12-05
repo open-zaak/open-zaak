@@ -31,7 +31,12 @@ from openzaak.utils.fields import DurationField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
-from ..query import ZaakInformatieObjectQuerySet, ZaakQuerySet, ZaakRelatedQuerySet
+from ..query import (
+    ZaakBesluitQuerySet,
+    ZaakInformatieObjectQuerySet,
+    ZaakQuerySet,
+    ZaakRelatedQuerySet,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +51,7 @@ __all__ = [
     "ZaakKenmerk",
     "ZaakInformatieObject",
     "KlantContact",
+    "ZaakBesluit",
 ]
 
 
@@ -843,3 +849,57 @@ class KlantContact(models.Model):
 
     def unique_representation(self):
         return f"{self.identificatie}"
+
+
+class ZaakBesluit(models.Model):
+    uuid = models.UUIDField(
+        unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
+    zaak = models.ForeignKey(
+        Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
+    )
+
+    _besluit_url = models.URLField(
+        _("extern besluit"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern BESLUIT (in een andere Besluiten API)."
+        ),
+    )
+    _besluit = models.ForeignKey(
+        "besluiten.Besluit",
+        on_delete=models.CASCADE,
+        help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
+        null=True,
+        blank=True,
+    )
+    besluit = FkOrURLField(
+        fk_field="_besluit",
+        url_field="_besluit_url",
+        help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
+    )
+
+    objects = ZaakBesluitQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _("zaakbesluit")
+        verbose_name_plural = _("zaakbesluiten")
+        unique_together = ("zaak", "_besluit")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["zaak", "_besluit_url"],
+                condition=~models.Q(_besluit_url=""),
+                name="unique_zaak_and_besluit_document",
+            )
+        ]
+
+    def __str__(self):
+        return _("Relation between {zaak} and {besluit}").format(
+            zaak=self.zaak, besluit=self.besluit
+        )
+
+    def unique_representation(self):
+        zaak_repr = self.zaak.unique_representation()
+
+        return f"({zaak_repr}) - {self.besluit.identificatie}"
