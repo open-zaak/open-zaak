@@ -5,12 +5,22 @@ import { CheckboxInput } from "./inputs";
 import { Choice } from "./types";
 
 
+const getSelected = (selected, value, shouldInclude) => {
+    if (!selected.includes(value) && shouldInclude) {
+        selected.push(value);
+    } else if (selected.includes(value) && !shouldInclude) {
+        selected = selected.filter(x => x != value);
+    }
+    return selected;
+};
+
+
 const CheckboxSelect = (props) => {
-    const { choices, prefix, name } = props;
+    const { choices, prefix, name, helpText } = props;
 
-    const [currentValue, setCurrentValue] = useState([]);
+    const [{selected}, setSelected] = useState({selected: []});
 
-    const Checkboxs = choices.map( ([value, label], index) => {
+    const checkboxes = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
         return (
             <li key={index}>
@@ -19,17 +29,24 @@ const CheckboxSelect = (props) => {
                     value={value}
                     label={label}
                     i={index}
-                    checked={value == currentValue}
-                    onChange={setCurrentValue}
+                    checked={selected.includes(value)}
+                    onChange={(event, value) => {
+                        const shouldInclude = event.target.checked;
+                        const newValue = getSelected(selected, value, shouldInclude);
+                        setSelected({selected: newValue});
+                    }}
                 />
             </li>
         );
     });
 
     return (
-        <ul>
-            { Checkboxs }
-        </ul>
+        <React.Fragment>
+            <ul>
+                { checkboxes }
+            </ul>
+            { helpText ? <p class="help-text"> {helpText} </p> : null }
+        </React.Fragment>
     )
 }
 

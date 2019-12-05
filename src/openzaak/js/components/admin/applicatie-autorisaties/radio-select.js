@@ -20,7 +20,7 @@ const RadioSelect = (props) => {
                     label={label}
                     i={index}
                     checked={value == currentValue}
-                    onChange={setCurrentValue}
+                    onChange={ (event, value) => setCurrentValue(value) }
                 />
             </li>
         );

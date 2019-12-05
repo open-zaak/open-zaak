@@ -13,7 +13,7 @@ const Input = (props) => {
                 value={value}
                 id={id}
                 checked={checked}
-                onChange={ () => onChange(value) }
+                onChange={ (event) => onChange(event, value) }
             />
             &nbsp;{label}
         </label>
