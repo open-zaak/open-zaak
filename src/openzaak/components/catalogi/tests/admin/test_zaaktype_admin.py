@@ -201,3 +201,42 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
             "datum_einde_geldigheid is required if the new version is being created",
             error_message.text,
         )
+
+    def test_submit_zaaktype_validate_doorlooptijd_servicenorm(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["servicenorm_behandeling_days"] = 15
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["producten_of_diensten"] = "https://example.com/foobarbaz"
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+
+        response = form.submit()
+
+        # redirect on succesfull create, 200 on validation errors, 500 on db errors
+        self.assertEqual(response.status_code, 200)
+
+        form = response.context["adminform"].form
+        self.assertEqual(
+            form.errors["__all__"],
+            [
+                "'Servicenorm behandeling' periode mag niet langer zijn dan "
+                "de periode van 'Doorlooptijd behandeling'."
+            ],
+        )
