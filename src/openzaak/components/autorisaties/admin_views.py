@@ -4,6 +4,8 @@ from django.views.generic import DetailView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 
+from .forms import AutorisatieForm
+
 
 class AutorisatiesView(DetailView):
     model = Applicatie
@@ -33,6 +35,7 @@ class AutorisatiesView(DetailView):
                 "original": self.get_object(),
                 "title": _("beheer autorisaties"),
                 "is_popup": False,
+                "form": AutorisatieForm(),
             }
         )
         return context
