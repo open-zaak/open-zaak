@@ -6,7 +6,7 @@ import { AutorisatieFormSet } from './autorisatie-formset';
 const Component = props => {
     return (
         <div>
-            <AutorisatieFormSet extra={3} />
+
         </div>
     )
 }
@@ -15,7 +15,17 @@ const Component = props => {
 const mount = () => {
     const node = document.getElementById('react-autorisaties');
     if (!node) return;
-    ReactDOM.render(<Component />, node);
+
+    const scopeChoicesNode = document.getElementById('scope-choices');
+    const scopeChoices = JSON.parse(scopeChoicesNode.text);
+
+    ReactDOM.render(
+        <AutorisatieFormSet
+            extra={3}
+            scopeChoices={scopeChoices}
+        />,
+        node
+    );
 }
 
 

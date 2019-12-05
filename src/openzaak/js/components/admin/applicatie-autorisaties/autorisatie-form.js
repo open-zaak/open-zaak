@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { COMPONENT_CHOICES } from './constants';
+import { CheckboxSelect } from './checkbox-select';
 import { RadioSelect } from './radio-select';
+import { Choice } from "./types";
 
 
 const AutorisatieForm = (props) => {
-    const { index } = props;
+    const { index, scopeChoices } = props;
+
+
 
     return (
         <div className="autorisatie-form">
@@ -17,7 +21,9 @@ const AutorisatieForm = (props) => {
             </div>
 
             <div className="autorisatie-form__scopes">
-                TODO: scopes
+                <CheckboxSelect
+                    choices={scopeChoices}
+                    prefix={`form-${index}`} name="scopes" />
             </div>
         </div>
     );
@@ -25,6 +31,7 @@ const AutorisatieForm = (props) => {
 
 AutorisatieForm.propTypes = {
     index: PropTypes.number.isRequired,
+    scopeChoices: PropTypes.arrayOf(Choice),
 };
 
 export { AutorisatieForm };

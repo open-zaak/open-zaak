@@ -19,11 +19,15 @@
 {% block content %}
 <div id="content-main">
 
+    {{ scope_choices|json_script:"scope-choices" }}
+
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
 
 
-        <div id="react-autorisaties" style="margin-bottom: 300px;"></div>
+        <div id="react-autorisaties" style="margin-bottom: 300px;">
+            {# empty on purpose - react managed #}
+        </div>
 
 
 

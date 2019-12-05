@@ -4,7 +4,7 @@ from django.views.generic import DetailView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 
-from .forms import AutorisatieFormSet
+from .forms import AutorisatieFormSet, get_scope_choices
 
 
 class AutorisatiesView(DetailView):
@@ -36,6 +36,7 @@ class AutorisatiesView(DetailView):
                 "title": _("beheer autorisaties"),
                 "is_popup": False,
                 "formset": AutorisatieFormSet(),
+                "scope_choices": get_scope_choices(),
             }
         )
         return context

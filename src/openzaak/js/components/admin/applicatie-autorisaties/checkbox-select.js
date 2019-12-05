@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { RadioInput } from "./inputs";
+import { CheckboxInput } from "./inputs";
 import { Choice } from "./types";
 
 
-const RadioSelect = (props) => {
+const CheckboxSelect = (props) => {
     const { choices, prefix, name } = props;
 
-    const [currentValue, setCurrentValue] = useState(null);
+    const [currentValue, setCurrentValue] = useState([]);
 
-    const radios = choices.map( ([value, label], index) => {
+    const Checkboxs = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
         return (
             <li key={index}>
-                <RadioInput
+                <CheckboxInput
                     name={_name}
                     value={value}
                     label={label}
@@ -28,16 +28,16 @@ const RadioSelect = (props) => {
 
     return (
         <ul>
-            { radios }
+            { Checkboxs }
         </ul>
     )
 }
 
-RadioSelect.propTypes = {
+CheckboxSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
     prefix: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     helpText: PropTypes.string,
 };
 
-export { RadioSelect };
+export { CheckboxSelect };
