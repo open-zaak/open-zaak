@@ -134,7 +134,7 @@ class LooseFkAuthorizationsFilterMixin:
         authorizarions_external = []
 
         for auth in authorizations:
-            loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).netloc
+            loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname
             allowed_hosts = settings.ALLOWED_HOSTS
             if validate_host(loose_fk_host, allowed_hosts):
                 authorizations_local.append(auth)
