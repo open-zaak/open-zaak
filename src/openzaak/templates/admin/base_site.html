@@ -40,4 +40,6 @@
 
 {% block footer %}
     {{ block.super }}
+    {# Load the custom JS #}
+    <script src="{% static 'js/admin.js' %}">
 {% endblock %}
