@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 
 import { COMPONENT_CHOICES } from './constants';
@@ -6,11 +6,14 @@ import { CheckboxSelect } from './checkbox-select';
 import { RadioSelect } from './radio-select';
 import { Choice } from "./types";
 
+import { ScopeChoicesContext, ComponentPrefixContext } from './context';
+
 
 const AutorisatieForm = (props) => {
-    const { index, scopeChoices } = props;
+    const { index } = props;
 
-
+    const scopeChoices = useContext(ScopeChoicesContext);
+    const componentPrefixes = useContext(ComponentPrefixContext);
 
     return (
         <div className="autorisatie-form">

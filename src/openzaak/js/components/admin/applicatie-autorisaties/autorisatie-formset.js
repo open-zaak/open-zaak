@@ -2,15 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { AutorisatieForm } from './autorisatie-form';
-import { Choice } from "./types";
 
 
 const AutorisatieFormSet = (props) => {
-    const { extra, scopeChoices } = props;
+    const { extra } = props;
 
     // build the forms in the formset based on the extra parameter
     const forms = Array(extra).fill().map(
-        (_, index) => <AutorisatieForm key={index} index={index} scopeChoices={scopeChoices} />
+        (_, index) => <AutorisatieForm key={index} index={index} />
     );
 
     // render the entire component
@@ -21,7 +20,6 @@ const AutorisatieFormSet = (props) => {
 
 AutorisatieFormSet.propTypes = {
     extra: PropTypes.number.isRequired,
-    scopeChoices: PropTypes.arrayOf(Choice),
 };
 
 export { AutorisatieFormSet };

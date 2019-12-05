@@ -3,13 +3,7 @@ import ReactDOM from "react-dom";
 
 import { AutorisatieFormSet } from './autorisatie-formset';
 
-const Component = props => {
-    return (
-        <div>
-
-        </div>
-    )
-}
+import { ScopeChoicesContext, ComponentPrefixContext } from './context';
 
 
 const mount = () => {
@@ -19,11 +13,19 @@ const mount = () => {
     const scopeChoicesNode = document.getElementById('scope-choices');
     const scopeChoices = JSON.parse(scopeChoicesNode.text);
 
+    const componentPrefixesNode = document.getElementById('component-scope-prefixes');
+    const componentPrefixes = JSON.parse(componentPrefixesNode.text);
+
     ReactDOM.render(
-        <AutorisatieFormSet
-            extra={3}
-            scopeChoices={scopeChoices}
-        />,
+        <ScopeChoicesContext.Provider value={scopeChoices}>
+
+            <ComponentPrefixContext.Provider value={componentPrefixes}>
+
+                <AutorisatieFormSet extra={3} />
+
+            </ComponentPrefixContext.Provider>
+
+        </ScopeChoicesContext.Provider>,
         node
     );
 }

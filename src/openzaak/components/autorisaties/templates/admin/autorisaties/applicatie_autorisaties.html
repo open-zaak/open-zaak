@@ -20,6 +20,7 @@
 <div id="content-main">
 
     {{ scope_choices|json_script:"scope-choices" }}
+    {{ COMPONENTS_TO_PREFIXES_MAP|json_script:"component-scope-prefixes" }}
 
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
