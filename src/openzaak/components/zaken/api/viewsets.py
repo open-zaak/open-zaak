@@ -4,6 +4,7 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -771,9 +772,7 @@ class ZaakBesluitViewSet(
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
-    # Because of the database-FK nature, ZaakBesluit is pretty much an alias
-    # for Besluit. We are handling Besluit-objects here and filtering them on
-    # the relevant Zaak.
+
     """
     Opvragen en beheren van zaak-besluiten.
 
@@ -807,7 +806,7 @@ class ZaakBesluitViewSet(
     daarom is dit endpoint in de Zaken API geimplementeerd.
     """
 
-    queryset = ZaakBesluit.objects.none()  # required for vng-api-common
+    queryset = ZaakBesluit.objects.all()
     serializer_class = ZaakBesluitSerializer
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
@@ -826,26 +825,36 @@ class ZaakBesluitViewSet(
             self._zaak = get_object_or_404(Zaak, uuid=self.kwargs["zaak_uuid"])
         return self._zaak
 
-    def get_queryset(self) -> models.QuerySet:
-        zaak_uuid = self.kwargs.get("zaak_uuid")  # empty on drf-yasg introspection
-        # filter directly on the FK - since `ZaakBesluit` is only relevant
-        # for local fk zaken
-        return ZaakBesluit.objects.filter(_zaak__uuid=zaak_uuid)
-
     def perform_create(self, serializer):
         """
         Handle the creation logic.
-
-        Nothing extra happens here, since the creation is entirely managed via
-        the Besluit resource. We just perform some extra sanity checks in the
-        serializer.
         """
         besluit = serializer.validated_data["besluit"]
-        self._instance = ZaakBesluit.objects.get(pk=besluit.pk)
-        serializer.instance = self._instance
 
-    def get_audittrail_instance(self, response):
-        return self._instance
+        # external besluit
+        if isinstance(besluit, ProxyMixin):
+            super().perform_create(serializer)
+            return
+
+        # for local besluit nothing extra happens here, since the creation is entirely managed via
+        # the Besluit resource. We just perform some extra sanity checks in the
+        # serializer.
+        try:
+            serializer.instance = self.get_queryset().get(
+                **{
+                    "besluit": serializer.validated_data["besluit"],
+                    "zaak": self._get_zaak(),
+                }
+            )
+        except ZaakBesluit.DoesNotExist:
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "The relation between zaak and besluit doesn't exist"
+                    )
+                },
+                code="inconsistent-relation",
+            )
 
     def get_audittrail_main_object_url(self, data, main_resource) -> str:
         return reverse(
@@ -854,23 +863,26 @@ class ZaakBesluitViewSet(
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )
 
-    def perform_destroy(self, instance: Besluit):
+    def perform_destroy(self, instance):
         """
         'Delete' the relation between zaak & besluit.
-
-        The actual relation information must be updated in the Besluiten API,
-        so this is just a check.
         """
-        if instance.zaak:
+        # external besluit
+        if isinstance(instance.besluit, ProxyMixin):
+            super().perform_destroy(instance)
+            return
+
+        # for local besluit the actual relation information must be updated in the Besluiten API,
+        # so this is just a check.
+        if Besluit.objects.filter(
+            id=instance.zaak.id, besluit=instance.besluit
+        ).exists():
             raise ValidationError(
                 {
-                    "zaak": _(
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
                         "Het Besluit verwijst nog naar deze zaak. "
                         "Deze relatie moet eerst verbroken worden."
                     )
                 },
                 code="inconsistent-relation",
             )
-
-        # nothing to do, the 'relation' info is dealt with through besluit.Besluit
-        pass
