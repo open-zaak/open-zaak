@@ -6,7 +6,7 @@ import { Choice } from "./types";
 
 
 const RadioSelect = (props) => {
-    const { choices, prefix, name } = props;
+    const { choices, prefix, name, onChange } = props;
 
     const [currentValue, setCurrentValue] = useState(null);
 
@@ -20,7 +20,12 @@ const RadioSelect = (props) => {
                     label={label}
                     i={index}
                     checked={value == currentValue}
-                    onChange={ (event, value) => setCurrentValue(value) }
+                    onChange={ (event, value) => {
+                        setCurrentValue(value);
+                        if (onChange) {
+                            onChange(value);
+                        }
+                    }}
                 />
             </li>
         );
@@ -38,6 +43,7 @@ RadioSelect.propTypes = {
     prefix: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     helpText: PropTypes.string,
+    onChange: PropTypes.func,
 };
 
 export { RadioSelect };
