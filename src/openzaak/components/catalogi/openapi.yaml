@@ -8295,7 +8295,7 @@ components:
             * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
             \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
             \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
-            * `hoofdzaak` - (Hoofzaak) De termijn start op de datum waarop de gerelateerde\
+            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
             \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
             \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
             \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\

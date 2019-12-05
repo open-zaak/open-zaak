@@ -2645,10 +2645,12 @@ paths:
           format: uri
       - name: informatieobject
         in: query
-        description: ''
+        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
+          waar ook de relatieinformatie opgevraagd kan worden.
         required: false
         schema:
           type: string
+          format: uri
       responses:
         '200':
           description: OK
@@ -6928,9 +6930,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      type: http
-      scheme: bearer
       bearerFormat: JWT
+      scheme: bearer
+      type: http
   schemas:
     KlantContact:
       required:

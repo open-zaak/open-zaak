@@ -29,7 +29,7 @@ node bin/newman_tests.js \
     --ztc_url=$openzaak_url/catalogi/api/v1 \
     --brc_url=$openzaak_url/besluiten/api/v1 \
     --nrc_url=$nrc_url/api/v1 \
-    --ac_url=$openzaak_url/authorizations/api/v1 \
+    --ac_url=$openzaak_url/autorisaties/api/v1 \
     --referentielijst_url=https://referentielijsten-api.vng.cloud/api/v1 \
     --mock_url=https://c9ac80e5-f4f6-46f9-9e64-a164c03b5f25.mock.pstmn.io \
     --client_id=$client_id \

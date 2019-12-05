@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
@@ -86,6 +87,9 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         ],
         max_length=1000,
         min_length=1,
+        help_text=get_help_text(
+            "besluiten.BesluitInformatieObject", "informatieobject"
+        ),
     )
 
     class Meta:

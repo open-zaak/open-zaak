@@ -13,7 +13,7 @@
         },
         "version": "1.0.0"
     },
-    "basePath": "/authorizations/api/v1",
+    "basePath": "/autorisaties/api/v1",
     "consumes": [
         "application/json"
     ],
