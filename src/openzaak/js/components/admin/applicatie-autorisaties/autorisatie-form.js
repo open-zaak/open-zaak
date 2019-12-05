@@ -57,7 +57,6 @@ const AutorisatieForm = (props) => {
 
 AutorisatieForm.propTypes = {
     index: PropTypes.number.isRequired,
-    scopeChoices: PropTypes.arrayOf(Choice),
 };
 
 export { AutorisatieForm };
