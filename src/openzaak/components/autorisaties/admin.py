@@ -16,12 +16,12 @@ admin.site.unregister(Applicatie)
 
 class AutorisatieInline(admin.TabularInline):
     model = Autorisatie
-    # extra = 0
-    # fields = ["component", "scopes", "get_foo"]
-    # readonly_fields = fields
+    extra = 0
+    fields = ["component", "scopes", "get_foo"]
+    readonly_fields = fields
 
-    # def get_foo(self, obj) -> str:
-    #     return "foo"
+    def get_foo(self, obj) -> str:
+        return "foo"
 
 
 class CredentialsInline(admin.TabularInline):
