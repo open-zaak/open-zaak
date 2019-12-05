@@ -1,0 +1,11 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls i18n %}
+
+{% block after_related_objects %}
+<div class="manage-authorizations">
+    <a href="{% url 'admin:authorizations_applicatie_autorisaties' object_id=original.pk|admin_urlquote %}"
+       class="button">
+        {% trans "Manage authorizations" %}
+    </a>
+</div>
+{% endblock %}

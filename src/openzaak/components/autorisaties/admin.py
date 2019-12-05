@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.forms import BaseModelFormSet
+from django.urls import path
 
 from vng_api_common.authorizations.models import (
     Applicatie,
@@ -8,6 +9,7 @@ from vng_api_common.authorizations.models import (
 )
 from vng_api_common.models import JWTSecret
 
+from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
 
 admin.site.unregister(AuthorizationsConfig)
@@ -19,6 +21,9 @@ class AutorisatieInline(admin.TabularInline):
     extra = 0
     fields = ["component", "scopes", "get_foo"]
     readonly_fields = fields
+
+    def has_add_permission(self, request, obj=None) -> bool:
+        return False
 
     def get_foo(self, obj) -> str:
         return "foo"
@@ -47,3 +52,18 @@ class ApplicatieAdmin(admin.ModelAdmin):
         CredentialsInline,
         AutorisatieInline,
     )
+
+    def get_urls(self) -> list:
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<path:object_id>/autorisaties/",
+                self.admin_site.admin_view(self.autorisaties_view),
+                name="authorizations_applicatie_autorisaties",
+            ),
+        ]
+        return custom_urls + urls
+
+    @property
+    def autorisaties_view(self):
+        return AutorisatiesView.as_view(admin_site=self.admin_site, model_admin=self,)

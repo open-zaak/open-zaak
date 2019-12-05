@@ -18,3 +18,12 @@
   max-height: 400px;
   overflow-y: scroll;
 }
+
+.manage-authorizations {
+  text-align: center;
+  padding-bottom: 2em;
+
+  .button {
+    padding: 10px 15px;
+  }
+}
