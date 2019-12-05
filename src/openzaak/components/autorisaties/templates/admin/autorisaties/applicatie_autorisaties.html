@@ -1,5 +1,21 @@
 {% extends "admin/change_form.html" %}
+{% load admin_urls %}
+{# Overrides the django-admin-index template! #}
 {% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    {# NOTE: Remove app groups if needed #}
+    {% if not admin_index_settings.HIDE_APP_INDEX_PAGES %}
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    {% endif %}
+    {% block breadcrumbs_pre_changelist %}{% endblock %}
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; <a href="{% url 'admin:authorizations_applicatie_change' original.pk %}">{{ original|truncatewords:"18" }}</a>
+    &rsaquo; {% trans "Autorisaties" %}
+</div>
+{% endblock %}
 
 {% block content %}
 <div id="content-main">
