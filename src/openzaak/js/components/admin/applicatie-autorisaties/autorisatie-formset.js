@@ -9,7 +9,7 @@ const AutorisatieFormSet = (props) => {
 
     // build the forms in the formset based on the extra parameter
     const forms = Array(extra).fill().map(
-        (_, index) => <AutorisatieForm key={index} />
+        (_, index) => <AutorisatieForm key={index} index={index} />
     );
 
     // render the entire component
