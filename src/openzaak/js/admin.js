@@ -1,1 +1,1 @@
-console.log("Admin");
+import './components/admin/applicatie-autorisaties';
