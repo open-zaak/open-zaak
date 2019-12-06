@@ -23,7 +23,7 @@ from ..models import (
     ZaakTypeInformatieObjectType,
 )
 from .besluittype import BesluitTypeAdmin
-from .forms import BesluitTypeFormSet, ImportForm, InformatieObjectTypeFormSet
+from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .informatieobjecttype import InformatieObjectTypeAdmin
 from .mixins import ExportMixin, ImportMixin
 from .utils import (
@@ -69,7 +69,7 @@ class CatalogusAdmin(
     UUIDAdminMixin,
     ExportMixin,
     ImportMixin,
-    admin.ModelAdmin
+    admin.ModelAdmin,
 ):
     model = Catalogus
     change_list_template = "admin/catalogi/change_list_catalogus.html"
@@ -155,9 +155,9 @@ class CatalogusAdmin(
         return my_urls + urls
 
     def import_view_zaaktype(self, request, catalogus_pk):
-        context = dict(self.admin_site.each_context(request), form=ImportForm())
+        context = dict(self.admin_site.each_context(request), form=ZaakTypeImportForm())
         if "_import_zaaktype" in request.POST:
-            form = ImportForm(request.POST, request.FILES)
+            form = ZaakTypeImportForm(request.POST, request.FILES)
             if form.is_valid():
                 import_file = form.cleaned_data["file"]
                 self.file_content = import_file.read()

@@ -233,25 +233,34 @@ class ImportMixin:
         return my_urls + urls
 
     def import_view(self, request):
-        form = ImportForm(request.POST, request.FILES)
+        form = CatalogusImportForm(request.POST, request.FILES)
         context = dict(self.admin_site.each_context(request), form=form)
         if "_import" in request.POST:
+            form = CatalogusImportForm(request.POST, request.FILES)
             if form.is_valid():
                 try:
                     import_file = form.cleaned_data["file"]
-                    call_command("import", import_file_content=import_file.read())
+                    generate_new_uuids = form.cleaned_data["generate_new_uuids"]
+                    call_command(
+                        "import",
+                        import_file_content=import_file.read(),
+                        generate_new_uuids=generate_new_uuids,
+                    )
                     self.message_user(
                         request,
-                        _("{} successfully imported").format(
-                            self.resource_name.capitalize()
-                        ),
+                        _("Catalogus successfully imported"),
                         level=messages.SUCCESS,
                     )
                     return HttpResponseRedirect(
-                        reverse(f"admin:catalogi_{self.resource_name}_changelist")
+                        reverse("admin:catalogi_catalogus_changelist")
                     )
                 except CommandError as exc:
                     self.message_user(request, exc, level=messages.ERROR)
+        else:
+            form = CatalogusImportForm()
+
+        context = dict(self.admin_site.each_context(request), form=form)
+
         return TemplateResponse(
-            request, f"admin/catalogi/import_{self.resource_name}.html", context
+            request, "admin/catalogi/import_catalogus.html", context
         )

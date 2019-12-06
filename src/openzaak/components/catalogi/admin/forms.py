@@ -404,6 +404,14 @@ class CatalogusImportForm(forms.Form):
     )
 
 
+class ZaakTypeImportForm(forms.Form):
+    file = forms.FileField(
+        label=_("bestand"),
+        required=True,
+        help_text=_("Het ZIP-bestand met het zaaktype."),
+    )
+
+
 class ExistingTypeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         catalogus_pk = kwargs.pop("catalogus_pk", None)

@@ -23,7 +23,13 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import CatalogusContextAdminMixin, ExportMixin, ImportMixin, NewVersionMixin, PublishAdminMixin
+from .mixins import (
+    CatalogusContextAdminMixin,
+    ExportMixin,
+    ImportMixin,
+    NewVersionMixin,
+    PublishAdminMixin,
+)
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
