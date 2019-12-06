@@ -16,7 +16,7 @@ from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin import get_selectielijst_resultaat_choices
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
-from ..models import ResultaatType, ZaakType
+from ..models import BesluitType, InformatieObjectType, ResultaatType, ZaakType
 
 
 class ZaakTypeForm(forms.ModelForm):
@@ -402,3 +402,47 @@ class CatalogusImportForm(forms.Form):
         ),
         required=False,
     )
+
+
+class ExistingTypeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        catalogus_pk = kwargs.pop("catalogus_pk", None)
+        label = kwargs.pop("label", None)
+        kwargs.pop("labels", None)
+        super().__init__(*args, **kwargs)
+
+        if catalogus_pk:
+            self.fields["existing"].queryset = self.fields["existing"].queryset.filter(
+                catalogus=catalogus_pk
+            )
+            self.fields["existing"].label = label
+
+
+class ExistingInformatieObjectTypeForm(ExistingTypeForm):
+    existing = forms.ModelChoiceField(
+        queryset=InformatieObjectType.objects.all(),
+        required=False,
+        empty_label=_("Create new"),
+    )
+
+
+class ExistingBesluitTypeForm(ExistingTypeForm):
+    existing = forms.ModelChoiceField(
+        queryset=BesluitType.objects.all(), required=False, empty_label=_("Create new")
+    )
+
+
+class BaseFormSet(forms.BaseFormSet):
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        if "labels" in kwargs:
+            kwargs["label"] = kwargs["labels"][index]
+        return kwargs
+
+
+InformatieObjectTypeFormSet = forms.formset_factory(
+    ExistingInformatieObjectTypeForm, extra=0, formset=BaseFormSet
+)
+BesluitTypeFormSet = forms.formset_factory(
+    ExistingBesluitTypeForm, extra=0, formset=BaseFormSet
+)

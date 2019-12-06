@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib import admin
 from django.db.models import Field
 from django.http import HttpRequest
@@ -22,7 +23,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .mixins import CatalogusContextAdminMixin, NewVersionMixin, PublishAdminMixin
+from .mixins import CatalogusContextAdminMixin, ExportMixin, ImportMixin, NewVersionMixin, PublishAdminMixin
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
@@ -64,6 +65,7 @@ class ZaakTypeAdmin(
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     PublishAdminMixin,
+    ExportMixin,
     DynamicArrayMixin,
     CatalogusContextAdminMixin,
     admin.ModelAdmin,
@@ -157,6 +159,41 @@ class ZaakTypeAdmin(
     )
     change_form_template = "admin/catalogi/change_form_zaaktype.html"
     exclude_copy_relation = ("zaak",)
+
+    # For export mixin
+    resource_name = "zaaktype"
+
+    def get_related_objects(self, obj):
+        resources = {}
+
+        resources["ZaakType"] = [obj.pk]
+
+        # M2M relations
+        resources["BesluitType"] = list(obj.besluittypen.values_list("pk", flat=True))
+        resources["InformatieObjectType"] = list(
+            obj.informatieobjecttypen.values_list("pk", flat=True)
+        )
+
+        resources["ZaakTypeInformatieObjectType"] = list(
+            obj.zaaktypeinformatieobjecttype_set.values_list("pk", flat=True)
+        )
+
+        # Resources with foreign keys to ZaakType
+        fields = ["ResultaatType", "RolType", "StatusType", "Eigenschap"]
+        for field in fields:
+            model = apps.get_model("catalogi", field)
+            resources[field] = list(
+                model.objects.filter(zaaktype=obj).values_list("pk", flat=True)
+            )
+
+        resource_list = []
+        id_list = []
+        for resource, ids in resources.items():
+            if ids:
+                resource_list.append(resource)
+                id_list.append(ids)
+
+        return resource_list, id_list
 
     def _publish_validation_errors(self, obj):
         errors = []

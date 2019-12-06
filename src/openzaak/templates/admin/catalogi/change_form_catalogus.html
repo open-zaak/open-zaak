@@ -1,8 +1,13 @@
 {% extends 'admin/catalogi/change_form.html' %}
-{% load i18n %}
+{% load i18n admin_urls %}
 
 {% block extra_submit_buttons %}
     {{ block.super }}
 
-    {% if original %}<input type="submit" value="{% trans 'Exporteren' %}" name="_export"/>{% endif %}
+
+    {% if original %}
+        <input type="submit" value="{% trans 'Exporteren' %}" name="_export"/>
+        {% url 'admin:catalogi_catalogus_import_zaaktype' as import %}
+            <input type="button" onclick='window.location.href="{% url 'admin:catalogi_catalogus_import_zaaktype' original.pk %}"' value="{% trans "Import ZaakType" %}"/>
+    {% endif %}
 {% endblock %}

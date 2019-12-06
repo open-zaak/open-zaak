@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Import ZaakType" %} {{ block.super }} {% endblock %}
+
+{% block content %}
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form }}
+
+        <input type="submit" value="{% trans 'Import' %}" name="_import_zaaktype"/>
+    </form>
+{% endblock %}
