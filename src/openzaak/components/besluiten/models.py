@@ -157,6 +157,24 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         help_text="De datum tot wanneer verweer tegen het besluit mogelijk is.",
     )
 
+    _previous_zaak_url = models.URLField(
+        _("externe previous zaak"), blank=True, max_length=1000,
+    )
+    _previous_zaak = models.ForeignKey(
+        "zaken.Zaak",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,  # een besluit kan niet bij een zaak horen
+        related_name="previous_zaak",
+    )
+    previous_zaak = FkOrURLField(
+        fk_field="_previous_zaak",
+        url_field="_previous_zaak_url",
+        blank=True,
+        null=True,
+        help_text="Previous zaak for signals",
+    )
+
     objects = BesluitQuerySet.as_manager()
 
     class Meta:
@@ -170,6 +188,12 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
     def save(self, *args, **kwargs):
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "datum")
+
+        if self.pk:
+            besluit_before = Besluit.objects.get(pk=self.pk)
+            self._previous_zaak = besluit_before._zaak
+            self._previous_zaak_url = besluit_before._zaak_url
+
         super().save(*args, **kwargs)
 
     def unique_representation(self):
