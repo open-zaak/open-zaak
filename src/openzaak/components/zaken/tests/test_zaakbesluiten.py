@@ -13,6 +13,96 @@ from ..models import ZaakBesluit
 from .factories import ZaakFactory
 
 
+class BesluitenSignals(APITestCase):
+    def test_create_besluit_without_zaak(self):
+        BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_create_besluit_with_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit.besluit, besluit)
+        self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_delete_besluit_without_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        besluit.delete()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_delete_besluit_with_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        besluit.delete()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_without_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        besluit.toelichting = "new desc"
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_add_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        zaak = ZaakFactory.create()
+        besluit.zaak = zaak
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit.besluit, besluit)
+        self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_update_besluit_remove_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        besluit.zaak = None
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_change_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit_old = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit_old.besluit, besluit)
+        self.assertEqual(zaakbesluit_old.zaak, besluit.zaak)
+
+        zaak_new = ZaakFactory.create()
+        besluit.zaak = zaak_new
+        besluit.save()
+
+        zaakbesluit_new = ZaakBesluit.objects.get()
+
+        self.assertNotEqual(zaakbesluit_old.id, zaakbesluit_new.id)
+        self.assertEqual(zaakbesluit_new.zaak, zaak_new)
+
+
 class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
