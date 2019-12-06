@@ -759,17 +759,17 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
             "besluit": {
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("BesluitType", settings.BRC_API_SPEC),
+                    LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC),
                 ],
             },
         }
-        validators = [
-            UniqueTogetherValidator(
-                queryset=ZaakBesluit.objects.all(), fields=["zaak", "besluit"]
-            )
-        ]
+
+    def create(self, validated_data):
+        validated_data["zaak"] = self.context["parent_object"]
+        return super().create(validated_data)

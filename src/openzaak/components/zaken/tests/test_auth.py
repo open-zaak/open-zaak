@@ -20,7 +20,7 @@ from ..api.scopes import (
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
 )
-from ..models import ZaakInformatieObject
+from ..models import ZaakBesluit, ZaakInformatieObject
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -541,25 +541,32 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+        zaakbesluit1 = ZaakBesluit.objects.get(besluit=besluit1, zaak=besluit1.zaak)
         # must not show up
         besluit2 = BesluitFactory.create(
             for_zaak=True,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+        zaakbesluit2 = ZaakBesluit.objects.get(besluit=besluit2, zaak=besluit2.zaak)
         # must not show up
         besluit3 = BesluitFactory.create(
             for_zaak=True,
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
+        zaakbesluit3 = ZaakBesluit.objects.get(besluit=besluit3, zaak=besluit3.zaak)
 
         with self.subTest(
-            zaaktype=besluit1.zaak.zaaktype,
-            vertrouwelijkheidaanduiding=besluit1.zaak.vertrouwelijkheidaanduiding,
+            zaaktype=zaakbesluit1.zaak.zaaktype,
+            vertrouwelijkheidaanduiding=zaakbesluit1.zaak.vertrouwelijkheidaanduiding,
         ):
-            url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit1.zaak.uuid})
-            zio1_url = get_operation_url(
-                "zaakbesluit_read", zaak_uuid=besluit1.zaak.uuid, uuid=besluit1.uuid
+            url = reverse(
+                "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit1.zaak.uuid}
+            )
+            zaakbesluit1_url = get_operation_url(
+                "zaakbesluit_read",
+                zaak_uuid=zaakbesluit1.zaak.uuid,
+                uuid=zaakbesluit1.uuid,
             )
 
             response = self.client.get(url)
@@ -567,16 +574,18 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             response_data = response.json()
             self.assertEqual(len(response_data), 1)
-            self.assertEqual(response_data[0]["url"], f"http://testserver{zio1_url}")
+            self.assertEqual(
+                response_data[0]["url"], f"http://testserver{zaakbesluit1_url}"
+            )
 
         # not allowed to see these
-        for besluit in (besluit2, besluit3):
+        for zaakbesluit in (zaakbesluit2, zaakbesluit3):
             with self.subTest(
-                zaaktype=besluit.zaak.zaaktype,
-                vertrouwelijkheidaanduiding=besluit.zaak.vertrouwelijkheidaanduiding,
+                zaaktype=zaakbesluit.zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaakbesluit.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = reverse(
-                    "zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid}
+                    "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit.zaak.uuid}
                 )
 
                 response = self.client.get(url)
@@ -590,24 +599,29 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+        zaakbesluit1 = ZaakBesluit.objects.get(besluit=besluit1, zaak=besluit1.zaak)
         # must not show up
         besluit2 = BesluitFactory.create(
             for_zaak=True,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+        zaakbesluit2 = ZaakBesluit.objects.get(besluit=besluit2, zaak=besluit2.zaak)
         # must not show up
         besluit3 = BesluitFactory.create(
             for_zaak=True,
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
+        zaakbesluit3 = ZaakBesluit.objects.get(besluit=besluit3, zaak=besluit3.zaak)
 
         with self.subTest(
-            zaaktype=besluit1.zaak.zaaktype,
-            vertrouwelijkheidaanduiding=besluit1.zaak.vertrouwelijkheidaanduiding,
+            zaaktype=zaakbesluit1.zaak.zaaktype,
+            vertrouwelijkheidaanduiding=zaakbesluit1.zaak.vertrouwelijkheidaanduiding,
         ):
             url = get_operation_url(
-                "zaakbesluit_read", zaak_uuid=besluit1.zaak.uuid, uuid=besluit1.uuid
+                "zaakbesluit_read",
+                zaak_uuid=zaakbesluit1.zaak.uuid,
+                uuid=zaakbesluit1.uuid,
             )
 
             response = self.client.get(url)
@@ -615,13 +629,15 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # not allowed to see these
-        for besluit in (besluit2, besluit3):
+        for zaakbesluit in (zaakbesluit2, zaakbesluit3):
             with self.subTest(
-                zaaktype=besluit.zaak.zaaktype,
-                vertrouwelijkheidaanduiding=besluit.zaak.vertrouwelijkheidaanduiding,
+                zaaktype=zaakbesluit.zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaakbesluit.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = get_operation_url(
-                    "zaakbesluit_read", zaak_uuid=besluit.zaak.uuid, uuid=besluit.uuid
+                    "zaakbesluit_read",
+                    zaak_uuid=zaakbesluit.zaak.uuid,
+                    uuid=zaakbesluit.uuid,
                 )
 
                 response = self.client.get(url)

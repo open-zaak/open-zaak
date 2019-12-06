@@ -825,6 +825,15 @@ class ZaakBesluitViewSet(
             self._zaak = get_object_or_404(Zaak, uuid=self.kwargs["zaak_uuid"])
         return self._zaak
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # DRF introspection
+        if not self.kwargs:
+            return context
+
+        context["parent_object"] = self._get_zaak()
+        return context
+
     def perform_create(self, serializer):
         """
         Handle the creation logic.
