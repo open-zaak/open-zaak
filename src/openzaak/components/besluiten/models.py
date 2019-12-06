@@ -174,6 +174,11 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         help_text="Previous zaak for signals",
     )
+    _zaakbesluit_url = models.URLField(
+        blank=True,
+        max_length=1000,
+        help_text="URL of related ZaakBesluit object in the other API",
+    )
 
     objects = BesluitQuerySet.as_manager()
 
