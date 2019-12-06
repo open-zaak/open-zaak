@@ -5,7 +5,9 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
@@ -13,6 +15,10 @@ from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.api.utils import create_remote_oio
+from openzaak.components.zaken.api.utils import (
+    create_remote_zaakbesluit,
+    delete_remote_zaakbesluit,
+)
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -75,6 +81,80 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
 
         value_display_mapping = add_choice_values_help_text(VervalRedenen)
         self.fields["vervalreden"].help_text += f"\n\n{value_display_mapping}"
+
+    def create_zaakbesluit(self, besluit):
+        zaak_url = self.initial_data["zaak"]
+        besluit_url = reverse(
+            "besluit-detail",
+            kwargs={
+                "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
+                "uuid": besluit.uuid,
+            },
+            request=self.context["request"],
+        )
+        return create_remote_zaakbesluit(besluit_url, zaak_url)
+
+    def create(self, validated_data):
+        besluit = super().create(validated_data)
+
+        # local FK - nothing to do -> our signals create the ZaakBesluit
+        if not isinstance(besluit.zaak, ProxyMixin):
+            return besluit
+
+        # manual transaction management - zaken API checks that the Besluit
+        # exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the Besluit creation.
+        try:
+            response = self.create_zaakbesluit(besluit)
+        except Exception as exception:
+            besluit.delete()
+            raise serializers.ValidationError(
+                {"zaak": _("Could not create remote relation: {}".format(exception))},
+                code="pending-relations",
+            )
+        else:
+            besluit._zaakbesluit_url = response["url"]
+            besluit.save()
+        return besluit
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        besluit = super().update(instance, validated_data)
+
+        if besluit.zaak == besluit.previous_zaak:
+            return besluit
+
+        if isinstance(besluit.previous_zaak, ProxyMixin) and besluit._zaakbesluit_url:
+            try:
+                delete_remote_zaakbesluit(besluit._zaakbesluit_url)
+            except Exception as exception:
+                raise serializers.ValidationError(
+                    {
+                        "zaak": _(
+                            "Could not delete remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )
+
+        if isinstance(besluit.zaak, ProxyMixin):
+            try:
+                response = self.create_zaakbesluit(besluit)
+            except Exception as exception:
+                raise serializers.ValidationError(
+                    {
+                        "zaak": _(
+                            "Could not create remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )
+            else:
+                besluit._zaakbesluit_url = response["url"]
+                besluit.save()
+
+        return besluit
 
 
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
