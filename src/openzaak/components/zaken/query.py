@@ -1,5 +1,10 @@
+from typing import Dict, Tuple
+
 from django.db import models
 
+from django_loose_fk.virtual_models import ProxyMixin
+
+from openzaak.components.besluiten.models import Besluit
 from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
 
 
@@ -43,3 +48,24 @@ class ZaakRelatedQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):
 
 class ZaakInformatieObjectQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
     pass
+
+
+class ZaakBesluitQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
+    def create_from(self, besluit: Besluit) -> [models.Model, None]:
+        if isinstance(besluit.zaak, ProxyMixin):
+            return None
+
+        return self.create(zaak=besluit.zaak, besluit=besluit)
+
+    def delete_for(
+        self, besluit: Besluit, previous: bool = False
+    ) -> Tuple[int, Dict[str, int]]:
+        if isinstance(besluit.zaak, ProxyMixin):
+            return (0, {})
+
+        # fetch the instance
+        if previous:
+            obj = self.get(zaak=besluit.previous_zaak, besluit=besluit)
+        else:
+            obj = self.get(zaak=besluit.zaak, besluit=besluit)
+        return obj.delete()
