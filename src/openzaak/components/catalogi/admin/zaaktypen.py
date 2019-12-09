@@ -26,7 +26,6 @@ from .forms import ZaakTypeForm
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
-    ImportMixin,
     NewVersionMixin,
     PublishAdminMixin,
 )

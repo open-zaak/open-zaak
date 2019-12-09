@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from openzaak.utils.admin import ExtraContextAdminMixin
 
-from ..models import Catalogus, ZaakType, ZaakTypeInformatieObjectType
+from ..models import Catalogus, ZaakType
 from .forms import CatalogusImportForm
 
 
