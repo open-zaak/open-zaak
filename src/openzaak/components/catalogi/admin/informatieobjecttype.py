@@ -25,6 +25,7 @@ class InformatieObjectTypeAdmin(
     list_filter = ("catalogus",)
     search_fields = ("uuid", "omschrijving", "trefwoord", "toelichting")
     ordering = ("catalogus", "omschrijving")
+    raw_id_fields = ("catalogus",)
 
     # Details
     fieldsets = (
