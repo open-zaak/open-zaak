@@ -144,7 +144,7 @@ class ImportCatalogiTests(TestCase):
         )
 
         catalogus.delete()
-        call_command("import", import_file=self.filepath)
+        call_command("import", import_file=self.filepath, generate_new_uuids=True)
 
         imported_catalogus = Catalogus.objects.get()
         self.assertEqual(imported_catalogus.domein, catalogus.domein)
@@ -174,7 +174,11 @@ class ImportCatalogiTests(TestCase):
         )
 
         self.assertRaises(
-            CommandError, call_command, "import", import_file=self.filepath
+            CommandError,
+            call_command,
+            "import",
+            import_file=self.filepath,
+            generate_new_uuids=True,
         )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
@@ -258,7 +262,9 @@ class ImportCatalogiTests(TestCase):
         with requests_mock.Mocker() as m:
             m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
             with mock_client(responses):
-                call_command("import", import_file=self.filepath)
+                call_command(
+                    "import", import_file=self.filepath, generate_new_uuids=True
+                )
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -312,7 +318,7 @@ class ImportCatalogiTests(TestCase):
         call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
 
         catalogus.delete()
-        call_command("import", import_file=self.filepath)
+        call_command("import", import_file=self.filepath, generate_new_uuids=True)
 
         imported_catalogus = Catalogus.objects.get()
         zaaktypen = ZaakType.objects.order_by("id")
