@@ -56,7 +56,7 @@ ZTC_API_SPEC = (
 )
 
 drc_repo = "vng-Realisatie/gemma-documentregistratiecomponent"
-drc_commit = "d7338b99007b9bab3affe97f6a7e0384825a5284"
+drc_commit = "7b3725282bfe694aee5b6dba6ae8bfb81cea0a5d"
 DRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
 )
