@@ -121,7 +121,7 @@ class BesluitViewSet(
 
     @transaction.atomic
     def perform_destroy(self, instance):
-        super().destroy(instance)
+        super().perform_destroy(instance)
 
         if isinstance(instance.zaak, ProxyMixin) and instance._zaakbesluit_url:
             try:

@@ -194,10 +194,15 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "datum")
 
+        # save previous zaak for triggers
         if self.pk:
             besluit_before = Besluit.objects.get(pk=self.pk)
-            self._previous_zaak = besluit_before._zaak
-            self._previous_zaak_url = besluit_before._zaak_url
+            if not (
+                besluit_before._zaak_id == self._zaak_id
+                and besluit_before._zaak_url == self._zaak_url
+            ):
+                self._previous_zaak = besluit_before._zaak
+                self._previous_zaak_url = besluit_before._zaak_url
 
         super().save(*args, **kwargs)
 
