@@ -2,25 +2,14 @@ import io
 import json
 import zipfile
 
-from django.apps import apps
-from django.contrib import admin
-from django.core.management import CommandError, call_command
-from django.template.response import TemplateResponse
-from django.urls import path
+from django.core.management import CommandError
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
-from openzaak.components.catalogi.constants import IMPORT_ORDER
-
 from ..api import serializers
-from ..models import (
-    BesluitType,
-    Catalogus,
-    InformatieObjectType,
-    ZaakTypeInformatieObjectType,
-)
+from ..models import BesluitType, Catalogus, InformatieObjectType
 
 factory = APIRequestFactory()
 REQUEST = factory.get("/")
@@ -28,19 +17,15 @@ setattr(REQUEST, "versioning_scheme", URLPathVersioning())
 setattr(REQUEST, "version", "1")
 
 
-def retrieve_iotypen_and_besluittypen(catalogus_pk, import_file_content):
+def retrieve_iotypen(catalogus_pk, import_file_content):
     catalogus = Catalogus.objects.get(pk=catalogus_pk)
     catalogus_uuid = str(catalogus.uuid)
 
     import_file = io.BytesIO(import_file_content)
 
-    uuid_mapping = {}
-
     iotypen = []
-    besluittypen = []
     with zipfile.ZipFile(import_file, "r") as zip_file:
         if f"InformatieObjectType.json" in zip_file.namelist():
-            instances = []
             data = zip_file.read(f"InformatieObjectType.json").decode()
 
             data = json.loads(data)
@@ -51,9 +36,18 @@ def retrieve_iotypen_and_besluittypen(catalogus_pk, import_file_content):
                     old_catalogus_uuid, catalogus_uuid
                 )
                 iotypen.append(entry)
+    return iotypen
 
+
+def retrieve_besluittypen(catalogus_pk, import_file_content):
+    catalogus = Catalogus.objects.get(pk=catalogus_pk)
+    catalogus_uuid = str(catalogus.uuid)
+
+    import_file = io.BytesIO(import_file_content)
+
+    besluittypen = []
+    with zipfile.ZipFile(import_file, "r") as zip_file:
         if f"BesluitType.json" in zip_file.namelist():
-            instances = []
             data = zip_file.read(f"BesluitType.json").decode()
 
             data = json.loads(data)
@@ -75,7 +69,7 @@ def retrieve_iotypen_and_besluittypen(catalogus_pk, import_file_content):
                 entry["informatieobjecttypen"] = []
 
                 besluittypen.append((entry, related_iotypen_uuids))
-    return iotypen, besluittypen
+    return besluittypen
 
 
 def construct_iotypen(iotypen, iotype_form_data):
@@ -170,7 +164,6 @@ def import_zaaktype_for_catalogus(
 
                 data = json.loads(data)
 
-                model = apps.get_model("catalogi", resource)
                 serializer = getattr(serializers, f"{resource}Serializer")
 
                 for entry in data:

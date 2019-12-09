@@ -22,17 +22,15 @@ from ..models import (
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
-from .besluittype import BesluitTypeAdmin
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
-from .informatieobjecttype import InformatieObjectTypeAdmin
 from .mixins import ExportMixin, ImportMixin
 from .utils import (
     construct_besluittypen,
     construct_iotypen,
     import_zaaktype_for_catalogus,
-    retrieve_iotypen_and_besluittypen,
+    retrieve_besluittypen,
+    retrieve_iotypen,
 )
-from .zaaktypen import ZaakTypeAdmin
 
 
 class ZaakTypeInline(EditInlineAdminMixin, admin.TabularInline):
@@ -160,47 +158,53 @@ class CatalogusAdmin(
             form = ZaakTypeImportForm(request.POST, request.FILES)
             if form.is_valid():
                 import_file = form.cleaned_data["file"]
-                self.file_content = import_file.read()
-                (self.iotypen, self.besluittypen,) = retrieve_iotypen_and_besluittypen(
-                    catalogus_pk, self.file_content
+                request.session["file_content"] = import_file.read()
+
+                iotypen = retrieve_iotypen(
+                    catalogus_pk, request.session["file_content"]
                 )
+                request.session["iotypen"] = iotypen
+
+                besluittypen = retrieve_besluittypen(
+                    catalogus_pk, request.session["file_content"]
+                )
+                request.session["besluittypen"] = besluittypen
+
                 context["catalogus_pk"] = catalogus_pk
                 catalogus = Catalogus.objects.get(pk=catalogus_pk)
 
-                if self.iotypen:
+                if iotypen:
                     iotype_forms = InformatieObjectTypeFormSet(
-                        initial=[
-                            {"new_instance": instance} for instance in self.iotypen
-                        ],
+                        initial=[{"new_instance": instance} for instance in iotypen],
                         form_kwargs={
                             "catalogus_pk": catalogus_pk,
                             "labels": [
                                 str(catalogus) + " - " + i["omschrijving"]
-                                for i in self.iotypen
+                                for i in iotypen
                             ],
                         },
                         prefix="iotype",
                     )
                     context["iotype_forms"] = iotype_forms
 
-                if self.besluittypen:
+                if besluittypen:
                     besluittype_forms = BesluitTypeFormSet(
                         initial=[
                             {"new_instance": instance}
-                            for instance, uuids in self.besluittypen
+                            for instance, uuids in besluittypen
                         ],
                         form_kwargs={
                             "catalogus_pk": catalogus_pk,
                             "labels": [
                                 str(catalogus) + " - " + i["omschrijving"]
-                                for i, uuids in self.besluittypen
+                                for i, uuids in besluittypen
                             ],
                         },
                         prefix="besluittype",
                     )
                     context["besluittype_forms"] = besluittype_forms
 
-                if self.besluittypen or self.iotypen:
+                if besluittypen or iotypen:
                     return TemplateResponse(
                         request, f"admin/catalogi/select_existing_typen.html", context,
                     )
@@ -208,7 +212,7 @@ class CatalogusAdmin(
                     try:
                         with transaction.atomic():
                             import_zaaktype_for_catalogus(
-                                catalogus_pk, self.file_content, {}, {}
+                                catalogus_pk, request.session["file_content"], {}, {}
                             )
 
                         self.message_user(
@@ -231,7 +235,7 @@ class CatalogusAdmin(
                         )
                         if iotype_forms.is_valid():
                             iotypen_uuid_mapping = construct_iotypen(
-                                self.iotypen, iotype_forms.cleaned_data
+                                request.session["iotypen"], iotype_forms.cleaned_data
                             )
 
                     besluittypen_uuid_mapping = {}
@@ -241,13 +245,14 @@ class CatalogusAdmin(
                         )
                         if besluittype_forms.is_valid():
                             besluittypen_uuid_mapping = construct_besluittypen(
-                                self.besluittypen,
+                                request.session["besluittypen"],
                                 besluittype_forms.cleaned_data,
                                 iotypen_uuid_mapping,
                             )
+
                     import_zaaktype_for_catalogus(
                         catalogus_pk,
-                        self.file_content,
+                        request.session["file_content"],
                         iotypen_uuid_mapping,
                         besluittypen_uuid_mapping,
                     )
