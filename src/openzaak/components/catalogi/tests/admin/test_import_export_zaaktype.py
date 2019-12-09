@@ -593,6 +593,93 @@ class ZaakTypeAdminImportExportTests(WebTest):
         self.assertNotEqual(informatieobjecttype.uuid, informatieobjecttype_uuid)
         self.assertNotEqual(besluittype.uuid, besluittype_uuid)
 
+    def test_simultaneous_zaaktype_imports(self):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype1 = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="geheim",
+            zaaktype_omschrijving="zaaktype1",
+        )
+        zaaktype2 = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="zaaktype2",
+        )
+        besluittype1 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="1")
+        besluittype1.zaaktypen.set([zaaktype1])
+
+        besluittype2 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="2")
+        besluittype2.zaaktypen.set([zaaktype2])
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype1.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data_zaaktype1 = response.content
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype2.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data_zaaktype2 = response.content
+
+        ZaakType.objects.all().delete()
+        BesluitType.objects.all().delete()
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+
+        self.app2 = self.app_class()
+
+        user2 = SuperUserFactory.create()
+        self.app2.set_user(user2)
+
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data_zaaktype1)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        response = form.submit("_import_zaaktype")
+
+        response2 = self.app2.get(url)
+
+        form = response2.form
+        f = io.BytesIO(data_zaaktype2)
+        f.name = "test2.zip"
+        f.seek(0)
+        form["file"] = (
+            "test2.zip",
+            f.read(),
+        )
+
+        response2 = form.submit("_import_zaaktype")
+
+        response = response.form.submit("_select")
+
+        imported_catalogus = Catalogus.objects.get()
+        zaaktype = ZaakType.objects.get()
+
+        self.assertEqual(zaaktype.zaaktype_omschrijving, "zaaktype1")
+
+        response2 = response2.form.submit("_select")
+
+        self.assertEqual(ZaakType.objects.count(), 2)
+        zaaktype1, zaaktype2 = ZaakType.objects.all()
+
+        self.assertEqual(zaaktype1.zaaktype_omschrijving, "zaaktype1")
+        self.assertEqual(zaaktype2.zaaktype_omschrijving, "zaaktype2")
+
+        self.assertEqual(BesluitType.objects.count(), 2)
+        besluittype1, besluittype2 = BesluitType.objects.all()
+
+        self.assertEqual(besluittype1.omschrijving, "1")
+        self.assertEqual(besluittype2.omschrijving, "2")
+
     def test_import_button_not_visible_on_create_new_catalogus(self):
         url = reverse("admin:catalogi_catalogus_add")
 
