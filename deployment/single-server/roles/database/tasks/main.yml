@@ -1,0 +1,16 @@
+---
+
+- name: Install postgis extension
+  package:
+    name: postgresql-postgis
+
+- name: Enable the required database extensions
+  postgresql_ext:
+    name: "{{ item }}"
+    db: openzaak
+    state: present
+  become: yes
+  become_user: postgres
+  with_items:
+    - postgis
+    - pg_trgm
