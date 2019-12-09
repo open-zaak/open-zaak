@@ -53,7 +53,7 @@ class CatalogusAdminImportExportTests(WebTest):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_export_import_catalogus_with_relations(self, *mocks):
+    def test_export_import_catalogus_relations_generate_new_uuids(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
@@ -86,6 +86,16 @@ class CatalogusAdminImportExportTests(WebTest):
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
+
+        catalogus_uuid = catalogus.uuid
+        zaaktype_uuid = zaaktype.uuid
+        informatieobjecttype_uuid = informatieobjecttype.uuid
+        besluittype_uuid = besluittype.uuid
+        ziot_uuid = ziot.uuid
+        statustype_uuid = statustype.uuid
+        roltype_uuid = roltype.uuid
+        resultaattype_uuid = resultaattype.uuid
+        eigenschap_uuid = eigenschap.uuid
 
         url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
 
@@ -160,6 +170,148 @@ class CatalogusAdminImportExportTests(WebTest):
         self.assertEqual(resultaattype.zaaktype, zaaktype)
         self.assertEqual(statustype.zaaktype, zaaktype)
         self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+        self.assertNotEqual(imported_catalogus.uuid, catalogus_uuid)
+        self.assertNotEqual(zaaktype.uuid, zaaktype_uuid)
+        self.assertNotEqual(informatieobjecttype.uuid, informatieobjecttype_uuid)
+        self.assertNotEqual(besluittype.uuid, besluittype_uuid)
+        self.assertNotEqual(ziot.uuid, ziot_uuid)
+        self.assertNotEqual(resultaattype.uuid, resultaattype_uuid)
+        self.assertNotEqual(roltype.uuid, roltype_uuid)
+        self.assertNotEqual(statustype.uuid, statustype_uuid)
+        self.assertNotEqual(eigenschap.uuid, eigenschap_uuid)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_export_import_catalogus_relations_use_existing_uuids(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            selectielijst_procestype="https://example.com/",
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+        )
+        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
+        besluittype.zaaktypen.all().delete()
+        besluittype.zaaktypen.set([zaaktype])
+        besluittype.informatieobjecttypen.set([informatieobjecttype])
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+        statustype = StatusTypeFactory.create(
+            zaaktype=zaaktype, statustype_omschrijving="bla"
+        )
+        roltype = RolTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            omschrijving_generiek="bla",
+            brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
+            brondatum_archiefprocedure_datumkenmerk="datum",
+            brondatum_archiefprocedure_registratie="bla",
+            brondatum_archiefprocedure_objecttype="besluit",
+        )
+
+        eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
+        Catalogus.objects.exclude(pk=catalogus.pk).delete()
+
+        catalogus_uuid = catalogus.uuid
+        zaaktype_uuid = zaaktype.uuid
+        informatieobjecttype_uuid = informatieobjecttype.uuid
+        besluittype_uuid = besluittype.uuid
+        ziot_uuid = ziot.uuid
+        statustype_uuid = statustype.uuid
+        roltype_uuid = roltype.uuid
+        resultaattype_uuid = resultaattype.uuid
+        eigenschap_uuid = eigenschap.uuid
+
+        url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["catalogus_form"]
+
+        response = form.submit("_export")
+
+        data = response.content
+
+        catalogus.delete()
+        url = reverse("admin:catalogi_catalogus_import")
+
+        response = self.app.get(url)
+
+        form = response.form
+        form["generate_new_uuids"] = False
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        responses = {
+            resultaattype.resultaattypeomschrijving: {
+                "url": resultaattype.resultaattypeomschrijving,
+                "omschrijving": "bla",
+                "definitie": "bla",
+                "opmerking": "adasdasd",
+            },
+            resultaattype.selectielijstklasse: {
+                "url": resultaattype.selectielijstklasse,
+                "procesType": zaaktype.selectielijst_procestype,
+                "nummer": 1,
+                "naam": "bla",
+                "herkomst": "adsad",
+                "waardering": "blijvend_bewaren",
+                "procestermijn": "P5Y",
+            },
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
+            with mock_client(responses):
+                response = form.submit("_import")
+
+        imported_catalogus = Catalogus.objects.get()
+        besluittype = BesluitType.objects.get()
+        informatieobjecttype = InformatieObjectType.objects.get()
+        zaaktype = ZaakType.objects.get()
+        ziot = ZaakTypeInformatieObjectType.objects.get()
+        roltype = RolType.objects.get()
+        resultaattype = ResultaatType.objects.get()
+        statustype = StatusType.objects.get()
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertEqual(besluittype.catalogus, imported_catalogus)
+        self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
+        )
+
+        self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
+
+        self.assertEqual(zaaktype.catalogus, imported_catalogus)
+
+        self.assertEqual(ziot.zaaktype, zaaktype)
+        self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
+
+        self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+        self.assertEqual(imported_catalogus.uuid, catalogus_uuid)
+        self.assertEqual(zaaktype.uuid, zaaktype_uuid)
+        self.assertEqual(informatieobjecttype.uuid, informatieobjecttype_uuid)
+        self.assertEqual(besluittype.uuid, besluittype_uuid)
+        self.assertEqual(ziot.uuid, ziot_uuid)
+        self.assertEqual(resultaattype.uuid, resultaattype_uuid)
+        self.assertEqual(roltype.uuid, roltype_uuid)
+        self.assertEqual(statustype.uuid, statustype_uuid)
+        self.assertEqual(eigenschap.uuid, eigenschap_uuid)
 
     def test_import_catalogus_already_exists(self):
         catalogus = CatalogusFactory.create(
