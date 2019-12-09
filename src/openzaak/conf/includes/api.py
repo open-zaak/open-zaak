@@ -50,7 +50,7 @@ REFERENTIELIJSTEN_API_SPEC = (
 VRL_API_SPEC = "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml?v=3"
 
 ztc_repo = "vng-Realisatie/gemma-zaaktypecatalogus"
-ztc_commit = "d0a874ca1e876e61e812021c502548ee890767d1"
+ztc_commit = "d52ff0a8138b577e4f4516b0bd957354d91fb97c"
 ZTC_API_SPEC = (
     f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
 )
@@ -62,7 +62,7 @@ DRC_API_SPEC = (
 )
 
 zrc_repo = "vng-Realisatie/gemma-zaakregistratiecomponent"
-zrc_commit = "1842e7f2390b385b86904c842d26023a71330143"
+zrc_commit = "d7c335084a1f25f92cbced253885de0f01896aa1"
 ZRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
 )
