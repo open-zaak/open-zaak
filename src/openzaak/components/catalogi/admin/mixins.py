@@ -152,7 +152,12 @@ class CatalogusImportExportMixin:
             if form.is_valid():
                 try:
                     import_file = form.cleaned_data["file"]
-                    call_command("import", import_file_content=import_file.read())
+                    generate_new_uuids = form.cleaned_data["generate_new_uuids"]
+                    call_command(
+                        "import",
+                        import_file_content=import_file.read(),
+                        generate_new_uuids=generate_new_uuids,
+                    )
                     self.message_user(
                         request,
                         _("Catalogus successfully imported"),

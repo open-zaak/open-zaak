@@ -40,11 +40,19 @@ class Command(BaseCommand):
             type=bytes,
             help=_("The .zip file content to import from"),
         )
+        parser.add_argument(
+            "--generate_new_uuids",
+            type=bool,
+            help=_(
+                "Indicates whether new UUIDs should be generated for the import data"
+            ),
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
         import_file = options.pop("import_file")
         import_file_content = options.pop("import_file_content")
+        generate_new_uuids = options.pop("generate_new_uuids")
 
         if import_file and import_file_content:
             raise CommandError(
@@ -67,8 +75,10 @@ class Command(BaseCommand):
             for resource in IMPORT_ORDER:
                 if f"{resource}.json" in zip_file.namelist():
                     data = zip_file.read(f"{resource}.json").decode()
-                    for old, new in uuid_mapping.items():
-                        data = data.replace(old, new)
+
+                    if generate_new_uuids:
+                        for old, new in uuid_mapping.items():
+                            data = data.replace(old, new)
 
                     data = json.loads(data)
 
@@ -81,10 +91,14 @@ class Command(BaseCommand):
                         )
 
                         if deserialized.is_valid():
-                            deserialized.save()
-                            uuid_mapping[entry["url"].split("/")[-1]] = str(
-                                deserialized.instance.uuid
-                            )
+                            original_uuid = entry["url"].split("/")[-1]
+                            if generate_new_uuids:
+                                deserialized.save()
+                                uuid_mapping[entry["url"].split("/")[-1]] = str(
+                                    deserialized.instance.uuid
+                                )
+                            else:
+                                deserialized.save(uuid=original_uuid)
                         else:
                             raise CommandError(
                                 _(
