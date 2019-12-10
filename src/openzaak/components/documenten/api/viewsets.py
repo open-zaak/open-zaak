@@ -26,6 +26,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.notificaties.mixins import FailedNotificationMixin
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
@@ -79,6 +80,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 class EnkelvoudigInformatieObjectViewSet(
     CheckQueryParamsMixin,
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
@@ -392,6 +394,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 class GebruiksrechtenViewSet(
     CheckQueryParamsMixin,
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,

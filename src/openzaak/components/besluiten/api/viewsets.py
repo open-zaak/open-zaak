@@ -13,6 +13,7 @@ from vng_api_common.notifications.viewsets import (
 )
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notificaties.mixins import FailedNotificationMixin
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import Besluit, BesluitInformatieObject
@@ -31,6 +32,7 @@ from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 class BesluitViewSet(
     CheckQueryParamsMixin,
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     ListFilterByAuthorizationsMixin,
@@ -114,6 +116,7 @@ class BesluitViewSet(
 
 
 class BesluitInformatieObjectViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
     NotificationDestroyMixin,
     AuditTrailCreateMixin,

@@ -10,6 +10,7 @@ from rest_framework.settings import api_settings
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notificaties.mixins import FailedNotificationMixin
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import ZaakType
@@ -29,6 +30,7 @@ class ZaakTypeViewSet(
     ConceptDestroyMixin,
     ConceptFilterMixin,
     M2MConceptDestroyMixin,
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):

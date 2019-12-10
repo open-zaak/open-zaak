@@ -10,6 +10,8 @@ from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notificaties.mixins import FailedNotificationMixin
+
 from ._schema_overrides import ApplicatieConsumerAutoSchema
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
@@ -20,7 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 class ApplicatieViewSet(
-    CheckQueryParamsMixin, NotificationViewSetMixin, viewsets.ModelViewSet
+    CheckQueryParamsMixin,
+    FailedNotificationMixin,
+    NotificationViewSetMixin,
+    viewsets.ModelViewSet,
 ):
     """
     Uitlezen en configureren van autorisaties voor applicaties.

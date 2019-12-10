@@ -21,6 +21,7 @@ from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.notifications.viewsets import (
     NotificationCreateMixin,
+    NotificationDestroyMixin,
     NotificationViewSetMixin,
 )
 from vng_api_common.search import SearchMixin
@@ -28,6 +29,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.components.besluiten.models import Besluit
+from openzaak.notificaties.mixins import FailedNotificationMixin
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
@@ -79,6 +81,7 @@ logger = logging.getLogger(__name__)
 
 
 class ZaakViewSet(
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     GeoMixin,
@@ -289,6 +292,7 @@ class ZaakViewSet(
 
 
 class StatusViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -385,6 +389,7 @@ class StatusViewSet(
 
 
 class ZaakObjectViewSet(
+    FailedNotificationMixin,
     CheckQueryParamsMixin,
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
@@ -429,7 +434,9 @@ class ZaakObjectViewSet(
 
 
 class ZaakInformatieObjectViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
+    NotificationDestroyMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
@@ -523,6 +530,7 @@ class ZaakInformatieObjectViewSet(
 
 
 class ZaakEigenschapViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
@@ -571,6 +579,7 @@ class ZaakEigenschapViewSet(
 
 class KlantContactViewSet(
     CheckQueryParamsMixin,
+    FailedNotificationMixin,
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
@@ -615,7 +624,9 @@ class KlantContactViewSet(
 
 
 class RolViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
+    NotificationDestroyMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
@@ -677,6 +688,7 @@ class RolViewSet(
 
 
 class ResultaatViewSet(
+    FailedNotificationMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -763,6 +775,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ZaakBesluitViewSet(
+    FailedNotificationMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -848,6 +861,13 @@ class ZaakBesluitViewSet(
         return self._instance
 
     def get_audittrail_main_object_url(self, data, main_resource) -> str:
+        return reverse(
+            "zaak-detail",
+            request=self.request,
+            kwargs={"uuid": self.kwargs["zaak_uuid"]},
+        )
+
+    def get_notification_main_object_url(self, data, main_resource) -> str:
         return reverse(
             "zaak-detail",
             request=self.request,

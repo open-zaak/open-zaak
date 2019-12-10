@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "openzaak.components.besluiten",
     "openzaak.components.documenten",
     "openzaak.components.catalogi",
+    "openzaak.notificaties",
     "openzaak.selectielijst.apps.SelectielijstConfig",
 ] + PLUGIN_INSTALLED_APPS
 
