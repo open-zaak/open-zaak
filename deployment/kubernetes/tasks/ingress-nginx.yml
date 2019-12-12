@@ -1,0 +1,16 @@
+---
+
+- name: Set up TLS secrets
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'files/nginx/tls-secret.yml') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  with_items:
+    - name: rsa4096
+      certificate: files/nginx/ssl/rsa4096.crt
+      key: files/nginx/ssl/rsa4096.key
+    - name: ec256
+      certificate: files/nginx/ssl/ec256.crt
+      key: files/nginx/ssl/ec256.key
