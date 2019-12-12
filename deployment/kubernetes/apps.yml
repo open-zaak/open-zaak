@@ -16,8 +16,8 @@
         openzaak_db_port: "{{ db.port }}"
         openzaak_replicas: 3
         openzaak_extra_hosts:
-          - nginx-ingress-rsa4096.openzaak.nl
-          - nginx-ingress-ec256.openzaak.nl
+          - ingress-nginx-rsa4096.openzaak.nl
+          - ingress-nginx-ec256.openzaak.nl
       tags:
         - openzaak
 
