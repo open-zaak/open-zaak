@@ -2,6 +2,5 @@
 
 # Installs the required dependencies
 
-- package:
-    name:
-      - python3-docker
+- pip:
+    name: docker

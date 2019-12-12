@@ -2,7 +2,8 @@
 
 - name: Install postgis extension
   package:
-    name: postgresql-postgis
+    name:
+      - postgis
 
 - name: Enable the required database extensions
   postgresql_ext:

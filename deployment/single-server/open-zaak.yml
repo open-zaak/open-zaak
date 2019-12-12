@@ -43,6 +43,8 @@
           - curl
           - gnupg2
           - software-properties-common
+          - sudo
+          - python3-pip
 
     - name: Checking if we have a strong server-specific DH key
       stat:
@@ -55,6 +57,8 @@
 
   roles:
     - role: geerlingguy.postgresql
+      tags:
+        - db
     - role: geerlingguy.docker
     - role: geerlingguy.certbot
     - role: database
