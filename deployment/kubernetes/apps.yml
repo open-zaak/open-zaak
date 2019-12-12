@@ -14,7 +14,7 @@
       vars:
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
-        openzaak_replicas: 6
+        openzaak_replicas: 3
       tags:
         - openzaak
 
