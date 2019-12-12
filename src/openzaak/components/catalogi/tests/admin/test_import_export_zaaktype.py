@@ -129,7 +129,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
         with requests_mock.Mocker() as m:
             m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
             with mock_client(responses):
-                response = form.submit("_import_zaaktype")
+                response = form.submit("_import_zaaktype").follow()
                 response = response.form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
@@ -246,7 +246,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
         with requests_mock.Mocker() as m:
             m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
             with mock_client(responses):
-                response = form.submit("_import_zaaktype")
+                response = form.submit("_import_zaaktype").follow()
                 response = response.form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
@@ -335,7 +335,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
 
         response.form["iotype-0-existing"] = informatieobjecttype.id
         response = response.form.submit("_select")
@@ -417,7 +417,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
 
         response.form["besluittype-0-existing"] = besluittype.id
         response = response.form.submit("_select")
@@ -505,7 +505,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
 
         response.form["besluittype-0-existing"] = besluittype.id
         response.form["iotype-0-existing"] = informatieobjecttype.id
@@ -582,7 +582,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         zaaktype = ZaakType.objects.get()
@@ -644,7 +644,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
 
         response2 = self.app2.get(url)
 
@@ -657,7 +657,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        response2 = form.submit("_import_zaaktype")
+        response2 = form.submit("_import_zaaktype").follow()
 
         response = response.form.submit("_select")
 
@@ -769,7 +769,7 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertIn(
@@ -815,7 +815,7 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertIn(
@@ -866,7 +866,7 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertIn(
@@ -919,7 +919,7 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
             f.read(),
         )
 
-        response = form.submit("_import_zaaktype")
+        response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertIn(

@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from openzaak.utils.admin import ExtraContextAdminMixin
@@ -164,7 +165,7 @@ class ExportMixin:
             resource_list, id_list = self.get_related_objects(obj)
 
             response = HttpResponse(content_type="application/zip")
-            filename = str(obj).replace(" ", "")
+            filename = slugify(str(obj))
             response["Content-Disposition"] = "attachment;filename={}".format(
                 f"{filename}.zip"
             )
