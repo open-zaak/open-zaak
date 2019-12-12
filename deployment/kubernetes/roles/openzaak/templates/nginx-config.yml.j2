@@ -6,16 +6,10 @@ data:
   proxy: >
     proxy_pass_header Server;
     proxy_set_header X-Real-IP $remote_addr;
-    # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    # proxy_set_header X-Forwarded-Proto $scheme;
-    # proxy_set_header X-Forwarded-Host $server_name;
-    # proxy_set_header X-Scheme $scheme;
     proxy_connect_timeout 300s;
     proxy_read_timeout 300s;
 
-    # when pointing NLX inway directly at the K8S service, the Host header
-    # becomes the internal DNS. So we force the canonical host name here.
-    proxy_set_header Host {{ domain }};
+    proxy_set_header Host $http_host;
     proxy_redirect off;
     proxy_pass_request_headers on;
 
@@ -23,7 +17,7 @@ data:
   default.conf: >
     server {
         listen       80;
-        server_name  {{ domain }};
+        server_name  {{ domain }}{% if openzaak_extra_hosts %} {{ openzaak_extra_hosts | join(' ') }}{% endif %};
         server_tokens off;
 
         gzip  on;

@@ -11,4 +11,4 @@
     validate:
       fail_on_error: yes
       strict: yes
-
+  register: openzaak_nginx_config

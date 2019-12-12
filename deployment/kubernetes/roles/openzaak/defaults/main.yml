@@ -2,6 +2,7 @@
 
 # (Public) domain where the application can be reached
 domain: test.openzaak.nl
+openzaak_extra_hosts: []
 
 # Django config parameters
 openzaak_secret_key: override-me

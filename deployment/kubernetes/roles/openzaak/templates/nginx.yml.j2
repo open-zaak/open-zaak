@@ -27,6 +27,8 @@ spec:
         app.kubernetes.io/component: webserver
         app.kubernetes.io/part-of: open-zaak
         app.kubernetes.io/managed-by: Ansible
+      annotations:
+        config-version: "{{ config_version }}"
     spec:
       volumes:
         - name: private-storage
