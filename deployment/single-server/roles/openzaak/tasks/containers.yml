@@ -14,10 +14,10 @@
 
 - name: Run the OpenZaak backend service
   docker_container:
-    name: openzaak
+    name: "{{ item.name }}"
     image: openzaak/open-zaak:latest
     pull: yes
-    hostname: openzaak
+    hostname: "{{ item.name }}"
     restart_policy: always
     networks:
       - name: openzaak
@@ -27,7 +27,7 @@
       - /var/run/postgresql:/var/run/postgresql
       - openzaak-private-media:/app/private-media
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:{{ item.port }}:8000"
     env:
       # Obviously these secrets are not for real environments, or I would've
       # put them in the Ansible vault :-)
@@ -39,3 +39,10 @@
       ALLOWED_HOSTS: "localhost,{{ inventory_hostname }}"
       CACHE_DEFAULT: cache:6379/0
       CACHE_AXES: cache:6379/0
+  with_items:
+    - name: openzaak-0
+      port: 8000
+    - name: openzaak-1
+      port: 8001
+    - name: openzaak-2
+      port: 8002

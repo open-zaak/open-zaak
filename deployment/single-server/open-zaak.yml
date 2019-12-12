@@ -59,6 +59,8 @@
     - role: geerlingguy.certbot
     - role: database
     - role: openzaak
+      tags:
+        - replicas
     - role: nginxinc.nginx
       tags:
-        - nginx
+        - replicas
