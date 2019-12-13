@@ -353,3 +353,42 @@ class CatalogusAdminImportExportTests(WebTest):
 
         export_button = response.html.find("input", {"name": "_export"})
         self.assertIsNone(export_button)
+
+    @override_settings(ALLOWED_HOSTS=["openzaak"])
+    def test_import_export_catalogus_different_hostname(self):
+        self.app.extra_environ["HTTP_HOST"] = "openzaak"
+
+        catalogus = CatalogusFactory.create(
+            rsin="000000000",
+            domein="TEST",
+            contactpersoon_beheer_naam="bla",
+            contactpersoon_beheer_telefoonnummer="0612345678",
+            contactpersoon_beheer_emailadres="test@test.nl",
+        )
+
+        url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["catalogus_form"]
+
+        response = form.submit("_export")
+
+        catalogus.delete()
+
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import")
+
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        response = form.submit("_import")
+
+        self.assertEqual(Catalogus.objects.count(), 1)
