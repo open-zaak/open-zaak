@@ -17,7 +17,7 @@ data:
   default.conf: >
     server {
         listen       80;
-        server_name  {{ domain }}{% if openzaak_extra_hosts %} {{ openzaak_extra_hosts | join(' ') }}{% endif %};
+        server_name  {{ openzaak_domain }}{% if openzaak_extra_hosts %} {{ openzaak_extra_hosts | join(' ') }}{% endif %};
         server_tokens off;
 
         gzip  on;

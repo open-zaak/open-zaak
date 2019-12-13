@@ -12,12 +12,13 @@
   roles:
     - role: openzaak
       vars:
+        openzaak_domain: gc-k8s-16cpu-64ram.openzaak.nl
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
         openzaak_replicas: 3
-        openzaak_extra_hosts:
-          - ingress-nginx-rsa4096.openzaak.nl
-          - ingress-nginx-ec256.openzaak.nl
+        # openzaak_extra_hosts:
+        #   - ingress-nginx-rsa4096.openzaak.nl
+        #   - ingress-nginx-ec256.openzaak.nl
       tags:
         - openzaak
 
