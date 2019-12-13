@@ -1,3 +1,5 @@
+import logging
+
 from django.core.cache import caches
 from django.db.models import Model
 
@@ -109,3 +111,10 @@ class AdminTestMixin:
     def tearDown(self) -> None:
         super().tearDown()
         self.client.logout()
+
+
+class LoggingMixin:
+    def setUp(self):
+        super().setUp()
+        logging.disable(logging.NOTSET)
+        self.addCleanup(lambda: logging.disable(logging.CRITICAL))
