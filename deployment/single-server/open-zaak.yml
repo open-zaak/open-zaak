@@ -5,6 +5,17 @@
 
   vars:
     # postgresql vars
+    postgresql_version: "11"
+    postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
+    postgresql_bin_path: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
+    postgresql_config_path: "/etc/postgresql/{{ postgresql_version }}/main"
+    postgresql_daemon: "postgresql@{{ postgresql_version }}-main"
+    postgresql_packages:
+      - "postgresql-{{ postgresql_version }}"
+      - "postgresql-contrib-{{ postgresql_version }}"
+      - "postgresql-{{ postgresql_version }}-postgis-2.5"
+      - libpq-dev
+
     postgresql_python_library: python3-psycopg2
     postgresql_hba_entries:
       - { type: local, database: all, user: postgres, auth_method: peer }
@@ -14,9 +25,11 @@
     postgresql_users:
       - name: openzaak
         password: openzaak
+        port: "{{ openzaak_db_port }}"
     postgresql_databases:
       - name: openzaak
         owner: openzaak
+        port: "{{ openzaak_db_port }}"
 
     # certbot vars
     certbot_admin_email: support@maykinmedia.nl
@@ -34,6 +47,20 @@
         template_file: templates/openzaak.conf.j2
         conf_file_name: default.conf
         conf_file_location: /etc/nginx/conf.d/
+
+    openzaak_replicas:
+      - name: openzaak-0
+        port: 8000
+      - name: openzaak-1
+        port: 8001
+      - name: openzaak-2
+        port: 8002
+      # - name: openzaak-3
+      #   port: 8003
+      # - name: openzaak-4
+      #   port: 8004
+      # - name: openzaak-5
+      #   port: 8005
 
   pre_tasks:
     - package:
@@ -55,6 +82,16 @@
       command: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
       when: has_dhparams.stat.exists == False
 
+    - name: Set up postgresql debian repo (apt-key)
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+
+    - name: Set up postgresql debian repo (apt-key)
+      apt_repository:
+        repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+        state: present
+
   roles:
     - role: geerlingguy.postgresql
       tags:
@@ -62,6 +99,8 @@
     - role: geerlingguy.docker
     - role: geerlingguy.certbot
     - role: database
+      vars:
+        database_port: "{{ openzaak_db_port }}"
     - role: openzaak
       tags:
         - replicas

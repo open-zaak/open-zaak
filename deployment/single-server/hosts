@@ -1,5 +1,5 @@
 lw-dds-16cpu-128ram.openzaak.nl ansible_python_interpreter=/usr/bin/python3
-lw-vps-4cpu-8ram.openzaak.nl ansible_python_interpreter=/usr/bin/python3 ansible_become_method=su
+lw-vps-4cpu-8ram.openzaak.nl ansible_python_interpreter=/usr/bin/python3 ansible_become_method=su openzaak_db_port=5433
 
 # gc-2xn2std8-16cpu-64ram.openzaak.nl
 # gc-2xn2std2-4cpu-16ram.openzaak.nl

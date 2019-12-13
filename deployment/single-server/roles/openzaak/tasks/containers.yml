@@ -32,6 +32,7 @@
       # Obviously these secrets are not for real environments, or I would've
       # put them in the Ansible vault :-)
       DB_HOST: /var/run/postgresql
+      DB_PORT: "{{ openzaak_db_port | string }}"
       DB_NAME: openzaak
       DB_USER: openzaak
       DB_PASSWORD: openzaak
@@ -39,10 +40,4 @@
       ALLOWED_HOSTS: "localhost,{{ inventory_hostname }}"
       CACHE_DEFAULT: cache:6379/0
       CACHE_AXES: cache:6379/0
-  with_items:
-    - name: openzaak-0
-      port: 8000
-    - name: openzaak-1
-      port: 8001
-    - name: openzaak-2
-      port: 8002
+  with_items: "{{ openzaak_replicas }}"

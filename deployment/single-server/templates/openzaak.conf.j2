@@ -1,7 +1,7 @@
 upstream openzaak {
-    server 127.0.0.1:8000;
-    server 127.0.0.1:8001;
-    server 127.0.0.1:8002;
+    {% for replica in openzaak_replicas %}
+        server 127.0.0.1:{{ replica.port }};
+    {% endfor %}
 }
 
 server {
