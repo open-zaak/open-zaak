@@ -2301,17 +2301,14 @@
                     "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri",
-                    "maxLength": 200,
-                    "minLength": 1
+                    "maxLength": 200
                 },
                 "zaak": {
                     "title": "Zaak",
                     "description": "URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
                     "type": "string",
                     "format": "uri",
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "x-nullable": true
+                    "maxLength": 200
                 },
                 "datum": {
                     "title": "Datum",
