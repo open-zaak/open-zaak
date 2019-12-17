@@ -380,15 +380,6 @@ class ZaakZoekSerializer(serializers.Serializer):
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
-    statustype = LengthHyperlinkedRelatedField(
-        view_name="statustype-detail",
-        lookup_field="uuid",
-        queryset=StatusType.objects.all(),
-        max_length=1000,
-        min_length=1,
-        help_text=get_help_text("zaken.Status", "statustype"),
-    )
-
     class Meta:
         model = Status
         fields = (
@@ -409,6 +400,14 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
+            "statustype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("StatusType", settings.ZTC_API_SPEC),
+                ],
+            },
         }
 
     def to_internal_value(self, data: dict) -> dict:
