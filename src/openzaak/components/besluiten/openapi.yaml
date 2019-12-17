@@ -1983,7 +1983,6 @@ components:
           type: string
           format: uri
           maxLength: 200
-          minLength: 1
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
@@ -1991,8 +1990,6 @@ components:
           type: string
           format: uri
           maxLength: 200
-          minLength: 1
-          nullable: true
         datum:
           title: Datum
           description: De beslisdatum (AWB) van het besluit.
