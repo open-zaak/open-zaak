@@ -3,32 +3,19 @@
 - name: Deploy Open-Zaak on a single server
   hosts: all
 
-  vars:
-    # postgresql vars
-    postgresql_version: "11"
-    postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
-    postgresql_bin_path: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
-    postgresql_config_path: "/etc/postgresql/{{ postgresql_version }}/main"
-    postgresql_daemon: "postgresql@{{ postgresql_version }}-main"
-    postgresql_packages:
-      - "postgresql-{{ postgresql_version }}"
-      - "postgresql-contrib-{{ postgresql_version }}"
-      - "postgresql-{{ postgresql_version }}-postgis-2.5"
-      - libpq-dev
+  vars_files:
+    - vars/secrets.yml
+    - vars/postgres.yml
 
-    postgresql_python_library: python3-psycopg2
-    postgresql_hba_entries:
-      - { type: local, database: all, user: postgres, auth_method: peer }
-      - { type: local, database: all, user: all, auth_method: md5 }
-      - { type: host, database: all, user: all, address: '127.0.0.1/32', auth_method: md5 }
-      - { type: host, database: all, user: all, address: '::1/128', auth_method: md5 }
+  vars:
+    # postgresql vars - from secrets
     postgresql_users:
-      - name: openzaak
-        password: openzaak
+      - name: "{{ openzaak_db_username }}"
+        password: "{{ openzaak_db_password }}"
         port: "{{ openzaak_db_port }}"
     postgresql_databases:
-      - name: openzaak
-        owner: openzaak
+      - name: "{{ openzaak_db_name }}"
+        owner: "{{ openzaak_db_username }}"
         port: "{{ openzaak_db_port }}"
 
     # certbot vars
@@ -55,12 +42,6 @@
         port: 8001
       - name: openzaak-2
         port: 8002
-      # - name: openzaak-3
-      #   port: 8003
-      # - name: openzaak-4
-      #   port: 8004
-      # - name: openzaak-5
-      #   port: 8005
 
   pre_tasks:
     - package:

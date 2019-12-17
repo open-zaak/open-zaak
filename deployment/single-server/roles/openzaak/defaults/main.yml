@@ -1,6 +1,12 @@
 ---
 
 openzaak_db_port: 5432
+openzaak_db_host: /var/run/postgresql
+openzaak_db_name: openzaak
+openzaak_db_username: openzaak
+openzaak_db_password: openzaak
+
+openzaak_secret_key: override-me
 
 openzaak_replicas:
   - name: openzaak-0
