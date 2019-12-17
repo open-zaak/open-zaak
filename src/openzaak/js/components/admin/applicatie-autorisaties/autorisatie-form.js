@@ -6,7 +6,9 @@ import { CheckboxSelect } from './checkbox-select';
 import { RadioSelect } from './radio-select';
 import { Choice } from "./types";
 
-import { ScopeChoicesContext, ComponentPrefixContext } from './context';
+import { ConstantsContext } from './context';
+
+import { TypesSelection } from './extra-attributes';
 
 
 const matchesPrefix = (scope, prefixes) => {
@@ -23,13 +25,27 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
     return choices;
 };
 
+const COMPONENT_TO_TYPES = {
+    zrc: 'zaaktypen',
+    drc: 'informatieobjecttypen',
+    brc: 'besluitttypen',
+};
+
+const getTypesSelection = (component, prefix) => {
+    if (COMPONENT_TO_TYPES[component] == null) {
+        return null;
+    }
+    return (
+        <TypesSelection prefix={prefix} verboseNamePlural={COMPONENT_TO_TYPES[component]} />
+    );
+};
+
 
 const AutorisatieForm = (props) => {
     const { index } = props;
 
-    const scopeChoices = useContext(ScopeChoicesContext);
-    const componentPrefixes = useContext(ComponentPrefixContext);
-
+    const {scopeChoices, componentPrefixes } = useContext(ConstantsContext);
+    const [selectedComponent, setSelectedComponent] = useState('');
     const [availableScopeChoices, setAvailableScopeChoices] = useState([]);
 
     return (
@@ -37,8 +53,10 @@ const AutorisatieForm = (props) => {
             <div className="autorisatie-form__component">
                 <RadioSelect
                     choices={COMPONENT_CHOICES}
-                    prefix={`form-${index}`} name="component"
+                    prefix={`form-${index}`}
+                    name="component"
                     onChange={ (component) => {
+                        setSelectedComponent(component);
                         const choices = getAvailableScopeChoices(component, componentPrefixes, scopeChoices);
                         setAvailableScopeChoices(choices);
                     }}
@@ -51,6 +69,11 @@ const AutorisatieForm = (props) => {
                     prefix={`form-${index}`} name="scopes"
                 />
             </div>
+
+            <div className="autorisatie-form__extra-attributes">
+                { getTypesSelection(selectedComponent, `form-${index}`) }
+            </div>
+
         </div>
     );
 };

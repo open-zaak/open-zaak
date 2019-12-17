@@ -4,7 +4,12 @@ from django.views.generic import DetailView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 
-from .forms import COMPONENT_TO_PREFIXES_MAP, AutorisatieFormSet, get_scope_choices
+from .forms import (
+    COMPONENT_TO_PREFIXES_MAP,
+    AutorisatieFormSet,
+    RelatedTypeSelectionMethods,
+    get_scope_choices,
+)
 
 
 class AutorisatiesView(DetailView):
@@ -38,6 +43,7 @@ class AutorisatiesView(DetailView):
                 "formset": AutorisatieFormSet(),
                 "scope_choices": get_scope_choices(),
                 "COMPONENTS_TO_PREFIXES_MAP": COMPONENT_TO_PREFIXES_MAP,
+                "RELATED_TYPE_SELECTION_METHODS": RelatedTypeSelectionMethods.choices,
             }
         )
         return context

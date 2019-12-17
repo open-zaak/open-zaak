@@ -1,6 +1,9 @@
 import React from "react";
 
-const ScopeChoicesContext = React.createContext([]);
-const ComponentPrefixContext = React.createContext({});
+const ConstantsContext = React.createContext({
+    scopeChoices: [],
+    componentPrefixes: {},
+    relatedTypeSelectionMethods: [],
+})
 
-export { ScopeChoicesContext, ComponentPrefixContext };
+export { ConstantsContext };

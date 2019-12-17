@@ -3,29 +3,29 @@ import ReactDOM from "react-dom";
 
 import { AutorisatieFormSet } from './autorisatie-formset';
 
-import { ScopeChoicesContext, ComponentPrefixContext } from './context';
+import { ConstantsContext } from './context';
+
+
+const jsonScriptToVar = (id) => {
+    const node = document.getElementById(id);
+    return JSON.parse(node.text);
+};
 
 
 const mount = () => {
     const node = document.getElementById('react-autorisaties');
     if (!node) return;
 
-    const scopeChoicesNode = document.getElementById('scope-choices');
-    const scopeChoices = JSON.parse(scopeChoicesNode.text);
+    const scopeChoices = jsonScriptToVar('scope-choices');
+    const componentPrefixes = jsonScriptToVar('component-scope-prefixes');
+    const relatedTypeSelectionMethods = jsonScriptToVar('related-type-selection-methods');
 
-    const componentPrefixesNode = document.getElementById('component-scope-prefixes');
-    const componentPrefixes = JSON.parse(componentPrefixesNode.text);
+    const constants = {scopeChoices, componentPrefixes, relatedTypeSelectionMethods};
 
     ReactDOM.render(
-        <ScopeChoicesContext.Provider value={scopeChoices}>
-
-            <ComponentPrefixContext.Provider value={componentPrefixes}>
-
-                <AutorisatieFormSet extra={3} />
-
-            </ComponentPrefixContext.Provider>
-
-        </ScopeChoicesContext.Provider>,
+        <ConstantsContext.Provider value={constants}>
+            <AutorisatieFormSet extra={3} />
+        </ConstantsContext.Provider>,
         node
     );
 }

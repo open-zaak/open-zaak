@@ -8,5 +8,4 @@ const COMPONENT_CHOICES = [
     ["brc", "Besluiten API"],
 ];
 
-
 export { COMPONENT_CHOICES };
