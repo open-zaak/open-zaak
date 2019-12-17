@@ -17,6 +17,7 @@ from ..models import (
 
 class StatusInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Status
+    raw_id_fields = ("statustype",)
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
 
 
@@ -27,11 +28,13 @@ class ZaakObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
 
 class ZaakEigenschapInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakEigenschap
+    raw_id_fields = ("eigenschap",)
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 
 class ZaakInformatieObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakInformatieObject
+    raw_id_fields = ("_informatieobject",)
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
 
 
@@ -42,18 +45,20 @@ class KlantContactInline(AuditTrailInlineAdminMixin, admin.TabularInline):
 
 class RolInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Rol
-    raw_id_fields = ["zaak"]
+    raw_id_fields = ("zaak", "roltype")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
 
 
 class ResultaatInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Resultaat
+    raw_id_fields = ("resultaattype",)
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
 
 
 class RelevanteZaakRelatieInline(admin.TabularInline):
     model = RelevanteZaakRelatie
     fk_name = "zaak"
+    raw_id_fields = ("_relevant_zaak",)
 
 
 @admin.register(Zaak)
