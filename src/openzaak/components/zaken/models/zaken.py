@@ -348,7 +348,7 @@ class RelevanteZaakRelatie(models.Model):
     )
 
     _relevant_zaak_url = models.URLField(
-        _("extern relevant zaak"),
+        _("externe relevante zaak"),
         blank=True,
         max_length=1000,
         help_text=_("URL-referentie naar extern ZAAK (in een andere zaken API)"),
@@ -356,6 +356,7 @@ class RelevanteZaakRelatie(models.Model):
     _relevant_zaak = models.ForeignKey(
         Zaak,
         on_delete=models.CASCADE,
+        verbose_name=_("relevante zaak"),
         help_text=_("URL-referentie naar de ZAAK."),
         null=True,
         blank=True,

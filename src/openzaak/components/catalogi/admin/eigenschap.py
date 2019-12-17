@@ -16,6 +16,7 @@ class EigenschapAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdm
     list_filter = ("zaaktype", "eigenschapnaam")
     ordering = ("zaaktype", "eigenschapnaam")
     search_fields = ("uuid", "eigenschapnaam", "definitie", "toelichting")
+    raw_id_fields = ("zaaktype", "specificatie_van_eigenschap")
 
     # Details
     fieldsets = (

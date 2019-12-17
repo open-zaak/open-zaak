@@ -1,8 +1,13 @@
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 
-from openzaak.utils.admin import AuditTrailAdminMixin, AuditTrailInlineAdminMixin
+from openzaak.utils.admin import (
+    AuditTrailAdminMixin,
+    AuditTrailInlineAdminMixin,
+    UUIDAdminMixin,
+)
 
 from .api import viewsets
 from .models import (
@@ -15,6 +20,7 @@ from .models import (
 
 class GebruiksrechtenInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Gebruiksrechten
+    readonly_fields = ("uuid",)
     extra = 1
     viewset = viewsets.GebruiksrechtenViewSet
 
@@ -23,7 +29,11 @@ class EnkelvoudigInformatieObjectInline(
     AuditTrailInlineAdminMixin, admin.StackedInline
 ):
     model = EnkelvoudigInformatieObject
+    raw_id_fields = ("canonical", "_informatieobjecttype")
+    readonly_fields = ("uuid",)
     extra = 1
+    verbose_name = _("versie")
+    verbose_name_plural = _("versies")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
 
 
@@ -32,12 +42,9 @@ def unlock(modeladmin, request, queryset):
 
 
 @admin.register(EnkelvoudigInformatieObjectCanonical)
-class EnkelvoudigInformatieObjectCanonicalAdmin(
-    AuditTrailAdminMixin, PrivateMediaMixin, admin.ModelAdmin
-):
+class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["__str__", "get_not_lock_display"]
     inlines = [EnkelvoudigInformatieObjectInline, GebruiksrechtenInline]
-    private_media_fields = ("inhoud",)
     actions = [unlock]
 
     def get_not_lock_display(self, obj) -> bool:
@@ -51,13 +58,31 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(
 
 
 @admin.register(EnkelvoudigInformatieObject)
-class EnkelvoudigInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ("identificatie", "uuid", "bronorganisatie", "titel", "versie")
+class EnkelvoudigInformatieObjectAdmin(
+    AuditTrailAdminMixin, UUIDAdminMixin, PrivateMediaMixin, admin.ModelAdmin
+):
+    list_display = (
+        "identificatie",
+        "uuid",
+        "bronorganisatie",
+        "creatiedatum",
+        "titel",
+        "versie",
+        "_locked",
+    )
     list_filter = ("bronorganisatie",)
     search_fields = ("identificatie", "uuid")
     ordering = ("-begin_registratie",)
-    raw_id_fields = ("canonical",)
+    date_hierarchy = "creatiedatum"
+    raw_id_fields = ("canonical", "_informatieobjecttype")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
+    private_media_fields = ("inhoud",)
+
+    def _locked(self, obj) -> bool:
+        return obj.locked
+
+    _locked.boolean = True
+    _locked.short_description = _("locked")
 
 
 @admin.register(Gebruiksrechten)

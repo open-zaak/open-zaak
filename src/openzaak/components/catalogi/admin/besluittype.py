@@ -20,6 +20,11 @@ class BesluitTypeAdmin(
     list_filter = ("catalogus",)
     search_fields = ("uuid", "omschrijving", "besluitcategorie", "toelichting")
     ordering = ("catalogus", "omschrijving")
+    raw_id_fields = (
+        "catalogus",
+        "zaaktypen",
+        "informatieobjecttypen",
+    )
 
     # Details
     fieldsets = (
