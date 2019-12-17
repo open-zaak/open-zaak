@@ -314,6 +314,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SESSION_COOKIE_NAME = "openzaak_sessionid"
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 #
 # SECURITY settings

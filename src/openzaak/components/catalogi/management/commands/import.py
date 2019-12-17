@@ -12,18 +12,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.catalogi.api import serializers
-
-IMPORT_ORDER = [
-    "Catalogus",
-    "InformatieObjectType",
-    "BesluitType",
-    "ZaakType",
-    "ZaakTypeInformatieObjectType",
-    "ResultaatType",
-    "RolType",
-    "StatusType",
-    "Eigenschap",
-]
+from openzaak.components.catalogi.constants import IMPORT_ORDER
 
 
 class Command(BaseCommand):

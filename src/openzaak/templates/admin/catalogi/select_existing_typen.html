@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Choose existing typen" %} {{ block.super }} {% endblock %}
+
+{% block content %}
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        <h2>{% trans "Choose whether to create new objects or to use existing objects" %}</h2>
+
+        {% if iotype_forms %}
+            <h3>{% trans "InformatieObjectTypen" %}:</h3>
+            {{ iotype_forms.management_form }}
+            {% for form in iotype_forms %}
+                {{ form }}<br/>
+            {% endfor %}
+        {% endif %}
+
+        {% if besluittype_forms %}
+            <h3>{% trans "BesluitTypen" %}:</h3>
+            {{ besluittype_forms.management_form }}
+            {% for form in besluittype_forms %}
+                {{ form }}<br/>
+            {% endfor %}
+        {% endif %}
+
+        <input type="submit" value="{% trans 'Select' %}" name="_select"/>
+    </form>
+{% endblock %}

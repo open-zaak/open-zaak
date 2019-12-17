@@ -1,8 +1,6 @@
 import io
-import os
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -46,9 +44,6 @@ class CatalogusAdminImportExportTests(WebTest):
         super().setUp()
 
         self.app.set_user(self.user)
-        self.filename = os.path.join(
-            settings.PRIVATE_MEDIA_ROOT, "uploads/imports/TEST.zip"
-        )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
@@ -350,3 +345,11 @@ class CatalogusAdminImportExportTests(WebTest):
             response.text,
         )
         self.assertEqual(Catalogus.objects.count(), 1)
+
+    def test_export_button_not_visible_on_create_new_catalogus(self):
+        url = reverse("admin:catalogi_catalogus_add")
+
+        response = self.app.get(url)
+
+        export_button = response.html.find("input", {"name": "_export"})
+        self.assertIsNone(export_button)

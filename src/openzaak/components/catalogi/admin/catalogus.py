@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib import admin
 from django.urls import path
 from django.utils.translation import ugettext_lazy as _
@@ -9,8 +10,18 @@ from openzaak.utils.admin import (
     link_to_related_objects,
 )
 
-from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
-from .mixins import CatalogusImportExportMixin
+from ..models import (
+    BesluitType,
+    Catalogus,
+    InformatieObjectType,
+    ZaakType,
+    ZaakTypeInformatieObjectType,
+)
+from .admin_views import (
+    CatalogusZaakTypeImportSelectView,
+    CatalogusZaakTypeImportUploadView,
+)
+from .mixins import ExportMixin, ImportMixin
 
 
 class ZaakTypeInline(EditInlineAdminMixin, admin.TabularInline):
@@ -45,7 +56,8 @@ class InformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
 class CatalogusAdmin(
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
-    CatalogusImportExportMixin,
+    ExportMixin,
+    ImportMixin,
     admin.ModelAdmin,
 ):
     model = Catalogus
@@ -80,14 +92,59 @@ class CatalogusAdmin(
     )
     inlines = (ZaakTypeInline, BesluitTypeInline, InformatieObjectTypeInline)
 
+    # For import/export mixins
+    resource_name = "catalogus"
+
+    def get_related_objects(self, obj):
+        resources = {}
+
+        resources["Catalogus"] = [obj.pk]
+
+        # Resources with foreign keys to catalogus
+        fields = ["InformatieObjectType", "BesluitType", "ZaakType"]
+        for field in fields:
+            resources[field] = list(
+                getattr(obj, f"{field.lower()}_set").values_list("pk", flat=True)
+            )
+        resources["ZaakTypeInformatieObjectType"] = list(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype__in=resources["ZaakType"],
+                informatieobjecttype__in=resources["InformatieObjectType"],
+            ).values_list("pk", flat=True)
+        )
+
+        # Resources with foreign keys to  ZaakType
+        fields = ["ResultaatType", "RolType", "StatusType", "Eigenschap"]
+        for field in fields:
+            model = apps.get_model("catalogi", field)
+            resources[field] = list(
+                model.objects.filter(zaaktype__in=resources["ZaakType"]).values_list(
+                    "pk", flat=True
+                )
+            )
+
+        resource_list = []
+        id_list = []
+        for resource, ids in resources.items():
+            if ids:
+                resource_list.append(resource)
+                id_list.append(ids)
+
+        return resource_list, id_list
+
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
             path(
-                "import/",
-                self.admin_site.admin_view(self.import_view),
-                name="catalogi_catalogus_import",
-            )
+                "<path:catalogus_pk>/zaaktype/import/",
+                self.admin_site.admin_view(CatalogusZaakTypeImportUploadView.as_view()),
+                name=f"catalogi_catalogus_import_zaaktype",
+            ),
+            path(
+                "<path:catalogus_pk>/zaaktype/import/select",
+                self.admin_site.admin_view(CatalogusZaakTypeImportSelectView.as_view()),
+                name=f"catalogi_catalogus_import_zaaktype_select",
+            ),
         ]
         return my_urls + urls
 

@@ -64,3 +64,16 @@ class AardRelatieChoices(DjangoChoices):
     # andere ZAAKTYPE of een zaak van het andere ZAAKTYPE is relevant voor
     # of is onderwerp van een zaak van het ZAAKTYPE
     onderwerp = ChoiceItem("onderwerp", _("Onderwerp"))
+
+
+IMPORT_ORDER = [
+    "Catalogus",
+    "InformatieObjectType",
+    "BesluitType",
+    "ZaakType",
+    "ZaakTypeInformatieObjectType",
+    "ResultaatType",
+    "RolType",
+    "StatusType",
+    "Eigenschap",
+]

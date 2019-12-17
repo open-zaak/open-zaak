@@ -5,4 +5,5 @@
     {{ block.super }}
 
     <input type="submit" value="{% trans 'Nieuwe versie toevoegen' %}" name="_addversion" {% if not original.pk or original.concept == True %}disabled="disabled"{% endif %}>
+    {% if original %}<input type="submit" value="{% trans 'Export' %}" name="_export"/>{% endif %}
 {% endblock %}
