@@ -62,6 +62,9 @@ class EigenschapSpecificatie(models.Model):
         verbose_name = _("Eigenschap specificatie")
         verbose_name_plural = _("Eigenschap specificaties")
 
+    def __str__(self):
+        return f"{self.groep} - {self.formaat} [{self.lengte}, #{self.kardinaliteit}]"
+
     def clean(self):
         """
         waardenverzameling voor veld lengte hangt af van formaat
