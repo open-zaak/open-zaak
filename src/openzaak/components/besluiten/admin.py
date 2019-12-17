@@ -9,6 +9,7 @@ class BesluitInformatieObjectInline(AuditTrailInlineAdminMixin, admin.TabularInl
     model = BesluitInformatieObject
     extra = 0
     readonly_fields = ("uuid",)
+    raw_id_fields = ("_informatieobject",)
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
@@ -22,9 +23,10 @@ class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     search_fields = (
         "verantwoordelijke_organisatie",
         "identificatie",
-        "besluittype",
-        "zaak",
+        "uuid",
     )
+    raw_id_fields = ("_besluittype", "_zaak")
+    readonly_fields = ("uuid",)
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
 
