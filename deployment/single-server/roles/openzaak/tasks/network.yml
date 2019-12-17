@@ -1,0 +1,5 @@
+---
+
+- name: Set up the openzaak docker network
+  docker_network:
+    name: openzaak

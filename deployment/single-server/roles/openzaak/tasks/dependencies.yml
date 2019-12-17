@@ -1,0 +1,6 @@
+---
+
+# Installs the required dependencies
+
+- pip:
+    name: docker

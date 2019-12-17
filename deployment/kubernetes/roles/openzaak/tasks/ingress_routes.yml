@@ -16,7 +16,7 @@
         entryPoints:
           - web
         routes:
-        - match: Host(`{{ domain }}`)
+        - match: Host(`{{ openzaak_domain }}`)
           kind: Rule
           services:
           - name: nginx
@@ -39,7 +39,7 @@
         entryPoints:
           - websecure
         routes:
-        - match: Host(`{{ domain }}`)
+        - match: Host(`{{ openzaak_domain }}`)
           kind: Rule
           services:
           - name: nginx

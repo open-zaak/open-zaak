@@ -1,0 +1,18 @@
+---
+
+- name: Install postgis extension
+  package:
+    name:
+      - postgis
+
+- name: Enable the required database extensions
+  postgresql_ext:
+    name: "{{ item }}"
+    db: openzaak
+    state: present
+    port: "{{ database_port | default(5432) }}"
+  become: yes
+  become_user: postgres
+  with_items:
+    - postgis
+    - pg_trgm

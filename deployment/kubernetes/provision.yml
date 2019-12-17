@@ -6,7 +6,7 @@
   vars:
     acme_email: info@maykinmedia.nl
     needs_ingress: yes
-    needs_nfs: no
+    needs_nfs: yes
 
   vars_files:
     - vars/maykin.yml
@@ -51,6 +51,8 @@
 
     - role: nfs-server
       when: needs_nfs
+      vars:
+        disk_name: gce-nfs-disk-perf
 
 
   tasks:

@@ -33,3 +33,5 @@
     validate:
       fail_on_error: yes
       strict: yes
+  vars:
+    config_version: "{{ openzaak_nginx_config.result.metadata.resourceVersion }}"

@@ -1,0 +1,58 @@
+---
+
+- name: Set up TLS secrets
+  k8s:
+    state: present
+    namespace: openzaak-test
+    definition: "{{ lookup('template', 'files/nginx/tls-secret.yml') | from_yaml }}"
+    validate:
+      fail_on_error: yes
+      strict: yes
+  with_items:
+    - name: rsa4096
+      certificate: files/nginx/ssl/rsa4096.crt
+      key: files/nginx/ssl/rsa4096.key
+    - name: ec256
+      certificate: files/nginx/ssl/ec256.crt
+      key: files/nginx/ssl/ec256.key
+
+- name: Set up ingresses
+  k8s:
+    state: present
+    namespace: openzaak-test
+    name: nginx-ingress
+    definition:
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        annotations:
+          namespace: ingress-nginx
+          kubernetes.io/ingress.class: nginx
+          # nginx.ingress.kubernetes.io/ssl-redirect: true
+      spec:
+        rules:
+          - host: ingress-nginx-rsa4096.openzaak.nl
+            http:
+              paths:
+                - path: /
+                  backend:
+                    serviceName: nginx
+                    servicePort: 80
+          - host: ingress-nginx-ec256.openzaak.nl
+            http:
+              paths:
+                - path: /
+                  backend:
+                    serviceName: nginx
+                    servicePort: 80
+        tls:
+          - secretName: rsa4096
+            hosts:
+              - ingress-nginx-rsa4096.openzaak.nl
+          - secretName: ec256
+            hosts:
+              - ingress-nginx-ec256.openzaak.nl
+
+    validate:
+      fail_on_error: yes
+      strict: yes
