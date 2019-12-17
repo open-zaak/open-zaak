@@ -1,6 +1,10 @@
 from django.contrib import admin
 
-from openzaak.utils.admin import AuditTrailAdminMixin, AuditTrailInlineAdminMixin
+from openzaak.utils.admin import (
+    AuditTrailAdminMixin,
+    AuditTrailInlineAdminMixin,
+    UUIDAdminMixin,
+)
 
 from ..models import (
     KlantContact,
@@ -62,8 +66,20 @@ class RelevanteZaakRelatieInline(admin.TabularInline):
 
 
 @admin.register(Zaak)
-class ZaakAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ["identificatie"]
+class ZaakAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "identificatie",
+        "registratiedatum",
+        "startdatum",
+        "einddatum",
+        "archiefstatus",
+    )
+    search_fields = (
+        "identificatie",
+        "uuid",
+    )
+    date_hierarchy = "registratiedatum"
+    list_filter = ("startdatum", "archiefstatus", "vertrouwelijkheidaanduiding")
     inlines = [
         StatusInline,
         ZaakObjectInline,
