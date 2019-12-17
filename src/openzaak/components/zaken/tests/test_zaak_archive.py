@@ -200,7 +200,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         status_create_url = get_operation_url("status_create")
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -243,7 +243,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         status_create_url = get_operation_url("status_create")
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -289,7 +289,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -338,7 +338,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         status_create_url = get_operation_url("status_create")
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -424,7 +424,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         status_create_url = get_operation_url("status_create")
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -472,7 +472,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -527,7 +527,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -587,7 +587,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -631,7 +631,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -678,7 +678,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -723,7 +723,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -775,7 +775,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -821,7 +821,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -868,7 +868,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
@@ -970,7 +970,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         statustype_url = reverse(statustype)
         data = {
             "zaak": zaak_url,
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 

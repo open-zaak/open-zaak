@@ -208,7 +208,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             status_list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_url,
+                "statustype": f"http://testserver{self.statustype_url}",
                 "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
             },
         )
@@ -219,7 +219,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             status_list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_url,
+                "statustype": f"http://testserver{self.statustype_url}",
                 "datumStatusGezet": isodatetime(2018, 10, 2, 10, 00, 00),
             },
         )
@@ -246,7 +246,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             status_list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_url,
+                "statustype": f"http://testserver{self.statustype_url}",
                 "datumStatusGezet": datum_status_gezet.isoformat(),
             },
         )

@@ -709,13 +709,14 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_url,
+                "statustype": f"http://testserver{self.statustype_url}",
                 "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
             },
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_bad_url(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
@@ -735,6 +736,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "statustype")
         self.assertEqual(error["code"], "bad-url")
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_invalid_resource(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
@@ -763,7 +765,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_url,
+                "statustype": f"http://testserver{self.statustype_url}",
                 "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
             },
         )
@@ -811,7 +813,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_end_url,
+                "statustype": f"http://testserver{self.statustype_end_url}",
                 "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
             },
         )
@@ -839,7 +841,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_end_url,
+                "statustype": f"http://testserver{self.statustype_end_url}",
                 "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
             },
         )
@@ -1096,7 +1098,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_end_url,
+                "statustype": f"http://testserver{self.statustype_end_url}",
                 "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
             },
         )
@@ -1124,7 +1126,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_end_url,
+                "statustype": f"http://testserver{self.statustype_end_url}",
                 "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
             },
         )
@@ -1156,7 +1158,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             list_url,
             {
                 "zaak": zaak_url,
-                "statustype": self.statustype_end_url,
+                "statustype": f"http://testserver{self.statustype_end_url}",
                 "datumStatusGezet": isodatetime(2019, 7, 22, 13, 00, 00),
             },
         )

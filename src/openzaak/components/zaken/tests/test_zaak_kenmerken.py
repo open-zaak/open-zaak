@@ -163,7 +163,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         StatusTypeFactory.create(zaaktype=zaaktype)
         data = {
             "zaak": zaak["url"],
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": datetime.datetime.now().isoformat(),
         }
 
