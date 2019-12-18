@@ -35,17 +35,22 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
     return choices;
 };
 
-const getTypesSelection = (component) => {
-    const typeInfo = COMPONENT_TO_TYPES[component];
-    if (typeInfo == null) {
-        return null;
-    }
 
+const TypeSelector = (props) => {
+    const { typeInfo } = props;
     const [ verboseNamePlural, typeOptionsField ] = typeInfo;
     return (
-        <TypesSelection verboseNamePlural={verboseNamePlural} typeOptionsField={typeOptionsField} />
+        <React.Fragment>
+            <h4 className="autorisatie-form__extra-title">Voor welke typen geldt dit?</h4>
+            <TypesSelection verboseNamePlural={verboseNamePlural} typeOptionsField={typeOptionsField} />
+        </React.Fragment>
     );
 };
+
+TypeSelector.propTypes = {
+    typeInfo: PropTypes.array.isRequired,
+};
+
 
 const AutorisatieForm = (props) => {
     const { index } = props;
@@ -55,6 +60,7 @@ const AutorisatieForm = (props) => {
     const [availableScopeChoices, setAvailableScopeChoices] = useState([]);
 
     const showVA = VA_COMPONENTS.includes(selectedComponent);
+    const showTypeSelection = COMPONENT_TO_TYPES[selectedComponent] != null;
 
     const isEven = (index % 2) === 0;
 
@@ -80,17 +86,32 @@ const AutorisatieForm = (props) => {
                     {
                         availableScopeChoices.length ?
                             <CheckboxSelect choices={availableScopeChoices} name="scopes" /> :
-                            '(kies eerst een component)'
+                            <span className="autorisatie-form__select-component">(kies eerst een component)</span>
                     }
                 </div>
 
-                <div className="autorisatie-form__extra">
+                <div className="autorisatie-form__extra-container">
                     <h3 className="autorisatie-form__field-title">Extra parameters</h3>
-                    <div className="autorisatie-form__types-selection">
-                        { getTypesSelection(selectedComponent) }
-                    </div>
-                    <div className="autorisatie-form__va-selection">
-                        { showVA ? <VertrouwelijkheidAanduiding /> : null }
+                    <div className="autorisatie-form__extra">
+                        {
+                            (!showTypeSelection && !showVA) ?
+                                <span className="autorisatie-form__select-component">(er zijn geen relevante extra opties)</span> :
+                                null
+                        }
+
+                        {
+                            showTypeSelection ?
+                                (<div className="autorisatie-form__types-selection">
+                                    <TypeSelector typeInfo={ COMPONENT_TO_TYPES[selectedComponent] } />
+                                </div>) :
+                                null
+                        }
+
+                        { showVA ?
+                            <div className="autorisatie-form__va-selection"><VertrouwelijkheidAanduiding /></div> :
+                            null
+                        }
+
                     </div>
                 </div>
 

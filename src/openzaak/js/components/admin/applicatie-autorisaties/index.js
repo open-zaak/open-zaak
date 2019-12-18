@@ -35,7 +35,7 @@ const mount = () => {
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>
             <CatalogiContext.Provider value={catalogi}>
-                <AutorisatieFormSet extra={3} />
+                <AutorisatieFormSet extra={1} />
             </CatalogiContext.Provider>
         </ConstantsContext.Provider>,
         node

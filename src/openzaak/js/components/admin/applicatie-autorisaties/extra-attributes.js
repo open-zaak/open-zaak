@@ -88,7 +88,10 @@ TypesSelection.propTypes = {
 const VertrouwelijkheidAanduiding = () => {
     const { vertrouwelijkheidaanduidingChoices } = useContext(ConstantsContext);
     return (
-        <RadioSelect choices={vertrouwelijkheidaanduidingChoices} name="vertrouwelijkheidaanduiding" />
+        <Fragment>
+            <h4 className="autorisatie-form__extra-title">Tot en met welke vertrouwelijkheidaanduiding?</h4>
+            <RadioSelect choices={vertrouwelijkheidaanduidingChoices} name="vertrouwelijkheidaanduiding" />
+        </Fragment>
     );
 };
 
