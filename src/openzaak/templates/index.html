@@ -1,55 +1,72 @@
-{% extends "vng_api_common/index.html" %}
+{% extends "master.html" %}
 
-{% block docs %}
+{% block content %}
 
-  <h2>{{ component|upper }}</h2>
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{{ settings.PROJECT_NAME }} startpunt</h1>
+    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  </div>
 
-  <div class="row justify-content-md-center">
+  <div class="container text-center">
 
-    {% block docs_oas %}
-      <div class="col-sm-4">
+    {% block docs %}
 
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
-            <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
-            <a href="{% url "schema-redoc-"|add:component version=1 %}" class="btn btn-primary">API specificaties</a>
+  <h2>{{ component|capfirst }}</h2>
+
+      <div class="row justify-content-md-center">
+
+        {% block docs_oas %}
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
+                <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
+                <a href="{% url "schema-redoc-"|add:component version=1 %}" class="btn btn-primary">API specificaties</a>
+              </div>
+            </div>
+
           </div>
-        </div>
+        {% endblock %}
 
-      </div>
+        {% block docs_scopes %}
+          <div class="col-sm-4">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
+                <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
+                <a href="{% url 'vng_api_common:scopes' %}" class="btn btn-primary">API scopes</a>
+              </div>
+            </div>
+
+          </div>
+        {% endblock %}
+
+        {% block extra_docs %}
+          {% include "vng_api_common/includes/kanalen_card.html" %}
+        {% endblock %}
+
+     </div>
+     <p></p>
+
     {% endblock %}
 
-    {% block docs_scopes %}
-      <div class="col-sm-4">
+    {% block extra_content %}{% endblock %}
 
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
-            <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
-            <a href="{% url 'vng_api_common:scopes' %}" class="btn btn-primary">API scopes</a>
-          </div>
-        </div>
-
-      </div>
-   {% endblock %}
-
-    {% block extra_docs %}
-      {% include "vng_api_common/includes/kanalen_card.html" %}
+    {% block admin_link %}
+      <p></p>
+      <p>
+        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-danger"><i class="fas fa-lock"></i> Beheer</a>
+      </p>
+      <p>
+         <a href="{% url 'view-config' %}" class="btn btn-sm btn-secondary">
+           <i class="fa fa-info-circle"></i>
+           Bekijk configuratie
+         </a>
+      </p>
     {% endblock %}
 
- </div>
- <p></p>
+  </div>
 
 {% endblock %}
-
-
-{% block admin_link %}
-{{ block.super }}
-<p>
-    <a href="{% url 'view-config' %}" class="btn btn-sm btn-secondary">
-        <i class="fa fa-info-circle"></i>
-        Bekijk configuratie
-    </a>
-</p>
-{% endblock admin_link %}
