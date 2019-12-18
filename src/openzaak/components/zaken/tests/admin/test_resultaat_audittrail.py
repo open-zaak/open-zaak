@@ -25,7 +25,7 @@ class ResultaatAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "resultaattype": resultaattype.id,
+            "_resultaattype": resultaattype.id,
             "toelichting": "desc",
         }
 
@@ -70,7 +70,7 @@ class ResultaatAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": resultaat.uuid,
             "zaak": resultaat.zaak.id,
-            "resultaattype": resultaat.resultaattype.id,
+            "_resultaattype": resultaat.resultaattype.id,
             "toelichting": "new",
         }
 

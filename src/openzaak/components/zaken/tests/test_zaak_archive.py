@@ -183,7 +183,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
         self.assertIsNone(zaak.archiefnominatie)
 
         response = self.client.post(resultaat_create_url, data)
@@ -221,7 +225,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         self.assertIsNone(zaak.archiefactiedatum)
 
@@ -262,7 +270,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         self.assertIsNone(zaak.archiefactiedatum)
 
@@ -308,7 +320,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         self.assertIsNone(zaak.archiefactiedatum)
 
@@ -349,7 +365,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -388,7 +408,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -432,7 +456,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -483,7 +511,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -539,7 +571,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -579,7 +615,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -622,7 +662,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -663,7 +707,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -711,7 +759,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -753,7 +805,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -796,7 +852,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
@@ -894,7 +954,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         )
         resultaattype_url = reverse(resultaattype)
         resultaat_create_url = get_operation_url("resultaat_create")
-        data = {"zaak": zaak_url, "resultaattype": resultaattype_url, "toelichting": ""}
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
 
         response = self.client.post(resultaat_create_url, data)
 
