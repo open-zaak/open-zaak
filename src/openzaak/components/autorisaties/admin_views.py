@@ -43,7 +43,9 @@ class AutorisatiesView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        catalogi = Catalogus.objects.prefetch_related("zaaktype_set")
+        catalogi = Catalogus.objects.prefetch_related(
+            "zaaktype_set", "informatieobjecttype_set", "besluittype_set",
+        )
 
         context.update(self.admin_site.each_context(self.request))
         context.update(

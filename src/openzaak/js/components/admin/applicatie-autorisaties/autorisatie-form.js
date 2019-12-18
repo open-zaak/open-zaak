@@ -19,7 +19,7 @@ const COMPONENT_TO_TYPES = {
     // component: [verboseNamePlural, fieldOnSerializer]
     zrc: ['ZAAKTYPEN', 'zaaktypen'],
     drc: ['INFORMATIEOBJECTTYPEN', 'informatieobjecttypen'],
-    brc: ['BESLUITTTYPEN', 'besluitttypen'],
+    brc: ['BESLUITTTYPEN', 'besluittypen'],
 };
 
 const matchesPrefix = (scope, prefixes) => {
