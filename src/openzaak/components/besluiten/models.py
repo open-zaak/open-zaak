@@ -1,6 +1,7 @@
 import logging
 import uuid as _uuid
 
+from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,6 +15,7 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.documenten.loaders import EIOLoader
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -157,23 +159,6 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         help_text="De datum tot wanneer verweer tegen het besluit mogelijk is.",
     )
 
-    _previous_zaak_url = models.URLField(
-        _("externe previous zaak"), blank=True, max_length=1000,
-    )
-    _previous_zaak = models.ForeignKey(
-        "zaken.Zaak",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,  # een besluit kan niet bij een zaak horen
-        related_name="previous_zaak",
-    )
-    previous_zaak = FkOrURLField(
-        fk_field="_previous_zaak",
-        url_field="_previous_zaak_url",
-        blank=True,
-        null=True,
-        help_text="Previous zaak for signals",
-    )
     _zaakbesluit_url = models.URLField(
         blank=True,
         max_length=1000,
@@ -187,6 +172,15 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         verbose_name_plural = "besluiten"
         unique_together = (("identificatie", "verantwoordelijke_organisatie"),)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # save previous zaak for triggers
+        # self._previous_zaak = self.zaak
+
+        self._previous_zaak = self._zaak
+        self._previous_zaak_url = self._zaak_url
+
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
 
@@ -194,20 +188,23 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "datum")
 
-        # save previous zaak for triggers
-        if self.pk:
-            besluit_before = Besluit.objects.get(pk=self.pk)
-            if not (
-                besluit_before._zaak_id == self._zaak_id
-                and besluit_before._zaak_url == self._zaak_url
-            ):
-                self._previous_zaak = besluit_before._zaak
-                self._previous_zaak_url = besluit_before._zaak_url
-
         super().save(*args, **kwargs)
 
     def unique_representation(self):
         return f"{self.identificatie}"
+
+    @property
+    def previous_zaak(self):
+        if self._previous_zaak:
+            return self._previous_zaak
+
+        if self._previous_zaak_url:
+            remote_model = apps.get_model("zaken", "Zaak")
+            return AuthorizedRequestsLoader().load(
+                url=self._previous_zaak_url, model=remote_model
+            )
+
+        return None
 
 
 class BesluitInformatieObject(models.Model):

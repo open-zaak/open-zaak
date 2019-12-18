@@ -13,8 +13,6 @@ class BesluitPreviousZaakTestCase(APITestCase):
     def test_zaak_local(self):
         besluit = BesluitFactory.create(for_zaak=True)
 
-        self.assertEqual(besluit.previous_zaak, None)
-
         zaak_before = besluit.zaak
         zaak_after = ZaakFactory.create()
         besluit.zaak = zaak_after
@@ -33,8 +31,6 @@ class BesluitPreviousZaakTestCase(APITestCase):
             m.get(zaak_after, json=get_zaak_response(zaak_after, zaaktype))
 
             besluit = BesluitFactory.create(zaak=zaak_before)
-
-            self.assertEqual(besluit.previous_zaak, None)
 
             besluit.zaak = zaak_after
             besluit.save()
