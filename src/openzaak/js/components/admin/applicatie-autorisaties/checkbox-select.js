@@ -24,7 +24,7 @@ const CheckboxSelect = (props) => {
     const checkboxes = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
         return (
-            <li key={index}>
+            <li key={index} className="checkbox-select__checkbox">
                 <CheckboxInput
                     name={_name}
                     value={value}
@@ -43,7 +43,7 @@ const CheckboxSelect = (props) => {
 
     return (
         <React.Fragment>
-            <ul>
+            <ul className="checkbox-select">
                 { checkboxes }
             </ul>
             { helpText ? <p class="help-text"> {helpText} </p> : null }

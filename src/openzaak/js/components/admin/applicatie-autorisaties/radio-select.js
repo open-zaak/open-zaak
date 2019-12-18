@@ -14,7 +14,7 @@ const RadioSelect = (props) => {
     const radios = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
         return (
-            <li key={index}>
+            <li key={index} className="radio-select__radio">
                 <RadioInput
                     name={_name}
                     value={value}
@@ -33,7 +33,7 @@ const RadioSelect = (props) => {
     });
 
     return (
-        <ul>
+        <ul className="radio-select">
             { radios }
         </ul>
     )
