@@ -56,11 +56,14 @@ const AutorisatieForm = (props) => {
 
     const showVA = VA_COMPONENTS.includes(selectedComponent);
 
+    const isEven = (index % 2) === 0;
+
     return (
         <PrefixContext.Provider value={`form-${index}`}>
 
-            <div className="autorisatie-form">
+            <div className={`autorisatie-form autorisatie-form--${isEven ? 'even' : 'odd'}`}>
                 <div className="autorisatie-form__component">
+                    <h3 className="autorisatie-form__field-title">Component</h3>
                     <RadioSelect
                         choices={COMPONENT_CHOICES}
                         name="component"
@@ -73,15 +76,22 @@ const AutorisatieForm = (props) => {
                 </div>
 
                 <div className="autorisatie-form__scopes">
-                    <CheckboxSelect choices={availableScopeChoices} name="scopes" />
+                    <h3 className="autorisatie-form__field-title">Selecteer scopes</h3>
+                    {
+                        availableScopeChoices.length ?
+                            <CheckboxSelect choices={availableScopeChoices} name="scopes" /> :
+                            '(kies eerst een component)'
+                    }
                 </div>
 
-                <div className="autorisatie-form__extra-attributes">
-                    { getTypesSelection(selectedComponent) }
-                </div>
-
-                <div className="autorisatie-form__va">
-                    { showVA ? <VertrouwelijkheidAanduiding /> : null }
+                <div className="autorisatie-form__extra">
+                    <h3 className="autorisatie-form__field-title">Extra parameters</h3>
+                    <div className="autorisatie-form__types-selection">
+                        { getTypesSelection(selectedComponent) }
+                    </div>
+                    <div className="autorisatie-form__va-selection">
+                        { showVA ? <VertrouwelijkheidAanduiding /> : null }
+                    </div>
                 </div>
 
             </div>

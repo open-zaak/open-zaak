@@ -1,9 +1,34 @@
-.autorisatie-form {
-  border: solid 1px red;
-  padding: 20px 10px;
-  margin-bottom: 10px;
+@import "../vars";
 
+// django admin defaults for inlines
+$color-row-border: #eeeeee !default;
+$color-row-background: #f9f9f9 !default;
+
+.autorisatie-form {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: flex-start;
+
+  padding: 5px 10px;
+  border-bottom: 1px solid $color-row-border;
+
+  &#{&}--odd {
+    background: $color-row-background;
+  }
+
+  & &__component {
+    min-width: 200px;
+    width: 20vw;
+    margin-right: 3em;
+  }
+
+  & &__scopes {
+    min-width: 200px;
+    width: 20vw;
+    margin-right: 3em;
+  }
+
+  & &__field-title {
+    margin-bottom: 10px;
+  }
 }

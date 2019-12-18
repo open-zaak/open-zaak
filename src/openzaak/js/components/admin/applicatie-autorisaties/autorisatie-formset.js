@@ -14,7 +14,10 @@ const AutorisatieFormSet = (props) => {
 
     // render the entire component
     return (
-        <React.Fragment> { forms } </React.Fragment>
+        <React.Fragment>
+            <h2 className="autorisatie-formset__header">Autorisaties</h2>
+            { forms }
+        </React.Fragment>
     );
 };
 
