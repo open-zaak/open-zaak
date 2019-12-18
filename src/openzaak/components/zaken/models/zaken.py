@@ -890,7 +890,7 @@ class ZaakBesluit(models.Model):
             models.UniqueConstraint(
                 fields=["zaak", "_besluit_url"],
                 condition=~models.Q(_besluit_url=""),
-                name="unique_zaak_and_besluit_document",
+                name="unique_zaak_and_besluit",
             )
         ]
 

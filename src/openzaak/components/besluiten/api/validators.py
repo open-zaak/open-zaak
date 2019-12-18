@@ -38,7 +38,7 @@ class BesluittypeZaaktypeValidator:
 
         if bool(zaaktype.pk) != bool(besluittype.pk):
             msg_diff = _(
-                "Het besluittype en het zaaktype van de/het zaak moeten tot dezelfde catalogus behoren."
+                "Het besluittype en het zaaktype van de zaak moeten tot dezelfde catalogus behoren."
             )
             raise serializers.ValidationError(msg_diff, code=self.code)
 
