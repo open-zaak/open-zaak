@@ -440,9 +440,25 @@ class Resultaat(models.Model):
     zaak = models.OneToOneField(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-    resultaattype = models.ForeignKey(
+
+    _resultaattype_url = models.URLField(
+        _("extern resultaattype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _resultaattype = models.ForeignKey(
         "catalogi.ResultaatType",
         on_delete=models.CASCADE,
+        help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
+    )
+    resultaattype = FkOrURLField(
+        fk_field="_resultaattype",
+        url_field="_resultaattype_url",
         help_text=_("URL-referentie naar het RESULTAATTYPE (in de Catalogi API)."),
     )
 
