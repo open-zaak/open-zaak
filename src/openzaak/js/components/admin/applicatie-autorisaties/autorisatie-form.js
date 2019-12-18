@@ -6,16 +6,26 @@ import { CheckboxSelect } from './checkbox-select';
 import { RadioSelect } from './radio-select';
 import { Choice } from "./types";
 
-import { ConstantsContext } from './context';
+import { ConstantsContext, PrefixContext } from './context';
 
 import { TypesSelection, VertrouwelijkheidAanduiding } from './extra-attributes';
 
+const VA_COMPONENTS = [
+    'zrc',
+    'drc'
+];
+
+const COMPONENT_TO_TYPES = {
+    // component: [verboseNamePlural, fieldOnSerializer]
+    zrc: ['ZAAKTYPEN', 'zaaktypen'],
+    drc: ['INFORMATIEOBJECTTYPEN', 'informatieobjecttypen'],
+    brc: ['BESLUITTTYPEN', 'besluitttypen'],
+};
 
 const matchesPrefix = (scope, prefixes) => {
     const matchPrefixes = prefixes.filter(prefix => scope.startsWith(`${prefix}.`));
     return matchPrefixes.length > 0;
 };
-
 
 const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) => {
     const prefixes = componentPrefixes[component] || [];
@@ -25,14 +35,7 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
     return choices;
 };
 
-const COMPONENT_TO_TYPES = {
-    // component: [verboseNamePlural, fieldOnSerializer]
-    zrc: ['ZAAKTYPEN', 'zaaktypen'],
-    drc: ['INFORMATIEOBJECTTYPEN', 'informatieobjecttypen'],
-    brc: ['BESLUITTTYPEN', 'besluitttypen'],
-};
-
-const getTypesSelection = (component, prefix) => {
+const getTypesSelection = (component) => {
     const typeInfo = COMPONENT_TO_TYPES[component];
     if (typeInfo == null) {
         return null;
@@ -40,27 +43,9 @@ const getTypesSelection = (component, prefix) => {
 
     const [ verboseNamePlural, typeOptionsField ] = typeInfo;
     return (
-        <TypesSelection
-            prefix={prefix}
-            verboseNamePlural={verboseNamePlural}
-            typeOptionsField={typeOptionsField}
-        />
+        <TypesSelection verboseNamePlural={verboseNamePlural} typeOptionsField={typeOptionsField} />
     );
 };
-
-
-const VA_COMPONENTS = ['zrc', 'drc'];
-
-
-const getVASelection = (component, prefix) => {
-    if (!VA_COMPONENTS.includes(component)) {
-        return null;
-    }
-    return (
-        <VertrouwelijkheidAanduiding prefix={prefix} />
-    );
-};
-
 
 const AutorisatieForm = (props) => {
     const { index } = props;
@@ -69,39 +54,39 @@ const AutorisatieForm = (props) => {
     const [selectedComponent, setSelectedComponent] = useState('');
     const [availableScopeChoices, setAvailableScopeChoices] = useState([]);
 
-    const prefix = `form-${index}`;
+    const showVA = VA_COMPONENTS.includes(selectedComponent);
 
     return (
-        <div className="autorisatie-form">
-            <div className="autorisatie-form__component">
-                <RadioSelect
-                    choices={COMPONENT_CHOICES}
-                    prefix={prefix}
-                    name="component"
-                    onChange={ (component) => {
-                        setSelectedComponent(component);
-                        const choices = getAvailableScopeChoices(component, componentPrefixes, scopeChoices);
-                        setAvailableScopeChoices(choices);
-                    }}
-                />
+        <PrefixContext.Provider value={`form-${index}`}>
+
+            <div className="autorisatie-form">
+                <div className="autorisatie-form__component">
+                    <RadioSelect
+                        choices={COMPONENT_CHOICES}
+                        name="component"
+                        onChange={ (component) => {
+                            setSelectedComponent(component);
+                            const choices = getAvailableScopeChoices(component, componentPrefixes, scopeChoices);
+                            setAvailableScopeChoices(choices);
+                        }}
+                    />
+                </div>
+
+                <div className="autorisatie-form__scopes">
+                    <CheckboxSelect choices={availableScopeChoices} name="scopes" />
+                </div>
+
+                <div className="autorisatie-form__extra-attributes">
+                    { getTypesSelection(selectedComponent) }
+                </div>
+
+                <div className="autorisatie-form__va">
+                    { showVA ? <VertrouwelijkheidAanduiding /> : null }
+                </div>
+
             </div>
 
-            <div className="autorisatie-form__scopes">
-                <CheckboxSelect
-                    choices={availableScopeChoices}
-                    prefix={prefix} name="scopes"
-                />
-            </div>
-
-            <div className="autorisatie-form__extra-attributes">
-                { getTypesSelection(selectedComponent, prefix) }
-            </div>
-
-            <div className="autorisatie-form__va">
-                { getVASelection(selectedComponent, prefix) }
-            </div>
-
-        </div>
+        </PrefixContext.Provider>
     );
 };
 

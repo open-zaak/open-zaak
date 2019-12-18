@@ -9,4 +9,6 @@ const ConstantsContext = React.createContext({
 
 const CatalogiContext = React.createContext([]);
 
-export { ConstantsContext, CatalogiContext };
+const PrefixContext = React.createContext('');
+
+export { ConstantsContext, CatalogiContext, PrefixContext };

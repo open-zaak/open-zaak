@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import { PrefixContext } from './context';
 import { RadioInput } from "./inputs";
 import { Choice } from "./types";
 
 
 const RadioSelect = (props) => {
-    const { choices, prefix, name, onChange } = props;
-
+    const { choices, name, onChange } = props;
+    const prefix = useContext(PrefixContext);
     const [currentValue, setCurrentValue] = useState(null);
 
     const radios = choices.map( ([value, label], index) => {
@@ -40,7 +41,6 @@ const RadioSelect = (props) => {
 
 RadioSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
-    prefix: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     helpText: PropTypes.string,
     onChange: PropTypes.func,

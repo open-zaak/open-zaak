@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import { PrefixContext } from './context';
 import { CheckboxInput } from "./inputs";
 import { Choice } from "./types";
 
@@ -16,8 +17,8 @@ const getSelected = (selected, value, shouldInclude) => {
 
 
 const CheckboxSelect = (props) => {
-    const { choices, prefix, name, helpText } = props;
-
+    const { choices, name, helpText } = props;
+    const prefix = useContext(PrefixContext);
     const [{selected}, setSelected] = useState({selected: []});
 
     const checkboxes = choices.map( ([value, label], index) => {
@@ -52,7 +53,6 @@ const CheckboxSelect = (props) => {
 
 CheckboxSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
-    prefix: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     helpText: PropTypes.string,
 };

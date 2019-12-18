@@ -7,22 +7,21 @@ import { CheckboxSelect } from './checkbox-select';
 
 
 const CatalogusOptions = (props) => {
-    const { typeOptions, display } = props;
-    const choices = typeOptions.map( ({id, str}) => [id.toString(), str] );
+    const { typeOptionsField, typeOptions, display } = props;
+    const choices = typeOptions.map(
+        ({id, str}) => [id.toString(), str]
+    );
     return (
         <div className="catalogus-options">
             <span className="catalogus-options__title">{ display }</span>
-            <CheckboxSelect
-                choices={choices}
-                prefix={"TODO"}
-                name={"zaaktypen"}
-            />
+            <CheckboxSelect choices={choices} name={ typeOptionsField } />
         </div>
     );
 };
 
 
 CatalogusOptions.propTypes = {
+    typeOptionsField: PropTypes.string.isRequired,
     typeOptions: PropTypes.arrayOf(PropTypes.object).isRequired,
     display: PropTypes.string.isRequired,
 };
@@ -35,7 +34,8 @@ const TypeOptions = (props) => {
         <Fragment>
             { catalogi.map(catalogus => (
                 <CatalogusOptions
-                    key={catalogus.id}
+                    key={ catalogus.id }
+                    typeOptionsField={ typeOptionsField }
                     typeOptions={ catalogus[typeOptionsField] }
                     display={ catalogus.str }
                 />)
@@ -50,7 +50,7 @@ TypeOptions.propTypes = {
 
 
 const TypesSelection = (props) => {
-    const { prefix, verboseNamePlural, typeOptionsField } = props;
+    const { verboseNamePlural, typeOptionsField } = props;
     const { relatedTypeSelectionMethods } = useContext(ConstantsContext);
     const [ showTypeOptions, setShowTypeOptions ] = useState(false);
 
@@ -63,7 +63,6 @@ const TypesSelection = (props) => {
         <Fragment>
             <RadioSelect
                 choices={formattedChoices}
-                prefix={prefix}
                 name="related_type_selection"
                 onChange={(relatedTypeSelectioNMethod) => {
                     // only show the explicit type selection if manual selection is picked
@@ -81,26 +80,16 @@ const TypesSelection = (props) => {
 };
 
 TypesSelection.propTypes = {
-    prefix: PropTypes.string.isRequired,
     verboseNamePlural: PropTypes.string.isRequired,
     typeOptionsField: PropTypes.string.isRequired,
 }
 
 
-const VertrouwelijkheidAanduiding = (props) => {
-    const { prefix } = props;
+const VertrouwelijkheidAanduiding = () => {
     const { vertrouwelijkheidaanduidingChoices } = useContext(ConstantsContext);
     return (
-        <RadioSelect
-            choices={vertrouwelijkheidaanduidingChoices}
-            prefix={prefix}
-            name="vertrouwelijkheidaanduiding"
-        />
+        <RadioSelect choices={vertrouwelijkheidaanduidingChoices} name="vertrouwelijkheidaanduiding" />
     );
-};
-
-VertrouwelijkheidAanduiding.propTypes = {
-    prefix: PropTypes.string.isRequired
 };
 
 
