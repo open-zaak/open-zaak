@@ -22,6 +22,7 @@
     {{ scope_choices|json_script:"scope-choices" }}
     {{ COMPONENTS_TO_PREFIXES_MAP|json_script:"component-scope-prefixes" }}
     {{ RELATED_TYPE_SELECTION_METHODS|json_script:"related-type-selection-methods" }}
+    {{ VA_CHOICES|json_script:"vertrouwelijkheidaanduiding-choices" }}
 
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
@@ -33,7 +34,7 @@
 
 
 
-
+        <button type="submit">{% trans "Submit" %}</button>
 
 
 

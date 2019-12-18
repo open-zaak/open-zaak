@@ -8,6 +8,7 @@ from .forms import (
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
     RelatedTypeSelectionMethods,
+    VertrouwelijkheidsAanduiding,
     get_scope_choices,
 )
 
@@ -31,6 +32,11 @@ class AutorisatiesView(DetailView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        import bpdb
+
+        bpdb.set_trace()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.admin_site.each_context(self.request))
@@ -44,6 +50,7 @@ class AutorisatiesView(DetailView):
                 "scope_choices": get_scope_choices(),
                 "COMPONENTS_TO_PREFIXES_MAP": COMPONENT_TO_PREFIXES_MAP,
                 "RELATED_TYPE_SELECTION_METHODS": RelatedTypeSelectionMethods.choices,
+                "VA_CHOICES": VertrouwelijkheidsAanduiding.choices,
             }
         )
         return context

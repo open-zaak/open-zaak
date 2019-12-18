@@ -4,6 +4,7 @@ const ConstantsContext = React.createContext({
     scopeChoices: [],
     componentPrefixes: {},
     relatedTypeSelectionMethods: [],
-})
+    vertrouwelijkheidaanduidingChoices: [],
+});
 
 export { ConstantsContext };

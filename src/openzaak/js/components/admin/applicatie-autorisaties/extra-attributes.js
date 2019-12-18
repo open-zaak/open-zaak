@@ -33,4 +33,21 @@ TypesSelection.propTypes = {
 }
 
 
-export { TypesSelection };
+const VertrouwelijkheidAanduiding = (props) => {
+    const { prefix } = props;
+    const { vertrouwelijkheidaanduidingChoices } = useContext(ConstantsContext);
+    return (
+        <RadioSelect
+            choices={vertrouwelijkheidaanduidingChoices}
+            prefix={prefix}
+            name="vertrouwelijkheidaanduiding"
+        />
+    );
+};
+
+VertrouwelijkheidAanduiding.propTypes = {
+    prefix: PropTypes.string.isRequired
+};
+
+
+export { TypesSelection, VertrouwelijkheidAanduiding };

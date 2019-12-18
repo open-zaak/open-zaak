@@ -19,8 +19,14 @@ const mount = () => {
     const scopeChoices = jsonScriptToVar('scope-choices');
     const componentPrefixes = jsonScriptToVar('component-scope-prefixes');
     const relatedTypeSelectionMethods = jsonScriptToVar('related-type-selection-methods');
+    const vertrouwelijkheidaanduidingChoices = jsonScriptToVar('vertrouwelijkheidaanduiding-choices');
 
-    const constants = {scopeChoices, componentPrefixes, relatedTypeSelectionMethods};
+    const constants = {
+        scopeChoices,
+        componentPrefixes,
+        relatedTypeSelectionMethods,
+        vertrouwelijkheidaanduidingChoices
+    };
 
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>

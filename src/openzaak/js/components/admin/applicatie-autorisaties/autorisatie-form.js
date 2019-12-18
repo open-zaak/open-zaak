@@ -8,7 +8,7 @@ import { Choice } from "./types";
 
 import { ConstantsContext } from './context';
 
-import { TypesSelection } from './extra-attributes';
+import { TypesSelection, VertrouwelijkheidAanduiding } from './extra-attributes';
 
 
 const matchesPrefix = (scope, prefixes) => {
@@ -41,6 +41,19 @@ const getTypesSelection = (component, prefix) => {
 };
 
 
+const VA_COMPONENTS = ['zrc', 'drc'];
+
+
+const getVASelection = (component, prefix) => {
+    if (!VA_COMPONENTS.includes(component)) {
+        return null;
+    }
+    return (
+        <VertrouwelijkheidAanduiding prefix={prefix} />
+    );
+};
+
+
 const AutorisatieForm = (props) => {
     const { index } = props;
 
@@ -48,12 +61,14 @@ const AutorisatieForm = (props) => {
     const [selectedComponent, setSelectedComponent] = useState('');
     const [availableScopeChoices, setAvailableScopeChoices] = useState([]);
 
+    const prefix = `form-${index}`;
+
     return (
         <div className="autorisatie-form">
             <div className="autorisatie-form__component">
                 <RadioSelect
                     choices={COMPONENT_CHOICES}
-                    prefix={`form-${index}`}
+                    prefix={prefix}
                     name="component"
                     onChange={ (component) => {
                         setSelectedComponent(component);
@@ -66,12 +81,16 @@ const AutorisatieForm = (props) => {
             <div className="autorisatie-form__scopes">
                 <CheckboxSelect
                     choices={availableScopeChoices}
-                    prefix={`form-${index}`} name="scopes"
+                    prefix={prefix} name="scopes"
                 />
             </div>
 
             <div className="autorisatie-form__extra-attributes">
-                { getTypesSelection(selectedComponent, `form-${index}`) }
+                { getTypesSelection(selectedComponent, prefix) }
+            </div>
+
+            <div className="autorisatie-form__va">
+                { getVASelection(selectedComponent, prefix) }
             </div>
 
         </div>
