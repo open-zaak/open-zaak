@@ -466,3 +466,10 @@ if SENTRY_DSN:
 #
 ADMIN_INDEX_SHOW_REMAINING_APPS_TO_SUPERUSERS = False
 ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
+
+#
+# OpenZaak configuration
+#
+
+OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
+OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
