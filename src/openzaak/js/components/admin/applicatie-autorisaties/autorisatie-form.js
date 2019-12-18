@@ -26,17 +26,25 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
 };
 
 const COMPONENT_TO_TYPES = {
-    zrc: 'zaaktypen',
-    drc: 'informatieobjecttypen',
-    brc: 'besluitttypen',
+    // component: [verboseNamePlural, fieldOnSerializer]
+    zrc: ['ZAAKTYPEN', 'zaaktypen'],
+    drc: ['INFORMATIEOBJECTTYPEN', 'informatieobjecttypen'],
+    brc: ['BESLUITTTYPEN', 'besluitttypen'],
 };
 
 const getTypesSelection = (component, prefix) => {
-    if (COMPONENT_TO_TYPES[component] == null) {
+    const typeInfo = COMPONENT_TO_TYPES[component];
+    if (typeInfo == null) {
         return null;
     }
+
+    const [ verboseNamePlural, typeOptionsField ] = typeInfo;
     return (
-        <TypesSelection prefix={prefix} verboseNamePlural={COMPONENT_TO_TYPES[component]} />
+        <TypesSelection
+            prefix={prefix}
+            verboseNamePlural={verboseNamePlural}
+            typeOptionsField={typeOptionsField}
+        />
     );
 };
 

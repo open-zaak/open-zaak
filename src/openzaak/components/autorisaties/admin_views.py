@@ -4,6 +4,9 @@ from django.views.generic import DetailView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 
+from openzaak.components.catalogi.models import Catalogus
+
+from .admin_serializers import CatalogusSerializer
 from .forms import (
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
@@ -39,6 +42,9 @@ class AutorisatiesView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        catalogi = Catalogus.objects.prefetch_related("zaaktype_set")
+
         context.update(self.admin_site.each_context(self.request))
         context.update(
             {
@@ -51,6 +57,9 @@ class AutorisatiesView(DetailView):
                 "COMPONENTS_TO_PREFIXES_MAP": COMPONENT_TO_PREFIXES_MAP,
                 "RELATED_TYPE_SELECTION_METHODS": RelatedTypeSelectionMethods.choices,
                 "VA_CHOICES": VertrouwelijkheidsAanduiding.choices,
+                "catalogi": CatalogusSerializer(
+                    catalogi, read_only=True, many=True
+                ).data,
             }
         )
         return context

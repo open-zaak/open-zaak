@@ -3,8 +3,9 @@ import ReactDOM from "react-dom";
 
 import { AutorisatieFormSet } from './autorisatie-formset';
 
-import { ConstantsContext } from './context';
+import { ConstantsContext, CatalogiContext } from './context';
 
+import { Catalogus } from './data/catalogus';
 
 const jsonScriptToVar = (id) => {
     const node = document.getElementById(id);
@@ -21,6 +22,9 @@ const mount = () => {
     const relatedTypeSelectionMethods = jsonScriptToVar('related-type-selection-methods');
     const vertrouwelijkheidaanduidingChoices = jsonScriptToVar('vertrouwelijkheidaanduiding-choices');
 
+    const catalogi = jsonScriptToVar('catalogi')
+        .map(catalogus => new Catalogus(catalogus));
+
     const constants = {
         scopeChoices,
         componentPrefixes,
@@ -30,7 +34,9 @@ const mount = () => {
 
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>
-            <AutorisatieFormSet extra={3} />
+            <CatalogiContext.Provider value={catalogi}>
+                <AutorisatieFormSet extra={3} />
+            </CatalogiContext.Provider>
         </ConstantsContext.Provider>,
         node
     );

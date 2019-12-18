@@ -7,4 +7,6 @@ const ConstantsContext = React.createContext({
     vertrouwelijkheidaanduidingChoices: [],
 });
 
-export { ConstantsContext };
+const CatalogiContext = React.createContext([]);
+
+export { ConstantsContext, CatalogiContext };

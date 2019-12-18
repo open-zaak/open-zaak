@@ -24,6 +24,8 @@
     {{ RELATED_TYPE_SELECTION_METHODS|json_script:"related-type-selection-methods" }}
     {{ VA_CHOICES|json_script:"vertrouwelijkheidaanduiding-choices" }}
 
+    {{ catalogi|json_script:"catalogi" }}
+
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
 
