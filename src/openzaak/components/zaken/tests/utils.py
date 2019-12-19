@@ -113,3 +113,24 @@ def get_zaakbesluit_response(zaak: str) -> dict:
         "uuid": zaakbesluit_uuid,
         "besluit": f"http://testserver/api/v1/besluiten/{uuid.uuid4()}",
     }
+
+
+def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
+    return {
+        "url": resultaattype,
+        "zaaktype": zaaktype,
+        "omschrijving": "some role",
+        "resultaattypeomschrijving": "https://referentielijsten-api.vng.cloud/api/v1/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7",
+        "omschrijvingGeneriek": "Afgewezen",
+        "selectielijstklasse": "https://referentielijsten-api.vng.cloud/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+        "toelichting": "",
+        "archiefnominatie": "vernietigen",
+        "archiefactietermijn": "P10Y",
+        "brondatumArchiefprocedure": {
+            "afleidingswijze": "afgehandeld",
+            "datumkenmerk": "",
+            "einddatumBekend": False,
+            "objecttype": "",
+            "registratie": "",
+        },
+    }
