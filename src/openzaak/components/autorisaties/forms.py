@@ -106,9 +106,18 @@ COMPONENT_TO_PREFIXES_MAP = {
 }
 
 COMPONENT_TO_FIELDS_MAP = {
-    ComponentTypes.zrc: ("zaaktypen", "vertrouwelijkheidaanduiding"),
-    ComponentTypes.drc: ("informatieobjecttypen", "vertrouwelijkheidaanduiding"),
-    ComponentTypes.brc: ("zaaktypen",),
+    ComponentTypes.zrc: {
+        "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
+        "types_field": "zaaktypen",
+    },
+    ComponentTypes.drc: {
+        "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
+        "types_field": "informatieobjecttypen",
+    },
+    ComponentTypes.brc: {
+        "required": ("related_type_selection",),
+        "types_field": "besluittypen",
+    },
 }
 
 
@@ -190,6 +199,73 @@ class AutorisatieForm(forms.Form):
         queryset=BesluitType.objects.filter(concept=False),
         widget=forms.CheckboxSelectMultiple,
     )
+
+    def clean(self):
+        super().clean()
+
+        component = self.cleaned_data.get("component")
+
+        # didn't pass validation, can't do anything else as it all relies on this
+        # field
+        if not component:
+            return
+
+        self._validate_scopes(component)
+        self._validate_required_fields(component)
+
+    def _validate_scopes(self, component: str):
+        scopes = self.cleaned_data.get("scopes")
+        # can't do anything if there are no scopes selected
+        if scopes is None:
+            return
+
+        valid_prefixes = COMPONENT_TO_PREFIXES_MAP[component]
+        invalid_scopes = [
+            scope
+            for scope in scopes
+            if not any(scope.startswith(prefix) for prefix in valid_prefixes)
+        ]
+
+        if invalid_scopes:
+            raise forms.ValidationError(
+                _(
+                    "De volgende scopes zijn geen geldige keuzes voor deze component: {scopes}"
+                ).format(scopes=", ".join(invalid_scopes)),
+                code="invalid",
+            )
+
+    def _validate_required_fields(self, component: str):
+        expected_fields = COMPONENT_TO_FIELDS_MAP[component]["required"]
+        missing = [
+            field for field in expected_fields if not self.cleaned_data.get(field)
+        ]
+
+        if missing:
+            raise forms.ValidationError(
+                _("Je moet een keuze opgeven voor de/het veld(en): {fields}").format(
+                    fields=", ".join(missing)
+                ),
+                code="required",
+                params={"fields": missing},
+            )
+
+        if "related_type_selection" not in expected_fields:
+            return
+
+        related_type_selection = self.cleaned_data["related_type_selection"]
+        if related_type_selection != RelatedTypeSelectionMethods.manual_select:
+            return
+
+        # check that values for the typen have been selected manually
+        types_field = COMPONENT_TO_FIELDS_MAP[component]["types_field"]
+        if not self.cleaned_data.get(types_field):
+            raise forms.ValidationError(
+                {
+                    types_field: forms.ValidationError(
+                        _("Je moet minimaal 1 type kiezen"), code="required",
+                    )
+                }
+            )
 
 
 # TODO: validate overlap zaaktypen between different auths

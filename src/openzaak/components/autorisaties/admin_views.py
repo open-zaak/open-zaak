@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
@@ -36,9 +37,20 @@ class AutorisatiesView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        self.object = applicatie = self.get_object()
+        formset = AutorisatieFormSet(data=request.POST)
+        if formset.is_valid():
+            formset.save()
+            return redirect(
+                "admin:autorisaties_applicatie_change", args=(applicatie.pk,)
+            )
+
         import bpdb
 
         bpdb.set_trace()
+
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -64,4 +76,8 @@ class AutorisatiesView(DetailView):
                 ).data,
             }
         )
+
+        if "formset" not in context:
+            context["formset"] = AutorisatieFormSet()
+
         return context
