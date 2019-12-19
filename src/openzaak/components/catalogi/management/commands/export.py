@@ -4,6 +4,7 @@ import zipfile
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand, CommandError
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -58,9 +59,7 @@ class Command(BaseCommand):
             )
 
         factory = APIRequestFactory()
-        server_name = (
-            "testserver" if "*" in settings.ALLOWED_HOSTS else settings.ALLOWED_HOSTS[0]
-        )
+        server_name = Site.objects.get_current().domain
         request = factory.get("/", SERVER_NAME=server_name)
         setattr(request, "versioning_scheme", URLPathVersioning())
         setattr(request, "version", "1")

@@ -1,6 +1,7 @@
 from io import StringIO
 from unittest.mock import patch
 
+from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import override_settings
 
@@ -12,6 +13,11 @@ from ..models import EnkelvoudigInformatieObject
 
 @override_settings(IS_HTTPS=True)
 class CreateNotifKanaalTestCase(APITestCase):
+    def setUp(self):
+        site = Site.objects.get_current()
+        site.domain = "example.com"
+        site.save()
+
     @patch("zds_client.Client")
     def test_kanaal_create_with_name(self, mock_client):
         """

@@ -523,6 +523,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 class ResultaatTypeFilterAPITests(APITestCase):
     maxDiff = None
 
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_on_zaaktype(self):
         zt1, zt2 = ZaakTypeFactory.create_batch(2, concept=False)
         rt1 = ResultaatTypeFactory.create(zaaktype=zt1)

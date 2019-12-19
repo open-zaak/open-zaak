@@ -3,6 +3,7 @@ import os
 import zipfile
 from unittest.mock import patch
 
+from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
@@ -39,6 +40,9 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 class ExportCatalogiTests(TestCase):
     def setUp(self):
         self.filepath = os.path.join(PATH, "export_test.zip")
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         self.addCleanup(lambda: os.remove(self.filepath))
 
     def test_export_catalogus(self):
@@ -127,6 +131,30 @@ class ExportCatalogiTests(TestCase):
             self.assertIn("InformatieObjectType.json", f.namelist())
             self.assertIn("BesluitType.json", f.namelist())
             self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
+
+    @override_settings(ALLOWED_HOSTS=["somedifferenthost.com"])
+    def test_export_catalogus_different_hostname(self):
+        site = Site.objects.get_current()
+        site.domain = "somedifferenthost.com"
+        site.save()
+
+        catalogus = CatalogusFactory.create(
+            rsin="000000000",
+            domein="TEST",
+            contactpersoon_beheer_naam="bla",
+            contactpersoon_beheer_telefoonnummer="0612345678",
+            contactpersoon_beheer_emailadres="test@test.nl",
+        )
+
+        call_command(
+            "export",
+            archive_name=self.filepath,
+            resource=["Catalogus"],
+            ids=[[catalogus.id]],
+        )
+
+        with zipfile.ZipFile(self.filepath, "r") as f:
+            self.assertEqual(f.namelist(), ["Catalogus.json"])
 
 
 class ImportCatalogiTests(TestCase):
