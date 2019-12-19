@@ -66,7 +66,7 @@ info = openapi.Info(
     default_version=settings.API_VERSION,
     description=description,
     contact=openapi.Contact(
-        email="support@maykinmedia.nl", url="https://www.maykinmedia.nl"
+        email=settings.OPENZAAK_API_CONTACT_EMAIL, url=settings.OPENZAAK_API_CONTACT_URL
     ),
     license=openapi.License(
         name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"

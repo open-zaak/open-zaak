@@ -11,7 +11,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
 dictdiffer==0.8.0
-django-admin-index==1.2.1
+django-admin-index==1.2.2
 django-appconf==1.0.2
 django-axes==4.4.0
 django-better-admin-arrayfield==1.0.4
