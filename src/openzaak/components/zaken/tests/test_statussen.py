@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.test import override_settings, tag
 
 import requests_mock
@@ -9,8 +7,13 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.utils.tests import JWTAuthMixin
 
-from .factories import StatusFactory, ZaakFactory
-from .utils import get_operation_url, get_statustype_response, get_zaaktype_response
+from .factories import ResultaatFactory, StatusFactory, ZaakFactory
+from .utils import (
+    get_operation_url,
+    get_resultaattype_response,
+    get_statustype_response,
+    get_zaaktype_response,
+)
 
 
 class StatusTests(JWTAuthMixin, APITestCase):
@@ -48,7 +51,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def test_create_external_statustype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        statustype = "https://externe.catalogus.nl/api/v1/zaaktypen/7a3e4a22-d789-4381-939b-401dbce29426"
+        statustype = "https://externe.catalogus.nl/api/v1/statustypen/7a3e4a22-d789-4381-939b-401dbce29426"
 
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = f"http://testserver{reverse(zaak)}"
@@ -72,23 +75,23 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    @skip("Loose-fk Resultaat.resultaattype is needed for this test")
     def test_create_external_statustype_last(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        statustype = "https://externe.catalogus.nl/api/v1/zaaktypen/7a3e4a22-d789-4381-939b-401dbce29426"
+        statustype = "https://externe.catalogus.nl/api/v1/statustypen/7a3e4a22-d789-4381-939b-401dbce29426"
+        resultaattype = "https://externe.catalogus.nl/api/v1/resultaattypen/b923543f-97aa-4a55-8c20-889b5906cf75"
         statustype_data = get_statustype_response(statustype, zaaktype)
         statustype_data["isEindstatus"] = True
 
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = f"http://testserver{reverse(zaak)}"
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET", statustype, json=statustype_data,
-            )
-            m.register_uri(
-                "GET", zaaktype, json=get_zaaktype_response(catalogus, zaaktype),
+            m.get(statustype, json=statustype_data)
+            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
+            m.get(
+                resultaattype, json=get_resultaattype_response(resultaattype, zaaktype)
             )
 
             response = self.client.post(
@@ -145,7 +148,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def test_create_external_statustype_fail_invalid_schema(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        statustype = "https://externe.catalogus.nl/api/v1/zaaktypen/7a3e4a22-d789-4381-939b-401dbce29426"
+        statustype = "https://externe.catalogus.nl/api/v1/statustypen/7a3e4a22-d789-4381-939b-401dbce29426"
 
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = f"http://testserver{reverse(zaak)}"
