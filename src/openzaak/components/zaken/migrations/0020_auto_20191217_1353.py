@@ -8,7 +8,7 @@ import django_loose_fk.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0016_auto_20191217_1345"),
+        ("zaken", "0019_auto_20191217_1345"),
     ]
 
     operations = [
