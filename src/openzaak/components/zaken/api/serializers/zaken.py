@@ -70,7 +70,6 @@ from ..validators import (
     RolOccurenceValidator,
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
-    ZaakEigenschapZaakTypeValidator,
 )
 from .betrokkenen import (
     RolMedewerkerSerializer,
