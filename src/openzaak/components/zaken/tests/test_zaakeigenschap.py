@@ -29,7 +29,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         eigenschap_url = reverse(eigenschap)
         data = {
             "zaak": zaak_url,
-            "eigenschap": eigenschap_url,
+            "eigenschap": f"http://testserver{eigenschap_url}",
             "waarde": "overlast_water",
         }
 
@@ -85,7 +85,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         eigenschap_url = reverse(eigenschap)
         data = {
             "zaak": zaak_url,
-            "eigenschap": eigenschap_url,
+            "eigenschap": f"http://testserver{eigenschap_url}",
             "waarde": "overlast_water",
         }
 

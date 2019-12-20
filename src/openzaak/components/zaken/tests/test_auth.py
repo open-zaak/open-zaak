@@ -459,7 +459,7 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
                 url,
                 {
                     "zaak": reverse(zaak1),
-                    "eigenschap": reverse(eigenschap),
+                    "eigenschap": f"http://testserver{reverse(eigenschap)}",
                     "waarde": "test",
                 },
             )
