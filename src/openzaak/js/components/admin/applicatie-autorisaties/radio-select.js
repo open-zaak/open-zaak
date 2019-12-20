@@ -2,12 +2,13 @@ import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { PrefixContext } from './context';
+import { ErrorList } from './error-list';
 import { RadioInput } from "./inputs";
-import { Choice } from "./types";
+import { Choice, Err } from "./types";
 
 
 const RadioSelect = (props) => {
-    const { choices, name, onChange, initialValue } = props;
+    const { choices, name, onChange, initialValue, errors } = props;
     const prefix = useContext(PrefixContext);
     const [currentValue, setCurrentValue] = useState(initialValue);
 
@@ -33,9 +34,12 @@ const RadioSelect = (props) => {
     });
 
     return (
-        <ul className="radio-select">
-            { radios }
-        </ul>
+        <React.Fragment>
+            <ErrorList errors={errors} />
+            <ul className="radio-select">
+                { radios }
+            </ul>
+        </React.Fragment>
     )
 }
 
@@ -44,11 +48,13 @@ RadioSelect.propTypes = {
     name: PropTypes.string.isRequired,
     initialValue: PropTypes.string,
     helpText: PropTypes.string,
+    errors: PropTypes.arrayOf(Err),
     onChange: PropTypes.func,
 };
 
 RadioSelect.defaultProps = {
     initialValue: '',
+    errors: [],
 };
 
 export { RadioSelect };

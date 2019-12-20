@@ -109,14 +109,17 @@ COMPONENT_TO_FIELDS_MAP = {
     ComponentTypes.zrc: {
         "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
         "types_field": "zaaktypen",
+        "verbose_name": _("zaaktype"),
     },
     ComponentTypes.drc: {
         "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
         "types_field": "informatieobjecttypen",
+        "verbose_name": _("informatieobjecttype"),
     },
     ComponentTypes.brc: {
         "required": ("related_type_selection",),
         "types_field": "besluittypen",
+        "verbose_name": _("besluittype"),
     },
 }
 
@@ -236,7 +239,8 @@ class AutorisatieForm(forms.Form):
             self.add_error("scopes", error)
 
     def _validate_required_fields(self, component: str):
-        expected_fields = COMPONENT_TO_FIELDS_MAP[component]["required"]
+        _field_info = COMPONENT_TO_FIELDS_MAP[component]
+        expected_fields = _field_info["required"]
         missing = [
             field for field in expected_fields if not self.cleaned_data.get(field)
         ]
@@ -258,10 +262,13 @@ class AutorisatieForm(forms.Form):
             return
 
         # check that values for the typen have been selected manually
-        types_field = COMPONENT_TO_FIELDS_MAP[component]["types_field"]
+        types_field = _field_info["types_field"]
         if not self.cleaned_data.get(types_field):
             error = forms.ValidationError(
-                _("Je moet minimaal 1 type kiezen"), code="required"
+                _("Je moet minimaal 1 {verbose_name} kiezen").format(
+                    verbose_name=_field_info["verbose_name"]
+                ),
+                code="required",
             )
             self.add_error(types_field, error)
 

@@ -1,9 +1,11 @@
 import React, { useState, useContext, Fragment } from "react";
 import PropTypes from "prop-types";
 
-import { ConstantsContext, CatalogiContext } from './context';
-import { RadioSelect } from './radio-select';
 import { CheckboxSelect } from './checkbox-select';
+import { ConstantsContext, CatalogiContext } from './context';
+import { ErrorList } from './error-list';
+import { RadioSelect } from './radio-select';
+import { Err } from './types';
 
 
 const CatalogusOptions = (props) => {
@@ -50,9 +52,9 @@ TypeOptions.propTypes = {
 
 
 const TypesSelection = (props) => {
-    const { verboseNamePlural, typeOptionsField } = props;
+    const { verboseNamePlural, typeOptionsField, initialValue, errors } = props;
     const { relatedTypeSelectionMethods } = useContext(ConstantsContext);
-    const [ showTypeOptions, setShowTypeOptions ] = useState(false);
+    const [ showTypeOptions, setShowTypeOptions ] = useState(initialValue === 'manual_select');
 
     const formattedChoices = relatedTypeSelectionMethods.map(([value, repr]) => {
         repr = repr.replace('{verbose_name_plural}', verboseNamePlural);
@@ -61,9 +63,11 @@ const TypesSelection = (props) => {
 
     return (
         <Fragment>
+            <ErrorList errors={errors} />
             <RadioSelect
                 choices={formattedChoices}
                 name="related_type_selection"
+                initialValue={initialValue}
                 onChange={(relatedTypeSelectioNMethod) => {
                     // only show the explicit type selection if manual selection is picked
                     setShowTypeOptions(relatedTypeSelectioNMethod === 'manual_select');
@@ -82,7 +86,14 @@ const TypesSelection = (props) => {
 TypesSelection.propTypes = {
     verboseNamePlural: PropTypes.string.isRequired,
     typeOptionsField: PropTypes.string.isRequired,
-}
+    initialValue: PropTypes.string,
+    errors: PropTypes.arrayOf(Err),
+};
+
+TypesSelection.defaultProps = {
+    initialValue: '',
+    errors: [],
+};
 
 
 const VertrouwelijkheidAanduiding = (props) => {

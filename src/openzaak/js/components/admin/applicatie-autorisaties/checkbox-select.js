@@ -1,9 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import { PrefixContext } from './context';
-import { CheckboxInput } from "./inputs";
-import { Choice } from "./types";
+import { ErrorList } from './error-list';
+import { CheckboxInput } from './inputs';
+import { Choice, Err } from './types';
 
 
 const getSelected = (selected, value, shouldInclude) => {
@@ -17,7 +18,7 @@ const getSelected = (selected, value, shouldInclude) => {
 
 
 const CheckboxSelect = (props) => {
-    const { choices, name, helpText, initialValue } = props;
+    const { choices, name, helpText, initialValue, errors } = props;
     const prefix = useContext(PrefixContext);
     const [{selected}, setSelected] = useState({selected: initialValue});
 
@@ -43,6 +44,7 @@ const CheckboxSelect = (props) => {
 
     return (
         <React.Fragment>
+            <ErrorList errors={errors} />
             <ul className="checkbox-select">
                 { checkboxes }
             </ul>
@@ -55,11 +57,13 @@ CheckboxSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
     name: PropTypes.string.isRequired,
     initialValue: PropTypes.arrayOf(PropTypes.string),
+    errors: PropTypes.arrayOf(Err),
     helpText: PropTypes.string,
 };
 
 CheckboxSelect.defaultProps = {
     initialValue: [],
+    errors: [],
 };
 
 export { CheckboxSelect };

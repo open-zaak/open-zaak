@@ -37,18 +37,29 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
 
 
 const TypeSelector = (props) => {
-    const { typeInfo } = props;
+    const { typeInfo, initialValue, errors } = props;
     const [ verboseNamePlural, typeOptionsField ] = typeInfo;
     return (
         <React.Fragment>
             <h4 className="autorisatie-form__extra-title">Voor welke typen geldt dit?</h4>
-            <TypesSelection verboseNamePlural={verboseNamePlural} typeOptionsField={typeOptionsField} />
+            <TypesSelection
+                verboseNamePlural={verboseNamePlural}
+                typeOptionsField={typeOptionsField}
+                initialValue={initialValue}
+                errors={errors[typeOptionsField]}
+            />
         </React.Fragment>
     );
 };
 
 TypeSelector.propTypes = {
     typeInfo: PropTypes.array.isRequired,
+    initialValue: PropTypes.string,
+    errors: PropTypes.object,
+};
+
+TypeSelector.defaultProps = {
+    errors: {},
 };
 
 
@@ -63,10 +74,12 @@ const AutorisatieForm = (props) => {
     );
 
     const showVA = VA_COMPONENTS.includes(selectedComponent);
-    const showTypeSelection = COMPONENT_TO_TYPES[selectedComponent] != null;
+
+    // type selection
+    const typeInfo = COMPONENT_TO_TYPES[selectedComponent];
+    const showTypeSelection = typeInfo != null;
 
     const isEven = (index % 2) === 0;
-
     return (
         <PrefixContext.Provider value={`form-${index}`}>
 
@@ -77,6 +90,7 @@ const AutorisatieForm = (props) => {
                         choices={COMPONENT_CHOICES}
                         name="component"
                         initialValue={values.component}
+                        errors={errors.component}
                         onChange={ (component) => {
                             setSelectedComponent(component);
                             const choices = getAvailableScopeChoices(component, componentPrefixes, scopeChoices);
@@ -89,7 +103,12 @@ const AutorisatieForm = (props) => {
                     <h3 className="autorisatie-form__field-title">Selecteer scopes</h3>
                     {
                         availableScopeChoices.length ?
-                            <CheckboxSelect choices={availableScopeChoices} name="scopes" initialValue={values.scopes} /> :
+                            (<CheckboxSelect
+                                choices={availableScopeChoices}
+                                name="scopes"
+                                initialValue={values.scopes}
+                                errors={errors.scopes}
+                            />) :
                             <span className="autorisatie-form__select-component">(kies eerst een component)</span>
                     }
                 </div>
@@ -104,21 +123,23 @@ const AutorisatieForm = (props) => {
                         }
 
                         {
-                            // TODO: initialValue
                             showTypeSelection ?
                                 (<div className="autorisatie-form__types-selection">
-                                    <TypeSelector typeInfo={ COMPONENT_TO_TYPES[selectedComponent] } />
-                                </div>) :
-                                null
+                                    <TypeSelector
+                                        typeInfo={typeInfo}
+                                        initialValue={values.related_type_selection}
+                                        errors={errors}
+                                    />
+                                </div>) : null
                         }
 
                         { showVA ?
                             (<div className="autorisatie-form__va-selection">
                                 <VertrouwelijkheidAanduiding
                                     initialValue={values.vertrouwelijkheidaanduiding}
+                                    errors={errors.vertrouwelijkheidaanduiding}
                                 />
-                            </div>) :
-                            null
+                            </div>) : null
                         }
 
                     </div>
