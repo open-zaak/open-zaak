@@ -239,7 +239,10 @@ class AutorisatieForm(forms.Form):
             self.add_error("scopes", error)
 
     def _validate_required_fields(self, component: str):
-        _field_info = COMPONENT_TO_FIELDS_MAP[component]
+        _field_info = COMPONENT_TO_FIELDS_MAP.get(component)
+        if _field_info is None:
+            return
+
         expected_fields = _field_info["required"]
         missing = [
             field for field in expected_fields if not self.cleaned_data.get(field)
