@@ -725,16 +725,6 @@ class RolSerializer(PolymorphicSerializer):
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
-    resultaattype = LengthHyperlinkedRelatedField(
-        view_name="resultaattype-detail",
-        lookup_field="uuid",
-        queryset=ResultaatType.objects.all(),
-        max_length=1000,
-        min_length=1,
-        validators=[IsImmutableValidator()],
-        help_text=get_help_text("zaken.Resultaat", "resultaattype"),
-    )
-
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")
@@ -743,6 +733,15 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
+            "resultaattype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("ResultaatType", settings.ZTC_API_SPEC),
+                    LooseFkIsImmutableValidator(),
+                ],
+            },
         }
 
 

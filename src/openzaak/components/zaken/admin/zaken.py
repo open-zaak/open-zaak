@@ -56,7 +56,7 @@ class RolInline(AuditTrailInlineAdminMixin, admin.TabularInline):
 
 class ResultaatInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Resultaat
-    raw_id_fields = ("resultaattype",)
+    raw_id_fields = ("_resultaattype",)
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
 
 

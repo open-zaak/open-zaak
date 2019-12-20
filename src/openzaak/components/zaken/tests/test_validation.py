@@ -867,6 +867,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "resultaattype")
         self.assertEqual(validation_error["code"], IsImmutableValidator.code)
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_bad_url(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
@@ -882,6 +883,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "resultaattype")
         self.assertEqual(validation_error["code"], "bad-url")
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_invalid_resource(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
@@ -905,7 +907,11 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         list_url = reverse("resultaat-list")
 
         response = self.client.post(
-            list_url, {"zaak": zaak_url, "resultaattype": resultaattype_url}
+            list_url,
+            {
+                "zaak": zaak_url,
+                "resultaattype": f"http://testserver{resultaattype_url}",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

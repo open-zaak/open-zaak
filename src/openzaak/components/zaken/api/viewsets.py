@@ -725,7 +725,7 @@ class ResultaatViewSet(
 
     """
 
-    queryset = Resultaat.objects.select_related("resultaattype", "zaak").all()
+    queryset = Resultaat.objects.select_related("_resultaattype", "zaak").all()
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
