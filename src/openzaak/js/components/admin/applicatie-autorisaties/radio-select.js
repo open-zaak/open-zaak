@@ -9,8 +9,10 @@ import { Choice, Err } from "./types";
 
 const RadioSelect = (props) => {
     const { choices, name, onChange, initialValue, errors } = props;
+
     const prefix = useContext(PrefixContext);
     const [currentValue, setCurrentValue] = useState(initialValue);
+    const [_errors, setErrors] = useState(errors);
 
     const radios = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
@@ -24,6 +26,7 @@ const RadioSelect = (props) => {
                     checked={value == currentValue}
                     onChange={ (event, value) => {
                         setCurrentValue(value);
+                        setErrors([]);
                         if (onChange) {
                             onChange(value);
                         }
@@ -35,7 +38,7 @@ const RadioSelect = (props) => {
 
     return (
         <React.Fragment>
-            <ErrorList errors={errors} />
+            <ErrorList errors={_errors} />
             <ul className="radio-select">
                 { radios }
             </ul>

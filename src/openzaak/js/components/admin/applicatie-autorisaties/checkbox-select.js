@@ -18,9 +18,11 @@ const getSelected = (selected, value, shouldInclude) => {
 
 
 const CheckboxSelect = (props) => {
-    const { choices, name, helpText, initialValue, errors } = props;
+    const { choices, name, helpText, initialValue, errors, onChange } = props;
+
     const prefix = useContext(PrefixContext);
     const [{selected}, setSelected] = useState({selected: initialValue});
+    const [_errors, setErrors] = useState(errors);
 
     const checkboxes = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
@@ -36,6 +38,10 @@ const CheckboxSelect = (props) => {
                         const shouldInclude = event.target.checked;
                         const newValue = getSelected(selected, value, shouldInclude);
                         setSelected({selected: newValue});
+                        setErrors([]);
+                        if (onChange) {
+                            onChange(newValue);
+                        }
                     }}
                 />
             </li>
@@ -44,7 +50,7 @@ const CheckboxSelect = (props) => {
 
     return (
         <React.Fragment>
-            <ErrorList errors={errors} />
+            <ErrorList errors={_errors} />
             <ul className="checkbox-select">
                 { checkboxes }
             </ul>
@@ -57,8 +63,9 @@ CheckboxSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
     name: PropTypes.string.isRequired,
     initialValue: PropTypes.arrayOf(PropTypes.string),
-    errors: PropTypes.arrayOf(Err),
     helpText: PropTypes.string,
+    errors: PropTypes.arrayOf(Err),
+    onChange: PropTypes.func,
 };
 
 CheckboxSelect.defaultProps = {
