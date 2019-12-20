@@ -26,8 +26,12 @@
     {{ VA_CHOICES|json_script:"vertrouwelijkheidaanduiding-choices" }}
     {{ catalogi|json_script:"catalogi" }}
 
+    {{ formdata|json_script:"formdata" }}
+
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
+
+        {# TODO: formset management form #}
 
         <div id="react-autorisaties" class="autorisatie-formset">
             {# empty on purpose - react managed #}

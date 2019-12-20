@@ -7,9 +7,9 @@ import { Choice } from "./types";
 
 
 const RadioSelect = (props) => {
-    const { choices, name, onChange } = props;
+    const { choices, name, onChange, initialValue } = props;
     const prefix = useContext(PrefixContext);
-    const [currentValue, setCurrentValue] = useState(null);
+    const [currentValue, setCurrentValue] = useState(initialValue);
 
     const radios = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
@@ -42,8 +42,13 @@ const RadioSelect = (props) => {
 RadioSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
     name: PropTypes.string.isRequired,
+    initialValue: PropTypes.string,
     helpText: PropTypes.string,
     onChange: PropTypes.func,
+};
+
+RadioSelect.defaultProps = {
+    initialValue: '',
 };
 
 export { RadioSelect };

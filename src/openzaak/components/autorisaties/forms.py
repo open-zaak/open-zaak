@@ -227,12 +227,13 @@ class AutorisatieForm(forms.Form):
         ]
 
         if invalid_scopes:
-            raise forms.ValidationError(
+            error = forms.ValidationError(
                 _(
                     "De volgende scopes zijn geen geldige keuzes voor deze component: {scopes}"
                 ).format(scopes=", ".join(invalid_scopes)),
                 code="invalid",
             )
+            self.add_error("scopes", error)
 
     def _validate_required_fields(self, component: str):
         expected_fields = COMPONENT_TO_FIELDS_MAP[component]["required"]
@@ -240,14 +241,14 @@ class AutorisatieForm(forms.Form):
             field for field in expected_fields if not self.cleaned_data.get(field)
         ]
 
-        if missing:
-            raise forms.ValidationError(
-                _("Je moet een keuze opgeven voor de/het veld(en): {fields}").format(
-                    fields=", ".join(missing)
+        for field in missing:
+            error = forms.ValidationError(
+                _("Je moet een keuze opgeven voor het veld: {field}").format(
+                    field=field
                 ),
                 code="required",
-                params={"fields": missing},
             )
+            self.add_error(field, error)
 
         if "related_type_selection" not in expected_fields:
             return
@@ -259,16 +260,13 @@ class AutorisatieForm(forms.Form):
         # check that values for the typen have been selected manually
         types_field = COMPONENT_TO_FIELDS_MAP[component]["types_field"]
         if not self.cleaned_data.get(types_field):
-            raise forms.ValidationError(
-                {
-                    types_field: forms.ValidationError(
-                        _("Je moet minimaal 1 type kiezen"), code="required",
-                    )
-                }
+            error = forms.ValidationError(
+                _("Je moet minimaal 1 type kiezen"), code="required"
             )
+            self.add_error(types_field, error)
 
 
 # TODO: validate overlap zaaktypen between different auths
 # TODO: support external zaaktypen
 # TODO: validate dependent fields
-AutorisatieFormSet = forms.formset_factory(AutorisatieForm, extra=3)
+AutorisatieFormSet = forms.formset_factory(AutorisatieForm, extra=1)

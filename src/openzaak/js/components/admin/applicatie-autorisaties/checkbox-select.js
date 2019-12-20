@@ -17,9 +17,9 @@ const getSelected = (selected, value, shouldInclude) => {
 
 
 const CheckboxSelect = (props) => {
-    const { choices, name, helpText } = props;
+    const { choices, name, helpText, initialValue } = props;
     const prefix = useContext(PrefixContext);
-    const [{selected}, setSelected] = useState({selected: []});
+    const [{selected}, setSelected] = useState({selected: initialValue});
 
     const checkboxes = choices.map( ([value, label], index) => {
         const _name = `${prefix}-${name}`;
@@ -54,7 +54,12 @@ const CheckboxSelect = (props) => {
 CheckboxSelect.propTypes = {
     choices: PropTypes.arrayOf(Choice),
     name: PropTypes.string.isRequired,
+    initialValue: PropTypes.arrayOf(PropTypes.string),
     helpText: PropTypes.string,
+};
+
+CheckboxSelect.defaultProps = {
+    initialValue: [],
 };
 
 export { CheckboxSelect };

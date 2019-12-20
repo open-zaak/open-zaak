@@ -21,9 +21,10 @@ const mount = () => {
     const componentPrefixes = jsonScriptToVar('component-scope-prefixes');
     const relatedTypeSelectionMethods = jsonScriptToVar('related-type-selection-methods');
     const vertrouwelijkheidaanduidingChoices = jsonScriptToVar('vertrouwelijkheidaanduiding-choices');
-
     const catalogi = jsonScriptToVar('catalogi')
         .map(catalogus => new Catalogus(catalogus));
+
+    const formData = jsonScriptToVar('formdata');
 
     const constants = {
         scopeChoices,
@@ -35,7 +36,7 @@ const mount = () => {
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>
             <CatalogiContext.Provider value={catalogi}>
-                <AutorisatieFormSet extra={1} />
+                <AutorisatieFormSet extra={1} formData={formData} />
             </CatalogiContext.Provider>
         </ConstantsContext.Provider>,
         node

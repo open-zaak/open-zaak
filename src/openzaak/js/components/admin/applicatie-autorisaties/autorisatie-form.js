@@ -53,11 +53,14 @@ TypeSelector.propTypes = {
 
 
 const AutorisatieForm = (props) => {
-    const { index } = props;
+    const { index, data } = props;
+    const { values, errors } = data;
 
     const {scopeChoices, componentPrefixes } = useContext(ConstantsContext);
-    const [selectedComponent, setSelectedComponent] = useState('');
-    const [availableScopeChoices, setAvailableScopeChoices] = useState([]);
+    const [selectedComponent, setSelectedComponent] = useState(values.component || '');
+    const [availableScopeChoices, setAvailableScopeChoices] = useState(
+        getAvailableScopeChoices(values.component, componentPrefixes, scopeChoices)
+    );
 
     const showVA = VA_COMPONENTS.includes(selectedComponent);
     const showTypeSelection = COMPONENT_TO_TYPES[selectedComponent] != null;
@@ -73,6 +76,7 @@ const AutorisatieForm = (props) => {
                     <RadioSelect
                         choices={COMPONENT_CHOICES}
                         name="component"
+                        initialValue={values.component}
                         onChange={ (component) => {
                             setSelectedComponent(component);
                             const choices = getAvailableScopeChoices(component, componentPrefixes, scopeChoices);
@@ -85,7 +89,7 @@ const AutorisatieForm = (props) => {
                     <h3 className="autorisatie-form__field-title">Selecteer scopes</h3>
                     {
                         availableScopeChoices.length ?
-                            <CheckboxSelect choices={availableScopeChoices} name="scopes" /> :
+                            <CheckboxSelect choices={availableScopeChoices} name="scopes" initialValue={values.scopes} /> :
                             <span className="autorisatie-form__select-component">(kies eerst een component)</span>
                     }
                 </div>
@@ -100,6 +104,7 @@ const AutorisatieForm = (props) => {
                         }
 
                         {
+                            // TODO: initialValue
                             showTypeSelection ?
                                 (<div className="autorisatie-form__types-selection">
                                     <TypeSelector typeInfo={ COMPONENT_TO_TYPES[selectedComponent] } />
@@ -108,7 +113,11 @@ const AutorisatieForm = (props) => {
                         }
 
                         { showVA ?
-                            <div className="autorisatie-form__va-selection"><VertrouwelijkheidAanduiding /></div> :
+                            (<div className="autorisatie-form__va-selection">
+                                <VertrouwelijkheidAanduiding
+                                    initialValue={values.vertrouwelijkheidaanduiding}
+                                />
+                            </div>) :
                             null
                         }
 
@@ -123,6 +132,14 @@ const AutorisatieForm = (props) => {
 
 AutorisatieForm.propTypes = {
     index: PropTypes.number.isRequired,
+    data: PropTypes.shape({
+        errors: PropTypes.object.isRequired,
+        values: PropTypes.object.isRequired,
+    }),
+};
+
+AutorisatieForm.defaultProps = {
+    data: {errors: {}, values: {}}
 };
 
 export { AutorisatieForm };

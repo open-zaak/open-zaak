@@ -1,3 +1,6 @@
+from typing import Dict
+
+from django import forms
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
@@ -15,6 +18,18 @@ from .forms import (
     VertrouwelijkheidsAanduiding,
     get_scope_choices,
 )
+
+
+def form_with_errors(form: forms.Form) -> Dict[str, Dict]:
+    errors = {
+        field: [{"msg": error.message, "code": error.code} for error in _errors]
+        for field, _errors in form.errors.as_data().items()
+    }
+    values = {field.name: field.value() for field in form}
+    return {
+        "errors": errors,
+        "values": values,
+    }
 
 
 class AutorisatiesView(DetailView):
@@ -45,15 +60,15 @@ class AutorisatiesView(DetailView):
                 "admin:autorisaties_applicatie_change", args=(applicatie.pk,)
             )
 
-        import bpdb
-
-        bpdb.set_trace()
-
-        context = self.get_context_data(formset=formset)
+        formdata = [form_with_errors(form) for form in formset]
+        context = self.get_context_data(formset=formset, formdata=formdata)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context.setdefault("formset", AutorisatieFormSet())
+        context.setdefault("formdata", [])
 
         catalogi = Catalogus.objects.prefetch_related(
             "zaaktype_set", "informatieobjecttype_set", "besluittype_set",
@@ -76,8 +91,5 @@ class AutorisatiesView(DetailView):
                 ).data,
             }
         )
-
-        if "formset" not in context:
-            context["formset"] = AutorisatieFormSet()
 
         return context
