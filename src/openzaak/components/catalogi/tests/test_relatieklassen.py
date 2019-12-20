@@ -1,5 +1,7 @@
 from unittest import skip
 
+from django.test import override_settings
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -400,6 +402,7 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
     list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype(self):
         ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False
@@ -421,6 +424,7 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["zaaktype"], f"http://openzaak.nl{zaaktype1_uri}")
         self.assertNotEqual(data[0]["zaaktype"], f"http://openzaak.nl{zaaktype2_uri}")
 
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_informatieobjecttype(self):
         ztiot1, ztiot2 = ZaakTypeInformatieObjectTypeFactory.create_batch(
             2, zaaktype__concept=False, informatieobjecttype__concept=False

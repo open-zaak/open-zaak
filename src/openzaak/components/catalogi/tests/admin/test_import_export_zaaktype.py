@@ -2,6 +2,7 @@ import io
 import zipfile
 from unittest.mock import patch
 
+from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -43,7 +44,9 @@ class ZaakTypeAdminImportExportTests(WebTest):
 
     def setUp(self):
         super().setUp()
-
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         self.app.set_user(self.user)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
@@ -692,7 +695,9 @@ class ZaakTypeAdminImportExportTests(WebTest):
 class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
     def setUp(self):
         super().setUp()
-
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         self.app.set_user(SuperUserFactory.create())
 
     def test_import_zaaktype_already_exists(self):

@@ -1,3 +1,5 @@
+from django.test import override_settings
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, RolOmschrijving
 from vng_api_common.tests import get_validation_errors, reverse
@@ -268,6 +270,7 @@ class RolTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{roltype2_url}")
 
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype(self):
         roltype1 = RolTypeFactory.create(zaaktype__concept=False)
         roltype2 = RolTypeFactory.create(zaaktype__concept=False)
