@@ -633,15 +633,6 @@ class KlantContactSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RolSerializer(PolymorphicSerializer):
-    roltype = LengthHyperlinkedRelatedField(
-        view_name="roltype-detail",
-        lookup_field="uuid",
-        queryset=RolType.objects.all(),
-        max_length=1000,
-        min_length=1,
-        validators=[IsImmutableValidator()],
-        help_text=get_help_text("zaken.Rol", "roltype"),
-    )
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
@@ -680,6 +671,17 @@ class RolSerializer(PolymorphicSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
             "betrokkene": {"required": False},
+            "roltype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("RolType", settings.ZTC_API_SPEC),
+                    LooseFkIsImmutableValidator(),
+                    PublishValidator(),
+                ],
+                "help_text": get_help_text("zaken.Rol", "roltype"),
+            },
         }
 
     def __init__(self, *args, **kwargs):
