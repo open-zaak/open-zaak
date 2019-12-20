@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 import { AutorisatieForm } from './autorisatie-form';
@@ -26,10 +26,24 @@ ManagementForm.propTypes = {
 };
 
 
+const AddRow = ({ className="add-row", onAdd, children }) => {
+    return (
+        <div className={className}>
+            <a href="#" onClick={onAdd}>{ children }</a>
+        </div>
+    );
+};
+
+AddRow.propTypes = {
+    className: PropTypes.string,
+    onAdd: PropTypes.func.isRequired,
+};
+
+
 const AutorisatieFormSet = (props) => {
     const { config, formData } = props;
 
-    const extra = config.TOTAL_FORMS - formData.length;
+    const [ extra, setExtra ] = useState(config.TOTAL_FORMS - formData.length);
 
     // set up the existing forms
     const forms = formData.map(
@@ -50,12 +64,22 @@ const AutorisatieFormSet = (props) => {
             <ManagementForm
                 prefix={config.prefix}
                 initial_forms={config.INITIAL_FORMS}
-                total_forms={config.TOTAL_FORMS}
+                total_forms={ formData.length + extra }
                 min_num_forms={config.MIN_NUM_FORMS}
                 max_num_forms={config.MAX_NUM_FORMS}
             />
             <h2 className="autorisatie-formset__header">Autorisaties</h2>
+
             { allForms }
+
+            <AddRow
+                className="autorisatie-formset__add-row"
+                onAdd={(event) => {
+                    event.preventDefault();
+                    setExtra(extra + 1);
+                }}>
+                Nog Autorisaties toevoegen
+            </AddRow>
         </React.Fragment>
     );
 };
