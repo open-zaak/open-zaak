@@ -257,7 +257,7 @@ class AutorisatieForm(forms.Form):
         if "related_type_selection" not in expected_fields:
             return
 
-        related_type_selection = self.cleaned_data["related_type_selection"]
+        related_type_selection = self.cleaned_data.get("related_type_selection")
         if related_type_selection != RelatedTypeSelectionMethods.manual_select:
             return
 
