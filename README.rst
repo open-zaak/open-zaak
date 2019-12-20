@@ -52,7 +52,15 @@ De `Notificaties API`_ is nodig voor **Open Zaak** en is beschikbaar via
 API's te realiseren die in productie gebruikt kunnen worden bij gemeenten.
 
 .. _`referentie implementaties van VNG Realisatie`: https://github.com/VNG-Realisatie/gemma-zaken
+
+Links
+=====
+
+* `Documentatie`_
+* `Docker Hub`_
+
 .. _`Documentatie`: https://open-zaak.readthedocs.io/en/latest/
+.. _`Docker Hub`: https://hub.docker.com/u/openzaak
 
 Licentie
 ========
