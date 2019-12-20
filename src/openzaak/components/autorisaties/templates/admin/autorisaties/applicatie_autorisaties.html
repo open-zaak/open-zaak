@@ -31,6 +31,13 @@
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
 
+        {{ formset.management_form }}
+
+        {% if formset.errors %}
+            <p class="errornote">{% trans "Please correct the error(s) below." %}</p>
+            {{ formset.non_form_errors }}
+        {% endif %}
+
         {# TODO: formset management form #}
 
         <div id="react-autorisaties" class="autorisatie-formset">
@@ -38,33 +45,7 @@
         </div>
 
 
-
-        <button type="submit">{% trans "Submit" %}</button>
-
-
-        {% for form in formset %}
-            <pre><code>{{ form.errors }}</code></pre>
-        {% endfor %}
-
-
-        <div>
-
-            {% if formset.errors %}
-                <p class="errornote">{% trans "Please correct the errors below." %}</p>
-                {{ formset.non_form_errors }}
-            {% endif %}
-
-            <div>
-                {{ formset.management_form }}
-            </div>
-
-            {% for form in formset %}
-                <fieldset>
-                    {# {{ form.as_p }} #}
-                </fieldset>
-            {% endfor %}
-
-        </div>
+        {% include "admin/submit_line.html" with show_save=True %}
 
     </form>
 
