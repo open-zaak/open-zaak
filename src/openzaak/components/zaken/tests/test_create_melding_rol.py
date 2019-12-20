@@ -101,7 +101,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
                 "zaak": zaak_url,
                 "betrokkene": INITIATOR,
                 "betrokkene_type": RolTypes.natuurlijk_persoon,  # 'Natuurlijk persoon'
-                "roltype": roltype_url,
+                "roltype": f"http://testserver{roltype_url}",
                 "roltoelichting": "initiele melder",
             },
         )
@@ -124,7 +124,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
                 "zaak": zaak_url,
                 "betrokkene": BEHANDELAAR,
                 "betrokkene_type": RolTypes.vestiging,  # 'Vestiging'
-                "roltype": roltype2_url,
+                "roltype": f"http://testserver{roltype2_url}",
                 "roltoelichting": "behandelaar",
             },
         )

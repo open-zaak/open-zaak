@@ -678,7 +678,6 @@ class RolSerializer(PolymorphicSerializer):
                 "validators": [
                     LooseFkResourceValidator("RolType", settings.ZTC_API_SPEC),
                     LooseFkIsImmutableValidator(),
-                    PublishValidator(),
                 ],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
             },

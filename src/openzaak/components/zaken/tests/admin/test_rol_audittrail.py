@@ -25,7 +25,7 @@ class RolAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "roltype": roltype.id,
+            "_roltype": roltype.id,
             "betrokkene_type": "natuurlijk_persoon",
             "betrokkene": "http://example.com/betrokkene/1",
             "roltoelichting": "desc",
@@ -66,7 +66,7 @@ class RolAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": rol.uuid,
             "zaak": rol.zaak.id,
-            "roltype": rol.roltype.id,
+            "_roltype": rol.roltype.id,
             "betrokkene_type": rol.betrokkene_type,
             "betrokkene": rol.betrokkene,
             "roltoelichting": "new",
