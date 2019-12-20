@@ -34,15 +34,16 @@
 
         {% if formset.errors %}
             <p class="errornote">{% trans "Please correct the error(s) below." %}</p>
-            {{ formset.non_form_errors }}
+            {% if formset.non_form_errors %}
+            <ul class="errorlist">
+                {% for error in formset.non_form_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
         {% endif %}
-
-        {# TODO: formset management form #}
 
         <div id="react-autorisaties" class="autorisatie-formset">
             {# empty on purpose - react managed #}
         </div>
-
 
         {% include "admin/submit_line.html" with show_save=True %}
 
