@@ -1,3 +1,6 @@
+from django.test import override_settings, tag
+
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -17,7 +20,12 @@ from ..models import (
     Vestiging,
 )
 from .factories import RolFactory, ZaakFactory
-from .utils import get_operation_url
+from .utils import (
+    get_catalogus_response,
+    get_operation_url,
+    get_roltype_response,
+    get_zaaktype_response,
+)
 
 BETROKKENE = (
     "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd"
@@ -386,3 +394,103 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["betrokkeneIdentificatie"]["inpBsn"], "183068142")
+
+
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    list_url = get_operation_url("rol_create")
+
+    def test_create_external_roltype(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        roltype = "https://externe.catalogus.nl/api/v1/roltypen/b923543f-97aa-4a55-8c20-889b5906cf75"
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = reverse(zaak)
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
+            m.get(roltype, json=get_roltype_response(roltype, zaaktype))
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype,
+                    "roltoelichting": "awerw",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_external_roltype_fail_bad_url(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "betrokkene": BETROKKENE,
+                "betrokkene_type": RolTypes.natuurlijk_persoon,
+                "roltype": "abcd",
+                "roltoelichting": "awerw",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "roltype")
+        self.assertEqual(error["code"], "bad-url")
+
+    def test_create_external_roltype_fail_not_json_url(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "betrokkene": BETROKKENE,
+                "betrokkene_type": RolTypes.natuurlijk_persoon,
+                "roltype": "http://example.com",
+                "roltoelichting": "awerw",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "roltype")
+        self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_zaaktype_fail_invalid_schema(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        roltype = "https://externe.catalogus.nl/api/v1/roltypen/b923543f-97aa-4a55-8c20-889b5906cf75"
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = reverse(zaak)
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
+            m.get(roltype, json={"url": roltype, "zaaktype": zaaktype,})
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype,
+                    "roltoelichting": "awerw",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "roltype")
+        self.assertEqual(error["code"], "invalid-resource")

@@ -147,3 +147,12 @@ def get_statustype_response(statustype: str, zaaktype: str) -> dict:
         "isEindstatus": False,
         "informeren": False,
     }
+
+
+def get_roltype_response(roltype: str, zaaktype: str):
+    return {
+        "url": roltype,
+        "zaaktype": zaaktype,
+        "omschrijving": "some role",
+        "omschrijvingGeneriek": "adviseur",
+    }
