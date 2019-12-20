@@ -598,7 +598,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 ],
             },
         }
-        validators = [ZaakEigenschapZaakTypeValidator("eigenschap")]
+        validators = [CorrectZaaktypeValidator("eigenschap")]
 
     def validate(self, attrs):
         super().validate(attrs)
