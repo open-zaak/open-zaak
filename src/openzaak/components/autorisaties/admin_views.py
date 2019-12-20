@@ -88,7 +88,10 @@ class AutorisatiesView(DetailView):
                 "formset_config": {
                     "prefix": formset.prefix,
                     "extra": formset.extra,
-                    **formset.management_form.initial,
+                    **{
+                        field.name: int(field.value())
+                        for field in formset.management_form
+                    },
                 },
                 "scope_choices": get_scope_choices(),
                 "COMPONENTS_TO_PREFIXES_MAP": COMPONENT_TO_PREFIXES_MAP,

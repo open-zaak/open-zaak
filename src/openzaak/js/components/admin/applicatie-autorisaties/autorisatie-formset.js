@@ -8,10 +8,10 @@ const ManagementForm = (props) => {
     const { prefix, initial_forms, total_forms, min_num_forms, max_num_forms } = props;
     return (
         <React.Fragment>
-            <input type="hidden" name={`${prefix}-TOTAL_FORMS`} value={ total_forms } />
-            <input type="hidden" name={`${prefix}-INITIAL_FORMS`} value={ initial_forms } />
-            <input type="hidden" name={`${prefix}-MIN_NUM_FORMS`} value={ min_num_forms } />
-            <input type="hidden" name={`${prefix}-MAX_NUM_FORMS`} value={ max_num_forms } />
+            <input type="hidden" name={`${prefix}-TOTAL_FORMS`} defaultValue={ total_forms } />
+            <input type="hidden" name={`${prefix}-INITIAL_FORMS`} defaultValue={ initial_forms } />
+            <input type="hidden" name={`${prefix}-MIN_NUM_FORMS`} defaultValue={ min_num_forms } />
+            <input type="hidden" name={`${prefix}-MAX_NUM_FORMS`} defaultValue={ max_num_forms } />
         </React.Fragment>
     )
 };
@@ -29,6 +29,8 @@ ManagementForm.propTypes = {
 const AutorisatieFormSet = (props) => {
     const { config, formData } = props;
 
+    const extra = config.TOTAL_FORMS - formData.length;
+
     // set up the existing forms
     const forms = formData.map(
         (data, index) => <AutorisatieForm key={index} index={index} data={data} />
@@ -36,7 +38,7 @@ const AutorisatieFormSet = (props) => {
 
     // build the extra forms in the formset based on the extra parameter
     const numForms = forms.length;
-    const extraForms = Array(config.extra).fill().map(
+    const extraForms = Array(extra).fill().map(
         (_, index) => <AutorisatieForm key={numForms + index} index={numForms + index} />
     );
 
@@ -61,7 +63,6 @@ const AutorisatieFormSet = (props) => {
 AutorisatieFormSet.propTypes = {
     config: PropTypes.shape({
         prefix: PropTypes.string.isRequired,
-        extra: PropTypes.number.isRequired,
         INITIAL_FORMS: PropTypes.number.isRequired,
         TOTAL_FORMS: PropTypes.number.isRequired,
         MIN_NUM_FORMS: PropTypes.number.isRequired,
