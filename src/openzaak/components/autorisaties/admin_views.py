@@ -56,19 +56,29 @@ class AutorisatiesView(DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = applicatie = self.get_object()
-        formset = AutorisatieFormSet(data=request.POST)
+        formset = self.get_formset()
+
         if formset.is_valid():
             formset.save()
+
+            # TODO: send out notification to NRC!
+
             return redirect(
-                "admin:autorisaties_applicatie_change", args=(applicatie.pk,)
+                "admin:authorizations_applicatie_change", object_id=applicatie.pk
             )
 
         formdata = [form_with_errors(form) for form in formset]
         context = self.get_context_data(formset=formset, formdata=formdata)
         return self.render_to_response(context)
 
+    def get_formset(self):
+        data = self.request.POST if self.request.method == "POST" else None
+        return AutorisatieFormSet(
+            data=data, applicatie=self.object, request=self.request
+        )
+
     def get_context_data(self, **kwargs):
-        formset = kwargs.pop("formset", AutorisatieFormSet())
+        formset = kwargs.pop("formset", self.get_formset())
         kwargs["formset"] = formset
 
         context = super().get_context_data(**kwargs)

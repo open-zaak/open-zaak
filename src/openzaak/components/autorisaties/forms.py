@@ -1,10 +1,11 @@
 from typing import List, Tuple
 
 from django import forms
+from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
-from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.notifications.constants import (
@@ -109,16 +110,19 @@ COMPONENT_TO_FIELDS_MAP = {
     ComponentTypes.zrc: {
         "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
         "types_field": "zaaktypen",
+        "_autorisatie_type_field": "zaaktype",
         "verbose_name": _("zaaktype"),
     },
     ComponentTypes.drc: {
         "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
         "types_field": "informatieobjecttypen",
+        "_autorisatie_type_field": "informatieobjecttype",
         "verbose_name": _("informatieobjecttype"),
     },
     ComponentTypes.brc: {
         "required": ("related_type_selection",),
         "types_field": "besluittypen",
+        "_autorisatie_type_field": "besluittype",
         "verbose_name": _("besluittype"),
     },
 }
@@ -275,8 +279,82 @@ class AutorisatieForm(forms.Form):
             )
             self.add_error(types_field, error)
 
+    def save(self, applicatie: Applicatie, request, commit=True):
+        """
+        Save the Autorisatie data into the right Autorisatie objects.
+
+        The form essentially condenses a bunch of fields, e.g. for each
+        included 'zaaktype' an Autorisatie object is created.
+        """
+        if not commit:
+            return
+
+        # Fixed fields
+        component = self.cleaned_data["component"]
+        scopes = self.cleaned_data["scopes"]
+
+        # dependent fields
+        vertrouwelijkheidaanduiding = self.cleaned_data.get(
+            "vertrouwelijkheidaanduiding", ""
+        )
+
+        related_type_selection = self.cleaned_data.get("related_type_selection")
+        types = None
+        if related_type_selection:
+            _field_info = COMPONENT_TO_FIELDS_MAP[component]
+
+            # pick the entire queryset and install a handler for future objects
+            if (
+                related_type_selection
+                == RelatedTypeSelectionMethods.all_current_and_future
+            ):
+                types = self.fields[_field_info["types_field"]].queryset
+                raise NotImplementedError
+            # pick the entire queryset
+            elif related_type_selection == RelatedTypeSelectionMethods.all_current:
+                types = self.fields[_field_info["types_field"]].queryset
+            # only pick a queryset of the explicitly selected objects
+            elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
+                types = self.cleaned_data[_field_info["types_field"]]
+
+        autorisatie_kwargs = {
+            "applicatie": applicatie,
+            "component": component,
+            "scopes": scopes,
+        }
+
+        if not types:
+            Autorisatie.objects.create(**autorisatie_kwargs)
+        else:
+            autorisaties = []
+            for _type in types:
+                data = autorisatie_kwargs.copy()
+                url = request.build_absolute_uri(_type.get_absolute_api_url())
+                data[_field_info["_autorisatie_type_field"]] = url
+                autorisaties.append(
+                    Autorisatie(
+                        max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
+                        **data
+                    )
+                )
+            Autorisatie.objects.bulk_create(autorisaties)
+
+
+class AutorisatieBaseFormSet(forms.BaseFormSet):
+    def __init__(self, *args, **kwargs):
+        self.applicatie = kwargs.pop("applicatie")
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+
+    @transaction.atomic
+    def save(self, commit=True):
+        self.applicatie.autorisaties.all().delete()
+        for form in self.forms:
+            form.save(applicatie=self.applicatie, request=self.request, commit=commit)
+
 
 # TODO: validate overlap zaaktypen between different auths
 # TODO: support external zaaktypen
-# TODO: validate dependent fields
-AutorisatieFormSet = forms.formset_factory(AutorisatieForm, extra=1)
+AutorisatieFormSet = forms.formset_factory(
+    AutorisatieForm, extra=1, formset=AutorisatieBaseFormSet
+)
