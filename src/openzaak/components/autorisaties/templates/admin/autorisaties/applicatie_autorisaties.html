@@ -26,12 +26,11 @@
     {{ VA_CHOICES|json_script:"vertrouwelijkheidaanduiding-choices" }}
     {{ catalogi|json_script:"catalogi" }}
 
+    {{ formset_config|json_script:"formset-config" }}
     {{ formdata|json_script:"formdata" }}
 
     <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
         {% csrf_token %}
-
-        {{ formset.management_form }}
 
         {% if formset.errors %}
             <p class="errornote">{% trans "Please correct the error(s) below." %}</p>

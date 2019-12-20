@@ -24,6 +24,7 @@ const mount = () => {
     const catalogi = jsonScriptToVar('catalogi')
         .map(catalogus => new Catalogus(catalogus));
 
+    const formsetConfig = jsonScriptToVar('formset-config');
     const formData = jsonScriptToVar('formdata');
 
     const constants = {
@@ -36,7 +37,7 @@ const mount = () => {
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>
             <CatalogiContext.Provider value={catalogi}>
-                <AutorisatieFormSet extra={1} formData={formData} />
+                <AutorisatieFormSet config={formsetConfig} formData={formData} />
             </CatalogiContext.Provider>
         </ConstantsContext.Provider>,
         node

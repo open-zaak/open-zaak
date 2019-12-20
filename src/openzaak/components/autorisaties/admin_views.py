@@ -68,9 +68,10 @@ class AutorisatiesView(DetailView):
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        formset = kwargs.pop("formset", AutorisatieFormSet())
+        kwargs["formset"] = formset
 
-        context.setdefault("formset", AutorisatieFormSet())
+        context = super().get_context_data(**kwargs)
         context.setdefault("formdata", [])
 
         catalogi = Catalogus.objects.prefetch_related(
@@ -84,7 +85,11 @@ class AutorisatiesView(DetailView):
                 "original": self.get_object(),
                 "title": _("beheer autorisaties"),
                 "is_popup": False,
-                "formset": AutorisatieFormSet(),
+                "formset_config": {
+                    "prefix": formset.prefix,
+                    "extra": formset.extra,
+                    **formset.management_form.initial,
+                },
                 "scope_choices": get_scope_choices(),
                 "COMPONENTS_TO_PREFIXES_MAP": COMPONENT_TO_PREFIXES_MAP,
                 "RELATED_TYPE_SELECTION_METHODS": RelatedTypeSelectionMethods.choices,
