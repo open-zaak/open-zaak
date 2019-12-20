@@ -68,6 +68,13 @@ ZRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
 )
 
+brc_repo = "vng-Realisatie/gemma-besluitregistratiecomponent"
+brc_commit = "bf69bf643ce0c9146eeb014adc940e06948a8cac"
+BRC_API_SPEC = (
+    f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
+)
+
+
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
 REFERENTIELIJSTEN_API = {

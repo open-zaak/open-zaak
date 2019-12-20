@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -102,4 +103,13 @@ def get_zaak_response(zaak: str, zaaktype: str) -> dict:
         "eigenschappen": [],
         "kenmerken": [],
         "archiefstatus": "nog_te_archiveren",
+    }
+
+
+def get_zaakbesluit_response(zaak: str) -> dict:
+    zaakbesluit_uuid = str(uuid.uuid4())
+    return {
+        "url": f"{zaak}/besluiten/{zaakbesluit_uuid}",
+        "uuid": zaakbesluit_uuid,
+        "besluit": f"http://testserver/api/v1/besluiten/{uuid.uuid4()}",
     }

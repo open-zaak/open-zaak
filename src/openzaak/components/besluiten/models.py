@@ -1,6 +1,7 @@
 import logging
 import uuid as _uuid
 
+from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,6 +15,7 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.documenten.loaders import EIOLoader
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -157,6 +159,12 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         help_text="De datum tot wanneer verweer tegen het besluit mogelijk is.",
     )
 
+    _zaakbesluit_url = models.URLField(
+        blank=True,
+        max_length=1000,
+        help_text="URL of related ZaakBesluit object in the other API",
+    )
+
     objects = BesluitQuerySet.as_manager()
 
     class Meta:
@@ -164,16 +172,39 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         verbose_name_plural = "besluiten"
         unique_together = (("identificatie", "verantwoordelijke_organisatie"),)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # save previous zaak for triggers
+        # self._previous_zaak = self.zaak
+
+        self._previous_zaak = self._zaak
+        self._previous_zaak_url = self._zaak_url
+
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
 
     def save(self, *args, **kwargs):
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "datum")
+
         super().save(*args, **kwargs)
 
     def unique_representation(self):
         return f"{self.identificatie}"
+
+    @property
+    def previous_zaak(self):
+        if self._previous_zaak:
+            return self._previous_zaak
+
+        if self._previous_zaak_url:
+            remote_model = apps.get_model("zaken", "Zaak")
+            return AuthorizedRequestsLoader().load(
+                url=self._previous_zaak_url, model=remote_model
+            )
+
+        return None
 
 
 class BesluitInformatieObject(models.Model):

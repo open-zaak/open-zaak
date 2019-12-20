@@ -9,10 +9,7 @@ from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
-from rest_framework_nested.relations import (
-    NestedHyperlinkedIdentityField,
-    NestedHyperlinkedRelatedField,
-)
+from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -62,6 +59,7 @@ from ...models import (
     Rol,
     Status,
     Zaak,
+    ZaakBesluit,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakKenmerk,
@@ -748,40 +746,30 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-class ZaakBesluitSerializer(serializers.Serializer):
+class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     """
     Serializer the reverse relation between Besluit-Zaak.
-
-    We use the UUID of the Besluit to generate the URL/UUID of the ZaakBesluit
-    instance, since it's a FK relationship, we can safely do this. Effectively,
-    we're feeding the :class:`Besluit` instance to this serializer.
     """
 
-    url = NestedHyperlinkedIdentityField(
-        view_name="zaakbesluit-detail",
-        lookup_field="uuid",
-        parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
-        read_only=True,
-    )
-    uuid = serializers.UUIDField(
-        help_text=_("Unieke resource identifier (UUID4)"), read_only=True
-    )
-    besluit = LengthHyperlinkedRelatedField(
-        queryset=Besluit.objects.all(),
-        view_name="besluit-detail",
-        lookup_field="uuid",
-        min_length=1,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar het BESLUIT (in de Besluiten API), waar "
-            "ook de relatieinformatie opgevraagd kan worden."
-        ),
-    )
+    parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 
-    def validate_besluit(self, besluit: Besluit):
-        zaak = self.context["view"]._get_zaak()
-        if not besluit.zaak == zaak:
-            raise serializers.ValidationError(
-                _("Het Besluit verwijst niet naar de juiste zaak"), code="invalid-zaak"
-            )
-        return besluit
+    class Meta:
+        model = ZaakBesluit
+        fields = ("url", "uuid", "besluit")
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+            "besluit": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC),
+                ],
+            },
+        }
+
+    def create(self, validated_data):
+        validated_data["zaak"] = self.context["parent_object"]
+        return super().create(validated_data)

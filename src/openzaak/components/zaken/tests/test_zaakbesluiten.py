@@ -1,14 +1,109 @@
+from django.test import override_settings, tag
+
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
+from openzaak.components.besluiten.tests.utils import get_besluit_response
 from openzaak.utils.tests import JWTAuthMixin
 
+from ..models import ZaakBesluit
 from .factories import ZaakFactory
 
 
-class ZaakBesluitTests(JWTAuthMixin, APITestCase):
+class BesluitenSignals(APITestCase):
+    def test_create_besluit_without_zaak(self):
+        BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_create_besluit_with_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit.besluit, besluit)
+        self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_delete_besluit_without_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        besluit.delete()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_delete_besluit_with_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        besluit.delete()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_without_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        besluit.toelichting = "new desc"
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_add_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+        zaak = ZaakFactory.create()
+        besluit.zaak = zaak
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit.besluit, besluit)
+        self.assertEqual(zaakbesluit.zaak, besluit.zaak)
+
+    def test_update_besluit_remove_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        besluit.zaak = None
+        besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
+
+    def test_update_besluit_change_zaak(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
+        zaakbesluit_old = ZaakBesluit.objects.get()
+
+        self.assertEqual(zaakbesluit_old.besluit, besluit)
+        self.assertEqual(zaakbesluit_old.zaak, besluit.zaak)
+
+        zaak_new = ZaakFactory.create()
+        besluit.zaak = zaak_new
+        besluit.save()
+
+        zaakbesluit_new = ZaakBesluit.objects.get()
+
+        self.assertNotEqual(zaakbesluit_old.id, zaakbesluit_new.id)
+        self.assertEqual(zaakbesluit_new.zaak, zaak_new)
+
+
+class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_list(self):
@@ -17,11 +112,14 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
         """
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
-        BesluitFactory.create(zaak=None)  # unrelated besluit
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        # get ZaakBesluit created via signals
+        zaakbesluit = ZaakBesluit.objects.get()
         zaakbesluit_url = reverse(
-            "zaakbesluit-detail", kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid}
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
         )
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.get(url)
 
@@ -31,7 +129,7 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             [
                 {
                     "url": f"http://testserver{zaakbesluit_url}",
-                    "uuid": str(besluit.uuid),
+                    "uuid": str(zaakbesluit.uuid),
                     "besluit": f"http://testserver{reverse(besluit)}",
                 }
             ],
@@ -40,9 +138,12 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
     def test_detail(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
-        BesluitFactory.create(zaak=None)  # unrelated besluit
+
+        # get ZaakBesluit created via signals
+        zaakbesluit = ZaakBesluit.objects.get()
         url = reverse(
-            "zaakbesluit-detail", kwargs={"zaak_uuid": zaak.uuid, "uuid": besluit.uuid}
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
         )
 
         response = self.client.get(url)
@@ -52,31 +153,87 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             response.data,
             {
                 "url": f"http://testserver{url}",
-                "uuid": str(besluit.uuid),
+                "uuid": str(zaakbesluit.uuid),
                 "besluit": f"http://testserver{reverse(besluit)}",
             },
         )
 
     def test_create(self):
-        besluit = BesluitFactory.create(for_zaak=True)
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
+
         besluit_url = reverse(besluit)
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
-        response = self.client.post(url, {"besluit": besluit_url})
+        response = self.client.post(url, {"besluit": f"http://testserver{besluit_url}"})
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(ZaakBesluit.objects.count(), 1)
 
     def test_delete(self):
         besluit = BesluitFactory.create(for_zaak=True)
+        zaakbesluit = ZaakBesluit.objects.get()
         url = reverse(
             "zaakbesluit-detail",
-            kwargs={"zaak_uuid": besluit.zaak.uuid, "uuid": besluit.uuid},
+            kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
         )
-        besluit.zaak = None  # it must already be disconnected from zaak
+        besluit.zaak = None
         besluit.save()
+
+        self.assertEqual(ZaakBesluit.objects.count(), 0)
 
         response = self.client.delete(url)
 
-        # because the reference between zaak/besluit is broken, this 404s, as
-        # it should
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    besluit = "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
+    besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/7ef7d016-b766-4456-a90c-8908eeb19b49"
+
+    def test_create(self):
+        zaak = ZaakFactory.create()
+        zaak_url = f"http://testserver{reverse(zaak)}"
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(
+                self.besluit,
+                json=get_besluit_response(self.besluit, self.besluittype, zaak_url),
+            )
+
+            response = self.client.post(url, data={"besluit": self.besluit})
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+            zaakbesluit = ZaakBesluit.objects.get()
+
+            self.assertEqual(zaakbesluit.zaak, zaak)
+            self.assertEqual(zaakbesluit.besluit, self.besluit)
+
+    def test_delete(self):
+        zaak = ZaakFactory.create()
+        zaak_url = f"http://testserver{reverse(zaak)}"
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(
+                self.besluit,
+                json=get_besluit_response(self.besluit, self.besluittype, zaak_url),
+            )
+
+            zaakbesluit = ZaakBesluit.objects.create(zaak=zaak, besluit=self.besluit)
+            url = reverse(
+                "zaakbesluit-detail",
+                kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
+            )
+
+            response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

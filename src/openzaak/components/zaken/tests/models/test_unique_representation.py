@@ -1,8 +1,10 @@
 from rest_framework.test import APITestCase
 
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.models import ZaakBesluit
 
 from ..factories import (
     KlantContactFactory,
@@ -154,3 +156,16 @@ class UniqueRepresentationTestCase(APITestCase):
         klancontact = KlantContactFactory(identificatie=777)
 
         self.assertEqual(klancontact.unique_representation(), "777")
+
+    def test_zaakbesluit(self):
+        zaak = ZaakFactory.create(
+            bronorganisatie=730924658,
+            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+        )
+        BesluitFactory.create(zaak=zaak, identificatie="12345")
+        zaakbesluit = ZaakBesluit.objects.get()
+
+        self.assertEqual(
+            zaakbesluit.unique_representation(),
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - 12345",
+        )

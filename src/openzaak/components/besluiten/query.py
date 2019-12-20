@@ -29,7 +29,9 @@ class BesluitAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
     loose_fk_field = "besluittype"
 
 
-class BesluitQuerySet(BesluitAuthorizationsFilterMixin, models.QuerySet):
+class BesluitQuerySet(
+    BlockChangeMixin, BesluitAuthorizationsFilterMixin, models.QuerySet
+):
     pass
 
 

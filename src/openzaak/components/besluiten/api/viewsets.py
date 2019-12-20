@@ -1,4 +1,9 @@
+from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
+
+from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import mixins, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
@@ -13,6 +18,7 @@ from vng_api_common.notifications.viewsets import (
 )
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import Besluit, BesluitInformatieObject
@@ -111,6 +117,23 @@ class BesluitViewSet(
     }
     notifications_kanaal = KANAAL_BESLUITEN
     audit = AUDIT_BRC
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+
+        if isinstance(instance.zaak, ProxyMixin) and instance._zaakbesluit_url:
+            try:
+                delete_remote_zaakbesluit(instance._zaakbesluit_url)
+            except Exception as exception:
+                raise ValidationError(
+                    {
+                        "zaak": _(
+                            "Could not delete remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )
 
 
 class BesluitInformatieObjectViewSet(
