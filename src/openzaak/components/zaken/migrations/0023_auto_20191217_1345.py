@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("catalogi", "0016_auto_20191204_1500"),
-        ("zaken", "0018_auto_20191218_1324"),
+        ("zaken", "0022_auto_20191218_1324"),
     ]
 
     operations = [
