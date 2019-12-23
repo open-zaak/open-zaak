@@ -20,6 +20,11 @@ from openzaak.components.catalogi.models import (
 )
 
 from .constants import RelatedTypeSelectionMethods
+from .utils import (
+    get_applicatie_serializer,
+    send_applicatie_changed_notification,
+    versions_equivalent,
+)
 
 
 class ApplicatieForm(forms.ModelForm):
@@ -352,9 +357,21 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
 
     @transaction.atomic
     def save(self, commit=True):
+        # use the API representation to figure out if there were any changes
+        old_version = get_applicatie_serializer(
+            self.applicatie, request=self.request
+        ).data
+
         self.applicatie.autorisaties.all().delete()
         for form in self.forms:
             form.save(applicatie=self.applicatie, request=self.request, commit=commit)
+
+        new_version = get_applicatie_serializer(
+            self.applicatie, request=self.request
+        ).data
+
+        if not versions_equivalent(old_version, new_version):
+            send_applicatie_changed_notification(self.applicatie, new_version)
 
 
 # TODO: validate overlap zaaktypen between different auths

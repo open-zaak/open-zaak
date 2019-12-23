@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import TransactionTestCase, tag
+from django.test import TransactionTestCase, override_settings, tag
 from django.urls import reverse
 
 import requests_mock
@@ -16,6 +16,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
+from openzaak.tests.utils import mock_nrc_oas_get
 
 from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory
@@ -209,8 +210,13 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(m.called)
 
+    @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_changes_send_notifications(self, m):
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
         zt = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
@@ -237,8 +243,10 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(m.called)
 
+    @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_new_zt_all_current_and_future_send_notifications(self, m):
+        mock_nrc_oas_get(m)
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
