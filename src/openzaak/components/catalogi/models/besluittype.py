@@ -3,12 +3,14 @@ import uuid as _uuid
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.models import APIMixin
+
 from openzaak.utils.fields import DurationField
 
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
-class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
+class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     """
     Generieke aanduiding van de aard van een besluit.
 
@@ -131,3 +133,7 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
+
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        kwargs["version"] = "1"
+        return super().get_absolute_api_url(request=request, **kwargs)

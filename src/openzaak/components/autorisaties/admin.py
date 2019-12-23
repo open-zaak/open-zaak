@@ -1,13 +1,23 @@
 from django.contrib import admin
+from django.db.models.base import ModelBase
 from django.forms import BaseModelFormSet
-from django.urls import path
+from django.urls import path, reverse
+from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.authorizations.models import (
     Applicatie,
     AuthorizationsConfig,
     Autorisatie,
 )
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
+
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
 
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
@@ -16,17 +26,88 @@ admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
 
 
+def _get_related_object(model: ModelBase, url: str):
+    uuid = url.rsplit("/")[-1]
+    obj = model.objects.get(uuid=uuid)
+    return obj
+
+
 class AutorisatieInline(admin.TabularInline):
     model = Autorisatie
     extra = 0
-    fields = ["component", "scopes", "get_foo"]
+    fields = ["component", "scopes", "_get_extra"]
     readonly_fields = fields
 
     def has_add_permission(self, request, obj=None) -> bool:
         return False
 
-    def get_foo(self, obj) -> str:
+    def _get_extra(self, obj) -> str:
+        """
+        Show the context-dependent extra fields.
+
+        An :class:`Autorisatie` requires extra attributes depending on the
+        component that it's relevant for.
+
+        .. note:: using get_resource_for_path spawns too many queries, since
+            the viewsets have prefetch_related calls.
+        """
+        if obj.component == ComponentTypes.zrc:
+            template = (
+                "<strong>Zaaktype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{zt_repr}</a>'
+                "<br>"
+                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
+                "{va}"
+            )
+            zaaktype = _get_related_object(ZaakType, obj.zaaktype)
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
+                ),
+                zt_repr=str(zaaktype),
+                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
+            )
+
+        if obj.component == ComponentTypes.drc:
+            template = (
+                "<strong>Informatieobjecttype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{iot_repr}</a>'
+                "<br>"
+                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
+                "{va}"
+            )
+            informatieobjecttype = _get_related_object(
+                InformatieObjectType, obj.informatieobjecttype
+            )
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_informatieobjecttype_change",
+                    kwargs={"object_id": informatieobjecttype.pk},
+                ),
+                iot_repr=str(informatieobjecttype),
+                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
+            )
+
+        if obj.component == ComponentTypes.brc:
+            template = (
+                "<strong>Besluittype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
+            )
+            besluittype = _get_related_object(BesluitType, obj.besluittype)
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_besluittype_change",
+                    kwargs={"object_id": besluittype.pk},
+                ),
+                bt_repr=str(besluittype),
+            )
+
         return "foo"
+
+    _get_extra.short_description = _("Extra parameters")
 
 
 class CredentialsInline(admin.TabularInline):

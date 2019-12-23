@@ -189,21 +189,21 @@ class AutorisatieForm(forms.Form):
         label=_("zaaktypen"),
         required=False,
         help_text=_("De zaaktypen waarop deze autorisatie van toepassing is."),
-        queryset=ZaakType.objects.filter(concept=False),
+        queryset=ZaakType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
     informatieobjecttypen = forms.ModelMultipleChoiceField(
         label=_("zaaktypen"),
         required=False,
         help_text=_("De zaaktypen waarop deze autorisatie van toepassing is."),
-        queryset=InformatieObjectType.objects.filter(concept=False),
+        queryset=InformatieObjectType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
     besluittypen = forms.ModelMultipleChoiceField(
         label=_("zaaktypen"),
         required=False,
         help_text=_("De zaaktypen waarop deze autorisatie van toepassing is."),
-        queryset=BesluitType.objects.filter(concept=False),
+        queryset=BesluitType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
 

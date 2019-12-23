@@ -4,11 +4,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+from vng_api_common.models import APIMixin
 
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
-class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
+class InformatieObjectType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     """
     Aanduiding van de aard van INFORMATIEOBJECTen zoals gehanteerd door de zaakbehandelende organisatie.
 
@@ -61,3 +62,7 @@ class InformatieObjectType(GeldigheidMixin, ConceptMixin, models.Model):
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
+
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        kwargs["version"] = "1"
+        return super().get_absolute_api_url(request=request, **kwargs)
