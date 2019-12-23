@@ -14,6 +14,7 @@ from vng_api_common.models import JWTSecret
 
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
+from .models import AutorisatieSpec
 from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
@@ -134,3 +135,13 @@ class ApplicatieAdmin(admin.ModelAdmin):
     @property
     def autorisaties_view(self):
         return AutorisatiesView.as_view(admin_site=self.admin_site, model_admin=self,)
+
+
+@admin.register(AutorisatieSpec)
+class AutorisatieSpecAdmin(admin.ModelAdmin):
+    list_display = (
+        "applicatie",
+        "component",
+    )
+    list_filter = ("component", "applicatie")
+    search_fields = ("applicatie__uuid",)
