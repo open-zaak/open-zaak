@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.test import TransactionTestCase, tag
 from django.urls import reverse
 
+import requests_mock
 from django_webtest import WebTest
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -152,7 +153,6 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
 
     def test_noop_all_current_and_future_zaaktypen(self):
         zt = ZaakTypeFactory.create()
-
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
@@ -160,7 +160,6 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
             zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -181,3 +180,59 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         # create a ZaakType - this should trigger a new autorisatie being installed
         ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+    @requests_mock.Mocker()
+    def test_no_changes_no_notifications(self, m):
+        zt = ZaakTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zt.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(m.called)
+
+    @requests_mock.Mocker()
+    def test_changes_send_notifications(self, m):
+        zt = ZaakTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen", "zaken.bijwerken"],  # modified
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zt.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(m.called)
