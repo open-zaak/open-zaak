@@ -326,7 +326,7 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.select_related("statustype", "zaak").all()
+    queryset = Status.objects.select_related("_statustype", "zaak").all()
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"

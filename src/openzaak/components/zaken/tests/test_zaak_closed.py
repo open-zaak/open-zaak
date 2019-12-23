@@ -90,7 +90,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
         data = {
             "zaak": reverse(zaak),
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": datetime.datetime.now().isoformat(),
         }
         response = self.client.post(status_create_url, data)
@@ -113,7 +113,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
         data = {
             "zaak": reverse(zaak),
-            "statustype": statustype_url,
+            "statustype": f"http://testserver{statustype_url}",
             "datumStatusGezet": datetime.datetime.now().isoformat(),
         }
         response = self.client.post(status_create_url, data)

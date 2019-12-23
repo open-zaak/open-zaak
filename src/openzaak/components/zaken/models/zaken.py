@@ -397,11 +397,28 @@ class Status(models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-    statustype = models.ForeignKey(
+
+    _statustype_url = models.URLField(
+        _("extern statustype"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern STATUSTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _statustype = models.ForeignKey(
         "catalogi.StatusType",
         on_delete=models.CASCADE,
+        help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
+    )
+    statustype = FkOrURLField(
+        fk_field="_statustype",
+        url_field="_statustype_url",
         help_text=_("URL-referentie naar het STATUSTYPE (in de Catalogi API)."),
     )
+
     # extra informatie
     datum_status_gezet = models.DateTimeField(
         help_text="De datum waarop de ZAAK de status heeft verkregen."

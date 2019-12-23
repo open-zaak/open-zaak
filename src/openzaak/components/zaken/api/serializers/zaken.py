@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -32,12 +33,7 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.besluiten.models import Besluit
-from openzaak.components.catalogi.models import (
-    Eigenschap,
-    ResultaatType,
-    RolType,
-    StatusType,
-)
+from openzaak.components.catalogi.models import Eigenschap, ResultaatType, RolType
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.auth import get_auth
@@ -380,15 +376,6 @@ class ZaakZoekSerializer(serializers.Serializer):
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
-    statustype = LengthHyperlinkedRelatedField(
-        view_name="statustype-detail",
-        lookup_field="uuid",
-        queryset=StatusType.objects.all(),
-        max_length=1000,
-        min_length=1,
-        help_text=get_help_text("zaken.Status", "statustype"),
-    )
-
     class Meta:
         model = Status
         fields = (
@@ -409,6 +396,14 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
+            "statustype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("StatusType", settings.ZTC_API_SPEC),
+                ],
+            },
         }
 
     def to_internal_value(self, data: dict) -> dict:
@@ -420,7 +415,11 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         attrs = super().to_internal_value(data)
 
         statustype = attrs["statustype"]
-        attrs["__is_eindstatus"] = statustype.is_eindstatus()
+
+        if isinstance(statustype, ProxyMixin):
+            attrs["__is_eindstatus"] = statustype._initial_data["is_eindstatus"]
+        else:
+            attrs["__is_eindstatus"] = statustype.is_eindstatus()
         return attrs
 
     def validate(self, attrs):

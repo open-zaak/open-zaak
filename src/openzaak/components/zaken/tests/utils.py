@@ -134,3 +134,16 @@ def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
             "registratie": "",
         },
     }
+
+
+def get_statustype_response(statustype: str, zaaktype: str) -> dict:
+    return {
+        "url": statustype,
+        "omschrijving": "statustype description",
+        "omschrijvingGeneriek": "",
+        "statustekst": "",
+        "zaaktype": zaaktype,
+        "volgnummer": 1,
+        "isEindstatus": False,
+        "informeren": False,
+    }

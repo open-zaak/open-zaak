@@ -117,7 +117,7 @@ class ZaakAdminInlineTests(WebTest):
         get_response = self.app.get(self.change_url)
         form = get_response.form
 
-        form["status_set-0-statustype"] = statustype.id
+        form["status_set-0-_statustype"] = statustype.id
         form["status_set-0-datum_status_gezet_0"] = "01-01-2019"
         form["status_set-0-datum_status_gezet_1"] = "10:00:00"
         form["status_set-0-statustoelichting"] = "desc"

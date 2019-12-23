@@ -5,6 +5,7 @@ from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
+from relativedeltafield import parse_relativedelta
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
 from openzaak.utils import parse_isodatetime
@@ -28,11 +29,18 @@ class BrondatumCalculator:
         if not archiefactietermijn:
             return
 
+        # if loose-fk-field - convert to relative-delta
+        if isinstance(archiefactietermijn, str):
+            archiefactietermijn = parse_relativedelta(archiefactietermijn)
+
         brondatum_archiefprocedure = resultaattype.brondatum_archiefprocedure
         afleidingswijze = brondatum_archiefprocedure["afleidingswijze"]
         datum_kenmerk = brondatum_archiefprocedure["datumkenmerk"]
         objecttype = brondatum_archiefprocedure["objecttype"]
         procestermijn = brondatum_archiefprocedure["procestermijn"]
+        # if loose-fk-field - convert to relative-delta
+        if isinstance(procestermijn, str):
+            procestermijn = parse_relativedelta(procestermijn)
 
         # FIXME: nasty side effect
         orig_value = self.zaak.einddatum

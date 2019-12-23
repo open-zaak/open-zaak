@@ -22,7 +22,7 @@ from ..models import (
 
 class StatusInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Status
-    raw_id_fields = ("statustype",)
+    raw_id_fields = ("_statustype",)
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
 
 
