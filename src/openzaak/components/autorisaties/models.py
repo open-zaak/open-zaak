@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -121,4 +123,23 @@ class AutorisatieSpec(models.Model):
                 to_add.append(autorisatie)
 
         Autorisatie.objects.filter(pk__in=[autorisatie.pk for autorisatie in to_delete])
-        Autorisatie.objects.bulk_create(to_add)
+
+        # de-duplicate - whatever is in to_keep should not be added again
+        existing_urls = defaultdict(list)
+        for autorisatie in to_keep:
+            if autorisatie.component not in COMPONENT_TO_FIELD:
+                continue
+            url = getattr(autorisatie, COMPONENT_TO_FIELD[autorisatie.component])
+            existing_urls[autorisatie.component].append(url)
+
+        _to_add = []
+        for autorisatie in to_add:
+            if autorisatie.component not in COMPONENT_TO_FIELD:
+                continue
+            url = getattr(autorisatie, COMPONENT_TO_FIELD[autorisatie.component])
+            if url in existing_urls[autorisatie.component]:
+                continue
+            _to_add.append(autorisatie)
+
+        # created the de-duplicated, missing autorisaties
+        Autorisatie.objects.bulk_create(_to_add)
