@@ -4,11 +4,13 @@ Serializers of the Document Registratie Component REST API
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.db.models.query import QuerySet
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.drf import FKOrURLField
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -456,12 +458,9 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = LengthHyperlinkedRelatedField(
-        min_length=1,
+    object = FKOrURLField(
         max_length=1000,
-        view_name="",
-        queryset=QuerySet(),
-        lookup_field="uuid",
+        min_length=1,
         help_text=_(
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
@@ -470,7 +469,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
-        extra_kwargs = {"url": {"lookup_field": "uuid"}}
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "object": {"lookup_field": "uuid"},
+        }
         validators = [InformatieObjectUniqueValidator()]
 
     def __init__(self, *args, **kwargs):
@@ -481,6 +483,12 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
     def set_object_properties(self, object_type):
         object_field = self.fields["object"]
+
+        if object_type in ObjectTypes.values:
+            object_field.source = object_type
+        # the error with wrong object_type is caught in object_type validator
+        else:
+            object_field.source = "zaak"
         if object_type == "besluit":
             object_field.view_name = "besluit-detail"
             object_field.queryset = Besluit.objects

@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.virtual_models import ProxyMixin
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
@@ -521,7 +522,7 @@ class ObjectInformatieObjectViewSet(
 
     queryset = (
         ObjectInformatieObject.objects.select_related(
-            "zaak", "besluit", "informatieobject"
+            "_zaak", "_besluit", "informatieobject"
         )
         .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
         .all()
@@ -541,6 +542,12 @@ class ObjectInformatieObjectViewSet(
     }
 
     def perform_create(self, serializer):
+        object = serializer.validated_data["object"]
+
+        # external object
+        if isinstance(object, ProxyMixin):
+            super().perform_create(serializer)
+            return
         # object was already created by BIO/ZIO creation,
         # so just set the instance
         try:
@@ -567,6 +574,11 @@ class ObjectInformatieObjectViewSet(
         The actual relation information must be updated in the signals,
         so this is just a check.
         """
+        # external object
+        if isinstance(instance.object, ProxyMixin):
+            super().perform_destroy(instance)
+            return
+
         if (
             instance.object_type == "zaak"
             and ZaakInformatieObject.objects.filter(
