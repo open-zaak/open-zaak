@@ -1,7 +1,7 @@
 import uuid
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.models.fields import ArrayField
@@ -12,9 +12,11 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
 
 from ..constants import InternExtern
+from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
@@ -368,6 +370,8 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
+    objects = SyncAutorisatieManager()
+
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
 
     class Meta:
@@ -379,7 +383,12 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             self.zaaktype_omschrijving, "CONCEPT" if self.concept else self.versiedatum
         )
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
+        # sync after creating new objects
+        if not self.pk:
+            transaction.on_commit(AutorisatieSpec.sync)
+
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "versiedatum")
 

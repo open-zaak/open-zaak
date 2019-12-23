@@ -1,10 +1,25 @@
+from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+
+from openzaak.utils import build_absolute_url
+
+COMPONENT_TO_MODEL = {
+    ComponentTypes.zrc: "catalogi.ZaakType",
+    ComponentTypes.drc: "catalogi.InformatieObjectType",
+    ComponentTypes.brc: "catalogi.BesluitType",
+}
+
+COMPONENT_TO_FIELD = {
+    ComponentTypes.zrc: "zaaktype",
+    ComponentTypes.drc: "informatieobjecttype",
+    ComponentTypes.brc: "besluittype",
+}
 
 
 class AutorisatieSpec(models.Model):
@@ -50,3 +65,60 @@ class AutorisatieSpec(models.Model):
         return _("{component} autorisatiespec voor {app}").format(
             component=self.get_component_display(), app=self.applicatie
         )
+
+    @classmethod
+    def sync(cls):
+        """
+        Synchronize the Autorisaties for all Applicaties.
+
+        Invoke this method whenever a ZaakType/InformatieObjectType/BesluitType
+        is created to set up the appropriate Autorisatie objects. This is best
+        called as part of `transaction.on_commit`.
+        """
+        qs = cls.objects.select_related("applicatie").prefetch_related(
+            "applicatie__autorisaties"
+        )
+
+        to_delete = []
+        to_keep = []
+        to_add = []
+
+        for spec in qs:
+            existing_autorisaties = [
+                autorisatie
+                for autorisatie in spec.applicatie.autorisaties.all()
+                if autorisatie.component == spec.component
+            ]
+
+            for autorisatie in existing_autorisaties:
+                # schedule for deletion if existing objects differ from the spec
+                if (
+                    autorisatie.max_vertrouwelijkheidaanduiding
+                    != spec.max_vertrouwelijkheidaanduiding
+                ):
+                    to_delete.append(autorisatie)
+                    continue
+
+                if set(autorisatie.scopes) != set(spec.scopes):
+                    to_delete.append(autorisatie)
+                    continue
+
+                to_keep.append(autorisatie)
+
+            TypeModel = apps.get_model(COMPONENT_TO_MODEL[spec.component])
+            field = COMPONENT_TO_FIELD[spec.component]
+
+            for obj in TypeModel.objects.all():
+                url = build_absolute_url(obj.get_absolute_api_url())
+
+                autorisatie = Autorisatie(
+                    applicatie=spec.applicatie,
+                    component=spec.component,
+                    scopes=spec.scopes,
+                    max_vertrouwelijkheidaanduiding=spec.max_vertrouwelijkheidaanduiding,
+                    **{field: url}
+                )
+                to_add.append(autorisatie)
+
+        Autorisatie.objects.filter(pk__in=[autorisatie.pk for autorisatie in to_delete])
+        Autorisatie.objects.bulk_create(to_add)

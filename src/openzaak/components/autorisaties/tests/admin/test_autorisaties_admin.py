@@ -5,7 +5,7 @@ Test the custom admin view to manage autorisaties for an application.
 from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
-from django.test import TestCase, tag
+from django.test import TransactionTestCase, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -61,21 +61,17 @@ class PermissionTests(WebTest):
 
 
 @tag("admin-autorisaties")
-class ManageAutorisatiesAdmin(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = UserFactory.create(is_staff=True)
-        perm = Permission.objects.get_by_natural_key(
-            "change_applicatie", "authorizations", "applicatie"
-        )
-        cls.user.user_permissions.add(perm)
-
-        cls.applicatie = ApplicatieFactory.create()
-
+class ManageAutorisatiesAdmin(TransactionTestCase):
     def setUp(self):
         super().setUp()
 
-        self.client.force_login(self.user)
+        user = UserFactory.create(is_staff=True)
+        perm = Permission.objects.get_by_natural_key(
+            "change_applicatie", "authorizations", "applicatie"
+        )
+        user.user_permissions.add(perm)
+        self.applicatie = ApplicatieFactory.create()
+        self.client.force_login(user)
         self.url = reverse(
             "admin:authorizations_applicatie_autorisaties",
             kwargs={"object_id": self.applicatie.pk},
