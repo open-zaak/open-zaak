@@ -25,25 +25,26 @@ opvraagbaar zijn.
 `zaakgericht werken`_ te ondersteunen zoals voorgesteld in de onderste 2 lagen
 van het `Common Ground`_ 5-lagen model.
 
-De gegevens worden ontsloten middels een `set API's`_, te weten:
+De gegevens worden ontsloten middels een `gestandaardiseerde set VNG API's`_, te
+weten:
 
-* Zaken API (`Zaken API-specificatie 1.0 RC`_)
-* Documenten API (`Documenten API-specificatie 1.0 RC`_)
-* Catalogi API (`Catalogi API-specificatie 1.0 RC`_)
-* Besluiten API (`Besluiten API-specificatie 1.0 RC`_)
-* Autorisaties API (`Autorisaties API-specificatie 1.0 RC`_)
+* Zaken API (`Zaken API-specificatie 1.0`_)
+* Documenten API (`Documenten API-specificatie 1.0`_)
+* Catalogi API (`Catalogi API-specificatie 1.0`_)
+* Besluiten API (`Besluiten API-specificatie 1.0`_)
+* Autorisaties API (`Autorisaties API-specificatie 1.0`_)
 
 De `Notificaties API`_ is nodig voor **Open Zaak** en is beschikbaar via
 `Open Notificaties`_.
 
 .. _`Common Ground`: https://commonground.nl/
 .. _`zaakgericht werken`: https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken
-.. _`set API's`: https://zaakgerichtwerken.vng.cloud/
-.. _`Zaken API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/zaken/index
-.. _`Documenten API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/documenten/index
-.. _`Catalogi API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index
-.. _`Besluiten API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index
-.. _`Autorisaties API-specificatie 1.0 RC`: https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index
+.. _`gestandaardiseerde set VNG API's`: https://zaakgerichtwerken.vng.cloud/
+.. _`Zaken API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/zaken/index
+.. _`Documenten API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/documenten/index
+.. _`Catalogi API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index
+.. _`Besluiten API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index
+.. _`Autorisaties API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index
 .. _`Notificaties API`: https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
 

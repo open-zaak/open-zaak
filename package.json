@@ -1,7 +1,7 @@
 {
   "name": "openzaak",
   "version": "0.1.0",
-  "description": "Open zaak",
+  "description": "Open Zaak",
   "main": "src/index.js",
   "directories": {
     "doc": "doc"
