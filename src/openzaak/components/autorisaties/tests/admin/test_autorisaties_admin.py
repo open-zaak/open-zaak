@@ -126,3 +126,25 @@ class ManageAutorisatiesAdmin(TestCase):
                 self.assertEqual(parsed.scheme, "http")
                 self.assertEqual(parsed.netloc, "testserver")
                 self.assertIn(parsed.path, urls)
+
+    def test_add_autorisatie_all_current_and_future_zaaktypen(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Autorisatie.objects.exists())
+
+        # create a ZaakType - this should trigger a new autorisatie being installed
+        ZaakTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
