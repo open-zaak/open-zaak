@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db.models.base import ModelBase
 from django.forms import BaseModelFormSet
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -13,23 +12,12 @@ from vng_api_common.authorizations.models import (
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
-from openzaak.components.catalogi.models import (
-    BesluitType,
-    InformatieObjectType,
-    ZaakType,
-)
-
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
+from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
-
-
-def _get_related_object(model: ModelBase, url: str):
-    uuid = url.rsplit("/")[-1]
-    obj = model.objects.get(uuid=uuid)
-    return obj
 
 
 class AutorisatieInline(admin.TabularInline):
@@ -59,7 +47,7 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            zaaktype = _get_related_object(ZaakType, obj.zaaktype)
+            zaaktype = get_related_object(obj)
             return format_html(
                 template,
                 admin_url=reverse(
@@ -77,9 +65,7 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            informatieobjecttype = _get_related_object(
-                InformatieObjectType, obj.informatieobjecttype
-            )
+            informatieobjecttype = get_related_object(obj)
             return format_html(
                 template,
                 admin_url=reverse(
@@ -95,7 +81,7 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Besluittype</strong>: "
                 '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
             )
-            besluittype = _get_related_object(BesluitType, obj.besluittype)
+            besluittype = get_related_object(obj)
             return format_html(
                 template,
                 admin_url=reverse(

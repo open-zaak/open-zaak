@@ -1,4 +1,5 @@
-from typing import Dict
+from collections import defaultdict
+from typing import Any, Dict, List
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -7,32 +8,165 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes
 
-from openzaak.components.catalogi.models import Catalogus
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    Catalogus,
+    InformatieObjectType,
+    ZaakType,
+)
 
 from .admin_serializers import CatalogusSerializer
+from .constants import RelatedTypeSelectionMethods
 from .forms import (
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
-    RelatedTypeSelectionMethods,
     VertrouwelijkheidsAanduiding,
     get_scope_choices,
 )
+from .utils import get_related_object
 
 
-def form_with_errors(form: forms.Form) -> Dict[str, Dict]:
+def get_form_data(form: forms.Form) -> Dict[str, Dict]:
     """
     Serialize the form data and errors for the frontend.
     """
-    errors = {
-        field: [{"msg": error.message, "code": error.code} for error in _errors]
-        for field, _errors in form.errors.as_data().items()
-    }
+    errors = (
+        {
+            field: [{"msg": error.message, "code": error.code} for error in _errors]
+            for field, _errors in form.errors.as_data().items()
+        }
+        if form.is_bound
+        else {}
+    )
+
     values = {field.name: field.value() for field in form}
     return {
         "errors": errors,
         "values": values,
     }
+
+
+def get_initial_for_component(
+    component: str, autorisaties: List[Autorisatie]
+) -> List[Dict[str, Any]]:
+    if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
+        return []
+
+    related_objs = {
+        autorisatie.pk: get_related_object(autorisatie).id
+        for autorisatie in autorisaties
+    }
+
+    initial = []
+
+    if component == ComponentTypes.zrc:
+        zaaktype_ids = set(ZaakType.objects.values_list("id", flat=True))
+
+        grouped_by_va = defaultdict(list)
+        for autorisatie in autorisaties:
+            grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
+                autorisatie
+            )
+
+        for va, _autorisaties in grouped_by_va.items():
+            _initial = {"vertrouwelijkheidaanduiding": va}
+            relevant_ids = {
+                related_objs[autorisatie.pk] for autorisatie in _autorisaties
+            }
+
+            if zaaktype_ids == relevant_ids and False:
+                _initial[
+                    "related_type_selection"
+                ] = RelatedTypeSelectionMethods.all_current
+            else:
+                _initial.update(
+                    {
+                        "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                        "zaaktypen": relevant_ids,
+                    }
+                )
+            initial.append(_initial)
+
+    elif component == ComponentTypes.drc:
+        informatieobjecttype_ids = set(
+            InformatieObjectType.objects.values_list("id", flat=True)
+        )
+
+        grouped_by_va = defaultdict(list)
+        for autorisatie in autorisaties:
+            grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
+                autorisatie
+            )
+
+        for va, _autorisaties in grouped_by_va.items():
+            _initial = {"vertrouwelijkheidaanduiding": va}
+            relevant_ids = {
+                related_objs[autorisatie.pk] for autorisatie in _autorisaties
+            }
+
+            if informatieobjecttype_ids == relevant_ids:
+                _initial[
+                    "related_type_selection"
+                ] = RelatedTypeSelectionMethods.all_current
+            else:
+                _initial.update(
+                    {
+                        "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                        "informatieobjecttypen": relevant_ids,
+                    }
+                )
+            initial.append(_initial)
+
+    elif component == ComponentTypes.brc:
+        besluittype_ids = set(BesluitType.objects.values_list("id", flat=True))
+        relevant_ids = set(related_objs.values())
+
+        _initial = {}
+        if besluittype_ids == relevant_ids:
+            _initial["related_type_selection"] = RelatedTypeSelectionMethods.all_current
+        else:
+            _initial.update(
+                {
+                    "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                    "besluittypen": relevant_ids,
+                }
+            )
+        initial.append(_initial)
+
+    return initial
+
+
+def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
+    """
+    Figure out the initial data for the formset, showing existing config.
+
+    We group applicatie autorisaties bij (component, scopes) and evaluate
+    if this constitutes one of the "special" options. If so, we can provide
+    this information to the form, presenting it much more condensed to the
+    end user.
+    """
+    initial = []
+
+    grouped = defaultdict(list)
+    autorisaties = applicatie.autorisaties.all()
+    for autorisatie in autorisaties:
+        key = (
+            autorisatie.component,
+            tuple(sorted(autorisatie.scopes)),
+        )
+        grouped[key].append(autorisatie)
+
+    for (component, _scopes), _autorisaties in grouped.items():
+        component_initial = get_initial_for_component(component, _autorisaties)
+
+        initial += [
+            {"component": component, "scopes": list(_scopes), **_initial}
+            for _initial in component_initial
+        ]
+
+    return initial
 
 
 class AutorisatiesView(DetailView):
@@ -67,14 +201,15 @@ class AutorisatiesView(DetailView):
                 "admin:authorizations_applicatie_change", object_id=applicatie.pk
             )
 
-        formdata = [form_with_errors(form) for form in formset]
-        context = self.get_context_data(formset=formset, formdata=formdata)
+        context = self.get_context_data(formset=formset)
         return self.render_to_response(context)
 
     def get_formset(self):
+        initial = get_initial(self.object)
+        print(initial)
         data = self.request.POST if self.request.method == "POST" else None
         return AutorisatieFormSet(
-            data=data, applicatie=self.object, request=self.request
+            data=data, initial=initial, applicatie=self.object, request=self.request
         )
 
     def get_context_data(self, **kwargs):
@@ -82,7 +217,6 @@ class AutorisatiesView(DetailView):
         kwargs["formset"] = formset
 
         context = super().get_context_data(**kwargs)
-        context.setdefault("formdata", [])
 
         catalogi = Catalogus.objects.prefetch_related(
             "zaaktype_set", "informatieobjecttype_set", "besluittype_set",
@@ -110,6 +244,7 @@ class AutorisatiesView(DetailView):
                 "catalogi": CatalogusSerializer(
                     catalogi, read_only=True, many=True
                 ).data,
+                "formdata": [get_form_data(form) for form in formset],
             }
         )
 

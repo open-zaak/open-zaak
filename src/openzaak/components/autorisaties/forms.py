@@ -4,7 +4,6 @@ from django import forms
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from djchoices import ChoiceItem, DjangoChoices
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
@@ -19,6 +18,8 @@ from openzaak.components.catalogi.models import (
     InformatieObjectType,
     ZaakType,
 )
+
+from .constants import RelatedTypeSelectionMethods
 
 
 class ApplicatieForm(forms.ModelForm):
@@ -126,14 +127,6 @@ COMPONENT_TO_FIELDS_MAP = {
         "verbose_name": _("besluittype"),
     },
 }
-
-
-class RelatedTypeSelectionMethods(DjangoChoices):
-    all_current = ChoiceItem("all_current", _("Alle huidige {verbose_name_plural}"))
-    all_current_and_future = ChoiceItem(
-        "all_current_and_future", _("Alle huidige en toekomstige {verbose_name_plural}")
-    )
-    manual_select = ChoiceItem("manual_select", _("Selecteer handmatig"))
 
 
 def get_scope_choices() -> List[Tuple[str, str]]:
