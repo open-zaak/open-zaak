@@ -5,6 +5,7 @@ Test the custom admin view to manage autorisaties for an application.
 from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
+from django.contrib.sites.models import Site
 from django.test import TransactionTestCase, tag
 from django.urls import reverse
 
@@ -64,6 +65,10 @@ class PermissionTests(WebTest):
 class ManageAutorisatiesAdmin(TransactionTestCase):
     def setUp(self):
         super().setUp()
+
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
 
         user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
@@ -144,3 +149,35 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         # create a ZaakType - this should trigger a new autorisatie being installed
         ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+    def test_noop_all_current_and_future_zaaktypen(self):
+        zt = ZaakTypeFactory.create()
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+        # create a ZaakType - this should trigger a new autorisatie being installed
+        ZaakTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
