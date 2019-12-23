@@ -2,14 +2,20 @@
 Test the custom admin view to manage autorisaties for an application.
 """
 
+from urllib.parse import urlparse
+
 from django.contrib.auth.models import Permission
-from django.test import tag
+from django.test import TestCase, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
-from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 
+from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory
 
 
@@ -24,7 +30,7 @@ class PermissionTests(WebTest):
         # non-priv user
         cls.user = UserFactory.create(is_staff=True)
 
-        # priv suer
+        # priv user
         cls.privileged_user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
             "change_applicatie", "authorizations", "applicatie"
@@ -52,3 +58,71 @@ class PermissionTests(WebTest):
         response = self.app.get(url, user=self.privileged_user)
 
         self.assertEqual(response.status_code, 200)
+
+
+@tag("admin-autorisaties")
+class ManageAutorisatiesAdmin(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory.create(is_staff=True)
+        perm = Permission.objects.get_by_natural_key(
+            "change_applicatie", "authorizations", "applicatie"
+        )
+        cls.user.user_permissions.add(perm)
+
+        cls.applicatie = ApplicatieFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.force_login(self.user)
+        self.url = reverse(
+            "admin:authorizations_applicatie_autorisaties",
+            kwargs={"object_id": self.applicatie.pk},
+        )
+
+    def test_page_returns_on_get(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_autorisatie_all_current_zaaktypen(self):
+        zt1 = ZaakTypeFactory.create(concept=False)
+        zt2 = ZaakTypeFactory.create(concept=True)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+        urls = [
+            reverse("zaaktype-detail", kwargs={"version": 1, "uuid": zt1.uuid}),
+            reverse("zaaktype-detail", kwargs={"version": 1, "uuid": zt2.uuid}),
+        ]
+
+        for autorisatie in Autorisatie.objects.all():
+            with self.subTest(autorisatie=autorisatie):
+                self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+                self.assertEqual(autorisatie.scopes, ["zaken.lezen"])
+                self.assertEqual(
+                    autorisatie.max_vertrouwelijkheidaanduiding,
+                    VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                )
+                self.assertIsInstance(autorisatie.zaaktype, str)
+                parsed = urlparse(autorisatie.zaaktype)
+                self.assertEqual(parsed.scheme, "http")
+                self.assertEqual(parsed.netloc, "testserver")
+                self.assertIn(parsed.path, urls)
