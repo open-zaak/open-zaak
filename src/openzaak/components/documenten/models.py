@@ -437,11 +437,18 @@ class ObjectInformatieObject(models.Model):
     )
 
     # relations to the possible other objects
-    zaak = models.ForeignKey(
+    _zaak_url = models.URLField(_("extern zaak"), blank=True, max_length=1000)
+    _zaak = models.ForeignKey(
         "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
     )
-    besluit = models.ForeignKey(
+    zaak = FkOrURLField(fk_field="_zaak", url_field="_zaak_url", blank=True, null=True,)
+
+    _besluit_url = models.URLField(_("extern besluit"), blank=True, max_length=1000)
+    _besluit = models.ForeignKey(
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
+    )
+    besluit = FkOrURLField(
+        fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
     )
 
     objects = ObjectInformatieObjectQuerySet.as_manager()
@@ -449,25 +456,40 @@ class ObjectInformatieObject(models.Model):
     class Meta:
         verbose_name = _("objectinformatieobject")
         verbose_name_plural = _("objectinformatieobjecten")
+        # check that only one loose-fk field (fk or url) is filled
         constraints = [
             models.CheckConstraint(
                 check=Q(
+                    Q(_zaak_url="", _zaak__isnull=False)
+                    | Q(~Q(_zaak_url=""), _zaak__isnull=True),
                     object_type=ObjectTypes.zaak,
-                    zaak__isnull=False,
-                    besluit__isnull=True,
+                    _besluit__isnull=True,
+                    _besluit_url="",
                 )
                 | Q(
+                    Q(_besluit_url="", _besluit__isnull=False)
+                    | Q(~Q(_besluit_url=""), _besluit__isnull=True),
                     object_type=ObjectTypes.besluit,
-                    zaak__isnull=True,
-                    besluit__isnull=False,
+                    _zaak__isnull=True,
+                    _zaak_url="",
                 ),
                 name="check_type",
             ),
             models.UniqueConstraint(
-                fields=("informatieobject", "zaak"), name="unique_io_zaak"
+                fields=("informatieobject", "_zaak"), name="unique_io_zaak_local"
             ),
             models.UniqueConstraint(
-                fields=("informatieobject", "besluit"), name="unique_io_besluit"
+                fields=("informatieobject", "_zaak_url"),
+                name="unique_io_zaak_external",
+                condition=~Q(_zaak_url=""),
+            ),
+            models.UniqueConstraint(
+                fields=("informatieobject", "_besluit"), name="unique_io_besluit_local"
+            ),
+            models.UniqueConstraint(
+                fields=("informatieobject", "_besluit_url"),
+                name="unique_io_besluit_external",
+                condition=~Q(_besluit_url=""),
             ),
         ]
 
