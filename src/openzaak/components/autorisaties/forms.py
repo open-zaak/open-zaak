@@ -20,6 +20,7 @@ from openzaak.components.catalogi.models import (
 )
 
 from .constants import RelatedTypeSelectionMethods
+from .models import AutorisatieSpec
 
 
 class ApplicatieForm(forms.ModelForm):
@@ -302,7 +303,14 @@ class AutorisatieForm(forms.Form):
                 == RelatedTypeSelectionMethods.all_current_and_future
             ):
                 types = self.fields[_field_info["types_field"]].queryset
-                raise NotImplementedError
+                applicatie.autorisatie_specs.update_or_create(
+                    component=component,
+                    defaults={
+                        "scopes": scopes,
+                        "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
+                    },
+                )
+
             # pick the entire queryset
             elif related_type_selection == RelatedTypeSelectionMethods.all_current:
                 types = self.fields[_field_info["types_field"]].queryset
@@ -316,7 +324,7 @@ class AutorisatieForm(forms.Form):
             "scopes": scopes,
         }
 
-        if not types:
+        if types is None:
             Autorisatie.objects.create(**autorisatie_kwargs)
         else:
             autorisaties = []
