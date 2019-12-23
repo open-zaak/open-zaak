@@ -5,11 +5,11 @@ import { CheckboxSelect } from './checkbox-select';
 import { ConstantsContext, CatalogiContext } from './context';
 import { ErrorList } from './error-list';
 import { RadioSelect } from './radio-select';
-import { Err } from './types';
+import { Err, Pk } from './types';
 
 
 const CatalogusOptions = (props) => {
-    const { typeOptionsField, typeOptions, display, onChange } = props;
+    const { typeOptionsField, typeOptions, display, selectedValues, onChange } = props;
     const choices = typeOptions.map(
         ({id, str}) => [id.toString(), str]
     );
@@ -19,6 +19,7 @@ const CatalogusOptions = (props) => {
             <CheckboxSelect
                 choices={ choices }
                 name={ typeOptionsField }
+                initialValue={ selectedValues.map(val => val.toString()) }
                 onChange={ onChange }
             />
         </div>
@@ -30,12 +31,17 @@ CatalogusOptions.propTypes = {
     typeOptionsField: PropTypes.string.isRequired,
     typeOptions: PropTypes.arrayOf(PropTypes.object).isRequired,
     display: PropTypes.string.isRequired,
+    selectedValues: PropTypes.arrayOf(Pk),
     onChange: PropTypes.func,
+};
+
+CatalogusOptions.defaultProps = {
+    selectedValues: [],
 };
 
 
 const TypeOptions = (props) => {
-    const { typeOptionsField, onChange } = props;
+    const { typeOptionsField, selectedValues, onChange } = props;
     const catalogi = useContext(CatalogiContext);
     return (
         <Fragment>
@@ -46,6 +52,7 @@ const TypeOptions = (props) => {
                     typeOptions={ catalogus[typeOptionsField] }
                     display={ catalogus.str }
                     onChange={ onChange }
+                    selectedValues={ selectedValues }
                 />)
             ) }
         </Fragment>
@@ -54,12 +61,17 @@ const TypeOptions = (props) => {
 
 TypeOptions.propTypes = {
     typeOptionsField: PropTypes.string.isRequired,
+    selectedValues: PropTypes.arrayOf(Pk),
     onChange: PropTypes.func,
+};
+
+TypeOptions.defaultProps = {
+    selectedValues: [],
 };
 
 
 const TypesSelection = (props) => {
-    const { verboseNamePlural, typeOptionsField, initialValue, errors } = props;
+    const { verboseNamePlural, typeOptionsField, initialValue, selectedValues, errors } = props;
     const { relatedTypeSelectionMethods } = useContext(ConstantsContext);
     const [ showTypeOptions, setShowTypeOptions ] = useState(initialValue === 'manual_select');
 
@@ -88,6 +100,7 @@ const TypesSelection = (props) => {
                     showTypeOptions ?
                         <TypeOptions
                             typeOptionsField={typeOptionsField}
+                            selectedValues={selectedValues}
                             onChange={() => setErrors([])}
                         /> : null
                 }
@@ -102,11 +115,13 @@ TypesSelection.propTypes = {
     verboseNamePlural: PropTypes.string.isRequired,
     typeOptionsField: PropTypes.string.isRequired,
     initialValue: PropTypes.string,
+    selectedValues: PropTypes.arrayOf(Pk),
     errors: PropTypes.arrayOf(Err),
 };
 
 TypesSelection.defaultProps = {
     initialValue: '',
+    selectedValues: [],
     errors: [],
 };
 

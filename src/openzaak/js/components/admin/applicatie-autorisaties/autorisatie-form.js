@@ -37,15 +37,17 @@ const getAvailableScopeChoices = (component, componentPrefixes, scopeChoices) =>
 
 
 const TypeSelector = (props) => {
-    const { typeInfo, initialValue, errors } = props;
+    const { typeInfo, values, errors } = props;
     const [ verboseNamePlural, typeOptionsField ] = typeInfo;
+
     return (
         <React.Fragment>
             <h4 className="autorisatie-form__extra-title">Voor welke typen geldt dit?</h4>
             <TypesSelection
                 verboseNamePlural={verboseNamePlural}
                 typeOptionsField={typeOptionsField}
-                initialValue={initialValue}
+                initialValue={values.related_type_selection}
+                selectedValues={values[typeOptionsField]}
                 errors={errors[typeOptionsField]}
             />
         </React.Fragment>
@@ -54,11 +56,12 @@ const TypeSelector = (props) => {
 
 TypeSelector.propTypes = {
     typeInfo: PropTypes.array.isRequired,
-    initialValue: PropTypes.string,
+    values: PropTypes.object,
     errors: PropTypes.object,
 };
 
 TypeSelector.defaultProps = {
+    values: {},
     errors: {},
 };
 
@@ -127,7 +130,7 @@ const AutorisatieForm = (props) => {
                                 (<div className="autorisatie-form__types-selection">
                                     <TypeSelector
                                         typeInfo={typeInfo}
-                                        initialValue={values.related_type_selection}
+                                        values={values}
                                         errors={errors}
                                     />
                                 </div>) : null

@@ -76,7 +76,7 @@ def get_initial_for_component(
                 related_objs[autorisatie.pk] for autorisatie in _autorisaties
             }
 
-            if zaaktype_ids == relevant_ids and False:
+            if zaaktype_ids == relevant_ids:
                 _initial[
                     "related_type_selection"
                 ] = RelatedTypeSelectionMethods.all_current

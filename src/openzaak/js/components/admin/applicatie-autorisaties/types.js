@@ -7,4 +7,9 @@ const Err = PropTypes.shape({
     code: PropTypes.string,
 });
 
-export { Choice, Err };
+const Pk = PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+]);
+
+export { Choice, Err, Pk };
