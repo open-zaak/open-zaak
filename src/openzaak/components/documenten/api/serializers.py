@@ -484,17 +484,16 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     def set_object_properties(self, object_type):
         object_field = self.fields["object"]
 
-        if object_type in ObjectTypes.values:
-            object_field.source = object_type
-        # the error with wrong object_type is caught in object_type validator
+        if object_type == "besluit":
+            object_field.source = "besluit"
+            object_field.validators.append(
+                LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
+            )
         else:
             object_field.source = "zaak"
-        if object_type == "besluit":
-            object_field.view_name = "besluit-detail"
-            object_field.queryset = Besluit.objects
-        else:
-            object_field.view_name = "zaak-detail"
-            object_field.queryset = Zaak.objects
+            object_field.validators.append(
+                LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+            )
 
     def to_internal_value(self, data):
         object_type = data["object_type"]
@@ -506,3 +505,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         object_type = instance.object_type
         self.set_object_properties(object_type)
         return super().to_representation(instance)
+
+    def create(self, validated_data):
+        object_type = validated_data["object_type"]
+        validated_data[object_type] = validated_data.pop("object")
+
+        oio = super().create(validated_data)
+        return oio
