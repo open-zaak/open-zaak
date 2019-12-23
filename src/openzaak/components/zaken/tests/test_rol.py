@@ -468,7 +468,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "roltype")
         self.assertEqual(error["code"], "invalid-resource")
 
-    def test_create_external_zaaktype_fail_invalid_schema(self):
+    def test_create_external_roltype_fail_invalid_schema(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         roltype = "https://externe.catalogus.nl/api/v1/roltypen/b923543f-97aa-4a55-8c20-889b5906cf75"
@@ -477,7 +477,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(roltype, json={"url": roltype, "zaaktype": zaaktype,})
+            m.get(roltype, json={"url": roltype, "zaaktype": zaaktype})
 
             response = self.client.post(
                 self.list_url,
@@ -494,3 +494,33 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "roltype")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_roltype_fail_zaaktype_mismatch(self):
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/b923543f-97aa-4a55-8c20-889b5906cf75"
+        roltype = "https://externe.catalogus.nl/api/v1/roltypen/7a3e4a22-d789-4381-939b-401dbce29426"
+
+        zaak = ZaakFactory(zaaktype=zaaktype1)
+        zaak_url = reverse(zaak)
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(zaaktype1, json=get_zaaktype_response(catalogus, zaaktype1))
+            m.get(zaaktype2, json=get_zaaktype_response(catalogus, zaaktype2))
+            m.get(roltype, json=get_roltype_response(roltype, zaaktype2))
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype,
+                    "roltoelichting": "awerw",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "zaaktype-mismatch")
