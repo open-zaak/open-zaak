@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -25,6 +25,7 @@ from .forms import (
     VertrouwelijkheidsAanduiding,
     get_scope_choices,
 )
+from .models import AutorisatieSpec
 from .utils import get_related_object
 
 
@@ -49,7 +50,9 @@ def get_form_data(form: forms.Form) -> Dict[str, Dict]:
 
 
 def get_initial_for_component(
-    component: str, autorisaties: List[Autorisatie]
+    component: str,
+    autorisaties: List[Autorisatie],
+    spec: Optional[AutorisatieSpec] = None,
 ) -> List[Dict[str, Any]]:
     if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
         return []
@@ -76,7 +79,11 @@ def get_initial_for_component(
                 related_objs[autorisatie.pk] for autorisatie in _autorisaties
             }
 
-            if zaaktype_ids == relevant_ids:
+            if spec:
+                _initial[
+                    "related_type_selection"
+                ] = RelatedTypeSelectionMethods.all_current_and_future
+            elif zaaktype_ids == relevant_ids:
                 _initial[
                     "related_type_selection"
                 ] = RelatedTypeSelectionMethods.all_current
@@ -106,7 +113,11 @@ def get_initial_for_component(
                 related_objs[autorisatie.pk] for autorisatie in _autorisaties
             }
 
-            if informatieobjecttype_ids == relevant_ids:
+            if spec:
+                _initial[
+                    "related_type_selection"
+                ] = RelatedTypeSelectionMethods.all_current_and_future
+            elif informatieobjecttype_ids == relevant_ids:
                 _initial[
                     "related_type_selection"
                 ] = RelatedTypeSelectionMethods.all_current
@@ -124,7 +135,11 @@ def get_initial_for_component(
         relevant_ids = set(related_objs.values())
 
         _initial = {}
-        if besluittype_ids == relevant_ids:
+        if spec:
+            _initial[
+                "related_type_selection"
+            ] = RelatedTypeSelectionMethods.all_current_and_future
+        elif besluittype_ids == relevant_ids:
             _initial["related_type_selection"] = RelatedTypeSelectionMethods.all_current
         else:
             _initial.update(
@@ -149,6 +164,10 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     """
     initial = []
 
+    autorisatie_specs = {
+        spec.component: spec for spec in applicatie.autorisatie_specs.all()
+    }
+
     grouped = defaultdict(list)
     autorisaties = applicatie.autorisaties.all()
     for autorisatie in autorisaties:
@@ -159,7 +178,9 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
         grouped[key].append(autorisatie)
 
     for (component, _scopes), _autorisaties in grouped.items():
-        component_initial = get_initial_for_component(component, _autorisaties)
+        component_initial = get_initial_for_component(
+            component, _autorisaties, autorisatie_specs.get(component),
+        )
 
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}
@@ -206,7 +227,6 @@ class AutorisatiesView(DetailView):
 
     def get_formset(self):
         initial = get_initial(self.object)
-        print(initial)
         data = self.request.POST if self.request.method == "POST" else None
         return AutorisatieFormSet(
             data=data, initial=initial, applicatie=self.object, request=self.request

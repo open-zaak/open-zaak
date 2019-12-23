@@ -20,7 +20,6 @@ from openzaak.components.catalogi.models import (
 )
 
 from .constants import RelatedTypeSelectionMethods
-from .models import AutorisatieSpec
 
 
 class ApplicatieForm(forms.ModelForm):
@@ -281,6 +280,10 @@ class AutorisatieForm(forms.Form):
         included 'zaaktype' an Autorisatie object is created.
         """
         if not commit:
+            return
+
+        # forms beyond initial data that haven't changed -> nothing to do
+        if not self.has_changed() and not self.initial:
             return
 
         # Fixed fields

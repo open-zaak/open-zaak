@@ -100,7 +100,7 @@ const TypesSelection = (props) => {
                     showTypeOptions ?
                         <TypeOptions
                             typeOptionsField={typeOptionsField}
-                            selectedValues={selectedValues}
+                            selectedValues={selectedValues || []}
                             onChange={() => setErrors([])}
                         /> : null
                 }
