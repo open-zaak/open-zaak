@@ -326,7 +326,7 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.select_related("_statustype", "zaak").all()
+    queryset = Status.objects.select_related("_statustype", "zaak").order_by("-pk")
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
@@ -412,7 +412,7 @@ class ZaakObjectViewSet(
     Een specifiek ZAAKOBJECT opvragen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak").all()
+    queryset = ZaakObject.objects.select_related("zaak").order_by("-pk")
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
@@ -501,7 +501,7 @@ class ZaakInformatieObjectViewSet(
     queryset = (
         ZaakInformatieObject.objects.select_related("zaak", "_informatieobject")
         .prefetch_related("_informatieobject__enkelvoudiginformatieobject_set")
-        .all()
+        .order_by("-pk")
     )
     filterset_class = ZaakInformatieObjectFilter
     serializer_class = ZaakInformatieObjectSerializer
@@ -549,7 +549,9 @@ class ZaakEigenschapViewSet(
     Een specifieke ZAAKEIGENSCHAP opvragen.
     """
 
-    queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").all()
+    queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").order_by(
+        "-pk"
+    )
     serializer_class = ZaakEigenschapSerializer
     permission_classes = (ZaakNestedAuthRequired,)
     lookup_field = "uuid"
@@ -598,7 +600,7 @@ class KlantContactViewSet(
     Een specifiek KLANTCONTACT bij een ZAAK opvragen.
     """
 
-    queryset = KlantContact.objects.select_related("zaak").all()
+    queryset = KlantContact.objects.select_related("zaak").order_by("-pk")
     serializer_class = KlantContactSerializer
     filterset_class = KlantContactFilter
     lookup_field = "uuid"
@@ -658,7 +660,7 @@ class RolViewSet(
             "organisatorischeeenheid",
             "medewerker",
         )
-        .all()
+        .order_by("-pk")
     )
     serializer_class = RolSerializer
     filterset_class = RolFilter
@@ -725,7 +727,9 @@ class ResultaatViewSet(
 
     """
 
-    queryset = Resultaat.objects.select_related("_resultaattype", "zaak").all()
+    queryset = Resultaat.objects.select_related("_resultaattype", "zaak").order_by(
+        "-pk"
+    )
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
@@ -806,7 +810,7 @@ class ZaakBesluitViewSet(
     daarom is dit endpoint in de Zaken API geimplementeerd.
     """
 
-    queryset = ZaakBesluit.objects.all()
+    queryset = ZaakBesluit.objects.order_by("-pk")
     serializer_class = ZaakBesluitSerializer
     lookup_field = "uuid"
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
