@@ -57,10 +57,10 @@ def get_initial_for_component(
     if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
         return []
 
-    related_objs = {
-        autorisatie.pk: get_related_object(autorisatie).id
-        for autorisatie in autorisaties
+    _related_objs = {
+        autorisatie.pk: get_related_object(autorisatie) for autorisatie in autorisaties
     }
+    related_objs = {pk: obj.id for pk, obj in _related_objs.items() if obj is not None}
 
     initial = []
 

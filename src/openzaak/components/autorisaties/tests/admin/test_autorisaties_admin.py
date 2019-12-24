@@ -305,6 +305,99 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
+    def test_add_autorisatie_all_current_besluittypen(self):
+        bt1 = BesluitTypeFactory.create(concept=False)
+        bt2 = BesluitTypeFactory.create(concept=True)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+        urls = [
+            reverse("besluittype-detail", kwargs={"version": 1, "uuid": bt1.uuid}),
+            reverse("besluittype-detail", kwargs={"version": 1, "uuid": bt2.uuid}),
+        ]
+
+        for autorisatie in Autorisatie.objects.all():
+            with self.subTest(autorisatie=autorisatie):
+                self.assertEqual(autorisatie.component, ComponentTypes.brc)
+                self.assertEqual(autorisatie.scopes, ["besluiten.lezen"])
+                self.assertEqual(autorisatie.max_vertrouwelijkheidaanduiding, "")
+                self.assertIsInstance(autorisatie.besluittype, str)
+                parsed = urlparse(autorisatie.besluittype)
+                self.assertEqual(parsed.scheme, "http")
+                self.assertEqual(parsed.netloc, "testserver")
+                self.assertIn(parsed.path, urls)
+
+    def test_add_autorisatie_all_current_and_future_besluittypen(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Autorisatie.objects.exists())
+
+        # create a besluittype - this should trigger a new autorisatie being installed
+        BesluitTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+    def test_noop_all_current_and_future_besluittypen(self):
+        bt = BesluitTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+            informatieobjecttype=f"http://testserver{bt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+        # create a InformatieObjectType - this should trigger a new autorisatie
+        # being installed
+        BesluitTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+        # creating other types should not trigger anything, nor error
+        ZaakTypeFactory.create()
+        InformatieObjectTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
     @requests_mock.Mocker()
     def test_no_changes_no_notifications(self, m):
         zt = ZaakTypeFactory.create()

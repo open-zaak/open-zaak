@@ -22,7 +22,9 @@ from .api.viewsets import ApplicatieViewSet
 RelatedTypeObject = Union[ZaakType, InformatieObjectType, BesluitType]
 
 
-def _get_related_object(model: ModelBase, url: str) -> RelatedTypeObject:
+def _get_related_object(model: ModelBase, url: str) -> Optional[RelatedTypeObject]:
+    if url == "":
+        return None
     uuid = url.rsplit("/")[-1]
     obj = model.objects.get(uuid=uuid)
     return obj
