@@ -15,11 +15,16 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import UserFactory
-from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.tests.utils import mock_nrc_oas_get
+from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
-from ..factories import ApplicatieFactory
+from ..factories import ApplicatieFactory, AutorisatieSpecFactory
 
 
 @tag("admin-autorisaties")
@@ -85,6 +90,26 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         )
 
     def test_page_returns_on_get(self):
+        # set up some initial data
+        iot = InformatieObjectTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            informatieobjecttype=build_absolute_url(iot.get_absolute_api_url()),
+        )
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+        )
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.nrc,
+            scopes=["notificaties.consumeren"],
+        )
+
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
@@ -180,6 +205,104 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
 
         # create a ZaakType - this should trigger a new autorisatie being installed
         ZaakTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+    def test_add_autorisatie_all_current_informatieobjecttypen(self):
+        iot1 = InformatieObjectTypeFactory.create(concept=False)
+        iot2 = InformatieObjectTypeFactory.create(concept=True)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["documenten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
+
+        urls = [
+            reverse(
+                "informatieobjecttype-detail", kwargs={"version": 1, "uuid": iot1.uuid}
+            ),
+            reverse(
+                "informatieobjecttype-detail", kwargs={"version": 1, "uuid": iot2.uuid}
+            ),
+        ]
+
+        for autorisatie in Autorisatie.objects.all():
+            with self.subTest(autorisatie=autorisatie):
+                self.assertEqual(autorisatie.component, ComponentTypes.drc)
+                self.assertEqual(autorisatie.scopes, ["documenten.lezen"])
+                self.assertEqual(
+                    autorisatie.max_vertrouwelijkheidaanduiding,
+                    VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                )
+                self.assertIsInstance(autorisatie.informatieobjecttype, str)
+                parsed = urlparse(autorisatie.informatieobjecttype)
+                self.assertEqual(parsed.scheme, "http")
+                self.assertEqual(parsed.netloc, "testserver")
+                self.assertIn(parsed.path, urls)
+
+    def test_add_autorisatie_all_current_and_future_informatieobjecttypen(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["documenten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Autorisatie.objects.exists())
+
+        # create a informatieobjecttype - this should trigger a new autorisatie being installed
+        InformatieObjectTypeFactory.create()
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+    def test_noop_all_current_and_future_informatieobjecttypen(self):
+        iot = InformatieObjectTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            informatieobjecttype=f"http://testserver{iot.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["documenten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+        # create a InformatieObjectType - this should trigger a new autorisatie
+        # being installed
+        InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
     @requests_mock.Mocker()
