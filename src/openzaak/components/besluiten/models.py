@@ -253,7 +253,7 @@ class BesluitInformatieObject(models.Model):
     _objectinformatieobject_url = models.URLField(
         blank=True,
         max_length=1000,
-        help_text="URL of related IbjectInformatieObject object in the other API",
+        help_text=_("URL of related ObjectInformatieObject object in the other API"),
     )
 
     objects = BesluitInformatieObjectQuerySet.as_manager()
