@@ -43,9 +43,16 @@ def get_related_object(autorisatie: Autorisatie) -> Optional[RelatedTypeObject]:
     return None
 
 
+def sort_key(item: Any):
+    if not isinstance(item, dict):
+        return item
+
+    return tuple(item.items())
+
+
 def _normalize_list_order(obj: Any) -> Any:
     if isinstance(obj, list):
-        return sorted([_normalize_list_order(item) for item in obj])
+        return sorted([_normalize_list_order(item) for item in obj], key=sort_key)
     elif isinstance(obj, dict):
         return {key: _normalize_list_order(value) for key, value in obj.items()}
     else:
