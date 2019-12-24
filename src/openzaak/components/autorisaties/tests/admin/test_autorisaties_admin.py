@@ -247,6 +247,9 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
     @requests_mock.Mocker()
     def test_new_zt_all_current_and_future_send_notifications(self, m):
         mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
         data = {
             # management form
             "form-TOTAL_FORMS": 1,

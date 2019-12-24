@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, Union
 
+from django.contrib.sites.models import Site
 from django.db.models.base import ModelBase
 from django.http import HttpRequest
 
@@ -80,8 +81,12 @@ def versions_equivalent(version1: Dict[str, Any], version2: Dict[str, Any]) -> b
 
 
 def send_applicatie_changed_notification(
-    applicatie: Applicatie, new_version: Dict[str, Any]
+    applicatie: Applicatie, new_version: Optional[Dict[str, Any]] = None
 ):
     viewset = ApplicatieViewSet()
     viewset.action = "update"
+    if new_version is None:
+        request = HttpRequest()
+        request.META["HTTP_HOST"] = Site.objects.get_current().domain
+        new_version = get_applicatie_serializer(applicatie, request).data
     viewset.notify(status_code=200, data=new_version, instance=applicatie)

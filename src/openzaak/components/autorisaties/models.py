@@ -77,6 +77,8 @@ class AutorisatieSpec(models.Model):
         is created to set up the appropriate Autorisatie objects. This is best
         called as part of `transaction.on_commit`.
         """
+        from .utils import send_applicatie_changed_notification
+
         qs = cls.objects.select_related("applicatie").prefetch_related(
             "applicatie__autorisaties"
         )
@@ -143,3 +145,8 @@ class AutorisatieSpec(models.Model):
 
         # created the de-duplicated, missing autorisaties
         Autorisatie.objects.bulk_create(_to_add)
+
+        # determine which notifications to send
+        changed = {autorisatie.applicatie for autorisatie in (to_delete + _to_add)}
+        for applicatie in changed:
+            send_applicatie_changed_notification(applicatie)
