@@ -184,7 +184,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
             "zaak": zaak["url"],
             "betrokkene": BEHANDELAAR,
             "betrokkeneType": RolTypes.natuurlijk_persoon,
-            "roltype": roltype_url,
+            "roltype": f"http://testserver{roltype_url}",
             "roltoelichting": "Initiele behandelaar die meerdere (deel)behandelaren kan aanwijzen.",
         }
         response = self.client.post(rol_create_url, data)

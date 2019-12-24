@@ -650,7 +650,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("roltype", "zaak")
+        Rol.objects.select_related("_roltype", "zaak")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",

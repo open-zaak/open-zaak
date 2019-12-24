@@ -265,7 +265,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             "zaak": zaak_url,
             "betrokkene": betrokkene,
             "betrokkeneType": "vestiging",
-            "roltype": rolltype_url,
+            "roltype": f"http://testserver{rolltype_url}",
             "roltoelichting": "Baggeren van gracht",
         }
 

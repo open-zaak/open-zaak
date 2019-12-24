@@ -526,11 +526,25 @@ class Rol(models.Model):
         db_index=True,
     )
 
-    roltype = models.ForeignKey(
+    _roltype_url = models.URLField(
+        _("extern roltype"),
+        blank=True,
+        max_length=1000,
+        help_text=_("URL-referentie naar extern ROLTYPE (in een andere Catalogi API)."),
+    )
+    _roltype = models.ForeignKey(
         "catalogi.RolType",
         on_delete=models.CASCADE,
-        help_text="URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
+        help_text="URL-referentie naar het ROLTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
     )
+    roltype = FkOrURLField(
+        fk_field="_roltype",
+        url_field="_roltype_url",
+        help_text=_("URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK."),
+    )
+
     omschrijving = models.CharField(
         _("omschrijving"),
         max_length=20,

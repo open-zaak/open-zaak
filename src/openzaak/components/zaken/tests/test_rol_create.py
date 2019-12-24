@@ -43,7 +43,7 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "zaak": zaak_url,
                 "betrokkene": WATERNET,
                 "betrokkeneType": RolTypes.organisatorische_eenheid,
-                "roltype": roltype_url,
+                "roltype": f"http://testserver{roltype_url}",
                 "roltoelichting": "Verantwoordelijke behandelaar voor de melding",
             },
         )

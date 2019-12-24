@@ -194,7 +194,7 @@ class ZaakAdminInlineTests(WebTest):
         get_response = self.app.get(self.change_url)
         form = get_response.form
 
-        form["rol_set-0-roltype"] = roltype.id
+        form["rol_set-0-_roltype"] = roltype.id
         form["rol_set-0-betrokkene_type"] = "vestiging"
         form["rol_set-0-roltoelichting"] = "desc"
         form.submit()

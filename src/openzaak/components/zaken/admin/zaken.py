@@ -50,7 +50,7 @@ class KlantContactInline(AuditTrailInlineAdminMixin, admin.TabularInline):
 
 class RolInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = Rol
-    raw_id_fields = ("zaak", "roltype")
+    raw_id_fields = ("zaak", "_roltype")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
 
 
