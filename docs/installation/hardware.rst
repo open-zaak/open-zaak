@@ -71,7 +71,7 @@ Requests per second     CPUs    Memory (GB)
 ======================  ======  ==============
 
 With these specifications you can run everything on a single machine or divided over
-several instances. Our test scripts
+several instances.
 
 General recommendations
 ~~~~~~~~~~~~~~~~~~~~~~~
