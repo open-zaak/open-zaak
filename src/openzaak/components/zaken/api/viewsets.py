@@ -1,6 +1,6 @@
 import logging
 
-from django.db import models
+from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -30,6 +30,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.components.besluiten.models import Besluit
+from openzaak.components.documenten.api.utils import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
@@ -522,6 +523,26 @@ class ZaakInformatieObjectViewSet(
         | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     audit = AUDIT_ZRC
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+
+        if (
+            isinstance(instance.informatieobject, ProxyMixin)
+            and instance._objectinformatieobject_url
+        ):
+            try:
+                delete_remote_oio(instance._objectinformatieobject_url)
+            except Exception as exception:
+                raise ValidationError(
+                    {
+                        "informatieobject": _(
+                            "Could not delete remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )
 
 
 class ZaakEigenschapViewSet(

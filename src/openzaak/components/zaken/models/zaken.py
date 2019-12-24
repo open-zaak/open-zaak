@@ -815,6 +815,11 @@ class ZaakInformatieObject(models.Model):
         "Geldige waardes zijn datumtijden gelegen op of voor de "
         "huidige datum en tijd.",
     )
+    _objectinformatieobject_url = models.URLField(
+        blank=True,
+        max_length=1000,
+        help_text="URL of related IbjectInformatieObject object in the other API",
+    )
 
     objects = ZaakInformatieObjectQuerySet.as_manager()
 

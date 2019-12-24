@@ -250,6 +250,11 @@ class BesluitInformatieObject(models.Model):
             "API) waarin (een deel van) het besluit beschreven is.",
         ),
     )
+    _objectinformatieobject_url = models.URLField(
+        blank=True,
+        max_length=1000,
+        help_text="URL of related IbjectInformatieObject object in the other API",
+    )
 
     objects = BesluitInformatieObjectQuerySet.as_manager()
 
