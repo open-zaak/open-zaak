@@ -1,3 +1,5 @@
+.. _deployment_linux:
+
 ==================
 Deploying on Linux
 ==================

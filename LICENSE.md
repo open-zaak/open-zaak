@@ -1,6 +1,6 @@
 # Licence
 
-Copyright © Maykin Media 2019
+Copyright © Dimpact, 2019 - 2020
 
 Licensed under the EUPL
 

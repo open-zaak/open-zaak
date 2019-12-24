@@ -8,9 +8,8 @@ TODO: Database specificaties?
 TODO: Notificaties draait apart...
 TODO: SSDs?
 
-* **Systeem 1**: 8 vCPU, 32 GB geheugen
+* **Systeem 1**: 4 vCPU, 16 GB geheugen
 * **Systeem 2**: 16 vCPU, 64 GB geheugen
-* **Systeem 3**: 32 vCPU, 128 GB geheugen
 
 Alle tests zijn uitgevoerd op het Google Cloud platform op [N2 machine typen](https://cloud.google.com/compute/docs/machine-types#n2_machine_types). Vergelijkbare machines zijn beschikbaar op [Microsoft Azure (bijv. Standard_D8s_v3)](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes-general#dsv3-series-1), [Amazon EC2 (bijv. m4.large)](https://aws.amazon.com/ec2/instance-types/) en [IBM Cloud (bijv. B1.8x32)](https://cloud.ibm.com/docs/vsi?topic=virtual-servers-balanced#balanced).
 
