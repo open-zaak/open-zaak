@@ -19,7 +19,7 @@ django-relativedelta
 
 # Admin and UI libraries
 django-admin-index
-django-better-admin-arrayfield
+maykin-django-better-admin-arrayfield
 
 # API libraries
 djangorestframework
