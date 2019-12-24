@@ -10,6 +10,13 @@
     margin-top: -24px;
     border-top: 0;
     padding-top: 0;
+
+    & .button {
+      height: 35px;
+      line-height: 15px;
+      margin: 0 0 0 5px;
+      padding: 10px 15px;
+    }
   }
 }
 

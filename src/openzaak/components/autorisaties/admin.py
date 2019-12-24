@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.forms import BaseModelFormSet
+from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -135,6 +136,13 @@ class ApplicatieAdmin(admin.ModelAdmin):
     @property
     def autorisaties_view(self):
         return AutorisatiesView.as_view(admin_site=self.admin_site, model_admin=self,)
+
+    def response_post_save_change(self, request, obj):
+        if "_autorisaties" in request.POST:
+            return redirect(
+                "admin:authorizations_applicatie_autorisaties", object_id=obj.id
+            )
+        return super().response_post_save_change(request, obj)
 
 
 @admin.register(AutorisatieSpec)

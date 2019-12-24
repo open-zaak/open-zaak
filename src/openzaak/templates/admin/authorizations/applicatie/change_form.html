@@ -1,13 +1,17 @@
 {% extends "admin/change_form.html" %}
 {% load admin_urls i18n %}
 
-{% block after_related_objects %}
-{% if original.pk %}
-<div class="manage-authorizations">
-    <a href="{% url 'admin:authorizations_applicatie_autorisaties' object_id=original.pk|admin_urlquote %}"
-       class="button">
-        {% trans "Manage authorizations" %}
-    </a>
-</div>
-{% endif %}
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+
+    <div class="submit-row submit-row-extended">
+
+        {% if original.pk %}
+            <span>of <strong>Opslaan</strong> en ...</span>
+
+            <input type="submit" value="{% trans 'Beheer autorisaties' %}" name="_autorisaties">
+
+        {% endif %}
+
+    </div>
 {% endblock %}
