@@ -1,7 +1,3 @@
-import os
-
-from django.conf import settings
-
 from vng_api_common.management.commands import generate_swagger
 
 SCHEMA_MAPPING = {

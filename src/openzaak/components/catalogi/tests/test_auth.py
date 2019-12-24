@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase as _APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from ..api.scopes import SCOPE_CATALOGI_FORCED_DELETE, SCOPE_CATALOGI_WRITE
+from ..api.scopes import SCOPE_CATALOGI_FORCED_DELETE
 from ..models import (
     BesluitType,
     Eigenschap,
@@ -125,7 +125,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
     def test_force_delete_informatieobjecttype_related_to_non_concept_besluittype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype], concept=False
         )
 
@@ -198,7 +198,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
         )
 

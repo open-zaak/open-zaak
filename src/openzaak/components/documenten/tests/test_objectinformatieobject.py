@@ -35,7 +35,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
 
         # get OIO created via signals
-        oio = ObjectInformatieObject.objects.get()
+        ObjectInformatieObject.objects.get()
 
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
@@ -65,11 +65,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         )
 
         # get OIO created via signals
-        oio = ObjectInformatieObject.objects.get()
+        ObjectInformatieObject.objects.get()
 
         besluit_url = reverse(besluit)
         eio_url = reverse(eio)
-        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
 
         response = self.client.post(
             self.list_url,

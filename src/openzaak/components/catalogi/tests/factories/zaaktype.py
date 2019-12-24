@@ -48,7 +48,8 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
     datum_begin_geldigheid = date(2018, 1, 1)
     versiedatum = date(2018, 1, 1)
 
-    # this one is optional, if its added as below, it will keep adding related ZaakTypes (and reach max recursion depth)
+    # this one is optional, if its added as below, it will keep adding related
+    # ZaakTypes (and reach max recursion depth)
     # heeft_gerelateerd = factory.RelatedFactory(ZaakTypenRelatieFactory, 'zaaktype_van')
 
     class Meta:

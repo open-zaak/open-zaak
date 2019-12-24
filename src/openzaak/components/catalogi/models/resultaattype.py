@@ -52,7 +52,8 @@ class ResultaatType(models.Model):
         on_delete=models.CASCADE,
         related_name="resultaattypen",
         help_text=_(
-            "URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van dit RESULTAATTYPE bereikt kunnen worden."
+            "URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van "
+            "dit RESULTAATTYPE bereikt kunnen worden."
         ),
     )
 

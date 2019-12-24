@@ -124,7 +124,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(besluit=besluit1)
         # must not show up
-        bio2 = BesluitInformatieObjectFactory.create(besluit=besluit2)
+        BesluitInformatieObjectFactory.create(besluit=besluit2)
 
         response = self.client.get(url)
 

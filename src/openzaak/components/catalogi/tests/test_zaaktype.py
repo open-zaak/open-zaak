@@ -10,11 +10,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zds_client.tests.mocks import mock_client
 
-from ..api.scopes import (
-    SCOPE_CATALOGI_FORCED_DELETE,
-    SCOPE_CATALOGI_READ,
-    SCOPE_CATALOGI_WRITE,
-)
+from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
     ConceptUpdateValidator,
     M2MConceptCreateValidator,
@@ -511,9 +507,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, zaaktypen=[zaaktype]
-        )
+        BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
         response = self.client.delete(zaaktype_url)
 
@@ -558,7 +552,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
         )
 
@@ -595,9 +589,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, zaaktypen=[zaaktype]
-        )
+        BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
         data = {
             "identificatie": 0,
@@ -741,7 +733,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
         )
 
@@ -895,9 +887,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, zaaktypen=[zaaktype]
-        )
+        BesluitTypeFactory.create(catalogus=catalogus, zaaktypen=[zaaktype])
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
 
@@ -945,29 +935,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data["aanleiding"], "aangepast")
-        zaaktype.delete()
-
-    def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(
-        self,
-    ):
-        catalogus = CatalogusFactory.create()
-
-        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
-        zaaktype_url = reverse(zaaktype)
-
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, zaaktypen=[zaaktype], concept=False
-        )
-
-        response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        data = response.json()
-        self.assertEqual(
-            data["detail"],
-            "Objects related to non-concept {} can't be updated".format("besluittypen"),
-        )
         zaaktype.delete()
 
     def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(
@@ -1042,7 +1009,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
         zaaktype_url = reverse(zaaktype)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus, zaaktypen=[zaaktype], concept=False
         )
 
@@ -1224,7 +1191,7 @@ class ZaakTypeFilterAPITests(APITestCase):
 
     def test_filter_zaaktype_status_concept(self):
         zaaktype1 = ZaakTypeFactory.create(concept=True)
-        zaaktype2 = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
         zaaktype_list_url = get_operation_url("zaaktype_list")
         zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
 
@@ -1237,7 +1204,7 @@ class ZaakTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{zaaktype1_url}")
 
     def test_filter_zaaktype_status_definitief(self):
-        zaaktype1 = ZaakTypeFactory.create(concept=True)
+        ZaakTypeFactory.create(concept=True)
         zaaktype2 = ZaakTypeFactory.create(concept=False)
         zaaktype_list_url = get_operation_url("zaaktype_list")
         zaaktype2_url = get_operation_url("zaaktype_read", uuid=zaaktype2.uuid)
@@ -1252,7 +1219,7 @@ class ZaakTypeFilterAPITests(APITestCase):
 
     def test_filter_identificatie(self):
         zaaktype1 = ZaakTypeFactory.create(concept=False, identificatie=123)
-        zaaktype2 = ZaakTypeFactory.create(concept=False, identificatie=456)
+        ZaakTypeFactory.create(concept=False, identificatie=456)
         zaaktype_list_url = get_operation_url("zaaktype_list")
         zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
 
@@ -1268,9 +1235,7 @@ class ZaakTypeFilterAPITests(APITestCase):
         zaaktype1 = ZaakTypeFactory.create(
             concept=False, trefwoorden=["some", "key", "words"]
         )
-        zaaktype2 = ZaakTypeFactory.create(
-            concept=False, trefwoorden=["other", "words"]
-        )
+        ZaakTypeFactory.create(concept=False, trefwoorden=["other", "words"])
         zaaktype_list_url = get_operation_url("zaaktype_list")
         zaaktype1_url = get_operation_url("zaaktype_read", uuid=zaaktype1.uuid)
 

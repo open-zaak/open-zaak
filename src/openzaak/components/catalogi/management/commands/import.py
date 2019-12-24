@@ -2,8 +2,6 @@ import io
 import json
 import zipfile
 
-from django.apps import apps
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
@@ -71,7 +69,6 @@ class Command(BaseCommand):
 
                     data = json.loads(data)
 
-                    model = apps.get_model("catalogi", resource)
                     serializer = getattr(serializers, f"{resource}Serializer")
 
                     for entry in data:

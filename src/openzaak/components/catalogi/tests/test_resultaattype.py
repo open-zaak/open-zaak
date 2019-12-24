@@ -67,7 +67,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
     def test_get_list_default_definitief(self):
-        resultaattype1 = ResultaatTypeFactory.create(zaaktype__concept=True)
+        ResultaatTypeFactory.create(zaaktype__concept=True)
         resultaattype2 = ResultaatTypeFactory.create(zaaktype__concept=False)
         resultaattype_list_url = reverse("resultaattype-list")
         resultaattype2_url = reverse(
@@ -464,7 +464,6 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_resultaattype(self):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse(zaaktype)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype_url = reverse(resultaattype)
 
@@ -477,7 +476,6 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse(zaaktype)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype_url = reverse(resultaattype)
 
@@ -500,8 +498,6 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse(zaaktype)
         resultaattype = ResultaatTypeFactory.create()
         resultaattype_url = reverse(resultaattype)
-
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
 
         responses = {
             SELECTIELIJSTKLASSE_URL: {
@@ -531,13 +527,10 @@ class ResultaatTypeFilterAPITests(APITestCase):
 
         rt1_uri = reverse(rt1)
         rt2_uri = reverse(rt2)
-        rt1_url = f"http://openzaak.nl{rt1_uri}"
-        rt2_url = f"http://openzaak.nl{rt2_uri}"
 
         zt1_uri = reverse("zaaktype-detail", kwargs={"uuid": zt1.uuid})
         zt2_uri = reverse("zaaktype-detail", kwargs={"uuid": zt2.uuid})
         zt1_url = "http://openzaak.nl{}".format(zt1_uri)
-        zt2_url = "http://openzaak.nl{}".format(zt2_uri)
         list_url = reverse("resultaattype-list")
 
         response = self.client.get(
@@ -568,7 +561,7 @@ class ResultaatTypeFilterAPITests(APITestCase):
 
     def test_filter_resultaattype_status_concept(self):
         resultaattype1 = ResultaatTypeFactory.create(zaaktype__concept=True)
-        resultaattype2 = ResultaatTypeFactory.create(zaaktype__concept=False)
+        ResultaatTypeFactory.create(zaaktype__concept=False)
         resultaattype_list_url = reverse("resultaattype-list")
         resultaattype1_url = reverse(
             "resultaattype-detail", kwargs={"uuid": resultaattype1.uuid}
@@ -583,7 +576,7 @@ class ResultaatTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{resultaattype1_url}")
 
     def test_filter_resultaattype_status_definitief(self):
-        resultaattype1 = ResultaatTypeFactory.create(zaaktype__concept=True)
+        ResultaatTypeFactory.create(zaaktype__concept=True)
         resultaattype2 = ResultaatTypeFactory.create(zaaktype__concept=False)
         resultaattype_list_url = reverse("resultaattype-list")
         resultaattype2_url = reverse(

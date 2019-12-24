@@ -107,7 +107,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         )
 
     def test_get_list_default_definitief(self):
-        eigenschap1 = EigenschapFactory.create(zaaktype__concept=True)
+        EigenschapFactory.create(zaaktype__concept=True)
         eigenschap2 = EigenschapFactory.create(zaaktype__concept=False)
         eigenschap_list_url = reverse("eigenschap-list")
         eigenschap2_url = reverse(
@@ -333,7 +333,7 @@ class EigenschapFilterAPITests(APITestCase):
 
     def test_filter_eigenschap_status_concept(self):
         eigenschap1 = EigenschapFactory.create(zaaktype__concept=True)
-        eigenschap2 = EigenschapFactory.create(zaaktype__concept=False)
+        EigenschapFactory.create(zaaktype__concept=False)
         eigenschap_list_url = reverse("eigenschap-list")
         eigenschap1_url = reverse(
             "eigenschap-detail", kwargs={"uuid": eigenschap1.uuid}
@@ -348,7 +348,7 @@ class EigenschapFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{eigenschap1_url}")
 
     def test_filter_eigenschap_status_definitief(self):
-        eigenschap1 = EigenschapFactory.create(zaaktype__concept=True)
+        EigenschapFactory.create(zaaktype__concept=True)
         eigenschap2 = EigenschapFactory.create(zaaktype__concept=False)
         eigenschap_list_url = reverse("eigenschap-list")
         eigenschap2_url = reverse(

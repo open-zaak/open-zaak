@@ -22,7 +22,6 @@ from .mixins import ConceptDestroyMixin, ConceptFilterMixin
 
 class ZaakTypeInformatieObjectTypeSchema(AutoSchema):
     def get_operation_id(self, operation_keys=None):
-        operation_id = super().get_operation_id(operation_keys=operation_keys)
         return f"zaakinformatieobjecttype_{operation_keys[-1]}"
 
 

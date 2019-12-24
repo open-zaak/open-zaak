@@ -32,13 +32,10 @@ from vng_api_common.validators import (
     UntilNowValidator,
 )
 
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.catalogi.models import Eigenschap, ResultaatType, RolType
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
-from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,

@@ -31,6 +31,7 @@ class KlantContactAdminTests(AdminTestMixin, TestCase):
 
         response = self.client.post(add_url, data)
 
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(KlantContact.objects.count(), 1)
 
         klantcontact = KlantContact.objects.get()

@@ -184,10 +184,10 @@ def get_brondatum(
             )
         try:
             return zaak.einddatum + procestermijn
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError) as exc:
             raise DetermineProcessEndDateException(
                 _("Geen geldige periode in procestermijn: {}").format(procestermijn)
-            )
+            ) from exc
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak:
         relevante_zaken = zaak.relevante_andere_zaken

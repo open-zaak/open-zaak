@@ -25,7 +25,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
-        informatieobjecttype1 = InformatieObjectTypeFactory.create(concept=True)
+        InformatieObjectTypeFactory.create(concept=True)
         informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
         informatieobjecttype2_url = get_operation_url(
@@ -273,9 +273,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_delete_informatieobjecttype_not_related_to_non_concept_besluittype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        besluittype = BesluitTypeFactory.create(
-            informatieobjecttypen=[informatieobjecttype]
-        )
+        BesluitTypeFactory.create(informatieobjecttypen=[informatieobjecttype])
 
         informatieobjecttype_url = reverse(informatieobjecttype)
 
@@ -304,7 +302,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_delete_informatieobjecttype_related_to_non_concept_besluittype_fails(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype], concept=False
         )
 
@@ -345,7 +343,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype], catalogus=catalogus
         )
 
@@ -394,7 +392,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
 
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype],
             concept=False,
             catalogus=catalogus,
@@ -442,7 +440,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         catalogus = CatalogusFactory.create()
 
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype], catalogus=catalogus
         )
 
@@ -481,7 +479,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype],
             catalogus=catalogus,
             concept=False,
@@ -535,7 +533,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     ):
         catalogus = CatalogusFactory.create()
         informatieobjecttype = InformatieObjectTypeFactory.create(catalogus=catalogus)
-        besluittype = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             informatieobjecttypen=[informatieobjecttype],
             catalogus=catalogus,
             concept=False,
@@ -569,7 +567,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
     def test_filter_informatieobjecttype_status_concept(self):
         informatieobjecttype1 = InformatieObjectTypeFactory.create(concept=True)
-        informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=False)
+        InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
         informatieobjecttype1_url = get_operation_url(
             "informatieobjecttype_read", uuid=informatieobjecttype1.uuid
@@ -586,7 +584,7 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         )
 
     def test_filter_informatieobjecttype_status_definitief(self):
-        informatieobjecttype1 = InformatieObjectTypeFactory.create(concept=True)
+        InformatieObjectTypeFactory.create(concept=True)
         informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
         informatieobjecttype2_url = get_operation_url(

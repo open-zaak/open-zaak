@@ -2,18 +2,14 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
-from django.test import tag
-
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (
