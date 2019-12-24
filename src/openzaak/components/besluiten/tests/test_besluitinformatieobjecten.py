@@ -210,13 +210,14 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         eio_response = get_eio_response(
             document, informatieobjecttype=informatieobjecttype_url
         )
+        oio_response = get_oio_response(document, besluit_url, "besluit")
 
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker(real_http=True) as m:
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
-                    json=get_oio_response(document, besluit_url, "besluit"),
+                    json=oio_response,
                     status_code=201,
                 )
 
@@ -246,6 +247,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             )
 
             self.assertFalse(ObjectInformatieObject.objects.exists())
+
+            bio = BesluitInformatieObject.objects.get()
+            self.assertEqual(bio._objectinformatieobject_url, oio_response['url'])
 
         with self.subTest(section="bio-list"):
             list_response = self.client.get(
@@ -478,3 +482,73 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
+
+
+
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    list_url = reverse(BesluitInformatieObject)
+    base = "https://external.documenten.nl/api/v1/"
+    document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+    def test_destroy_with_external_informatieobject(self):
+        oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(
+                self.document,
+                json=get_eio_response(
+                    self.document,
+                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
+                ),
+            )
+            m.delete(oio)
+
+            bio = BesluitInformatieObjectFactory.create(
+                informatieobject=self.document, _objectinformatieobject_url=oio
+            )
+            bio_url = reverse(bio)
+
+            response = self.client.delete(bio_url, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+        self.assertEqual(BesluitInformatieObject.objects.count(), 0)
+
+        history_delete = [
+            req
+            for req in m.request_history
+            if req.method == "DELETE" and req.url == oio
+        ]
+        self.assertEqual(len(history_delete), 1)
+
+    def test_destroy_with_external_informatieobject_fail_send(self):
+        oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        with requests_mock.Mocker(real_http=True) as m:
+            m.get(
+                self.document,
+                json=get_eio_response(
+                    self.document,
+                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
+                ),
+            )
+            m.delete(oio, status_code=404, text="Not found")
+
+            bio = BesluitInformatieObjectFactory.create(
+                informatieobject=self.document, _objectinformatieobject_url=oio
+            )
+            bio_url = reverse(bio)
+
+            response = self.client.delete(bio_url, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "pending-relations")
