@@ -697,11 +697,27 @@ class ZaakEigenschap(models.Model):
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
-    eigenschap = models.ForeignKey(
+    _eigenschap_url = models.URLField(
+        _("extern eigenschap"),
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
+        ),
+    )
+    _eigenschap = models.ForeignKey(
         "catalogi.Eigenschap",
         on_delete=models.CASCADE,
-        help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
+        help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
+        null=True,
+        blank=True,
     )
+    eigenschap = FkOrURLField(
+        fk_field="_eigenschap",
+        url_field="_eigenschap_url",
+        help_text=_("URL-referentie naar de EIGENSCHAP (in de Catalogi API)."),
+    )
+
     _naam = models.CharField(
         max_length=20,
         help_text=_("De naam van de EIGENSCHAP (overgenomen uit de Catalogi API)."),

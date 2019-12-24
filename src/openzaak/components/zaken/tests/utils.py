@@ -156,3 +156,20 @@ def get_roltype_response(roltype: str, zaaktype: str):
         "omschrijving": "some role",
         "omschrijvingGeneriek": "adviseur",
     }
+
+
+def get_eigenschap_response(eigenschap: str, zaaktype: str) -> dict:
+    return {
+        "url": eigenschap,
+        "naam": "naam",
+        "definitie": "some desc",
+        "specificatie": {
+            "groep": "",
+            "formaat": "tekst",
+            "lengte": "234",
+            "kardinaliteit": "23",
+            "waardenverzameling": [],
+        },
+        "toelichting": "",
+        "zaaktype": zaaktype,
+    }

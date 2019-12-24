@@ -456,7 +456,7 @@ class ZaakAdminInlineTests(WebTest):
         get_response = self.app.get(self.change_url)
         form = get_response.form
 
-        form["zaakeigenschap_set-0-eigenschap"] = eigenschap.id
+        form["zaakeigenschap_set-0-_eigenschap"] = eigenschap.id
         form["zaakeigenschap_set-0-_naam"] = "some name"
         form["zaakeigenschap_set-0-waarde"] = "desc"
         form.submit()

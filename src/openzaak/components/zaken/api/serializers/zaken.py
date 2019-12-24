@@ -70,7 +70,6 @@ from ..validators import (
     RolOccurenceValidator,
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
-    ZaakEigenschapZaakTypeValidator,
 )
 from .betrokkenen import (
     RolMedewerkerSerializer,
@@ -581,15 +580,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
 
-    eigenschap = LengthHyperlinkedRelatedField(
-        view_name="eigenschap-detail",
-        lookup_field="uuid",
-        queryset=Eigenschap.objects.all(),
-        max_length=1000,
-        min_length=1,
-        help_text=get_help_text("zaken.ZaakEigenschap", "eigenschap"),
-    )
-
     class Meta:
         model = ZaakEigenschap
         fields = ("url", "uuid", "zaak", "eigenschap", "naam", "waarde")
@@ -598,8 +588,16 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
             "naam": {"source": "_naam", "read_only": True},
+            "eigenschap": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_SPEC),
+                ],
+            },
         }
-        validators = [ZaakEigenschapZaakTypeValidator("eigenschap")]
+        validators = [CorrectZaaktypeValidator("eigenschap")]
 
     def validate(self, attrs):
         super().validate(attrs)

@@ -33,7 +33,7 @@ class ZaakObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
 
 class ZaakEigenschapInline(AuditTrailInlineAdminMixin, admin.TabularInline):
     model = ZaakEigenschap
-    raw_id_fields = ("eigenschap",)
+    raw_id_fields = ("_eigenschap",)
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 
@@ -121,7 +121,7 @@ class KlantContactAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 
 @admin.register(ZaakEigenschap)
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ["zaak", "eigenschap", "waarde"]
+    list_display = ["zaak", "_eigenschap", "_eigenschap_url", "waarde"]
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"

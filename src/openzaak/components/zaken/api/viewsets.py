@@ -549,7 +549,7 @@ class ZaakEigenschapViewSet(
     Een specifieke ZAAKEIGENSCHAP opvragen.
     """
 
-    queryset = ZaakEigenschap.objects.select_related("zaak", "eigenschap").all()
+    queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").all()
     serializer_class = ZaakEigenschapSerializer
     permission_classes = (ZaakNestedAuthRequired,)
     lookup_field = "uuid"
