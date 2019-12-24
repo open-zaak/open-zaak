@@ -95,7 +95,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "servicenorm": None,
             "referentieproces": {"naam": zaaktype.referentieproces_naam, "link": ""},
             "doorlooptijd": "P30D",
-            "omschrijving": "",
+            "omschrijving": zaaktype.zaaktype_omschrijving,
             "eigenschappen": [],
             "informatieobjecttypen": [],
             "gerelateerdeZaaktypen": [],

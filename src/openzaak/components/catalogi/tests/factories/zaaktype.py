@@ -29,6 +29,7 @@ ZAAKTYPEN = [
 
 
 class ZaakTypeFactory(factory.django.DjangoModelFactory):
+    zaaktype_omschrijving = factory.Faker("bs")
     doel = factory.Faker("paragraph")
     aanleiding = factory.Faker("paragraph")
     indicatie_intern_of_extern = factory.fuzzy.FuzzyChoice(choices=InternExtern.values)

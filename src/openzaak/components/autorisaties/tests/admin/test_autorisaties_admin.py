@@ -69,6 +69,90 @@ class PermissionTests(WebTest):
 
 
 @tag("admin-autorisaties")
+class ApplicatieInlinesAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
+        # priv user
+        cls.user = UserFactory.create(is_staff=True)
+        _perms = [
+            ("change_applicatie", "authorizations", "applicatie"),
+            ("view_autorisatie", "authorizations", "autorisatie"),
+        ]
+        perms = [Permission.objects.get_by_natural_key(*_perm) for _perm in _perms]
+        cls.user.user_permissions.add(*perms)
+
+        cls.applicatie = ApplicatieFactory.create()
+
+        cls.url = reverse(
+            "admin:authorizations_applicatie_change",
+            kwargs={"object_id": cls.applicatie.id},
+        )
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+    def _add_autorisatie(self, obj, **kwargs):
+        url = build_absolute_url(obj.get_absolute_api_url())
+        field = obj._meta.model_name
+        Autorisatie.objects.create(
+            applicatie=self.applicatie, **{field: url, **kwargs},
+        )
+
+    def test_inline_zaaktype_autorisaties(self):
+        zt = ZaakTypeFactory.create()
+        self._add_autorisatie(
+            zt,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        response = self.app.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, str(zt))
+        self.assertContains(
+            response,
+            VertrouwelijkheidsAanduiding.labels[VertrouwelijkheidsAanduiding.geheim],
+        )
+
+    def test_inline_informatieobjecttype_autorisaties(self):
+        iot = InformatieObjectTypeFactory.create()
+        self._add_autorisatie(
+            iot,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        response = self.app.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, str(iot))
+        self.assertContains(
+            response,
+            VertrouwelijkheidsAanduiding.labels[VertrouwelijkheidsAanduiding.geheim],
+        )
+
+    def test_inline_besluittype_autorisaties(self):
+        bt = BesluitTypeFactory.create()
+        self._add_autorisatie(
+            bt, component=ComponentTypes.brc, scopes=["besluiten.lezen"]
+        )
+
+        response = self.app.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, str(bt))
+
+
+@tag("admin-autorisaties")
 class ManageAutorisatiesAdmin(TransactionTestCase):
     def setUp(self):
         super().setUp()
