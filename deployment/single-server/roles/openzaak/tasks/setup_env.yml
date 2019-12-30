@@ -1,0 +1,16 @@
+---
+
+# Set up the environment files on the host machine
+
+- name: Create application user
+  user:
+    name: openzaak
+    comment: Application user
+    create_home: yes
+    state: present
+
+- name: Setup the environment variables
+  template:
+    src: env.j2
+    dest: /home/openzaak/.env
+    mode: 0400
