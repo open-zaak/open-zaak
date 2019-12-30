@@ -4,16 +4,18 @@ upstream openzaak {
     {% endfor %}
 }
 
+{% if ssl_enabled %}
 server {
     server_tokens off;
     listen 80;
     server_name {{ inventory_hostname }} default_server;
     rewrite ^ https://{{ inventory_hostname }}$request_uri?;
 }
+{% endif %}
 
 server {
     server_tokens off;
-    listen 443 ssl;
+    listen {% if ssl_enabled %}443 ssl{% else %}80{% endif %};
     server_name {{ inventory_hostname }};
     client_max_body_size 4G;
 
@@ -47,6 +49,8 @@ server {
     gzip_disable        "MSIE [1-6]\.";
     gzip_vary           on;
 
+    {% if ssl_enabled %}
+
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Disable SSLv3 for security reasons
     ssl_session_timeout 1d;
     ssl_session_cache shared:SSL:50m;
@@ -67,6 +71,8 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/{{ inventory_hostname }}/privkey.pem;
+
+    {% endif %}
 
     location / {
         proxy_pass_header Server;
