@@ -13,6 +13,9 @@
     port: "{{ database_port | default(5432) }}"
   become: yes
   become_user: postgres
+  # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+  vars:
+    ansible_ssh_pipelining: true
   with_items:
     - postgis
     - pg_trgm
