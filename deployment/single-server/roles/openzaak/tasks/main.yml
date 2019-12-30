@@ -1,5 +1,7 @@
 ---
 
+- import_tasks: setup_env.yml
+
 - import_tasks: dependencies.yml
 # - import_tasks: docker-login.yml
 - import_tasks: volumes.yml
