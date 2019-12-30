@@ -7,7 +7,7 @@ Setting up your environment
 The following (free) software is required to create the appliance.
 
 * `Python`_ 3.5 (or higher)
-* `Debian installation image`_ 10.0 (or higher) 
+* `Debian installation image`_ 10.0 (or higher)
 * `Oracle VirtualBox`_ 5.2 (or higher)
 * `VMware OVF-tool`_ 4.0 (or higher)
 * `Node.js`_ 10.0 (or higher)
@@ -28,19 +28,19 @@ Before you get started
 2. Download the latest `Debian installation image`_. For example:
    ``debian-10.2.0-amd64-netinst.iso``.
 
-3. Modify ``debian-config/preseed.cfg`` to match your needs for the 
+3. Modify ``debian-config/preseed.cfg`` to match your needs for the
    installation. Take special note to following sections:
-   
+
    * Account setup: Root- and User-account passwords are now "insecure"
-   
+
 4. In the ``create-container.sh`` script, change the ``BRIDGE_ADAPTER`` to match
-   your network adapter name that is connected to the internet. You can find 
+   your network adapter name that is connected to the internet. You can find
    this in your VirtualBox interface.
 
 Create the base container
 -------------------------
 
-1. Allow the Debian installer to download our configuration details from the 
+1. Allow the Debian installer to download our configuration details from the
    host system. In a seperate terminal, do::
 
         $ npm install http-server
@@ -59,7 +59,7 @@ Create the base container
         (continue with the OS installation procedure in container)
 
 3. In the VirtualBox console:
-    
+
    a. Choose ``Advanced options`` > ``Automated install``
    b. When asked for an initial preconfiguration file, fill in the URL from
       the ``serve-debian-config.sh`` script, followed by the path
@@ -70,7 +70,7 @@ Create the base container
    c. When the installation is done, the container shuts down automatically.
 
 4. In your terminal, press a key to continue::
-    
+
         VirtualBox container was closed. Press any key to continue...
         [...]
         Launching VirtualBox container...
@@ -101,7 +101,7 @@ Install Open Zaak
 * TODO: Removed ``role: geerlingguy.certbot`` from ``open-zaak.yml``
 * TODO: Removed the entire SSL/HTTPS section from ``templates/openzaak.conf.j2``
 
-3. Assuming you did not change the user account in ``preseed.cfg``, start the 
+3. Assuming you did not change the user account in ``preseed.cfg``, start the
    installation:
 
    a. Login to the container and logout again to verify and accept its
@@ -126,7 +126,7 @@ Install Open Zaak
 
 Convert to VMware
 -----------------
-    
+
 1. Convert the VirtualBox container to a VMware-compatible container::
 
         $ ./export-ovf.sh
@@ -156,7 +156,7 @@ Common issues
 ~~~~~~~~~~~~~
 
 * **No internet connection**
-  
+
   Converting from VirtualBox to VMware might influence your network interfaces.
   Login to the console and change the primary network interface::
 
@@ -178,7 +178,7 @@ Common issues
 
   Most likely, you installed Open Zaak using a different domain name or
   IP-address compared to the one you are using to access the website now.
-    
+
   You need to either use the same domain name or IP-address, or change the
   Nginx and Django settings to accept the new domain or IP-address.
 
@@ -189,4 +189,4 @@ Common issues
 .. _`VMware OVF-tool`: https://code.vmware.com/web/tool/ovf
 .. _`Node.js`: https://nodejs.org/en/download/
 .. _`VMware Workstation Player`: https://www.vmware.com/products/workstation-player.html
-    
+
