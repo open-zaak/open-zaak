@@ -1,10 +1,9 @@
 #!/bin/bash
 VM_NAME=openzaak
-BRIDGE_ADAPTER="Realtek PCIe GBE Family Controller"
 
 # Check script arguments.
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <ISO-file>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <ISO-file> <network adapter name>"
     exit 2
 fi
 
@@ -12,6 +11,7 @@ fi
 command -v vboxmanage >/dev/null 2>&1 || { echo >&2 "Error: The executable \"vboxmanage\" could not be found."; exit 1; }
 
 OS_ISO_PATH=$1
+BRIDGE_ADAPTER=$2
 
 # Check if ISO-file exists.
 if [ ! -f $1 ]; then
@@ -45,7 +45,7 @@ if [ "$NEW_CONTAINER" == "y" ]; then
     vboxmanage createhd --filename ${VM_NAME}.vdi --size 30720
     vboxmanage createvm --name ${VM_NAME} --ostype Debian_64 --register
     # A minimum of vram=10 is required to show the console.
-    vboxmanage modifyvm ${VM_NAME} --memory 4096 --vram=12 --acpi on --nic1 bridged --bridgeadapter1 ${BRIDGE_ADAPTER}
+    vboxmanage modifyvm ${VM_NAME} --memory 4096 --vram=12 --acpi on --nic1 bridged --bridgeadapter1 "${BRIDGE_ADAPTER}"
     vboxmanage modifyvm ${VM_NAME} --nictype1 virtio 
     # Audio doesn't work with the OVF-tool and we don't need it.
     # Error: No support for the virtual hardware device type [...]
@@ -75,14 +75,14 @@ if [ "$NEW_CONTAINER" == "y" ]; then
     # Remove dvd from boot order.
     vboxmanage modifyvm ${VM_NAME} --boot1 disk --boot2 none --boot3 none --boot4 none
 
-    echo "Creating snapshot..."
+    echo "Creating snapshot (initial-install)..."
     vboxmanage snapshot ${VM_NAME} take "initial-install"
     
 # Use existing VirtualBox container and reset an initial-install image.
 else
     cd ${VM_NAME}
 
-    echo "Restoring snapshot..."
+    echo "Restoring snapshot (initial-install)..."
     vboxmanage snapshot ${VM_NAME} restore "initial-install"
 fi
 
@@ -91,7 +91,7 @@ echo "(continue with the Open Zaak installation procedure in container and shut 
 
 virtualbox --startvm ${VM_NAME}
 
-echo "Creating snapshot..."
+echo "Creating snapshot (openzaak-install)..."
 vboxmanage snapshot ${VM_NAME} take "openzaak-install"
 
 echo "VirtualBox container was closed, assuming all done."

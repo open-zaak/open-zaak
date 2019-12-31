@@ -1,6 +1,9 @@
 Appliance
 =========
 
+This document describes how to create a VMware compatible appliance that runs Open
+Zaak.
+
 Setting up your environment
 ---------------------------
 
@@ -11,7 +14,10 @@ The following (free) software is required to create the appliance.
 * `Oracle VirtualBox`_ 5.2 (or higher)
 * `VMware OVF-tool`_ 4.0 (or higher)
 * `Node.js`_ 10.0 (or higher)
-* `VMware Workstation Player`_ (15.5 or higher, optional)
+
+Optionally, you can install `VMware Workstation Player`_ (15.5 or higher) which is
+only free for non-commercial use. In this document, we only use it to test our
+appliance after conversion with the `VMware OVF-tool`_.
 
 Before you get started
 ----------------------
@@ -33,9 +39,18 @@ Before you get started
 
    * Account setup: Root- and User-account passwords are now "insecure"
 
-4. In the ``create-container.sh`` script, change the ``BRIDGE_ADAPTER`` to match
-   your network adapter name that is connected to the internet. You can find
-   this in your VirtualBox interface.
+4. Figure out your bridge adapter that has an internet connection::
+
+        $ vboxmanage list bridgedifs | grep "Name:  \|Status"
+        Name:            Realtek PCIe GBE Family Controller
+        Status:          Up
+        Name:            VirtualBox Host-Only Ethernet Adapter
+        Status:          Down
+        Name:            Realtek RTL8723BE Wireless LAN 802.11n PCI-E NIC
+        Status:          Down
+
+   Typically, you see one entry with the status "Up" that you can use. In the above
+   case, the network adapter name is "Realtek PCIe GBE Family Controller"
 
 Create the base container
 -------------------------
@@ -51,14 +66,15 @@ Create the base container
           http://192.168.X.X:8080
           http://127.0.0.1:8080
 
-2. Create the container and follow the instructions::
+2. Create the container and follow the instructions. Run ``create-container.sh`` and pass
+   the ISO-file and the network adapter name that has an internet connection::
 
-        $ ./create-container.sh debian-10.2.0-amd64-netinst.iso
+        $ ./create-container.sh debian-10.2.0-amd64-netinst.iso "Realtek PCIe GBE Family Controller"
         [...]
         Start OS installation in VirtualBox container...
         (continue with the OS installation procedure in container)
 
-3. In the VirtualBox console:
+3. In the VirtualBox console, after the initial boot procedure:
 
    a. Choose ``Advanced options`` > ``Automated install``
    b. When asked for an initial preconfiguration file, fill in the URL from
@@ -67,7 +83,9 @@ Create the base container
 
             http://192.168.X.X:8080/preseed.cfg
 
-   c. When the installation is done, the container shuts down automatically.
+   c. After you see a log entry in the terminal running the ``serve-debian-config.sh``
+      script, you can close it.
+   d. When the installation is done, the VirtualBox container shuts down automatically.
 
 4. In your terminal, press a key to continue::
 
@@ -76,15 +94,15 @@ Create the base container
         Launching VirtualBox container...
         (continue with the Open Zaak installation procedure in container and shut down when done)
 
-   A snapshot called "initial-install" is created to easily reset the image.
+   A snapshot called "initial-install" is created to easily reset the image. The
+   VirtualBox container will start again to allow for the installation of Open Zaak.
 
-5. Log in to the container console as ``root`` to figure out its IP-address::
+5. The VirtualBox console will show something like::
 
-        root@debian:~# ip addr
+        Debian GNU/Linux 10 debian tty1
 
-6. Finally, you can show the IP-address when the container boots::
-
-        root@debian:~# echo 'My IP-address: \4' >> /etc/issue
+        My IP-address: 192.168.X.X
+        debian login:
 
 Install Open Zaak
 -----------------
@@ -93,32 +111,45 @@ Install Open Zaak
 
         $ cd deployment/single-server
 
-2. Add the IP-address from the container to the ``hosts`` file::
+2. Add the IP-address from the container to the ``hosts`` file or create a new
+   ``hosts`` file to have an entry like this::
 
         192.168.X.X ansible_python_interpreter=/usr/bin/python3
 
-* TODO: Replace IP with domain!
-* TODO: Removed ``role: geerlingguy.certbot`` from ``open-zaak.yml``
-* TODO: Removed the entire SSL/HTTPS section from ``templates/openzaak.conf.j2``
+   Instead of an IP-address, its recommended to **use a domain name**. Without a domain
+   name it's more complicated to get everything to work and HTTPS is disabled. If you
+   use a domain name, you can use that instead of the IP-address that is used in
+   throughout the rest of this document.
 
 3. Assuming you did not change the user account in ``preseed.cfg``, start the
    installation:
 
-   a. Login to the container and logout again to verify and accept its
-      connection::
+   a. Login to the container to verify and accept its connection::
 
         $ ssh openzaak@192.168.X.X
         [...]
         Are you sure you want to continue connecting (yes/no)? yes
         openzaak@debian:~$ logout
 
-   b. Deploy Open Zaak and limit the installation to the container::
+   b. Install Ansible requirements::
 
-        $ ansible-playbook --user=openzaak --become --ask-pass --ask-vault-pass --limit=192.168.X.X open-zaak.yml
+        $ ansible-galaxy install -r requirements.yml
+
+   c. Deploy Open Zaak and limit the installation to the container. If you use a domain
+      name and want to make use of HTTPS (recommended), you can leave out
+      ``-e "certbot_create_if_missing=false"``::
+
+        $ ansible-playbook --user=openzaak --become --ask-become-pass --ask-pass --ask-vault-pass --limit=192.168.X.X open-zaak.yml -e "certbot_create_if_missing=false"
         SSH password: <the password of the "openzaak" user as given in preseed.cfg>
+        BECOME password[defaults to SSH password]: <same as above>
         Vault password: <the ansible vault password>
 
-4. When done, you can shutdown the container from the console::
+4. After the installation, you might want to create a superuser already. In the
+   console or SSH-session, do::
+
+        openzaak@debian:~$ sudo docker exec -it openzaak-0 /app/src/manage.py createsuperuser
+
+5. When done, you can shutdown the container from the console or SSH-session::
 
         openzaak@debian:~$ sudo /sbin/shutdown now
 
@@ -152,11 +183,21 @@ Test the appliance
 
 2. Power on the container.
 
+3. Make sure the console indicates a valid IP-address.
+
+4. You can now open your browser and navigate to the above IP-address or domain name
+   you configured using either ``http`` or ``https``, depending on your choices.
+
 Common issues
 ~~~~~~~~~~~~~
 
-* **No internet connection**
+* **No IP-address is shown after installing the VirtualBox container**
 
+  Make sure the virtual machine is linked to a network adapter that works. Also, you
+  need a DHCP-server active in the network to provide your virtual machine with an IP
+  or modify the network configuration in the console to obtain a static IP-address.
+
+* **No internet connection in VMware Workstatation Player**
   Converting from VirtualBox to VMware might influence your network interfaces.
   Login to the console and change the primary network interface::
 
@@ -174,13 +215,21 @@ Common issues
 
         $ /etc/init.d/networking restart
 
-* **The website shows Bad Request**
+* **The web interface just shows "Bad Request"**
 
   Most likely, you installed Open Zaak using a different domain name or
   IP-address compared to the one you are using to access the website now.
 
   You need to either use the same domain name or IP-address, or change the
   Nginx and Django settings to accept the new domain or IP-address.
+
+  Change ``ALLOWED_HOSTS`` in::
+
+        $ nano /home/openzaak/.env
+
+  Change ``server_name`` in::
+
+        $ nano /etc/nginx/conf.d/default.conf
 
 
 .. _`Python`: https://www.python.org/downloads/
