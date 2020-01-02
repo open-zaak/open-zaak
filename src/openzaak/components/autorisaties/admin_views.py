@@ -215,9 +215,6 @@ class AutorisatiesView(DetailView):
 
         if formset.is_valid():
             formset.save()
-
-            # TODO: send out notification to NRC!
-
             return redirect(
                 "admin:authorizations_applicatie_change", object_id=applicatie.pk
             )

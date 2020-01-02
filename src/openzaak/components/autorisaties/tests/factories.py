@@ -1,5 +1,5 @@
 import factory.fuzzy
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
 
 class ApplicatieFactory(factory.django.DjangoModelFactory):
@@ -12,7 +12,7 @@ class ApplicatieFactory(factory.django.DjangoModelFactory):
 
 class AutorisatieFactory(factory.django.DjangoModelFactory):
     applicatie = factory.SubFactory(ApplicatieFactory)
-    component = factory.fuzzy.FuzzyChoice(["ZRC", "DRC", "BRC"])
+    component = factory.fuzzy.FuzzyChoice(ComponentTypes.values)
     zaaktype = factory.Faker("url")
     scopes = factory.List(factory.Faker("word") for i in range(3))
     max_vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
@@ -25,7 +25,7 @@ class AutorisatieFactory(factory.django.DjangoModelFactory):
 
 class AutorisatieSpecFactory(factory.django.DjangoModelFactory):
     applicatie = factory.SubFactory(ApplicatieFactory)
-    component = factory.fuzzy.FuzzyChoice(["ZRC", "DRC", "BRC"])
+    component = factory.fuzzy.FuzzyChoice(ComponentTypes.values)
     scopes = factory.List(factory.Faker("word") for i in range(3))
     max_vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
         choices=VertrouwelijkheidsAanduiding.values
