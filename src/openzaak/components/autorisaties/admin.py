@@ -93,7 +93,7 @@ class AutorisatieInline(admin.TabularInline):
                 bt_repr=str(besluittype),
             )
 
-        return "foo"
+        return ""
 
     _get_extra.short_description = _("Extra parameters")
 
