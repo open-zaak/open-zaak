@@ -103,9 +103,9 @@ uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
 vng-api-common==1.0.33
-waitress==1.4.0
+waitress==1.4.1
 webob==1.8.5
 webtest==2.0.33
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==42.0.2        # via sphinx
+# setuptools==44.0.0        # via sphinx
