@@ -22,6 +22,7 @@ from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.notifications.viewsets import (
     NotificationCreateMixin,
+    NotificationDestroyMixin,
     NotificationViewSetMixin,
 )
 from vng_api_common.search import SearchMixin
@@ -430,7 +431,7 @@ class ZaakObjectViewSet(
 
 
 class ZaakInformatieObjectViewSet(
-    NotificationCreateMixin,
+    NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
@@ -619,7 +620,9 @@ class KlantContactViewSet(
 
 class RolViewSet(
     NotificationCreateMixin,
+    NotificationDestroyMixin,
     AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
@@ -870,6 +873,13 @@ class ZaakBesluitViewSet(
             )
 
     def get_audittrail_main_object_url(self, data, main_resource) -> str:
+        return reverse(
+            "zaak-detail",
+            request=self.request,
+            kwargs={"uuid": self.kwargs["zaak_uuid"]},
+        )
+
+    def get_notification_main_object_url(self, data, kanaal):
         return reverse(
             "zaak-detail",
             request=self.request,
