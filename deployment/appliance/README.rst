@@ -78,12 +78,12 @@ Create the base container
 
    a. Choose ``Advanced options`` > ``Automated install``
    b. When asked for an initial preconfiguration file, fill in the URL from
-      the ``serve-debian-config.sh`` script, followed by the path
+      the ``npm run appliance:serve-config`` script, followed by the path
       ``/preseed.cfg``. For example::
 
             http://192.168.X.X:8080/preseed.cfg
 
-   c. After you see a log entry in the terminal running the ``serve-debian-config.sh``
+   c. After you see a log entry in the terminal running the ``npm run appliance:serve-config``
       script, you can close it.
    d. When the installation is done, the VirtualBox container shuts down automatically.
 
