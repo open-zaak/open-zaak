@@ -58,9 +58,9 @@ Create the base container
 1. Allow the Debian installer to download our configuration details from the
    host system. In a seperate terminal, do::
 
-        $ npm install http-server
+        $ npm install
 
-        $ ./serve-debian-config.sh
+        $ npm run appliance:serve-config
         Starting up http-server, serving [...]/debian-config
         Available on:
           http://192.168.X.X:8080
