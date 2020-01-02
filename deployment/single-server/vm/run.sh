@@ -10,10 +10,12 @@ cp $PUBKEY /tmp/openzaak-authorized_keys
 
 docker build -t openzaak-vm .
 
+docker volume create openzaak-vm
 docker run \
     --rm \
     --name openzaak-vm \
     -p '2222:22' \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /tmp/openzaak-authorized_keys:/root/.ssh/authorized_keys \
+    -v openzaak-vm:/home/openzaak \
     openzaak-vm &

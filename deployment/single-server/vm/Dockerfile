@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN mkdir -m 0700 /root/.ssh && mkdir -m 0755 /run/sshd
 
+VOLUME ["/home/openzaak"]
+
 COPY ./start_vm.sh /start_vm.sh
 
 EXPOSE 22

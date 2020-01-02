@@ -24,5 +24,5 @@ started with systemd. Therefore we need to override some small configuration
 variables.
 
 ```shell
-$ ansible-playbook open-zaak.yml -i vm/hosts -e "postgresql_daemon=postgresql docker_restart_handler_state=started certbot_create_if_missing=false"
+$ ansible-playbook open-zaak.yml -i vm/hosts -e "postgresql_daemon=postgresql docker_restart_handler_state=started certbot_create_if_missing=false openzaak_env_file=/var/lib/docker/volumes/openzaak-vm/_data/.env"
 ```

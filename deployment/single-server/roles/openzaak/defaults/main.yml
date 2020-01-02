@@ -7,6 +7,7 @@ openzaak_db_username: openzaak
 openzaak_db_password: openzaak
 
 openzaak_secret_key: override-me
+openzaak_env_file: /home/openzaak/.env
 
 openzaak_replicas:
   - name: openzaak-0
