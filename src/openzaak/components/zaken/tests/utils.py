@@ -49,7 +49,10 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "publicatietekst": "",
         "verantwoordingsrelatie": ["qwerty"],
         "productenOfDiensten": ["https://example.com/product/123"],
-        "selectielijstProcestype": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        "selectielijstProcestype": (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        ),
         "referentieproces": {},
         "statustypen": [],
         "resultaattypen": [],
@@ -120,9 +123,15 @@ def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
         "url": resultaattype,
         "zaaktype": zaaktype,
         "omschrijving": "some role",
-        "resultaattypeomschrijving": "https://referentielijsten-api.vng.cloud/api/v1/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7",
+        "resultaattypeomschrijving": (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        ),
         "omschrijvingGeneriek": "Afgewezen",
-        "selectielijstklasse": "https://referentielijsten-api.vng.cloud/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+        "selectielijstklasse": (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        ),
         "toelichting": "",
         "archiefnominatie": "vernietigen",
         "archiefactietermijn": "P10Y",

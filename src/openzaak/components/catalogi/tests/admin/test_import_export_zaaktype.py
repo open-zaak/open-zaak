@@ -549,7 +549,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
             omschrijving="export",
         )
         informatieobjecttype_uuid = informatieobjecttype.uuid
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
@@ -664,7 +664,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
 
         response = response.form.submit("_select")
 
-        imported_catalogus = Catalogus.objects.get()
+        Catalogus.objects.get()
         zaaktype = ZaakType.objects.get()
 
         self.assertEqual(zaaktype.zaaktype_omschrijving, "zaaktype1")
@@ -842,7 +842,7 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="export",
         )
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
         ZaakType.objects.exclude(pk=zaaktype.pk).delete()

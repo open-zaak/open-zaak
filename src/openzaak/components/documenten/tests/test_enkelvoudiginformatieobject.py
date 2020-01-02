@@ -617,7 +617,10 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
     def test_create_external_informatieobjecttype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        informatieobjecttype = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
@@ -705,7 +708,10 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
     def test_create_external_informatieobjecttype_fail_invalid_schema(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        informatieobjecttype = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
 
         with requests_mock.Mocker(real_http=True) as m:
             m.register_uri(
@@ -745,7 +751,10 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
     def test_create_external_informatieobjecttype_fail_non_pulish(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        informatieobjecttype = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
         informatieobjecttype_data = get_informatieobjecttype_response(
             catalogus, informatieobjecttype
         )

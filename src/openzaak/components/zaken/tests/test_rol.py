@@ -20,12 +20,7 @@ from ..models import (
     Vestiging,
 )
 from .factories import RolFactory, ZaakFactory
-from .utils import (
-    get_catalogus_response,
-    get_operation_url,
-    get_roltype_response,
-    get_zaaktype_response,
-)
+from .utils import get_operation_url, get_roltype_response, get_zaaktype_response
 
 BETROKKENE = (
     "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd"

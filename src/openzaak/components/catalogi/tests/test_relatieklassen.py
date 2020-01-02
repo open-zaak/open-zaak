@@ -27,13 +27,13 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
     list_url = reverse_lazy(ZaakTypeInformatieObjectType)
 
     def test_get_list_default_definitief(self):
-        ziot1 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ziot3 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
         ziot4 = ZaakTypeInformatieObjectTypeFactory.create(
@@ -238,11 +238,9 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_ziot(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -338,11 +336,9 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_ziot_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -358,11 +354,9 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
 
     def test_partial_update_ziot_not_concept_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -380,11 +374,9 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         self,
     ):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=zaaktype.catalogus, concept=False
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
         ziot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
@@ -510,13 +502,13 @@ class ZaakTypeInformatieObjectTypeFilterAPITests(APITestCase):
         )
 
     def test_filter_ziot_status_definitief(self):
-        ziot1 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=True
         )
-        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=True
         )
-        ziot3 = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=True, informatieobjecttype__concept=False
         )
         ziot4 = ZaakTypeInformatieObjectTypeFactory.create(

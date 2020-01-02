@@ -643,7 +643,7 @@ class ZaakObject(models.Model):
     object_type_overige = models.CharField(
         max_length=100,
         blank=True,
-        validators=[RegexValidator("[a-z\_]+")],
+        validators=[RegexValidator("[a-z_]+")],
         help_text="Beschrijft het type OBJECT als `objectType` de waarde "
         '"overige" heeft.',
     )

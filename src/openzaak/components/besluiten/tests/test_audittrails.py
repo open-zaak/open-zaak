@@ -130,6 +130,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Delete the Besluit
         response = self.client.delete(besluit_data["url"])
 
+        self.assertEqual(response.status_code, 204)
         # Verify that deleting the Besluit deletes all related AuditTrails
         audittrails = AuditTrail.objects.filter(hoofd_object=besluit_data["url"])
         self.assertFalse(audittrails.exists())

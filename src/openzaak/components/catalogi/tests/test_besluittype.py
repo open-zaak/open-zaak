@@ -25,7 +25,7 @@ class BesluitTypeAPITests(APITestCase):
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
-        besluittype1 = BesluitTypeFactory.create(concept=True)
+        BesluitTypeFactory.create(concept=True)
         besluittype2 = BesluitTypeFactory.create(concept=False)
         besluittype_list_url = reverse("besluittype-list")
         besluittype2_url = reverse(
@@ -86,7 +86,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         iot1 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
-        iot2 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
+        InformatieObjectTypeFactory.create(catalogus=self.catalogus)
         besluittype.informatieobjecttypen.add(iot1)
 
         besluittype_detail_url = reverse(
@@ -110,7 +110,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype2 = ZaakTypeFactory.create(catalogus=self.catalogus)
+        ZaakTypeFactory.create(catalogus=self.catalogus)
         besluittype.zaaktypen.clear()
         besluittype.zaaktypen.add(zaaktype1)
 
@@ -695,7 +695,7 @@ class BesluitTypeFilterAPITests(APITestCase):
 
     def test_filter_besluittype_status_concept(self):
         besluittype1 = BesluitTypeFactory.create(concept=True)
-        besluittype2 = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
         besluittype_list_url = reverse("besluittype-list")
         besluittype1_url = reverse(
             "besluittype-detail", kwargs={"uuid": besluittype1.uuid}
@@ -710,7 +710,7 @@ class BesluitTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{besluittype1_url}")
 
     def test_filter_besluittype_status_definitief(self):
-        besluittype1 = BesluitTypeFactory.create(concept=True)
+        BesluitTypeFactory.create(concept=True)
         besluittype2 = BesluitTypeFactory.create(concept=False)
         besluittype_list_url = reverse("besluittype-list")
         besluittype2_url = reverse(
@@ -727,7 +727,7 @@ class BesluitTypeFilterAPITests(APITestCase):
 
     def test_filter_zaaktypen(self):
         besluittype1 = BesluitTypeFactory.create(concept=False)
-        besluittype2 = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
         zaaktype1 = besluittype1.zaaktypen.get()
         zaaktype1_url = f"http://openzaak.nl{reverse(zaaktype1)}"
         besluittype_list_url = reverse("besluittype-list")
@@ -744,7 +744,7 @@ class BesluitTypeFilterAPITests(APITestCase):
 
     def test_filter_informatieobjecttypen(self):
         besluittype1 = BesluitTypeFactory.create(concept=False)
-        besluittype2 = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
         iot1 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
         besluittype1.informatieobjecttypen.add(iot1)
         besluittype_list_url = reverse("besluittype-list")
@@ -808,7 +808,7 @@ class BesluitTypeValidationTests(APITestCase):
     maxDiff = None
 
     def test_besluittype_unique_catalogus_omschrijving_combination(self):
-        besluittype1 = BesluitTypeFactory(catalogus=self.catalogus, omschrijving="test")
+        BesluitTypeFactory(catalogus=self.catalogus, omschrijving="test")
         besluittype_list_url = reverse("besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",

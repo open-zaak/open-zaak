@@ -59,7 +59,7 @@ class CatalogusFilterAPITests(APITestCase):
 
     def test_filter_domein_exact(self):
         catalogus1 = CatalogusFactory.create(domein="ABC")
-        catalogus2 = CatalogusFactory.create(domein="DEF")
+        CatalogusFactory.create(domein="DEF")
 
         response = self.client.get(self.catalogus_list_url, {"domein": "ABC"})
 
@@ -72,7 +72,7 @@ class CatalogusFilterAPITests(APITestCase):
 
     def test_filter_domein_in(self):
         catalogus1 = CatalogusFactory.create(domein="ABC")
-        catalogus2 = CatalogusFactory.create(domein="DEF")
+        CatalogusFactory.create(domein="DEF")
 
         response = self.client.get(self.catalogus_list_url, {"domein__in": "ABC,AAA"})
 
@@ -85,7 +85,7 @@ class CatalogusFilterAPITests(APITestCase):
 
     def test_filter_rsin_exact(self):
         catalogus1 = CatalogusFactory.create(rsin="100000009")
-        catalogus2 = CatalogusFactory.create(rsin="100000020")
+        CatalogusFactory.create(rsin="100000020")
 
         response = self.client.get(self.catalogus_list_url, {"rsin": "100000009"})
 
@@ -98,7 +98,7 @@ class CatalogusFilterAPITests(APITestCase):
 
     def test_filter_rsin_in(self):
         catalogus1 = CatalogusFactory.create(rsin="100000009")
-        catalogus2 = CatalogusFactory.create(rsin="100000022")
+        CatalogusFactory.create(rsin="100000022")
 
         response = self.client.get(
             self.catalogus_list_url, {"rsin__in": "100000009,100000010"}

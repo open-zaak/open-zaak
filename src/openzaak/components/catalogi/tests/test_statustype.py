@@ -17,7 +17,7 @@ class StatusTypeAPITests(APITestCase):
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
-        statustype1 = StatusTypeFactory.create(zaaktype__concept=True)
+        StatusTypeFactory.create(zaaktype__concept=True)
         statustype2 = StatusTypeFactory.create(zaaktype__concept=False)
         statustype_list_url = reverse("statustype-list")
         statustype2_url = reverse(
@@ -121,7 +121,7 @@ class StatusTypeAPITests(APITestCase):
     def test_is_eindstatus(self):
         zaaktype = ZaakTypeFactory.create()
 
-        rol_type = RolTypeFactory.create(zaaktype=zaaktype)
+        RolTypeFactory.create(zaaktype=zaaktype)
 
         statustype_1 = StatusTypeFactory.create(
             zaaktype=zaaktype, statustypevolgnummer=1
@@ -226,7 +226,6 @@ class StatusTypeAPITests(APITestCase):
 
     def test_partial_update_statustype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype_url = reverse(statustype)
 
@@ -240,7 +239,6 @@ class StatusTypeAPITests(APITestCase):
 
     def test_partial_update_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype_url = reverse(statustype)
 
@@ -282,7 +280,7 @@ class StatusTypeFilterAPITests(APITestCase):
 
     def test_filter_statustype_status_concept(self):
         statustype1 = StatusTypeFactory.create(zaaktype__concept=True)
-        statustype2 = StatusTypeFactory.create(zaaktype__concept=False)
+        StatusTypeFactory.create(zaaktype__concept=False)
         statustype_list_url = reverse("statustype-list")
         statustype1_url = reverse(
             "statustype-detail", kwargs={"uuid": statustype1.uuid}
@@ -297,7 +295,7 @@ class StatusTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{statustype1_url}")
 
     def test_filter_statustype_status_definitief(self):
-        statustype1 = StatusTypeFactory.create(zaaktype__concept=True)
+        StatusTypeFactory.create(zaaktype__concept=True)
         statustype2 = StatusTypeFactory.create(zaaktype__concept=False)
         statustype_list_url = reverse("statustype-list")
         statustype2_url = reverse(

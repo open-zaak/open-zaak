@@ -11,16 +11,10 @@ from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.notifications.viewsets import (
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-    NotificationViewSetMixin,
-)
+from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 

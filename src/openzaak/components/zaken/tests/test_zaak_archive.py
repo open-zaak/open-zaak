@@ -139,9 +139,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactiedatum=date.today(),
         )
         io = EnkelvoudigInformatieObjectFactory.create(status="gearchiveerd")
-        zio = ZaakInformatieObjectFactory.create(
-            zaak=zaak, informatieobject=io.canonical
-        )
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io.canonical)
         zaak_patch_url = get_operation_url("zaak_partial_update", uuid=zaak.uuid)
         data = {"archiefstatus": Archiefstatus.gearchiveerd}
 
@@ -155,9 +153,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactiedatum=date.today(),
         )
         io = EnkelvoudigInformatieObjectFactory.create(status="in_bewerking")
-        zio = ZaakInformatieObjectFactory.create(
-            zaak=zaak, informatieobject=io.canonical
-        )
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io.canonical)
         zaak_patch_url = get_operation_url("zaak_partial_update", uuid=zaak.uuid)
         data = {"archiefstatus": Archiefstatus.gearchiveerd}
 
@@ -553,12 +549,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak_object2 = ZaakObjectFactory.create(
             zaak=zaak, object="", object_type="woz_waarde"
         )
-        woz_waarde1 = WozWaardeFactory.create(
-            zaakobject=zaak_object1, waardepeildatum="2010-1-1"
-        )
-        woz_waarde2 = WozWaardeFactory.create(
-            zaakobject=zaak_object2, waardepeildatum="2013-1-1"
-        )
+        WozWaardeFactory.create(zaakobject=zaak_object1, waardepeildatum="2010-1-1")
+        WozWaardeFactory.create(zaakobject=zaak_object2, waardepeildatum="2013-1-1")
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,

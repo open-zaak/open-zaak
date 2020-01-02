@@ -1,7 +1,6 @@
 import factory
 
 from ...models import StatusType
-from .roltype import RolTypeFactory
 from .zaaktype import ZaakTypeFactory
 
 

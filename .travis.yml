@@ -64,6 +64,13 @@ jobs:
       before_script: skip
       script: black --check src
 
+    - name: flake8
+      before_install: skip
+      install:
+        - pip install flake8
+      before_script: skip
+      script: flake8 src
+
     - name: Test docker image build
       before_install: skip
       install: skip

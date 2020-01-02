@@ -313,7 +313,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
         )
 
@@ -343,11 +343,9 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_partial_update_zio_metadata(self):
         zaak = ZaakFactory.create()
-        zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
-        io_url = reverse(io)
 
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+        ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
         )
 

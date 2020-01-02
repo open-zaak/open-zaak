@@ -24,7 +24,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             archiefactiedatum=date(2010, 1, 1),
             archiefstatus=Archiefstatus.nog_te_archiveren,
         )
-        zaak_2 = ZaakFactory.create(
+        ZaakFactory.create(
             archiefnominatie=Archiefnominatie.vernietigen,
             archiefactiedatum=date(2010, 1, 1),
             archiefstatus=Archiefstatus.nog_te_archiveren,

@@ -33,6 +33,7 @@ class RolAdminTests(AdminTestMixin, TestCase):
 
         response = self.client.post(add_url, data)
 
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Rol.objects.count(), 1)
 
         rol = Rol.objects.get()

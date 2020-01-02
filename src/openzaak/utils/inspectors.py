@@ -3,11 +3,7 @@ import logging
 from django_loose_fk.drf import FKOrURLField
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import (
-    FieldInspector,
-    SimpleFieldInspector,
-    get_basic_type_info,
-)
+from drf_yasg.inspectors.field import FieldInspector
 
 from .serializer_fields import LengthHyperlinkedRelatedField
 

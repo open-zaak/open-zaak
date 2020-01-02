@@ -46,8 +46,10 @@ drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2
 drf-writable-nested==0.4.3
 drf-yasg==1.16.0
+entrypoints==0.3          # via flake8
 factory-boy==2.12.0
 faker==2.0.1
+flake8==3.7.9
 freezegun==0.3.12
 gemma-zds-client==0.13.0
 humanize==0.5.1
@@ -62,11 +64,14 @@ jinja2==2.10.1
 markdown==3.0.1
 markupsafe==1.0
 maykin-django-better-admin-arrayfield==1.0.5
+mccabe==0.6.1             # via flake8
 oyaml==0.7
 packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
 pip-tools==4.2.0
 psycopg2==2.8.3
+pycodestyle==2.5.0        # via flake8
+pyflakes==2.1.1           # via flake8
 pygments==2.4.2           # via sphinx
 pyjwt==1.6.4
 pyparsing==2.4.2          # via packaging

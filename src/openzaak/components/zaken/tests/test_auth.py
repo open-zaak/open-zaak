@@ -318,11 +318,11 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         # must not show up
-        zio2 = ZaakInformatieObjectFactory.create(
+        ZaakInformatieObjectFactory.create(
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         # must not show up
-        zio3 = ZaakInformatieObjectFactory.create(
+        ZaakInformatieObjectFactory.create(
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )

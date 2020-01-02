@@ -18,7 +18,7 @@ class RolTypeAPITests(APITestCase):
     component = ComponentTypes.ztc
 
     def test_get_list_default_definitief(self):
-        roltype1 = RolTypeFactory.create(zaaktype__concept=True)
+        RolTypeFactory.create(zaaktype__concept=True)
         roltype2 = RolTypeFactory.create(zaaktype__concept=False)
         roltype_list_url = reverse("roltype-list")
         roltype2_url = reverse("roltype-detail", kwargs={"uuid": roltype2.uuid})
@@ -173,7 +173,6 @@ class RolTypeAPITests(APITestCase):
 
     def test_partial_update_roltype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = reverse(zaaktype)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
         roltype_url = reverse(roltype)
 
@@ -187,7 +186,6 @@ class RolTypeAPITests(APITestCase):
 
     def test_partial_update_roltype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse(zaaktype)
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
         roltype_url = reverse(roltype)
 
@@ -244,7 +242,7 @@ class RolTypeFilterAPITests(APITestCase):
 
     def test_filter_roltype_status_concept(self):
         roltype1 = RolTypeFactory.create(zaaktype__concept=True)
-        roltype2 = RolTypeFactory.create(zaaktype__concept=False)
+        RolTypeFactory.create(zaaktype__concept=False)
         roltype_list_url = reverse("roltype-list")
         roltype1_url = reverse("roltype-detail", kwargs={"uuid": roltype1.uuid})
 
@@ -257,7 +255,7 @@ class RolTypeFilterAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{roltype1_url}")
 
     def test_filter_roltype_status_definitief(self):
-        roltype1 = RolTypeFactory.create(zaaktype__concept=True)
+        RolTypeFactory.create(zaaktype__concept=True)
         roltype2 = RolTypeFactory.create(zaaktype__concept=False)
         roltype_list_url = reverse("roltype-list")
         roltype2_url = reverse("roltype-detail", kwargs={"uuid": roltype2.uuid})
@@ -273,7 +271,7 @@ class RolTypeFilterAPITests(APITestCase):
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_zaaktype(self):
         roltype1 = RolTypeFactory.create(zaaktype__concept=False)
-        roltype2 = RolTypeFactory.create(zaaktype__concept=False)
+        RolTypeFactory.create(zaaktype__concept=False)
         zaaktype1 = roltype1.zaaktype
         roltype_list_url = reverse("roltype-list")
         roltype1_url = reverse(roltype1)

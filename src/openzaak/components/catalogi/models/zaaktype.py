@@ -65,8 +65,9 @@ class ZaakObjectType(GeldigheidMixin, models.Model):
         on_delete=models.CASCADE,
         related_name="heeft_verplichte_zaakobjecttype",
         help_text=_(
-            "TODO: dit is de related helptext: De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van "
-            "het ZAAKTYPE voordat een STATUS van dit STATUSTYPE kan worden gezet"
+            "TODO: dit is de related helptext: De ZAAKOBJECTTYPEn die verplicht "
+            "gerelateerd moeten zijn aan ZAAKen van het ZAAKTYPE voordat een "
+            "STATUS van dit STATUSTYPE kan worden gezet"
         ),
     )
 

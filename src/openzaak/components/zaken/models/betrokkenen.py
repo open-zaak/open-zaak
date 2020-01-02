@@ -71,7 +71,10 @@ class AbstractRolZaakobjectZakelijkRechtRelation(models.Model):
 class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inp_bsn = BSNField(
         blank=True,
-        help_text="Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
+        help_text=(
+            "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene "
+            "bepalingen burgerservicenummer."
+        ),
         db_index=True,
     )
     anp_identificatie = models.CharField(

@@ -4,7 +4,6 @@ import factory
 
 from ...models import BesluitType
 from .catalogus import CatalogusFactory
-from .resultaattype import ResultaatTypeFactory
 from .zaaktype import ZaakTypeFactory
 
 
