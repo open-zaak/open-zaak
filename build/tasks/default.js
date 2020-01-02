@@ -1,5 +1,5 @@
 const gulp = require('gulp');
-const {watch} = require('./watch');
+const {build} = require('./build');
 
-gulp.task('default', watch);
-exports.default = watch;
+gulp.task('default', build);
+exports.default = build;

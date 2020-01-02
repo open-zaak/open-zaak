@@ -7,7 +7,6 @@
     "doc": "doc"
   },
   "scripts": {
-    "convert": "swagger2openapi $SCHEMA_PATH/swagger2.0.json -o $SCHEMA_PATH/openapi.yaml",
     "build": "gulp build"
   },
   "repository": {
@@ -18,8 +17,7 @@
   "license": "EUPL 1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {
-    "autoprefixer": "^9.6.1",
-    "font-awesome": "^4.7.0"
+    "autoprefixer": "^9.6.1"
   },
   "devDependencies": {
     "cssnano": "^4.1.10",
