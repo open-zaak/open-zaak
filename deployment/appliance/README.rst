@@ -104,6 +104,8 @@ Create the base container
         My IP-address: 192.168.X.X
         debian login:
 
+You can now continue to install Open Zaak.
+
 Install Open Zaak
 -----------------
 
@@ -116,10 +118,10 @@ Install Open Zaak
 
         192.168.X.X ansible_python_interpreter=/usr/bin/python3
 
-   Instead of an IP-address, its recommended to **use a domain name**. Without a domain
-   name it's more complicated to get everything to work and HTTPS is disabled. If you
-   use a domain name, you can use that instead of the IP-address that is used in
-   throughout the rest of this document.
+   Instead of an IP-address, it's recommended to **use a domain name**. Without a
+   domain name it's more complicated to get everything to work and HTTPS is disabled.
+   If you use a domain name, you can use that instead of the IP-address that is used
+   in throughout the rest of this document.
 
 3. Assuming you did not change the user account in ``preseed.cfg``, start the
    installation:
@@ -155,10 +157,13 @@ Install Open Zaak
 
    A snapshot called "openzaak-install" is created to easily reset the image.
 
+You can now continue to convert the container to be compatible VMware.
+
 Convert to VMware
 -----------------
 
-1. Convert the VirtualBox container to a VMware-compatible container::
+1. Convert the VirtualBox container to a VMware-compatible container, using the
+   ``export-ovf.sh`` script::
 
         $ ./export-ovf.sh
         Exporting to OVF...
@@ -175,6 +180,8 @@ Convert to VMware
          - No manifest entry found for: 'openzaak-disk001.vmdk'.
         Completed successfully
         Done.
+
+You can now continue to test the appliance.
 
 Test the appliance
 ------------------
