@@ -29,4 +29,7 @@
       - "{{ openzaak_env_file }}:/app/.env"
     ports:
       - "127.0.0.1:{{ item.port }}:8000"
+    env:
+      DB_HOST: "{{ openzaak_db_host }}"
+      DB_PORT: "{{ openzaak_db_port | string }}"
   with_items: "{{ openzaak_replicas }}"
