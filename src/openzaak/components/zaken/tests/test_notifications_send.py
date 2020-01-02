@@ -1,17 +1,41 @@
+import json
+from datetime import datetime
 from unittest.mock import patch
 
 from django.test import override_settings
+from django.utils.timezone import datetime, make_aware, now
 
+from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (
+    Archiefnominatie,
+    BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
+    VertrouwelijkheidsAanduiding,
+)
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
+from openzaak.components.besluiten.tests.factories import BesluitFactory
+from openzaak.components.catalogi.tests.factories import (
+    EigenschapFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectFactory,
+)
 from openzaak.utils.tests import JWTAuthMixin
 
-from .factories import ResultaatFactory, ZaakFactory
+from .factories import (
+    ResultaatFactory,
+    RolFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
@@ -102,3 +126,479 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 },
             },
         )
+
+
+@override_settings(NOTIFICATIONS_DISABLED=False)
+@freeze_time("2019-01-01T12:00:00Z")
+class FailedNotificationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
+
+    def test_zaak_create_fail_send_notification_create_db_entry(self):
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": data["url"],
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": data["bronorganisatie"],
+                "zaaktype": f"http://testserver{zaaktype_url}",
+                "vertrouwelijkheidaanduiding": data["vertrouwelijkheidaanduiding"],
+            },
+            "resource": "zaak",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaak_delete_fail_send_notification_create_db_entry(self):
+        zaak = ZaakFactory.create()
+        url = reverse(zaak)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaak",
+            "resourceUrl": f"http://testserver{url}",
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_status_create_fail_send_notification_create_db_entry(self):
+        url = get_operation_url("status_create")
+        zaak = ZaakFactory.create(
+            einddatum=now(),
+            archiefactiedatum="2020-01-01",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+        )
+        zaak_url = reverse(zaak)
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.ander_datumkenmerk,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "statustype": f"http://testserver{statustype_url}",
+            "datumStatusGezet": "2019-01-01T12:00:00Z",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "status",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaakobject_create_fail_send_notification_create_db_entry(self):
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create(
+            einddatum=now(),
+            archiefactiedatum="2020-01-01",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+        )
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": zaak_url,
+            "objectType": "buurt",
+            "objectIdentificatie": {
+                "buurtCode": "aa",
+                "buurtNaam": "bb",
+                "gemGemeenteCode": "cc",
+                "wykWijkCode": "dd",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaakobject",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
+        url = get_operation_url("zaakinformatieobject_create")
+
+        zaak = ZaakFactory.create()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
+        )
+        zaak_url = reverse(zaak)
+        io_url = reverse(io)
+        data = {
+            "informatieobject": f"http://testserver{io_url}",
+            "zaak": f"http://testserver{zaak_url}",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaakinformatieobject",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(self):
+        zio = ZaakInformatieObjectFactory.create()
+        url = reverse(zio)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{reverse(zio.zaak)}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zio.zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zio.zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zio.zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaakinformatieobject",
+            "resourceUrl": f"http://testserver{url}",
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaakeigenschap_create_fail_send_notification_create_db_entry(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
+        eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
+        eigenschap_url = reverse(eigenschap)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "eigenschap": f"http://testserver{eigenschap_url}",
+            "waarde": "ja",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaakeigenschap",
+            "resourceUrl": data["url"],
+        }
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_klantcontact_create_fail_send_notification_create_db_entry(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        url = get_operation_url("klantcontact_create")
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "datumtijd": "2019-01-01T12:00:00Z",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "klantcontact",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_rol_create_fail_send_notification_create_db_entry(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+
+        url = get_operation_url("rol_create")
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkeneType": "medewerker",
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "nee",
+            "betrokkeneIdentificatie": {
+                "identificatie": "1111",
+                "achternaam": "a",
+                "voorletters": "a",
+                "voorvoegselAchternaam": "a",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "rol",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_rol_delete_fail_send_notification_create_db_entry(self):
+        rol = RolFactory.create()
+        url = reverse(rol)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{reverse(rol.zaak)}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": rol.zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(rol.zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": rol.zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "rol",
+            "resourceUrl": f"http://testserver{url}",
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_resultaat_create_fail_send_notification_create_db_entry(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
+        resultaattype_url = reverse(resultaattype)
+
+        url = get_operation_url("resultaat_create")
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "resultaattype": f"http://testserver{resultaattype_url}",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{zaak_url}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "resultaat",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_resultaat_delete_fail_send_notification_create_db_entry(self):
+        resultaat = ResultaatFactory.create()
+        url = reverse(resultaat)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{reverse(resultaat.zaak)}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": resultaat.zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(resultaat.zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": resultaat.zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "resultaat",
+            "resourceUrl": f"http://testserver{url}",
+        }
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+
+    def test_zaakbesluit_create_fail_send_notification_create_db_entry(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+        besluit_url = reverse(besluit)
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
+
+        response = self.client.post(
+            url, data={"besluit": f"http://testserver{besluit_url}",}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        failed = StatusLog.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": f"http://testserver{reverse(besluit.zaak)}",
+            "kanaal": "zaken",
+            "kenmerken": {
+                "bronorganisatie": besluit.zaak.bronorganisatie,
+                "zaaktype": f"http://testserver{reverse(besluit.zaak.zaaktype)}",
+                "vertrouwelijkheidaanduiding": besluit.zaak.vertrouwelijkheidaanduiding,
+            },
+            "resource": "zaakbesluit",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
