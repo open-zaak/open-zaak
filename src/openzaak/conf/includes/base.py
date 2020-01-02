@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     # External applications.
     "axes",
     "django_filters",
+    "django_db_logger",
     "corsheaders",
     "vng_api_common",  # before drf_yasg to override the management command
     "vng_api_common.authorizations",
@@ -228,7 +229,12 @@ LOGGING = {
         "simple": {"format": "%(levelname)s  %(message)s"},
         "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
     },
-    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+    "filters": {
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+        "failed_notification": {
+            "()": "openzaak.utils.logging.FailedNotificationFilter"
+        },
+    },
     "handlers": {
         "mail_admins": {
             "level": "ERROR",
@@ -273,6 +279,11 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
         },
+        "db_log": {
+            "level": "DEBUG",
+            "filters": ["failed_notification"],
+            "class": "django_db_logger.db_log_handler.DatabaseLogHandler",
+        },
     },
     "loggers": {
         "openzaak": {"handlers": ["project"], "level": "INFO", "propagate": True},
@@ -287,6 +298,10 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
+        },
+        "vng_api_common.notifications.viewsets": {
+            "handlers": ["db_log"],
+            "level": "DEBUG",
         },
     },
 }
@@ -473,3 +488,4 @@ ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 
 OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
+STORE_FAILED_NOTIFS = True

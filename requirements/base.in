@@ -12,6 +12,7 @@ django
 django-axes
 django-choices
 django-cors-middleware
+django-db-logger
 django-loose-fk
 django-markup
 django-redis
