@@ -1,9 +1,8 @@
 import json
-from datetime import datetime
 from unittest.mock import patch
 
 from django.test import override_settings
-from django.utils.timezone import datetime, make_aware, now
+from django.utils.timezone import now
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time

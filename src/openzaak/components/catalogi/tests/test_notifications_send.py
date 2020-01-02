@@ -1,13 +1,11 @@
 import json
-from unittest.mock import patch
 
 from django.test import override_settings
-from django.utils.timezone import datetime, make_aware
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from ..constants import AardRelatieChoices, InternExtern

@@ -2,10 +2,8 @@ import json
 from unittest.mock import patch
 
 from django.test import override_settings
-from django.utils.timezone import datetime, make_aware
 
 from django_db_logger.models import StatusLog
-from djangorestframework_camel_case.util import camelize
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
