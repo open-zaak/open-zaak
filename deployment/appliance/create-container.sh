@@ -46,7 +46,7 @@ if [ "$NEW_CONTAINER" == "y" ]; then
     vboxmanage createvm --name ${VM_NAME} --ostype Debian_64 --register
     # A minimum of vram=10 is required to show the console.
     vboxmanage modifyvm ${VM_NAME} --memory 4096 --vram=12 --acpi on --nic1 bridged --bridgeadapter1 "${BRIDGE_ADAPTER}"
-    vboxmanage modifyvm ${VM_NAME} --nictype1 virtio 
+    vboxmanage modifyvm ${VM_NAME} --nictype1 virtio
     # Audio doesn't work with the OVF-tool and we don't need it.
     # Error: No support for the virtual hardware device type [...]
     vboxmanage modifyvm ${VM_NAME} --audio none
@@ -59,12 +59,12 @@ if [ "$NEW_CONTAINER" == "y" ]; then
     vboxmanage storageattach ${VM_NAME} --storagectl "SCSI Controller" --port 0 --device 0 --type hdd --medium `pwd`/${VM_NAME}.vdi
 
     vboxmanage storagectl ${VM_NAME} --name "IDE Controller" --add ide --controller PIIX4
-    vboxmanage storageattach ${VM_NAME} --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium `pwd`/../debian-10.2.0-amd64-netinst.iso
+    vboxmanage storageattach ${VM_NAME} --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium $OS_ISO_PATH
 
     echo "Start OS installation in VirtualBox container..."
     echo "(continue with the OS installation procedure in container)"
 
-    virtualbox --startvm ${VM_NAME}
+    vboxmanage startvm ${VM_NAME}
     echo "VirtualBox container was closed. Press any key to continue..."
     read -n 1
 
@@ -77,7 +77,7 @@ if [ "$NEW_CONTAINER" == "y" ]; then
 
     echo "Creating snapshot (initial-install)..."
     vboxmanage snapshot ${VM_NAME} take "initial-install"
-    
+
 # Use existing VirtualBox container and reset an initial-install image.
 else
     cd ${VM_NAME}
@@ -89,7 +89,7 @@ fi
 echo "Launching VirtualBox container..."
 echo "(continue with the Open Zaak installation procedure in container and shut down when done)"
 
-virtualbox --startvm ${VM_NAME}
+vboxmanage startvm ${VM_NAME}
 
 echo "Creating snapshot (openzaak-install)..."
 vboxmanage snapshot ${VM_NAME} take "openzaak-install"
