@@ -109,7 +109,7 @@ const AutorisatieForm = (props) => {
                             (<CheckboxSelect
                                 choices={availableScopeChoices}
                                 name="scopes"
-                                initialValue={values.scopes}
+                                initialValue={values.scopes || []}
                                 errors={errors.scopes}
                             />) :
                             <span className="autorisatie-form__select-component">(kies eerst een component)</span>
@@ -163,7 +163,7 @@ AutorisatieForm.propTypes = {
 };
 
 AutorisatieForm.defaultProps = {
-    data: {errors: {}, values: {}}
+    data: {errors: {}, values: {scopes: []}}
 };
 
 export { AutorisatieForm };
