@@ -1,4 +1,3 @@
-import json
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -13,6 +12,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.notifications.models import FailedNotification
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import VervalRedenen
@@ -131,7 +131,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -145,7 +146,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
             "resourceUrl": data["url"],
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self):
         besluit = BesluitFactory.create()
@@ -157,7 +159,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -171,7 +174,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
             "resourceUrl": f"http://testserver{url}",
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self,
@@ -198,7 +202,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -212,7 +217,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
             "resourceUrl": data["url"],
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
         self,
@@ -226,7 +232,8 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -240,4 +247,5 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
             "resourceUrl": f"http://testserver{url}",
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)

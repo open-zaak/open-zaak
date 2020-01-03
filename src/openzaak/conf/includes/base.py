@@ -233,7 +233,7 @@ LOGGING = {
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
         "failed_notification": {
-            "()": "openzaak.utils.logging.FailedNotificationFilter"
+            "()": "openzaak.notifications.filters.FailedNotificationFilter"
         },
     },
     "handlers": {
@@ -280,10 +280,10 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
         },
-        "db_log": {
+        "failed_notification": {
             "level": "DEBUG",
             "filters": ["failed_notification"],
-            "class": "django_db_logger.db_log_handler.DatabaseLogHandler",
+            "class": "openzaak.notifications.handlers.DatabaseLogHandler",
         },
     },
     "loggers": {
@@ -301,7 +301,7 @@ LOGGING = {
             "propagate": True,
         },
         "vng_api_common.notifications.viewsets": {
-            "handlers": ["db_log"],
+            "handlers": ["failed_notification", "project"],
             "level": "WARNING",
             "propagate": True,
         },

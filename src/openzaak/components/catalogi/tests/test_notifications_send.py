@@ -1,5 +1,3 @@
-import json
-
 from django.test import override_settings
 
 from django_db_logger.models import StatusLog
@@ -7,6 +5,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+
+from openzaak.notifications.models import FailedNotification
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase
@@ -46,7 +46,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -59,7 +60,8 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": data["url"],
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_besluittype_delete_fail_send_notification_create_db_entry(self):
         besluittype = BesluitTypeFactory.create()
@@ -71,7 +73,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -84,7 +87,8 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": f"http://testserver{url}",
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(self):
         url = get_operation_url("informatieobjecttype_create")
@@ -104,7 +108,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -117,7 +122,8 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": data["url"],
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_informatieobjecttype_delete_fail_send_notification_create_db_entry(self):
         iotype = InformatieObjectTypeFactory.create()
@@ -129,7 +135,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -142,7 +149,8 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": f"http://testserver{url}",
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self):
         url = get_operation_url("zaaktype_create")
@@ -186,7 +194,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -199,7 +208,8 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": data["url"],
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
 
     def test_zaaktype_delete_fail_send_notification_create_db_entry(self):
         zaaktype = ZaakTypeFactory.create()
@@ -211,7 +221,8 @@ class FailedNotificationTests(APITestCase):
 
         self.assertEqual(StatusLog.objects.count(), 1)
 
-        failed = StatusLog.objects.get()
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -224,4 +235,5 @@ class FailedNotificationTests(APITestCase):
             "resourceUrl": f"http://testserver{url}",
         }
 
-        self.assertDictEqual(json.loads(failed.msg)["notification_data"], message)
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
