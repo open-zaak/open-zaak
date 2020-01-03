@@ -21,7 +21,8 @@ requirements and teach you how to deploy on K8s.
 
 This setup is tested against a Google Cloud Kubernetes cluster with 4vCPU and
 15G of memory - two ``n2-standard-2`` nodes. See the documentation for the
-available `machine types`_.
+available `machine types`_. Please see :ref:`installation_hardware` to
+determine your hardware requirements.
 
 .. _machine types: https://cloud.google.com/compute/docs/machine-types#n2_standard_machine_types
 

@@ -6,7 +6,8 @@ Deploying on a single server
 
 Open Zaak can be deployed on a single machine - either a dedicated server (DDS)
 or virtual private server (VPS). The required hardware can be rented from a
-hosting provider or be provided in your environment.
+hosting provider or be provided in your environment. Please see
+:ref:`installation_hardware` to determine the hardware requirements.
 
 This documentation describes the architecture, prerequisites and how to deploy
 Open Zaak on a server. Additionally, it documents the possible configuration
