@@ -1,11 +1,12 @@
 import logging
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 
 import requests
 from rest_framework.reverse import reverse
 from vng_api_common.models import APICredential
+
+from openzaak.utils import build_absolute_url
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +17,7 @@ def get_absolute_url(url_name: str, uuid: str) -> str:
         url_name,
         kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"], "uuid": uuid},
     )
-    domain = Site.objects.get_current().domain
-    protocol = "https" if settings.IS_HTTPS else "http"
-    return f"{protocol}://{domain}{path}"
+    return build_absolute_url(path)
 
 
 def _get_oio_endpoint(io_url: str) -> str:

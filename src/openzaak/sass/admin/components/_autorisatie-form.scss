@@ -1,0 +1,61 @@
+@import "../vars";
+
+// django admin defaults for inlines
+$color-row-border: #eeeeee !default;
+$color-row-background: #f9f9f9 !default;
+
+.autorisatie-form {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  padding: 5px 10px;
+  border-bottom: 1px solid $color-row-border;
+
+  &#{&}--odd {
+    background: $color-row-background;
+  }
+
+  & &__component {
+    min-width: 200px;
+    width: 20vw;
+    margin-right: 3em;
+  }
+
+  & &__select-component {
+    display: block;
+    margin: 0;
+    color: $color_secondary_dark;
+    font-style: italic;
+  }
+
+  & &__scopes {
+    min-width: 200px;
+    width: 20vw;
+    margin-right: 3em;
+  }
+
+  & &__field-title {
+    margin-bottom: 10px;
+  }
+
+  & &__extra-container {
+    width: 100%;
+  }
+
+  & &__extra {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  & &__types-selection {
+    min-width: 500px;
+    width: 20vw;
+  }
+
+  & &__va-selection {
+  }
+
+}

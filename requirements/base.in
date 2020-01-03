@@ -1,4 +1,5 @@
 # Core python libraries
+dictdiffer # Used to show diffs for audittrails in admin
 markdown  # used to render some markdown in code to html
 psycopg2
 python-dateutil
@@ -37,5 +38,3 @@ drf-writable-nested
 # WSGI servers & monitoring - production oriented
 uwsgi
 raven  # error monitoring sentry
-
-dictdiffer # Used to show diffs for audittrails in admin

@@ -1,0 +1,8 @@
+.checkbox-select {
+  padding: 0;
+
+  & &__checkbox {
+    list-style-type: none;
+    padding: 2px 5px;
+  }
+}

@@ -1,14 +1,22 @@
 from django.contrib import admin
 from django.forms import BaseModelFormSet
+from django.shortcuts import redirect
+from django.urls import path, reverse
+from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.authorizations.models import (
     Applicatie,
     AuthorizationsConfig,
     Autorisatie,
 )
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
+from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
+from .models import AutorisatieSpec
+from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
@@ -16,12 +24,78 @@ admin.site.unregister(Applicatie)
 
 class AutorisatieInline(admin.TabularInline):
     model = Autorisatie
-    # extra = 0
-    # fields = ["component", "scopes", "get_foo"]
-    # readonly_fields = fields
+    extra = 0
+    fields = ["component", "scopes", "_get_extra"]
+    readonly_fields = fields
 
-    # def get_foo(self, obj) -> str:
-    #     return "foo"
+    def has_add_permission(self, request, obj=None) -> bool:
+        return False
+
+    def _get_extra(self, obj) -> str:
+        """
+        Show the context-dependent extra fields.
+
+        An :class:`Autorisatie` requires extra attributes depending on the
+        component that it's relevant for.
+
+        .. note:: using get_resource_for_path spawns too many queries, since
+            the viewsets have prefetch_related calls.
+        """
+        if obj.component == ComponentTypes.zrc:
+            template = (
+                "<strong>Zaaktype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{zt_repr}</a>'
+                "<br>"
+                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
+                "{va}"
+            )
+            zaaktype = get_related_object(obj)
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
+                ),
+                zt_repr=str(zaaktype),
+                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
+            )
+
+        if obj.component == ComponentTypes.drc:
+            template = (
+                "<strong>Informatieobjecttype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{iot_repr}</a>'
+                "<br>"
+                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
+                "{va}"
+            )
+            informatieobjecttype = get_related_object(obj)
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_informatieobjecttype_change",
+                    kwargs={"object_id": informatieobjecttype.pk},
+                ),
+                iot_repr=str(informatieobjecttype),
+                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
+            )
+
+        if obj.component == ComponentTypes.brc:
+            template = (
+                "<strong>Besluittype</strong>: "
+                '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
+            )
+            besluittype = get_related_object(obj)
+            return format_html(
+                template,
+                admin_url=reverse(
+                    "admin:catalogi_besluittype_change",
+                    kwargs={"object_id": besluittype.pk},
+                ),
+                bt_repr=str(besluittype),
+            )
+
+        return ""
+
+    _get_extra.short_description = _("Extra parameters")
 
 
 class CredentialsInline(admin.TabularInline):
@@ -47,3 +121,35 @@ class ApplicatieAdmin(admin.ModelAdmin):
         CredentialsInline,
         AutorisatieInline,
     )
+
+    def get_urls(self) -> list:
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<path:object_id>/autorisaties/",
+                self.admin_site.admin_view(self.autorisaties_view),
+                name="authorizations_applicatie_autorisaties",
+            ),
+        ]
+        return custom_urls + urls
+
+    @property
+    def autorisaties_view(self):
+        return AutorisatiesView.as_view(admin_site=self.admin_site, model_admin=self,)
+
+    def response_post_save_change(self, request, obj):
+        if "_autorisaties" in request.POST:
+            return redirect(
+                "admin:authorizations_applicatie_autorisaties", object_id=obj.id
+            )
+        return super().response_post_save_change(request, obj)
+
+
+@admin.register(AutorisatieSpec)
+class AutorisatieSpecAdmin(admin.ModelAdmin):
+    list_display = (
+        "applicatie",
+        "component",
+    )
+    list_filter = ("component", "applicatie")
+    search_fields = ("applicatie__uuid",)

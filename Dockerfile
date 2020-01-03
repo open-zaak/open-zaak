@@ -20,10 +20,11 @@ WORKDIR /app
 COPY ./*.json /app/
 RUN npm ci
 
-COPY ./Gulpfile.js /app/
+COPY ./Gulpfile.js ./webpack.config.js ./.babelrc /app/
 COPY ./build /app/build/
 
 COPY src/openzaak/sass/ /app/src/openzaak/sass/
+COPY src/openzaak/js/ /app/src/openzaak/js/
 RUN npm run build
 
 

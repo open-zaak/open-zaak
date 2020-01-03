@@ -1,0 +1,53 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls static i18n %}
+{# Overrides the django-admin-index template! #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    {# NOTE: Remove app groups if needed #}
+    {% if not admin_index_settings.HIDE_APP_INDEX_PAGES %}
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    {% endif %}
+    {% block breadcrumbs_pre_changelist %}{% endblock %}
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; <a href="{% url 'admin:authorizations_applicatie_change' original.pk %}">{{ original|truncatewords:"18" }}</a>
+    &rsaquo; {% trans "Autorisaties" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    {# Inject backend-controlled constants/content into the frontend state #}
+    {{ scope_choices|json_script:"scope-choices" }}
+    {{ COMPONENTS_TO_PREFIXES_MAP|json_script:"component-scope-prefixes" }}
+    {{ RELATED_TYPE_SELECTION_METHODS|json_script:"related-type-selection-methods" }}
+    {{ VA_CHOICES|json_script:"vertrouwelijkheidaanduiding-choices" }}
+    {{ catalogi|json_script:"catalogi" }}
+
+    {{ formset_config|json_script:"formset-config" }}
+    {{ formdata|json_script:"formdata" }}
+
+    <form action="." method="post" id="{{ opts.model_name }}_form" novalidate>
+        {% csrf_token %}
+
+        {% if formset.errors %}
+            <p class="errornote">{% trans "Please correct the error(s) below." %}</p>
+            {% if formset.non_form_errors %}
+            <ul class="errorlist">
+                {% for error in formset.non_form_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        {% endif %}
+
+        <div id="react-autorisaties" class="autorisatie-formset">
+            {# empty on purpose - react managed #}
+        </div>
+
+        {% include "admin/submit_line.html" with show_save=True %}
+
+    </form>
+
+</div>
+{% endblock content %}

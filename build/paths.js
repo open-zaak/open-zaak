@@ -29,5 +29,11 @@ module.exports = {
     cssDir: `${staticRoot}css/`,
 
     // Path to the fonts directory
-    fontsDir: `${staticRoot}fonts/`
+    fontsDir: `${staticRoot}fonts/`,
+
+    jsSrc: `${sourcesRoot}js/**/*.js`,
+
+    jsEntryAdmin: `${sourcesRoot}js/admin.js`,
+
+    jsDir: `${staticRoot}js/`,
 };

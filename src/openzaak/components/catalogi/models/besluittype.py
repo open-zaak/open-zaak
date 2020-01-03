@@ -1,14 +1,18 @@
 import uuid as _uuid
 
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.models import APIMixin
+
+from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
 
+from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
-class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
+class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     """
     Generieke aanduiding van de aard van een besluit.
 
@@ -121,6 +125,8 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         ),
     )
 
+    objects = SyncAutorisatieManager()
+
     class Meta:
         verbose_name = _("besluittype")
         verbose_name_plural = _("besluittypen")
@@ -131,3 +137,13 @@ class BesluitType(GeldigheidMixin, ConceptMixin, models.Model):
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            transaction.on_commit(AutorisatieSpec.sync)
+        super().save(*args, **kwargs)
+
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        kwargs["version"] = "1"
+        return super().get_absolute_api_url(request=request, **kwargs)
