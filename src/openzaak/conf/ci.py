@@ -1,8 +1,9 @@
 """
 Continuous integration settings module.
 """
-import logging
 import os
+
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
@@ -15,8 +16,7 @@ CACHES = {
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
 }
 
-LOGGING = None  # Quiet is nice
-logging.disable(logging.CRITICAL)
+LOGGING = LOGGING_SETTINGS  # Minimally required logging is nice
 
 ENVIRONMENT = "CI"
 

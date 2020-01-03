@@ -2,15 +2,19 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.tests import reverse
 
+from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
-from .factories import AutorisatieFactory
+from .factories import ApplicatieFactory, AutorisatieFactory
 from .utils import get_operation_url
 
 
@@ -85,3 +89,67 @@ class SendNotifTestCase(JWTAuthMixin, APITestCase):
                 "kenmerken": {},
             },
         )
+
+
+@override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
+@freeze_time("2019-01-01T12:00:00Z")
+class FailedNotificationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    maxDiff = None
+
+    def test_applicatie_create_fail_send_notification_create_db_entry(self):
+        url = get_operation_url("applicatie_create")
+
+        data = {
+            "client_ids": ["id1", "id2"],
+            "label": "Melding Openbare Ruimte consumer",
+            "heeftAlleAutorisaties": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "create",
+            "hoofdObject": data["url"],
+            "kanaal": "autorisaties",
+            "kenmerken": {},
+            "resource": "applicatie",
+            "resourceUrl": data["url"],
+        }
+
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)
+
+    def test_applicatie_delete_fail_send_notification_create_db_entry(self):
+        applicatie = ApplicatieFactory.create()
+        url = reverse(applicatie)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
+        message = {
+            "aanmaakdatum": "2019-01-01T12:00:00Z",
+            "actie": "destroy",
+            "hoofdObject": f"http://testserver{url}",
+            "kanaal": "autorisaties",
+            "kenmerken": {},
+            "resource": "applicatie",
+            "resourceUrl": f"http://testserver{url}",
+        }
+
+        self.assertEqual(failed.statuslog_ptr, logged_warning)
+        self.assertEqual(failed.message, message)

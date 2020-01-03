@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     # External applications.
     "axes",
     "django_filters",
+    "django_db_logger",
     "corsheaders",
     "vng_api_common",  # before drf_yasg to override the management command
     "vng_api_common.authorizations",
@@ -127,6 +128,7 @@ INSTALLED_APPS = [
     "openzaak.components.documenten",
     "openzaak.components.catalogi",
     "openzaak.selectielijst.apps.SelectielijstConfig",
+    "openzaak.notifications",
 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
@@ -228,7 +230,12 @@ LOGGING = {
         "simple": {"format": "%(levelname)s  %(message)s"},
         "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
     },
-    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+    "filters": {
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+        "failed_notification": {
+            "()": "openzaak.notifications.filters.FailedNotificationFilter"
+        },
+    },
     "handlers": {
         "mail_admins": {
             "level": "ERROR",
@@ -273,6 +280,11 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
         },
+        "failed_notification": {
+            "level": "DEBUG",
+            "filters": ["failed_notification"],
+            "class": "openzaak.notifications.handlers.DatabaseLogHandler",
+        },
     },
     "loggers": {
         "openzaak": {"handlers": ["project"], "level": "INFO", "propagate": True},
@@ -286,6 +298,11 @@ LOGGING = {
         "django.template": {
             "handlers": ["console"],
             "level": "INFO",
+            "propagate": True,
+        },
+        "vng_api_common.notifications.viewsets": {
+            "handlers": ["failed_notification", "project"],
+            "level": "WARNING",
             "propagate": True,
         },
     },
@@ -473,3 +490,4 @@ ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 
 OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
+STORE_FAILED_NOTIFS = True
