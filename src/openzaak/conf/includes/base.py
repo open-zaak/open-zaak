@@ -128,6 +128,7 @@ INSTALLED_APPS = [
     "openzaak.components.documenten",
     "openzaak.components.catalogi",
     "openzaak.selectielijst.apps.SelectielijstConfig",
+    "openzaak.notifications",
 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
@@ -301,7 +302,8 @@ LOGGING = {
         },
         "vng_api_common.notifications.viewsets": {
             "handlers": ["db_log"],
-            "level": "DEBUG",
+            "level": "WARNING",
+            "propagate": True,
         },
     },
 }
