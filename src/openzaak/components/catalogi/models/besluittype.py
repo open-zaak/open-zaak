@@ -138,6 +138,7 @@ class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
             representation = "{} (CONCEPT)".format(representation)
         return representation
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         if not self.pk:
             transaction.on_commit(AutorisatieSpec.sync)
