@@ -1,18 +1,28 @@
 .. _deployment_linux:
 
-==================
-Deploying on Linux
-==================
+==========================
+Linux deployment reference
+==========================
 
-**Open zaak** is suitable for deployment directly on Linux servers, be it
-dedicated hardware or a VPS rented from a (cloud) provider.
+The Linux deployment reference serves as an example on the parts making up an
+Open Zaak installation. Parts of this are handled by distributing build
+artifacts as Docker container images. Some of the concepts from this reference
+are handled in the image build, others have become completely obsolete.
+
+For actual production deployment, we recommend you to look at either:
+
+* :ref:`deployment_containers`
+* :ref:`deployment_kubernetes`
+
+If you want to tinker with the various parts, please continue reading :-)
 
 Prerequisites
 =============
 
 You will need a Linux server with privileged access, since we'll be modifying
 webserver configuration files. You will need a Linux distribution that offers
-Python 3.7 or has the means to install Python 3.7.
+Python 3.7 or has the means to install Python 3.7. The 'server' concept here
+can be a development machine.
 
 We test on, and therefore recommend, Debian or Ubuntu LTS versions. In theory,
 the instructions apply for RedHat and CentOS as well, though package names
@@ -25,7 +35,7 @@ little bit of network overhead and thus a small amount of performance loss.
 Hardware requirements
 ---------------------
 
-.. todo:: Determine HW requirements via performance testing.
+See the :ref:`hardware requirements guide<installation_hardware>`.
 
 Software requirements
 ---------------------
@@ -62,9 +72,8 @@ Firewalls must be configured such that the following traffic is allowed:
 
 **Outgoing HTTP to Sentry**
 
-If the application is configured to report errors to Sentry (see
-:ref:`linux-configuration`), the firewall must allow outgoing HTTPS traffic to
-this domain.
+If the application is configured to report errors to Sentry, the firewall must
+allow outgoing HTTPS traffic to this domain.
 
 **Database**
 
@@ -242,8 +251,6 @@ content:
 
 .. literalinclude:: code/env
 
-See :ref:`linux-configuration` for other (optional) configuration options.
-
 You can now test if the basic install was done correctly:
 
 .. code-block:: console
@@ -285,22 +292,6 @@ and ``/etc/systemd/system/production.socket``:
 
 .. literalinclude:: code/openzaak.socket
     :language: ini
-
-Scaling considerations
-======================
-
-.. _linux-configuration:
-
-Configuration
-=============
-
-Initial setup
-=============
-
-Updating your installation
-==========================
-
-
 
 .. _ssl certificate chains documentation: http://nginx.org/en/docs/http/configuring_https_servers.html#chains
 .. _systemd: https://en.wikipedia.org/wiki/Systemd

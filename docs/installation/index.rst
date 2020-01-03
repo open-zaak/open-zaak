@@ -16,5 +16,6 @@ Make sure to check out the :ref:`hardware requirements<installation_hardware>` f
 
    hardware
    deployment/kubernetes
-   deployment/linux
    deployment/containers
+   performance/index
+   linux
