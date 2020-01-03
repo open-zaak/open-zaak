@@ -1,5 +1,4 @@
 import uuid
-from unittest import skip
 from unittest.mock import patch
 
 from django.test import override_settings, tag
@@ -630,7 +629,6 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
                 response = self.client.get(url, {key: value})
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @skip("Enable when klantcontact has pagination")
     def test_validate_klantcontact_unknown_query_params(self):
         KlantContactFactory.create_batch(2)
         url = reverse(KlantContact)
