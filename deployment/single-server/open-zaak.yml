@@ -28,6 +28,7 @@
           - "{{ inventory_hostname }}"
 
     # nginx vars
+    ssl_enabled: "{{ certbot_create_if_missing | bool }}"
     nginx_http_template_enable: true
     nginx_http_template:
       default:

@@ -4,7 +4,7 @@
 #
 #    pip-compile --no-index requirements.in
 #
-ansible==2.8.6
+ansible==2.9.2
 attrs==19.3.0             # via jsonschema
 cachetools==3.1.1         # via google-auth
 certifi==2019.9.11        # via kubernetes, requests
@@ -42,4 +42,4 @@ websocket-client==0.56.0  # via kubernetes
 zipp==0.6.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.4.0        # via jsonschema, kubernetes
+# setuptools==44.0.0        # via jsonschema, kubernetes
