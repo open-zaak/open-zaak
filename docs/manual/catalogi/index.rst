@@ -1,8 +1,8 @@
 .. _manual_catalogi_index:
 
-==================
+===============
 Catalogusbeheer
-==================
+===============
 
 .. note:: Om catalogussen te kunnen beheren moet je tot de **Catalogi admin**
    groep behoren of equivalente permissies hebben. Zie
