@@ -8,6 +8,8 @@ API-toegang beheer
    groep behoren of equivalente permissies hebben. Zie
    :ref:`manual_users_groups` voor groepenbeheer.
 
+.. _manual_api_auth_applicaties:
+
 Een Applicatie registreren
 ==========================
 

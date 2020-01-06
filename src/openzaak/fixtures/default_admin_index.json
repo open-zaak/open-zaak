@@ -1,102 +1,116 @@
 [
 {
-  "model": "admin_index.appgroup",
-  "fields": {
-    "order": 0,
-    "name": "Accounts",
-    "slug": "accounts",
-    "models": [
-      [
-        "accounts",
-        "user"
-      ],
-      [
-        "auth",
-        "group"
-      ]
-    ]
-  }
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 0,
+        "name": "Accounts",
+        "slug": "accounts",
+        "models": [
+            [
+                "accounts",
+                "user"
+            ],
+            [
+                "auth",
+                "group"
+            ]
+        ]
+    }
 },
 {
-  "model": "admin_index.appgroup",
-  "fields": {
-    "order": 1,
-    "name": "API Autorisaties",
-    "slug": "api-authorizations",
-    "models": [
-      [
-        "authorizations",
-        "applicatie"
-      ],
-      [
-        "vng_api_common",
-        "apicredential"
-      ],
-      [
-        "vng_api_common",
-        "jwtsecret"
-      ]
-    ]
-  }
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 1,
+        "name": "API Autorisaties",
+        "slug": "api-authorizations",
+        "models": [
+            [
+                "authorizations",
+                "applicatie"
+            ],
+            [
+                "vng_api_common",
+                "apicredential"
+            ]
+        ]
+    }
 },
 {
-  "model": "admin_index.appgroup",
-  "fields": {
-    "order": 7,
-    "name": "Configuratie",
-    "slug": "configuration",
-    "models": [
-      [
-        "admin_index",
-        "appgroup"
-      ],
-      [
-        "axes",
-        "accessattempt"
-      ],
-      [
-        "axes",
-        "accesslog"
-      ],
-      [
-        "notifications",
-        "notificationsconfig"
-      ],
-      [
-        "notifications",
-        "subscription"
-      ],
-      [
-        "sites",
-        "site"
-      ]
-    ]
-  }
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 7,
+        "name": "Configuratie",
+        "slug": "configuration",
+        "models": [
+            [
+                "admin_index",
+                "appgroup"
+            ],
+            [
+                "axes",
+                "accessattempt"
+            ],
+            [
+                "axes",
+                "accesslog"
+            ],
+            [
+                "notifications",
+                "notificationsconfig"
+            ],
+            [
+                "notifications",
+                "subscription"
+            ],
+            [
+                "sites",
+                "site"
+            ]
+        ]
+    }
 },
 {
-  "model": "admin_index.appgroup",
-  "fields": {
-    "order": 6,
-    "name": "Gegevens",
-    "slug": "gegevens",
-    "models": [
-      [
-        "besluiten",
-        "besluit"
-      ],
-      [
-        "catalogi",
-        "catalogus"
-      ],
-      [
-        "documenten",
-        "enkelvoudiginformatieobject"
-      ],
-      [
-        "zaken",
-        "zaak"
-      ]
-    ]
-  }
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 6,
+        "name": "Gegevens",
+        "slug": "gegevens",
+        "models": [
+            [
+                "besluiten",
+                "besluit"
+            ],
+            [
+                "catalogi",
+                "catalogus"
+            ],
+            [
+                "documenten",
+                "enkelvoudiginformatieobject"
+            ],
+            [
+                "zaken",
+                "zaak"
+            ]
+        ]
+    }
+},
+{
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 7,
+        "name": "Logs",
+        "slug": "logs",
+        "models": [
+            [
+                "django_db_logger",
+                "statuslog"
+            ],
+            [
+                "notifications_log",
+                "failednotification"
+            ]
+        ]
+    }
 }
 ]

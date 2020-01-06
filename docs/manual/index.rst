@@ -19,5 +19,3 @@ directly in the management interface.
    users
    api-authorizations
    logging
-
-   management-interface

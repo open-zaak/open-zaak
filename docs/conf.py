@@ -13,6 +13,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../src"))
 
 import openzaak  # noqa isort:skip
+
 # from openzaak.setup import setup_env  # noqa isort:skip
 
 # TODO: This needs to be enabled when we want to use autodoc to grab
@@ -70,3 +71,8 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = []
 
 todo_include_todos = True
+
+linkcheck_ignore = [
+    r"https?://*.gemeente.nl",
+    r"http://localhost:\d+/",
+]

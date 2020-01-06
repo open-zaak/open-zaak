@@ -13,8 +13,12 @@ Gebruikerstoegang
 Groepen
 =======
 
+.. _manual_users_add:
+
 Een gebruiker aanmaken (en aan een groep toevoegen)
 ===================================================
+
+.. _manual_users_group_add:
 
 Een custom groep aanmaken
 =========================
