@@ -13,7 +13,8 @@ cryptography==2.8         # via django-auth-adfs
 dictdiffer==0.8.0
 django-admin-index==1.2.2
 django-appconf==1.0.2     # via django-axes
-django-auth-adfs==1.3.1
+django-auth-adfs-db==0.1
+django-auth-adfs==1.3.1   # via django-auth-adfs-db
 django-axes==4.4.0
 django-choices==1.7.0
 django-cors-middleware==1.3.1
@@ -28,7 +29,7 @@ django-privates==1.0.1.post0
 django-redis==4.10.0
 django-relativedelta==1.0.5
 django-sendfile2==0.4.2   # via django-privates
-django-solo==1.1.3        # via vng-api-common
+django-solo==1.1.3        # via django-auth-adfs-db, vng-api-common
 django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14

@@ -10,7 +10,7 @@ nlx-url-rewriter
 
 # Framework libraries
 django
-django-auth-adfs
+django-auth-adfs-db
 django-axes
 django-choices
 django-cors-middleware

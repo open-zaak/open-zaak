@@ -291,7 +291,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class OIOreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse(ObjectInformatieObject)
+    list_url = reverse_lazy(ObjectInformatieObject)
 
     def test_create_external_zaak(self):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"

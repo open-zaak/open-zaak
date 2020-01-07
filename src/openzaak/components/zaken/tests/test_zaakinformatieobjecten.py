@@ -680,7 +680,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    list_url = reverse(ZaakInformatieObject)
+    list_url = reverse_lazy(ZaakInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
