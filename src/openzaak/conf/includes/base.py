@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     # External applications.
     "axes",
     "django_auth_adfs",
+    "django_auth_adfs_db",
     "django_filters",
     "django_db_logger",
     "corsheaders",
@@ -122,7 +123,6 @@ INSTALLED_APPS = [
     "django_loose_fk",
     # Project applications.
     "openzaak",
-    "openzaak.auth",
     "openzaak.accounts",
     "openzaak.utils",
     "openzaak.components.autorisaties",
@@ -344,7 +344,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     "openzaak.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
-    "openzaak.auth.backends.ADFSBackend",
+    "django_auth_adfs_db.backends.AdfsAuthCodeBackend",
 ]
 
 SESSION_COOKIE_NAME = "openzaak_sessionid"
@@ -425,7 +425,7 @@ RELEASE = config("RELEASE", GIT_SHA)
 #
 # AUTH-ADFS
 #
-AUTH_ADFS = {"SETTINGS_CLASS": "openzaak.auth.adfs.Settings"}
+AUTH_ADFS = {"SETTINGS_CLASS": "django_auth_adfs_db.settings.Settings"}
 
 #
 # DJANGO-AXES
