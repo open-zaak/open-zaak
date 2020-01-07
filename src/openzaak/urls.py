@@ -28,6 +28,8 @@ urlpatterns = [
     # Simply show the master template.
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("vng_api_common.notifications.urls")),
+    # auth backends
+    path("adfs/", include("django_auth_adfs.urls")),
 ]
 
 # NOTE: The staticfiles_urlpatterns also discovers static files (ie. no need to run collectstatic). Both the static
