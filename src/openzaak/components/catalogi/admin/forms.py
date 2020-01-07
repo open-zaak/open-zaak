@@ -31,9 +31,15 @@ class ZaakTypeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["opschorting_en_aanhouding_mogelijk"].widget.required = True
-        self.fields["verlenging_mogelijk"].widget.required = True
-        self.fields["publicatie_indicatie"].widget.required = True
+
+        self._make_required("opschorting_en_aanhouding_mogelijk")
+        self._make_required("verlenging_mogelijk")
+        self._make_required("publicatie_indicatie")
+
+    def _make_required(self, field: str):
+        if field not in self.fields:
+            return
+        self.fields[field].widget.required = True
 
     def clean(self):
         super().clean()
