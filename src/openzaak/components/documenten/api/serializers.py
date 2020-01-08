@@ -4,9 +4,7 @@ Serializers of the Document Registratie Component REST API
 import uuid
 
 from django.conf import settings
-from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
-from django.db.models.query import QuerySet
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -23,8 +21,6 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.validators import (
     IsImmutableValidator,

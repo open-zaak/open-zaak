@@ -1,6 +1,6 @@
-from urllib.parse import urlparse
 import re
 import uuid
+from urllib.parse import urlparse
 
 from django.utils.translation import ugettext_lazy as _
 
