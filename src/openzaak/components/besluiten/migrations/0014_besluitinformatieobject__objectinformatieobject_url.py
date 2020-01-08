@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="_objectinformatieobject_url",
             field=models.URLField(
                 blank=True,
-                help_text="URL of related IbjectInformatieObject object in the other API",
+                help_text="URL of related ObjectInformatieObject object in the other API",
                 max_length=1000,
             ),
         ),
