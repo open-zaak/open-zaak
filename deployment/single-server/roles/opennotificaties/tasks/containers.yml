@@ -32,4 +32,43 @@
     env:
       DB_HOST: "{{ opennotificaties_db_host }}"
       DB_PORT: "{{ opennotificaties_db_port | string }}"
+      RABBITMQ_HOST: message-broker
+      RABBITMQ_PORT: '5672'
   with_items: "{{ opennotificaties_replicas }}"
+
+- name: Run the RabbitMQ message broker
+  docker_container:
+    name: message-broker
+    image: rabbitmq:3.7
+    pull: yes
+    hostname: message-broker
+    restart_policy: always
+    networks:
+      - name: opennotificaties
+    purge_networks: yes
+    networks_cli_compatible: yes
+    env:
+      RABBITMQ_DEFAULT_USER: "{{ opennotificaties_rabbitmq_user }}"
+      RABBITMQ_DEFAULT_PASS: "{{ opennotificaties_rabbitmq_pass }}"
+
+- name: Run the Opennotificaties background worker(s)
+  docker_container:
+    name: opennotificaties-celery-worker
+    image: "opennzaak/open-notificaties:{{ opennotificaties_version }}"
+    pull: yes
+    hostname: "{{ item.name }}"
+    restart_policy: always
+    networks:
+      - name: opennotificaties
+    purge_networks: yes
+    networks_cli_compatible: yes
+    volumes:
+      - /var/run/postgresql:/var/run/postgresql
+      - opennotificaties-private-media:/app/private-media
+      - "{{ opennotificaties_env_file }}:/app/.env"
+    env:
+      DB_HOST: "{{ opennotificaties_db_host }}"
+      DB_PORT: "{{ opennotificaties_db_port | string }}"
+      RABBITMQ_HOST: message-broker
+      RABBITMQ_PORT: '5672'
+    command: ["/celery_worker.sh"]

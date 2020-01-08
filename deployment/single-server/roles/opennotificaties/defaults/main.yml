@@ -1,5 +1,7 @@
 ---
 
+opennotificaties_domain: "{{ inventory_hostname }}"
+
 opennotificaties_db_port: 5432
 opennotificaties_db_host: /var/run/postgresql
 opennotificaties_db_name: opennotificaties
@@ -9,11 +11,18 @@ opennotificaties_db_password: opennotificaties
 opennotificaties_secret_key: override-me
 opennotificaties_env_file: /home/opennotificaties/.env
 
+opennotificaties_rabbitmq_user: rabbit
+opennotificaties_rabbitmq_pass: rabbit
+
+opennotificaties_publish_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_password }}@rabbitmq:5672/%2F"
+opennotificaties_celery_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_password }}@rabbitmq:5672//"
+opennotificaties_celery_result_backend: "{{ opennotificaties_celery_broker_url }}"
+
 opennotificaties_version: latest
 opennotificaties_replicas:
   - name: opennotificaties-0
-    port: 8000
+    port: 9000
   - name: opennotificaties-1
-    port: 8001
+    port: 9001
   - name: opennotificaties-2
-    port: 8002
+    port: 9002
