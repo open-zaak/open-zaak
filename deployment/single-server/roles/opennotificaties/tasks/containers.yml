@@ -15,7 +15,7 @@
 - name: Run the Opennotificaties backend service
   docker_container:
     name: "{{ item.name }}"
-    image: "opennzaak/open-notificaties:{{ opennotificaties_version }}"
+    image: "openzaak/open-notificaties:{{ opennotificaties_version }}"
     pull: yes
     hostname: "{{ item.name }}"
     restart_policy: always
@@ -54,7 +54,7 @@
 - name: Run the Opennotificaties background worker(s)
   docker_container:
     name: opennotificaties-celery-worker
-    image: "opennzaak/open-notificaties:{{ opennotificaties_version }}"
+    image: "openzaak/open-notificaties:{{ opennotificaties_version }}"
     pull: yes
     hostname: "{{ item.name }}"
     restart_policy: always
