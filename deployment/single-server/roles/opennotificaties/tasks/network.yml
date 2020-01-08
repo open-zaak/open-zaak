@@ -1,0 +1,5 @@
+---
+
+- name: Set up the opennotificaties docker network
+  docker_network:
+    name: opennotificaties

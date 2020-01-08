@@ -1,0 +1,7 @@
+---
+
+- import_tasks: setup_env.yml
+
+- import_tasks: dependencies.yml
+- import_tasks: network.yml
+- import_tasks: containers.yml
