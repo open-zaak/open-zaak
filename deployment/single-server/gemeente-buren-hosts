@@ -1,2 +1,2 @@
-webref01 ansible_python_interpreter=/usr/bin/python3
-webref01-notificaties ansible_python_interpreter=/usr/bin/python3
+open-zaak.buren.lan ansible_python_interpreter=/usr/bin/python3
+open-notificaties.buren.lan ansible_python_interpreter=/usr/bin/python3
