@@ -249,7 +249,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             self.assertFalse(ObjectInformatieObject.objects.exists())
 
             bio = BesluitInformatieObject.objects.get()
-            self.assertEqual(bio._objectinformatieobject_url, oio_response['url'])
+            self.assertEqual(bio._objectinformatieobject_url, oio_response["url"])
 
         with self.subTest(section="bio-list"):
             list_response = self.client.get(
@@ -482,7 +482,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
-
 
 
 @tag("external-urls")
