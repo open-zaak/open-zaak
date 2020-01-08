@@ -1,0 +1,89 @@
+---
+
+- name: Deploy Open-Notificaties on a single server
+  hosts: all
+
+  vars_files:
+    - vars/secrets.yml
+    - vars/postgres.yml
+
+  vars:
+    # postgresql vars - from secrets
+    postgresql_users:
+      - name: "{{ opennotificaties_db_username }}"
+        password: "{{ opennotificaties_db_password }}"
+        port: "{{ opennotificaties_db_port }}"
+    postgresql_databases:
+      - name: "{{ opennotificaties_db_name }}"
+        owner: "{{ opennotificaties_db_username }}"
+        port: "{{ opennotificaties_db_port }}"
+
+    # certbot vars
+    certbot_admin_email: support@maykinmedia.nl
+    certbot_create_if_missing: true
+    certbot_create_standalone_stop_services: []
+    # certbot_create_standalone_stop_services: ['nginx']
+    certbot_certs:
+      - domains:
+          - "{{ inventory_hostname }}"
+
+    # nginx vars
+    ssl_enabled: "{{ certbot_create_if_missing | bool }}"
+    nginx_http_template_enable: true
+    nginx_http_template:
+      default:
+        template_file: templates/opennotificaties.conf.j2
+        conf_file_name: open-notificaties.conf
+        conf_file_location: /etc/nginx/conf.d/
+
+    opennotificaties_replicas:
+      - name: opennotificaties-0
+        port: 9000
+      - name: opennotificaties-1
+        port: 9001
+
+  pre_tasks:
+    - package:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+          - sudo
+          - python3-pip
+
+    - name: Checking if we have a strong server-specific DH key
+      stat:
+        path: /etc/ssl/certs/dhparam.pem
+      register: has_dhparams
+
+    - name: Generating strong server-specific DH key (this may take >10 minutes on first run)
+      command: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+      when: has_dhparams.stat.exists == False
+
+    - name: Set up postgresql debian repo (apt-key)
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+
+    - name: Set up postgresql debian repo (apt-key)
+      apt_repository:
+        repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+        state: present
+
+  roles:
+    - role: geerlingguy.postgresql
+      tags:
+        - db
+    - role: geerlingguy.docker
+    - role: geerlingguy.certbot
+    - role: database
+      vars:
+        database_port: "{{ opennotificaties_db_port }}"
+    - role: opennotificaties
+      tags:
+        - replicas
+    - role: nginxinc.nginx
+      tags:
+        - replicas

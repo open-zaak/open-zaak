@@ -1,6 +1,7 @@
 ---
 
 opennotificaties_domain: "{{ inventory_hostname }}"
+opennotificaties_ssl: "{{ certbot_create_if_missing | default(yes) | bool }}"
 
 opennotificaties_db_port: 5432
 opennotificaties_db_host: /var/run/postgresql
