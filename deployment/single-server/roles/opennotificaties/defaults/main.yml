@@ -15,8 +15,8 @@ opennotificaties_env_file: /home/opennotificaties/.env
 opennotificaties_rabbitmq_user: rabbit
 opennotificaties_rabbitmq_pass: rabbit
 
-opennotificaties_publish_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_password }}@rabbitmq:5672/%2F"
-opennotificaties_celery_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_password }}@rabbitmq:5672//"
+opennotificaties_publish_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_pass }}@rabbitmq:5672/%2F"
+opennotificaties_celery_broker_url: "amqp://{{ opennotificaties_rabbitmq_user }}:{{ opennotificaties_rabbitmq_pass }}@rabbitmq:5672//"
 opennotificaties_celery_result_backend: "{{ opennotificaties_celery_broker_url }}"
 
 opennotificaties_version: latest
