@@ -15,7 +15,7 @@
 - name: Run the OpenZaak backend service
   docker_container:
     name: "{{ item.name }}"
-    image: openzaak/open-zaak:latest
+    image: "openzaak/open-zaak:{{ openzaak_version }}"
     pull: yes
     hostname: "{{ item.name }}"
     restart_policy: always
