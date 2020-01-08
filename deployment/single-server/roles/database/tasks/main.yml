@@ -8,7 +8,7 @@
 - name: Enable the required database extensions
   postgresql_ext:
     name: "{{ item }}"
-    db: openzaak
+    db: "{{ openzaak_db_name }}"
     state: present
     port: "{{ database_port | default(5432) }}"
   become: yes
