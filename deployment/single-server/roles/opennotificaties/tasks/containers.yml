@@ -56,7 +56,7 @@
     name: opennotificaties-celery-worker
     image: "openzaak/open-notificaties:{{ opennotificaties_version }}"
     pull: yes
-    hostname: "{{ item.name }}"
+    hostname: opennotificaties-celery-worker
     restart_policy: always
     networks:
       - name: opennotificaties
