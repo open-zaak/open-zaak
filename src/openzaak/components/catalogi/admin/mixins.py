@@ -84,7 +84,7 @@ class NewVersionMixin(object):
 
         obj.pk = None
         obj.uuid = uuid.uuid4()
-        obj.datum_begin_geldigheid = version_date
+        obj.datum_begin_geldigheid = obj.datum_einde_geldigheid
         obj.versiedatum = version_date
         obj.datum_einde_geldigheid = None
         obj.concept = True

@@ -151,7 +151,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         self.assertEqual(zaaktype_new.identificatie, zaaktype_old.identificatie)
         # check version dates
         self.assertEqual(zaaktype_new.datum_einde_geldigheid, None)
-        self.assertEqual(zaaktype_new.datum_begin_geldigheid, date(2019, 11, 1))
+        self.assertEqual(zaaktype_new.datum_begin_geldigheid, date(2019, 1, 1))
         self.assertEqual(zaaktype_new.versiedatum, date(2019, 11, 1))
         self.assertTrue(zaaktype_new.concept)
         # response redirect to correct page
