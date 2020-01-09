@@ -45,7 +45,14 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
     fieldsets = (
         (
             _("Algemeen"),
-            {"fields": ("zaaktype", "omschrijving", "toelichting", "uuid",)},
+            {
+                "fields": (
+                    "zaaktype",
+                    "omschrijving",
+                    "omschrijving_generiek",
+                    "toelichting",
+                )
+            },
         ),
         (
             _("Gemeentelijke selectielijst"),
@@ -57,6 +64,7 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
                 )
             },
         ),
+        (_("Archief"), {"fields": ("archiefnominatie", "archiefactietermijn")},),
         (
             _("Bepaling brondatum archiefprocedure"),
             {
@@ -72,10 +80,7 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
         ),
     )
     raw_id_fields = ("zaaktype",)
-    readonly_fields = (
-        "get_zaaktype_procestype",
-        "uuid",
-    )
+    readonly_fields = ("get_zaaktype_procestype", "omschrijving_generiek")
 
     get_zaaktype_procestype.short_description = "zaaktype procestype"
 

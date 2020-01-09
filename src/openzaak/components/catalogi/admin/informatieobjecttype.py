@@ -1,17 +1,37 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import UUIDAdminMixin
+from openzaak.utils.admin import EditInlineAdminMixin, UUIDAdminMixin
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
 from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
 
 
-class ZaakTypeInformatieObjectTypeInline(admin.TabularInline):
+@admin.register(ZaakTypeInformatieObjectType)
+class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
     model = ZaakTypeInformatieObjectType
-    extra = 1
-    raw_id_fields = ("zaaktype", "statustype")
-    readonly_fields = ("uuid",)
+
+    # List
+    list_display = ("zaaktype", "informatieobjecttype", "statustype", "volgnummer")
+    list_filter = (
+        "zaaktype",
+        "informatieobjecttype",
+        "richting",
+    )
+    search_fields = ("uuid", "volgnummer")
+    ordering = ("zaaktype", "informatieobjecttype", "volgnummer")
+
+    # Detail
+    fieldsets = (
+        (_("Algemeen"), {"fields": ("volgnummer", "richting",)},),
+        (_("Relaties"), {"fields": ("zaaktype", "informatieobjecttype", "statustype")}),
+    )
+    raw_id_fields = ("zaaktype", "informatieobjecttype", "statustype")
+
+
+class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakTypeInformatieObjectType
+    fields = ZaakTypeInformatieObjectTypeAdmin.list_display
 
 
 @admin.register(InformatieObjectType)
