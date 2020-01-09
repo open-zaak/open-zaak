@@ -376,3 +376,19 @@ class UUIDAdminMixin:
 
     _get_uuid_display.short_description = "UUID"
     _get_uuid_display.allow_tags = True
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
+        return ("uuid",) + tuple(readonly_fields)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+
+        # put uuid first in the first fieldset
+        fields_general = list(fieldsets[0][1]["fields"])
+        if "uuid" in fields_general:
+            fields_general.remove("uuid")
+        fields_general.insert(0, "uuid")
+        fieldsets[0][1]["fields"] = tuple(fields_general)
+
+        return fieldsets
