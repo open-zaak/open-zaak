@@ -57,6 +57,11 @@ higher number when looking for the minimum system requirements below.
 Minimum system requirements
 ---------------------------
 
+* Platform: 64-bit
+* Processor(s): 4 - 16 CPUs (see below) at 2.0 GHz
+* RAM: 8 - 32 GB (see below)
+* Hard disk space: 20 GB (excluding storage for documents)
+
 Based on the number of requests per second you need, you can see what kind of hardware
 you need to achieve this.
 
