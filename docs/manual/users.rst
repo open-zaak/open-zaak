@@ -107,6 +107,41 @@ Een standaard Open Zaak installatie komt met een aantal standaardgroepen:
 Een gebruiker aanmaken (en aan een groep toevoegen)
 ===================================================
 
+Vertrek vanaf de startpagina en vind de groep **Accounts**. Klik vervolgens op
+**Toevoegen** naast de titel **Gebruikers**:
+
+.. image:: assets/dashboard_add_user.png
+    :width: 100%
+    :alt: Dashboard gebruiker toevoegen
+
+Vul vervolgens een **gebruikersnaam** in en een **wachtwoord**. Vergeet niet om het
+wachtwoord te **bevestigen**. Merk op dat er wachtwoorsterkte-regels gelden!
+
+.. note:: Gebruikersnamen zijn hoofdlettergevoelig!
+
+Klik vervolgens op **Opslaan en opnieuw bewerken**:
+
+.. image:: assets/create_user.png
+    :width: 100%
+    :alt: Gebruiker toevoegen
+
+In het volgende scherm kan je vervolgens de rechten voor deze gebruiker instellen.
+
+.. image:: assets/edit_user.png
+    :width: 100%
+    :alt: Gebruiker bewerken
+
+1. Het vinkje *Stafstatus* bepaalt of de gebruiker in kan loggen op de admin-omgeving.
+2. Het vinkje *Supergebruikerstatus* geeft aan of de gebruiker altijd alle permissies
+   heeft. We raden sterk aan om hier conservatief mee om te gaan.
+3. De :ref:`beschikbare groepen <manual_users_groups>` staan opgelijst in de
+   linkerkolom. Om een gebruiker aan een groep toe te wijzen selecteer je de groep
+   door deze aan te klikken en op de pijl naar rechts (**4**) te klikken. Je kan
+   meerdere groepen in één keer toekennen door de ``CTRL``-toets ingedrukt te houden
+   tijdens het aanklikken. Je kan ook dubbelklikken om een groep toe te kennen.
+
+Klik rechtsonder op **Opslaan** om de wijzigingen door te voeren.
+
 .. _manual_users_group_add:
 
 Een custom groep aanmaken
