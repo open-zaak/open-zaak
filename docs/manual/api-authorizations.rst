@@ -62,3 +62,114 @@ Klik tot slot op **Opslaan en opnieuw bewerken**, waarna je de
 
 Instellen van de API-toegang voor een Applicatie
 ================================================
+
+Je kan de applicatie waarvan je autorisaties wenst in te stellen bereiken via het
+:ref:`lijstoverzicht <manual_general_list>` of vlak na het
+:ref:`registreren <manual_api_auth_applicaties>` van een nieuwe applicatie.
+
+Klik rechtsonderin op **Beheer autorisaties** om de autorisaties van een applicatie
+in te stellen.
+
+.. image:: assets/detail_application.png
+    :width: 100%
+    :alt: Detailweergave applicatie
+
+Autorisaties zijn van toepassing op een bepaalde API-component. Eén applicatie kan
+zonder problemen autorisaties hebben op een set van componenten.
+
+Componentkeuze
+--------------
+
+Kies in de eerste stap voor welke **component** je autorisaties wil instellen:
+
+.. image:: assets/auth_app_pick_component.png
+    :width: 100%
+    :alt: Kies component
+
+Afhankelijk van de keuze van de component gebeuren nu een aantal dingen:
+
+* de relevante *scopes* worden nu getoond
+* eventuele extra keuzeparameters zijn beschikbaar
+
+.. image:: assets/auth_app_component_selected.png
+    :width: 100%
+    :alt: Component geselecteerd
+
+Keuze scopes
+------------
+
+*Scopes* bepalen welke acties een applicatie via de API kan uitvoeren. Het is een
+groepering van rechten.
+
+De betekenis van de scopes is gedocumenteerd per component:
+
+* `Zaken API <https://zaken-api.vng.cloud/ref/scopes/>`_
+* `Documenten API <https://documenten-api.vng.cloud/ref/scopes/>`_
+* `Catalogi API <https://catalogi-api.vng.cloud/ref/scopes/>`_
+* `Besluiten API <https://besluiten-api.vng.cloud/ref/scopes/>`_
+* `Notificaties API <https://notificaties-api.vng.cloud/ref/scopes/>`_
+* `Autorisaties API <https://autorisaties-api.vng.cloud/ref/scopes/>`_
+
+Typisch zal een leverancier van de applicatie je vertellen welke scopes er precies nodig
+zijn. Selecteer de relevante scopes door de checkboxes aan te vinken.
+
+Keuze relevante typen
+---------------------
+
+Voor de *Zaken API*, *Documenten API* en *Besluiten API* worden de autorisaties
+ingericht per *type* - Zaaktype, Informatieobjecttype en Besluittype respectievelijk.
+
+De type-selectie heeft drie mogelijke opties:
+
+Alle huidige \*typen:
+    Dit selecteert alle huidige typen, ook de typen die nog niet gepubliceerd zijn. Voor
+    de *Zaken API* gelden de autorisaties dan voor alle zaaktypen uit alle catalogi in
+    Open Zaak.
+
+Alle huidige en toekomstige \*typen:
+    Dit is dezelfde situatie als ``Alle huidige *typen``, met het verschil dat \*typen
+    die aangemaakt worden *na* het instellen van de autorisaties hier ook binnen vallen.
+
+Selecteer handmatig:
+    Bij handmatige selectie worden alle \*typen per catalogus opgelijst. Kies de relevante
+    \*typen aan door het vinkje aan te zetten.
+
+.. image:: assets/auth_app_select_types.png
+    :width: 100%
+    :alt: Geselecteerde relevante typen
+
+Keuze vertrouwelijkheidaanduiding
+---------------------------------
+
+Tot slot kan je limiteren tot welke vertrouwelijkheidaanduiding een applicatie toegang
+heeft. Documenten en Zaken worden aangemaakt met een bepaalde
+vertrouwelijkheidaanduiding. Een applicatie heeft enkel toegang tot deze documenten en
+zaken waarvan de vertrouwelijkheidaanduiding meer publiek of gelijk-aan de ingestelde
+autorisatie-vertrouwelijkheidaanduiding is.
+
+Voor de applicatie lijkt het alsof Documenten en zaken die *meer* vertrouwelijk zijn
+niet bestaan.
+
+.. note::
+    Merk op dat de ingestelde vertrouwelijkheidaanduiding van toepassing is op de
+    geselecteerde zaaktypen of informatieobjecttypen. Je kan dus een verschillende
+    maximale vertrouwelijkheidaanduiding instellen per zaaktype of informatieobjecttype.
+
+Toevoegen extra autorisaties
+----------------------------
+
+Linksonderin vind je een link **Nog Autorisaties toevoegen**. Zodra je hierop klikt, ga
+je opnieuw door hetzelfde proces om een autorisatie in te stellen. Je kan zoveel
+autorisaties instellen als je wenst.
+
+.. warning::
+    Let op dat je geen conflicterende autorisaties instelt. Eenmaal een autorisatie voor
+    (een groep van) zaaktypen, informatieobjecttypen of besluittypen is ingesteld mag je
+    **geen extra** autorisaties voor diezelfde (groep van) zaaktypen,
+    informatieobjecttypen of besluittypen meer instellen.
+
+Opslaan wijzigingen
+-------------------
+
+Wanneer je klaar bent, vergeet dan niet om rechtsonderin op **Opslaan** te klikken om
+de autorisaties te bewaren.

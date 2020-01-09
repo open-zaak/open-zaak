@@ -159,6 +159,8 @@ De structuur van de admin volgt voor het grootste deel hetzelfde patroon:
 
 We gaan nu dieper in op wat je kan in lijst- en detailweergaves.
 
+.. _manual_general_list:
+
 Lijstweergave
 -------------
 
