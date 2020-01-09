@@ -72,8 +72,7 @@ gebruiker toevoegt en configureert.
 
 **Groepen** definiëren een set van permissies die een gebruiker toelaten om
 gegevens in te zien en/of beheren. Een gebruiker kan tot één of meerdere
-groepen behoren. Lees meer over groepen :ref:`aanmaken <manual_users_group_add>`
-of :ref:`beheren <manual_users_groups>`.
+groepen behoren. Lees meer over groepen :ref:`beheren <manual_users_groups>`.
 
 API Autorisaties
 ----------------
