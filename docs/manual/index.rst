@@ -17,3 +17,4 @@ directly in the management interface.
    management-interface
    api-authorizations
    catalogi/index
+   logging
