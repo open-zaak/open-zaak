@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Importeer catalogus" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="#">{% trans 'Configuratie' %}</a>
+&rsaquo; {% trans 'NLX configuratie' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans 'NLX configuratie' %}</h1>
+    <div id="content-main">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div>
+                <fieldset class="module aligned ">
+
+                    <p>
+                        Gebruik onderstaand voorbeeld voor de configuratie van de NLX-inway.
+                    </p>
+                    <p>
+                        U kunt uw <i>service-config.toml</i> bestand aanpassen met de configuratie onder <i>[services]</i>.
+                    </p>
+
+                    <pre>
+[services]
+{% for service in services %}
+    [services.OpenZaak-{{ service.name }}]
+    endpoint-url = "{{ service.endpoint_url }}"
+    documentation-url = "{{ service.documentation_url }}"
+    api-specification-document-url = "{{ service.api_specification_document_url }}"
+    # authorization-model = "whitelist"
+    # authorization-whitelist = ["DemoRequesterOrganization"]
+    # public-support-contact = "support@my-organization.nl"
+    # tech-support-contact = "tech@my-organization.nl"
+    # ca-cert-path = "/path/to/custom-root-ca.crt"
+
+{% endfor %}
+                    </pre>
+
+                </fieldset>
+
+                <div class="submit-row">
+                    <input type="button" value="{% trans 'Terug' %}" onclick="location.href='{% url 'admin:index' %}';">
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

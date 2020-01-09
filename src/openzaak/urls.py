@@ -10,6 +10,7 @@ from vng_api_common.views import ViewConfigView
 handler500 = "openzaak.utils.views.server_error"
 
 urlpatterns = [
+    path("admin/config/", include("openzaak.config.admin_urls")),
     path("admin/", admin.site.urls),
     path("", TemplateView.as_view(template_name="main.html"), name="home"),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
