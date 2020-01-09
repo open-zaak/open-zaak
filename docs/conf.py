@@ -73,6 +73,6 @@ html_static_path = []
 todo_include_todos = True
 
 linkcheck_ignore = [
-    r"https?://*.gemeente.nl",
+    r"https?://.*\.gemeente.nl",
     r"http://localhost:\d+/",
 ]

@@ -71,6 +71,12 @@ jobs:
       before_script: skip
       script: flake8 src
 
+    - name: Documentation build
+      install:
+        - pip install pytest -r requirements/dev.txt
+      before_script: skip
+      script: cd docs && pytest check_sphinx.py -v --tb=auto
+
     - name: Test docker image build
       before_install: skip
       install: skip
