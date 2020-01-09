@@ -41,6 +41,12 @@ before_script:
   # https://github.com/travis-ci/travis-ci/issues/8982#issuecomment-354357640
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
 
+stages:
+  - name: Newman tests
+    if: fork = false
+  - name: Push Docker image(s)
+    if: fork = false
+
 jobs:
   include:
     # Run jobs in parallel in stage Tests
