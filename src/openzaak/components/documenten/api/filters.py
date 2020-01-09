@@ -1,3 +1,4 @@
+import logging
 import re
 import uuid
 from urllib.parse import urlparse
@@ -16,6 +17,8 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
@@ -68,10 +71,20 @@ def check_path(url, resource):
 
 class ObjectFilter(FkOrUrlFieldFilter):
     def filter(self, qs, value):
+        if not value:
+            return qs
+
         if check_path(value, "besluiten"):
             self.field_name = "besluit"
-        else:
+        elif check_path(value, "zaken"):
             self.field_name = "zaak"
+        else:
+            logger.debug(
+                "Could not determine object type for URL %s, "
+                "filtering to empty result set.",
+                value,
+            )
+            return qs.none()
 
         return super().filter(qs, value)
 
