@@ -32,11 +32,6 @@ class GeldigheidMixin(models.Model):
             - begin: De datum is gelijk aan een Versiedatum van een gerelateerd zaaktype.
             - eind: De datum is gelijk aan de dag voor een Versiedatum van een gerelateerd zaaktype.
 
-        - ZaakObjectType
-            CHECK
-            - begin De datum is gelijk aan een Versiedatum van het gerelateerde zaaktype.
-            - De datum is gelijk aan de dag voor een Versiedatum van het gerelateerde zaaktype.
-
         - ZaakType
             CHECK
             - begin De datum is gelijk aan de vroegste Versiedatum van het zaaktype.

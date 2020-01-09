@@ -2,11 +2,7 @@ import factory
 import factory.fuzzy
 
 from ...constants import AardRelatieChoices, RichtingChoices
-from ...models import (
-    ZaakTypeInformatieObjectType,
-    ZaakTypeInformatieObjectTypeArchiefregime,
-    ZaakTypenRelatie,
-)
+from ...models import ZaakTypeInformatieObjectType, ZaakTypenRelatie
 
 
 class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
@@ -22,19 +18,6 @@ class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ZaakTypeInformatieObjectType
-
-
-class ZaakTypeInformatieObjectTypeArchiefregimeFactory(
-    factory.django.DjangoModelFactory
-):
-    zaak_informatieobject_type = factory.SubFactory(ZaakTypeInformatieObjectTypeFactory)
-    resultaattype = factory.SubFactory(
-        "openzaak.components.catalogi.tests.factories.ResultaatTypeFactory"
-    )
-    archiefactietermijn = 7
-
-    class Meta:
-        model = ZaakTypeInformatieObjectTypeArchiefregime
 
 
 class ZaakTypenRelatieFactory(factory.django.DjangoModelFactory):

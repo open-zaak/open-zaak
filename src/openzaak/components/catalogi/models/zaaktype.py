@@ -5,7 +5,6 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.models.fields import ArrayField
-from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
@@ -18,107 +17,6 @@ from openzaak.utils.fields import DurationField
 from ..constants import InternExtern
 from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
-
-
-class ZaakObjectType(GeldigheidMixin, models.Model):
-    """
-    De objecttypen van objecten waarop een zaak van het ZAAKTYPE betrekking
-    kan hebben.
-
-    Toelichting objecttype
-    Een zaak kan op ‘van alles en nog wat’ betrekking hebben.
-    Voor zover dit voorkomens (objecten) van de in het RSGB of RGBZ onderscheiden objecttypen
-    betreft, wordt met ZAAKOBJECTTYPE gespecificeerd op welke van de RSGB- en/of RGBZ- objecttypen
-    zaken van het gerelateerde ZAAKTYPE betrekking kunnen hebben.
-    Voor zover het andere objecten betreft, wordt met ZAAKOBJECTTYPE gespecificeerd welke
-    andere typen objecten dit betreft.
-    """
-
-    # TODO [KING]: objecttype is gespecificeerd als AN40 maar een van de mogelijke waarden
-    # (ANDER BUITENLANDS NIET-NATUURLIJK PERSOON) heeft lengte 41. Daarom hebben wij het op max_length=50 gezet
-    objecttype = models.CharField(
-        _("objecttype"),
-        max_length=50,
-        help_text=_(
-            "De naam van het objecttype waarop zaken van het gerelateerde ZAAKTYPE betrekking hebben."
-        ),
-    )
-    ander_objecttype = models.BooleanField(
-        _("ander objecttype"),
-        default=False,
-        help_text=_(
-            "Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE "
-            "een ander, niet in RSGB en RGBZ voorkomend, objecttype betreft"
-        ),
-    )
-    relatieomschrijving = models.CharField(
-        _("relatieomschrijving"),
-        max_length=80,
-        help_text=_(
-            "Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE."
-        ),
-    )
-
-    statustype = models.ForeignKey(
-        "catalogi.StatusType",
-        verbose_name=_("status type"),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="heeft_verplichte_zaakobjecttype",
-        help_text=_(
-            "TODO: dit is de related helptext: De ZAAKOBJECTTYPEn die verplicht "
-            "gerelateerd moeten zijn aan ZAAKen van het ZAAKTYPE voordat een "
-            "STATUS van dit STATUSTYPE kan worden gezet"
-        ),
-    )
-
-    is_relevant_voor = models.ForeignKey(
-        "catalogi.ZaakType",
-        verbose_name=_("is_relevant_voor"),
-        help_text=_(
-            "Zaken van het ZAAKTYPE waarvoor objecten van dit ZAAKOBJECTTYPE relevant zijn."
-        ),
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        unique_together = ("is_relevant_voor", "objecttype")
-        verbose_name = _("Zaakobjecttype")
-        verbose_name_plural = _("Zaakobjecttypen")
-
-    def clean(self):
-        """
-        Voor het veld objecttype:
-        Indien Ander objecttype='N': objecttype moet een van de ObjectTypen zijn
-        Indien Ander objecttype='J': alle alfanumerieke tekens
-
-        Datum begin geldigheid:
-        - De datum is gelijk aan een Versiedatum van het gerelateerde zaaktype.
-
-        datum einde geldigheid:
-        - De datum is gelijk aan of gelegen na de datum zoals opgenomen onder 'Datum begin geldigheid zaakobjecttype’.
-        De datum is gelijk aan de dag voor een Versiedatum van het gerelateerde zaaktype.
-        """
-        super().clean()
-
-        if (
-            not self.ander_objecttype
-            and self.objecttype not in ZaakobjectTypes.values.keys()
-        ):
-            raise ValidationError(
-                _(
-                    "Indien Ander objecttype='N' moet objecttype een van de objecttypen zijn uit het "
-                    "RSGB of het RGBZ. Bekende objecttypen zijn: {}"
-                ).format(", ".join(ZaakobjectTypes.values.keys()))
-            )
-
-        self._clean_geldigheid(self.is_relevant_voor)
-
-    def __str__(self):
-        return "{} - {}{}".format(
-            self.is_relevant_voor, self.objecttype, self.ander_objecttype
-        )
 
 
 class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):

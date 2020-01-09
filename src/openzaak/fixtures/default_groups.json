@@ -485,26 +485,6 @@
                 "statustype"
             ],
             [
-                "add_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "change_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "delete_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "view_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
                 "add_zaaktype",
                 "catalogi",
                 "zaaktype"
@@ -543,26 +523,6 @@
                 "view_zaaktypeinformatieobjecttype",
                 "catalogi",
                 "zaaktypeinformatieobjecttype"
-            ],
-            [
-                "add_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "change_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "delete_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "view_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
             ],
             [
                 "add_zaaktypenrelatie",
@@ -1989,26 +1949,6 @@
                 "statustype"
             ],
             [
-                "add_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "change_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "delete_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
-                "view_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
                 "add_zaaktype",
                 "catalogi",
                 "zaaktype"
@@ -2047,26 +1987,6 @@
                 "view_zaaktypeinformatieobjecttype",
                 "catalogi",
                 "zaaktypeinformatieobjecttype"
-            ],
-            [
-                "add_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "change_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "delete_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
-            ],
-            [
-                "view_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
             ],
             [
                 "add_zaaktypenrelatie",
@@ -3099,11 +3019,6 @@
                 "statustype"
             ],
             [
-                "view_zaakobjecttype",
-                "catalogi",
-                "zaakobjecttype"
-            ],
-            [
                 "view_zaaktype",
                 "catalogi",
                 "zaaktype"
@@ -3112,11 +3027,6 @@
                 "view_zaaktypeinformatieobjecttype",
                 "catalogi",
                 "zaaktypeinformatieobjecttype"
-            ],
-            [
-                "view_zaaktypeinformatieobjecttypearchiefregime",
-                "catalogi",
-                "zaaktypeinformatieobjecttypearchiefregime"
             ],
             [
                 "view_zaaktypenrelatie",
