@@ -376,7 +376,7 @@ class Gebruiksrechten(models.Model):
         db_index=True,
     )
     einddatum = models.DateTimeField(
-        _("startdatum"),
+        _("einddatum"),
         blank=True,
         null=True,
         help_text=_(

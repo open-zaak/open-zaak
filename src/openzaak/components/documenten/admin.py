@@ -6,6 +6,7 @@ from privates.admin import PrivateMediaMixin
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
+    EditInlineAdminMixin,
     UUIDAdminMixin,
 )
 
@@ -18,11 +19,43 @@ from .models import (
 )
 
 
-class GebruiksrechtenInline(AuditTrailInlineAdminMixin, admin.TabularInline):
-    model = Gebruiksrechten
-    readonly_fields = ("uuid",)
-    extra = 1
+@admin.register(Gebruiksrechten)
+class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ("informatieobject", "startdatum", "einddatum")
+    list_filter = ("informatieobject", "startdatum", "einddatum")
+    search_fields = ("uuid", "informatieobject", "omschrijving_voorwaarden")
+    ordering = ("startdatum", "informatieobject")
+    raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+
+
+@admin.register(ObjectInformatieObject)
+class ObjectInformatieObjectAdmin(
+    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+):
+    list_display = ("informatieobject", "object_type", "zaak", "besluit")
+    list_filter = ("object_type",)
+    list_select_related = ("zaak", "besluit")
+    search_fields = ("uuid", "zaak", "besluit")
+    ordering = ("informatieobject",)
+    raw_id_fields = ("informatieobject", "zaak", "besluit")
+    viewset = viewsets.ObjectInformatieObject
+
+
+class GebruiksrechtenInline(
+    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
+):
+    model = Gebruiksrechten
+    fields = GebruiksrechtenAdmin.list_display
+    viewset = viewsets.GebruiksrechtenViewSet
+
+
+class ObjectInformatieObjectInline(
+    AuditTrailAdminMixin, EditInlineAdminMixin, admin.TabularInline
+):
+    model = ObjectInformatieObject
+    fields = ObjectInformatieObjectAdmin.list_display
+    viewset = viewsets.ObjectInformatieObjectViewSet
 
 
 class EnkelvoudigInformatieObjectInline(
@@ -44,7 +77,11 @@ def unlock(modeladmin, request, queryset):
 @admin.register(EnkelvoudigInformatieObjectCanonical)
 class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_display = ["__str__", "get_not_lock_display"]
-    inlines = [EnkelvoudigInformatieObjectInline, GebruiksrechtenInline]
+    inlines = [
+        EnkelvoudigInformatieObjectInline,
+        GebruiksrechtenInline,
+        ObjectInformatieObjectInline,
+    ]
     actions = [unlock]
 
     def get_not_lock_display(self, obj) -> bool:
@@ -83,20 +120,3 @@ class EnkelvoudigInformatieObjectAdmin(
 
     _locked.boolean = True
     _locked.short_description = _("locked")
-
-
-@admin.register(Gebruiksrechten)
-class GebruiksrechtenAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ("uuid", "informatieobject")
-    list_filter = ("informatieobject",)
-    raw_id_fields = ("informatieobject",)
-    viewset = viewsets.GebruiksrechtenViewSet
-    readonly_fields = ("uuid",)
-
-
-@admin.register(ObjectInformatieObject)
-class ObjectInformatieObjectAdmin(admin.ModelAdmin):
-    list_display = ("uuid", "informatieobject", "object_type", "object")
-    list_select_related = ("_zaak", "_besluit")
-    raw_id_fields = ("informatieobject", "_zaak", "_besluit")
-    readonly_fields = ("uuid",)
