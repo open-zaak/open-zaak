@@ -477,15 +477,15 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         value_display_mapping = add_choice_values_help_text(ObjectTypes)
         self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
-    def set_object_properties(self, object_type):
+    def set_object_properties(self, object_type: str) -> None:
         object_field = self.fields["object"]
 
-        if object_type == "besluit":
+        if object_type == ObjectTypes.besluit:
             object_field.source = "besluit"
             object_field.validators.append(
                 LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
             )
-        else:
+        elif object_type == ObjectTypes.zaak:
             object_field.source = "zaak"
             object_field.validators.append(
                 LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
@@ -493,6 +493,12 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
     def to_internal_value(self, data):
         object_type = data["object_type"]
+        # validate that it's a valid object type first
+        try:
+            self.fields["object_type"].run_validation(object_type)
+        except serializers.ValidationError as exc:
+            raise serializers.ValidationError({"object_type": exc.detail})
+
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
         return res
