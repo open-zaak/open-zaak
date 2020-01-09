@@ -141,12 +141,3 @@ In het volgende scherm kan je vervolgens de rechten voor deze gebruiker instelle
    tijdens het aanklikken. Je kan ook dubbelklikken om een groep toe te kennen.
 
 Klik rechtsonder op **Opslaan** om de wijzigingen door te voeren.
-
-.. _manual_users_group_add:
-
-Een custom groep aanmaken
-=========================
-
-.. note:: Om groepen te kunnen beheren moet je tot de **Admin**
-   groep behoren of equivalente permissies hebben. Zie
-   :ref:`manual_users_groups` voor groepenbeheer.
