@@ -29,7 +29,7 @@ def get_besluittype_response(catalogus: str, besluittype: str) -> dict:
     }
 
 
-def get_besluit_response(besluit: str, besluittype: str, zaak: str = None) -> dict:
+def get_besluit_response(besluit: str, besluittype: str, zaak: str = "") -> dict:
     return {
         "url": besluit,
         "identificatie": "BESLUIT-2019-0000000001",

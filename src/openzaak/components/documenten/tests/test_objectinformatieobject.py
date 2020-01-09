@@ -289,7 +289,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+class OIOreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse(ObjectInformatieObject)
 
