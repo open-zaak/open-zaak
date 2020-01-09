@@ -1,22 +1,41 @@
 from django.contrib import admin
 
-from openzaak.utils.admin import AuditTrailAdminMixin, AuditTrailInlineAdminMixin
+from openzaak.utils.admin import (
+    AuditTrailAdminMixin,
+    AuditTrailInlineAdminMixin,
+    EditInlineAdminMixin,
+    UUIDAdminMixin,
+)
 
 from .models import Besluit, BesluitInformatieObject
 
 
-class BesluitInformatieObjectInline(AuditTrailInlineAdminMixin, admin.TabularInline):
+@admin.register(BesluitInformatieObject)
+class BesluitInformatieObjectAdmin(
+    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+):
+    list_display = ("besluit", "_informatieobject", "_informatieobject_url")
+    list_filter = ("besluit",)
+    search_fields = ("besluit", "_informatieobject", "_informatieobject_url")
+    ordering = ("besluit", "_informatieobject", "_informatieobject_url")
+    raw_id_fields = ("besluit", "_informatieobject")
+    viewset = (
+        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
+    )
+
+
+class BesluitInformatieObjectInline(
+    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
+):
     model = BesluitInformatieObject
-    extra = 0
-    readonly_fields = ("uuid",)
-    raw_id_fields = ("_informatieobject",)
+    fields = BesluitInformatieObjectAdmin.list_display
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
 
 
 @admin.register(Besluit)
-class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
+class BesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("verantwoordelijke_organisatie", "identificatie", "datum")
     list_filter = ("datum", "ingangsdatum")
     date_hierarchy = "datum"
@@ -25,16 +44,7 @@ class BesluitAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
         "identificatie",
         "uuid",
     )
+    ordering = ("datum", "identificatie")
     raw_id_fields = ("_besluittype", "_zaak")
-    readonly_fields = ("uuid",)
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
-
-
-@admin.register(BesluitInformatieObject)
-class BesluitInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
-    list_display = ("besluit", "_informatieobject", "_informatieobject_url")
-    viewset = (
-        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
-    )
-    readonly_fields = ("uuid",)

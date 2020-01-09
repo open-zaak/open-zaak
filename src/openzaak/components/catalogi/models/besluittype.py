@@ -81,7 +81,7 @@ class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     )
 
     publicatietermijn = DurationField(
-        _("p ublicatietermijn"),
+        _("publicatietermijn"),
         blank=True,
         null=True,
         help_text=_(
