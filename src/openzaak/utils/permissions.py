@@ -46,6 +46,13 @@ class AuthRequired(permissions.BasePermission):
         return getattr(obj, permission_main_object)
 
     def has_permission(self, request: Request, view) -> bool:
+        # permission checks run before the handler is determined. if there is no handler,
+        # a "method is not allowed" must be raised, not an HTTP 403 (see #385)
+        # this implementation works for both APIView and viewsets
+        has_handler = hasattr(view, request.method.lower())
+        if not has_handler:
+            view.http_method_not_allowed(request)
+
         from rest_framework.viewsets import ViewSetMixin
 
         if bypass_permissions(request):

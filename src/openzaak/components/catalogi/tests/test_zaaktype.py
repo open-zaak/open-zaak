@@ -355,6 +355,14 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "concept-relation")
 
+    def test_publish_zaaktype_method_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.get(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def test_delete_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
