@@ -563,7 +563,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # If it fails in any other way, we need to handle that by rolling back
         # the ZIO creation.
         try:
-            create_remote_oio(io_url, zaak_url)
+            response = create_remote_oio(io_url, zaak_url)
         except Exception as exception:
             zio.delete()
             raise serializers.ValidationError(
@@ -571,6 +571,10 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                     exception=exception
                 ),
             )
+        else:
+            zio._objectinformatieobject_url = response["url"]
+            zio.save()
+
         return zio
 
 

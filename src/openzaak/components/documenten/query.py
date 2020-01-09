@@ -95,7 +95,7 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
             return None
 
         object_type = self.RELATIONS[type(relation)]
-        relation_field = {object_type: getattr(relation, object_type)}
+        relation_field = {f"_{object_type}": getattr(relation, object_type)}
         return self.create(
             informatieobject=relation.informatieobject,
             object_type=object_type,
@@ -107,7 +107,7 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
             return (0, {})
 
         object_type = self.RELATIONS[type(relation)]
-        relation_field = {object_type: getattr(relation, object_type)}
+        relation_field = {f"_{object_type}": getattr(relation, object_type)}
 
         # fetch the instance
         obj = self.get(

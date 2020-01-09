@@ -204,11 +204,14 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # If it fails in any other way, we need to handle that by rolling back
         # the BIO creation.
         try:
-            create_remote_oio(io_url, besluit_url, "besluit")
+            response = create_remote_oio(io_url, besluit_url, "besluit")
         except Exception as exception:
             bio.delete()
             raise serializers.ValidationError(
                 _("Could not create remote relation: {exception}"),
                 params={"exception": exception},
             )
+        else:
+            bio._objectinformatieobject_url = response["url"]
+            bio.save()
         return bio

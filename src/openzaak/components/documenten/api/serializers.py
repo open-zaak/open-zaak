@@ -5,10 +5,10 @@ import uuid
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models.query import QuerySet
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.drf import FKOrURLField
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -21,8 +21,6 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.zaken.models import Zaak
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.validators import (
     IsImmutableValidator,
@@ -456,12 +454,9 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = LengthHyperlinkedRelatedField(
-        min_length=1,
+    object = FKOrURLField(
         max_length=1000,
-        view_name="",
-        queryset=QuerySet(),
-        lookup_field="uuid",
+        min_length=1,
         help_text=_(
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
@@ -470,7 +465,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
-        extra_kwargs = {"url": {"lookup_field": "uuid"}}
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "object": {"lookup_field": "uuid"},
+        }
         validators = [InformatieObjectUniqueValidator()]
 
     def __init__(self, *args, **kwargs):
@@ -479,17 +477,28 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         value_display_mapping = add_choice_values_help_text(ObjectTypes)
         self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
-    def set_object_properties(self, object_type):
+    def set_object_properties(self, object_type: str) -> None:
         object_field = self.fields["object"]
-        if object_type == "besluit":
-            object_field.view_name = "besluit-detail"
-            object_field.queryset = Besluit.objects
-        else:
-            object_field.view_name = "zaak-detail"
-            object_field.queryset = Zaak.objects
+
+        if object_type == ObjectTypes.besluit:
+            object_field.source = "besluit"
+            object_field.validators.append(
+                LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
+            )
+        elif object_type == ObjectTypes.zaak:
+            object_field.source = "zaak"
+            object_field.validators.append(
+                LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+            )
 
     def to_internal_value(self, data):
         object_type = data["object_type"]
+        # validate that it's a valid object type first
+        try:
+            self.fields["object_type"].run_validation(object_type)
+        except serializers.ValidationError as exc:
+            raise serializers.ValidationError({"object_type": exc.detail})
+
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
         return res
@@ -498,3 +507,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         object_type = instance.object_type
         self.set_object_properties(object_type)
         return super().to_representation(instance)
+
+    def create(self, validated_data):
+        object_type = validated_data["object_type"]
+        validated_data[object_type] = validated_data.pop("object")
+
+        oio = super().create(validated_data)
+        return oio

@@ -96,6 +96,6 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
 @admin.register(ObjectInformatieObject)
 class ObjectInformatieObjectAdmin(admin.ModelAdmin):
     list_display = ("uuid", "informatieobject", "object_type", "object")
-    list_select_related = ("zaak", "besluit")
-    raw_id_fields = ("informatieobject", "zaak", "besluit")
+    list_select_related = ("_zaak", "_besluit")
+    raw_id_fields = ("informatieobject", "_zaak", "_besluit")
     readonly_fields = ("uuid",)

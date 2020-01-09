@@ -47,3 +47,13 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
     response = requests.post(url, json=body, headers=headers)
     response.raise_for_status()
     return response.json()
+
+
+def delete_remote_oio(oio_url: str) -> None:
+    client_auth = APICredential.get_auth(oio_url)
+    if client_auth is None:
+        logger.warning("Missing credentials for %s", oio_url)
+    headers = client_auth.credentials() if client_auth else {}
+
+    response = requests.delete(oio_url, headers=headers)
+    response.raise_for_status()

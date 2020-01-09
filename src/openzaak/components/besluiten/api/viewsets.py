@@ -18,6 +18,7 @@ from vng_api_common.notifications.viewsets import (
 )
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.api.utils import delete_remote_oio
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
@@ -222,6 +223,26 @@ class BesluitInformatieObjectViewSet(
     notifications_kanaal = KANAAL_BESLUITEN
     notifications_main_resource_key = "besluit"
     audit = AUDIT_BRC
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+
+        if (
+            isinstance(instance.informatieobject, ProxyMixin)
+            and instance._objectinformatieobject_url
+        ):
+            try:
+                delete_remote_oio(instance._objectinformatieobject_url)
+            except Exception as exception:
+                raise ValidationError(
+                    {
+                        "informatieobject": _(
+                            "Could not delete remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )
 
 
 class BesluitAuditTrailViewSet(AuditTrailViewSet):

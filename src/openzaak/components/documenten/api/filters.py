@@ -1,15 +1,15 @@
+import logging
+import re
+import uuid
 from urllib.parse import urlparse
 
-from django.db.models import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
+from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text, get_viewset_for_path
-
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.zaken.models import Zaak
+from vng_api_common.utils import get_help_text
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -17,6 +17,8 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
@@ -48,26 +50,41 @@ class GebruiksrechtenFilter(FilterSet):
         }
 
 
-def object_queryset(request):
-    object_value = request.query_params.get("object", "")
-    object_path = urlparse(object_value).path
+def check_path(url, resource):
+    # get_viewset_for_path can't be used since the external url can contain different subpathes
+    path = urlparse(url).path
+    # check general structure
+    pattern = r".*/{}/(.+)".format(resource)
+    match = re.match(pattern, path)
+    if not match:
+        return False
 
-    # get main_object data formatted by serializer
+    # check uuid
+    resource_id = match.group(1)
     try:
-        viewset = get_viewset_for_path(object_path)
-    except ObjectDoesNotExist:
-        # the exception is raised in URLModelChoiceField.to_python method
-        return ObjectInformatieObject.objects.all()
-    model = viewset.get_queryset().model
-    return model._default_manager.all()
+        uuid.UUID(resource_id)
+    except ValueError:
+        return False
+
+    return True
 
 
-class ObjectFilter(URLModelChoiceFilter):
+class ObjectFilter(FkOrUrlFieldFilter):
     def filter(self, qs, value):
-        if isinstance(value, Zaak):
-            self.field_name = "zaak"
-        elif isinstance(value, Besluit):
+        if not value:
+            return qs
+
+        if check_path(value, "besluiten"):
             self.field_name = "besluit"
+        elif check_path(value, "zaken"):
+            self.field_name = "zaak"
+        else:
+            logger.debug(
+                "Could not determine object type for URL %s, "
+                "filtering to empty result set.",
+                value,
+            )
+            return qs.none()
 
         return super().filter(qs, value)
 
@@ -81,7 +98,7 @@ class ObjectInformatieObjectFilter(FilterSet):
         ),
     )
     object = ObjectFilter(
-        queryset=object_queryset,
+        queryset=ObjectInformatieObject.objects.all(),
         help_text=_(
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
