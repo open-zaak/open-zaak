@@ -18,6 +18,13 @@ from ..models import (
     ZaakInformatieObject,
     ZaakObject,
 )
+from .betrokkenen import (
+    MedewerkerInline,
+    NatuurlijkPersoonInline,
+    NietNatuurlijkPersoonInline,
+    OrganisatorischeEenheidInline,
+    VestigingInline,
+)
 
 
 @admin.register(Status)
@@ -102,6 +109,13 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     ordering = ("registratiedatum", "betrokkene")
     raw_id_fields = ("zaak", "_roltype")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
+    inlines = [
+        NatuurlijkPersoonInline,
+        NietNatuurlijkPersoonInline,
+        OrganisatorischeEenheidInline,
+        VestigingInline,
+        MedewerkerInline,
+    ]
 
 
 @admin.register(RelevanteZaakRelatie)

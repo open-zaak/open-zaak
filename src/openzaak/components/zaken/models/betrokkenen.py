@@ -33,8 +33,10 @@ __all__ = [
 
 
 class AbstractRolZaakobjectRelation(models.Model):
-    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True)
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True, blank=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def clean(self):
         super().clean()
@@ -46,10 +48,15 @@ class AbstractRolZaakobjectRelation(models.Model):
 
 
 class AbstractRolZaakobjectZakelijkRechtRelation(models.Model):
-    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True)
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True, blank=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     zakelijk_rechtHeeft_als_gerechtigde = models.OneToOneField(
-        ZakelijkRechtHeeftAlsGerechtigde, on_delete=models.CASCADE, null=True
+        ZakelijkRechtHeeftAlsGerechtigde,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     def clean(self):
@@ -253,18 +260,21 @@ class SubVerblijfBuitenland(models.Model):
         NatuurlijkPersoon,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     nietnatuurlijkpersoon = models.OneToOneField(
         NietNatuurlijkPersoon,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     vestiging = models.OneToOneField(
         Vestiging,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     lnd_landcode = models.CharField(

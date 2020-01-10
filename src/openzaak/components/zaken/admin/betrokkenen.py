@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from openzaak.utils.admin import EditInlineAdminMixin
+
 from ..models import (
     Medewerker,
     NatuurlijkPersoon,
@@ -8,6 +10,25 @@ from ..models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
+
+
+@admin.register(SubVerblijfBuitenland)
+class SubVerblijfBuitenlandAdmin(admin.ModelAdmin):
+    list_display = (
+        "natuurlijkpersoon",
+        "nietnatuurlijkpersoon",
+        "vestiging",
+        "lnd_landcode",
+    )
+    list_filter = ("lnd_landcode",)
+    search_fields = ("lnd_landcode", "lnd_landnaam", "sub_adres_buitenland_1")
+    ordering = ("lnd_landcode",)
+    raw_id_fields = ("natuurlijkpersoon", "nietnatuurlijkpersoon", "vestiging")
+
+
+class SubVerblijfBuitenlandInline(EditInlineAdminMixin, admin.TabularInline):
+    model = SubVerblijfBuitenland
+    fields = SubVerblijfBuitenlandAdmin.list_display
 
 
 @admin.register(NatuurlijkPersoon)
@@ -20,6 +41,10 @@ class NatuurlijkPersoonAdmin(admin.ModelAdmin):
         "anp_identificatie",
         "inp_a_nummer",
     )
+    search_fields = ("inp_bsn", "anp_identificatie")
+    ordering = ("inp_bsn", "anp_identificatie")
+    raw_id_fields = ("rol", "zaakobject", "zakelijk_rechtHeeft_als_gerechtigde")
+    inlines = [SubVerblijfBuitenlandInline]
 
 
 @admin.register(NietNatuurlijkPersoon)
@@ -31,28 +56,58 @@ class NietNatuurlijkPersoonAdmin(admin.ModelAdmin):
         "inn_nnp_id",
         "ann_identificatie",
     )
+    search_fields = ("inn_nnp_id", "ann_identificatie", "statutaire_naam")
+    ordering = ("inn_nnp_id", "ann_identificatie")
+    raw_id_fields = ("rol", "zaakobject", "zakelijk_rechtHeeft_als_gerechtigde")
+    inlines = [SubVerblijfBuitenlandInline]
 
 
 @admin.register(OrganisatorischeEenheid)
 class OrganisatorischeEenheidAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "identificatie")
+    search_fields = ("identificatie", "naam")
+    ordering = ("identificatie",)
+    raw_id_fields = ("rol", "zaakobject")
 
 
 @admin.register(Vestiging)
 class VestigingAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "vestigings_nummer")
+    search_fields = ("vestigings_nummer", "handelsnaam")
+    ordering = ("vestigings_nummer",)
+    inlines = [SubVerblijfBuitenlandInline]
+    raw_id_fields = ("rol", "zaakobject")
 
 
 @admin.register(Medewerker)
 class MedewerkerAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "identificatie")
+    search_fields = ("identificatie", "achternaam")
+    ordering = ("identificatie",)
+    raw_id_fields = ("rol", "zaakobject")
 
 
-@admin.register(SubVerblijfBuitenland)
-class SubVerblijfBuitenlandAdmin(admin.ModelAdmin):
-    list_display = (
-        "natuurlijkpersoon",
-        "nietnatuurlijkpersoon",
-        "vestiging",
-        "lnd_landcode",
-    )
+# inline admin classes
+class NatuurlijkPersoonInline(EditInlineAdminMixin, admin.TabularInline):
+    model = NatuurlijkPersoon
+    fields = NatuurlijkPersoonAdmin.list_display
+
+
+class NietNatuurlijkPersoonInline(EditInlineAdminMixin, admin.TabularInline):
+    model = NietNatuurlijkPersoon
+    fields = NietNatuurlijkPersoonAdmin.list_display
+
+
+class OrganisatorischeEenheidInline(EditInlineAdminMixin, admin.TabularInline):
+    model = OrganisatorischeEenheid
+    fields = OrganisatorischeEenheidAdmin.list_display
+
+
+class VestigingInline(EditInlineAdminMixin, admin.TabularInline):
+    model = Vestiging
+    fields = VestigingAdmin.list_display
+
+
+class MedewerkerInline(EditInlineAdminMixin, admin.TabularInline):
+    model = Medewerker
+    fields = MedewerkerAdmin.list_display
