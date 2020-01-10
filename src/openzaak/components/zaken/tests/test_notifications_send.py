@@ -5,13 +5,17 @@ from django.utils.timezone import now
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from requests.exceptions import ConnectionError
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
+from vng_api_common.models import JWTSecret
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
@@ -29,6 +33,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.utils.tests import JWTAuthMixin
 
+from ..models import Zaak
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -627,3 +632,82 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
+
+
+@override_settings(NOTIFICATIONS_DISABLED=False)
+class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
+
+    client_id = "test"
+    secret = "test"
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        JWTSecret.objects.get_or_create(
+            identifier=self.client_id, defaults={"secret": self.secret}
+        )
+
+        self.applicatie = Applicatie.objects.create(
+            client_ids=[self.client_id],
+            label="for test",
+            heeft_alle_autorisaties=self.heeft_alle_autorisaties,
+        )
+
+        super().setUp()
+
+    def test_invalid_notification_config_create(self):
+        conf = NotificationsConfig.get_solo()
+        conf.api_root = "bla"
+        conf.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        with self.assertRaises(KeyError):
+            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertFalse(Zaak.objects.exists())
+        self.assertFalse(StatusLog.objects.exists())
+
+    def test_notification_config_inaccessible_create(self):
+        conf = NotificationsConfig.get_solo()
+        conf.api_root = "http://localhost:8001/api/v1/"
+        conf.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        with self.assertRaises(ConnectionError):
+            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertFalse(Zaak.objects.exists())
+        self.assertFalse(StatusLog.objects.exists())
