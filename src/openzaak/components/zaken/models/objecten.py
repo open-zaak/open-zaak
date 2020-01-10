@@ -247,9 +247,15 @@ class Overige(models.Model):
 
 
 class TerreinGebouwdObject(models.Model):
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     huishouden = models.OneToOneField(
-        Huishouden, on_delete=models.CASCADE, null=True, related_name="is_gehuisvest_in"
+        Huishouden,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="is_gehuisvest_in",
+        blank=True,
     )
     identificatie = models.CharField(
         max_length=100, help_text="De unieke identificatie van het OBJECT"
@@ -280,15 +286,22 @@ class WozWaarde(models.Model):
 
 
 class WozObject(models.Model):
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     woz_deelobject = models.OneToOneField(
         WozDeelobject,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="is_onderdeel_van",
     )
     woz_warde = models.OneToOneField(
-        WozWaarde, on_delete=models.CASCADE, null=True, related_name="is_voor"
+        WozWaarde,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="is_voor",
+        blank=True,
     )
     woz_object_nummer = models.CharField(
         max_length=100, help_text="De unieke identificatie van het OBJECT"
@@ -317,11 +330,14 @@ class ZakelijkRecht(models.Model):
 
 
 class KadastraleOnroerendeZaak(models.Model):
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     zakelijk_recht = models.OneToOneField(
         ZakelijkRecht,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="heeft_betrekking_op",
     )
     kadastrale_identificatie = models.CharField(
@@ -347,29 +363,35 @@ class ZakelijkRechtHeeftAlsGerechtigde(models.Model):
 
 
 class Adres(models.Model):
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     natuurlijkpersoon = models.OneToOneField(
         "zaken.NatuurlijkPersoon",
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="verblijfsadres",
     )
     vestiging = models.OneToOneField(
         "zaken.Vestiging",
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="verblijfsadres",
     )
     wozobject = models.OneToOneField(
         WozObject,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="aanduiding_woz_object",
     )
     terreingebouwdobject = models.OneToOneField(
         TerreinGebouwdObject,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="adres_aanduiding_grp",
     )
 

@@ -25,6 +25,31 @@ from .betrokkenen import (
     OrganisatorischeEenheidInline,
     VestigingInline,
 )
+from .objecten import (
+    AdresInline,
+    BuurtInline,
+    GemeenteInline,
+    GemeentelijkeOpenbareRuimteInline,
+    HuishoudenInline,
+    InrichtingselementInline,
+    KadastraleOnroerendeZaakInline,
+    KunstwerkdeelInline,
+    MaatschappelijkeActiviteitInline,
+    OpenbareRuimteInline,
+    OverigeInline,
+    PandInline,
+    SpoorbaandeelInline,
+    TerreindeelInline,
+    TerreinGebouwdObjectInline,
+    WaterdeelInline,
+    WegdeelInline,
+    WijkInline,
+    WoonplaatsInline,
+    WozDeelobjectInline,
+    WozObjectInline,
+    WozWaardeInline,
+    ZakelijkRechtInline,
+)
 
 
 @admin.register(Status)
@@ -50,6 +75,36 @@ class ZaakObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     ordering = ("object_type", "object")
     raw_id_fields = ("zaak",)
     viewset = "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet"
+    inlines = [
+        AdresInline,
+        BuurtInline,
+        GemeenteInline,
+        GemeentelijkeOpenbareRuimteInline,
+        HuishoudenInline,
+        InrichtingselementInline,
+        KadastraleOnroerendeZaakInline,
+        KunstwerkdeelInline,
+        MaatschappelijkeActiviteitInline,
+        OpenbareRuimteInline,
+        OverigeInline,
+        PandInline,
+        SpoorbaandeelInline,
+        TerreindeelInline,
+        TerreinGebouwdObjectInline,
+        WaterdeelInline,
+        WegdeelInline,
+        WijkInline,
+        WoonplaatsInline,
+        WozDeelobjectInline,
+        WozObjectInline,
+        WozWaardeInline,
+        ZakelijkRechtInline,
+        NatuurlijkPersoonInline,
+        NietNatuurlijkPersoonInline,
+        OrganisatorischeEenheidInline,
+        VestigingInline,
+        MedewerkerInline,
+    ]
 
 
 @admin.register(KlantContact)

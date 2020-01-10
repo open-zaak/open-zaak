@@ -10,6 +10,7 @@ from ..models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
+from .objecten import AdresInline
 
 
 @admin.register(SubVerblijfBuitenland)
@@ -44,7 +45,7 @@ class NatuurlijkPersoonAdmin(admin.ModelAdmin):
     search_fields = ("inp_bsn", "anp_identificatie")
     ordering = ("inp_bsn", "anp_identificatie")
     raw_id_fields = ("rol", "zaakobject", "zakelijk_rechtHeeft_als_gerechtigde")
-    inlines = [SubVerblijfBuitenlandInline]
+    inlines = [SubVerblijfBuitenlandInline, AdresInline]
 
 
 @admin.register(NietNatuurlijkPersoon)
@@ -75,7 +76,7 @@ class VestigingAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "vestigings_nummer")
     search_fields = ("vestigings_nummer", "handelsnaam")
     ordering = ("vestigings_nummer",)
-    inlines = [SubVerblijfBuitenlandInline]
+    inlines = [SubVerblijfBuitenlandInline, AdresInline]
     raw_id_fields = ("rol", "zaakobject")
 
 

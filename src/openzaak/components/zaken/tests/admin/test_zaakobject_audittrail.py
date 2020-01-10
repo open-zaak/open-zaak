@@ -1,8 +1,6 @@
-import uuid
-
-from django.test import TestCase
 from django.urls import reverse
 
+from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import ZaakObject
@@ -12,22 +10,26 @@ from ..factories import ZaakFactory, ZaakObjectFactory
 from ..utils import get_operation_url
 
 
-class ZaakObjectAdminTests(AdminTestMixin, TestCase):
+class ZaakObjectAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.app.set_user(self.user)
 
     def test_create_zaakobject(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-
         add_url = reverse("admin:zaken_zaakobject_add")
-        data = {
-            "uuid": uuid.uuid4(),
-            "zaak": zaak.id,
-            "object": "http://example.com/adres/1",
-            "object_type": "adres",
-        }
 
-        self.client.post(add_url, data)
+        get_response = self.app.get(add_url)
+
+        form = get_response.form
+        form["zaak"] = zaak.id
+        form["object"] = "http://example.com/adres/1"
+        form["object_type"] = "adres"
+
+        form.submit()
 
         self.assertEqual(ZaakObject.objects.count(), 1)
 
@@ -61,14 +63,13 @@ class ZaakObjectAdminTests(AdminTestMixin, TestCase):
         zaakobject_url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
         zaak_url = get_operation_url("zaak_read", uuid=zaakobject.zaak.uuid)
         change_url = reverse("admin:zaken_zaakobject_change", args=(zaakobject.pk,))
-        data = {
-            "uuid": zaakobject.uuid,
-            "zaak": zaakobject.zaak.id,
-            "object": "http://example.com/adres/2",
-            "object_type": zaakobject.object_type,
-        }
 
-        self.client.post(change_url, data)
+        get_response = self.app.get(change_url)
+
+        form = get_response.form
+        form["object"] = "http://example.com/adres/2"
+
+        form.submit()
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
