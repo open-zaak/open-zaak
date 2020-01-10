@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
-    AuditTrailInlineAdminMixin,
     EditInlineAdminMixin,
     UUIDAdminMixin,
 )
@@ -24,14 +23,9 @@ class BesluitInformatieObjectAdmin(
     )
 
 
-class BesluitInformatieObjectInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = BesluitInformatieObject
     fields = BesluitInformatieObjectAdmin.list_display
-    viewset = (
-        "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
-    )
 
 
 @admin.register(Besluit)

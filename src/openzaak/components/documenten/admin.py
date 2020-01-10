@@ -42,12 +42,9 @@ class ObjectInformatieObjectAdmin(
     viewset = viewsets.ObjectInformatieObject
 
 
-class GebruiksrechtenInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
     model = Gebruiksrechten
     fields = GebruiksrechtenAdmin.list_display
-    viewset = viewsets.GebruiksrechtenViewSet
 
 
 class ObjectInformatieObjectInline(
@@ -55,7 +52,6 @@ class ObjectInformatieObjectInline(
 ):
     model = ObjectInformatieObject
     fields = ObjectInformatieObjectAdmin.list_display
-    viewset = viewsets.ObjectInformatieObjectViewSet
 
 
 class EnkelvoudigInformatieObjectInline(

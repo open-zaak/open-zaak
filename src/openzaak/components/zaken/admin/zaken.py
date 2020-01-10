@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
-    AuditTrailInlineAdminMixin,
     EditInlineAdminMixin,
     UUIDAdminMixin,
 )
@@ -126,65 +125,39 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
 
 
 # inline classes for Zaak
-class StatusInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
     fields = StatusAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
-    readonly_fields = ("uuid",)
 
 
-class ZaakObjectInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ZaakObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakObject
     fields = ZaakObjectAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet"
-    readonly_fields = ("uuid",)
 
 
-class ZaakEigenschapInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ZaakEigenschapInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakEigenschap
     fields = ZaakEigenschapAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
-    readonly_fields = ("uuid",)
 
 
-class ZaakInformatieObjectInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ZaakInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakInformatieObject
     fields = ZaakInformatieObjectAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
-    readonly_fields = ("uuid",)
 
 
-class KlantContactInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class KlantContactInline(EditInlineAdminMixin, admin.TabularInline):
     model = KlantContact
     fields = KlantContactAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.KlantContactViewSet"
-    readonly_fields = ("uuid",)
 
 
-class RolInline(AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline):
+class RolInline(EditInlineAdminMixin, admin.TabularInline):
     model = Rol
     fields = RolAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
-    readonly_fields = ("uuid",)
 
 
-class ResultaatInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ResultaatInline(EditInlineAdminMixin, admin.TabularInline):
     model = Resultaat
     fields = ResultaatAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
-    readonly_fields = ("uuid",)
 
 
 class RelevanteZaakRelatieInline(EditInlineAdminMixin, admin.TabularInline):
@@ -193,12 +166,9 @@ class RelevanteZaakRelatieInline(EditInlineAdminMixin, admin.TabularInline):
     fields = RelevanteZaakRelatieAdmin.list_display
 
 
-class ZaakBesluitInline(
-    AuditTrailInlineAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakBesluit
     fields = ZaakBesluitAdmin.list_display
-    viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
 
 
 @admin.register(Zaak)
