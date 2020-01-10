@@ -96,6 +96,7 @@ jobs:
         - docker-compose rm -f
 
     - stage: Push Docker image(s)
+      if: fork = false
       before_install: skip
       install: skip
       before_script: skip

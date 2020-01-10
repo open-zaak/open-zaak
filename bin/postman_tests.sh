@@ -2,6 +2,13 @@
 
 set -x
 
+# These client IDs and secrets are dummy variables that are only used by
+# the Docker build in Travis, so they can be public
+client_id=zgw_api_tests
+secret=secret
+client_id_limited=zgw_api_tests_limited
+secret_limited=secret_limited
+
 openzaak_url=localhost:8000
 nrc_url=localhost:8001
 
