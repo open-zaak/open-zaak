@@ -34,9 +34,11 @@ class StatusTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdm
                     "informeren",
                     "statustekst",
                     "toelichting",
+                    "uuid",
                 )
             },
         ),
         (_("Relaties"), {"fields": ("zaaktype",)}),
     )
     raw_id_fields = ("zaaktype",)
+    readonly_fields = ("uuid",)

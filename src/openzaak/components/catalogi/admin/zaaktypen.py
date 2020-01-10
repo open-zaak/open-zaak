@@ -114,6 +114,7 @@ class ZaakTypeAdmin(
             {
                 "fields": (
                     "identificatie",
+                    "uuid",
                     "zaaktype_omschrijving",
                     "zaaktype_omschrijving_generiek",
                     "doel",
@@ -154,7 +155,10 @@ class ZaakTypeAdmin(
         ),
     )
     raw_id_fields = ("catalogus",)
-    readonly_fields = ("versiedatum",)
+    readonly_fields = (
+        "versiedatum",
+        "uuid",
+    )
     inlines = (
         ZaakTypenRelatieInline,
         StatusTypeInline,

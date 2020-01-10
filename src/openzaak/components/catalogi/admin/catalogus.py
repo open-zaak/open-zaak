@@ -78,7 +78,7 @@ class CatalogusAdmin(
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("_admin_name", "domein", "rsin")}),
+        (_("Algemeen"), {"fields": ("_admin_name", "domein", "rsin", "uuid",)}),
         (
             _("Contactpersoon beheer"),
             {
@@ -91,6 +91,7 @@ class CatalogusAdmin(
         ),
     )
     inlines = (ZaakTypeInline, BesluitTypeInline, InformatieObjectTypeInline)
+    readonly_fields = ("uuid",)
 
     # For import/export mixins
     resource_name = "catalogus"
