@@ -147,7 +147,7 @@ vertrouwelijkheidaanduiding. Een applicatie heeft enkel toegang tot deze documen
 zaken waarvan de vertrouwelijkheidaanduiding meer publiek of gelijk-aan de ingestelde
 autorisatie-vertrouwelijkheidaanduiding is.
 
-Voor de applicatie lijkt het alsof Documenten en zaken die *meer* vertrouwelijk zijn
+Voor de applicatie lijkt het alsof Documenten en Zaken die *meer* vertrouwelijk zijn
 niet bestaan.
 
 .. note::

@@ -22,7 +22,7 @@ gegeven:
 * objecten aanpassen
 * objecten verwijderen
 
-Een gebruiker kan tot meerdere groepen behoren - de permissies vullen mekaar
+Een gebruiker kan tot meerdere groepen behoren - de permissies vullen elkaar
 dan aan, d.w.z. dat je de gecombineerde set van permissies krijgt van elke
 groep.
 
@@ -115,7 +115,7 @@ Vertrek vanaf de startpagina en vind de groep **Accounts**. Klik vervolgens op
     :alt: Dashboard gebruiker toevoegen
 
 Vul vervolgens een **gebruikersnaam** in en een **wachtwoord**. Vergeet niet om het
-wachtwoord te **bevestigen**. Merk op dat er wachtwoorsterkte-regels gelden!
+wachtwoord te **bevestigen**. Merk op dat er wachtwoordsterkte-regels gelden!
 
 .. note:: Gebruikersnamen zijn hoofdlettergevoelig!
 

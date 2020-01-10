@@ -212,7 +212,7 @@ Als voorbeeld zie je (een deel van) de detailweergave van een zaak:
     :width: 100%
     :alt: Zaak detail
 
-1. De attibuten van de zaak worden opgelijst als bewerkbare velden. Sommige
+1. De attributen van de zaak worden opgelijst als bewerkbare velden. Sommige
    attributen zullen niet bewerkbaar zijn, en als je geen bewerkrechten hebt
    zie je alles als alleen-lezen. Verplichte velden worden in het vet gedrukt,
    terwijl optionele velden normaal gedrukt zijn. Indien beschikbaar, dan wordt
