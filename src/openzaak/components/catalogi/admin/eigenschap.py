@@ -20,9 +20,13 @@ class EigenschapAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdm
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("eigenschapnaam", "definitie", "toelichting")}),
+        (
+            _("Algemeen"),
+            {"fields": ("eigenschapnaam", "definitie", "toelichting", "uuid",)},
+        ),
         (_("Relaties"), {"fields": ("zaaktype", "specificatie_van_eigenschap",)},),
     )
+    readonly_fields = ("uuid",)
 
 
 @admin.register(EigenschapSpecificatie)

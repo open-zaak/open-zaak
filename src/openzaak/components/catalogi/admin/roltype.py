@@ -21,7 +21,11 @@ class RolTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin)
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("omschrijving", "omschrijving_generiek")},),
+        (
+            _("Algemeen"),
+            {"fields": ("omschrijving", "omschrijving_generiek", "uuid",)},
+        ),
         (_("Relaties"), {"fields": ("zaaktype",)}),
     )
     raw_id_fields = ("zaaktype",)
+    readonly_fields = ("uuid",)

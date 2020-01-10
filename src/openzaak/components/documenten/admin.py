@@ -63,7 +63,6 @@ class EnkelvoudigInformatieObjectAdmin(
 ):
     list_display = (
         "identificatie",
-        "uuid",
         "bronorganisatie",
         "creatiedatum",
         "titel",
@@ -77,6 +76,7 @@ class EnkelvoudigInformatieObjectAdmin(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
+    readonly_fields = ("uuid",)
 
     def _locked(self, obj) -> bool:
         return obj.locked
@@ -91,6 +91,7 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     list_filter = ("informatieobject",)
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+    readonly_fields = ("uuid",)
 
 
 @admin.register(ObjectInformatieObject)

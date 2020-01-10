@@ -43,7 +43,10 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("zaaktype", "omschrijving", "toelichting")}),
+        (
+            _("Algemeen"),
+            {"fields": ("zaaktype", "omschrijving", "toelichting", "uuid",)},
+        ),
         (
             _("Gemeentelijke selectielijst"),
             {
@@ -69,7 +72,10 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
         ),
     )
     raw_id_fields = ("zaaktype",)
-    readonly_fields = ("get_zaaktype_procestype",)
+    readonly_fields = (
+        "get_zaaktype_procestype",
+        "uuid",
+    )
 
     get_zaaktype_procestype.short_description = "zaaktype procestype"
 

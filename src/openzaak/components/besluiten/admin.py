@@ -37,3 +37,4 @@ class BesluitInformatieObjectAdmin(AuditTrailAdminMixin, admin.ModelAdmin):
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
+    readonly_fields = ("uuid",)

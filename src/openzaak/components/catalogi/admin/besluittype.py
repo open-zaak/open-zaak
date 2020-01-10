@@ -37,6 +37,7 @@ class BesluitTypeAdmin(
                     "besluitcategorie",
                     "reactietermijn",
                     "toelichting",
+                    "uuid",
                 )
             },
         ),
@@ -63,3 +64,4 @@ class BesluitTypeAdmin(
         ),
     )
     filter_horizontal = ("informatieobjecttypen", "zaaktypen")  # , 'resultaattypes'
+    readonly_fields = ("uuid",)

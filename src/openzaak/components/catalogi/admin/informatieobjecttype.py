@@ -11,6 +11,7 @@ class ZaakTypeInformatieObjectTypeInline(admin.TabularInline):
     model = ZaakTypeInformatieObjectType
     extra = 1
     raw_id_fields = ("zaaktype", "statustype")
+    readonly_fields = ("uuid",)
 
 
 @admin.register(InformatieObjectType)
@@ -29,7 +30,11 @@ class InformatieObjectTypeAdmin(
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("omschrijving", "vertrouwelijkheidaanduiding",)},),
+        (
+            _("Algemeen"),
+            {"fields": ("omschrijving", "vertrouwelijkheidaanduiding", "uuid",)},
+        ),
         (_("Relaties"), {"fields": ("catalogus",)}),
     )
     inlines = (ZaakTypeInformatieObjectTypeInline,)  # zaaktypes
+    readonly_fields = ("uuid",)
