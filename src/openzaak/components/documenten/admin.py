@@ -35,13 +35,18 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
 class ObjectInformatieObjectAdmin(
     AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
-    list_display = ("informatieobject", "object_type", "zaak", "besluit")
+    list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
-    list_select_related = ("zaak", "besluit")
-    search_fields = ("uuid", "zaak", "besluit")
+    list_select_related = ("informatieobject", "_zaak", "_besluit")
+    search_fields = ("uuid", "_zaak", "_zaak_url", "_besluit", "_besluit_url")
     ordering = ("informatieobject",)
     raw_id_fields = ("informatieobject", "_zaak", "_besluit")
     viewset = viewsets.ObjectInformatieObject
+
+    def get_object_display(self, obj):
+        return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
+
+    get_object_display.short_description = "object"
 
 
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
@@ -54,6 +59,11 @@ class ObjectInformatieObjectInline(
 ):
     model = ObjectInformatieObject
     fields = ObjectInformatieObjectAdmin.list_display
+
+    def get_object_display(self, obj):
+        return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
+
+    get_object_display.short_description = "object"
 
 
 class EnkelvoudigInformatieObjectInline(
