@@ -40,7 +40,7 @@ class ObjectInformatieObjectAdmin(
     list_select_related = ("zaak", "besluit")
     search_fields = ("uuid", "zaak", "besluit")
     ordering = ("informatieobject",)
-    raw_id_fields = ("informatieobject", "zaak", "besluit")
+    raw_id_fields = ("informatieobject", "_zaak", "_besluit")
     viewset = viewsets.ObjectInformatieObject
 
 

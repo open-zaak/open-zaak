@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0030_auto_20200110_1349"),
+        ("zaken", "0031_auto_20200110_1349"),
     ]
 
     operations = [
