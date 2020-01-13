@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import EditInlineAdminMixin, UUIDAdminMixin
+from openzaak.utils.admin import (
+    EditInlineAdminMixin,
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    link_to_related_objects,
+)
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
 from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
@@ -41,6 +46,7 @@ class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInli
 
 @admin.register(InformatieObjectType)
 class InformatieObjectTypeAdmin(
+    ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
@@ -62,4 +68,6 @@ class InformatieObjectTypeAdmin(
         (_("Relaties"), {"fields": ("catalogus",)}),
     )
     inlines = (ZaakTypeInformatieObjectTypeInline,)  # zaaktypes
-    readonly_fields = ("uuid",)
+
+    def get_object_actions(self, obj):
+        return (link_to_related_objects(ZaakTypeInformatieObjectType, obj),)

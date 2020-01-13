@@ -3,7 +3,9 @@ from django.contrib import admin
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
+    ListObjectActionsAdminMixin,
     UUIDAdminMixin,
+    link_to_related_objects,
 )
 
 from ..models import (
@@ -241,7 +243,9 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
 
 
 @admin.register(Zaak)
-class ZaakAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+class ZaakAdmin(
+    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+):
     list_display = (
         "identificatie",
         "registratiedatum",
@@ -339,3 +343,13 @@ class ZaakBesluitAdmin(admin.ModelAdmin):
     list_select_related = ["zaak"]
     raw_id_fields = ["zaak"]
     readonly_fields = ("uuid",)
+    def get_object_actions(self, obj):
+        return (
+            link_to_related_objects(Status, obj),
+            link_to_related_objects(Rol, obj),
+            link_to_related_objects(ZaakEigenschap, obj),
+            link_to_related_objects(Resultaat, obj),
+            link_to_related_objects(ZaakObject, obj),
+            link_to_related_objects(ZaakInformatieObject, obj),
+            link_to_related_objects(KlantContact, obj),
+        )

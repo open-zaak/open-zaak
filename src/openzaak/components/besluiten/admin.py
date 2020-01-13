@@ -3,7 +3,9 @@ from django.contrib import admin
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
+    ListObjectActionsAdminMixin,
     UUIDAdminMixin,
+    link_to_related_objects,
 )
 
 from .models import Besluit, BesluitInformatieObject
@@ -29,7 +31,9 @@ class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
 
 
 @admin.register(Besluit)
-class BesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+class BesluitAdmin(
+    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+):
     list_display = ("verantwoordelijke_organisatie", "identificatie", "datum")
     list_filter = ("datum", "ingangsdatum")
     date_hierarchy = "datum"
@@ -42,3 +46,6 @@ class BesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     raw_id_fields = ("_besluittype", "_zaak")
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
+
+    def get_object_actions(self, obj):
+        return (link_to_related_objects(BesluitInformatieObject, obj),)

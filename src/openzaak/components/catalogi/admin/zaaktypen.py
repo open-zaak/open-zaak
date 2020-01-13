@@ -237,6 +237,7 @@ class ZaakTypeAdmin(
             link_to_related_objects(RolType, obj),
             link_to_related_objects(Eigenschap, obj),
             link_to_related_objects(ResultaatType, obj),
+            link_to_related_objects(ZaakTypenRelatie, obj),
         )
 
     def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):

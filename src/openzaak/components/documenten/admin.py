@@ -7,7 +7,9 @@ from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
     EditInlineAdminMixin,
+    ListObjectActionsAdminMixin,
     UUIDAdminMixin,
+    link_to_related_objects,
 )
 
 from .api import viewsets
@@ -92,7 +94,11 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
 
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
-    AuditTrailAdminMixin, UUIDAdminMixin, PrivateMediaMixin, admin.ModelAdmin
+    AuditTrailAdminMixin,
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    PrivateMediaMixin,
+    admin.ModelAdmin,
 ):
     list_display = (
         "identificatie",
@@ -116,3 +122,9 @@ class EnkelvoudigInformatieObjectAdmin(
 
     _locked.boolean = True
     _locked.short_description = _("locked")
+
+    def get_object_actions(self, obj):
+        return (
+            link_to_related_objects(Gebruiksrechten, obj.canonical),
+            link_to_related_objects(ObjectInformatieObject, obj.canonical),
+        )
