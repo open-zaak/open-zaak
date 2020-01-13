@@ -38,5 +38,6 @@ Before you begin
    hardware
    deployment/kubernetes
    deployment/single_server
+   configuration
    performance/index
    linux

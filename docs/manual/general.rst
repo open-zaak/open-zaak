@@ -74,6 +74,8 @@ gebruiker toevoegt en configureert.
 gegevens in te zien en/of beheren. Een gebruiker kan tot één of meerdere
 groepen behoren. Lees meer over groepen :ref:`beheren <manual_users_groups>`.
 
+.. _manual_authorizations:
+
 API Autorisaties
 ----------------
 
@@ -106,6 +108,8 @@ kijken en beheren. Deze worden via de *Documenten API* aangemaakt en gewijzigd.
 
 **Zaken** bevat alle informatie die de *Zaken API* ontsluit. Hier kan je
 volledige zaakdossiers inkijken.
+
+.. _manual_configuration:
 
 Configuratie
 ------------
