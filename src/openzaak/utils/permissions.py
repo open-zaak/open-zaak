@@ -1,11 +1,14 @@
+import time
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import permissions
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
@@ -45,10 +48,21 @@ class AuthRequired(permissions.BasePermission):
     def get_main_object(self, obj, permission_main_object):
         return getattr(obj, permission_main_object)
 
+    def check_jwt_expiry(self, payload):
+        if payload:
+            iat = payload["iat"]
+            current_timestamp = time.time()
+            if current_timestamp - iat >= settings.JWT_EXPIRY:
+                raise PermissionDenied(
+                    _("The JWT used for this request is expired"), code="jwt-expired"
+                )
+
     def has_permission(self, request: Request, view) -> bool:
         # permission checks run before the handler is determined. if there is no handler,
         # a "method is not allowed" must be raised, not an HTTP 403 (see #385)
         # this implementation works for both APIView and viewsets
+        self.check_jwt_expiry(request.jwt_auth.payload)
+
         has_handler = hasattr(view, request.method.lower())
         if not has_handler:
             view.http_method_not_allowed(request)
