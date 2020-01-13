@@ -42,7 +42,7 @@ class ZaakTypenRelatieAdmin(admin.ModelAdmin):
     list_display = ("gerelateerd_zaaktype", "zaaktype")
     list_filter = ("zaaktype", "aard_relatie")
     ordering = ("zaaktype", "gerelateerd_zaaktype")
-    search_fields = ("gerelateerd_zaaktype", "toelichting")
+    search_fields = ("gerelateerd_zaaktype", "toelichting", "zaaktype__uuid")
 
     # Detail
     fieldsets = (

@@ -42,7 +42,7 @@ class NatuurlijkPersoonAdmin(admin.ModelAdmin):
         "anp_identificatie",
         "inp_a_nummer",
     )
-    search_fields = ("inp_bsn", "anp_identificatie")
+    search_fields = ("inp_bsn", "anp_identificatie", "rol__uuid", "zaakobject__uuid")
     ordering = ("inp_bsn", "anp_identificatie")
     raw_id_fields = ("rol", "zaakobject", "zakelijk_rechtHeeft_als_gerechtigde")
     inlines = [SubVerblijfBuitenlandInline, AdresInline]
@@ -57,7 +57,13 @@ class NietNatuurlijkPersoonAdmin(admin.ModelAdmin):
         "inn_nnp_id",
         "ann_identificatie",
     )
-    search_fields = ("inn_nnp_id", "ann_identificatie", "statutaire_naam")
+    search_fields = (
+        "inn_nnp_id",
+        "ann_identificatie",
+        "statutaire_naam",
+        "rol__uuid",
+        "zaakobject__uuid",
+    )
     ordering = ("inn_nnp_id", "ann_identificatie")
     raw_id_fields = ("rol", "zaakobject", "zakelijk_rechtHeeft_als_gerechtigde")
     inlines = [SubVerblijfBuitenlandInline]
@@ -66,7 +72,7 @@ class NietNatuurlijkPersoonAdmin(admin.ModelAdmin):
 @admin.register(OrganisatorischeEenheid)
 class OrganisatorischeEenheidAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "identificatie")
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "rol__uuid", "zaakobject__uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("rol", "zaakobject")
 
@@ -74,7 +80,12 @@ class OrganisatorischeEenheidAdmin(admin.ModelAdmin):
 @admin.register(Vestiging)
 class VestigingAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "vestigings_nummer")
-    search_fields = ("vestigings_nummer", "handelsnaam")
+    search_fields = (
+        "vestigings_nummer",
+        "handelsnaam",
+        "rol__uuid",
+        "zaakobject__uuid",
+    )
     ordering = ("vestigings_nummer",)
     inlines = [SubVerblijfBuitenlandInline, AdresInline]
     raw_id_fields = ("rol", "zaakobject")
@@ -83,7 +94,7 @@ class VestigingAdmin(admin.ModelAdmin):
 @admin.register(Medewerker)
 class MedewerkerAdmin(admin.ModelAdmin):
     list_display = ("rol", "zaakobject", "identificatie")
-    search_fields = ("identificatie", "achternaam")
+    search_fields = ("identificatie", "achternaam", "rol__uuid", "zaakobject__uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("rol", "zaakobject")
 

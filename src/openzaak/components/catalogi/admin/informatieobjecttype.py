@@ -18,7 +18,12 @@ class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
         "informatieobjecttype",
         "richting",
     )
-    search_fields = ("uuid", "volgnummer")
+    search_fields = (
+        "uuid",
+        "volgnummer",
+        "zaaktype__uuid",
+        "informatieobjecttype__uuid",
+    )
     ordering = ("zaaktype", "informatieobjecttype", "volgnummer")
 
     # Detail

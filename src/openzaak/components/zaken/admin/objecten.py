@@ -50,6 +50,7 @@ class AdresAdmin(admin.ModelAdmin):
         "postcode",
         "locatie_omschrijving",
         "num_identificatie",
+        "zaakobject_uuid",
     )
     ordering = ("identificatie",)
     raw_id_fields = (
@@ -69,7 +70,7 @@ class AdresInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(KadastraleOnroerendeZaak)
 class KadastraleOnroerendeZaakAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "zakelijk_recht", "kadastrale_identificatie")
-    search_fields = ("kadastrale_identificatie",)
+    search_fields = ("kadastrale_identificatie", "zaakobject_uuid")
     ordering = ("kadastrale_identificatie",)
     raw_id_fields = ("zaakobject", "zakelijk_recht")
 
@@ -82,7 +83,7 @@ class KadastraleOnroerendeZaakInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(TerreinGebouwdObject)
 class TerreinGebouwdObjectAdmin(admin.ModelAdmin):
     list_display = ("huishouden", "identificatie")
-    search_fields = ("identificatie",)
+    search_fields = ("identificatie", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject", "huishouden")
     inlines = [AdresInline]
@@ -96,7 +97,7 @@ class TerreinGebouwdObjectInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(WozObject)
 class WozObjectAdmin(admin.ModelAdmin):
     list_display = ("woz_deelobject", "woz_warde", "woz_object_nummer")
-    search_fields = ("woz_object_nummer",)
+    search_fields = ("woz_object_nummer", "zaakobject_uuid")
     ordering = ("woz_object_nummer",)
     raw_id_fields = ("zaakobject", "woz_deelobject", "woz_warde")
     inlines = [AdresInline]
@@ -111,7 +112,7 @@ class WozObjectInline(EditInlineAdminMixin, admin.TabularInline):
 class BuurtAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "buurt_code", "wyk_wijk_code")
     list_filter = ("gem_gemeente_code",)
-    search_fields = ("buurt_code", "buurt_naam")
+    search_fields = ("buurt_code", "buurt_naam", "zaakobject_uuid")
     ordering = ("buurt_code",)
     raw_id_fields = ("zaakobject",)
 
@@ -124,7 +125,7 @@ class BuurtInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Gemeente)
 class GemeenteAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "gemeente_code")
-    search_fields = ("gemeente_code", "gemeente_naam")
+    search_fields = ("gemeente_code", "gemeente_naam", "zaakobject_uuid")
     ordering = ("gemeente_code",)
     raw_id_fields = ("zaakobject",)
 
@@ -137,7 +138,7 @@ class GemeenteInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(GemeentelijkeOpenbareRuimte)
 class GemeentelijkeOpenbareRuimteAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
-    search_fields = ("identificatie", "openbare_ruimte_naam")
+    search_fields = ("identificatie", "openbare_ruimte_naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -150,7 +151,7 @@ class GemeentelijkeOpenbareRuimteInline(EditInlineAdminMixin, admin.TabularInlin
 @admin.register(Huishouden)
 class HuishoudenAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "nummer")
-    search_fields = ("nummer",)
+    search_fields = ("nummer", "zaakobject_uuid")
     ordering = ("nummer",)
     raw_id_fields = ("zaakobject",)
     inlines = [TerreinGebouwdObjectInline]
@@ -165,7 +166,7 @@ class HuishoudenInline(EditInlineAdminMixin, admin.TabularInline):
 class InrichtingselementAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -179,7 +180,7 @@ class InrichtingselementInline(EditInlineAdminMixin, admin.TabularInline):
 class KunstwerkdeelAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -192,7 +193,7 @@ class KunstwerkdeelInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(MaatschappelijkeActiviteit)
 class MaatschappelijkeActiviteitAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "kvk_nummer")
-    search_fields = ("kvk_nummer", "handelsnaam")
+    search_fields = ("kvk_nummer", "handelsnaam", "zaakobject_uuid")
     ordering = ("kvk_nummer",)
     raw_id_fields = ("zaakobject",)
 
@@ -205,7 +206,7 @@ class MaatschappelijkeActiviteitInline(EditInlineAdminMixin, admin.TabularInline
 @admin.register(OpenbareRuimte)
 class OpenbareRuimteAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
-    search_fields = ("identificatie",)
+    search_fields = ("identificatie", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -218,7 +219,7 @@ class OpenbareRuimteInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Overige)
 class OverigeAdmin(admin.ModelAdmin):
     list_display = ("zaakobject",)
-    search_fields = ("zaakobject",)
+    search_fields = ("zaakobject", "zaakobject_uuid")
     ordering = ("zaakobject",)
     raw_id_fields = ("zaakobject",)
 
@@ -231,7 +232,7 @@ class OverigeInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Pand)
 class PandAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
-    search_fields = ("identificatie",)
+    search_fields = ("identificatie", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -245,7 +246,7 @@ class PandInline(EditInlineAdminMixin, admin.TabularInline):
 class SpoorbaandeelAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -259,7 +260,7 @@ class SpoorbaandeelInline(EditInlineAdminMixin, admin.TabularInline):
 class TerreindeelAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -273,7 +274,7 @@ class TerreindeelInline(EditInlineAdminMixin, admin.TabularInline):
 class WaterdeelAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type_waterdeel",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -287,7 +288,7 @@ class WaterdeelInline(EditInlineAdminMixin, admin.TabularInline):
 class WegdeelAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
     list_filter = ("type",)
-    search_fields = ("identificatie", "naam")
+    search_fields = ("identificatie", "naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -300,7 +301,7 @@ class WegdeelInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Wijk)
 class WijkAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "wijk_code")
-    search_fields = ("wijk_code", "wijk_naam")
+    search_fields = ("wijk_code", "wijk_naam", "zaakobject_uuid")
     ordering = ("wijk_code",)
     raw_id_fields = ("zaakobject",)
 
@@ -313,7 +314,7 @@ class WijkInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Woonplaats)
 class WoonplaatsAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
-    search_fields = ("identificatie", "woonplaats_naam")
+    search_fields = ("identificatie", "woonplaats_naam", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
 
@@ -326,7 +327,7 @@ class WoonplaatsInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(WozDeelobject)
 class WozDeelobjectAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "nummer_woz_deel_object")
-    search_fields = ("nummer_woz_deel_object",)
+    search_fields = ("nummer_woz_deel_object", "zaakobject_uuid")
     ordering = ("nummer_woz_deel_object",)
     raw_id_fields = ("zaakobject",)
     inlines = [WozObjectInline]
@@ -340,7 +341,7 @@ class WozDeelobjectInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(WozWaarde)
 class WozWaardeAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "waardepeildatum")
-    search_fields = ("waardepeildatum",)
+    search_fields = ("waardepeildatum", "zaakobject_uuid")
     ordering = ("waardepeildatum",)
     raw_id_fields = ("zaakobject",)
     inlines = [WozObjectInline]
@@ -354,7 +355,7 @@ class WozWaardeInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(ZakelijkRecht)
 class ZakelijkRechtAdmin(admin.ModelAdmin):
     list_display = ("zaakobject", "identificatie")
-    search_fields = ("identificatie",)
+    search_fields = ("identificatie", "zaakobject_uuid")
     ordering = ("identificatie",)
     raw_id_fields = ("zaakobject",)
     inlines = [ZakelijkRechtHeeftAlsGerechtigdeInline, KadastraleOnroerendeZaakInline]
