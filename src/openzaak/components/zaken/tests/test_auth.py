@@ -3,10 +3,11 @@ Guarantee that the proper authorization machinery is in place.
 """
 from django.test import override_settings, tag
 
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, reverse
+from vng_api_common.tests import AuthCheckMixin, generate_jwt_auth, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -816,3 +817,28 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class JWTExpiredTests(JWTAuthMixin, APITestCase):
+
+    heeft_alle_autorisaties = True
+
+    @freeze_time("2019-01-01T12:00:00")
+    def setUp(self):
+        super().setUp()
+        token = generate_jwt_auth(
+            self.client_id,
+            self.secret,
+            user_id=self.user_id,
+            user_representation=self.user_representation,
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    @freeze_time("2019-01-01T13:00:00")
+    def test_jwt_expired(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        response = self.client.get(zaak_url)
+
+        self.assertEqual(response.data["code"], "jwt-expired")
