@@ -4,14 +4,15 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import AardZaakRelatie
 from ..models import Zaak
-from .utils import ZAAK_WRITE_KWARGS, get_zaak_response
+from .factories import RelevanteZaakRelatieFactory, ZaakFactory
+from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, get_zaak_response
 
 
 @tag("external-urls")
@@ -19,7 +20,7 @@ from .utils import ZAAK_WRITE_KWARGS, get_zaak_response
 class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
-    list_url = reverse(Zaak)
+    list_url = reverse_lazy(Zaak)
 
     def test_create_external_relevante_andere_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -152,3 +153,61 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "relevanteAndereZaken.0.url")
         self.assertEqual(error["code"], "invalid-resource")
+
+
+@override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
+class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
+
+    heeft_alle_autorisaties = True
+    list_url = reverse_lazy(Zaak)
+
+    def test_create_local_relevante_andere_zaak(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": zaaktype_url,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "relevanteAndereZaken": [
+                    {"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg,}
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.data["relevante_andere_zaken"],
+            [{"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
+        )
+
+    def test_read_local_relevante_andere_zaak(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        relevante_zaak = ZaakFactory.create(zaaktype=zaaktype)
+        relevante_zaak_url = f"http://testserver.com{reverse(relevante_zaak)}"
+
+        RelevanteZaakRelatieFactory.create(
+            url=relevante_zaak, zaak=zaak, aard_relatie=AardZaakRelatie.vervolg
+        )
+
+        response = self.client.get(
+            zaak_url, **ZAAK_READ_KWARGS, HTTP_HOST="testserver.com"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.data["relevante_andere_zaken"],
+            [{"url": relevante_zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
+        )
