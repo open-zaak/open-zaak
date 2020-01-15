@@ -1,8 +1,6 @@
-import uuid
-
-from django.test import TestCase
 from django.urls import reverse
 
+from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
@@ -13,25 +11,30 @@ from ..factories import RolFactory, ZaakFactory
 from ..utils import get_operation_url
 
 
-class RolAdminTests(AdminTestMixin, TestCase):
+class RolAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.app.set_user(self.user)
 
     def test_create_rol(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         roltype = RolTypeFactory.create()
-
         add_url = reverse("admin:zaken_rol_add")
-        data = {
-            "uuid": uuid.uuid4(),
-            "zaak": zaak.id,
-            "_roltype": roltype.id,
-            "betrokkene_type": "natuurlijk_persoon",
-            "betrokkene": "http://example.com/betrokkene/1",
-            "roltoelichting": "desc",
-        }
 
-        response = self.client.post(add_url, data)
+        get_response = self.app.get(add_url)
+
+        form = get_response.form
+
+        form["zaak"] = zaak.id
+        form["_roltype"] = roltype.id
+        form["betrokkene_type"] = "natuurlijk_persoon"
+        form["betrokkene"] = "http://example.com/betrokkene/1"
+        form["roltoelichting"] = "desc"
+
+        response = form.submit()
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Rol.objects.count(), 1)
@@ -64,16 +67,13 @@ class RolAdminTests(AdminTestMixin, TestCase):
         rol_url = get_operation_url("rol_read", uuid=rol.uuid, zaak_uuid=rol.zaak.uuid)
         zaak_url = get_operation_url("zaak_read", uuid=rol.zaak.uuid)
         change_url = reverse("admin:zaken_rol_change", args=(rol.pk,))
-        data = {
-            "uuid": rol.uuid,
-            "zaak": rol.zaak.id,
-            "_roltype": rol.roltype.id,
-            "betrokkene_type": rol.betrokkene_type,
-            "betrokkene": rol.betrokkene,
-            "roltoelichting": "new",
-        }
 
-        self.client.post(change_url, data)
+        get_response = self.app.get(change_url)
+
+        form = get_response.form
+        form["roltoelichting"] = "new"
+
+        form.submit()
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 

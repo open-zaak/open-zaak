@@ -19,7 +19,6 @@ from ..factories import (
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
-    ZaakObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
@@ -123,7 +122,6 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         resultaattype_old = ResultaatTypeFactory.create(zaaktype=zaaktype_old)
         roltype_old = RolTypeFactory.create(zaaktype=zaaktype_old)
         eigenschap_old = EigenschapFactory.create(zaaktype=zaaktype_old)
-        zaakobjecttype_old = ZaakObjectTypeFactory.create(is_relevant_voor=zaaktype_old)
         zaaktypenrelatie_old = ZaakTypenRelatieFactory.create(zaaktype=zaaktype_old)
         # m2m relations
         besluittype = BesluitTypeFactory.create(zaaktypen=[zaaktype_old])
@@ -165,9 +163,6 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         self.assertNotEqual(zaaktype_new.resultaattypen.get().id, resultaattype_old.id)
         self.assertNotEqual(zaaktype_new.roltype_set.get().id, roltype_old.id)
         self.assertNotEqual(zaaktype_new.eigenschap_set.get().id, eigenschap_old.id)
-        self.assertNotEqual(
-            zaaktype_new.zaakobjecttype_set.get().id, zaakobjecttype_old.id
-        )
         self.assertNotEqual(
             zaaktype_new.zaaktypenrelaties.get().id, zaaktypenrelatie_old.id
         )

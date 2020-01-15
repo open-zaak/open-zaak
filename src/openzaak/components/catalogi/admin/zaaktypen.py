@@ -34,6 +34,27 @@ from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
 
 
+@admin.register(ZaakTypenRelatie)
+class ZaakTypenRelatieAdmin(admin.ModelAdmin):
+    model = ZaakTypenRelatie
+
+    # List
+    list_display = ("gerelateerd_zaaktype", "zaaktype")
+    list_filter = ("zaaktype", "aard_relatie")
+    ordering = ("zaaktype", "gerelateerd_zaaktype")
+    search_fields = ("gerelateerd_zaaktype", "toelichting", "zaaktype__uuid")
+
+    # Detail
+    fieldsets = (
+        (
+            _("Algemeen"),
+            {"fields": ("gerelateerd_zaaktype", "aard_relatie", "toelichting")},
+        ),
+        (_("Relaties"), {"fields": ("zaaktype",)},),
+    )
+    raw_id_fields = ("zaaktype",)
+
+
 class StatusTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = StatusType
     fields = StatusTypeAdmin.list_display
@@ -58,10 +79,10 @@ class ResultaatTypeInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaaktype"
 
 
-class ZaakTypenRelatieInline(admin.TabularInline):
+class ZaakTypenRelatieInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakTypenRelatie
     fk_name = "zaaktype"
-    extra = 1
+    fields = ZaakTypenRelatieAdmin.list_display
 
 
 @admin.register(ZaakType)
@@ -99,7 +120,6 @@ class ZaakTypeAdmin(
         "identificatie",
         "zaaktype_omschrijving",
         "zaaktype_omschrijving_generiek",
-        "zaakcategorie",
         "doel",
         "aanleiding",
         "onderwerp",
@@ -121,18 +141,32 @@ class ZaakTypeAdmin(
                     "aanleiding",
                     "toelichting",
                     "indicatie_intern_of_extern",
+                    "trefwoorden",
+                    "vertrouwelijkheidaanduiding",
+                    "producten_of_diensten",
+                    "verantwoordingsrelatie",
+                )
+            },
+        ),
+        (
+            _("Behandeling"),
+            {
+                "fields": (
                     "handeling_initiator",
                     "onderwerp",
                     "handeling_behandelaar",
                     "doorlooptijd_behandeling",
                     "servicenorm_behandeling",
+                ),
+            },
+        ),
+        (
+            _("Opschorten/verlengen"),
+            {
+                "fields": (
                     "opschorting_en_aanhouding_mogelijk",
                     "verlenging_mogelijk",
                     "verlengingstermijn",
-                    "trefwoorden",
-                    "vertrouwelijkheidaanduiding",
-                    "producten_of_diensten",
-                    "verantwoordingsrelatie",
                 )
             },
         ),
@@ -142,7 +176,7 @@ class ZaakTypeAdmin(
             {"fields": ("referentieproces_naam", "referentieproces_link")},
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
-        (_("Relaties"), {"fields": ("catalogus",)}),
+        (_("Relaties"), {"fields": ("catalogus", "deelzaaktypen")}),
         (
             _("Geldigheid"),
             {
@@ -154,11 +188,8 @@ class ZaakTypeAdmin(
             },
         ),
     )
-    raw_id_fields = ("catalogus",)
-    readonly_fields = (
-        "versiedatum",
-        "uuid",
-    )
+    raw_id_fields = ("catalogus", "deelzaaktypen")
+    readonly_fields = ("versiedatum",)
     inlines = (
         ZaakTypenRelatieInline,
         StatusTypeInline,
@@ -219,6 +250,7 @@ class ZaakTypeAdmin(
             link_to_related_objects(RolType, obj),
             link_to_related_objects(Eigenschap, obj),
             link_to_related_objects(ResultaatType, obj),
+            link_to_related_objects(ZaakTypenRelatie, obj),
         )
 
     def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):

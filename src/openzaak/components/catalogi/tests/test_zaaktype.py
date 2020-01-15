@@ -1,6 +1,5 @@
 import uuid
 from datetime import date
-from unittest import skip
 
 from django.test import override_settings
 from django.urls import reverse as django_reverse
@@ -23,7 +22,6 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
-    ZaakObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
@@ -1265,67 +1263,6 @@ class ZaakTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
-
-
-@skip("Not in current MVP")
-class ZaakObjectTypeAPITests(APITestCase):
-    maxDiff = None
-
-    def setUp(self):
-        super().setUp()
-
-        self.zaakobjecttype = ZaakObjectTypeFactory.create(
-            is_relevant_voor__catalogus=self.catalogus
-        )
-
-        self.zaaktype = self.zaakobjecttype.is_relevant_voor
-
-        self.zaakobjecttype_list_url = reverse(
-            "zaakobjecttype-list",
-            kwargs={
-                "version": self.API_VERSION,
-                "zaaktype_uuid": self.zaaktype.uuid,
-                "catalogus_uuid": self.catalogus.uuid,
-            },
-        )
-        self.zaakobjecttype_detail_url = reverse(
-            "zaakobjecttype-detail",
-            kwargs={
-                "version": self.API_VERSION,
-                "zaaktype_uuid": self.zaaktype.uuid,
-                "catalogus_uuid": self.catalogus.uuid,
-                "uuid": self.zaakobjecttype.uuid,
-            },
-        )
-
-    def test_get_list(self):
-        response = self.client.get(self.zaakobjecttype_list_url)
-        self.assertEqual(response.status_code, 200)
-
-        data = response.json()
-
-        self.assertTrue("results" in data)
-        self.assertEqual(len(data["results"]), 1)
-
-    def test_get_detail(self):
-        response = self.client.get(self.zaakobjecttype_detail_url)
-        self.assertEqual(response.status_code, 200)
-
-        expected = {
-            "anderObject": "",
-            "einddatumObject": None,
-            "ingangsdatumObject": "2018-01-01",
-            "isRelevantVoor": "http://testserver{}".format(
-                reverse(
-                    "zaaktype-detail",
-                    args=[self.API_VERSION, self.catalogus.pk, self.zaaktype.pk],
-                )
-            ),
-            "objecttype": "",
-            "relatieOmschrijving": "",
-            "url": "http://testserver{}".format(self.zaakobjecttype_detail_url),
-        }
-        self.assertEqual(expected, response.json())
 
 
 class ZaakTypePaginationTestCase(APITestCase):

@@ -1,5 +1,3 @@
-import uuid
-
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -12,49 +10,18 @@ from openzaak.utils.tests import AdminTestMixin
 from ..factories import ZaakFactory
 from ..utils import get_operation_url
 
-inline_data = {
-    "status_set-TOTAL_FORMS": 3,
-    "status_set-INITIAL_FORMS": 0,
-    "status_set-MIN_NUM_FORMS": 0,
-    "status_set-MAX_NUM_FORMS": 1000,
-    "zaakobject_set-TOTAL_FORMS": 3,
-    "zaakobject_set-INITIAL_FORMS": 0,
-    "zaakobject_set-MIN_NUM_FORMS": 0,
-    "zaakobject_set-MAX_NUM_FORMS": 1000,
-    "zaakinformatieobject_set-TOTAL_FORMS": 3,
-    "zaakinformatieobject_set-INITIAL_FORMS": 0,
-    "zaakinformatieobject_set-MIN_NUM_FORMS": 0,
-    "zaakinformatieobject_set-MAX_NUM_FORMS": 1000,
-    "klantcontact_set-TOTAL_FORMS": 3,
-    "klantcontact_set-INITIAL_FORMS": 0,
-    "klantcontact_set-MIN_NUM_FORMS": 0,
-    "klantcontact_set-MAX_NUM_FORMS": 1000,
-    "zaakeigenschap_set-TOTAL_FORMS": 3,
-    "zaakeigenschap_set-INITIAL_FORMS": 0,
-    "zaakeigenschap_set-MIN_NUM_FORMS": 0,
-    "zaakeigenschap_set-MAX_NUM_FORMS": 1000,
-    "rol_set-TOTAL_FORMS": 3,
-    "rol_set-INITIAL_FORMS": 0,
-    "rol_set-MIN_NUM_FORMS": 0,
-    "rol_set-MAX_NUM_FORMS": 1000,
-    "resultaat-TOTAL_FORMS": 1,
-    "resultaat-INITIAL_FORMS": 0,
-    "resultaat-MIN_NUM_FORMS": 0,
-    "resultaat-MAX_NUM_FORMS": 1,
-    "relevante_andere_zaken-TOTAL_FORMS": 3,
-    "relevante_andere_zaken-INITIAL_FORMS": 0,
-    "relevante_andere_zaken-MIN_NUM_FORMS": 0,
-    "relevante_andere_zaken-MAX_NUM_FORMS": 1000,
-}
-
 
 class ZaakAdminTests(AdminTestMixin, WebTest):
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
         add_url = reverse("admin:zaken_zaak_add")
         data = {
-            "uuid": uuid.uuid4(),
             "_zaaktype": zaaktype.id,
             "bronorganisatie": "517439943",
             "registratiedatum": "15-11-2019",
@@ -63,12 +30,13 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
             "vertrouwelijkheidaanduiding": "openbaar",
             "archiefstatus": "nog_te_archiveren",
         }
-        data.update(inline_data)
 
-        self.client.post(add_url, data)
+        add_page = self.app.get(add_url)
+        for field, value in data.items():
+            add_page.form[field] = value
 
+        add_page.form.submit().follow()
         self.assertEqual(Zaak.objects.count(), 1)
-
         return Zaak.objects.get()
 
     def test_create_zaak(self):
@@ -99,7 +67,6 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
         data = {
-            "uuid": zaak.uuid,
             "_zaaktype": zaak.zaaktype.id,
             "bronorganisatie": "517439943",
             "registratiedatum": "15-11-2019",
@@ -108,9 +75,11 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
             "vertrouwelijkheidaanduiding": "openbaar",
             "archiefstatus": "nog_te_archiveren",
         }
-        data.update(inline_data)
+        change_page = self.app.get(change_url)
+        for field, value in data.items():
+            change_page.form[field] = value
 
-        self.client.post(change_url, data)
+        change_page.form.submit().follow()
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 

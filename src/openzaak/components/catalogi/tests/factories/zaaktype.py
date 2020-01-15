@@ -4,7 +4,7 @@ import factory
 import factory.fuzzy
 
 from ...constants import InternExtern
-from ...models import ZaakObjectType, ZaakType
+from ...models import ZaakType
 from .catalogus import CatalogusFactory
 from .relatieklassen import ZaakTypenRelatieFactory  # noqa
 
@@ -61,13 +61,3 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
         if not obj.verlenging_mogelijk:
             return None
         return timedelta(days=30)
-
-
-class ZaakObjectTypeFactory(factory.django.DjangoModelFactory):
-    is_relevant_voor = factory.SubFactory(ZaakTypeFactory)
-    datum_begin_geldigheid = factory.SelfAttribute(
-        "is_relevant_voor.datum_begin_geldigheid"
-    )
-
-    class Meta:
-        model = ZaakObjectType

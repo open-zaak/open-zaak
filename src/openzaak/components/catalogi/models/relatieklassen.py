@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from ..constants import AardRelatieChoices, ArchiefNominatieChoices, RichtingChoices
+from ..constants import AardRelatieChoices, RichtingChoices
 
 
 class ZaakTypeInformatieObjectType(models.Model):
@@ -72,68 +72,6 @@ class ZaakTypeInformatieObjectType(models.Model):
 
     def __str__(self):
         return "{} - {}".format(self.zaaktype, self.volgnummer)
-
-
-class ZaakTypeInformatieObjectTypeArchiefregime(models.Model):
-    """
-    ZAAK-INFORMATIETOBJECT-TYPE ARCHIEFREGIME
-
-    Afwijkende archiveringskenmerken van informatieobjecten van een
-    INFORMATIEOBJECTTYPE bij zaken van een ZAAKTYPE op grond van
-    resultaten van een RESULTAATTYPE bij dat ZAAKTYPE
-    """
-
-    zaak_informatieobject_type = models.ForeignKey(
-        "catalogi.ZaakTypeInformatieObjectType",
-        on_delete=models.CASCADE,
-        verbose_name=_("zaakinformatie object type"),
-    )
-    resultaattype = models.ForeignKey(
-        "catalogi.ResultaatType",
-        verbose_name=_("resultaattype"),
-        on_delete=models.CASCADE,
-    )
-
-    # TODO [KING]:  waardenverzameling 'de aanduidingen van de passages cq. klassen in de gehanteerde selectielijst.'
-    selectielijstklasse = models.CharField(
-        _("selectielijstklasse"),
-        max_length=500,
-        blank=True,
-        null=True,
-        help_text=_(
-            "Verwijzing naar de voor het ZAAKTYPEINFORMATIEOBJECTTYPE bij het RESULTAATTYPE relevante passage in de "
-            "Selectielijst Archiefbescheiden van de voor het ZAAKTYPE verantwoordelijke overheidsorganisatie."
-        ),
-    )
-    # choices  Blijvend bewaren Vernietigen
-    archiefnominatie = models.CharField(
-        _("archiefnominatie"),
-        max_length=16,
-        choices=ArchiefNominatieChoices.choices,
-        help_text=_(
-            "Aanduiding die aangeeft of informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het "
-            "ZAAKTYPE met een resultaat van het RESULTAATTYPE, blijvend moeten worden bewaard of (op termijn) "
-            "moeten worden vernietigd."
-        ),
-    )
-    archiefactietermijn = models.PositiveSmallIntegerField(
-        _("archiefactietermijn"),
-        validators=[MaxValueValidator(9999)],
-        help_text=_(
-            "De termijn waarna informatieobjecten, van het INFORMATIEOBJECTTYPE bij zaken van het ZAAKTYPE "
-            "met een resultaat van het RESULTAATTYPE, vernietigd of overgebracht (naar een archiefbewaarplaats) "
-            "moeten worden."
-        ),
-    )
-
-    class Meta:
-        # NOTE: The uniqueness is not explicitly defined in specification:
-        unique_together = ("zaak_informatieobject_type", "resultaattype")
-        verbose_name = _("Zaak-Informatieobject-Type Archiefregime")
-        verbose_name_plural = _("Zaak-Informatieobject-Type Archiefregimes")
-
-    def __str__(self):
-        return "{} - {}".format("zaak_informatieobject_type", "resultaattype")
 
 
 class ZaakTypenRelatie(models.Model):

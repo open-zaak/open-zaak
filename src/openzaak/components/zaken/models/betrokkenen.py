@@ -33,8 +33,10 @@ __all__ = [
 
 
 class AbstractRolZaakobjectRelation(models.Model):
-    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True)
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True, blank=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def clean(self):
         super().clean()
@@ -46,10 +48,15 @@ class AbstractRolZaakobjectRelation(models.Model):
 
 
 class AbstractRolZaakobjectZakelijkRechtRelation(models.Model):
-    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True)
-    zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE, null=True)
+    rol = models.OneToOneField(Rol, on_delete=models.CASCADE, null=True, blank=True)
+    zaakobject = models.OneToOneField(
+        ZaakObject, on_delete=models.CASCADE, null=True, blank=True
+    )
     zakelijk_rechtHeeft_als_gerechtigde = models.OneToOneField(
-        ZakelijkRechtHeeftAlsGerechtigde, on_delete=models.CASCADE, null=True
+        ZakelijkRechtHeeftAlsGerechtigde,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     def clean(self):
@@ -121,7 +128,8 @@ class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     geboortedatum = models.CharField(max_length=18, blank=True)
 
     class Meta:
-        verbose_name = "natuurlijk persoon"
+        verbose_name = _("natuurlijk persoon")
+        verbose_name_plural = _("natuurlijke personen")
 
 
 class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
@@ -159,7 +167,8 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     )
 
     class Meta:
-        verbose_name = "niet-natuurlijk persoon"
+        verbose_name = _("niet-natuurlijk persoon")
+        verbose_name_plural = _("niet-natuurlijke personen")
 
 
 class Vestiging(AbstractRolZaakobjectRelation):
@@ -181,7 +190,8 @@ class Vestiging(AbstractRolZaakobjectRelation):
     )
 
     class Meta:
-        verbose_name = "vestiging"
+        verbose_name = _("vestiging")
+        verbose_name_plural = _("vestigingen")
 
 
 class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
@@ -206,7 +216,8 @@ class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
     is_gehuisvest_in = models.CharField(max_length=24, blank=True)
 
     class Meta:
-        verbose_name = "organisatorische eenheid"
+        verbose_name = _("organisatorische eenheid")
+        verbose_name_plural = _("organisatorische eenheden")
 
 
 class Medewerker(AbstractRolZaakobjectRelation):
@@ -240,7 +251,8 @@ class Medewerker(AbstractRolZaakobjectRelation):
     )
 
     class Meta:
-        verbose_name = "medewerker"
+        verbose_name = _("medewerker")
+        verbose_name_plural = _("medewerkers")
 
 
 # models for nested objects
@@ -253,18 +265,21 @@ class SubVerblijfBuitenland(models.Model):
         NatuurlijkPersoon,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     nietnatuurlijkpersoon = models.OneToOneField(
         NietNatuurlijkPersoon,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     vestiging = models.OneToOneField(
         Vestiging,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name="sub_verblijf_buitenland",
     )
     lnd_landcode = models.CharField(
