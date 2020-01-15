@@ -120,7 +120,6 @@ class ZaakTypeAdmin(
         "identificatie",
         "zaaktype_omschrijving",
         "zaaktype_omschrijving_generiek",
-        "zaakcategorie",
         "doel",
         "aanleiding",
         "onderwerp",
@@ -142,18 +141,32 @@ class ZaakTypeAdmin(
                     "aanleiding",
                     "toelichting",
                     "indicatie_intern_of_extern",
+                    "trefwoorden",
+                    "vertrouwelijkheidaanduiding",
+                    "producten_of_diensten",
+                    "verantwoordingsrelatie",
+                )
+            },
+        ),
+        (
+            _("Behandeling"),
+            {
+                "fields": (
                     "handeling_initiator",
                     "onderwerp",
                     "handeling_behandelaar",
                     "doorlooptijd_behandeling",
                     "servicenorm_behandeling",
+                ),
+            },
+        ),
+        (
+            _("Opschorten/verlengen"),
+            {
+                "fields": (
                     "opschorting_en_aanhouding_mogelijk",
                     "verlenging_mogelijk",
                     "verlengingstermijn",
-                    "trefwoorden",
-                    "vertrouwelijkheidaanduiding",
-                    "producten_of_diensten",
-                    "verantwoordingsrelatie",
                 )
             },
         ),
