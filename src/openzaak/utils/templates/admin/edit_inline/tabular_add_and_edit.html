@@ -89,12 +89,12 @@
           {% url inline_admin_formset.opts.opts|admin_urlname:'add' as inline_add_url %}
             <a href="{{ inline_add_url }}?{{ inline_admin_formset.opts.fk_name }}={{ original.pk }}" target="_blank" rel="noopener noreferrer">
               {% blocktrans with model_name=inline_admin_formset.opts.verbose_name|capfirst trimmed %}
-                Voeg een {{model_name}} toe
+                Voeg een {{ model_name }} toe
               {% endblocktrans %}
             </a>
         {% else %}
           {% blocktrans with rel_model_name=inline_admin_formset.opts.verbose_name_plural|capfirst model_name=opts.model_name|capfirst trimmed %}
-            Je kan {{ rel_model_name }} toevoegen nadat dit {{ model_name }} bewaard is.
+            Je kan {{ rel_model_name }} toevoegen nadat dit/deze {{ model_name }} bewaard is.
           {% endblocktrans %}
         {% endif %}
         </td></tr>

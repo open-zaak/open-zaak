@@ -691,6 +691,8 @@ class ZaakEigenschap(models.Model):
     deze eigenschappen specifiek zijn per zaaktype, modelleren we deze eigenschappen hier niet
     specifiek. De eigenschappen worden per zaaktype in een desbetreffende zaaktypecatalogus
     gespecificeerd.
+
+    TODO: on save/submit, validate the value format against the defined eigenschap format
     """
 
     uuid = models.UUIDField(
@@ -698,17 +700,17 @@ class ZaakEigenschap(models.Model):
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
     _eigenschap_url = models.URLField(
-        _("extern eigenschap"),
+        _("externe eigenschap"),
         blank=True,
         max_length=1000,
         help_text=_(
-            "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
+            "URL-referentie naar externe EIGENSCHAP (in een andere Catalogi API)."
         ),
     )
     _eigenschap = models.ForeignKey(
         "catalogi.Eigenschap",
         on_delete=models.CASCADE,
-        help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
+        help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
         null=True,
         blank=True,
     )
@@ -729,6 +731,9 @@ class ZaakEigenschap(models.Model):
     class Meta:
         verbose_name = "zaakeigenschap"
         verbose_name_plural = "zaakeigenschappen"
+
+    def __str__(self):
+        return f"{self._naam}: {self.waarde}"
 
     def unique_representation(self):
         return f"({self.zaak.unique_representation()}) - {self._naam}"

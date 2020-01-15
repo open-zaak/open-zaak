@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from django.db import transaction
@@ -14,7 +14,9 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import CommonResourceAction
 
 
-def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
+def link_to_related_objects(
+    model: ModelBase, obj: Model, rel_field_name: Optional[str] = None
+) -> Tuple[str, str]:
     """
     Link to the admin list of ``model`` objects related to ``obj``.
 
@@ -22,16 +24,20 @@ def link_to_related_objects(model: ModelBase, obj: Model) -> Tuple[str, str]:
     be automatically derived and kept in sync when field names change.
     """
     main_model = obj._meta.model
-    relation_fields = [
-        field
-        for field in model._meta.get_fields()
-        if getattr(field, "related_model", None) is main_model
-    ]
-    # TODO: if multiple relations to the same model happen, we need to explicitly
-    # pass the field name
-    assert len(relation_fields) == 1
+    if not rel_field_name:
+        relation_fields = [
+            field
+            for field in model._meta.get_fields()
+            if getattr(field, "related_model", None) is main_model
+        ]
+        # TODO: if multiple relations to the same model happen, we need to explicitly
+        # pass the field name
+        assert len(relation_fields) == 1
+        relation_field = relation_fields[0]
+    else:
+        relation_field = model._meta.get_field(rel_field_name)
 
-    query = {f"{relation_fields[0].name}__id__exact": obj.pk}
+    query = {f"{relation_field.name}__id__exact": obj.pk}
     view_name = f"admin:{model._meta.app_label}_{model._meta.model_name}_changelist"
     changelist_url = f"{reverse(view_name)}?{urlencode(query)}"
     return (
