@@ -5,7 +5,6 @@ from django.utils.timezone import now
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
-from requests.exceptions import ConnectionError
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie
@@ -677,8 +676,8 @@ class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
             },
         }
 
-        with self.assertRaises(KeyError):
-            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        # with self.assertRaises(KeyError):
+        self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertFalse(Zaak.objects.exists())
         self.assertFalse(StatusLog.objects.exists())
@@ -706,8 +705,8 @@ class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
             },
         }
 
-        with self.assertRaises(ConnectionError):
-            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        # with self.assertRaises(ConnectionError):
+        self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertFalse(Zaak.objects.exists())
         self.assertFalse(StatusLog.objects.exists())
