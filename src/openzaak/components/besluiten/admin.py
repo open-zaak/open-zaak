@@ -17,7 +17,11 @@ class BesluitInformatieObjectAdmin(
 ):
     list_display = ("besluit", "_informatieobject", "_informatieobject_url")
     list_filter = ("besluit",)
-    search_fields = ("besluit", "_informatieobject", "_informatieobject_url")
+    search_fields = (
+        "besluit__uuid",
+        "_informatieobject__enkelvoudiginformatieobject__uuid",
+        "_informatieobject_url",
+    )
     ordering = ("besluit", "_informatieobject", "_informatieobject_url")
     raw_id_fields = ("besluit", "_informatieobject")
     viewset = (
@@ -28,6 +32,7 @@ class BesluitInformatieObjectAdmin(
 class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = BesluitInformatieObject
     fields = BesluitInformatieObjectAdmin.list_display
+    fk_name = "besluit"
 
 
 @admin.register(Besluit)
