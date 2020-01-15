@@ -31,6 +31,8 @@ Before you begin
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
 .. _`NLX`: https://nlx.io/
 
+Guides
+------
 
 .. toctree::
    :maxdepth: 1
@@ -38,5 +40,6 @@ Before you begin
    hardware
    deployment/kubernetes
    deployment/single_server
+   configuration
    performance/index
    linux

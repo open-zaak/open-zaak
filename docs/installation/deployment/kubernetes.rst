@@ -356,3 +356,9 @@ Run the ``apps.yml`` playbook using:
 .. _Kubernetes: https://kubernetes.io/
 .. _NGINX: https://www.nginx.com/
 .. _Ansible: https://www.ansible.com/
+
+Next steps
+==========
+
+To be able to work with Open Zaak, a couple of things have to be configured first,
+see :ref:`installation_configuration` for more details.

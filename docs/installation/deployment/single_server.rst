@@ -230,3 +230,9 @@ services already listening on that port.
 
 .. _docker hub: https://hub.docker.com/u/openzaak
 .. _django secret key generator: https://miniwebtool.com/django-secret-key-generator/
+
+Next steps
+==========
+
+To be able to work with Open Zaak, a couple of things have to be configured first,
+see :ref:`installation_configuration` for more details.
