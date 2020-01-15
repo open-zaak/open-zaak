@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
 from openzaak.utils.admin import (
@@ -53,9 +54,18 @@ class InformatieObjectTypeAdmin(
     PublishAdminMixin,
     admin.ModelAdmin,
 ):
-    list_display = ("omschrijving", "catalogus", "is_published")
-    list_filter = ("catalogus",)
-    search_fields = ("uuid", "omschrijving", "trefwoord", "toelichting")
+    list_display = (
+        "omschrijving",
+        "catalogus",
+        "vertrouwelijkheidaanduiding",
+        "num_zaaktypen",
+        "is_published",
+    )
+    list_filter = ("catalogus", "concept", "vertrouwelijkheidaanduiding")
+    search_fields = (
+        "uuid",
+        "omschrijving",
+    )
     ordering = ("catalogus", "omschrijving")
     raw_id_fields = ("catalogus",)
 
@@ -69,5 +79,14 @@ class InformatieObjectTypeAdmin(
     )
     inlines = (ZaakTypeInformatieObjectTypeInline,)  # zaaktypes
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(num_zaaktypen=Count("zaaktypen"))
+
     def get_object_actions(self, obj):
         return (link_to_related_objects(ZaakTypeInformatieObjectType, obj),)
+
+    def num_zaaktypen(self, obj) -> int:
+        return obj.num_zaaktypen
+
+    num_zaaktypen.short_description = _("# zaaktypen")
