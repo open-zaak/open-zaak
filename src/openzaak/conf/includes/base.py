@@ -493,4 +493,4 @@ OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
-JWT_EXPIRY = 3600
+JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
