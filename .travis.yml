@@ -44,50 +44,50 @@ before_script:
 jobs:
   include:
     # Run jobs in parallel in stage Tests
-    - stage: Tests
-      name: "Django tests"
+    - stage: "Tests"
+      name: "Unit tests"
       script:
         - python src/manage.py collectstatic --noinput --link
         - coverage run src/manage.py test src
 
-    - name: isort
+    - name: "Code imports"
       before_install: skip
       install:
         - pip install isort
       before_script: skip
       script: isort --recursive --check-only --diff .
 
-    - name: black
+    - name: "Code format"
       before_install: skip
       install:
         - pip install black
       before_script: skip
       script: black --check src
 
-    - name: flake8
+    - name: "Code style"
       before_install: skip
       install:
         - pip install flake8
       before_script: skip
       script: flake8 src
 
-    - name: Documentation build
+    - name: "Documentation build"
       install:
         - pip install pytest -r requirements/dev.txt
       before_script: skip
       script: cd docs && pytest check_sphinx.py -v --tb=auto
 
-    - name: Test docker image build
+    - name: "Docker image build"
       before_install: skip
       install: skip
       before_script: skip
       script: docker build .
 
-    - stage: Newman tests
+    - stage: "VNG API test platform"
+      name: "ZGW API tests"
       language: node_js
       node_js:
         - 8
-      name: ZGW api tests
       services:
         - docker
       before_install: skip
@@ -101,7 +101,8 @@ jobs:
         - docker-compose stop
         - docker-compose rm -f
 
-    - stage: Push Docker image(s)
+    - stage: "Publication"
+      name: "Docker image"
       if: fork = false
       before_install: skip
       install: skip
