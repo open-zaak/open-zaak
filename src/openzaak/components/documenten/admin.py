@@ -24,8 +24,14 @@ from .models import (
 @admin.register(Gebruiksrechten)
 class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("informatieobject", "startdatum", "einddatum")
-    list_filter = ("informatieobject", "startdatum", "einddatum")
-    search_fields = ("uuid", "informatieobject", "omschrijving_voorwaarden")
+    list_filter = ("startdatum", "einddatum")
+    search_fields = (
+        "uuid",
+        "informatieobject__enkelvoudiginformatieobject__uuid",
+        "informatieobject__enkelvoudiginformatieobject__identificatie",
+        "omschrijving_voorwaarden",
+    )
+    date_hierarchy = "startdatum"
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
@@ -38,7 +44,17 @@ class ObjectInformatieObjectAdmin(
     list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
     list_select_related = ("informatieobject", "_zaak", "_besluit")
-    search_fields = ("uuid", "_zaak", "_zaak_url", "_besluit", "_besluit_url")
+    search_fields = (
+        "uuid",
+        "informatieobject__enkelvoudiginformatieobject__uuid",
+        "informatieobject__enkelvoudiginformatieobject__identificatie",
+        "_zaak__uuid",
+        "_zaak__identificatie",
+        "_zaak_url",
+        "_besluit__uuid",
+        "_besluit__identificatie",
+        "_besluit_url",
+    )
     ordering = ("informatieobject",)
     raw_id_fields = ("informatieobject", "_zaak", "_besluit")
     viewset = viewsets.ObjectInformatieObject
@@ -52,6 +68,7 @@ class ObjectInformatieObjectAdmin(
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
     model = Gebruiksrechten
     fields = GebruiksrechtenAdmin.list_display
+    fk_name = "informatieobject"
 
 
 class ObjectInformatieObjectInline(
@@ -59,6 +76,7 @@ class ObjectInformatieObjectInline(
 ):
     model = ObjectInformatieObject
     fields = ObjectInformatieObjectAdmin.list_display
+    fk_name = "informatieobject"
 
     def get_object_display(self, obj):
         return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
@@ -125,7 +143,66 @@ class EnkelvoudigInformatieObjectAdmin(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
-    readonly_fields = ("uuid",)
+
+    fieldsets = (
+        (
+            _("Identificatie"),
+            {
+                "fields": (
+                    "uuid",
+                    "identificatie",
+                    "canonical",
+                    "bronorganisatie",
+                    "creatiedatum",
+                    "versie",
+                )
+            },
+        ),
+        (
+            _("Typering"),
+            {"fields": ("_informatieobjecttype_url", "_informatieobjecttype",)},
+        ),
+        (
+            _("Documentgegevens"),
+            {
+                "fields": (
+                    "vertrouwelijkheidaanduiding",
+                    "titel",
+                    "auteur",
+                    "status",
+                    "beschrijving",
+                    "formaat",
+                    "taal",
+                    "bestandsnaam",
+                    "inhoud",
+                    "link",
+                    "indicatie_gebruiksrecht",
+                )
+            },
+        ),
+        (
+            _("Verzending/ontvangst"),
+            {"fields": ("ontvangstdatum", "verzenddatum",), "classes": ("collapse",),},
+        ),
+        (
+            _("Ondertekening"),
+            {
+                "fields": ("ondertekening_soort", "ondertekening_datum",),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            _("Integriteit"),
+            {
+                "fields": (
+                    "integriteit_algoritme",
+                    "integriteit_waarde",
+                    "integriteit_datum",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+    )
 
     def _locked(self, obj) -> bool:
         return obj.locked
