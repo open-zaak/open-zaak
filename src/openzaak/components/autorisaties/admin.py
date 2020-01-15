@@ -12,6 +12,7 @@ from vng_api_common.authorizations.models import (
 )
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
+from zds_client import ClientAuth
 
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
@@ -101,7 +102,13 @@ class AutorisatieInline(admin.TabularInline):
 class CredentialsInline(admin.TabularInline):
     model = JWTSecret
     formset = BaseModelFormSet
-    fields = ("identifier", "secret")
+    fields = (
+        "identifier",
+        "secret",
+        "get_jwt",
+    )
+    readonly_fields = ("get_jwt",)
+    classes = ["client-credentials"]
     extra = 1
 
     # Disable system checks, since this model is not related at all to Applicatie
@@ -110,6 +117,19 @@ class CredentialsInline(admin.TabularInline):
 
     def get_formset(self, request, obj=None, **kwargs):
         return CredentialsFormSet
+
+    def get_jwt(self, obj):
+        if obj.identifier and obj.secret:
+            auth = ClientAuth(obj.identifier, obj.secret)
+            jwt = auth.credentials()["Authorization"]
+            return format_html(
+                '<code class="copy-action jwt" data-copy-value="{val}">{val}</code><p>{hint}</p>',
+                val=jwt,
+                hint=_("Gebruik het JWT-token nooit direct in een applicatie."),
+            )
+        return ""
+
+    get_jwt.short_description = "jwt"
 
 
 @admin.register(Applicatie)

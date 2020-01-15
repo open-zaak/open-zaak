@@ -491,3 +491,6 @@ ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 STORE_FAILED_NOTIFS = True
+
+# Expiry time in seconds for JWT
+JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
