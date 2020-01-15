@@ -62,6 +62,11 @@ click on **Beheer autorisaties** in the bottom right, which brings you to the
 On the application detail page, you can now select and copy the JSON Web Token (JWT)
 shown under **Client credentials**, which is required to make an API call.
 
+.. warning::
+   The JWT displayed here expires after a short time (1 hour by default) and should not
+   be used in real applications. Applictions should use the ``client ID`` and ``secret``
+   pair to generate JWT's on the fly.
+
 Making an API call
 ==================
 
