@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.authorizations.models import Applicatie
-from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -15,6 +14,7 @@ from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
 from .permissions import AutorisatiesAuthRequired
 from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
+from .serializers import ApplicatieSerializer
 
 logger = logging.getLogger(__name__)
 
