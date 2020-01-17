@@ -97,14 +97,14 @@ en klik vervolgens op de **Exporteren** knop onderaan de pagina. Download daarna
     :alt: Exporteren van een catalogus
 
 Om de importfunctionaliteit te demonstreren is de zojuist geëxporteerde
-catalogus verwijderd uit de OpenZaak admin. Vink hiervoor de catalogus aan bij
-de lijstweergave van Catalogi, kies de actie **Geselecteerde catalogi verwijderen** en druk op **uitvoeren**.
+catalogus verwijderd uit de OpenZaak admin. Klik hiervoor op
+de **Verwijderen** knop linksonderin de detailpagina van de catalogus.
 
 .. image:: ../assets/delete_catalogus.png
     :width: 100%
     :alt: Verwijderen van een catalogus
 
-Importeer de catalogus door op dezelfde pagina te klikken op de **Importeer catalogus**
+Importeer de catalogus door op de catalogus lijstweergave te klikken op de **Importeer catalogus**
 knop rechtsbovenin. Upload op de volgende pagine het .zip-bestand en kies
 of er voor de objecten nieuwe UUIDs gegenereerd moeten worden, of dat de bestaande
 UUIDs uit de import gebruikt moeten worden.
@@ -113,8 +113,8 @@ UUIDs uit de import gebruikt moeten worden.
     :width: 100%
     :alt: Importeren van een catalogus
 
-**LET OP**: alle Zaaktypen, Informatieobjecttypen en Besluittypen worden geïmporteerd
-als concept.
+.. warning:: **LET OP**: alle Zaaktypen, Informatieobjecttypen en Besluittypen worden geïmporteerd
+   als concept.
 
 Exporteren/importeren van een zaaktype
 ======================================
@@ -155,6 +155,6 @@ bestaande Besluittypen en Informatieobjecttypen. Aangezien het Besluittype en In
 in deze tutorial niet zijn verwijderd, wordt er hier voor gekozen om de bestaande typen
 te gebruiken. Klik tot slot op **Select** om de import uit te voeren.
 
-.. image:: ../assets/import_zaaktype_file.png
+.. image:: ../assets/select_existing_typen.png
     :width: 100%
     :alt: Zaaktype export uploaden
