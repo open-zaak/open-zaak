@@ -119,6 +119,7 @@ Execute the playbook by running:
 
 .. code-block:: shell
 
+    (env) [user@laptop]$ ansible-galaxy install -r requirements.yml
     (env) [user@laptop]$ ansible-playbook open-zaak.yml
 
 If you have your secrets Ansible vault encrypted, make sure you have either:
