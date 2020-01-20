@@ -2,6 +2,7 @@
 Test the custom admin view to manage autorisaties for an application.
 """
 
+from unittest.mock import patch
 from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
@@ -25,6 +26,14 @@ from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory, AutorisatieSpecFactory
+
+ZTC_URL = "https://ztc.com/api/v1"
+ZAAKTYPE1 = f"{ZTC_URL}/zaaktypen/1"
+ZAAKTYPE2 = f"{ZTC_URL}/zaaktypen/2"
+IOTYPE1 = f"{ZTC_URL}/informatieobjecttypen/1"
+IOTYPE2 = f"{ZTC_URL}/informatieobjecttypen/2"
+BESLUITTYPE1 = f"{ZTC_URL}/besluittypen/1"
+BESLUITTYPE2 = f"{ZTC_URL}/besluittypen/2"
 
 
 @tag("admin-autorisaties")
@@ -572,3 +581,124 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_add_autorisatie_external_zaaktypen(self, *mocks):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-externe_typen": [ZAAKTYPE1, ZAAKTYPE2],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+
+        autorisatie1, autorisatie2 = Autorisatie.objects.all()
+
+        self.assertEqual(autorisatie1.zaaktype, ZAAKTYPE1)
+        self.assertEqual(autorisatie2.zaaktype, ZAAKTYPE2)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_add_autorisatie_external_iotypen(self, *mocks):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["documenten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-externe_typen": [IOTYPE1, IOTYPE2],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+
+        autorisatie1, autorisatie2 = Autorisatie.objects.all()
+
+        self.assertEqual(autorisatie1.informatieobjecttype, IOTYPE1)
+        self.assertEqual(autorisatie2.informatieobjecttype, IOTYPE2)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_add_autorisatie_external_besluittypen(self, *mocks):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-externe_typen": [BESLUITTYPE1, BESLUITTYPE2],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+
+        autorisatie1, autorisatie2 = Autorisatie.objects.all()
+
+        self.assertEqual(autorisatie1.besluittype, BESLUITTYPE1)
+        self.assertEqual(autorisatie2.besluittype, BESLUITTYPE2)
+
+    def test_add_autorisatie_external_zaaktype_invalid_url(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-externe_typen": ["badurl"],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
+    def test_add_autorisatie_external_zaaktype_invalid_resource(self, *mocks):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-externe_typen": ["https://example.com"],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Autorisatie.objects.count(), 0)
