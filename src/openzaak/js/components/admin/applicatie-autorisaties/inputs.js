@@ -39,5 +39,19 @@ const CheckboxInput = (props) => {
     return <Input type="checkbox" {...props} />;
 }
 
+const TextInput = (props) => {
+    const { id, name, initial } = props;
+    const [value, setValue] = useState(initial || "")
 
-export { CheckboxInput, RadioInput };
+    return (
+        <input
+            type="text"
+            name={name}
+            id={id}
+            onChange={ (event) => setValue(event.text)}
+            defaultValue={value}
+        ></input>
+    );
+}
+
+export { CheckboxInput, RadioInput, TextInput };

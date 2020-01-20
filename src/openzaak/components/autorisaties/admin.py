@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -50,13 +51,20 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            zaaktype = get_related_object(obj)
+            try:
+                zaaktype = get_related_object(obj)
+                admin_url = reverse(
+                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
+                )
+                zt_repr = str(zaaktype)
+            except ObjectDoesNotExist:
+                admin_url = obj.informatieobjecttype
+                zt_repr = f"{obj.zaaktype} (EXTERN)"
+
             return format_html(
                 template,
-                admin_url=reverse(
-                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
-                ),
-                zt_repr=str(zaaktype),
+                admin_url=admin_url,
+                zt_repr=zt_repr,
                 va=obj.get_max_vertrouwelijkheidaanduiding_display(),
             )
 
@@ -68,14 +76,21 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            informatieobjecttype = get_related_object(obj)
-            return format_html(
-                template,
-                admin_url=reverse(
+            try:
+                informatieobjecttype = get_related_object(obj)
+                admin_url = reverse(
                     "admin:catalogi_informatieobjecttype_change",
                     kwargs={"object_id": informatieobjecttype.pk},
-                ),
-                iot_repr=str(informatieobjecttype),
+                )
+                iot_repr = str(informatieobjecttype)
+            except ObjectDoesNotExist:
+                admin_url = obj.informatieobjecttype
+                iot_repr = f"{obj.informatieobjecttype} (EXTERN)"
+
+            return format_html(
+                template,
+                admin_url=admin_url,
+                iot_repr=iot_repr,
                 va=obj.get_max_vertrouwelijkheidaanduiding_display(),
             )
 
@@ -84,15 +99,18 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Besluittype</strong>: "
                 '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
             )
-            besluittype = get_related_object(obj)
-            return format_html(
-                template,
-                admin_url=reverse(
+            try:
+                besluittype = get_related_object(obj)
+                admin_url = reverse(
                     "admin:catalogi_besluittype_change",
                     kwargs={"object_id": besluittype.pk},
-                ),
-                bt_repr=str(besluittype),
-            )
+                )
+                bt_repr = str(besluittype)
+            except ObjectDoesNotExist:
+                admin_url = obj.informatieobjecttype
+                bt_repr = f"{obj.besluittype} (EXTERN)"
+
+            return format_html(template, admin_url=admin_url, bt_repr=bt_repr,)
 
         return ""
 

@@ -58,4 +58,16 @@ $color-row-background: #f9f9f9 !default;
   & &__va-selection {
   }
 
+  div.external-type ul {
+    padding: 0;
+
+    li {
+      list-style: none;
+    }
+  }
+
+  button.add-array-item {
+    margin: 0;
+    border: none;
+  }
 }

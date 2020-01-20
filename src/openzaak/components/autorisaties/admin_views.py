@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
 from django import forms
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
@@ -20,6 +20,7 @@ from openzaak.components.catalogi.models import (
 from .admin_serializers import CatalogusSerializer
 from .constants import RelatedTypeSelectionMethods
 from .forms import (
+    COMPONENT_TO_FIELDS_MAP,
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
     VertrouwelijkheidsAanduiding,
@@ -57,9 +58,19 @@ def get_initial_for_component(
     if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
         return []
 
-    _related_objs = {
-        autorisatie.pk: get_related_object(autorisatie) for autorisatie in autorisaties
-    }
+    _related_objs = {}
+    _related_objs_external = []
+
+    internal_autorisaties = []
+    for autorisatie in autorisaties:
+        try:
+            obj = get_related_object(autorisatie)
+            _related_objs[autorisatie.pk] = obj
+            internal_autorisaties.append(autorisatie)
+        except ObjectDoesNotExist:
+            type_field = COMPONENT_TO_FIELDS_MAP[component]["_autorisatie_type_field"]
+            _related_objs_external.append(getattr(autorisatie, type_field))
+
     related_objs = {pk: obj.id for pk, obj in _related_objs.items() if obj is not None}
 
     initial = []
@@ -67,14 +78,16 @@ def get_initial_for_component(
     if component == ComponentTypes.zrc:
         zaaktype_ids = set(ZaakType.objects.values_list("id", flat=True))
 
+        _initial = {"externe_typen": _related_objs_external}
+
         grouped_by_va = defaultdict(list)
-        for autorisatie in autorisaties:
+        for autorisatie in internal_autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
 
         for va, _autorisaties in grouped_by_va.items():
-            _initial = {"vertrouwelijkheidaanduiding": va}
+            _initial["vertrouwelijkheidaanduiding"] = va
             relevant_ids = {
                 related_objs[autorisatie.pk] for autorisatie in _autorisaties
             }
@@ -101,14 +114,16 @@ def get_initial_for_component(
             InformatieObjectType.objects.values_list("id", flat=True)
         )
 
+        _initial = {"externe_typen": _related_objs_external}
+
         grouped_by_va = defaultdict(list)
-        for autorisatie in autorisaties:
+        for autorisatie in internal_autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
 
         for va, _autorisaties in grouped_by_va.items():
-            _initial = {"vertrouwelijkheidaanduiding": va}
+            _initial["vertrouwelijkheidaanduiding"] = va
             relevant_ids = {
                 related_objs[autorisatie.pk] for autorisatie in _autorisaties
             }
@@ -134,7 +149,7 @@ def get_initial_for_component(
         besluittype_ids = set(BesluitType.objects.values_list("id", flat=True))
         relevant_ids = set(related_objs.values())
 
-        _initial = {}
+        _initial = {"externe_typen": _related_objs_external}
         if spec:
             _initial[
                 "related_type_selection"
