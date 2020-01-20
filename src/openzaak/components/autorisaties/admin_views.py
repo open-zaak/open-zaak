@@ -55,9 +55,6 @@ def get_initial_for_component(
     autorisaties: List[Autorisatie],
     spec: Optional[AutorisatieSpec] = None,
 ) -> List[Dict[str, Any]]:
-    if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
-        return []
-
     _related_objs = {}
     _related_objs_external = []
 
@@ -79,6 +76,10 @@ def get_initial_for_component(
         zaaktype_ids = set(ZaakType.objects.values_list("id", flat=True))
 
         _initial = {"externe_typen": _related_objs_external}
+        if _related_objs_external:
+            _initial[
+                "related_type_selection"
+            ] = RelatedTypeSelectionMethods.manual_select
 
         grouped_by_va = defaultdict(list)
         for autorisatie in internal_autorisaties:
@@ -107,7 +108,7 @@ def get_initial_for_component(
                         "zaaktypen": relevant_ids,
                     }
                 )
-            initial.append(_initial)
+        initial.append(_initial)
 
     elif component == ComponentTypes.drc:
         informatieobjecttype_ids = set(
@@ -115,6 +116,10 @@ def get_initial_for_component(
         )
 
         _initial = {"externe_typen": _related_objs_external}
+        if _related_objs_external:
+            _initial[
+                "related_type_selection"
+            ] = RelatedTypeSelectionMethods.manual_select
 
         grouped_by_va = defaultdict(list)
         for autorisatie in internal_autorisaties:
@@ -143,13 +148,18 @@ def get_initial_for_component(
                         "informatieobjecttypen": relevant_ids,
                     }
                 )
-            initial.append(_initial)
+        initial.append(_initial)
 
     elif component == ComponentTypes.brc:
         besluittype_ids = set(BesluitType.objects.values_list("id", flat=True))
         relevant_ids = set(related_objs.values())
 
         _initial = {"externe_typen": _related_objs_external}
+        if _related_objs_external:
+            _initial[
+                "related_type_selection"
+            ] = RelatedTypeSelectionMethods.manual_select
+
         if spec:
             _initial[
                 "related_type_selection"
@@ -164,6 +174,9 @@ def get_initial_for_component(
                 }
             )
         initial.append(_initial)
+    else:
+        # The other components do not have any extra options
+        initial.append({})
 
     return initial
 
@@ -196,7 +209,6 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
         component_initial = get_initial_for_component(
             component, _autorisaties, autorisatie_specs.get(component),
         )
-
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}
             for _initial in component_initial
