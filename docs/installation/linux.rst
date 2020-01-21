@@ -277,7 +277,7 @@ Run
     [app@linux production](env)$ python src/manage.py createsuperuser
 
 and follow the prompts. You can log in with this user on
-``https://openzaak.gemeente.nl/admin/`` after completing the deployment.
+``https://open-zaak.gemeente.nl/admin/`` after completing the deployment.
 
 **Running the backend server**
 
