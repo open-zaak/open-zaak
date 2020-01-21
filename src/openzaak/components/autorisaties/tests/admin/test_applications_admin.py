@@ -94,3 +94,25 @@ class ApplicationsTests(WebTest):
         credential = JWTSecret.objects.get()
         self.assertEqual(credential.identifier, "baz")
         self.assertEqual(credential.secret, "quux")
+
+    def test_create_applicatie_inline_credentials_without_secret(self):
+        url = reverse("admin:authorizations_applicatie_add")
+
+        response = self.app.get(url)
+
+        form = response.form
+        form["label"] = "foo"
+
+        form["credentials-0-identifier"] = "foo"
+
+        form.submit().follow()
+
+        self.assertEqual(JWTSecret.objects.count(), 1)
+        self.assertEqual(Applicatie.objects.count(), 1)
+
+        applicatie = Applicatie.objects.get()
+        credential = JWTSecret.objects.get()
+
+        self.assertEqual(applicatie.client_ids, ["foo"])
+        self.assertEqual(credential.identifier, "foo")
+        self.assertEqual(credential.secret, "")

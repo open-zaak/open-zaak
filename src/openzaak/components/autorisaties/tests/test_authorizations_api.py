@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.utils.tests import JWTAuthMixin
@@ -267,6 +268,27 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "clientIds")
         self.assertEqual(error["code"], UniqueClientIDValidator.code)
 
+    def test_create_with_client_id_not_in_jwtsecret(self):
+        """
+        Test the creation of JWTSecret missing object
+        """
+        url = get_operation_url("applicatie_create")
+        JWTSecret.objects.create(identifier="id1", secret="secret1")
+        data = {
+            "client_ids": ["id1", "id2"],
+            "label": "Melding Openbare Ruimte consumer",
+            "heeftAlleAutorisaties": True,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(JWTSecret.objects.filter(identifier="id2").exists(), True)
+
+        credential = JWTSecret.objects.get(identifier="id2")
+
+        self.assertEqual(credential.secret, "")
+
 
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
@@ -407,3 +429,23 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "ambiguous-authorizations-specified")
+
+    def test_update_with_client_id_not_in_jwtsecret(self):
+        """
+        Test the creation of JWTSecret missing object
+        """
+        self.applicatie.client_ids = ["id1"]
+        self.applicatie.save()
+
+        url = get_operation_url("applicatie_partial_update", uuid=self.applicatie.uuid)
+        JWTSecret.objects.create(identifier="id1", secret="secret1")
+        data = {"client_ids": ["id1", "id2"]}
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(JWTSecret.objects.filter(identifier="id2").exists(), True)
+
+        credential = JWTSecret.objects.get(identifier="id2")
+
+        self.assertEqual(credential.secret, "")

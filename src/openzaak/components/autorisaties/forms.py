@@ -55,6 +55,10 @@ class CredentialsBaseFormSet(forms.BaseModelFormSet):
 
         super().__init__(*args, **kwargs)
 
+        # add default value for secret = ''
+        self.form.base_fields["secret"].required = False
+        self.form.base_fields["secret"].initial = ""
+
     @classmethod
     def get_default_prefix(cls):
         return "credentials"
