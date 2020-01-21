@@ -122,18 +122,40 @@ Execute the playbook by running:
     (env) [user@laptop]$ ansible-galaxy install -r requirements.yml
     (env) [user@laptop]$ ansible-playbook open-zaak.yml
 
-If you have your secrets Ansible vault encrypted, make sure you have either:
+.. hint::
 
-* set the ``ANSIBLE_VAULT_PASSWORD_FILE`` environment variable or
-* use the ``--ask-vault-pass`` flag.
+   * If you have your secrets Ansible vault encrypted, make sure you have either:
 
-If you need to override any deployment variables (see
-:ref:`containers_config_params`), you can do this with the syntax
-``-e "some_var=some_value other_var=other_value"``. For example:
+     * set the ``ANSIBLE_VAULT_PASSWORD_FILE`` environment variable, or
+     * pass ``--ask-vault-pass`` flag to ``ansible-playbook``.
+
+   * If you need to override any deployment variables (see
+     :ref:`containers_config_params`), you can pass variables to
+     ``ansible-playbook`` using the syntax:
+     ``--extra-vars "some_var=some_value other_var=other_value"``.
+
+   * If you want to run the deployment from the same machine as where it will
+     run (ie. install to itself), you can pass ``--connection local`` to
+     ``ansible-playbook``.
+
+   * If you cannot connect as ``root`` to the target machine, you can pass
+     ``--user <user> --become --become-method=sudo --ask-become-pass`` which
+     will connect as user ``<user>`` that needs ``sudo``-rights on the target
+     machine to install the requirements.
+
+A full example might look like this:
 
 .. code-block:: shell
 
-    (env) [user@laptop]$ ansible-playbook open-zaak.yml -e "certbot_create_if_missing=false"
+    (env) [user@laptop]$ ansible-playbook open-zaak.yml \
+        --user admin
+        --inventory my-hosts \  # Use inventory file ``my-hosts`` instead of ``hosts``.
+        --limit open-zaak.gemeente.nl \  # Only pick open-zaak.gemeente.nl from the inventory file.
+        --extra-vars "certbot_create_if_missing=false app_db_name=openzaak-test app_db_user=openzaak-test" \
+        --connection local \
+        --become \
+        --become-method=sudo \
+        --ask-become-pass
 
 .. note:: You can run the deployment multiple times, it will not affect the final
    outcome. If you decide to change configuration parameters, you do not have
@@ -149,23 +171,23 @@ configuration is stored in the database and is only needed once.
 
 A superuser allows you to perform all administrative tasks.
 
-Log in to the server:
+1. Log in to the server:
 
-.. code-block:: shell
+   .. code-block:: shell
 
-    [user@laptop]$ ssh root@open-zaak.gemeente.nl
+       [user@laptop]$ ssh root@open-zaak.gemeente.nl
 
-Create the superuser (interactive on the shell). Note that the password you
-type in will not be visible - not even with asterisks. This is normal.
+2. Create the superuser (interactive on the shell). Note that the password you
+   type in will not be visible - not even with asterisks. This is normal.
 
-.. code-block:: shell
+   .. code-block:: shell
 
-    [root@open-zaak.gemeente.nl]# docker exec -it openzaak-0 src/manage.py createsuperuser
-    Gebruikersnaam: demo
-    E-mailadres: admin@open-zaak.gemeente.nl
-    Password:
-    Password (again):
-    Superuser created successfully.
+       [root@open-zaak.gemeente.nl]# docker exec -it openzaak-0 src/manage.py createsuperuser
+       Gebruikersnaam: demo
+       E-mailadres: admin@open-zaak.gemeente.nl
+       Password:
+       Password (again):
+       Superuser created successfully.
 
 **Configure Open Zaak Admin**
 
