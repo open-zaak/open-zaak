@@ -23,5 +23,6 @@ deployment procedure. See the [VM Readme](./vm/README.md)
 Run the Ansible playbook:
 
 ```shell
+[user@host]$ ansible-galaxy install -r requirements.yml
 [user@host]$ ansible-playbook open-zaak.yml --ask-vault-pass
 ```

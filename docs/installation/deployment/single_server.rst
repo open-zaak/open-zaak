@@ -74,7 +74,7 @@ Deployment is done with an Ansible playbook, performing the following steps:
 
 1. Install and configure PostgreSQL database server
 2. Install the Docker runtime
-3. Install the SSL certificate with Letsencrypt
+3. Install the SSL certificate with Let's Encrypt
 4. Setup Open Zaak with Docker
 5. Install and configure nginx as reverse proxy
 
@@ -104,7 +104,7 @@ Configure the host by creating the ``hosts`` file from the example:
 
     (env) [user@laptop]$ cp hosts.example hosts
 
-Edit the ``openzaak.gemeente.nl`` to point to your actual domain name. You must
+Edit the ``open-zaak.gemeente.nl`` to point to your actual domain name. You must
 make sure that the DNS entry for this domain points to the IP address of your
 server.
 
@@ -119,6 +119,7 @@ Execute the playbook by running:
 
 .. code-block:: shell
 
+    (env) [user@laptop]$ ansible-galaxy install -r requirements.yml
     (env) [user@laptop]$ ansible-playbook open-zaak.yml
 
 If you have your secrets Ansible vault encrypted, make sure you have either:
@@ -152,23 +153,23 @@ Log in to the server:
 
 .. code-block:: shell
 
-    [user@laptop]$ ssh root@openzaak.gemeente.nl
+    [user@laptop]$ ssh root@open-zaak.gemeente.nl
 
 Create the superuser (interactive on the shell). Note that the password you
 type in will not be visible - not even with asterisks. This is normal.
 
 .. code-block:: shell
 
-    [root@openzaak.gemeente.nl]# docker exec -it openzaak-0 src/manage.py createsuperuser
+    [root@open-zaak.gemeente.nl]# docker exec -it openzaak-0 src/manage.py createsuperuser
     Gebruikersnaam: demo
-    E-mailadres: admin@openzaak.gemeente.nl
+    E-mailadres: admin@open-zaak.gemeente.nl
     Password:
     Password (again):
     Superuser created successfully.
 
 **Configure Open Zaak Admin**
 
-1. Open ``https://openzaak.gemeente.nl/admin/`` in your favourite browser and log
+1. Open ``https://open-zaak.gemeente.nl/admin/`` in your favourite browser and log
    in with your superuser account.
 
 2. Navigate to **Configuratie** > **Websites** and edit ``example.com``. Fill in
@@ -193,9 +194,9 @@ overriding variables. You can override variables on the command line (using the
 Generic variables
 -----------------
 
-* ``certbot_admin_email``: e-mail address to use to accept the Letsencrypt
+* ``certbot_admin_email``: e-mail address to use to accept the Let's Encrypt
   terms and conditions.
-* ``certbot_create_if_missing``: whether to use Letsencrypt to create an SSL
+* ``certbot_create_if_missing``: whether to use Let's Encrypt to create an SSL
   certificate for your domain. Set to ``false`` if you want to use an existing
   certificate.
 

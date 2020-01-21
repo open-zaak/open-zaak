@@ -8,7 +8,7 @@ De algemene onderwerpen beschrijven acties voor medewerkers met toegang tot de
 beheerinterface van Open Zaak (hierna *de admin* genoemd).
 
 In deze handleiding nemen we aan dat Open Zaak geïnstalleerd is en beschikbaar
-op het adres https://openzaak.gemeente.nl.
+op het adres https://open-zaak.gemeente.nl.
 
 .. _manual_login:
 
@@ -16,7 +16,7 @@ Inloggen
 ========
 
 Om in te loggen in de admin kan je navigeren naar de startpagina
-https://openzaak.gemeente.nl. Klik vervolgens op **Beheer**:
+https://open-zaak.gemeente.nl. Klik vervolgens op **Beheer**:
 
 .. image:: assets/startpagina.png
     :width: 100%
