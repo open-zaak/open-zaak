@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -5,7 +6,6 @@ from django.utils.timezone import now
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
-from requests.exceptions import ConnectionError as RequestsConnectionError
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie
@@ -654,6 +654,20 @@ class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
 
         super().setUp()
 
+        # In dev mode, the exception handler checks if it needs to transform the
+        # exception into a 500 response, or raise it so it can be debugged/is obvious
+        # there is a bug. This however breaks tests relying on the exception-catching.
+        # The behaviour is in :func:`vng_api_common.views.exception_handler` - and can
+        # be enabled/disabled with an envvar. Here, we enforce production-mode responses.
+        if "DEBUG" in os.environ:
+            prev_debug_value = os.environ["DEBUG"]
+
+            def _reset_debug():
+                os.environ["DEBUG"] = prev_debug_value
+
+            os.environ["DEBUG"] = "no"
+            self.addCleanup(_reset_debug)
+
     def test_invalid_notification_config_create(self):
         conf = NotificationsConfig.get_solo()
         conf.api_root = "bla"
@@ -677,9 +691,9 @@ class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
             },
         }
 
-        with self.assertRaises(KeyError):
-            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(Zaak.objects.exists())
         self.assertFalse(StatusLog.objects.exists())
 
@@ -706,8 +720,8 @@ class InvalidNotifConfigTests(JWTAuthMixin, APITransactionTestCase):
             },
         }
 
-        with self.assertRaises(RequestsConnectionError):
-            self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(Zaak.objects.exists())
         self.assertFalse(StatusLog.objects.exists())
