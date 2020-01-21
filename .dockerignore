@@ -5,5 +5,8 @@ docker-compose*
 .git
 .vscode
 env/
+private-media/
+media/
+log/
 .env
 includes/local.py
