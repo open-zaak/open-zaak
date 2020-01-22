@@ -9,7 +9,6 @@
     needs_nfs: yes
 
   vars_files:
-    - vars/maykin.yml
     - vars/db_credentials.yml
     - vars/openzaak.yml
     - vars/opennotificaties.yml

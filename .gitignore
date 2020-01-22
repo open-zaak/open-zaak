@@ -34,3 +34,8 @@ src/openzaak/conf/includes/local.py
 /log/nginx/*.log*
 .env
 /private-media/
+
+# Ansible secrets
+deployment/single-server/vars/secrets.yml
+deployment/kubernetes/vars/*
+!deployment/kubernetes/vars/*example*

@@ -1,0 +1,8 @@
+---
+# Overrides of role defaults
+opennotificaties_secret_key: 'SOME-RANDOM-SECRET'
+opennotificaties_db_name: opennotificaties-test
+opennotificaties_db_host: "{{ db.host }}"
+opennotificaties_db_port: "{{ db.port }}"
+opennotificaties_db_username: opennotificaties-test
+opennotificaties_db_password: SUPER-SECRET

@@ -344,6 +344,16 @@ To deploy Open Notificaties, some variables need to be set (in ``vars/opennotifi
 See ``roles/opennotificaties/defaults/main.yml`` for other possible variables to
 override.
 
+Configuring NLX
+^^^^^^^^^^^^^^^
+
+If you want to use NLX, you need to create NLX certificate. See https://docs.nlx.io/try-nlx/retrieve-a-demo-certificate.
+The key and certificate need to be set in ``vars/nlx.yml``:
+
+* ``nlx_inway_key``: private key
+* ``nlx_inway_cert``: certificate
+
+
 Deploying the applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
