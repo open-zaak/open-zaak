@@ -91,6 +91,9 @@ on Docker, since `localhost` is contained within the container:
 * `JWT_EXPIRY`: duration a JWT is considered to be valid, in seconds. Defaults to 3600 -
   1 hour.
 
+* `LOG_STDOUT`: whether to log to stdout or not. For Docker environments, defaults to
+  `True`, for other environments the default is to log to file.
+
 ## Specifying the environment variables
 
 There are two strategies to specify the environment variables:

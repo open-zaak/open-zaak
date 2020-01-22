@@ -20,13 +20,24 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Production logging facility.
-root_handler = "sentry" if "sentry" in LOGGING["handlers"] else "project"
+root_handlers, django_handlers = [], []
+
+if "sentry" in LOGGING["handlers"]:
+    root_handlers.append("sentry")
+
+if LOG_STDOUT:
+    root_handlers.append("console")
+    django_handlers.append("console")
+else:
+    root_handlers.append("project")
+    django_handlers.append("django")
+
 LOGGING["loggers"].update(
     {
-        "": {"handlers": [root_handler], "level": "ERROR", "propagate": False},
-        "django": {"handlers": ["django"], "level": "INFO", "propagate": True},
+        "": {"handlers": root_handlers, "level": "ERROR", "propagate": False},
+        "django": {"handlers": django_handlers, "level": "INFO", "propagate": True},
         "django.security.DisallowedHost": {
-            "handlers": ["django"],
+            "handlers": django_handlers,
             "level": "CRITICAL",
             "propagate": False,
         },
