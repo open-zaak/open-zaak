@@ -7,7 +7,7 @@ Open Zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
 
-|build-status| |coverage| |black| |docker|
+|build-status| |docs| |coverage| |black| |docker|
 
 API's voor Zaakgericht werken
 
@@ -75,6 +75,11 @@ Licensed under the EUPL_
 .. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
     :alt: Build status
     :target: https://travis-ci.org/open-zaak/open-zaak
+
+
+.. |docs| image:: https://readthedocs.org/projects/open-zaak/badge/?version=latest
+    :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/master/graphs/badge.svg?branch=master
     :alt: Coverage
