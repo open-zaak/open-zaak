@@ -3,8 +3,5 @@
 - name: Configure nginx ingress for performance testing
   hosts: localhost
 
-  vars_files:
-    - vars/ingress-nginx.yml
-
   tasks:
     - import_tasks: tasks/ingress-nginx.yml
