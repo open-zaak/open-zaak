@@ -257,5 +257,8 @@ services already listening on that port.
 Next steps
 ==========
 
+You may want to :ref:`customize the logging setup<installation_logging_customize>`. The
+default setup should be sufficient to get started though.
+
 To be able to work with Open Zaak, a couple of things have to be configured first,
 see :ref:`installation_configuration` for more details.
