@@ -1,0 +1,10 @@
+// overrides for Django's default errorlist styling
+.errorlist {
+  @at-root .autorisatie-form & {
+    background: transparent;
+  }
+
+  @at-root .type-options & {
+    padding-left: 18px;
+  }
+}
