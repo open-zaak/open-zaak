@@ -40,6 +40,8 @@ ssh to the machine as ``root`` user. If that's not the case, a user with
 are officially supported operating systems, though it is likely the
 installation also works on Ubuntu. CentOS/RedHat *might* work.
 
+.. _deployment_containers_tooling:
+
 A copy of the deployment configuration
 --------------------------------------
 
@@ -66,6 +68,7 @@ dependencies:
 .. code-block:: shell
 
     (env) [user@laptop]$ pip install -r deployment/requirements.txt
+    (env) [user@laptop]$ ansible-galaxy install -r requirements.yml
 
 Deployment
 ==========
@@ -112,6 +115,8 @@ server.
    will be generated for this domain and only this domain will be whitelisted
    by Open Zaak!
 
+.. _deployment_containers_playbook:
+
 Running the deployment
 ----------------------
 
@@ -119,7 +124,6 @@ Execute the playbook by running:
 
 .. code-block:: shell
 
-    (env) [user@laptop]$ ansible-galaxy install -r requirements.yml
     (env) [user@laptop]$ ansible-playbook open-zaak.yml
 
 .. hint::
@@ -191,16 +195,8 @@ A superuser allows you to perform all administrative tasks.
 
 **Configure Open Zaak Admin**
 
-1. Open ``https://open-zaak.gemeente.nl/admin/`` in your favourite browser and log
-   in with your superuser account.
-
-2. Navigate to **Configuratie** > **Websites** and edit ``example.com``. Fill in
-   your actual domain.
-
-3. Navigate to **Configuratie** > **Notificatiescomponentconfiguratie** and
-   specify the correct Notificaties API url.
-
-4. Configure the credentials via **API autorisaties**.
+See the :ref:`installation_configuration` on how to configure Open Zaak
+post-installation.
 
 .. _containers_config_params:
 
@@ -262,3 +258,47 @@ default setup should be sufficient to get started though.
 
 To be able to work with Open Zaak, a couple of things have to be configured first,
 see :ref:`installation_configuration` for more details.
+
+.. _deployment_containers_updating:
+
+Updating an Open Zaak installation
+==================================
+
+Make sure you have the deployment tooling installed - see
+:ref:`the installation steps<deployment_containers_tooling>` for more details.
+
+If you have an existing environment (from the installation), make sure to update it:
+
+.. code-block:: shell
+
+    # fetch the updates from Github
+    [user@host]$ git fetch origin
+
+    # checkout the tag of the version you wish to update to, e.g. 1.0.0
+    [user@host]$ git checkout X.Y.z
+
+    # activate the virtualenv
+    [user@host]$ source env/bin/activate
+
+    # ensure all (correct versions of the) dependencies are installed
+    (env) [user@host]$ pip install -r requirements.txt
+    (env) [user@host]$ ansible-galaxy install -r requirements.yml
+
+Open Zaak deployment code defines variables to specify the Docker image tag to use. This
+is synchronized with the git tag you're checking out.
+
+.. warning::
+    Make sure you are aware of possible breaking changes or manual interventions by
+    reading the :ref:`development_changelog`!
+
+Next, to perform the upgrade, you run the ``open-zaak.yml`` playbook just like with the
+installation in :ref:`deployment_containers_playbook`:
+
+.. code-block:: shell
+
+    (env) [user@laptop]$ ansible-playbook open-zaak.yml
+
+.. note::
+    This will instruct the docker containers to restart using a new image. You may
+    notice some brief downtime (order of seconds to minutes) while the new image is
+    being downloaded and containers are being restarted.

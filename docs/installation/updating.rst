@@ -15,6 +15,11 @@ interventions.
     We always recommend you to have taken and tested your backups in case something
     goes wrong, BEFORE performing any updates.
 
+.. note::
+    We encourage having multiple environments such as staging and production, completely
+    isolated from each other. This allows you to test out the update on a staging
+    environment to check if anything goes wrong, without affecting production.
+
 The update instructions are split per target environment.
 
 Updating on Kubernetes
@@ -25,4 +30,5 @@ See :ref:`deployment_kubernetes_updating` for the update instructions on Kuberne
 Updating a single server installation
 -------------------------------------
 
-TODO
+See the steps on how to
+:ref:`update a single server installation<deployment_containers_updating>`.
