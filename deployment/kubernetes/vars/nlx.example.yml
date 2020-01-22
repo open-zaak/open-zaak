@@ -1,0 +1,9 @@
+nlx_inway_key: |
+  -----BEGIN PRIVATE KEY-----
+  [...]
+  -----END PRIVATE KEY-----
+
+nlx_inway_cert: |
+  -----BEGIN CERTIFICATE-----
+  [...]
+  -----END CERTIFICATE-----
