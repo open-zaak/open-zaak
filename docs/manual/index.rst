@@ -18,4 +18,3 @@ directly in the management interface.
    catalogi/index
    users
    api-authorizations
-   logging

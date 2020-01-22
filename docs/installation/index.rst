@@ -41,5 +41,6 @@ Guides
    deployment/kubernetes
    deployment/single_server
    configuration
+   logging
    performance/index
    linux

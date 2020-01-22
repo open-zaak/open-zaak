@@ -217,6 +217,8 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 #
 # LOGGING
 #
+LOG_STDOUT = config("LOG_STDOUT", default=False)
+
 LOGGING_DIR = os.path.join(BASE_DIR, "log")
 
 LOGGING = {
@@ -287,21 +289,32 @@ LOGGING = {
         },
     },
     "loggers": {
-        "openzaak": {"handlers": ["project"], "level": "INFO", "propagate": True},
+        "openzaak": {
+            "handlers": ["project"] if not LOG_STDOUT else ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "openzaak.utils.middleware": {
-            "handlers": ["requests"],
+            "handlers": ["requests"] if not LOG_STDOUT else ["console"],
             "level": "DEBUG",
             "propagate": False,
         },
         "vng_api_common": {"handlers": ["console"], "level": "INFO", "propagate": True},
-        "django.request": {"handlers": ["django"], "level": "ERROR", "propagate": True},
+        "django.request": {
+            "handlers": ["django"] if not LOG_STDOUT else ["console"],
+            "level": "ERROR",
+            "propagate": True,
+        },
         "django.template": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "vng_api_common.notifications.viewsets": {
-            "handlers": ["failed_notification", "project"],
+            "handlers": [
+                "failed_notification",  # always log this to the database!
+                "project" if not LOG_STDOUT else "console",
+            ],
             "level": "WARNING",
             "propagate": True,
         },
