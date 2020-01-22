@@ -30,7 +30,7 @@ SWAGGER_SETTINGS.update(
             "vng_api_common.inspectors.geojson.GeometryFieldInspector",
             "vng_api_common.inspectors.files.FileFieldInspector",
             "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
-            "openzaak.utils.inspectors.LooseFkFieldInspector",
+            "django_loose_fk.inspectors.fields.LooseFkFieldInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
         "DEFAULT_FILTER_INSPECTORS": (
