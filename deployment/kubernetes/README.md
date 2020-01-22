@@ -43,6 +43,13 @@ You need:
   port `5432`)
 * see `vars/db_credentials.example.yml` - save this file as
   `vars/db_credentials.yml` and modify with your own credentials.
+* create credentials for Open Zaak database and save them to the file
+  `vars/openzaak.yml`. You can use `vars/openzaak.example.yml` as an example.
+* create credentials for Open Notificaties database and save them to the file
+  `vars/opennotificaties.yml`. You can use `vars/opennotificaties.example.yml`
+  as an example.
+* if you use NLX save NLX inway key and certificate to the file `vars/nlx.yml`.
+  You can use `vars/nlx.example.yml` as an example.
 
 **Persistent storage**
 

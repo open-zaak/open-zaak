@@ -19,6 +19,12 @@ You can spin up a Debian 'VM' if you don't have a VPS/DDS (yet) to test the
 deployment procedure. See the [VM Readme](./vm/README.md)
 
 ## Deploying
+Add secrets to the `vars/secrets.yml` encrypted with Ansible-vault.
+You can use `vars/secrets.yml.example` as an example of the content.
+
+```shell
+[user@host]$ ansible-vault create vars/secrets.yml
+```
 
 Run the Ansible playbook:
 
