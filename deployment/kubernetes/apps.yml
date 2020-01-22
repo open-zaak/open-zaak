@@ -12,13 +12,10 @@
   roles:
     - role: openzaak
       vars:
-        openzaak_domain: gc-k8s-16cpu-64ram.openzaak.nl
+        openzaak_domain: test.openzaak.nl
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
         openzaak_replicas: 3
-        # openzaak_extra_hosts:
-        #   - ingress-nginx-rsa4096.openzaak.nl
-        #   - ingress-nginx-ec256.openzaak.nl
       tags:
         - openzaak
 
@@ -33,33 +30,33 @@
         nlx_inway_self_address: inway.openzaak.nl
         nlx_inway_services:
           - name: openzaak-zaken
-            endpoint_url: http://nginx.openzaak-test/zaken/api/v1
-            documentation_url: https://test.openzaak.nl/zaken/
+            endpoint_url: https://{{ openzaak_domain }}/zaken/api/v1
+            documentation_url: https://{{ openzaak_domain }}/zaken/
             authorization_model: none
-            api_specification_document_url: https://test.openzaak.nl/zaken/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/zaken/api/v1/schema/openapi.json
 
-          # - name: openzaak-documenten
-          #   endpoint_url: https://test.openzaak.nl/documenten/api/v1
-          #   documentation_url: https://test.openzaak.nl/documenten/
-          #   authorization_model: none
-          #   api_specification_document_url: https://test.openzaak.nl/documenten/api/v1/schema/openapi.json
+          - name: openzaak-documenten
+            endpoint_url: https://{{ openzaak_domain }}/documenten/api/v1
+            documentation_url: https://{{ openzaak_domain }}/documenten/
+            authorization_model: none
+            api_specification_document_url: https://{{ openzaak_domain }}/documenten/api/v1/schema/openapi.json
 
-          # - name: openzaak-catalogi
-          #   endpoint_url: https://test.openzaak.nl/catalogi/api/v1
-          #   documentation_url: https://test.openzaak.nl/catalogi/
-          #   authorization_model: none
-          #   api_specification_document_url: https://test.openzaak.nl/catalogi/api/v1/schema/openapi.json
+          - name: openzaak-catalogi
+            endpoint_url: https://{{ openzaak_domain }}/catalogi/api/v1
+            documentation_url: https://{{ openzaak_domain }}/catalogi/
+            authorization_model: none
+            api_specification_document_url: https://{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.json
 
-          # - name: openzaak-besluiten
-          #   endpoint_url: https://test.openzaak.nl/besluiten/api/v1
-          #   documentation_url: https://test.openzaak.nl/besluiten/
-          #   authorization_model: none
-          #   api_specification_document_url: https://test.openzaak.nl/besluiten/api/v1/schema/openapi.json
+          - name: openzaak-besluiten
+            endpoint_url: https://{{ openzaak_domain }}/besluiten/api/v1
+            documentation_url: https://{{ openzaak_domain }}/besluiten/
+            authorization_model: none
+            api_specification_document_url: https://{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.json
 
-          # - name: openzaak-authorizations
-          #   endpoint_url: https://test.openzaak.nl/authorizations/api/v1
-          #   documentation_url: https://test.openzaak.nl/authorizations/
-          #   authorization_model: none
-          #   api_specification_document_url: https://test.openzaak.nl/authorizations/api/v1/schema/openapi.json
+          - name: openzaak-authorizations
+            endpoint_url: https://{{ openzaak_domain }}/authorizations/api/v1
+            documentation_url: https://{{ openzaak_domain }}/authorizations/
+            authorization_model: none
+            api_specification_document_url: https://{{ openzaak_domain }}/authorizations/api/v1/schema/openapi.json
       tags:
         - nlx
