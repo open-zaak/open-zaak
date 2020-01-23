@@ -1,5 +1,11 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+    <link href="{% static 'libs/prism/prism.css'%}" rel="stylesheet" />
+
+{% endblock %}
+
 
 {% block title %} {% trans "Importeer catalogus" %} {{ block.super }} {% endblock %}
 
@@ -22,11 +28,10 @@
                         Gebruik onderstaand voorbeeld voor de configuratie van de NLX-inway.
                     </p>
                     <p>
-                        U kunt uw <i>service-config.toml</i> bestand aanpassen met de configuratie onder <i>[services]</i>.
+                        U kunt uw <code>service-config.toml</code> bestand aanpassen met de configuratie onder <code>[services]</code>.
                     </p>
 
-                    <pre>
-[services]
+                    <pre class="language-toml"><code>[services]
 {% for service in services %}
     [services.OpenZaak-{{ service.name }}]
     endpoint-url = "{{ service.endpoint_url }}"
@@ -38,8 +43,7 @@
     # tech-support-contact = "tech@my-organization.nl"
     # ca-cert-path = "/path/to/custom-root-ca.crt"
 
-{% endfor %}
-                    </pre>
+{% endfor %}</code></pre>
 
                 </fieldset>
 
@@ -49,4 +53,9 @@
             </div>
         </form>
     </div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script src="{% static 'libs/prism/prism.js' %}"></script>
 {% endblock %}
