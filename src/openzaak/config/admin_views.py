@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.sites.models import Site
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 
@@ -20,38 +21,33 @@ class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
         site = Site.objects.get_current(self.request)
         protocol = "http{}".format("s" if settings.IS_HTTPS else "")
-        base_url = f"{protocol}://{site.domain}/"
+        base_url = f"{protocol}://{site.domain}"
 
         generic = {
             "documentation_url": "https://open-zaak.readthedocs.io/en/latest/",
         }
-        services = [
-            {
-                "name": "Autorisaties",
-                "endpoint_url": f"{base_url}/zaken/api/v1/",
-                "api_specification_document_url": f"{base_url}/zaken/api/v1/schema/openapi.json",
-            },
-            {
-                "name": "Besluiten",
-                "endpoint_url": f"{base_url}/besluiten/api/v1/",
-                "api_specification_document_url": f"{base_url}/besluiten/api/v1/schema/openapi.json",
-            },
-            {
-                "name": "Catalogi",
-                "endpoint_url": f"{base_url}/catalogi/api/v1/",
-                "api_specification_document_url": f"{base_url}/catalogi/api/v1/schema/openapi.json",
-            },
-            {
-                "name": "Documenten",
-                "endpoint_url": f"{base_url}/documenten/api/v1/",
-                "api_specification_document_url": f"{base_url}/documenten/api/v1/schema/openapi.json",
-            },
-            {
-                "name": "Zaken",
-                "endpoint_url": f"{base_url}/zaken/api/v1/",
-                "api_specification_document_url": f"{base_url}/zaken/api/v1/schema/openapi.json",
-            },
-        ]
+        version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+
+        services = []
+        for component in [
+            "autorisaties",
+            "besluiten",
+            "catalogi",
+            "documenten",
+            "zaken",
+        ]:
+            api_root_url = reverse(f"api-root-{component}", kwargs={"version": version})
+            schema_url = reverse(
+                f"schema-json-{component}",
+                kwargs={"version": version, "format": ".json"},
+            )
+            service = {
+                "name": component.title(),
+                "endpoint_url": f"{base_url}{api_root_url}",
+                "api_specification_document_url": f"{base_url}{schema_url}",
+            }
+            service.update(generic)
+            services.append(service)
 
         context.update({"services": services})
 
