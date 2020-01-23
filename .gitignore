@@ -36,6 +36,8 @@ src/openzaak/conf/includes/local.py
 /private-media/
 
 # Ansible secrets
-deployment/single-server/vars/secrets.yml
+deployment/single-server/vars/*
+!deployment/single-server/vars/*example*
+
 deployment/kubernetes/vars/*
 !deployment/kubernetes/vars/*example*

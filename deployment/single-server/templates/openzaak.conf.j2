@@ -8,15 +8,15 @@ upstream openzaak {
 server {
     server_tokens off;
     listen 80;
-    server_name {{ inventory_hostname }} default_server;
-    rewrite ^ https://{{ inventory_hostname }}$request_uri?;
+    server_name {{ openzaak_domain }} default_server;
+    rewrite ^ https://{{ openzaak_domain }}$request_uri?;
 }
 {% endif %}
 
 server {
     server_tokens off;
     listen {% if ssl_enabled %}443 ssl{% else %}80{% endif %};
-    server_name {{ inventory_hostname }};
+    server_name {{ openzaak_domain }};
     client_max_body_size 4G;
 
     # Enable Gzip, from html5-boilerplate-server-configs
@@ -69,8 +69,8 @@ server {
     # Note: If using a certificate bundle ensure that the _first_ certificate
     # in the bundle corresponds with the private key.
 
-    ssl_certificate /etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ inventory_hostname }}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ openzaak_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ openzaak_domain }}/privkey.pem;
 
     {% endif %}
 
@@ -92,7 +92,7 @@ server {
 
     location /private-media {
         internal;
-        alias /var/lib/docker/volumes/openzaak-private-media/_data;
+        alias {{ openzaak_volume_path | mandatory }};
     }
 
     error_page  404              /404.html;
