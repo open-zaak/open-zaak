@@ -1,12 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}{{ block.super }}
-    <link href="{% static 'libs/prism/prism.css'%}" rel="stylesheet" />
-
-{% endblock %}
-
-
 {% block title %} {% trans "Importeer catalogus" %} {{ block.super }} {% endblock %}
 
 {% block breadcrumbs %}
@@ -53,9 +47,4 @@
             </div>
         </form>
     </div>
-{% endblock %}
-
-{% block footer %}
-    {{ block.super }}
-    <script src="{% static 'libs/prism/prism.js' %}"></script>
 {% endblock %}

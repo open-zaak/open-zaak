@@ -4,5 +4,13 @@
    "presets":[
       "@babel/preset-env",
       "@babel/react",
-   ]
+   ],
+    "plugins": [
+        ["prismjs", {
+        "languages": ["toml"],
+        "plugins": ["line-numbers"],
+        "theme": "twilight",
+        "css": false
+    }]
+    ]
 }
