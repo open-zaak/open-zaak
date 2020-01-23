@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block title %} {% trans "Importeer catalogus" %} {{ block.super }} {% endblock %}
+{% block title %} {% trans "NLX Configuratie" %} {{ block.super }} {% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -14,19 +14,16 @@
 {% block content %}
     <h1>{% trans 'NLX configuratie' %}</h1>
     <div id="content-main">
-        <form action="" method="POST" enctype="multipart/form-data">
-            <div>
-                <fieldset class="module aligned ">
+        <div class="module">
+            <p>
+                Gebruik onderstaand voorbeeld voor de configuratie van de NLX-inway.
+            </p>
+            <p>
+                U kunt uw <code>service-config.toml</code> bestand aanpassen met de configuratie onder <code>[services]</code>.
+            </p>
 
-                    <p>
-                        Gebruik onderstaand voorbeeld voor de configuratie van de NLX-inway.
-                    </p>
-                    <p>
-                        U kunt uw <code>service-config.toml</code> bestand aanpassen met de configuratie onder <code>[services]</code>.
-                    </p>
-
-                    <pre class="language-toml"><code>[services]
-{% for service in services %}
+            <pre class="language-toml"><code>[services]
+            {% for service in services %}
     [services.OpenZaak-{{ service.name }}]
     endpoint-url = "{{ service.endpoint_url }}"
     documentation-url = "{{ service.documentation_url }}"
@@ -36,15 +33,10 @@
     # public-support-contact = "support@my-organization.nl"
     # tech-support-contact = "tech@my-organization.nl"
     # ca-cert-path = "/path/to/custom-root-ca.crt"
+            {% endfor %}</code></pre>
+        </div>
 
-{% endfor %}</code></pre>
+        <input type="button" value="{% trans 'Terug' %}" onclick="location.href='{% url 'admin:index' %}';">
 
-                </fieldset>
-
-                <div class="submit-row">
-                    <input type="button" value="{% trans 'Terug' %}" onclick="location.href='{% url 'admin:index' %}';">
-                </div>
-            </div>
-        </form>
     </div>
 {% endblock %}

@@ -42,7 +42,7 @@ class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 kwargs={"version": version, "format": ".json"},
             )
             service = {
-                "name": component.title(),
+                "name": component,
                 "endpoint_url": f"{base_url}{api_root_url}",
                 "api_specification_document_url": f"{base_url}{schema_url}",
             }
