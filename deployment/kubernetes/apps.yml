@@ -6,7 +6,7 @@
   vars_files:
     - vars/db_credentials.yml
     - vars/open-zaak.yml
-    # - vars/opennotificaties.yml
+    - vars/open-notificaties.yml
     # - vars/nlx.yml
 
   collections:
@@ -21,10 +21,12 @@
       tags:
         - openzaak
 
-    # - role: opennotificaties
-    #   vars:
-    #     opennotificaties_db_host: "{{ db.privateIp }}"
-    #     opennotificaties_db_port: "{{ db.port }}"
+    - role: open_notificaties_k8s
+      vars:
+        opennotificaties_db_host: "{{ db.privateIp }}"
+        opennotificaties_db_port: "{{ db.port }}"
+      tags:
+        - opennotificaties
 
     # - role: nlx
     #   vars:
