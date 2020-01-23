@@ -37,7 +37,6 @@
 },
 {
     "model": "admin_index.appgroup",
-    "pk": 3,
     "fields": {
         "order": 7,
         "name": "Configuratie",
@@ -118,7 +117,7 @@
     "model": "admin_index.applink",
     "fields": {
         "order": 0,
-        "app_group": 3,
+        "app_group": ["configuration"],
         "name": "Nlx config",
         "link": "/admin/config/nlx"
     }
