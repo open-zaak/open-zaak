@@ -12,6 +12,7 @@
   roles:
     - role: openzaak
       vars:
+        openzaak_version: '0.9.0'
         openzaak_domain: test.openzaak.nl
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
