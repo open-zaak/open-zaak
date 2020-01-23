@@ -1,0 +1,200 @@
+# This repository adheres to the publiccode.yml standard by including this 
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: '0.2'
+
+name: Open Zaak
+url: 'https://github.com/open-zaak/open-zaak.git'
+softwareType: standalone/backend
+softwareVersion: 1.0.0
+releaseDate: '2019-09-30'
+logo: 'https://raw.githubusercontent.com/open-zaak/open-zaak/master/docs/logo.svg'
+platforms:
+  - web
+  - linux
+  - windows
+  - mac
+
+categories:
+  - business-process-management
+  - collaboration
+  - contact-management
+  - document-management
+  - it-development
+  - task-management
+  - workflow-management
+
+developmentStatus: beta
+
+description:
+  nl:
+    shortDescription: API's voor Zaakgericht werken
+    documentation: 'https://open-zaak.readthedocs.io/'
+    apiDocumentation: 'https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken'
+    features:
+      - Zaken API 1.0
+      - Documenten API 1.0
+      - Catalogi API 1.0
+      - Besluiten API 1.0
+      - Autorisaties API 1.0
+      - Catalogi beheer
+      - Autorisatie beheer
+    genericName: API component
+    longDescription: >
+      Binnen het Nederlandse gemeentelandschap wordt zaakgericht werken
+      nagestreefd. Om dit mogelijk te maken is er gegevensuitwisseling nodig. 
+      De kerngegevens van zaken, documenten en besluiten moeten ergens
+      geregistreerd worden en opvraagbaar zijn.
+
+
+      **Open Zaak** is een moderne, open source gegevens- en services-laag om
+      [zaakgericht
+      werken](https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken)
+      te ondersteunen zoals voorgesteld in de onderste 2 lagen van het [Common
+      Ground](https://commonground.nl/) 5-lagen model.
+
+
+      De gegevens worden ontsloten middels een [gestandaardiseerde set VNG
+      API's](https://zaakgerichtwerken.vng.cloud/), te weten:
+
+
+      - Zaken API ([Zaken API-specificatie
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/zaken/index))
+
+      - Documenten API ([Documenten API-specificatie
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/documenten/index))
+
+      - Catalogi API ([Catalogi API-specificatie
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index))
+
+      - Besluiten API ([Besluiten API-specificatie
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index))
+
+      - Autorisaties API ([Autorisaties API-specificatie
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index))
+
+
+      De [Notificaties
+      API](https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index) is
+      nodig voor **Open Zaak** en is beschikbaar via [Open
+      Notificaties](https://github.com/open-zaak/open-notificaties).
+
+
+      **Open Zaak** gebruikt de code van de [referentie implementaties van VNG
+      Realisatie](https://github.com/VNG-Realisatie/gemma-zaken) als basis om
+      een stabiele set API's te realiseren die in productie gebruikt kunnen
+      worden bij gemeenten.
+
+  en:
+    shortDescription: API's for Zaakgericht werken
+    documentation: 'https://open-zaak.readthedocs.io/'
+    apiDocumentation: 'https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken'
+    features:
+      - Zaken API 1.0
+      - Documenten API 1.0
+      - Catalogi API 1.0
+      - Besluiten API 1.0
+      - Autorisaties API 1.0
+      - Catalogi beheer
+      - Autorisatie beheer
+    genericName: API component
+    longDescription: >
+      **Open Zaak** is a modern, open-source data- and services-layer to 
+      enable [zaakgericht 
+      werken](https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken),
+      a Dutch alternative to case management. Open Zaak offers structured data 
+      storage and services that implement the VNG standards for “API’s voor 
+      Zaakgericht werken” in line with the Common Ground model.
+
+
+      Open Zaak exposes several API’s to store and retrieve data:
+      
+      - Zaken API (case instances) ([Zaken API-specifications
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/zaken/index))
+      
+      - Documenten API (documents) ([Documenten API-specifications
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/documenten/index))
+      
+      - Catalogi API (case types) ([Catalogi API-specifications
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index))
+      
+      - Besluiten API (decisions) ([Autorisaties API-specifications
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index))
+      
+      - Autorisaties API (authorizations) ([Autorisaties API-specifications
+      1.0](https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index))
+      
+
+      The [Notificaties
+      API](https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index) is
+      required for **Open Zaak** to work but is available as a seperate 
+      package, [Open 
+      Notificaties](https://github.com/open-zaak/open-notificaties).
+      
+
+      **Open Zaak** is based on the API [reference 
+      implementations](https://github.com/VNG-Realisatie/gemma-zaken) by VNG 
+      Realisatie to create a production-grade product that can be used by 
+      municipalities.
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Dimpact
+  repoOwner: Maykin Media
+  # authorsFile: 'https://raw.githubusercontent.com/open-zaak/open-zaak/master/AUTHORS.md'
+
+dependsOn:
+  open:
+    - name: PostgreSQL
+      optional: true
+      versionMin: '10.0'
+    - name: Kubernetes
+      optional: true
+      versionMin: '1.12'
+    - name: Docker
+      optional: true
+      versionMin: '18.0'
+    - name: Redis
+      optional: true
+      versionMin: '4.0'
+
+inputTypes:
+  - application/json
+
+outputTypes:
+  - application/json
+  - text/html
+
+intendedAudience:
+  countries:
+    - nl
+  scope:
+    - government
+
+isBasedOn:
+  - 'https://github.com/VNG-Realisatie/gemma-zaken'
+
+localisation:
+  availableLanguages:
+    - nl
+    - en
+  localisationReady: true
+
+maintenance:
+  contacts:
+    - affiliation: Maykin Media
+      name: Joeri Bekker
+    - affiliation: Maykin Media
+      name: Sergei Maertens
+  contractors:
+    - name: Maykin Media
+      until: '2020-12-31'
+      website: 'https://www.maykinmedia.nl/'
+      email: info@maykinmedia.nl
+  type: contract
+
+usedBy:
+  - Gemeente Utrecht
+  - Gemeente Súdwest-Fryslân
+  - Gemeente Buren
