@@ -50,9 +50,20 @@
 
     - role: geerlingguy.certbot
 
-    - role: database
+    - role: app_database
       vars:
-        database_port: "{{ openzaak_db_port }}"
+        app_db_provision_user: no
+        app_db_provision_database: no
+        app_db_become_user: postgres
+
+        app_db_host: ''
+        app_db_port: "{{ openzaak_db_port }}"
+        app_db_name: "{{ openzaak_db_name }}"
+        app_db_extensions:
+          - postgis
+          - pg_trgm
+      tags:
+        - app_db
 
     - role: open_zaak_docker
       vars:

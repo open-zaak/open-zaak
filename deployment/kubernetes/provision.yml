@@ -8,15 +8,21 @@
     needs_ingress: yes
     needs_nfs: yes
 
+    # Google Cloud SQL already has Postgis
+    app_db_extra_packages: []
+
   vars_files:
     - vars/db_credentials.yml
-    - vars/openzaak.yml
-    - vars/opennotificaties.yml
+    - vars/open-zaak.yml
+    - vars/open-notificaties.yml
+
+  collections:
+    - open_zaak.deploy
 
   roles:
 
     # Set up Open Zaak database
-    - role: app-database
+    - role: app_database
       vars:
         # from vars/openzaak.yml
         app_db_name: "{{ openzaak_db_name }}"
@@ -33,7 +39,7 @@
         app_db_login_password: "{{ db_superuser.password }}"
 
     # Set up Open Notificaties database
-    - role: app-database
+    - role: app_database
       vars:
         # from vars/opennotificaties.yml
         app_db_name: "{{ opennotificaties_db_name }}"
