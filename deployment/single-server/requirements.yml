@@ -1,4 +1,10 @@
-- src: geerlingguy.postgresql
-- src: geerlingguy.docker
-- src: geerlingguy.certbot
-- src: nginxinc.nginx
+collections:
+  - name: open_zaak.deploy
+    version: 0.1.0
+    source: https://galaxy.ansible.com
+
+roles:
+  - src: geerlingguy.postgresql
+  - src: geerlingguy.docker
+  - src: geerlingguy.certbot
+  - src: nginxinc.nginx
