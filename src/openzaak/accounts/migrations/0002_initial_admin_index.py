@@ -18,11 +18,11 @@ class Migration(migrations.Migration):
     dependencies = [
         ("accounts", "0001_initial"),
         ("admin_index", "0002_auto_20170802_1754"),
-        ("besluiten", "0010_auto_20191010_1544"),
-        ("catalogi", "0004_merge_20190919_1529"),
-        ("documenten", "0007_auto_20190918_0842"),
+        ("besluiten", "0001_initial"),
+        ("catalogi", "0001_initial"),
+        ("documenten", "0001_initial"),
         ("notifications", "0009_auto_20190729_0427"),
-        ("zaken", "0005_auto_20190918_0826"),
+        ("zaken", "0001_initial"),
     ]
 
     operations = [migrations.RunPython(forward, migrations.RunPython.noop)]
