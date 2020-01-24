@@ -318,3 +318,23 @@ div.breadcrumbs {
   }
 }
 
+
+/**
+ * Help text mouseover
+ */
+div.help:hover {
+  text-indent: inherit;
+  width: auto;
+  background-image: none;
+}
+
+div.help {
+  width: 16px;
+  height: 16px;
+  background-image: url(https://test.openzaak.nl/static/admin/img/icon-unknown.svg);
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  margin-left: 0 !important;
+  text-indent: -9999px;
+}
