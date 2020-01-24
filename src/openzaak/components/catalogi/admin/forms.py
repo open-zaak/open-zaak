@@ -88,9 +88,10 @@ class ResultaatTypeForm(forms.ModelForm):
 
         if self.instance.pk:
             proces_type = self.instance.zaaktype.selectielijst_procestype
-            self.fields[
-                "selectielijstklasse"
-            ].choices = get_selectielijst_resultaat_choices(proces_type)
+            if "selectielijstklasse" in self.fields:
+                self.fields[
+                    "selectielijstklasse"
+                ].choices = get_selectielijst_resultaat_choices(proces_type)
 
     def clean(self):
         super().clean()
