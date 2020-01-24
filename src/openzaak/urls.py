@@ -5,7 +5,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path, re_path
 from django.views.generic.base import TemplateView
 
-from vng_api_common.views import ViewConfigView
+from openzaak.utils.views import ViewConfigView
 
 handler500 = "openzaak.utils.views.server_error"
 
