@@ -24,7 +24,7 @@
 
             <pre class="language-toml"><code>[services]
             {% for service in services %}
-    [services.OpenZaak-{{ service.name }}]
+    [services.openzaak-{{ service.name }}]
     endpoint-url = "{{ service.endpoint_url }}"
     documentation-url = "{{ service.documentation_url }}"
     api-specification-document-url = "{{ service.api_specification_document_url }}"

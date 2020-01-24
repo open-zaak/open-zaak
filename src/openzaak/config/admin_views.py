@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.views.generic import TemplateView
 
@@ -18,10 +17,6 @@ class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        site = Site.objects.get_current(self.request)
-        protocol = "http{}".format("s" if settings.IS_HTTPS else "")
-        base_url = f"{protocol}://{site.domain}"
 
         generic = {
             "documentation_url": "https://open-zaak.readthedocs.io/en/latest/",
@@ -43,8 +38,10 @@ class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             )
             service = {
                 "name": component,
-                "endpoint_url": f"{base_url}{api_root_url}",
-                "api_specification_document_url": f"{base_url}{schema_url}",
+                "endpoint_url": self.request.build_absolute_uri(api_root_url),
+                "api_specification_document_url": self.request.build_absolute_uri(
+                    schema_url
+                ),
             }
             service.update(generic)
             services.append(service)
