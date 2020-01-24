@@ -20,7 +20,7 @@ cache_db: 0
 # Kubernetes namespace to run in
 namespace: openzaak-test
 
-openzaak_version: '0.1.0'
+openzaak_version: '0.9.0'
 openzaak_image: openzaak/open-zaak:{{ openzaak_version }}
 openzaak_replicas: 3
 openzaak_instance: test
