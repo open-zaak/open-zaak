@@ -112,5 +112,14 @@
             ]
         ]
     }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 0,
+        "app_group": ["configuration"],
+        "name": "Nlx config",
+        "link": "/admin/config/nlx"
+    }
 }
 ]
