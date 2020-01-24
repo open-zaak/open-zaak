@@ -5,6 +5,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.loaders import BaseLoader
 from vng_api_common.authorizations.models import (
     Applicatie,
     AuthorizationsConfig,
@@ -42,6 +43,7 @@ class AutorisatieInline(admin.TabularInline):
         .. note:: using get_resource_for_path spawns too many queries, since
             the viewsets have prefetch_related calls.
         """
+        loader = BaseLoader()
         if obj.component == ComponentTypes.zrc:
             template = (
                 "<strong>Zaaktype</strong>: "
@@ -50,13 +52,20 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            zaaktype = get_related_object(obj)
+            if loader.is_local_url(obj.zaaktype):
+                zaaktype = get_related_object(obj)
+                admin_url = reverse(
+                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
+                )
+                zt_repr = str(zaaktype)
+            else:
+                admin_url = obj.zaaktype
+                zt_repr = f"{obj.zaaktype} (EXTERN)"
+
             return format_html(
                 template,
-                admin_url=reverse(
-                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
-                ),
-                zt_repr=str(zaaktype),
+                admin_url=admin_url,
+                zt_repr=zt_repr,
                 va=obj.get_max_vertrouwelijkheidaanduiding_display(),
             )
 
@@ -68,14 +77,21 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
                 "{va}"
             )
-            informatieobjecttype = get_related_object(obj)
-            return format_html(
-                template,
-                admin_url=reverse(
+            if loader.is_local_url(obj.informatieobjecttype):
+                informatieobjecttype = get_related_object(obj)
+                admin_url = reverse(
                     "admin:catalogi_informatieobjecttype_change",
                     kwargs={"object_id": informatieobjecttype.pk},
-                ),
-                iot_repr=str(informatieobjecttype),
+                )
+                iot_repr = str(informatieobjecttype)
+            else:
+                admin_url = obj.informatieobjecttype
+                iot_repr = f"{obj.informatieobjecttype} (EXTERN)"
+
+            return format_html(
+                template,
+                admin_url=admin_url,
+                iot_repr=iot_repr,
                 va=obj.get_max_vertrouwelijkheidaanduiding_display(),
             )
 
@@ -84,15 +100,18 @@ class AutorisatieInline(admin.TabularInline):
                 "<strong>Besluittype</strong>: "
                 '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
             )
-            besluittype = get_related_object(obj)
-            return format_html(
-                template,
-                admin_url=reverse(
+            if loader.is_local_url(obj.besluittype):
+                besluittype = get_related_object(obj)
+                admin_url = reverse(
                     "admin:catalogi_besluittype_change",
                     kwargs={"object_id": besluittype.pk},
-                ),
-                bt_repr=str(besluittype),
-            )
+                )
+                bt_repr = str(besluittype)
+            else:
+                admin_url = obj.besluittype
+                bt_repr = f"{obj.besluittype} (EXTERN)"
+
+            return format_html(template, admin_url=admin_url, bt_repr=bt_repr,)
 
         return ""
 

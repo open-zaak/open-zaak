@@ -1,9 +1,12 @@
 from typing import List, Tuple
 
 from django import forms
+from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from django_better_admin_arrayfield.forms.fields import DynamicArrayField
+from rest_framework import exceptions
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
@@ -12,12 +15,14 @@ from vng_api_common.notifications.constants import (
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
 from vng_api_common.scopes import SCOPE_REGISTRY
+from vng_api_common.validators import ResourceValidator
 
 from openzaak.components.catalogi.models import (
     BesluitType,
     InformatieObjectType,
     ZaakType,
 )
+from openzaak.utils.auth import get_auth
 
 from .constants import RelatedTypeSelectionMethods
 from .utils import (
@@ -122,18 +127,21 @@ COMPONENT_TO_FIELDS_MAP = {
         "types_field": "zaaktypen",
         "_autorisatie_type_field": "zaaktype",
         "verbose_name": _("zaaktype"),
+        "resource_name": "ZaakType",
     },
     ComponentTypes.drc: {
         "required": ("related_type_selection", "vertrouwelijkheidaanduiding"),
         "types_field": "informatieobjecttypen",
         "_autorisatie_type_field": "informatieobjecttype",
         "verbose_name": _("informatieobjecttype"),
+        "resource_name": "InformatieObjectType",
     },
     ComponentTypes.brc: {
         "required": ("related_type_selection",),
         "types_field": "besluittypen",
         "_autorisatie_type_field": "besluittype",
         "verbose_name": _("besluittype"),
+        "resource_name": "BesluitType",
     },
 }
 
@@ -195,18 +203,25 @@ class AutorisatieForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
     informatieobjecttypen = forms.ModelMultipleChoiceField(
-        label=_("zaaktypen"),
+        label=_("informatieobjecttypen"),
         required=False,
-        help_text=_("De zaaktypen waarop deze autorisatie van toepassing is."),
+        help_text=_(
+            "De informatieobjecttypen waarop deze autorisatie van toepassing is."
+        ),
         queryset=InformatieObjectType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
     besluittypen = forms.ModelMultipleChoiceField(
-        label=_("zaaktypen"),
+        label=_("besluittypen"),
         required=False,
-        help_text=_("De zaaktypen waarop deze autorisatie van toepassing is."),
+        help_text=_("De besluittypen waarop deze autorisatie van toepassing is."),
         queryset=BesluitType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+    )
+    externe_typen = DynamicArrayField(
+        base_field=forms.URLField(max_length=1000, required=True,),
+        required=False,
+        error_messages={"item_invalid": ""},
     )
 
     def clean(self):
@@ -221,6 +236,7 @@ class AutorisatieForm(forms.Form):
 
         self._validate_scopes(component)
         self._validate_required_fields(component)
+        self._validate_external_types(component)
 
     def _validate_scopes(self, component: str):
         scopes = self.cleaned_data.get("scopes")
@@ -272,7 +288,9 @@ class AutorisatieForm(forms.Form):
 
         # check that values for the typen have been selected manually
         types_field = _field_info["types_field"]
-        if not self.cleaned_data.get(types_field):
+        if not self.cleaned_data.get(types_field) and not self.cleaned_data.get(
+            "externe_typen"
+        ):
             error = forms.ValidationError(
                 _("Je moet minimaal 1 {verbose_name} kiezen").format(
                     verbose_name=_field_info["verbose_name"]
@@ -280,6 +298,28 @@ class AutorisatieForm(forms.Form):
                 code="required",
             )
             self.add_error(types_field, error)
+
+    def _validate_external_types(self, component):
+        _field_info = COMPONENT_TO_FIELDS_MAP.get(component)
+        if _field_info is None:
+            return
+
+        external_typen = self.cleaned_data.get("externe_typen")
+
+        if not external_typen:
+            return
+
+        validator = ResourceValidator(
+            _field_info["resource_name"], settings.ZTC_API_SPEC, get_auth=get_auth
+        )
+        for _type in external_typen:
+            try:
+                validator(_type)
+            except exceptions.ValidationError as exc:
+                error = forms.ValidationError(
+                    str(exc.detail[0]), code=exc.detail[0].code
+                )
+                self.add_error("externe_typen", error)
 
     def save(self, applicatie: Applicatie, request, commit=True):
         """
@@ -347,9 +387,20 @@ class AutorisatieForm(forms.Form):
                 autorisaties.append(
                     Autorisatie(
                         max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
-                        **data
+                        **data,
                     )
                 )
+            if self.cleaned_data.get("externe_typen"):
+                for _type in self.cleaned_data.get("externe_typen"):
+                    data = autorisatie_kwargs.copy()
+                    data[_field_info["_autorisatie_type_field"]] = _type
+                    autorisaties.append(
+                        Autorisatie(
+                            max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
+                            **data,
+                        )
+                    )
+
             Autorisatie.objects.bulk_create(autorisaties)
 
 

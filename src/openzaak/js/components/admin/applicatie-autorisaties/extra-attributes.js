@@ -2,8 +2,9 @@ import React, { useState, useContext, Fragment } from "react";
 import PropTypes from "prop-types";
 
 import { CheckboxSelect } from './checkbox-select';
-import { ConstantsContext, CatalogiContext } from './context';
+import { ConstantsContext, CatalogiContext, PrefixContext } from './context';
 import { ErrorList } from './error-list';
+import { TextInput } from './inputs';
 import { RadioSelect } from './radio-select';
 import { Err, Pk } from './types';
 
@@ -39,9 +40,80 @@ CatalogusOptions.defaultProps = {
     selectedValues: [],
 };
 
+const AddExternalType = (props) => {
+    const { onAdd } = props;
+    return (
+        <div>
+            <button className="catalogus-options__add-type add-array-item" type="button" onClick={onAdd}>Add another</button>
+        </div>
+    );
+};
+
+AddExternalType.propTypes = {
+    onAdd: PropTypes.func.isRequired,
+};
+
+const ExternalType = (props) => {
+    const { index, initial, errors } = props;
+    const prefix = useContext(PrefixContext);
+    const id = `id_${prefix}-externe_typen_${index}`;
+    const name = `${prefix}-externe_typen`;
+    return (
+        <li className="catalogus-options__external-type array-item">
+            <TextInput
+                id={id}
+                name={name}
+                initial={initial}
+            />
+        </li>
+    );
+};
+
+const ExternalTypes = (props) => {
+    const { externalValues, typeOptionsField, errors } = props;
+    const [ extra, setExtra ] = useState((externalValues.length > 0) ? externalValues.length - 1 : 0);
+
+    const types = Array(1).fill().map(
+        (_, index) => <ExternalType
+                        key={index}
+                        index={index}
+                        initial={externalValues[index]}
+                      />
+    );
+    const numTypes = types.length;
+    const extraTypes = Array(extra).fill().map(
+        (_, index) => <ExternalType
+                        key={numTypes+index}
+                        index={numTypes+index}
+                        initial={externalValues[numTypes+index]}
+                      />
+    );
+
+    const allTypes = types.concat(extraTypes)
+
+    return (
+        <Fragment>
+            <ErrorList errors={errors} />
+
+            <div className="catalogus-options dynamic-array-widget">
+                <h5>Externe {typeOptionsField}</h5>
+
+                <ul className="catalogus-options__external-types">{ allTypes }</ul>
+                <AddExternalType
+                    onAdd={(event) => {
+                        event.preventDefault();
+                        setExtra(extra + 1);
+                    }}>
+                    Nog een extern type toevoegen
+                </AddExternalType>
+            </div>
+        </Fragment>
+    );
+};
+
 
 const TypeOptions = (props) => {
-    const { typeOptionsField, selectedValues, onChange } = props;
+    const { typeOptionsField, selectedValues, externalValues, onChange, errorsExternal } = props;
     const catalogi = useContext(CatalogiContext);
     return (
         <Fragment>
@@ -55,8 +127,9 @@ const TypeOptions = (props) => {
                     selectedValues={ selectedValues }
                 />)
             ) }
+            <ExternalTypes externalValues={externalValues} errors={errorsExternal} typeOptionsField={typeOptionsField} />
         </Fragment>
-    );
+    )
 };
 
 TypeOptions.propTypes = {
@@ -71,7 +144,7 @@ TypeOptions.defaultProps = {
 
 
 const TypesSelection = (props) => {
-    const { verboseNamePlural, typeOptionsField, initialValue, selectedValues, errors } = props;
+    const { verboseNamePlural, typeOptionsField, initialValue, selectedValues, externalValues, errors, errorsExternal } = props;
     const { relatedTypeSelectionMethods } = useContext(ConstantsContext);
     const [ showTypeOptions, setShowTypeOptions ] = useState(initialValue === 'manual_select');
 
@@ -101,6 +174,8 @@ const TypesSelection = (props) => {
                         <TypeOptions
                             typeOptionsField={typeOptionsField}
                             selectedValues={selectedValues || []}
+                            externalValues={externalValues || []}
+                            errorsExternal={errorsExternal || []}
                             onChange={() => setErrors([])}
                         /> : null
                 }

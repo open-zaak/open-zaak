@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView
 
+from django_loose_fk.loaders import BaseLoader
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 
@@ -20,6 +21,7 @@ from openzaak.components.catalogi.models import (
 from .admin_serializers import CatalogusSerializer
 from .constants import RelatedTypeSelectionMethods
 from .forms import (
+    COMPONENT_TO_FIELDS_MAP,
     COMPONENT_TO_PREFIXES_MAP,
     AutorisatieFormSet,
     VertrouwelijkheidsAanduiding,
@@ -49,17 +51,38 @@ def get_form_data(form: forms.Form) -> Dict[str, Dict]:
     }
 
 
+def is_local_url(autorisatie):
+    loader = BaseLoader()
+    if autorisatie.component == ComponentTypes.zrc:
+        return loader.is_local_url(autorisatie.zaaktype)
+    elif autorisatie.component == ComponentTypes.drc:
+        return loader.is_local_url(autorisatie.informatieobjecttype)
+    elif autorisatie.component == ComponentTypes.brc:
+        return loader.is_local_url(autorisatie.besluittype)
+    return True
+
+
 def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
     spec: Optional[AutorisatieSpec] = None,
 ) -> List[Dict[str, Any]]:
-    if component not in [ComponentTypes.zrc, ComponentTypes.drc, ComponentTypes.brc]:
-        return []
+    _related_objs = {}
+    _related_objs_external = {}
 
-    _related_objs = {
-        autorisatie.pk: get_related_object(autorisatie) for autorisatie in autorisaties
-    }
+    internal_autorisaties = []
+    external_autorisaties = []
+
+    for autorisatie in autorisaties:
+        if is_local_url(autorisatie):
+            obj = get_related_object(autorisatie)
+            _related_objs[autorisatie.pk] = obj
+            internal_autorisaties.append(autorisatie)
+        else:
+            type_field = COMPONENT_TO_FIELDS_MAP[component]["_autorisatie_type_field"]
+            _related_objs_external[autorisatie.pk] = getattr(autorisatie, type_field)
+            external_autorisaties.append(autorisatie)
+
     related_objs = {pk: obj.id for pk, obj in _related_objs.items() if obj is not None}
 
     initial = []
@@ -68,7 +91,7 @@ def get_initial_for_component(
         zaaktype_ids = set(ZaakType.objects.values_list("id", flat=True))
 
         grouped_by_va = defaultdict(list)
-        for autorisatie in autorisaties:
+        for autorisatie in internal_autorisaties + external_autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
@@ -76,8 +99,15 @@ def get_initial_for_component(
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
-                related_objs[autorisatie.pk] for autorisatie in _autorisaties
+                related_objs[autorisatie.pk]
+                for autorisatie in _autorisaties
+                if autorisatie.pk in related_objs
             }
+            relevant_external = [
+                _related_objs_external[autorisatie.pk]
+                for autorisatie in _autorisaties
+                if autorisatie.pk in _related_objs_external
+            ]
 
             if spec:
                 _initial[
@@ -92,6 +122,7 @@ def get_initial_for_component(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                         "zaaktypen": relevant_ids,
+                        "externe_typen": relevant_external,
                     }
                 )
             initial.append(_initial)
@@ -102,7 +133,7 @@ def get_initial_for_component(
         )
 
         grouped_by_va = defaultdict(list)
-        for autorisatie in autorisaties:
+        for autorisatie in internal_autorisaties + external_autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
@@ -110,8 +141,15 @@ def get_initial_for_component(
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
-                related_objs[autorisatie.pk] for autorisatie in _autorisaties
+                related_objs[autorisatie.pk]
+                for autorisatie in _autorisaties
+                if autorisatie.pk in related_objs
             }
+            relevant_external = [
+                _related_objs_external[autorisatie.pk]
+                for autorisatie in _autorisaties
+                if autorisatie.pk in _related_objs_external
+            ]
 
             if spec:
                 _initial[
@@ -126,6 +164,7 @@ def get_initial_for_component(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                         "informatieobjecttypen": relevant_ids,
+                        "externe_typen": relevant_external,
                     }
                 )
             initial.append(_initial)
@@ -134,7 +173,8 @@ def get_initial_for_component(
         besluittype_ids = set(BesluitType.objects.values_list("id", flat=True))
         relevant_ids = set(related_objs.values())
 
-        _initial = {}
+        _initial = {"externe_typen": _related_objs_external}
+
         if spec:
             _initial[
                 "related_type_selection"
@@ -149,6 +189,9 @@ def get_initial_for_component(
                 }
             )
         initial.append(_initial)
+    else:
+        # The other components do not have any extra options
+        initial.append({})
 
     return initial
 
@@ -181,7 +224,6 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
         component_initial = get_initial_for_component(
             component, _autorisaties, autorisatie_specs.get(component),
         )
-
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}
             for _initial in component_initial
