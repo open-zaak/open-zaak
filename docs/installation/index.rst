@@ -53,7 +53,7 @@ to see if the software works as expected:
 
 **Check configuration**
 
-Check the configuration page for Open Zaak, accessible at the url ``{{base_url}}/view-config/``.
+Check the configuration page for Open Zaak, accessible at the url ``https://open-zaak.gemeente.nl/view-config/``.
 This page will indicate whether certain settings are properly configured:
 
 .. figure:: assets/openzaak-config.png
