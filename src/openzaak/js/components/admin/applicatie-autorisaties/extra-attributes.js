@@ -44,7 +44,7 @@ const AddExternalType = (props) => {
     const { onAdd } = props;
     return (
         <div>
-            <button className="add-array-item" type="button" onClick={onAdd}>Add another</button>
+            <button className="catalogus-options__add-type add-array-item" type="button" onClick={onAdd}>Add another</button>
         </div>
     );
 };
@@ -59,7 +59,7 @@ const ExternalType = (props) => {
     const id = `id_${prefix}-externe_typen_${index}`;
     const name = `${prefix}-externe_typen`;
     return (
-        <li className="array-item">
+        <li className="catalogus-options__external-type array-item">
             <TextInput
                 id={id}
                 name={name}
@@ -95,10 +95,10 @@ const ExternalTypes = (props) => {
         <Fragment>
             <ErrorList errors={errors} />
 
-            <div className="catalogus-options external-type dynamic-array-widget">
+            <div className="catalogus-options dynamic-array-widget">
                 <h5>Externe {typeOptionsField}</h5>
 
-                <ul>{ allTypes }</ul>
+                <ul className="catalogus-options__external-types">{ allTypes }</ul>
                 <AddExternalType
                     onAdd={(event) => {
                         event.preventDefault();

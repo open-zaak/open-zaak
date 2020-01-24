@@ -6,4 +6,17 @@
     font-weight: 600;
     padding-left: 5px;
   }
+
+  &__external-types {
+    padding: 0;
+  }
+
+  &__external-type {
+    list-style: none;
+  }
+
+  &__add-type {
+    margin: 0 !important;
+    border: none;
+  }
 }
