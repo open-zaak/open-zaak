@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy Open-Zaak on a single server
+- name: Deploy Open Zaak on a single server
   hosts: all
 
   collections:
