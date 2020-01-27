@@ -17,7 +17,7 @@ Merges to the ``master`` branch are built on Travis, where:
 3. Compatibility with the *API's voor zaakgericht werken* standard spec is tested
 4. The Docker image is built and published
 
-If the built is for a Git tag on the ``master`` branch, then the image is built and
+If the build is for a Git tag on the ``master`` branch, then the image is built and
 publish with that version tag to Docker Hub.
 
 Releasing a new version
