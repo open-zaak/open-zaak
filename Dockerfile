@@ -50,6 +50,7 @@ RUN mkdir /app/log
 
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
 COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/js
+COPY bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./src /app/src
 ARG COMMIT_HASH
 ENV GIT_SHA=${COMMIT_HASH}

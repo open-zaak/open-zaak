@@ -1,4 +1,5 @@
 # Helpers
+bumpversion
 pip-tools
 
 # Code formatting

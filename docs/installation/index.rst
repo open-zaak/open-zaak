@@ -42,5 +42,6 @@ Guides
    deployment/single_server
    configuration
    logging
+   updating
    performance/index
    linux

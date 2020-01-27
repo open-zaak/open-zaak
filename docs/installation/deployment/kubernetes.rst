@@ -171,6 +171,8 @@ Before you begin, you will need:
 
       [user@host]$ gcloud compute disks create --size=10GB --zone=europe-west4-b gce-nfs-disk
 
+.. _deployment_kubernetes_tooling:
+
 Deployment requirements
 =======================
 
@@ -375,3 +377,52 @@ default setup should be sufficient to get started though.
 
 To be able to work with Open Zaak, a couple of things have to be configured first,
 see :ref:`installation_configuration` for more details.
+
+.. _deployment_kubernetes_updating:
+
+Updating an Open Zaak installation
+==================================
+
+Make sure you have the deployment tooling installed - see
+:ref:`deployment_kubernetes_tooling` for more details.
+
+If you have an existing environment (from the installation), make sure to update it:
+
+.. code-block:: shell
+
+    # fetch the updates from Github
+    [user@host]$ git fetch origin
+
+    # checkout the tag of the version you wish to update to, e.g. 1.0.0
+    [user@host]$ git checkout X.Y.z
+
+    # activate the virtualenv
+    [user@host]$ source env/bin/activate
+
+    # ensure all (correct versions of the) dependencies are installed
+    (env) [user@host]$ pip install -r requirements.txt
+
+Open Zaak deployment code defines variables to specify the Docker image tag to use. This
+is synchronized with the git tag you're checking out.
+
+.. warning::
+    Make sure you are aware of possible breaking changes or manual interventions by
+    reading the :ref:`development_changelog`!
+
+Next, to perform the upgrade, you run the ``apps.yml`` playbook just like with the
+installation:
+
+.. code-block:: shell
+
+    (env) [user@host]$ ./deploy.sh apps.yml
+
+.. note::
+
+    In the Kubernetes deployment setup, Open Zaak makes use of multiple replicas by
+    default, and is set up to perform rolling releases. This means that the old version
+    stays live until all new versions are running without errors.
+
+    We make use of health checks and liveness probes to achieve this.
+
+    This does mean that there's a brief window where clients may hit the old or new
+    version at the same time - usually this shouldn't pose a problem though.
