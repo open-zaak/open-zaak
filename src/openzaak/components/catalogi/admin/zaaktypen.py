@@ -28,6 +28,7 @@ from .mixins import (
     ExportMixin,
     NewVersionMixin,
     PublishAdminMixin,
+    ReadOnlyPublishedMixin,
 )
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
@@ -87,6 +88,7 @@ class ZaakTypenRelatieInline(EditInlineAdminMixin, admin.TabularInline):
 
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
+    ReadOnlyPublishedMixin,
     NewVersionMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,

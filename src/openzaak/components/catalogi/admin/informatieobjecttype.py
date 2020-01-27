@@ -10,7 +10,12 @@ from openzaak.utils.admin import (
 )
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
-from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import (
+    CatalogusContextAdminMixin,
+    GeldigheidAdminMixin,
+    PublishAdminMixin,
+    ReadOnlyPublishedMixin,
+)
 
 
 @admin.register(ZaakTypeInformatieObjectType)
@@ -47,6 +52,7 @@ class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInli
 
 @admin.register(InformatieObjectType)
 class InformatieObjectTypeAdmin(
+    ReadOnlyPublishedMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
