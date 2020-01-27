@@ -11,7 +11,9 @@ Open Zaak
 
 API's voor Zaakgericht werken
 
-Ontwikkeld door `Maykin Media B.V.`_ in opdracht van `Dimpact`_.
+Ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam, Rotterdam,
+Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn, onder
+regie van `Dimpact`_.
 
 Inleiding
 =========
@@ -25,8 +27,8 @@ opvraagbaar zijn.
 `zaakgericht werken`_ te ondersteunen zoals voorgesteld in de onderste 2 lagen
 van het `Common Ground`_ 5-lagen model.
 
-De gegevens worden ontsloten middels een `gestandaardiseerde set VNG API's`_, te
-weten:
+De gegevens worden ontsloten middels een `gestandaardiseerde set VNG API's`_,
+te weten:
 
 * Zaken API (`Zaken API-specificatie 1.0`_)
 * Documenten API (`Documenten API-specificatie 1.0`_)
