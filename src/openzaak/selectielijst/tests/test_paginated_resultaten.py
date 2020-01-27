@@ -1,18 +1,20 @@
 from urllib.parse import urlencode
 
-from django.test import SimpleTestCase
+from django.test import TestCase
 
 import requests_mock
 
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..api import get_resultaten
+from ..models import ReferentieLijstConfig
 from . import mock_oas_get
 
 
 @requests_mock.Mocker()
-class SelectieLijstResultatenTests(ClearCachesMixin, SimpleTestCase):
+class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
     def test_single_page(self, m):
+        ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
         m.get(
             "https://referentielijsten-api.vng.cloud/api/v1/resultaten",
@@ -24,11 +26,12 @@ class SelectieLijstResultatenTests(ClearCachesMixin, SimpleTestCase):
         self.assertEqual(results, [])
 
     def test_multiple_pages(self, m):
+        ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
         base_url = "https://referentielijsten-api.vng.cloud/api/v1/resultaten"
         _results = [
-            {"url": f"{base_url}/cc5ae4e3-a9e6-4386-bcee-46be4986a829", "nummer": 1,},
-            {"url": f"{base_url}/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a", "nummer": 1,},
+            {"url": f"{base_url}/cc5ae4e3-a9e6-4386-bcee-46be4986a829", "nummer": 1},
+            {"url": f"{base_url}/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a", "nummer": 1},
         ]
 
         m.get(
@@ -64,6 +67,7 @@ class SelectieLijstResultatenTests(ClearCachesMixin, SimpleTestCase):
         self.assertEqual(len(requests), 2)
 
     def test_filter_procestype(self, m):
+        ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
         base_url = "https://referentielijsten-api.vng.cloud/api/v1/resultaten"
         query = urlencode({"procesType": "https://example.com"})

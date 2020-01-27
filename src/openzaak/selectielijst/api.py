@@ -1,9 +1,9 @@
 from typing import Dict, List, Optional, Union
 from urllib.parse import parse_qs, urlparse
 
-from zds_client import Client
-
 from openzaak.utils.decorators import cache
+
+from .models import ReferentieLijstConfig
 
 # Typing
 
@@ -18,7 +18,7 @@ def get_procestypen() -> ResultList:
 
     Results are cached for 24 hours.
     """
-    client = Client("selectielijst")
+    client = ReferentieLijstConfig.get_client()
     return client.list("procestype")
 
 
@@ -41,7 +41,7 @@ def get_resultaten(proces_type: Optional[str] = None) -> ResultList:
         if proces_type:
             query_params["procesType"] = proces_type
 
-        client = Client("selectielijst")
+        client = ReferentieLijstConfig.get_client()
         result_list = client.list("resultaat", query_params=query_params)
         results = result_list["results"]
         while result_list["next"]:
@@ -61,5 +61,5 @@ def get_resultaattype_omschrijvingen() -> ResultList:
 
     Results are cached for an hour.
     """
-    client = Client("selectielijst")
+    client = ReferentieLijstConfig.get_client()
     return client.list("resultaattypeomschrijvinggeneriek")

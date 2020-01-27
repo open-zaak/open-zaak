@@ -13,7 +13,7 @@ from vng_api_common.constants import (
 from vng_api_common.validators import ResourceValidator
 
 from openzaak.forms.widgets import BooleanRadio
-from openzaak.selectielijst.admin import get_selectielijst_resultaat_choices
+from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import BesluitType, InformatieObjectType, ResultaatType, ZaakType

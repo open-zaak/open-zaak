@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from zds_client import Client
-
-from openzaak.selectielijst.admin import (
+from openzaak.selectielijst.admin_fields import (
     get_resultaattype_omschrijving_field,
     get_selectielijstklasse_field,
 )
+from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import ResultaatType
@@ -37,7 +36,7 @@ class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.Model
 
     def get_zaaktype_procestype(self, obj):
         url = obj.zaaktype.selectielijst_procestype
-        client = Client("selectielijst")
+        client = ReferentieLijstConfig.get_client()
         procestype = client.retrieve("procestype", url)
         return f"{procestype['nummer']} - {procestype['naam']}"
 
