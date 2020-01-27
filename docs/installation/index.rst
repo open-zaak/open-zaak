@@ -76,6 +76,9 @@ in the configuration, send a test notification using the following command:
 
     python src/manage.py send_test_notification
 
+.. note:: The notification is sent to the ``test`` channel - make sure it exists in the
+   Notificaties API you're using!
+
 **Run the Postman collection**
 
 Finally, run a simple Postman collection on the new install of Open Zaak:
