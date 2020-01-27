@@ -73,34 +73,6 @@ class PublishAdminMixin:
     is_published.boolean = True
 
 
-class ReadOnlyPublishedMixin:
-    def get_readonly_fields(self, request, obj=None):
-        if not obj or obj.concept:
-            return super().get_readonly_fields(request, obj)
-
-        field_names = [field.name for field in obj._meta.get_fields()]
-        if "datum_einde_geldigheid" in field_names:
-            field_names.remove("datum_einde_geldigheid")
-        return field_names
-
-    def has_delete_permission(self, request, obj=None):
-        if not obj or obj.concept:
-            return super().has_delete_permission(request, obj)
-        return False
-
-    def get_inline_instances(self, request, obj=None):
-        inlines = super().get_inline_instances(request, obj)
-
-        if not obj or obj.concept:
-            return inlines
-
-        for inline in inlines:
-            inline.show_change_link = False
-            inline.show_add_link = False
-
-        return inlines
-
-
 class NewVersionMixin(object):
     exclude_copy_relation = []
 
@@ -293,3 +265,59 @@ class ImportMixin:
         return TemplateResponse(
             request, "admin/catalogi/import_catalogus.html", context
         )
+
+
+class ReadOnlyPublishedBaseMixin:
+    def get_concept(self, obj):
+        return NotImplementedError(
+            "subclasses of ReadOnlyPublishedBaseMixin must provide a get_concept() method"
+        )
+
+    def has_delete_permission(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().has_delete_permission(request, obj)
+        return False
+
+    def get_inline_instances(self, request, obj=None):
+        inlines = super().get_inline_instances(request, obj)
+
+        if self.get_concept(obj):
+            return inlines
+
+        for inline in inlines:
+            inline.show_change_link = False
+            inline.show_add_link = False
+
+        return inlines
+
+
+class ReadOnlyPublishedMixin(ReadOnlyPublishedBaseMixin):
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.concept
+
+    def get_readonly_fields(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().get_readonly_fields(request, obj)
+
+        # leave datum_einde_geldigheid editable
+        field_names = [field.name for field in obj._meta.get_fields()]
+        if "datum_einde_geldigheid" in field_names:
+            field_names.remove("datum_einde_geldigheid")
+        return field_names
+
+
+class ReadOnlyPublishedParentMixin(ReadOnlyPublishedBaseMixin):
+    def has_change_permission(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().has_change_permission(request, obj)
+
+        return False
+
+
+class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.zaaktype.concept

@@ -29,6 +29,7 @@ from .mixins import (
     NewVersionMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
+    ReadOnlyPublishedZaaktypeMixin,
 )
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
@@ -36,7 +37,7 @@ from .statustype import StatusTypeAdmin
 
 
 @admin.register(ZaakTypenRelatie)
-class ZaakTypenRelatieAdmin(admin.ModelAdmin):
+class ZaakTypenRelatieAdmin(ReadOnlyPublishedZaaktypeMixin, admin.ModelAdmin):
     model = ZaakTypenRelatie
 
     # List

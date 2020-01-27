@@ -10,11 +10,16 @@ from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import ResultaatType
 from .forms import ResultaatTypeForm
-from .mixins import CatalogusContextAdminMixin
+from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
 
 
 @admin.register(ResultaatType)
-class ResultaatTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
+class ResultaatTypeAdmin(
+    ReadOnlyPublishedZaaktypeMixin,
+    UUIDAdminMixin,
+    CatalogusContextAdminMixin,
+    admin.ModelAdmin,
+):
     model = ResultaatType
     form = ResultaatTypeForm
 

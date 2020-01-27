@@ -15,11 +15,14 @@ from .mixins import (
     GeldigheidAdminMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
+    ReadOnlyPublishedParentMixin,
 )
 
 
 @admin.register(ZaakTypeInformatieObjectType)
-class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
+class ZaakTypeInformatieObjectTypeAdmin(
+    ReadOnlyPublishedParentMixin, UUIDAdminMixin, admin.ModelAdmin
+):
     model = ZaakTypeInformatieObjectType
 
     # List
@@ -43,6 +46,11 @@ class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
         (_("Relaties"), {"fields": ("zaaktype", "informatieobjecttype", "statustype")}),
     )
     raw_id_fields = ("zaaktype", "informatieobjecttype", "statustype")
+
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.zaaktype.concept or obj.informatieobjecttype.concept
 
 
 class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
