@@ -67,7 +67,7 @@
 
     - role: open_zaak_docker
       vars:
-        openzaak_version: '0.9.0'
+        openzaak_version: '0.9.0'  # see https://github.com/open-zaak/open-zaak/releases
       tags:
         - replicas
 
