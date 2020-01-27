@@ -4,7 +4,7 @@ upstream openzaak {
     {% endfor %}
 }
 
-{% if ssl_enabled %}
+{% if openzaak_ssl %}
 server {
     server_tokens off;
     listen 80;
@@ -15,7 +15,7 @@ server {
 
 server {
     server_tokens off;
-    listen {% if ssl_enabled %}443 ssl{% else %}80{% endif %};
+    listen {% if openzaak_ssl %}443 ssl{% else %}80{% endif %};
     server_name {{ openzaak_domain }};
     client_max_body_size 4G;
 
@@ -49,7 +49,7 @@ server {
     gzip_disable        "MSIE [1-6]\.";
     gzip_vary           on;
 
-    {% if ssl_enabled %}
+    {% if openzaak_ssl %}
 
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Disable SSLv3 for security reasons
     ssl_session_timeout 1d;
