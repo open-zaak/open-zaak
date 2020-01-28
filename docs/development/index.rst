@@ -9,4 +9,6 @@ Open Zaak is open-source software. We’d love to have you contribute!
    :maxdepth: 2
 
    changelog
-   release
+   getting_started
+   releasing
+   performance/index
