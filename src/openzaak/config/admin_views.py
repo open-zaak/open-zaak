@@ -34,7 +34,7 @@ class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             api_root_url = reverse(f"api-root-{component}", kwargs={"version": version})
             schema_url = reverse(
                 f"schema-json-{component}",
-                kwargs={"version": version, "format": ".json"},
+                kwargs={"version": version, "format": ".yaml"},
             )
             service = {
                 "name": component,
