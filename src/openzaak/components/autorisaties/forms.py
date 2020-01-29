@@ -338,7 +338,7 @@ class AutorisatieForm(forms.Form):
 
             # only pick a queryset of the explicitly selected objects
             elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
-                types = self.cleaned_data[_field_info["types_field"]]
+                types = self.cleaned_data.get(_field_info["types_field"])
 
         return types
 
