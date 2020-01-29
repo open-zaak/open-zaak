@@ -17,7 +17,7 @@
     - vars/open-notificaties.yml
 
   collections:
-    - open_zaak.deploy
+    - openzaak.deploy
 
   roles:
 

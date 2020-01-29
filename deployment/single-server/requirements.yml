@@ -1,6 +1,6 @@
 collections:
-  - name: open_zaak.deploy
-    version: 0.1.0
+  - name: openzaak.deploy
+    version: 0.3.0
     source: https://galaxy.ansible.com
 
 roles:

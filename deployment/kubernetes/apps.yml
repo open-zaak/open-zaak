@@ -10,7 +10,7 @@
     # - vars/nlx.yml
 
   collections:
-    - open_zaak.deploy
+    - openzaak.deploy
 
   roles:
     - role: open_zaak_k8s

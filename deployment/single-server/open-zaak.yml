@@ -4,7 +4,7 @@
   hosts: all
 
   collections:
-    - open_zaak.deploy
+    - openzaak.deploy
 
   vars_files:
     - vars/postgres.yml
