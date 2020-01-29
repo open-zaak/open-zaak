@@ -730,5 +730,5 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         self.assertEqual(Autorisatie.objects.count(), 0)
         self.assertEqual(
             response.context_data["formset"]._non_form_errors[0],
-            "zaaktypen should not overlap scopes in one Applicatie",
+            "zaaktypen may not have overlapping scopes.",
         )
