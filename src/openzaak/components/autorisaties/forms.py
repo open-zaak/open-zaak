@@ -454,7 +454,7 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                     previous_types = scope_types.get(scope, set())
                     if previous_types.intersection(types):
                         raise ValidationError(
-                            _("{} should not overlap scopes in one Applicatie").format(
+                            _("{field} may not have overlapping scopes.").format(
                                 types_field
                             ),
                             code="overlapped_types",
