@@ -5,24 +5,28 @@
 
   vars_files:
     - vars/db_credentials.yml
-    - vars/openzaak.yml
-    - vars/opennotificaties.yml
-    - vars/nlx.yml
+    - vars/open-zaak.yml
+    - vars/open-notificaties.yml
+    # - vars/nlx.yml
+
+  collections:
+    - openzaak.deploy
 
   roles:
-    - role: openzaak
-      vars:
-        openzaak_domain: test.openzaak.nl
+    - role: open_zaak_k8s
+      vars:  # these override vars_files
+        openzaak_version: '0.9.0'
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
-        openzaak_replicas: 3
       tags:
         - openzaak
 
-    - role: opennotificaties
+    - role: open_notificaties_k8s
       vars:
         opennotificaties_db_host: "{{ db.privateIp }}"
         opennotificaties_db_port: "{{ db.port }}"
+      tags:
+        - opennotificaties
 
     - role: nlx
       vars:
@@ -31,32 +35,32 @@
         nlx_inway_services:
           - name: openzaak-zaken
             endpoint_url: https://{{ openzaak_domain }}/zaken/api/v1
-            documentation_url: https://{{ openzaak_domain }}/zaken/
+            documentation_url: https://open-zaak.readthedocs.org
             authorization_model: none
-            api_specification_document_url: https://{{ openzaak_domain }}/zaken/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/zaken/api/v1/schema/openapi.yaml
 
           - name: openzaak-documenten
             endpoint_url: https://{{ openzaak_domain }}/documenten/api/v1
-            documentation_url: https://{{ openzaak_domain }}/documenten/
+            documentation_url: https://open-zaak.readthedocs.org
             authorization_model: none
-            api_specification_document_url: https://{{ openzaak_domain }}/documenten/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/documenten/api/v1/schema/openapi.yaml
 
           - name: openzaak-catalogi
             endpoint_url: https://{{ openzaak_domain }}/catalogi/api/v1
-            documentation_url: https://{{ openzaak_domain }}/catalogi/
+            documentation_url: https://open-zaak.readthedocs.org
             authorization_model: none
-            api_specification_document_url: https://{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.yaml
 
           - name: openzaak-besluiten
             endpoint_url: https://{{ openzaak_domain }}/besluiten/api/v1
-            documentation_url: https://{{ openzaak_domain }}/besluiten/
+            documentation_url: https://open-zaak.readthedocs.org
             authorization_model: none
-            api_specification_document_url: https://{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.yaml
 
-          - name: openzaak-authorizations
-            endpoint_url: https://{{ openzaak_domain }}/authorizations/api/v1
-            documentation_url: https://{{ openzaak_domain }}/authorizations/
+          - name: openzaak-autorisaties
+            endpoint_url: https://{{ openzaak_domain }}/autorisaties/api/v1
+            documentation_url: https://open-zaak.readthedocs.org
             authorization_model: none
-            api_specification_document_url: https://{{ openzaak_domain }}/authorizations/api/v1/schema/openapi.json
+            api_specification_document_url: https://{{ openzaak_domain }}/autorisaties/api/v1/schema/openapi.yaml
       tags:
         - nlx

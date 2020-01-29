@@ -1,5 +1,0 @@
----
-
-- name: Set up the persistent storage
-  docker_volume:
-    name: openzaak-private-media

@@ -234,6 +234,7 @@ To install the required dependencies, we use the Python package manager ``pip``:
 .. code-block:: shell
 
     (env) [user@host]$ pip install -r requirements.txt
+    (env) [user@host]$ ansible-galaxy collection install -r requirements.yml
 
 Roughly said, this installs Ansible and the modules to talk to the PostgreSQL
 database and Kubernetes API.

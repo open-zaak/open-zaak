@@ -6,3 +6,5 @@ openzaak_db_host: "{{ db.host }}"
 openzaak_db_port: "{{ db.port }}"
 openzaak_db_username: openzaak-test
 openzaak_db_password: SUPER-SECRET
+
+openzaak_version: 0.1.0  # see https://github.com/open-zaak/open-zaak/releases
