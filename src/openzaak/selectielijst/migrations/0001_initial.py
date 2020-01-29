@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 (
                     "api_root",
                     models.URLField(
-                        default="https://referentielijsten-api.vng.cloud/api/v1/",
+                        default="https://selectielijst.openzaak.nl/api/v1/",
                         unique=True,
                         verbose_name="api root",
                     ),

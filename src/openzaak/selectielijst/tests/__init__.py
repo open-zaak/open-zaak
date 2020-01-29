@@ -1,6 +1,8 @@
 import json
 import os
 
+from django.conf import settings
+
 from requests_mock import Mocker, MockException
 
 from ..models import ReferentieLijstConfig
@@ -19,7 +21,9 @@ def mock_oas_get(m: Mocker) -> None:
     base_url = _get_base_url()
     oas_url = f"{base_url}schema/openapi.yaml"
     with open(SELECTIELIJST_API_SPEC, "rb") as api_spec:
-        m.get(oas_url, content=api_spec.read())
+        api_spec_content = api_spec.read()
+        m.get(oas_url, content=api_spec_content)
+        m.get(settings.REFERENTIELIJSTEN_API_SPEC, content=api_spec_content)
 
 
 def mock_resource_list(m: Mocker, resource: str) -> None:

@@ -74,7 +74,6 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
 
 
 def construct_iotypen(iotypen, iotype_form_data):
-
     iotypen_uuid_mapping = {}
     for imported, form_data in zip(iotypen, iotype_form_data):
         uuid = imported["url"].split("/")[-1]

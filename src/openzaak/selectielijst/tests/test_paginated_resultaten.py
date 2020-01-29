@@ -17,7 +17,7 @@ class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
         ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
         m.get(
-            "https://referentielijsten-api.vng.cloud/api/v1/resultaten",
+            "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={"previous": None, "next": None, "count": 0, "results": []},
         )
 
@@ -28,14 +28,14 @@ class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
     def test_multiple_pages(self, m):
         ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
-        base_url = "https://referentielijsten-api.vng.cloud/api/v1/resultaten"
+        base_url = "https://selectielijst.openzaak.nl/api/v1/resultaten"
         _results = [
             {"url": f"{base_url}/cc5ae4e3-a9e6-4386-bcee-46be4986a829", "nummer": 1},
             {"url": f"{base_url}/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a", "nummer": 1},
         ]
 
         m.get(
-            "https://referentielijsten-api.vng.cloud/api/v1/resultaten",
+            "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={
                 "previous": None,
                 "next": f"{base_url}?page=2",
@@ -45,7 +45,7 @@ class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
             complete_qs=True,
         )
         m.get(
-            "https://referentielijsten-api.vng.cloud/api/v1/resultaten?page=2",
+            "https://selectielijst.openzaak.nl/api/v1/resultaten?page=2",
             json={
                 "previous": None,
                 "next": None,
@@ -69,7 +69,7 @@ class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
     def test_filter_procestype(self, m):
         ReferentieLijstConfig.get_solo()
         mock_oas_get(m)
-        base_url = "https://referentielijsten-api.vng.cloud/api/v1/resultaten"
+        base_url = "https://selectielijst.openzaak.nl/api/v1/resultaten"
         query = urlencode({"procesType": "https://example.com"})
         m.get(
             f"{base_url}?{query}",

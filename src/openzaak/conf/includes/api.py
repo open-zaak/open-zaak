@@ -55,7 +55,7 @@ commit = "da1b2cfdaadb2d19a7d3fc14530923913a2560f2"
 REFERENTIELIJSTEN_API_SPEC = (
     f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
 )
-VRL_API_SPEC = "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml?v=3"
+VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
 
 ztc_repo = "vng-Realisatie/gemma-zaaktypecatalogus"
 ztc_commit = "d52ff0a8138b577e4f4516b0bd957354d91fb97c"

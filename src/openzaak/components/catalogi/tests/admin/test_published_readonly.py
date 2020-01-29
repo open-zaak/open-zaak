@@ -40,7 +40,7 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
         check that in case of published zaaktype only "datum_einde_geldigheid" field is editable
         """
         procestype_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         mock_oas_get(m)
@@ -177,14 +177,17 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
         """
         check that in case of published zaaktype, resultaattype page is readonly
         """
-        selectielijst_api = "https://referentielijsten-api.vng.cloud/api/v1/"
+        selectielijst_api = "https://selectielijst.openzaak.nl/api/v1/"
         procestype_url = (
             f"{selectielijst_api}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         resultaat_url = (
             f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
-        omschrijving_url = f"{selectielijst_api}resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        omschrijving_url = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
 
         mock_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")

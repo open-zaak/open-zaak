@@ -4,7 +4,7 @@ from vng_api_common.decorators import field_default
 from vng_api_common.models import ClientConfig
 
 
-@field_default("api_root", "https://referentielijsten-api.vng.cloud/api/v1/")
+@field_default("api_root", "https://selectielijst.openzaak.nl/api/v1/")
 class ReferentieLijstConfig(ClientConfig):
     class Meta:
-        verbose_name = _("ReferentieLijstconfiguratie")
+        verbose_name = _("Selectielijstconfiguratie")

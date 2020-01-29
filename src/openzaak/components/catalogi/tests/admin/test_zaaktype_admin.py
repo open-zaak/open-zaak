@@ -73,7 +73,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         # first element of JSON response
         self.assertEqual(
             field.value,
-            "https://referentielijsten-api.vng.cloud/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
 
     def test_submit_zaaktype_required_fields(self, m):
