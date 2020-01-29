@@ -61,16 +61,14 @@ development machine.
 
    .. code-block:: bash
 
-       $ npm install -g gulp
        $ npm install
-       $ gulp sass
+       $ npm run build
 
 5. Activate your virtual environment and create the statics and database:
 
    .. code-block:: bash
 
        $ source env/bin/activate
-       $ python src/manage.py collectstatic --link
        $ python src/manage.py migrate
 
 6. Create a superuser to access the management interface:
@@ -86,20 +84,14 @@ development machine.
 
        $ python src/manage.py runserver
 
-8. Create a .env file with database settings. See ``.env-example`` for an
-   example:
-
-   .. code-block:: bash
-
-       $ cp .env-example .env
-
 
 **Note:** If you are making local, machine specific, changes, add them to
-``src/openzaak/conf/includes/local.py``. You can base this file on the
-example file included in the same directory.
+``src/openzaak/conf/includes/local.py``. You can also set certain common
+variables in a local ``.env`` file. You can base these files on the
+example files included in the same directory.
 
 **Note:** You can run watch-tasks to compile `Sass`_ to CSS and `ECMA`_ to JS
-using `gulp`_. By default this will compile the files if they change.
+using `npm run watch`_. By default this will compile the files if they change.
 
 .. _ECMA: https://ecma-international.org/
 .. _Sass: https://sass-lang.com/
@@ -125,13 +117,12 @@ When updating an existing installation:
        $ git pull
        $ pip install -r requirements/dev.txt
        $ npm install
-       $ gulp sass
+       $ npm run build
 
 3. Update the statics and database:
 
    .. code-block:: bash
 
-       $ python src/manage.py collectstatic --link
        $ python src/manage.py migrate
 
 
@@ -148,8 +139,8 @@ Configuration via environment variables
 ---------------------------------------
 
 A number of common settings/configurations can be modified by setting
-environment variables. You can persist these in your ``local.py`` settings
-file or as part of the ``(post)activate`` of your virtualenv.
+environment variables, add them to your ``.env`` file or persist them in
+``src/openzaak/conf/includes/local.py``.
 
 * ``SECRET_KEY``: the secret key to use. A default is set in ``dev.py``
 
@@ -168,19 +159,5 @@ Settings
 
 All settings for the project can be found in
 ``src/openzaak/conf``.
-The file ``includes/local.py`` overwrites settings from the base configuration.
-
-Commands
-========
-
-Commands can be executed using:
-
-.. code-block:: bash
-
-    $ python src/manage.py <command>
-
-There are no specific commands for the project. See
-`Django framework commands`_ for all default commands, or type
-``python src/manage.py --help``.
-
-.. _Django framework commands: https://docs.djangoproject.com/en/dev/ref/django-admin/#available-commands
+The file ``includes/local.py`` overwrites settings from the base configuration,
+and is only loaded for the dev settings.
