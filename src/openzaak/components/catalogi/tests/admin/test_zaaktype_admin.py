@@ -47,7 +47,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
     def test_zaaktype_detail(self, m):
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         response = self.app.get(url)

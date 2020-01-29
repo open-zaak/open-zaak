@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib import admin
 from django.db.models import Field
 from django.http import HttpRequest
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from openzaak.selectielijst.admin_fields import get_procestype_field
@@ -23,6 +24,7 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
+from .helpers import AdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
@@ -265,3 +267,31 @@ class ZaakTypeAdmin(
         obj.versiedatum = obj.datum_begin_geldigheid
 
         super().save_model(request, obj, form, change)
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        # change form class in context
+        adminform = context["adminform"]
+        context["adminform"] = AdminForm(
+            self.render_readonly,
+            adminform.form,
+            list(self.get_fieldsets(request, obj)),
+            self.get_prepopulated_fields(request, obj)
+            if add or self.has_change_permission(request, obj)
+            else {},
+            adminform.readonly_fields,
+            model_admin=self,
+        )
+        return super().render_change_form(
+            request, context, add=False, change=False, form_url="", obj=None
+        )
+
+    def render_readonly(self, field_name: str, value):
+        if field_name == "producten_of_diensten":
+            template = '<a href="{url}">{url}</a>'
+            res = format_html(template, url=value)
+            print("res=", res)
+            return res
+
+        return value
