@@ -119,7 +119,8 @@ server.
    will be generated for this domain and only this domain will be whitelisted
    by Open Zaak! If you are using a private DNS name, then no SSL certificate
    can be created via Letsencrypt - make sure to disable it by setting
-   ``certbot_create_if_missing=false``.
+   ``certbot_create_if_missing=false`` or ``openzaak_ssl=false`` if you don't
+   plan on using HTTPS at all.
 
 .. _deployment_containers_playbook:
 
