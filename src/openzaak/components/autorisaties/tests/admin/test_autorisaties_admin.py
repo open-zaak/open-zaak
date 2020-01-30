@@ -702,3 +702,33 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
+
+    def test_add_autorisatie_zaaktypen_overlap(self):
+        zt1 = ZaakTypeFactory.create()
+        ZaakTypeFactory.create()
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": ["zaken.aanmaken", "zaken.lezen"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-zaaktypen": [zt1.id],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+        self.assertEqual(
+            response.context_data["formset"]._non_form_errors[0],
+            "zaaktypen may not have overlapping scopes.",
+        )

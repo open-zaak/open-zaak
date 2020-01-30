@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -321,6 +322,26 @@ class AutorisatieForm(forms.Form):
                 )
                 self.add_error("externe_typen", error)
 
+    def get_types(self):
+        component = self.cleaned_data["component"]
+        related_type_selection = self.cleaned_data.get("related_type_selection")
+        types = None
+        if related_type_selection:
+            _field_info = COMPONENT_TO_FIELDS_MAP[component]
+
+            # pick the entire queryset and
+            if related_type_selection in [
+                RelatedTypeSelectionMethods.all_current_and_future,
+                RelatedTypeSelectionMethods.all_current,
+            ]:
+                types = self.fields[_field_info["types_field"]].queryset
+
+            # only pick a queryset of the explicitly selected objects
+            elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
+                types = self.cleaned_data.get(_field_info["types_field"])
+
+        return types
+
     def save(self, applicatie: Applicatie, request, commit=True):
         """
         Save the Autorisatie data into the right Autorisatie objects.
@@ -344,31 +365,19 @@ class AutorisatieForm(forms.Form):
             "vertrouwelijkheidaanduiding", ""
         )
 
+        types = self.get_types()
+        # install a handler for future objects
         related_type_selection = self.cleaned_data.get("related_type_selection")
-        types = None
-        if related_type_selection:
-            _field_info = COMPONENT_TO_FIELDS_MAP[component]
+        if related_type_selection == RelatedTypeSelectionMethods.all_current_and_future:
+            applicatie.autorisatie_specs.update_or_create(
+                component=component,
+                defaults={
+                    "scopes": scopes,
+                    "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
+                },
+            )
 
-            # pick the entire queryset and install a handler for future objects
-            if (
-                related_type_selection
-                == RelatedTypeSelectionMethods.all_current_and_future
-            ):
-                types = self.fields[_field_info["types_field"]].queryset
-                applicatie.autorisatie_specs.update_or_create(
-                    component=component,
-                    defaults={
-                        "scopes": scopes,
-                        "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
-                    },
-                )
-
-            # pick the entire queryset
-            elif related_type_selection == RelatedTypeSelectionMethods.all_current:
-                types = self.fields[_field_info["types_field"]].queryset
-            # only pick a queryset of the explicitly selected objects
-            elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
-                types = self.cleaned_data[_field_info["types_field"]]
+        _field_info = COMPONENT_TO_FIELDS_MAP[component]
 
         autorisatie_kwargs = {
             "applicatie": applicatie,
@@ -428,8 +437,31 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         if not versions_equivalent(old_version, new_version):
             send_applicatie_changed_notification(self.applicatie, new_version)
 
+    def clean(self):
+        # validate overlap zaaktypen between different auths
+        self._validate_overlapping_types()
 
-# TODO: validate overlap zaaktypen between different auths
+    def _validate_overlapping_types(self):
+        scope_types = {}
+        for form in self.forms:
+            if form.cleaned_data:
+                types = set(form.get_types() or [])
+                scopes = form.cleaned_data["scopes"]
+                types_field = COMPONENT_TO_FIELDS_MAP[form.cleaned_data["component"]][
+                    "types_field"
+                ]
+                for scope in scopes:
+                    previous_types = scope_types.get(scope, set())
+                    if previous_types.intersection(types):
+                        raise ValidationError(
+                            _("{field} may not have overlapping scopes.").format(
+                                field=types_field
+                            ),
+                            code="overlapped_types",
+                        )
+                    scope_types[scope] = previous_types.union(types)
+
+
 # TODO: support external zaaktypen
 AutorisatieFormSet = forms.formset_factory(
     AutorisatieForm, extra=1, formset=AutorisatieBaseFormSet
