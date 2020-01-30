@@ -63,3 +63,14 @@ def get_resultaattype_omschrijvingen() -> ResultList:
     """
     client = ReferentieLijstConfig.get_client()
     return client.list("resultaattypeomschrijvinggeneriek")
+
+
+@cache("selectielijst:procestype", timeout=60 * 60 * 24)
+def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
+    """
+    Fetch a procestype.
+
+    Results are cached for 24 hours.
+    """
+    client = Client("selectielijst")
+    return client.retrieve("procestype", url)

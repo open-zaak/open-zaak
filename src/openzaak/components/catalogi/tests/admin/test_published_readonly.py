@@ -4,7 +4,7 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.selectielijst.tests import mock_oas_get
+from openzaak.selectielijst.tests import mock_oas_get, mock_resource_get
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..factories import (
@@ -31,14 +31,20 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
         """
         check that in case of published zaaktype only "datum_einde_geldigheid" field is editable
         """
+        procestype_url = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
         mock_oas_get(m)
+        mock_resource_get(m, "procestypen", procestype_url)
 
         zaaktype = ZaakTypeFactory.create(
             concept=False,
             zaaktype_omschrijving="test",
             vertrouwelijkheidaanduiding="openbaar",
-            trefwoorden=["test"],
+            trefwoorden=["test1", "test2"],
             verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 

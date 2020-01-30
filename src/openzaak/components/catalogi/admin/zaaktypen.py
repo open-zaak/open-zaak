@@ -2,10 +2,9 @@ from django.apps import apps
 from django.contrib import admin
 from django.db.models import Field
 from django.http import HttpRequest
-from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.selectielijst.admin_fields import get_procestype_field
+from openzaak.selectielijst.admin_fields import get_procestype_field, get_processtype_readonly_field
 from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
@@ -287,11 +286,12 @@ class ZaakTypeAdmin(
             request, context, add=False, change=False, form_url="", obj=None
         )
 
-    def render_readonly(self, field_name: str, value):
-        if field_name == "producten_of_diensten":
-            template = '<a href="{url}">{url}</a>'
-            res = format_html(template, url=value)
-            print("res=", res)
+    def render_readonly(self, field, result_repr, value):
+        if not value:
+            return result_repr
+
+        if field.name == "selectielijst_procestype":
+            res = get_processtype_readonly_field(value)
             return res
 
-        return value
+        return result_repr

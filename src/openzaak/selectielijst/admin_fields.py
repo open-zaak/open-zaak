@@ -8,7 +8,7 @@ from django.contrib.admin import widgets
 from django.db.models import Field
 from django.http import HttpRequest
 
-from .api import get_procestypen, get_resultaattype_omschrijvingen, get_resultaten
+from .api import get_procestypen, get_resultaattype_omschrijvingen, get_resultaten, retrieve_procestype
 
 
 def get_procestype_field(
@@ -64,3 +64,8 @@ def get_resultaattype_omschrijving_field(
         required=not db_field.blank,
         help_text=db_field.help_text,
     )
+
+
+def get_processtype_readonly_field(url: str) -> str:
+    procestype = retrieve_procestype(url)
+    return f"{procestype['nummer']} - {procestype['naam']}"
