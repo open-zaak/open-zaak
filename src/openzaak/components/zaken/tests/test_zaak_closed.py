@@ -1,5 +1,6 @@
 import datetime
 
+from django.test import tag
 from django.utils import timezone
 
 from rest_framework import status
@@ -50,7 +51,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.betalingsindicatie, BetalingsIndicatie.nvt)
 
     def test_update_zaak_closed_not_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype, closed=True)
         url = reverse(zaak)
 
         response = self.client.patch(
@@ -60,7 +61,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_zaak_closed_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype, closed=True)
         url = reverse(zaak)
 
         self.autorisatie.scopes = [SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
@@ -124,3 +125,32 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             data["detail"], "Reopening a closed case with current scope is forbidden"
         )
+
+
+@tag("closed-zaak")
+class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
+    """
+    Test that updating/adding related data of a Zaak is not allowed when the Zaak is
+    closed.
+    """
+
+    scopes = [SCOPE_ZAKEN_BIJWERKEN]
+    component = ComponentTypes.zrc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype, closed=True)
+        super().setUpTestData()
+
+    def test_zaakinformatieobjecten_create(self):
+        pass
+
+    def test_zaakinformatieobjecten_update(self):
+        pass
+
+    def test_zaakinformatieobjecten_partial_update(self):
+        pass
+
+    def test_zaakinformatieobjecten_destroy(self):
+        pass
