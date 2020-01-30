@@ -1,15 +1,23 @@
+from datetime import timedelta
+
 from django.urls import reverse
 
 import requests_mock
+from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.selectielijst.tests import mock_oas_get, mock_resource_get
+from openzaak.selectielijst.tests import (
+    mock_oas_get,
+    mock_resource_get,
+    mock_resource_list,
+)
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
@@ -45,6 +53,8 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
             trefwoorden=["test1", "test2"],
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype=procestype_url,
+            doorlooptijd_behandeling=timedelta(days=10),
+            producten_of_diensten=["http://example.com/1", "http://example.com/2"],
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
@@ -61,6 +71,18 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
         self.assertEqual("datum_einde_geldigheid" in form_fields, True)
         for field in zaaktype_fields:
             self.assertEqual(field in form_fields, False)
+
+        # check custom formatting
+        procestype = response.html.find(class_="field-selectielijst_procestype").div.div
+        self.assertEqual(procestype.text, "1 - Instellen en inrichten organisatie")
+        behandeling = response.html.find(
+            class_="field-doorlooptijd_behandeling"
+        ).div.div
+        self.assertEqual(behandeling.text, "10 days")
+        producten_of_diensten = response.html.find(
+            class_="field-producten_of_diensten"
+        ).div.div
+        self.assertEqual(len(producten_of_diensten.find_all("a")), 2)
 
     def test_readonly_besluittype(self, m):
         """
@@ -150,3 +172,54 @@ class ReadonlyAdminTests(ClearCachesMixin, WebTest):
 
         for field in ztiot_fields:
             self.assertEqual(field in form_fields, False)
+
+    def test_readonly_resultaattype(self, m):
+        """
+        check that in case of published zaaktype, resultaattype page is readonly
+        """
+        selectielijst_api = "https://referentielijsten-api.vng.cloud/api/v1/"
+        procestype_url = (
+            f"{selectielijst_api}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        resultaat_url = (
+            f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        omschrijving_url = f"{selectielijst_api}resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaten", resultaat_url)
+        mock_resource_get(m, "resultaattypeomschrijvingen", omschrijving_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__concept=False,
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=resultaat_url,
+            resultaattypeomschrijving=omschrijving_url,
+            archiefactietermijn=relativedelta(years=5),
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+
+        response = self.app.get(url)
+
+        form = response.form
+        form_fields = list(form.fields.keys())
+        resultaattype_fields = [f.name for f in resultaattype._meta.get_fields()]
+
+        for field in resultaattype_fields:
+            self.assertEqual(field in form_fields, False)
+
+        # check custom formatting
+        selectielijstklasse = response.html.find(
+            class_="field-selectielijstklasse"
+        ).div.div
+        self.assertEqual(selectielijstklasse.text, "1.1 - Ingericht - vernietigen")
+        omschrijving = response.html.find(
+            class_="field-resultaattypeomschrijving"
+        ).div.div
+        self.assertEqual(omschrijving.text, "Afgewezen")
+        archiefactietermijn = response.html.find(
+            class_="field-archiefactietermijn"
+        ).div.div
+        self.assertEqual(archiefactietermijn.text, "5 years")
