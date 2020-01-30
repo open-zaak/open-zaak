@@ -256,7 +256,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
         """
-        zaak = ZaakFactory.create(einddatum=date(2019, 1, 1))
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",

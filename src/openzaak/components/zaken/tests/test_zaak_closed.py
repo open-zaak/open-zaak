@@ -179,6 +179,7 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
 
         m = requests_mock.Mocker()
         m.start()
+        m.get("https://example.com", status_code=200)
         self.addCleanup(m.stop)
 
     def assertCreateBlocked(self, url: str, data: dict):
@@ -242,7 +243,7 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
             reverse(ZaakObject),
             {
                 "zaak": reverse(self.zaak),
-                "object": "https://example.com/",
+                "object": "https://example.com",
                 "objectType": "overige",
                 "objectTypeOverige": "website",
             },

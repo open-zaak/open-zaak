@@ -55,6 +55,7 @@ from .filters import (
     ZaakObjectFilter,
 )
 from .kanalen import KANAAL_ZAKEN
+from .mixins import ClosedZaakMixin
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -392,6 +393,7 @@ class ZaakObjectViewSet(
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
+    ClosedZaakMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -436,6 +438,7 @@ class ZaakInformatieObjectViewSet(
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    ClosedZaakMixin,
     viewsets.ModelViewSet,
 ):
 
@@ -549,6 +552,7 @@ class ZaakEigenschapViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
+    ClosedZaakMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -599,6 +603,7 @@ class KlantContactViewSet(
     NotificationCreateMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
+    ClosedZaakMixin,
     mixins.CreateModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -646,6 +651,7 @@ class RolViewSet(
     AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    ClosedZaakMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
@@ -708,6 +714,7 @@ class ResultaatViewSet(
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
+    ClosedZaakMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -796,6 +803,7 @@ class ZaakBesluitViewSet(
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     NestedViewSetMixin,
+    ClosedZaakMixin,
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
