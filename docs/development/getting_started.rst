@@ -91,7 +91,7 @@ variables in a local ``.env`` file. You can base these files on the
 example files included in the same directory.
 
 **Note:** You can run watch-tasks to compile `Sass`_ to CSS and `ECMA`_ to JS
-using `npm run watch`_. By default this will compile the files if they change.
+using ``npm run watch``. By default this will compile the files if they change.
 
 .. _ECMA: https://ecma-international.org/
 .. _Sass: https://sass-lang.com/
