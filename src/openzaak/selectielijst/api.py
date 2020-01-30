@@ -71,7 +71,7 @@ def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for 24 hours.
     """
-    client = Client("selectielijst")
+    client = ReferentieLijstConfig.get_client()
     return client.retrieve("procestype", url)
 
 
@@ -81,7 +81,7 @@ def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for 24 hours.
     """
-    client = Client("selectielijst")
+    client = ReferentieLijstConfig.get_client()
     return client.retrieve("resultaat", url)
 
 
@@ -91,5 +91,5 @@ def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for 24 hours.
     """
-    client = Client("selectielijst")
+    client = ReferentieLijstConfig.get_client()
     return client.retrieve("resultaattypeomschrijvinggeneriek", url)

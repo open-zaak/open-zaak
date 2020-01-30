@@ -4,7 +4,10 @@ from django.db.models import Field
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.selectielijst.admin_fields import get_procestype_field, get_processtype_readonly_field
+from openzaak.selectielijst.admin_fields import (
+    get_processtype_readonly_field,
+    get_procestype_field,
+)
 from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
