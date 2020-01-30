@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from openzaak.selectielijst.admin_fields import (
+    get_resultaat_readonly_field,
     get_resultaattype_omschrijving_field,
+    get_resultaattype_omschrijving_readonly_field,
     get_selectielijstklasse_field,
 )
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -96,3 +98,17 @@ class ResultaatTypeAdmin(
             return get_resultaattype_omschrijving_field(db_field, request, **kwargs)
 
         return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def render_readonly(self, field, result_repr, value):
+        if not value:
+            super().render_readonly(field, result_repr, value)
+
+        if field.name == "selectielijstklasse":
+            res = get_resultaat_readonly_field(value)
+            return res
+
+        if field.name == "resultaattypeomschrijving":
+            res = get_resultaattype_omschrijving_readonly_field(value)
+            return res
+
+        return super().render_readonly(field, result_repr, value)

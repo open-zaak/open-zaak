@@ -23,7 +23,6 @@ from ..models import (
 )
 from .eigenschap import EigenschapAdmin
 from .forms import ZaakTypeForm
-from .helpers import AdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
@@ -267,31 +266,9 @@ class ZaakTypeAdmin(
 
         super().save_model(request, obj, form, change)
 
-    def render_change_form(
-        self, request, context, add=False, change=False, form_url="", obj=None
-    ):
-        # change form class in context
-        adminform = context["adminform"]
-        context["adminform"] = AdminForm(
-            self.render_readonly,
-            adminform.form,
-            list(self.get_fieldsets(request, obj)),
-            self.get_prepopulated_fields(request, obj)
-            if add or self.has_change_permission(request, obj)
-            else {},
-            adminform.readonly_fields,
-            model_admin=self,
-        )
-        return super().render_change_form(
-            request, context, add=False, change=False, form_url="", obj=None
-        )
-
     def render_readonly(self, field, result_repr, value):
-        if not value:
-            return result_repr
-
-        if field.name == "selectielijst_procestype":
+        if field.name == "selectielijst_procestype" and value:
             res = get_processtype_readonly_field(value)
             return res
 
-        return result_repr
+        return super().render_readonly(field, result_repr, value)

@@ -8,7 +8,8 @@ from django.contrib.admin import widgets
 from django.db.models import Field
 from django.http import HttpRequest
 
-from .api import get_procestypen, get_resultaattype_omschrijvingen, get_resultaten, retrieve_procestype
+from .api import get_procestypen, get_resultaattype_omschrijvingen, get_resultaten, \
+    retrieve_procestype, retrieve_resultaat, retrieve_resultaattype_omschrijvingen
 
 
 def get_procestype_field(
@@ -69,3 +70,13 @@ def get_resultaattype_omschrijving_field(
 def get_processtype_readonly_field(url: str) -> str:
     procestype = retrieve_procestype(url)
     return f"{procestype['nummer']} - {procestype['naam']}"
+
+
+def get_resultaat_readonly_field(url: str) -> str:
+    resultaat = retrieve_resultaat(url)
+    return f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+
+
+def get_resultaattype_omschrijving_readonly_field(url: str) -> str:
+    omschrijving = retrieve_resultaattype_omschrijvingen(url)
+    return omschrijving["omschrijving"]

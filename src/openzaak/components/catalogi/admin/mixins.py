@@ -16,6 +16,7 @@ from openzaak.utils.admin import ExtraContextAdminMixin
 
 from ..models import Catalogus, ZaakType
 from .forms import CatalogusImportForm
+from .helpers import AdminForm
 
 
 class GeldigheidAdminMixin(object):
@@ -289,6 +290,29 @@ class ReadOnlyPublishedBaseMixin:
             inline.show_add_link = False
 
         return inlines
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        # change form class in context
+        adminform = context["adminform"]
+        context["adminform"] = AdminForm(
+            self.render_readonly,
+            adminform.form,
+            list(self.get_fieldsets(request, obj)),
+            self.get_prepopulated_fields(request, obj)
+            if add or self.has_change_permission(request, obj)
+            else {},
+            adminform.readonly_fields,
+            model_admin=self,
+        )
+        return super().render_change_form(
+            request, context, add=False, change=False, form_url="", obj=None
+        )
+
+    def render_readonly(self, field, result_repr, value):
+        # override method to customize formatting
+        return result_repr
 
 
 class ReadOnlyPublishedMixin(ReadOnlyPublishedBaseMixin):
