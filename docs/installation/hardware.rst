@@ -1,7 +1,7 @@
 .. _installation_hardware:
 
-Hardware
-========
+Hardware requirements
+=====================
 
 Based on our initial :ref:`performance tests<performance_index>` in both a Kubernetes
 environment and single machine setups, we can indicate some minimum system requirements

@@ -1,14 +1,14 @@
 .. _development_index:
 
-Development (TODO)
-==================
+Development
+===========
 
 Open Zaak is open-source software. We’d love to have you contribute!
 
 .. toctree::
    :maxdepth: 2
 
-   contributing
-   development-environment
-   release
    changelog
+   getting_started
+   releasing
+   performance/index

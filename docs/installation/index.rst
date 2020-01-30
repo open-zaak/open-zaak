@@ -5,8 +5,7 @@ Installation
 
 There are several ways to install Open Zaak. A scalable solution is to use
 :ref:`Kubernetes<deployment_kubernetes>`. You can also run the
-:ref:`Docker containers<deployment_containers>` on a single machine. Expert users can
-deploy everything on a :ref:`linux machine<deployment_linux>` directly.
+:ref:`Docker containers<deployment_containers>` on a single machine.
 
 Before you begin
 ----------------
@@ -40,11 +39,9 @@ Guides
    hardware
    deployment/kubernetes
    deployment/single_server
+   updating
    configuration
    logging
-   updating
-   performance/index
-   linux
 
 Post-install checklist
 ----------------------
