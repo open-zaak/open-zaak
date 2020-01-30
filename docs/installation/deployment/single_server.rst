@@ -166,6 +166,21 @@ A full example might look like this:
    outcome. If you decide to change configuration parameters, you do not have
    to start from scratch.
 
+**Changing environment variables**
+
+The Open Zaak configuration is templated out to ``/home/openzaak/.env`` on the host
+machine. It's possible to modify environment variables here, but doing so will not
+become effective immediately - you need to restart the containers:
+
+.. code-block:: shell
+
+    [root@host]# docker restart openzaak-0 openzaak-1 openzaak-2
+
+Make sure to do this for every replica - you can see what's running with ``docker ps``.
+
+.. warning:: If you modify the ``.env`` file and then apply the Ansible playbook again,
+    this will overwrite your changes!
+
 Environment configuration
 -------------------------
 
