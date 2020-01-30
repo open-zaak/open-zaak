@@ -19,3 +19,19 @@ def cache(key: str, alias: str = "default", **set_options):
         return wrapped
 
     return decorator
+
+
+def cache_uuid(key, timeout):
+    def decorator(func: callable):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            # use first argument of function to extract uuid
+            uuid = args[0].split("/")[-1]
+            key_uuid = f"{key}-{uuid}"
+            cached_func = cache(key_uuid, timeout=timeout)(func)
+            result = cached_func(*args, **kwargs)
+            return result
+
+        return wrapped
+
+    return decorator
