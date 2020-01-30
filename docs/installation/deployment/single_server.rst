@@ -162,7 +162,7 @@ A full example might look like this:
         --user admin
         --inventory my-hosts \  # Use inventory file ``my-hosts`` instead of ``hosts``.
         --limit open-zaak.gemeente.nl \  # Only pick open-zaak.gemeente.nl from the inventory file.
-        --extra-vars "certbot_create_if_missing=false app_db_name=openzaak-test app_db_user=openzaak-test" \
+        --extra-vars "openzaak_ssl=false app_db_name=openzaak-test app_db_user=openzaak-test" \
         --connection local \
         --become \
         --become-method=sudo \
@@ -236,7 +236,7 @@ Generic variables
 
 * ``certbot_admin_email``: e-mail address to use to accept the Let's Encrypt
   terms and conditions.
-* ``certbot_create_if_missing``: whether to use Let's Encrypt to create an SSL
+* ``openzaak_ssl``: whether to use Let's Encrypt to create an SSL
   certificate for your domain. Set to ``false`` if you want to use an existing
   certificate.
 

@@ -55,8 +55,8 @@ Before you get started
 Create the base container
 -------------------------
 
-1. Allow the Debian installer to download our configuration details from the
-   host system. In a seperate terminal, do::
+1. Allow the Debian installer to download our configuration details from the host
+   system. In a seperate terminal, in the root folder of the project, do::
 
         $ npm install
 
@@ -66,13 +66,12 @@ Create the base container
           http://192.168.X.X:8080
           http://127.0.0.1:8080
 
-2. Create the container and follow the instructions. Run ``create-container.sh`` and pass
-   the ISO-file and the network adapter name that has an internet connection::
+2. Create the container and follow the instructions. Run ``create-container.sh`` and
+   pass the ISO-file and the network adapter name that has an internet connection::
 
         $ ./create-container.sh debian-10.2.0-amd64-netinst.iso "Realtek PCIe GBE Family Controller"
         [...]
-        Start OS installation in VirtualBox container...
-        (continue with the OS installation procedure in container)
+        Continue with the OS installation procedure in container. Press return when done...
 
 3. In the VirtualBox console, after the initial boot procedure:
 
@@ -83,16 +82,15 @@ Create the base container
 
             http://192.168.X.X:8080/preseed.cfg
 
-   c. After you see a log entry in the terminal running the ``npm run appliance:serve-config``
-      script, you can close it.
+   c. After you see a log entry in the terminal running the
+      ``npm run appliance:serve-config`` script, you can close it.
    d. When the installation is done, the VirtualBox container shuts down automatically.
 
-4. In your terminal, press a key to continue::
+4. In your terminal, press return to continue::
 
-        VirtualBox container was closed. Press any key to continue...
+        Creating snapshot (initial-install)...
         [...]
-        Launching VirtualBox container...
-        (continue with the Open Zaak installation procedure in container and shut down when done)
+        Continue with the installation procedure in container and shut down when completed. Press return when done...
 
    A snapshot called "initial-install" is created to easily reset the image. The
    VirtualBox container will start again to allow for the installation of Open Zaak.
@@ -123,7 +121,12 @@ Install Open Zaak
    If you use a domain name, you can use that instead of the IP-address that is used
    in throughout the rest of this document.
 
-3. Assuming you did not change the user account in ``preseed.cfg``, start the
+3. Configure the relevent variables in. Make a copy of the example file and adjust it
+   to fir your prefences::
+
+        $ cp vars/open-zaak.example.yml vars/open-zaak.yml
+
+4. Assuming you did not change the user account in ``preseed.cfg``, start the
    installation:
 
    a. Login to the container to verify and accept its connection::
@@ -135,16 +138,23 @@ Install Open Zaak
 
    b. Install Ansible requirements::
 
-        $ ansible-galaxy install -r requirements.yml
+        $ ansible-galaxy collection install -r requirements.yml
+        $ ansible-galaxy role install -r requirements.yml
 
-   c. Deploy Open Zaak and limit the installation to the container. If you use a domain
-      name and want to make use of HTTPS (recommended), you can leave out
-      ``-e "certbot_create_if_missing=false"``::
+   c. Deploy Open Zaak and limit the installation to the container. If you use
+      a domain name and want to make use of HTTPS (recommended), you can leave out
+      ``--extra-vars "openzaak_ssl=false""``::
 
-        $ ansible-playbook --user=openzaak --become --ask-become-pass --ask-pass --ask-vault-pass --limit=192.168.X.X open-zaak.yml -e "certbot_create_if_missing=false"
+        $ ansible-playbook open-zaak.yml \
+          --user=openzaak \
+          --become \
+          --ask-become-pass \
+          --ask-pass \
+          --limit=192.168.X.X \
+          --extra-vars "openzaak_ssl=false"
+
         SSH password: <the password of the "openzaak" user as given in preseed.cfg>
         BECOME password[defaults to SSH password]: <same as above>
-        Vault password: <the ansible vault password>
 
 4. After the installation, you might want to create a superuser already. In the
    console or SSH-session, do::
@@ -155,7 +165,13 @@ Install Open Zaak
 
         openzaak@debian:~$ sudo /sbin/shutdown now
 
-   A snapshot called "openzaak-install" is created to easily reset the image.
+6. Back to the terminal, you now press enter to continue::
+
+        Creating snapshot (component-install)...
+        [...]
+        Done.
+
+   A snapshot called "component-install" is created to easily reset the image.
 
 You can now continue to convert the container to be compatible VMware.
 
@@ -236,7 +252,7 @@ Common issues
 
   Change ``server_name`` in::
 
-        $ nano /etc/nginx/conf.d/default.conf
+        $ nano /etc/nginx/conf.d/openzaak.conf
 
 
 .. _`Python`: https://www.python.org/downloads/

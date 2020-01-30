@@ -78,7 +78,6 @@ Licensed under the EUPL_
     :alt: Build status
     :target: https://travis-ci.org/open-zaak/open-zaak
 
-
 .. |docs| image:: https://readthedocs.org/projects/open-zaak/badge/?version=latest
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
