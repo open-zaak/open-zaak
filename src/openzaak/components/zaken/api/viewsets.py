@@ -272,7 +272,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
             init_component=self.queryset.model._meta.app_label,
         ):
-            if zaak.einddatum:
+            if zaak.is_closed:
                 msg = "Modifying a closed case with current scope is forbidden"
                 raise PermissionDenied(detail=msg)
         super().perform_update(serializer)
@@ -380,7 +380,7 @@ class StatusViewSet(
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
             init_component=component,
         ):
-            if zaak.einddatum:
+            if zaak.is_closed:
                 msg = "Reopening a closed case with current scope is forbidden"
                 raise PermissionDenied(detail=msg)
 
