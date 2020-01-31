@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Union
 from urllib.parse import parse_qs, urlparse
 
-from openzaak.utils.decorators import cache
+from openzaak.utils.decorators import cache, cache_uuid
 
 from .models import ReferentieLijstConfig
 
@@ -63,3 +63,36 @@ def get_resultaattype_omschrijvingen() -> ResultList:
     """
     client = ReferentieLijstConfig.get_client()
     return client.list("resultaattypeomschrijvinggeneriek")
+
+
+@cache_uuid("selectielijst:procestypen", timeout=60 * 60 * 24)
+def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
+    """
+    Fetch a procestype.
+
+    Results are cached for 24 hours.
+    """
+    client = ReferentieLijstConfig.get_client()
+    return client.retrieve("procestype", url)
+
+
+@cache_uuid("selectielijst:resultaten", timeout=60 * 60 * 24)
+def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
+    """
+    Fetch a resultaat
+
+    Results are cached for 24 hours.
+    """
+    client = ReferentieLijstConfig.get_client()
+    return client.retrieve("resultaat", url)
+
+
+@cache("referentielijsten:resultaattypeomschrijvinggeneriek", timeout=60 * 60)
+def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
+    """
+    Fetch a generic resultaattype omschrijvingen
+
+    Results are cached for an hours.
+    """
+    client = ReferentieLijstConfig.get_client()
+    return client.retrieve("resultaattypeomschrijvinggeneriek", url)

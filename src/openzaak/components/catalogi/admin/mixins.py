@@ -16,6 +16,7 @@ from openzaak.utils.admin import ExtraContextAdminMixin
 
 from ..models import Catalogus, ZaakType
 from .forms import CatalogusImportForm
+from .helpers import AdminForm
 
 
 class GeldigheidAdminMixin(object):
@@ -265,3 +266,82 @@ class ImportMixin:
         return TemplateResponse(
             request, "admin/catalogi/import_catalogus.html", context
         )
+
+
+class ReadOnlyPublishedBaseMixin:
+    def get_concept(self, obj):
+        return NotImplementedError(
+            "subclasses of ReadOnlyPublishedBaseMixin must provide a get_concept() method"
+        )
+
+    def has_delete_permission(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().has_delete_permission(request, obj)
+        return False
+
+    def get_inline_instances(self, request, obj=None):
+        inlines = super().get_inline_instances(request, obj)
+
+        if self.get_concept(obj):
+            return inlines
+
+        for inline in inlines:
+            inline.show_change_link = False
+            inline.show_add_link = False
+
+        return inlines
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        # change form class in context
+        adminform = context["adminform"]
+        context["adminform"] = AdminForm(
+            self.render_readonly,
+            adminform.form,
+            list(self.get_fieldsets(request, obj)),
+            self.get_prepopulated_fields(request, obj)
+            if add or self.has_change_permission(request, obj)
+            else {},
+            adminform.readonly_fields,
+            model_admin=self,
+        )
+        return super().render_change_form(
+            request, context, add=False, change=False, form_url="", obj=None
+        )
+
+    def render_readonly(self, field, result_repr, value):
+        # override method to customize formatting
+        return result_repr
+
+
+class ReadOnlyPublishedMixin(ReadOnlyPublishedBaseMixin):
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.concept
+
+    def get_readonly_fields(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().get_readonly_fields(request, obj)
+
+        # leave datum_einde_geldigheid editable
+        field_names = [field.name for field in obj._meta.get_fields()]
+        if "datum_einde_geldigheid" in field_names:
+            field_names.remove("datum_einde_geldigheid")
+        return field_names
+
+
+class ReadOnlyPublishedParentMixin(ReadOnlyPublishedBaseMixin):
+    def has_change_permission(self, request, obj=None):
+        if self.get_concept(obj):
+            return super().has_change_permission(request, obj)
+
+        return False
+
+
+class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.zaaktype.concept

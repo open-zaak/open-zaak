@@ -4,7 +4,10 @@ from django.db.models import Field
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.selectielijst.admin_fields import get_procestype_field
+from openzaak.selectielijst.admin_fields import (
+    get_processtype_readonly_field,
+    get_procestype_field,
+)
 from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
@@ -28,6 +31,8 @@ from .mixins import (
     ExportMixin,
     NewVersionMixin,
     PublishAdminMixin,
+    ReadOnlyPublishedMixin,
+    ReadOnlyPublishedZaaktypeMixin,
 )
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
@@ -35,7 +40,7 @@ from .statustype import StatusTypeAdmin
 
 
 @admin.register(ZaakTypenRelatie)
-class ZaakTypenRelatieAdmin(admin.ModelAdmin):
+class ZaakTypenRelatieAdmin(ReadOnlyPublishedZaaktypeMixin, admin.ModelAdmin):
     model = ZaakTypenRelatie
 
     # List
@@ -87,6 +92,7 @@ class ZaakTypenRelatieInline(EditInlineAdminMixin, admin.TabularInline):
 
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
+    ReadOnlyPublishedMixin,
     NewVersionMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
@@ -262,3 +268,10 @@ class ZaakTypeAdmin(
         obj.versiedatum = obj.datum_begin_geldigheid
 
         super().save_model(request, obj, form, change)
+
+    def render_readonly(self, field, result_repr, value):
+        if field.name == "selectielijst_procestype" and value:
+            res = get_processtype_readonly_field(value)
+            return res
+
+        return super().render_readonly(field, result_repr, value)

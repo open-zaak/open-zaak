@@ -4,11 +4,17 @@ from django.utils.translation import ugettext_lazy as _
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import BesluitType
-from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import (
+    CatalogusContextAdminMixin,
+    GeldigheidAdminMixin,
+    PublishAdminMixin,
+    ReadOnlyPublishedMixin,
+)
 
 
 @admin.register(BesluitType)
 class BesluitTypeAdmin(
+    ReadOnlyPublishedMixin,
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,

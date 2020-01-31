@@ -4,11 +4,16 @@ from django.utils.translation import ugettext_lazy as _
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import StatusType
-from .mixins import CatalogusContextAdminMixin
+from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
 
 
 @admin.register(StatusType)
-class StatusTypeAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
+class StatusTypeAdmin(
+    ReadOnlyPublishedZaaktypeMixin,
+    UUIDAdminMixin,
+    CatalogusContextAdminMixin,
+    admin.ModelAdmin,
+):
     model = StatusType
 
     # List

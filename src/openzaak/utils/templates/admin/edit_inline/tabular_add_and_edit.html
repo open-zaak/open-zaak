@@ -84,6 +84,7 @@
         </tr>
      {% endfor %}
      <!-- Added add object -->
+     {% if inline_admin_formset.opts.show_add_link%}
         <tr class="add-row"><td colspan="{{ inline_admin_formset.readonly_fields|length|add:"1" }}">
         {% if original %}
           {% url inline_admin_formset.opts.opts|admin_urlname:'add' as inline_add_url %}
@@ -98,6 +99,7 @@
           {% endblocktrans %}
         {% endif %}
         </td></tr>
+     {% endif %}
      <!-- End -->
      </tbody>
    </table>

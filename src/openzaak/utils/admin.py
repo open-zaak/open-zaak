@@ -118,6 +118,7 @@ class EditInlineAdminMixin(object):
     extra = 0
     can_delete = False
     show_change_link = True
+    show_add_link = True
 
     def has_add_permission(self, request):
         return False

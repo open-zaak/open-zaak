@@ -34,6 +34,9 @@ def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
 
     with open(file, "r") as response_data:
         content = json.load(response_data)
+        # for paginated resources
+        if isinstance(content, dict):
+            content = content["results"]
 
     for procestype_data in content:
         if procestype_data["url"] == url:

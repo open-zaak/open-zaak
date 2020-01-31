@@ -4,11 +4,16 @@ from django.utils.translation import ugettext_lazy as _
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import Eigenschap, EigenschapSpecificatie
-from .mixins import CatalogusContextAdminMixin
+from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
 
 
 @admin.register(Eigenschap)
-class EigenschapAdmin(UUIDAdminMixin, CatalogusContextAdminMixin, admin.ModelAdmin):
+class EigenschapAdmin(
+    ReadOnlyPublishedZaaktypeMixin,
+    UUIDAdminMixin,
+    CatalogusContextAdminMixin,
+    admin.ModelAdmin,
+):
     model = Eigenschap
 
     # List

@@ -88,16 +88,24 @@ class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
         user.user_permissions.add(view_resultaattype)
         self.app.set_user(user)
 
+        selectielijst_api = "https://referentielijsten-api.vng.cloud/api/v1/"
         procestype_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
-            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+            f"{selectielijst_api}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
+        resultaat_url = (
+            f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        omschrijving_url = f"{selectielijst_api}resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         mock_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaten", resultaat_url)
+        mock_resource_get(m, "resultaattypeomschrijvingen", omschrijving_url)
         resultaattype = ResultaatTypeFactory.create(
-            zaaktype__selectielijst_procestype=procestype_url
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=resultaat_url,
+            resultaattypeomschrijving=omschrijving_url,
         )
         url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
 

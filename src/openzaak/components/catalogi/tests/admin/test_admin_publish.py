@@ -4,7 +4,11 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
+from openzaak.selectielijst.tests import (
+    mock_oas_get,
+    mock_resource_get,
+    mock_resource_list,
+)
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..factories import (
@@ -27,8 +31,13 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         self.app.set_user(self.user)
 
     def test_publish_zaaktype(self, m):
+        procestype_url = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
 
         zaaktype = ZaakTypeFactory.create(
             concept=True,
@@ -36,6 +45,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
             vertrouwelijkheidaanduiding="openbaar",
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 

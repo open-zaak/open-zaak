@@ -10,11 +10,19 @@ from openzaak.utils.admin import (
 )
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
-from .mixins import CatalogusContextAdminMixin, GeldigheidAdminMixin, PublishAdminMixin
+from .mixins import (
+    CatalogusContextAdminMixin,
+    GeldigheidAdminMixin,
+    PublishAdminMixin,
+    ReadOnlyPublishedMixin,
+    ReadOnlyPublishedParentMixin,
+)
 
 
 @admin.register(ZaakTypeInformatieObjectType)
-class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
+class ZaakTypeInformatieObjectTypeAdmin(
+    ReadOnlyPublishedParentMixin, UUIDAdminMixin, admin.ModelAdmin
+):
     model = ZaakTypeInformatieObjectType
 
     # List
@@ -39,6 +47,11 @@ class ZaakTypeInformatieObjectTypeAdmin(UUIDAdminMixin, admin.ModelAdmin):
     )
     raw_id_fields = ("zaaktype", "informatieobjecttype", "statustype")
 
+    def get_concept(self, obj):
+        if not obj:
+            return True
+        return obj.zaaktype.concept or obj.informatieobjecttype.concept
+
 
 class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakTypeInformatieObjectType
@@ -47,6 +60,7 @@ class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInli
 
 @admin.register(InformatieObjectType)
 class InformatieObjectTypeAdmin(
+    ReadOnlyPublishedMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
