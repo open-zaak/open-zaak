@@ -63,7 +63,7 @@ Deze API is afhankelijk van:
 
 info = openapi.Info(
     title="Documenten API",
-    default_version=settings.API_VERSION,
+    default_version=settings.DOCUMENTEN_API_VERSION,
     description=description,
     contact=openapi.Contact(
         email=settings.OPENZAAK_API_CONTACT_EMAIL, url=settings.OPENZAAK_API_CONTACT_URL
