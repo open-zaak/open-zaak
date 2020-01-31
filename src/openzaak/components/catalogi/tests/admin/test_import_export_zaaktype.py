@@ -993,7 +993,8 @@ class ReadOnlyUserTests(WebTest):
 
         user = UserFactory.create(is_staff=True)
         view_zaaktype = Permission.objects.get(codename="view_zaaktype")
-        user.user_permissions.add(view_zaaktype)
+        view_catalogus = Permission.objects.get(codename="view_catalogus")
+        user.user_permissions.add(view_zaaktype, view_catalogus)
 
         cls.user = user
 
@@ -1012,3 +1013,18 @@ class ReadOnlyUserTests(WebTest):
 
         # try to submit it anyway
         detail_page.form.submit("_export", status=403)
+
+    def test_import_catalogus_zaaktype(self):
+        catalogus = CatalogusFactory.create()
+        import_url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,)
+        )
+        select_url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype_select", args=(catalogus.pk,)
+        )
+
+        for url in (import_url, select_url):
+            with self.subTest(url=url, method="get"):
+                self.app.get(url, status=403)
+            with self.subTest(url=url, method="post"):
+                self.app.post(url, status=403)

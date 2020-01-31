@@ -386,3 +386,8 @@ class ReadOnlyUserTests(WebTest):
 
         # try to submit it anyway
         detail_page.form.submit("_export", status=403)
+
+    def test_import_catalogus(self):
+        url = reverse("admin:catalogi_catalogus_import")
+
+        self.app.get(url, status=403)
