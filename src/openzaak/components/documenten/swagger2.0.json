@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.0"
+        "version": "1.0.1"
     },
     "basePath": "/documenten/api/v1",
     "consumes": [
@@ -3291,7 +3291,8 @@
                         "in": "query",
                         "description": "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API).",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     },
                     {
                         "name": "informatieobject",
@@ -4900,7 +4901,7 @@
                     "format": "date-time"
                 },
                 "einddatum": {
-                    "title": "Startdatum",
+                    "title": "Einddatum",
                     "description": "Einddatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn.",
                     "type": "string",
                     "format": "date-time",
