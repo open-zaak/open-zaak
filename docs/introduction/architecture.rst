@@ -31,6 +31,13 @@ Zaakgericht werken"`_.
 No permanent copies are made of original sources in **Open Zaak** as dictated
 by the `Common Ground`_ principles.
 
+Overview
+--------
+
+.. image:: _assets/architecture.png
+    :width: 100%
+    :alt: Architectural overview of component inside and related to Open Zaak.
+
 .. _reference implementation of the "API's voor Zaakgericht werken": https://github.com/VNG-Realisatie/gemma-zaken
 .. _VNG Realisatie: https://www.vngrealisatie.nl/
 .. _Common Ground: https://commonground.nl/
