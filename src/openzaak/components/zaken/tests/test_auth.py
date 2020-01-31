@@ -752,7 +752,8 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ZaakFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url = reverse("zaak-list")
 
@@ -769,7 +770,8 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         zaak2 = ZaakFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url1 = reverse(zaak1)
         url2 = reverse(zaak2)
@@ -789,6 +791,7 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         )
         # must not show up
         StatusFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -807,10 +810,90 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         status2 = StatusFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url1 = reverse(status1)
         url2 = reverse(status2)
+
+        response1 = self.client.get(url1)
+        response2 = self.client.get(url2)
+
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_resultaten_list(self):
+        url = reverse("resultaat-list")
+        # must show up
+        resultaat = ResultaatFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        ResultaatFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(
+            response_data[0]["url"], f"http://testserver{reverse(resultaat)}"
+        )
+
+    def test_resultaten_retrieve(self):
+        resultaat1 = ResultaatFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        resultaat2 = ResultaatFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url1 = reverse(resultaat1)
+        url2 = reverse(resultaat2)
+
+        response1 = self.client.get(url1)
+        response2 = self.client.get(url2)
+
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_zaakinformatieobject_list(self):
+        # must show up
+        zio1 = ZaakInformatieObjectFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        ZaakInformatieObjectFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url = reverse(ZaakInformatieObject)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        zaak_url = reverse(zio1.zaak)
+        self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
+
+    def test_zaakinformatieobject_retrieve(self):
+        zio1 = ZaakInformatieObjectFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        zio2 = ZaakInformatieObjectFactory.create(
+            zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url1 = reverse(zio1)
+        url2 = reverse(zio2)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
