@@ -9,6 +9,7 @@
   "scripts": {
     "build": "gulp build",
     "watch": "gulp watch",
+    "convert": "swagger2openapi $SCHEMA_PATH/swagger2.0.json -o $SCHEMA_PATH/openapi.yaml",
     "appliance:serve-config": "http-server deployment/appliance/debian-config"
   },
   "repository": {

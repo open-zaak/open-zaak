@@ -284,7 +284,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | --- | --- | --- | --- | --- |
 | url |  | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| besluit | URL-referentie naar het BESLUIT (in de Besluiten API), waar ook de relatieinformatie opgevraagd kan worden. | string | ja | C​R​U​D |
+| besluit | URL-referentie naar het BESLUIT (in de Besluiten API). | string | ja | C​R​U​D |
 
 ## ZaakEigenschap
 

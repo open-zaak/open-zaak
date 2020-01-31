@@ -22,9 +22,9 @@
     ],
     "securityDefinitions": {
         "JWT-Claims": {
-            "bearerFormat": "JWT",
+            "type": "http",
             "scheme": "bearer",
-            "type": "http"
+            "bearerFormat": "JWT"
         }
     },
     "security": [
@@ -423,7 +423,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -998,7 +998,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -1361,7 +1361,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -1563,7 +1563,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -1740,7 +1740,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -2256,7 +2256,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -2426,7 +2426,29 @@
                 "operationId": "rol_delete",
                 "summary": "Verwijder een ROL van een ZAAK.",
                 "description": "Verwijder een ROL van een ZAAK.",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "X-NLX-Request-Application-Id",
+                        "in": "header",
+                        "description": "Identificatie van de applicatie die het verzoek stuurt (indien NLX wordt gebruikt).",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-NLX-Request-User-Id",
+                        "in": "header",
+                        "description": "Identificatie van de gebruiker die het verzoek stuurt (indien NLX wordt gebruikt).",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Audit-Toelichting",
+                        "in": "header",
+                        "description": "Toelichting waarom een bepaald verzoek wordt gedaan",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "No content",
@@ -2572,7 +2594,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -3532,7 +3554,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaken.aanmaken | zaken.bijwerken)"
+                            "(zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -4728,7 +4750,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(zaken.aanmaken | zaken.bijwerken)"
+                            "(zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -8008,7 +8030,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "zaken.bijwerken"
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
                 ]
@@ -9131,7 +9153,7 @@
                     "title": "Object type overige",
                     "description": "Beschrijft het type OBJECT als `objectType` de waarde \"overige\" heeft.",
                     "type": "string",
-                    "pattern": "[a-z\\_]+",
+                    "pattern": "[a-z_]+",
                     "maxLength": 100
                 },
                 "relatieomschrijving": {
@@ -11321,7 +11343,7 @@
                 },
                 "besluit": {
                     "title": "Besluit",
-                    "description": "URL-referentie naar het BESLUIT (in de Besluiten API), waar ook de relatieinformatie opgevraagd kan worden.",
+                    "description": "URL-referentie naar het BESLUIT (in de Besluiten API).",
                     "type": "string",
                     "format": "uri",
                     "maxLength": 1000,
