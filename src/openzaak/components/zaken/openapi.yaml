@@ -364,7 +364,7 @@ paths:
       - klantcontacten
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters: []
   /klantcontacten/{uuid}:
     get:
@@ -836,7 +836,7 @@ paths:
       - resultaten
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters: []
   /resultaten/{uuid}:
     get:
@@ -1137,7 +1137,7 @@ paths:
       - resultaten
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     patch:
       operationId: resultaat_partial_update
       summary: Werk een RESULTAAT deels bij.
@@ -1306,7 +1306,7 @@ paths:
       - resultaten
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     delete:
       operationId: resultaat_delete
       summary: Verwijder een RESULTAAT van een ZAAK.
@@ -1453,7 +1453,7 @@ paths:
       - resultaten
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters:
     - name: uuid
       in: path
@@ -1886,7 +1886,7 @@ paths:
       - rollen
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters: []
   /rollen/{uuid}:
     get:
@@ -2023,6 +2023,27 @@ paths:
       operationId: rol_delete
       summary: Verwijder een ROL van een ZAAK.
       description: Verwijder een ROL van een ZAAK.
+      parameters:
+      - name: X-NLX-Request-Application-Id
+        in: header
+        description: Identificatie van de applicatie die het verzoek stuurt (indien
+          NLX wordt gebruikt).
+        required: false
+        schema:
+          type: string
+      - name: X-NLX-Request-User-Id
+        in: header
+        description: Identificatie van de gebruiker die het verzoek stuurt (indien
+          NLX wordt gebruikt).
+        required: false
+        schema:
+          type: string
+      - name: X-Audit-Toelichting
+        in: header
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+        required: false
+        schema:
+          type: string
       responses:
         '204':
           description: No content
@@ -2144,7 +2165,7 @@ paths:
       - rollen
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters:
     - name: uuid
       in: path
@@ -2943,7 +2964,7 @@ paths:
       - zaakinformatieobjecten
       security:
       - JWT-Claims:
-        - (zaken.aanmaken | zaken.bijwerken)
+        - (zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters: []
   /zaakinformatieobjecten/{uuid}:
     get:
@@ -3948,7 +3969,7 @@ paths:
       - zaakobjecten
       security:
       - JWT-Claims:
-        - (zaken.aanmaken | zaken.bijwerken)
+        - (zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters: []
   /zaakobjecten/{uuid}:
     get:
@@ -6751,7 +6772,7 @@ paths:
       - zaken
       security:
       - JWT-Claims:
-        - zaken.bijwerken
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
     parameters:
     - name: zaak_uuid
       in: path
@@ -6930,9 +6951,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      bearerFormat: JWT
-      scheme: bearer
       type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     KlantContact:
       required:
@@ -7812,7 +7833,7 @@ components:
           description: Beschrijft het type OBJECT als `objectType` de waarde "overige"
             heeft.
           type: string
-          pattern: '[a-z\_]+'
+          pattern: '[a-z_]+'
           maxLength: 100
         relatieomschrijving:
           title: Relatieomschrijving
@@ -9625,8 +9646,7 @@ components:
           readOnly: true
         besluit:
           title: Besluit
-          description: URL-referentie naar het BESLUIT (in de Besluiten API), waar
-            ook de relatieinformatie opgevraagd kan worden.
+          description: URL-referentie naar het BESLUIT (in de Besluiten API).
           type: string
           format: uri
           maxLength: 1000

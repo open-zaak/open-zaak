@@ -262,11 +262,7 @@ class FailedNotificationTests(JWTAuthMixin, APITestCase):
 
     def test_zaakobject_create_fail_send_notification_create_db_entry(self):
         url = get_operation_url("zaakobject_create")
-        zaak = ZaakFactory.create(
-            einddatum=now(),
-            archiefactiedatum="2020-01-01",
-            archiefnominatie=Archiefnominatie.blijvend_bewaren,
-        )
+        zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         data = {
             "zaak": zaak_url,

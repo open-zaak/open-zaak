@@ -54,9 +54,9 @@ class Application:
     def store_notification(self):
         # registreer zaak & zet statussen, resultaat
         self.registreer_zaak()
-        self.zet_statussen_resultaat()
         self.registreer_domein_data()
         self.registreer_klantcontact()
+        self.zet_statussen_resultaat()
 
     def registreer_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.utils import timezone
 
 import factory
@@ -36,6 +38,16 @@ class ZaakFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "zaken.Zaak"
 
+    class Params:
+        closed = factory.Trait(
+            einddatum=factory.LazyFunction(date.today),
+            status_set=factory.RelatedFactory(
+                "openzaak.components.zaken.tests.factories.StatusFactory",
+                factory_related_name="zaak",
+                statustype__zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+            ),
+        )
+
 
 class RelevanteZaakRelatieFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
@@ -56,7 +68,9 @@ class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
 
 class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    eigenschap = factory.SubFactory(EigenschapFactory)
+    eigenschap = factory.SubFactory(
+        EigenschapFactory, zaaktype=factory.SelfAttribute("..zaak.zaaktype")
+    )
     _naam = factory.Faker("word")
     waarde = factory.Faker("word")
 
@@ -104,7 +118,9 @@ class StatusFactory(factory.django.DjangoModelFactory):
 
 class ResultaatFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
-    resultaattype = factory.SubFactory(ResultaatTypeFactory)
+    resultaattype = factory.SubFactory(
+        ResultaatTypeFactory, zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+    )
 
     class Meta:
         model = "zaken.Resultaat"

@@ -340,6 +340,10 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
         status = self.status_set.first()
         return status.uuid if status else None
 
+    @property
+    def is_closed(self) -> bool:
+        return self.einddatum is not None
+
     def unique_representation(self):
         return f"{self.bronorganisatie} - {self.identificatie}"
 
