@@ -2,8 +2,9 @@ import io
 import zipfile
 from unittest.mock import patch
 
+from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
@@ -11,7 +12,7 @@ import requests_mock
 from django_webtest import TransactionWebTest, WebTest
 from zds_client.tests.mocks import mock_client
 
-from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 
 from ...models import (
     BesluitType,
@@ -982,3 +983,32 @@ class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
         )
         self.assertEqual(ZaakType.objects.count(), 0)
         self.assertEqual(Eigenschap.objects.count(), 0)
+
+
+@tag("readonly-user")
+class ReadOnlyUserTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        user = UserFactory.create(is_staff=True)
+        view_zaaktype = Permission.objects.get(codename="view_zaaktype")
+        user.user_permissions.add(view_zaaktype)
+
+        cls.user = user
+
+    def setUp(self):
+        super().setUp()
+        self.app.set_user(self.user)
+
+    def test_export_catalogus(self):
+        zaaktype = ZaakTypeFactory.create()
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        detail_page = self.app.get(url)
+
+        html = detail_page.form.html
+        self.assertNotIn(_("Exporteren"), html)
+
+        # try to submit it anyway
+        detail_page.form.submit("_export", status=403)
