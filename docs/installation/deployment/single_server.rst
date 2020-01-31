@@ -13,6 +13,9 @@ This documentation describes the architecture, prerequisites and how to deploy
 Open Zaak on a server. Additionally, it documents the possible configuration
 options.
 
+.. note:: The default settings allow Open Zaak to be deployed to the same
+   machine as Open Notificaties.
+
 Architecture
 ============
 
@@ -97,8 +100,8 @@ Navigate to the correct deployment directory:
 
     (env) [user@laptop]$ cd deployment/single-server
 
-Create the ``secrets.yml`` file - you can find an example in
-``vars/secrets.yml.example``. Generate a secret key using the
+Create the ``vars/open-zaak.yml`` file - you can find an example in
+``vars/open-zaak.yml.example``. Generate a secret key using the
 `django secret key generator`_ and put the value between single
 quotes.
 
@@ -114,7 +117,10 @@ server.
 
 .. warning:: It's important to use the correct domain name, as the SSL certificate
    will be generated for this domain and only this domain will be whitelisted
-   by Open Zaak!
+   by Open Zaak! If you are using a private DNS name, then no SSL certificate
+   can be created via Letsencrypt - make sure to disable it by setting
+   ``certbot_create_if_missing=false`` or ``openzaak_ssl=false`` if you don't
+   plan on using HTTPS at all.
 
 .. _deployment_containers_playbook:
 

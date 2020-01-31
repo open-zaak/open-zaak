@@ -31,13 +31,7 @@
           - "{{ openzaak_domain }}"
 
     # nginx vars
-    ssl_enabled: "{{ certbot_create_if_missing | bool }}"
     nginx_http_template_enable: true
-    nginx_http_template:
-      default:
-        template_file: templates/openzaak.conf.j2
-        conf_file_name: default.conf
-        conf_file_location: /etc/nginx/conf.d/
 
   roles:
     - role: debian_setup
@@ -67,12 +61,19 @@
 
     - role: open_zaak_docker
       vars:
-        openzaak_version: '0.9.0'  # see https://github.com/open-zaak/open-zaak/releases
+        openzaak_version: '0.9.0'  # see https://hub.docker.com/r/openzaak/open-zaak/tags
       tags:
         - replicas
 
     - role: nginxinc.nginx
       vars:
+        nginx_http_template:
+          default:
+            # set by open_notificaties_docker role
+            template_file: "{{ openzaak_nginx_template }}"
+            conf_file_name: openzaak.conf
+            conf_file_location: /etc/nginx/conf.d/
+
         # set by the open_zaak_docker role while provisioning the docker volume
         openzaak_volume_path: "{{ openzaak_volume.volume.Mountpoint }}"
       tags:
