@@ -1,8 +1,9 @@
 import io
 from unittest.mock import patch
 
+from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
@@ -10,7 +11,7 @@ import requests_mock
 from django_webtest import WebTest
 from zds_client.tests.mocks import mock_client
 
-from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 
 from ...models import (
     BesluitType,
@@ -356,3 +357,37 @@ class CatalogusAdminImportExportTests(WebTest):
 
         export_button = response.html.find("input", {"name": "_export"})
         self.assertIsNone(export_button)
+
+
+@tag("readonly-user")
+class ReadOnlyUserTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        user = UserFactory.create(is_staff=True)
+        view_catalogus = Permission.objects.get(codename="view_catalogus")
+        user.user_permissions.add(view_catalogus)
+
+        cls.user = user
+
+    def setUp(self):
+        super().setUp()
+        self.app.set_user(self.user)
+
+    def test_export_catalogus(self):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
+
+        detail_page = self.app.get(url)
+
+        html = detail_page.form.html
+        self.assertNotIn(_("Exporteren"), html)
+
+        # try to submit it anyway
+        detail_page.form.submit("_export", status=403)
+
+    def test_import_catalogus(self):
+        url = reverse("admin:catalogi_catalogus_import")
+
+        self.app.get(url, status=403)

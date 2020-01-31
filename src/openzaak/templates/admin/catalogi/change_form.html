@@ -8,6 +8,7 @@
 {% block submit_buttons_bottom %}
     {{ block.super }}
 
+    {% if has_change_permission %}
     <div class="submit-row submit-row-extended">
 
         {% block extra_submit_buttons %}
@@ -22,4 +23,5 @@
         {% endblock %}
 
     </div>
+    {% endif %}
 {% endblock %}

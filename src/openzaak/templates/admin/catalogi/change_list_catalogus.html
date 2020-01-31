@@ -2,12 +2,15 @@
 {% load i18n admin_urls %}
 
 {% block object-tools-items %}
-  {{ block.super }}
+    {{ block.super }}
+
+    {% if perms.catalogi.add_zaaktype %}
     <li>
         {% url 'admin:catalogi_catalogus_import' as import %}
         <a href="{% add_preserved_filters import is_popup to_field %}" class="addlink">
             {% trans "Importeer catalogus" %}
         </a>
     </li>
+    {% endif %}
 {% endblock %}
 

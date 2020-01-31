@@ -4,6 +4,7 @@ from urllib.parse import parse_qsl, quote as urlquote
 
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.core.exceptions import PermissionDenied
 from django.core.management import CommandError, call_command
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -235,6 +236,9 @@ class ImportMixin:
         return my_urls + urls
 
     def import_view(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+
         form = CatalogusImportForm(request.POST, request.FILES)
         context = dict(self.admin_site.each_context(request), form=form)
         if "_import" in request.POST:
