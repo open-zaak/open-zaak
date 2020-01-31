@@ -828,11 +828,13 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         resultaat = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/1",
         )
         # must not show up
         ResultaatFactory.create(
             zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/2",
         )
 
         response = self.client.get(url)
@@ -848,10 +850,12 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         resultaat1 = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/1",
         )
         resultaat2 = ResultaatFactory.create(
             zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/2",
         )
         url1 = reverse(resultaat1)
         url2 = reverse(resultaat2)
