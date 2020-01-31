@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -19,9 +20,11 @@ from .utils import (
 )
 
 
-class CatalogusZaakTypeImportUploadView(FormView):
+class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
     template_name = "admin/catalogi/import_zaaktype.html"
     form_class = ZaakTypeImportForm
+    permission_required = "catalogi.add_zaaktype"
+    raise_exception = True
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
@@ -64,8 +67,10 @@ class CatalogusZaakTypeImportUploadView(FormView):
         return TemplateResponse(request, self.template_name, context)
 
 
-class CatalogusZaakTypeImportSelectView(TemplateView):
+class CatalogusZaakTypeImportSelectView(PermissionRequiredMixin, TemplateView):
     template_name = "admin/catalogi/select_existing_typen.html"
+    permission_required = "catalogi.add_zaaktype"
+    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
