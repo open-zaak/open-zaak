@@ -456,6 +456,7 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url = reverse("enkelvoudiginformatieobject-list")
@@ -474,6 +475,7 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url1 = reverse(eio1)
@@ -499,7 +501,8 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ObjectInformatieObject.objects.create(
             informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
@@ -527,7 +530,8 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio2 = ObjectInformatieObject.objects.create(
             informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak

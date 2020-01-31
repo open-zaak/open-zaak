@@ -262,7 +262,9 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
-        BesluitFactory.create()
+        BesluitFactory.create(
+            besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
+        )
         url = reverse("besluit-list")
 
         response = self.client.get(url)
@@ -276,7 +278,9 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
     def test_besluit_retrieve(self):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
-        besluit2 = BesluitFactory.create()
+        besluit2 = BesluitFactory.create(
+            besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
+        )
         url1 = reverse(besluit1)
         url2 = reverse(besluit2)
 
@@ -293,7 +297,9 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             besluit__besluittype=self.besluittype
         )
         # must not show up
-        BesluitInformatieObjectFactory.create()
+        BesluitInformatieObjectFactory.create(
+            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
+        )
 
         response = self.client.get(url)
 
@@ -310,7 +316,9 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype
         )
-        bio2 = BesluitInformatieObjectFactory.create()
+        bio2 = BesluitInformatieObjectFactory.create(
+            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1",
+        )
 
         url1 = reverse(bio1)
         url2 = reverse(bio2)
