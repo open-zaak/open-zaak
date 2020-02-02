@@ -45,7 +45,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.0
+  version: 1.0.1
 security:
 - JWT-Claims: []
 paths:
@@ -2791,6 +2791,7 @@ paths:
         required: false
         schema:
           type: string
+          format: uri
       - name: informatieobject
         in: query
         description: URL-referentie naar het INFORMATIEOBJECT.
@@ -4448,7 +4449,7 @@ components:
           type: string
           format: date-time
         einddatum:
-          title: Startdatum
+          title: Einddatum
           description: Einddatum van de periode waarin de gebruiksrechtvoorwaarden
             van toepassing zijn.
           type: string

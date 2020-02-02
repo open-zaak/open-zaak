@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from vng_api_common.management.commands import generate_swagger
 
 SCHEMA_MAPPING = {
@@ -30,8 +32,12 @@ class Command(generate_swagger.Command):
         urlconf,
         component=None,
         *args,
-        **options
+        **options,
     ):
+        _version = getattr(settings, f"{component.upper()}_API_VERSION")
+
+        # Setting must exist for vng-api-common, so monkeypatch it in
+        settings.API_VERSION = _version
 
         if not component:
             super().handle(
@@ -45,7 +51,7 @@ class Command(generate_swagger.Command):
                 info,
                 urlconf,
                 *args,
-                **options
+                **options,
             )
 
         # rewrite command arguments based on the component
@@ -64,5 +70,5 @@ class Command(generate_swagger.Command):
             info,
             urlconf,
             *args,
-            **options
+            **options,
         )

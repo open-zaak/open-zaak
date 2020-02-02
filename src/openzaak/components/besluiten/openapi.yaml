@@ -38,7 +38,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.0
+  version: 1.0.1
 security:
 - JWT-Claims: []
 paths:
@@ -1942,9 +1942,9 @@ components:
       required: true
   securitySchemes:
     JWT-Claims:
-      bearerFormat: JWT
-      scheme: bearer
       type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Besluit:
       required:

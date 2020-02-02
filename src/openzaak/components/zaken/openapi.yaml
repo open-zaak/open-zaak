@@ -34,7 +34,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.0
+  version: 1.0.1
 security:
 - JWT-Claims: []
 paths:
