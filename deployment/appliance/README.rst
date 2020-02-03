@@ -121,8 +121,8 @@ Install Open Zaak
    If you use a domain name, you can use that instead of the IP-address that is used
    in throughout the rest of this document.
 
-3. Configure the relevent variables in. Make a copy of the example file and adjust it
-   to fir your prefences::
+3. Configure the relevant variables. Make a copy of the example file and adjust it
+   to fit your preferences::
 
         $ cp vars/open-zaak.example.yml vars/open-zaak.yml
 
