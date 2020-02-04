@@ -46,7 +46,7 @@ markdown==3.0.1
 markupsafe==1.0           # via jinja2
 maykin-django-better-admin-arrayfield==1.0.5
 oyaml==0.7                # via vng-api-common
-psycopg2==2.8.3
+psycopg2==2.8.4
 pyjwt==1.6.4              # via gemma-zds-client, vng-api-common
 python-dateutil==2.7.3
 python-decouple==3.1
@@ -56,7 +56,7 @@ pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0
 redis==3.3.8              # via django-redis
 requests==2.21.0
-ruamel.yaml==0.15.37      # via drf-yasg
+ruamel.yaml==0.16.7       # via drf-yasg
 six==1.11.0               # via django-markup, django-sendfile2, drf-yasg, isodate, python-dateutil
 sqlparse==0.3.0           # via django
 unidecode==1.0.22         # via vng-api-common

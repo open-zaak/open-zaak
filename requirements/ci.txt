@@ -52,7 +52,7 @@ markdown==3.0.1
 markupsafe==1.0
 maykin-django-better-admin-arrayfield==1.0.5
 oyaml==0.7
-psycopg2==2.8.3
+psycopg2==2.8.4
 pyjwt==1.6.4
 python-dateutil==2.7.3
 python-decouple==3.1
@@ -63,7 +63,7 @@ raven==6.9.0
 redis==3.3.8
 requests-mock==1.6.0
 requests==2.21.0
-ruamel.yaml==0.15.37
+ruamel.yaml==0.16.7
 six==1.11.0
 soupsieve==1.9.5          # via beautifulsoup4
 sqlparse==0.3.0
@@ -74,6 +74,6 @@ uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
 vng-api-common==1.0.36
-waitress==1.4.2           # via webtest
+waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
