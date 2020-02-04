@@ -326,9 +326,12 @@ div.help:hover {
   text-indent: inherit;
   width: auto;
   background-image: none;
+  padding-left: 5px !important;
+  position: absolute;
 }
 
 div.help {
+  cursor: help;
   width: 16px;
   height: 16px;
   background-image: url(../../admin/img/icon-unknown.svg);
