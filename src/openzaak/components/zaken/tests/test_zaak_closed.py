@@ -8,7 +8,7 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.constants import Archiefnominatie, ComponentTypes
+from vng_api_common.constants import Archiefnominatie, ComponentTypes, RolOmschrijving
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.api.scopes import (
@@ -272,8 +272,14 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
         self.assertCreateBlocked(url, data)
 
     def test_rollen(self):
-        roltype = RolTypeFactory.create(zaaktype=self.zaaktype)
-        rol = RolFactory.create(zaak=self.zaak, roltype=roltype)
+        roltype = RolTypeFactory.create(
+            zaaktype=self.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        rol = RolFactory.create(
+            zaak=self.zaak,
+            roltype=roltype,
+            omschrijving_generiek=RolOmschrijving.zaakcoordinator,
+        )
         rol_url = reverse(rol)
 
         create_url = reverse(Rol)
