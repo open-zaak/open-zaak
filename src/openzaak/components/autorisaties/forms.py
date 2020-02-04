@@ -326,9 +326,7 @@ class AutorisatieForm(forms.Form):
         related_type_selection = self.cleaned_data.get("related_type_selection")
         types = None
         if related_type_selection:
-            _field_info = COMPONENT_TO_FIELDS_MAP.get(component)
-            if _field_info is None:
-                return types
+            _field_info = COMPONENT_TO_FIELDS_MAP[component]
 
             # pick the entire queryset and
             if related_type_selection in [
