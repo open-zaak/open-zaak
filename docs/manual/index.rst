@@ -3,6 +3,9 @@
 Manual
 ======
 
+.. note::
+    The manual is currently only available in the Dutch language!
+
 Once Open Zaak is :ref:`installed<installation_index>`, it needs to be
 configured to make all API's accessible and allow inter-communication.
 
