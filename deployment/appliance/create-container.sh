@@ -24,6 +24,14 @@ if [ -f ${VM_NAME}/${VM_NAME}.vdi ]; then
     echo -n "Delete existing and create new container? [y/n] "
     read -n 1 NEW_CONTAINER
     echo ""
+
+    if [ "$NEW_CONTAINER" == "y" ]; then
+        echo "Cleaning up previous VirtualBox container..."
+
+        vboxmanage unregistervm ${VM_NAME} --delete
+        # vboxmanage closemedium disk ${VM_NAME}/${VM_NAME}.vdi --delete
+        rm -rf ${VM_NAME}
+    fi
 else
     NEW_CONTAINER="y"
 fi
@@ -31,19 +39,15 @@ fi
 # Create a new VirtualBox container from scratch.
 if [ "$NEW_CONTAINER" == "y" ]; then
 
-    echo "Cleaning up previous VirtualBox container..."
-
-    vboxmanage unregistervm ${VM_NAME} --delete
-    rm -rf ${VM_NAME}
-
     echo "Creating new VirtualBox container..."
 
     mkdir ${VM_NAME}
     cd ${VM_NAME}
 
     # Create basic container
-    vboxmanage createhd --filename ${VM_NAME}.vdi --size 30720
+    vboxmanage createmedium disk --filename ${VM_NAME}.vdi --size 30720
     vboxmanage createvm --name ${VM_NAME} --ostype Debian_64 --register
+
     # A minimum of vram=10 is required to show the console.
     vboxmanage modifyvm ${VM_NAME} --memory 4096 --vram=12 --acpi on --nic1 bridged --bridgeadapter1 "${BRIDGE_ADAPTER}"
     vboxmanage modifyvm ${VM_NAME} --nictype1 virtio
@@ -58,14 +62,16 @@ if [ "$NEW_CONTAINER" == "y" ]; then
     vboxmanage storagectl ${VM_NAME} --name "SCSI Controller" --add scsi
     vboxmanage storageattach ${VM_NAME} --storagectl "SCSI Controller" --port 0 --device 0 --type hdd --medium `pwd`/${VM_NAME}.vdi
 
+    cd ..
+
     vboxmanage storagectl ${VM_NAME} --name "IDE Controller" --add ide --controller PIIX4
-    vboxmanage storageattach ${VM_NAME} --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium $OS_ISO_PATH
+    vboxmanage storageattach ${VM_NAME} --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium ${OS_ISO_PATH}
 
     echo "Start OS installation in VirtualBox container..."
-    echo "(continue with the OS installation procedure in container)"
 
     vboxmanage startvm ${VM_NAME}
-    echo "VirtualBox container was closed. Press any key to continue..."
+
+    echo "Continue with the OS installation procedure in container. Press return when done..."
     read -n 1
 
     # Remove DVD and poweroff (this fails if container already shutdown but doesn't matter).
@@ -87,11 +93,13 @@ else
 fi
 
 echo "Launching VirtualBox container..."
-echo "(continue with the Open Zaak installation procedure in container and shut down when done)"
 
 vboxmanage startvm ${VM_NAME}
 
-echo "Creating snapshot (openzaak-install)..."
-vboxmanage snapshot ${VM_NAME} take "openzaak-install"
+echo "Continue with the installation procedure in container and shut down when completed. Press return when done..."
+read -n 1
 
-echo "VirtualBox container was closed, assuming all done."
+echo "Creating snapshot (component-install)..."
+vboxmanage snapshot ${VM_NAME} take "component-install"
+
+echo "Done."

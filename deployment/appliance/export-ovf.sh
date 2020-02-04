@@ -15,7 +15,7 @@ command -v ovftool >/dev/null 2>&1 || { echo >&2 "Error: The executable \"ovftoo
 
 cd ${VM_NAME}
 
-# vboxmanage snapshot ${VM_NAME} take "openzaak-install"
+# vboxmanage snapshot ${VM_NAME} take "component-install"
 rm -rf ${VM_NAME}.ovf
 rm -rf ${VM_NAME}-disk001.vmdk
 
