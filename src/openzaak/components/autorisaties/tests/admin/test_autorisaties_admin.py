@@ -703,6 +703,26 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
 
+    def test_add_authorizatie_without_types(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.ztc,
+            "form-0-scopes": ["catalogi.lezen"],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.applicatie.autorisaties.count(), 1)
+
+        autorisatie = self.applicatie.autorisaties.get()
+        self.assertEqual(autorisatie.component, ComponentTypes.ztc)
+        self.assertEqual(autorisatie.scopes, ["catalogi.lezen"])
+
     def test_add_autorisatie_zaaktypen_overlap(self):
         zt1 = ZaakTypeFactory.create()
         ZaakTypeFactory.create()
@@ -731,4 +751,26 @@ class ManageAutorisatiesAdmin(TransactionTestCase):
         self.assertEqual(
             response.context_data["formset"]._non_form_errors[0],
             "zaaktypen may not have overlapping scopes.",
+        )
+
+    def test_add_autorisatie_overlap_without_types(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.ztc,
+            "form-0-scopes": ["catalogi.lezen", "catalogi.schrijven"],
+            "form-1-component": ComponentTypes.ztc,
+            "form-1-scopes": ["catalogi.lezen"],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+        self.assertEqual(
+            response.context_data["formset"]._non_form_errors[0],
+            "Scopes in ztc may not be duplicated.",
         )
