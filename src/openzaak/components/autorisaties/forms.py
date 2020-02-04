@@ -322,8 +322,7 @@ class AutorisatieForm(forms.Form):
                 )
                 self.add_error("externe_typen", error)
 
-    def get_types(self):
-        component = self.cleaned_data["component"]
+    def get_types(self, component):
         related_type_selection = self.cleaned_data.get("related_type_selection")
         types = None
         if related_type_selection:
@@ -365,7 +364,7 @@ class AutorisatieForm(forms.Form):
             "vertrouwelijkheidaanduiding", ""
         )
 
-        types = self.get_types()
+        types = self.get_types(component)
         # install a handler for future objects
         related_type_selection = self.cleaned_data.get("related_type_selection")
         if related_type_selection == RelatedTypeSelectionMethods.all_current_and_future:
@@ -377,8 +376,6 @@ class AutorisatieForm(forms.Form):
                 },
             )
 
-        _field_info = COMPONENT_TO_FIELDS_MAP[component]
-
         autorisatie_kwargs = {
             "applicatie": applicatie,
             "component": component,
@@ -388,6 +385,7 @@ class AutorisatieForm(forms.Form):
         if types is None:
             Autorisatie.objects.create(**autorisatie_kwargs)
         else:
+            _field_info = COMPONENT_TO_FIELDS_MAP[component]
             autorisaties = []
             for _type in types:
                 data = autorisatie_kwargs.copy()
@@ -445,11 +443,12 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         scope_types = {}
         for form in self.forms:
             if form.cleaned_data:
-                types = set(form.get_types() or [])
+                component = form.cleaned_data["component"]
+                types = set(form.get_types(component) or [])
                 scopes = form.cleaned_data["scopes"]
-                types_field = COMPONENT_TO_FIELDS_MAP[form.cleaned_data["component"]][
-                    "types_field"
-                ]
+                types_field = None
+                if component in COMPONENT_TO_FIELDS_MAP:
+                    types_field = COMPONENT_TO_FIELDS_MAP[component]["types_field"]
                 for scope in scopes:
                     previous_types = scope_types.get(scope, set())
                     if previous_types.intersection(types):
@@ -459,6 +458,15 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                             ),
                             code="overlapped_types",
                         )
+                    # for components without types just check scopes
+                    if scope in scope_types and not scope_types[scope] and not types:
+                        raise ValidationError(
+                            _("Scopes in {component} may not be duplicated.").format(
+                                component=component
+                            ),
+                            code="overlapped_types",
+                        )
+
                     scope_types[scope] = previous_types.union(types)
 
 

@@ -4,6 +4,7 @@
 .svn
 .idea/
 .sass-cache/
+.vscode/
 *.db
 *.pyc
 __pycache__
