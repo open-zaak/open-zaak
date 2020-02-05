@@ -63,7 +63,7 @@ class AuthRequired(permissions.BasePermission):
         iat = payload.get("iat")
         if iat is None:
             raise PermissionDenied(
-                _("The JWT is mising the 'iat' claim.", code="jwt-missing-iat-claim")
+                _("The JWT is mising the 'iat' claim."), code="jwt-missing-iat-claim"
             )
 
         current_timestamp = time.time()
