@@ -35,7 +35,7 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
 
     def test_publish_zaaktype(self, m):
         procestype_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         mock_oas_get(m)

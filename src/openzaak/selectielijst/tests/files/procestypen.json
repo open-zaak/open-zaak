@@ -5,7 +5,7 @@
     "omschrijving": "Instellen en inrichten organisatie",
     "procesobject": "De vastgestelde organisatie inrichting",
     "toelichting": "Dit procestype betreft het instellen van een nieuw organisatieonderdeel of een nieuwe orgaan waar het orgaan in deelneemt. Dit procestype betreft eveneens het inrichten van het eigen orgaan. Dit kan kleinschalig plaatsvinden bijvoorbeeld het wijzigen van de uitvoering van een wettelijke taak of grootschalig wanneer er een organisatiewijziging wordt doorgevoerd.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
   },
   {
     "naam": "Beleid en regelgeving opstellen",
@@ -13,7 +13,7 @@
     "omschrijving": "Opstellen en vaststellen van algemene (wettelijke) kaders voor het functioneren van de instelling.",
     "procesobject": "Het beleid of regelgeving",
     "toelichting": "Wanneer een beleidsstuk betrekking heeft op een bepaalde afgebakende periode vormt het een beleidsplan en valt het onder het procestype 'Plan opstellen'. In een beleidsregel geeft een orgaan aan hoe een bepaalde bevoegdheid zal worden uitgevoerd. Bij het nemen van veel voorkomende beslissingen hoeft het orgaan niet telkens haar beleid of haar uitvoering van hogere wet- en regelgeving uit te leggen, maar kan zij verwijzen naar de bekendgemaakte beleidsregel. Deze vorm van regelgeving valt wel onder dit procestype. ",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/96eae691-077f-4fd6-ad66-950b9b714880"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/96eae691-077f-4fd6-ad66-950b9b714880"
   },
   {
     "naam": "Plannen opstellen",
@@ -21,7 +21,7 @@
     "omschrijving": "Opstellen van plannen voor een in het plan afgebakende periode die richting geeft voor wat er in die periode moet gebeuren / verwacht wordt dat er gaat gebeuren.",
     "procesobject": "Het plan",
     "toelichting": "Dit procestype heeft betrekking op het concreet invullen van algemene kaders die in beleidsstukken worden geschetst voor een afgebakende periode. Het orgaan stelt hiervoor een plan op. ",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
   },
   {
     "naam": "Evaluatie uitvoeren",
@@ -29,7 +29,7 @@
     "omschrijving": "Het controleren, evalueren, rapporten en verantwoorden over het handelen van het orgaan",
     "procesobject": "Het object waar de evaluatie betrekking op heeft",
     "toelichting": "Dit evalueren kan zowel betrekking hebben op de evaluatie van beleid, als op de uitvoering van beleid en het functioneren van het eigen orgaan.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/d6c58b4f-7e88-4227-977c-cb2fb22c5eed"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/d6c58b4f-7e88-4227-977c-cb2fb22c5eed"
   },
   {
     "naam": "Producten en diensten leveren",
@@ -37,7 +37,7 @@
     "omschrijving": "Het door het orgaan leveren van (publieke) producten of diensten",
     "procesobject": "Het geleverde product of de geleverde dienst",
     "toelichting": "Voor het verstrekken van een product of dienst hoeft de aanvrager niet aan een bepaalde situatie te voldoen, want in dat geval is het procestype 'Voorzieningen verstrekken' van toepassing. Het product of de dienst houdt niet het doen of laten van het orgaan in, want in dat geval valt het onder het procestype 'Verzoeken behandelen'.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/07c3c06a-2049-4e9e-82c5-7c1ff703c642"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/07c3c06a-2049-4e9e-82c5-7c1ff703c642"
   },
   {
     "naam": "Verzoeken behandelen",
@@ -45,7 +45,7 @@
     "omschrijving": "Het behandelen van een verzoek  tot het doen of laten van het orgaan",
     "procesobject": "Het handelen van het orgaan op basis van het verzoek",
     "toelichting": "Wanneer een aanvrager een aanvraag voor een bepaalde voorziening indient, is het procestype 'Voorzieningen verstrekken' van toepassing. Wanneer het om een product of dienst gaat dat niet een doen of juist laten van het orgaan inhoudt, is het procestype 'Producten en diensten leveren' van toepassing.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/3030daa1-d516-4cd9-8276-ef0977e32b20"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/3030daa1-d516-4cd9-8276-ef0977e32b20"
   },
   {
     "naam": "Aangiften behandelen",
@@ -53,7 +53,7 @@
     "omschrijving": "Het behandelen van een aangifte van een bepaald feit, situatie of voornemen waar een inwoner op basis van wet- en regelgeving toe verplicht is.",
     "procesobject": "De aangifte",
     "toelichting": "Niet alleen de aangiften van inwoners zijn onder dit procestype geschaard, maar ook de kennisgevingen over een bepaald feit waar ketenpartners toe verplicht zijn en die het orgaan in de BRP dient te verwerken.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/39a1711c-f94b-4282-8ac3-7c545d8ecb04"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/39a1711c-f94b-4282-8ac3-7c545d8ecb04"
   },
   {
     "naam": "Voorzieningen verstrekken",
@@ -61,7 +61,7 @@
     "omschrijving": "Het verstekken van een (financiële) voorziening, al dan niet na een bepaalde vorm van toetsing, waarvoor een inwoner van het orgaan op basis van zijn of haar situatie in aanmerking komt.",
     "procesobject": "De voorziening",
     "toelichting": "Indien de aanvrager zich niet in een bepaalde situatie hoeft te bevinden en wanneer het orgaan wordt verzocht om iets te doen of te laten, is het procestype 'Verzoek behandelen' van toepassing. Indien beiden niet van toepassing zijn, is het procestype 'Producten en diensten leveren' van toepassing.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/9be366e2-f63c-494a-8a77-62446251b006"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/9be366e2-f63c-494a-8a77-62446251b006"
   },
   {
     "naam": "Status toekennen",
@@ -69,7 +69,7 @@
     "omschrijving": "Het toepassen van de publieke bevoegdheden als overheidsorgaan om personen, objecten of immateriële zaken een bepaalde status toe te kennen.",
     "procesobject": "De status",
     "toelichting": "Het orgaan kan een gebied een status toekennen, om de bestemming of het gebruik van dit gebied te wijzigen. Door een persoon (een externe of een personeelslid) in een speciale functie te benoemen of door hem te mandateren, wordt hem een speciale bevoegdheden toegekend.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/941de99f-b702-4b3e-9df4-db370f457bea"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/941de99f-b702-4b3e-9df4-db370f457bea"
   },
   {
     "naam": "Heffen",
@@ -77,7 +77,7 @@
     "omschrijving": "Het opleggen van een financiële verplichting aan derden op basis van de publiekrechtelijke bevoegdheden als overheidsorgaan",
     "procesobject": "De heffing",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/9c051de9-988c-42fd-ba00-2eeb6f0ac423"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/9c051de9-988c-42fd-ba00-2eeb6f0ac423"
   },
   {
     "naam": "Toestemming verlenen",
@@ -85,7 +85,7 @@
     "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
     "procesobject": "De verleende toestemming",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/035d5ce8-d4f8-4f23-a386-fe2ea136d9e3"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/035d5ce8-d4f8-4f23-a386-fe2ea136d9e3"
   },
   {
     "naam": "Toezien en handhaven",
@@ -93,7 +93,7 @@
     "omschrijving": "Het vanuit een bevoegdheid, afspraak of overeenkomst inspecteren, controleren en toezien met als doel te controleren of personen of partijen voldoen aan geldende afspraken, wet- of regelgeving en het wanneer nodig corrigerend ingrijpen of opleggen van een sanctie.",
     "procesobject": "Het vastgelegde eindresultaat van het proces",
     "toelichting": "Het kan hierbij gaan om landelijke wet- en regelgeving, door het orgaan vastgestelde regelgeving en om vastgelegde afspraken.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/75ae016a-4b09-440f-b95e-0de747b88c05"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/75ae016a-4b09-440f-b95e-0de747b88c05"
   },
   {
     "naam": "Geschillen behandelen",
@@ -101,7 +101,7 @@
     "omschrijving": "Het afhandelen van een geschil dat door een derde aanhangig wordt gemaakt omdat deze een (vermeend) nadeel heeft ondervonden door het (niet) handelen van de instelling",
     "procesobject": "Het object waar het geschil betrekking op heeft",
     "toelichting": "Indien een derde of een personeelslid het niet eens is met het al of niet handelen van het orgaan, kan hij om compensatie verzoeken of een bezwaar aantekenen of een beroep indienen.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/9ac48c4c-9225-4d89-a85c-178d479224c0"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/9ac48c4c-9225-4d89-a85c-178d479224c0"
   },
   {
     "naam": "Openbare ruimte inrichten",
@@ -109,7 +109,7 @@
     "omschrijving": "Het inrichten, herstructureren, aanleggen of ontwikkelen van alle openbare of private gebieden of objecten die het orgaan onder haar beheer heeft.",
     "procesobject": "De voorziening in de openbare ruimte",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/a6f9ac8e-52bb-4b06-aaab-6d0628982356"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/a6f9ac8e-52bb-4b06-aaab-6d0628982356"
   },
   {
     "naam": "Onderhouden en repareren",
@@ -117,7 +117,7 @@
     "omschrijving": "Het planmatig onderhoud of naar aanleiding van een constatering repareren van objecten waarvoor het orgaan een beheerverantwoordelijkheid heeft.",
     "procesobject": "Het object waarop het onderhoud of de reparatie wordt uitgevoerd",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/2f296607-9faa-41e1-800f-e8fcaf55b9c8"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/2f296607-9faa-41e1-800f-e8fcaf55b9c8"
   },
   {
     "naam": "Overeenkomsten aangaan",
@@ -125,7 +125,7 @@
     "omschrijving": "Het aangaan van een overeenkomst met een persoon of organisatie",
     "procesobject": "De overeenkomst",
     "toelichting": "Door overeenkomsten te sluiten kan het orgaan zorgen voor de uitvoering van haar taken, het voorzien in haar behoeften en voor het zekerstellen van haar positie.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/f9a7f23b-a326-4f28-8edb-4028273ad32c"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/f9a7f23b-a326-4f28-8edb-4028273ad32c"
   },
   {
     "naam": "Personen aanstellen",
@@ -133,7 +133,7 @@
     "omschrijving": "Het aannemen van personen in een bepaalde functie",
     "procesobject": "Het dienstverband",
     "toelichting": "Het kan hierbij zowel om het aanstellen van een eigen personeelslid gaan, als om het benoemen van een persoon in een onafhankelijke commissie of het bestuur van het orgaan. ",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/d1e536dd-baed-4c5a-a862-f9ca92227d8e"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/d1e536dd-baed-4c5a-a862-f9ca92227d8e"
   },
   {
     "naam": "Betalen en innen",
@@ -141,7 +141,7 @@
     "omschrijving": "Het op basis van een aangegane of opgelegde verplichting of heffing innen of betalen van geldbedragen",
     "procesobject": "De vordering of schuld",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/32a6fdb6-e894-4011-a594-9ba9f92f150a"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/32a6fdb6-e894-4011-a594-9ba9f92f150a"
   },
   {
     "naam": "Secretariaat voeren en gegevens administreren / verwerken ",
@@ -149,7 +149,7 @@
     "omschrijving": "Het door het orgaan in een van haar administraties verwerken van aangeleverde, gemelde of geconstateerde gegevens, zonder dat hier een inhoudelijke toetsing bij plaatsvindt",
     "procesobject": "De verwerkte gegevens",
     "toelichting": "Dit procestype geldt eveneens voor de verslaglegging van overleg op verschillende niveaus. Zie bijlage 4 voor een overzicht van blijvend te bewaren registers waarvoor het orgaan verantwoordelijk is.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/87804ff2-4ae3-4700-b1d4-a49ca3fcd2d0"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/87804ff2-4ae3-4700-b1d4-a49ca3fcd2d0"
   },
   {
     "naam": "Informeren",
@@ -157,7 +157,7 @@
     "omschrijving": "Het op initiatief van het orgaan samenstellen en verspreiden van informatie over zaken van het orgaan die interne of externe derden aangaan",
     "procesobject": "De verstrekte of gepubliceerde informatie",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/b7759b9f-797c-40ac-9cbe-b82299a6d81b"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/b7759b9f-797c-40ac-9cbe-b82299a6d81b"
   },
   {
     "naam": "Adviseren",
@@ -165,7 +165,7 @@
     "omschrijving": "Het op eigen initiatief of op verzoek geven van een advies over een bepaalde situatie of voornemen",
     "procesobject": "Het advies",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/74fedf07-50ca-42e3-85fe-994873bada7e"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/74fedf07-50ca-42e3-85fe-994873bada7e"
   },
   {
     "naam": "Gebeurtenis organiseren",
@@ -173,7 +173,7 @@
     "omschrijving": "Het organiseren van een intern of externe gebeurtenis ",
     "procesobject": "De gebeurtenis",
     "toelichting": "Het orgaan organiseert evenementen of gebeurtenissen vanuit haar wettelijke taak of ter promotie",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/a26cc03a-e414-4ee7-9d9b-0c507d2f3963"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/a26cc03a-e414-4ee7-9d9b-0c507d2f3963"
   },
   {
     "naam": "Voorziening aanvragen",
@@ -181,7 +181,7 @@
     "omschrijving": "Het op initiatief van het orgaan bij een derde vragen van een voorziening waar het orgaan aanspraak op kan maken op basis van wet- en regelgeving of gemaakte afspraken.",
     "procesobject": "De voorziening",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/849d8c36-6d99-460a-b049-1cfe4ea74216"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/849d8c36-6d99-460a-b049-1cfe4ea74216"
   },
   {
     "naam": "Toestemming vragen",
@@ -189,7 +189,7 @@
     "omschrijving": "Het op initiatief van het orgaan bij derden vragen van een toestemming op basis van een geldende verplichting hiertoe",
     "procesobject": "De verkregen toestemming",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/bcef2e85-fd7b-4ce8-acf9-175ab377af66"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/bcef2e85-fd7b-4ce8-acf9-175ab377af66"
   },
   {
     "naam": "Toezicht en handhaving ondergaan",
@@ -197,7 +197,7 @@
     "omschrijving": "Het ondergaan van toezicht en handhaving uitgevoerd door een ander orgaan",
     "procesobject": "Het object waarop het toezicht of de handhaving betrekking op heeft",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/de205198-47f8-4b5d-858a-bd6dd4b8b042"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/de205198-47f8-4b5d-858a-bd6dd4b8b042"
   },
   {
     "naam": "Betwisten",
@@ -205,7 +205,7 @@
     "omschrijving": "Het op initiatief van het orgaan bij een derde inbrengen van een geschil wanneer het orgaan door het (niet) handelen van een derde nadeel heeft ondervonden of dreigt te gaan ondervinden",
     "procesobject": "Het object waar het geschil betrekking op heeft",
     "toelichting": "Indien een orgaan het niet eens is met het al of niet handelen van een derde, kan het orgaan om compensatie vragen of bezwaar en/of beroep indienen bij de daartoe aangewezen organisaties.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/ab806bcb-4123-4eb9-b9cc-26370abc06dd"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/ab806bcb-4123-4eb9-b9cc-26370abc06dd"
   },
   {
     "naam": "Status aanvragen",
@@ -213,7 +213,7 @@
     "omschrijving": "Het op initiatief van het orgaan bij een ander overheidsorgaan verzoeken om personen, objecten of immateriële zaken een bepaalde status toe te kennen.",
     "procesobject": "De status",
     "toelichting": "Het orgaan kan een andere organisatie verzoeken om aan een persoon, een object of een bepaald gebied een status toe te kennen.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/a80a028d-12d1-41ae-b1ec-48c3347301b2"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/a80a028d-12d1-41ae-b1ec-48c3347301b2"
   },
   {
     "naam": "Product of dienst aanvragen",
@@ -221,7 +221,7 @@
     "omschrijving": "Het door het orgaan aanvragen van (publieke) producten of diensten",
     "procesobject": "Product of dienst",
     "toelichting": "Het orgaan kan bij een andere organisatie vragen om een product of dienst zonder dat daar een overeenkomst voor hoeft worden gesloten.",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/32978765-f83c-4966-8d15-380d75685ad8"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/32978765-f83c-4966-8d15-380d75685ad8"
   },
   {
     "naam": "Aangifte doen",
@@ -229,6 +229,6 @@
     "omschrijving": "Het doen van aangifte van een bepaald feit, situatie of voornemen waar een ander overheidsorgaan op basis van wet- en regelgeving hier een administratie van voert.",
     "procesobject": "De aangifte",
     "toelichting": "",
-    "url": "https://referentielijsten-api.vng.cloud/api/v1/procestypen/1a8aa9b8-73e0-4a71-8c9e-3d314db95518"
+    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/1a8aa9b8-73e0-4a71-8c9e-3d314db95518"
   }
 ]

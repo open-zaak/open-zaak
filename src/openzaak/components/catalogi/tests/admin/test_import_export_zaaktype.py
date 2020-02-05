@@ -13,6 +13,11 @@ from django_webtest import TransactionWebTest, WebTest
 from zds_client.tests.mocks import mock_client
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.selectielijst.tests import (
+    mock_oas_get,
+    mock_resource_get,
+    mock_resource_list,
+)
 
 from ...models import (
     BesluitType,
@@ -38,16 +43,39 @@ from ..factories import (
 )
 
 
-class ZaakTypeAdminImportExportTests(WebTest):
+class MockSelectielijst:
+    def setUp(self):
+        super().setUp()
+
+        mocker = requests_mock.Mocker()
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        mock_oas_get(mocker)
+
+        mock_resource_list(mocker, "procestypen")
+        mock_resource_get(
+            mocker,
+            "procestypen",
+            (
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+            ),
+        )
+
+
+class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
     def setUp(self):
         super().setUp()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+
         self.app.set_user(self.user)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
@@ -693,7 +721,7 @@ class ZaakTypeAdminImportExportTests(WebTest):
         self.assertIsNone(import_button)
 
 
-class ZaakTypeAdminImportExportTransactionTests(TransactionWebTest):
+class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()
         site = Site.objects.get_current()
