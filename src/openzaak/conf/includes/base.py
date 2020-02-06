@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     "django_loose_fk",
+    "drc_cmis",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
@@ -507,3 +508,5 @@ STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
+
+CMIS_ENABLED = True
