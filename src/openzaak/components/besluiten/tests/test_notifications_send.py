@@ -104,7 +104,9 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
-@override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
+@override_settings(
+    NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=False
+)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

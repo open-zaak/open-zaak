@@ -125,9 +125,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         informatieobjecttype_url = informatieobject_data["informatieobjecttype"]
 
         # lock for update
-        eio = EnkelvoudigInformatieObjectCanonical.objects.get()
-        eio.lock = "0f60f6d2d2714c809ed762372f5a363a"
-        eio.save()
+        eio_canonical = EnkelvoudigInformatieObjectCanonical.objects.get()
+        eio_canonical.lock = "0f60f6d2d2714c809ed762372f5a363a"
+        eio_canonical.save()
 
         content = {
             "identificatie": uuid.uuid4().hex,
@@ -143,7 +143,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "beschrijving": "test_beschrijving",
             "informatieobjecttype": informatieobjecttype_url,
             "vertrouwelijkheidaanduiding": "openbaar",
-            "lock": "0f60f6d2d2714c809ed762372f5a363a",
+            "lock": eio_canonical.lock,
         }
 
         informatieobject_response = self.client.put(informatieobject_url, content).data
@@ -173,13 +173,12 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         informatieobject_url = informatieobject_data["url"]
 
         # lock for update
-        eio = EnkelvoudigInformatieObjectCanonical.objects.get()
-        eio.lock = "0f60f6d2d2714c809ed762372f5a363a"
-        eio.save()
+        eio_canonical = EnkelvoudigInformatieObjectCanonical.objects.get()
+        eio_canonical.lock = "0f60f6d2d2714c809ed762372f5a363a"
+        eio_canonical.save()
 
         informatieobject_response = self.client.patch(
-            informatieobject_url,
-            {"titel": "changed", "lock": "0f60f6d2d2714c809ed762372f5a363a"},
+            informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)

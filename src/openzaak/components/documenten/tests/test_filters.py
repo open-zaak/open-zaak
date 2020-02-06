@@ -29,6 +29,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             latest_version__informatieobjecttype__concept=False
         )
         GebruiksrechtenFactory.create(informatieobject=eio)
+
         response = self.client.get(
             reverse(Gebruiksrechten), {"informatieobject": "https://google.com"}
         )

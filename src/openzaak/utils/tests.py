@@ -6,6 +6,9 @@ import sys
 from django.core.cache import caches
 from django.db.models import Model
 
+import requests_mock
+from drc_cmis.client import CMISDRCClient
+from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
@@ -141,3 +144,17 @@ def mock_client(responses: dict):
         delattr(sys.modules["zds_client.tests.mocks"], name)
     finally:
         pass
+
+
+class APICMISTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.adapter = requests_mock.Mocker(real_http=True)
+        self.adapter.start()
+        super().setUp()
+
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        client = CMISDRCClient()
+        client.delete_cmis_folders_in_base()
+        self.adapter.stop()
+        super().tearDown()

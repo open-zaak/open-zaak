@@ -110,6 +110,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             },
         )
 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         besluitinformatieobject_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=besluit_data["url"])

@@ -11,6 +11,7 @@ Factory models for the documenten application.
 import datetime
 import uuid
 
+from django.test import RequestFactory
 from django.utils import timezone
 
 import factory
@@ -34,7 +35,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     canonical = factory.SubFactory(
         EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None
     )
-    identificatie = uuid.uuid4().hex
+    identificatie = factory.fuzzy.FuzzyAttribute(uuid.uuid4)
     bronorganisatie = factory.Faker("ssn", locale="nl_NL")
     creatiedatum = datetime.date(2018, 6, 27)
     titel = "some titel"
@@ -47,6 +48,14 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
+
+    @classmethod
+    def create(cls, **kwargs):
+        # for DRC-CMIS, we pass in a request object containing the correct host.
+        # This way, we don't have to set up the sites framework for every test (case).
+        # The result is that informatieobjecttype has the correct URL reference in CMIS.
+        kwargs["_request"] = RequestFactory().get("/")
+        return super().create(**kwargs)
 
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
@@ -61,3 +70,11 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
         return datetime.datetime.combine(
             self.informatieobject.latest_version.creatiedatum, datetime.time(0, 0)
         ).replace(tzinfo=timezone.utc)
+
+
+class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
+    startdatum = datetime.datetime.now(tz=timezone.utc)
+    omschrijving_voorwaarden = factory.Faker("paragraph")
+
+    class Meta:
+        model = "documenten.Gebruiksrechten"

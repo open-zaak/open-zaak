@@ -78,7 +78,8 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.getvalue().decode("utf-8"), "some data")
 
     def test_list_file(self):
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        EnkelvoudigInformatieObjectCanonicalFactory.create()
+        eio = EnkelvoudigInformatieObject.objects.get()
         list_url = get_operation_url("enkelvoudiginformatieobject_list")
 
         response = self.client.get(list_url)
@@ -90,7 +91,5 @@ class US39TestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(
             download_url.path,
-            get_operation_url(
-                "enkelvoudiginformatieobject_download", uuid=eio.latest_version.uuid
-            ),
+            get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )

@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -8,6 +9,7 @@ from vng_api_common.constants import ObjectTypes
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
+    CMISAdminMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
@@ -39,6 +41,24 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_delete_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_change_permission(request, obj)
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):
@@ -76,7 +96,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
 
 @admin.register(ObjectInformatieObject)
 class ObjectInformatieObjectAdmin(
-    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    AuditTrailAdminMixin, CMISAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
@@ -161,6 +181,7 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
     AuditTrailAdminMixin,
+    CMISAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     PrivateMediaMixin,

@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import transaction
+from django.http import FileResponse
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -19,8 +21,6 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.components.besluiten.models import BesluitInformatieObject
-from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
@@ -209,10 +209,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
     @transaction.atomic
     def perform_destroy(self, instance):
-        if (
-            instance.canonical.besluitinformatieobject_set.exists()
-            or instance.canonical.zaakinformatieobject_set.exists()
-        ):
+        if instance.has_references():
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
@@ -221,8 +218,10 @@ class EnkelvoudigInformatieObjectViewSet(
                 },
                 code="pending-relations",
             )
-
-        super().perform_destroy(instance.canonical)
+        if settings.CMIS_ENABLED:
+            instance.delete()
+        else:
+            super().perform_destroy(instance.canonical)
 
     @property
     def filterset_class(self):
@@ -286,12 +285,15 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
-        return sendfile(
-            request,
-            eio.inhoud.path,
-            attachment=True,
-            mimetype="application/octet-stream",
-        )
+        if settings.CMIS_ENABLED:
+            return FileResponse(eio.inhoud.file, as_attachment=True)
+        else:
+            return sendfile(
+                request,
+                eio.inhoud.path,
+                attachment=True,
+                mimetype="application/octet-stream",
+            )
 
     @swagger_auto_schema(
         request_body=LockEnkelvoudigInformatieObjectSerializer,
@@ -329,7 +331,9 @@ class EnkelvoudigInformatieObjectViewSet(
         eio = self.get_object()
         canonical = eio.canonical
         lock_serializer = LockEnkelvoudigInformatieObjectSerializer(
-            canonical, data=request.data
+            canonical,
+            data=request.data,
+            context={"request": request, "uuid": kwargs.get("uuid")},
         )
         lock_serializer.is_valid(raise_exception=True)
         lock_serializer.save()
@@ -383,7 +387,13 @@ class EnkelvoudigInformatieObjectViewSet(
             force_unlock = True
 
         unlock_serializer = UnlockEnkelvoudigInformatieObjectSerializer(
-            canonical, data=request.data, context={"force_unlock": force_unlock}
+            canonical,
+            data=request.data,
+            context={
+                "request": request,
+                "force_unlock": force_unlock,
+                "uuid": kwargs.get("uuid"),
+            },
         )
         unlock_serializer.is_valid(raise_exception=True)
         unlock_serializer.save()
@@ -586,9 +596,7 @@ class ObjectInformatieObjectViewSet(
 
         if (
             instance.object_type == "zaak"
-            and ZaakInformatieObject.objects.filter(
-                informatieobject=instance.informatieobject, zaak=instance.zaak
-            ).exists()
+            and instance.does_zaakinformatieobject_exist()
         ):
             raise ValidationError(
                 {
@@ -601,9 +609,7 @@ class ObjectInformatieObjectViewSet(
 
         if (
             instance.object_type == "besluit"
-            and BesluitInformatieObject.objects.filter(
-                informatieobject=instance.informatieobject, besluit=instance.besluit
-            ).exists()
+            and instance.does_besluitinformatieobject_exist()
         ):
             raise ValidationError(
                 {

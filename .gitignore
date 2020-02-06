@@ -42,3 +42,4 @@ deployment/single-server/vars/*
 
 deployment/kubernetes/vars/*
 !deployment/kubernetes/vars/*example*
+coverage.xml

@@ -25,12 +25,19 @@ from .utils import (
 )
 
 
-@freeze_time("2018-06-27")
+@freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
+
+    def test_list(self):
+        EnkelvoudigInformatieObjectFactory.create_batch(4)
+        url = reverse("enkelvoudiginformatieobject-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data["results"]), 4)
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -58,9 +65,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test database
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.filter().first()
 
+        self.assertEqual(EnkelvoudigInformatieObject.objects.filter().count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
@@ -156,7 +163,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
         expected = {
             "url": f"http://testserver{detail_url}",
-            "identificatie": test_object.identificatie,
+            "identificatie": str(test_object.identificatie),
             "bronorganisatie": test_object.bronorganisatie,
             "creatiedatum": "2018-06-27",
             "titel": "some titel",
@@ -182,6 +189,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
         }
+
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected.keys()))
 
@@ -234,7 +242,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.get(
+            identificatie=content["identificatie"]
+        )
         self.assertEqual(
             stored_object.integriteit, {"algoritme": "", "waarde": "", "datum": None}
         )
@@ -268,7 +278,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.get(
+            identificatie=content["identificatie"]
+        )
         self.assertEqual(
             stored_object.integriteit,
             {
@@ -295,21 +307,28 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that destroying is possible when there are no relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
+        uuid_eio = eio.uuid
         url = reverse(eio)
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+        self.assertRaises(
+            EnkelvoudigInformatieObject.DoesNotExist,
+            EnkelvoudigInformatieObject.objects.get,
+            uuid=uuid_eio,
+        )
+
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
         ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
-        url = reverse(eio)
 
-        response = self.client.delete(url)
+        response = self.client.delete(eio_path)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
@@ -338,7 +357,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.content, b"inhoud1")
+        try:
+            self.assertEqual(list(response.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response._container[0], b"inhoud1")
 
     def test_invalid_inhoud(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -411,6 +433,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eios = EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid).order_by(
             "-versie"
         )
+
         self.assertEqual(len(eios), 2)
 
         latest_version = eios.first()
@@ -459,10 +482,12 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
+
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
-        self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
+        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.filter().exists())
+        self.assertFalse(EnkelvoudigInformatieObject.objects.filter().exists())
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -472,6 +497,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
+
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -483,16 +510,19 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio1_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid}
         )
-        lock = self.client.post(f"{eio1_url}/lock").data["lock"]
-        self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock})
+        lock1 = self.client.post(f"{eio1_url}/lock").data["lock"]
+        self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
 
-        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2",)
 
         eio2_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
         )
-        lock = self.client.post(f"{eio2_url}/lock").data["lock"]
-        self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock})
+        lock2 = self.client.post(f"{eio2_url}/lock").data["lock"]
+        self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock2})
+
+        self.client.post(f"{eio1_url}/unlock", {"lock": lock1})
+        self.client.post(f"{eio2_url}/unlock", {"lock": lock2})
 
         response = self.client.get(reverse(EnkelvoudigInformatieObject))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -513,6 +543,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
         response = self.client.get(eio_url, {"versie": 1})
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
 
@@ -524,6 +555,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
+
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url, {"versie": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -540,6 +573,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         with freeze_time("2019-01-01 13:00:00"):
             self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
+
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -577,9 +612,12 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
 
         response = self.client.get(eio_url, {"versie": "1"})
+        response_download = self.client.get(response.data["inhoud"])
 
-        response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response.content, b"inhoud1")
+        try:
+            self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response_download.content, b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
@@ -601,10 +639,15 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
                 },
             )
 
-        response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+            response = self.client.get(
+                eio_url, {"registratieOp": "2019-01-01T12:00:00"}
+            )
+            response_download = self.client.get(response.data["inhoud"])
 
-        response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response.content, b"inhoud1")
+        try:
+            self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response_download.content, b"inhoud1")
 
 
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
@@ -616,7 +659,6 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         Deleting a Besluit causes all related objects to be deleted as well.
         """
         EnkelvoudigInformatieObjectFactory.create_batch(2)
-
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -628,7 +670,6 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 
     def test_pagination_page_param(self):
         EnkelvoudigInformatieObjectFactory.create_batch(2)
-
         response = self.client.get(self.list_url, {"page": 1})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

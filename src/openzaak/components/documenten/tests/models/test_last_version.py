@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
@@ -6,6 +6,7 @@ from ..factories import (
 )
 
 
+@override_settings(CMIS_ENABLED=False)
 class LastVersionTests(TestCase):
     def test_canonical_last_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory()

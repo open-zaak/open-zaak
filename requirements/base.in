@@ -40,6 +40,8 @@ vng-api-common<1.1
 humanize
 drf-flex-fields
 drf-writable-nested
+# drc-cmis
+git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@6c66daa97515cb4fe7b72e0c8dbbb6de194485e7#egg=drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi

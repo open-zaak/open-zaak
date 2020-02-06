@@ -12,6 +12,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
@@ -196,6 +197,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
     def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self):
         gebruiksrechten = GebruiksrechtenFactory.create()
+
         url = reverse(gebruiksrechten)
 
         response = self.client.delete(url)
@@ -206,7 +208,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
         logged_warning = StatusLog.objects.get()
         failed = FailedNotification.objects.get()
-        eio = gebruiksrechten.informatieobject.latest_version
+        eio = EnkelvoudigInformatieObject.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",

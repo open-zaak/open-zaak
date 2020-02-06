@@ -1,10 +1,12 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
+from ..models import ObjectInformatieObject
 from ..validators import validate_status
 
 
@@ -39,9 +41,12 @@ class InformatieObjectUniqueValidator:
 
     def __call__(self, context: OrderedDict):
         informatieobject = context["informatieobject"]
-        oios = informatieobject.objectinformatieobject_set.filter(
-            **{context["object_type"]: context["object"]}
-        )
+        if settings.CMIS_ENABLED:
+            oios = ObjectInformatieObject.objects.filter(**context).exists()
+        else:
+            oios = informatieobject.objectinformatieobject_set.filter(
+                **{context["object_type"]: context["object"]}
+            )
 
         if oios:
             raise serializers.ValidationError(detail=self.message, code=self.code)

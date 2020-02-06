@@ -1,6 +1,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -58,6 +59,9 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         super().setUpTestData()
 
     def test_io_list(self):
@@ -158,6 +162,9 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
@@ -341,6 +348,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
         super().setUpTestData()
 
     def test_eio_list(self):
@@ -391,6 +401,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+
         oio1 = ObjectInformatieObject.objects.create(
             informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
         )
@@ -432,6 +443,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         oio2 = ObjectInformatieObject.objects.create(
             informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
         )
+
         url1 = reverse(oio1)
         url2 = reverse(oio2)
 
@@ -449,6 +461,12 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
+
+    def setUp(self):
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+        return super().setUp()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(
@@ -504,6 +522,7 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
+
         ObjectInformatieObject.objects.create(
             informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
         )
