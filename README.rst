@@ -2,7 +2,7 @@
 Open Zaak
 =========
 
-:Version: 0.9.0
+:Version: 1.0.0
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7

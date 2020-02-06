@@ -1,10 +1,10 @@
 Changelog
 =========
 
-1.0.0 (TDB)
------------
+1.0.0 (2020-02-06)
+------------------
 
-First release of Open Zaak.
+🎉 First release of Open Zaak.
 
 Features:
 
