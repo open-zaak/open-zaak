@@ -7,6 +7,7 @@
 certifi==2018.4.16        # via requests
 cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
+cmislib-maykin==0.7.4     # via drc-cmis
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 cryptography==2.8         # via django-auth-adfs
@@ -36,15 +37,19 @@ django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
 djangorestframework==3.9.4
+drc-cmis==0.3.7
 drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3
 drf-yasg==1.16.0
 gemma-zds-client==0.13.0  # via vng-api-common
+httplib2==0.17.0          # via cmislib-maykin
 humanize==0.5.1
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
 iso-639==0.4.5            # via vng-api-common
+iso-8601==0.3.0           # via drc-cmis
+iso8601==0.1.12           # via cmislib-maykin
 isodate==0.6.0            # via vng-api-common
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
@@ -66,7 +71,7 @@ redis==3.3.8              # via django-redis
 requests==2.21.0
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
-six==1.11.0               # via cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
+six==1.11.0               # via cmislib-maykin, django-markup, django-sendfile2, drf-yasg, isodate, python-dateutil
 sqlparse==0.3.0           # via django
 unidecode==1.0.22         # via vng-api-common
 uritemplate==3.0.0        # via coreapi, drf-yasg

@@ -8,6 +8,7 @@ beautifulsoup4==4.8.1     # via webtest
 certifi==2018.4.16
 cffi==1.13.2
 chardet==3.0.4
+cmislib-maykin==0.7.4
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
@@ -39,6 +40,7 @@ django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
 djangorestframework==3.9.4
+drc-cmis==0.3.7
 drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2
 drf-writable-nested==0.4.3
@@ -47,10 +49,13 @@ factory-boy==2.12.0
 faker==2.0.1              # via factory-boy
 freezegun==0.3.12
 gemma-zds-client==0.13.0
+httplib2==0.17.0
 humanize==0.5.1
 idna==2.6
 inflection==0.3.1
 iso-639==0.4.5
+iso-8601==0.3.0
+iso8601==0.1.12
 isodate==0.6.0
 itypes==1.1.0
 jinja2==2.10.1

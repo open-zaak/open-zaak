@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     "django_loose_fk",
+    "drc_cmis",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
@@ -529,9 +530,11 @@ STORE_FAILED_NOTIFS = True
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
 
-
 NLX_DIRECTORY_URLS = {
     NLXDirectories.demo: "https://directory.demo.nlx.io/",
     NLXDirectories.preprod: "https://directory.preprod.nlx.io/",
     NLXDirectories.prod: "https://directory.prod.nlx.io/",
 }
+
+CMIS_ENABLED = True
+

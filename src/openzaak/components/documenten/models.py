@@ -17,6 +17,7 @@ from vng_api_common.validators import alphanumeric_excluding_diacritic
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+from .managers import AdapterManager
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -332,6 +333,7 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     )
 
     _locked = False
+    objects = AdapterManager()
 
     class Meta:
         unique_together = ("uuid", "versie")
