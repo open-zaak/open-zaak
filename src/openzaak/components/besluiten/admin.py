@@ -21,7 +21,7 @@ class BesluitInformatieObjectForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_informatieobject'] and not cleaned_data['_informatieobject_url']:
+        if not cleaned_data.get('_informatieobject') and not cleaned_data.get('_informatieobject_url'):
             raise forms.ValidationError("Je moet een informatieobject opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -62,11 +62,11 @@ class BesluitForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_besluittype_url'] and not cleaned_data['_besluittype']:
+        if not cleaned_data.get('_besluittype_url') and not cleaned_data.get('_besluittype'):
             raise forms.ValidationError("Je moet een besluittype opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
-        if not cleaned_data['_zaak_url'] and not cleaned_data['_zaak']:
+        if not cleaned_data.get('_zaak_url') and not cleaned_data.get('_zaak'):
             raise forms.ValidationError("Je moet een zaak opgeven: "
                                         "selecteer een zaak uit de catalogus of vul een externe URL in.")
 

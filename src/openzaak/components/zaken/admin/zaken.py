@@ -63,7 +63,7 @@ class StatusForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_statustype'] and not cleaned_data['_statustype_url']:
+        if not cleaned_data.get('_statustype') and not cleaned_data.get('_statustype_url'):
             raise forms.ValidationError("Je moet een statustype opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -163,7 +163,7 @@ class ZaakEigenschapForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_eigenschap'] and not cleaned_data['_eigenschap_url']:
+        if not cleaned_data.get('_eigenschap') and not cleaned_data.get('_eigenschap_url'):
             raise forms.ValidationError("Je moet een eigenschap opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -195,7 +195,7 @@ class ZaakInformatieObjectForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_informatieobject'] and not cleaned_data['_informatieobject_url']:
+        if not cleaned_data.get('_informatieobject') and not cleaned_data.get('_informatieobject_url'):
             raise forms.ValidationError("Je moet een informatieobject opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -237,7 +237,7 @@ class ResultaatForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_resultaattype'] and not cleaned_data['_resultaattype_url']:
+        if not cleaned_data.get('_resultaattype') and not cleaned_data.get('_resultaattype_url'):
             raise forms.ValidationError("Je moet een resultaattype opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -271,7 +271,7 @@ class RolForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_roltype'] and not cleaned_data['_roltype_url']:
+        if not cleaned_data.get('_roltype') and not cleaned_data.get('_roltype_url'):
             raise forms.ValidationError("Je moet een roltype opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -314,7 +314,7 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_relevant_zaak'] and not cleaned_data['_relevant_zaak_url']:
+        if not cleaned_data.get('_relevant_zaak') and not cleaned_data.get('_relevant_zaak_url'):
             raise forms.ValidationError("Je moet een url opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -347,7 +347,7 @@ class ZaakBesluitForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_besluit'] and not cleaned_data['_besluit_url']:
+        if not cleaned_data.get('_besluit') and not cleaned_data.get('_besluit_url'):
             raise forms.ValidationError("Je moet een besluit opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
@@ -436,7 +436,7 @@ class ZaakForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data['_zaaktype'] and not cleaned_data['_zaaktype_url']:
+        if not cleaned_data.get('_zaaktype') and not cleaned_data.get('_zaaktype_url'):
             raise forms.ValidationError("Je moet een zaaktype opgeven: "
                                         "selecteer een besluittype uit de catalogus of vul een externe URL in.")
 
