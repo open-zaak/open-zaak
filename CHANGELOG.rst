@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0.1 (2020-02-07)
+------------------
+
+Bugfixes from initial release
+
+* Added version information to Docker image
+* ...
+
 1.0.0 (2020-02-06)
 ------------------
 
