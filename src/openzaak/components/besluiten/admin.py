@@ -13,17 +13,20 @@ from .models import Besluit, BesluitInformatieObject
 
 
 class BesluitInformatieObjectForm(forms.ModelForm):
-
     class Meta:
         model = BesluitInformatieObject
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_informatieobject') and not cleaned_data.get('_informatieobject_url'):
-            raise forms.ValidationError("Je moet een informatieobject opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
+            "_informatieobject_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een informatieobject opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -54,21 +57,26 @@ class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
 
 
 class BesluitForm(forms.ModelForm):
-
     class Meta:
         model = Besluit
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_besluittype_url') and not cleaned_data.get('_besluittype'):
-            raise forms.ValidationError("Je moet een besluittype opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_besluittype_url") and not cleaned_data.get(
+            "_besluittype"
+        ):
+            raise forms.ValidationError(
+                "Je moet een besluittype opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
-        if not cleaned_data.get('_zaak_url') and not cleaned_data.get('_zaak'):
-            raise forms.ValidationError("Je moet een zaak opgeven: "
-                                        "selecteer een zaak uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_zaak_url") and not cleaned_data.get("_zaak"):
+            raise forms.ValidationError(
+                "Je moet een zaak opgeven: "
+                "selecteer een zaak uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 

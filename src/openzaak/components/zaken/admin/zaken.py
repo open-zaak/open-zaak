@@ -58,14 +58,18 @@ from .objecten import (
 class StatusForm(forms.ModelForm):
     class Meta:
         model = Status
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_statustype') and not cleaned_data.get('_statustype_url'):
-            raise forms.ValidationError("Je moet een statustype opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_statustype") and not cleaned_data.get(
+            "_statustype_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een statustype opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -155,17 +159,20 @@ class KlantContactAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
 
 
 class ZaakEigenschapForm(forms.ModelForm):
-
     class Meta:
         model = ZaakEigenschap
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_eigenschap') and not cleaned_data.get('_eigenschap_url'):
-            raise forms.ValidationError("Je moet een eigenschap opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
+            "_eigenschap_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een eigenschap opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -190,14 +197,18 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 class ZaakInformatieObjectForm(forms.ModelForm):
     class Meta:
         model = ZaakInformatieObject
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_informatieobject') and not cleaned_data.get('_informatieobject_url'):
-            raise forms.ValidationError("Je moet een informatieobject opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
+            "_informatieobject_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een informatieobject opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -232,14 +243,18 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
 class ResultaatForm(forms.ModelForm):
     class Meta:
         model = Resultaat
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_resultaattype') and not cleaned_data.get('_resultaattype_url'):
-            raise forms.ValidationError("Je moet een resultaattype opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
+            "_resultaattype_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een resultaattype opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -263,17 +278,18 @@ class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
 
 
 class RolForm(forms.ModelForm):
-
     class Meta:
         model = Rol
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_roltype') and not cleaned_data.get('_roltype_url'):
-            raise forms.ValidationError("Je moet een roltype opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_roltype") and not cleaned_data.get("_roltype_url"):
+            raise forms.ValidationError(
+                "Je moet een roltype opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -306,17 +322,20 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
 
 
 class RelevanteZaakRelatieForm(forms.ModelForm):
-
     class Meta:
         model = RelevanteZaakRelatie
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_relevant_zaak') and not cleaned_data.get('_relevant_zaak_url'):
-            raise forms.ValidationError("Je moet een url opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_relevant_zaak") and not cleaned_data.get(
+            "_relevant_zaak_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een url opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -339,17 +358,18 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
 
 
 class ZaakBesluitForm(forms.ModelForm):
-
     class Meta:
         model = ZaakBesluit
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_besluit') and not cleaned_data.get('_besluit_url'):
-            raise forms.ValidationError("Je moet een besluit opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_besluit") and not cleaned_data.get("_besluit_url"):
+            raise forms.ValidationError(
+                "Je moet een besluit opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
@@ -428,17 +448,18 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
 
 
 class ZaakForm(forms.ModelForm):
-
     class Meta:
         model = Zaak
-        fields = '__all__'
+        fields = "__all__"
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get('_zaaktype') and not cleaned_data.get('_zaaktype_url'):
-            raise forms.ValidationError("Je moet een zaaktype opgeven: "
-                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+        if not cleaned_data.get("_zaaktype") and not cleaned_data.get("_zaaktype_url"):
+            raise forms.ValidationError(
+                "Je moet een zaaktype opgeven: "
+                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+            )
 
         return cleaned_data
 
