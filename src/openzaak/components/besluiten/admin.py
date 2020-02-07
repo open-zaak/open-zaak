@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from openzaak.utils.admin import (
@@ -11,10 +12,27 @@ from openzaak.utils.admin import (
 from .models import Besluit, BesluitInformatieObject
 
 
+class BesluitInformatieObjectForm(forms.ModelForm):
+
+    class Meta:
+        model = BesluitInformatieObject
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data['_informatieobject'] and not cleaned_data['_informatieobject_url']:
+            raise forms.ValidationError("Je moet een informatieobject opgeven: "
+                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+
+        return cleaned_data
+
+
 @admin.register(BesluitInformatieObject)
 class BesluitInformatieObjectAdmin(
     AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
+    form = BesluitInformatieObjectForm
     list_display = ("besluit", "_informatieobject", "_informatieobject_url")
     list_filter = ("besluit",)
     search_fields = (
@@ -35,10 +53,31 @@ class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "besluit"
 
 
+class BesluitForm(forms.ModelForm):
+
+    class Meta:
+        model = Besluit
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data['_besluittype_url'] and not cleaned_data['_besluittype']:
+            raise forms.ValidationError("Je moet een besluittype opgeven: "
+                                        "selecteer een besluittype uit de catalogus of vul een externe URL in.")
+
+        if not cleaned_data['_zaak_url'] and not cleaned_data['_zaak']:
+            raise forms.ValidationError("Je moet een zaak opgeven: "
+                                        "selecteer een zaak uit de catalogus of vul een externe URL in.")
+
+        return cleaned_data
+
+
 @admin.register(Besluit)
 class BesluitAdmin(
     AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
+    form = BesluitForm
     list_display = ("verantwoordelijke_organisatie", "identificatie", "datum")
     list_filter = ("datum", "ingangsdatum")
     date_hierarchy = "datum"
