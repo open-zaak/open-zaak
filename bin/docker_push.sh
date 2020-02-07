@@ -23,7 +23,7 @@ TAG=${1:-latest}
 # Build the image
 docker build \
     -t $REPO:$TAG \
-    --build-arg COMMIT_HASH=$git_hash
+    --build-arg COMMIT_HASH=$git_hash \
     .
 
 # Push the image
