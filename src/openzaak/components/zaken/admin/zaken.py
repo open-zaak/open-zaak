@@ -68,7 +68,7 @@ class StatusForm(forms.ModelForm):
         ):
             raise forms.ValidationError(
                 "Je moet een statustype opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een statustype uit de catalogus of vul een externe URL in."
             )
 
         return cleaned_data
@@ -171,7 +171,7 @@ class ZaakEigenschapForm(forms.ModelForm):
         ):
             raise forms.ValidationError(
                 "Je moet een eigenschap opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een eigenschap uit de catalogus of vul een externe URL in."
             )
 
         return cleaned_data
@@ -207,7 +207,7 @@ class ZaakInformatieObjectForm(forms.ModelForm):
         ):
             raise forms.ValidationError(
                 "Je moet een informatieobject opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een informatieobject of vul een externe URL in."
             )
 
         return cleaned_data
@@ -253,7 +253,7 @@ class ResultaatForm(forms.ModelForm):
         ):
             raise forms.ValidationError(
                 "Je moet een resultaattype opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een resultaattype uit de catalogus of vul een externe URL in."
             )
 
         return cleaned_data
@@ -288,7 +288,7 @@ class RolForm(forms.ModelForm):
         if not cleaned_data.get("_roltype") and not cleaned_data.get("_roltype_url"):
             raise forms.ValidationError(
                 "Je moet een roltype opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een roltype uit de catalogus of vul een externe URL in."
             )
 
         return cleaned_data
@@ -333,8 +333,8 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
             "_relevant_zaak_url"
         ):
             raise forms.ValidationError(
-                "Je moet een url opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "Je moet een relevante zaak opgeven: "
+                "selecteer een zaak of vul een externe URL in."
             )
 
         return cleaned_data
@@ -368,7 +368,7 @@ class ZaakBesluitForm(forms.ModelForm):
         if not cleaned_data.get("_besluit") and not cleaned_data.get("_besluit_url"):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een besluit of vul een externe URL in."
             )
 
         return cleaned_data
@@ -458,7 +458,7 @@ class ZaakForm(forms.ModelForm):
         if not cleaned_data.get("_zaaktype") and not cleaned_data.get("_zaaktype_url"):
             raise forms.ValidationError(
                 "Je moet een zaaktype opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een zaaktype of vul een externe URL in."
             )
 
         return cleaned_data

@@ -25,7 +25,7 @@ class BesluitInformatieObjectForm(forms.ModelForm):
         ):
             raise forms.ValidationError(
                 "Je moet een informatieobject opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
+                "selecteer een informatieobject of vul een externe URL in."
             )
 
         return cleaned_data
@@ -75,7 +75,7 @@ class BesluitForm(forms.ModelForm):
         if not cleaned_data.get("_zaak_url") and not cleaned_data.get("_zaak"):
             raise forms.ValidationError(
                 "Je moet een zaak opgeven: "
-                "selecteer een zaak uit de catalogus of vul een externe URL in."
+                "selecteer een zaak vul een externe URL in."
             )
 
         return cleaned_data
