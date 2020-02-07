@@ -53,7 +53,9 @@ COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/
 COPY bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./src /app/src
 ARG COMMIT_HASH
+ARG RELEASE
 ENV GIT_SHA=${COMMIT_HASH}
+ENV RELEASE=${RELEASE}
 
 ENV DJANGO_SETTINGS_MODULE=openzaak.conf.docker
 
@@ -64,6 +66,7 @@ RUN python src/manage.py collectstatic --noinput
 
 LABEL org.label-schema.vcs-ref=$COMMIT_HASH \
       org.label-schema.vcs-url="https://github.com/open-zaak/open-zaak" \
+      org.label-schema.version=$RELEASE \
       org.label-schema.name="Open Zaak"
 
 EXPOSE 8000
