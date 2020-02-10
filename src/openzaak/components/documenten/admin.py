@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
-from vng_api_common.constants import BESLUIT_CONST, ZAAK_CONST
+from vng_api_common.constants import ObjectTypes
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -50,7 +50,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         object_type = cleaned_data.get("object_type")
 
         if (
-            object_type == ZAAK_CONST
+            object_type == ObjectTypes.zaak
             and not cleaned_data.get("_zaak")
             and not cleaned_data.get("_zaak_url")
         ):
@@ -60,7 +60,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
             )
 
         if (
-            object_type == BESLUIT_CONST
+            object_type == ObjectTypes.besluit
             and not cleaned_data.get("_besluit")
             and not cleaned_data.get("_besluit_url")
         ):
