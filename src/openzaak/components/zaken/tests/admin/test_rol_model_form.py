@@ -5,7 +5,6 @@ from openzaak.components.zaken.admin import RolForm
 
 
 class TestRolForm(TestCase):
-
     def test_rol_form_clean_does_not_throw_exception_if_roltype_is_given(self):
         form = RolForm()
         form.cleaned_data = {
@@ -14,7 +13,7 @@ class TestRolForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
     def test_rol_form_clean_does_not_throw_exception_if_roltype_url_is_given(self):
         form = RolForm()
@@ -24,9 +23,11 @@ class TestRolForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
-    def test_rol_form_clean_throws_exception_if_roltype_and_roltype_url_are_not_given(self):
+    def test_rol_form_clean_throws_exception_if_roltype_and_roltype_url_are_not_given(
+        self,
+    ):
         form = RolForm()
         form.cleaned_data = {}
         with self.assertRaises(forms.ValidationError):

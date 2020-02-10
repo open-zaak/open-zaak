@@ -5,7 +5,6 @@ from openzaak.components.zaken.admin import ZaakBesluitForm
 
 
 class TestZaakBesluitForm(TestCase):
-
     def test_zaakbesluit_form_clean_does_not_throw_exception_if_besluit_is_given(self):
         form = ZaakBesluitForm()
         form.cleaned_data = {
@@ -14,9 +13,11 @@ class TestZaakBesluitForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
-    def test_zaakbesluit_form_clean_does_not_throw_exception_if_besluit_url_is_given(self):
+    def test_zaakbesluit_form_clean_does_not_throw_exception_if_besluit_url_is_given(
+        self,
+    ):
         form = ZaakBesluitForm()
         form.cleaned_data = {
             "_besluit_url": "https://testserver",
@@ -24,9 +25,11 @@ class TestZaakBesluitForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
-    def test_zaakbesluit_form_clean_throws_exception_if_besluit_and_besluit_url_are_not_given(self):
+    def test_zaakbesluit_form_clean_throws_exception_if_besluit_and_besluit_url_are_not_given(
+        self,
+    ):
         form = ZaakBesluitForm()
         form.cleaned_data = {}
         with self.assertRaises(forms.ValidationError):

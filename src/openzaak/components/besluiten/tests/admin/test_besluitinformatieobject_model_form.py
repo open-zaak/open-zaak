@@ -5,8 +5,9 @@ from openzaak.components.besluiten.admin import BesluitInformatieObjectForm
 
 
 class TestBesluitInformatieObjectForm(TestCase):
-
-    def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_is_given(self):
+    def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_is_given(
+        self,
+    ):
         form = BesluitInformatieObjectForm()
         form.cleaned_data = {
             "_informatieobject": 1,
@@ -14,9 +15,11 @@ class TestBesluitInformatieObjectForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
-    def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_url_is_given(self):
+    def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_url_is_given(
+        self,
+    ):
         form = BesluitInformatieObjectForm()
         form.cleaned_data = {
             "_informatieobject_url": "https://testserver",
@@ -24,9 +27,11 @@ class TestBesluitInformatieObjectForm(TestCase):
         try:
             form.clean()
         except forms.ValidationError:
-            self.fail('Exception was raised in clean function when it should not have')
+            self.fail("Exception was raised in clean function when it should not have")
 
-    def test_besluit_information_object_form_clean_throws_exception_if_informatieobject_and_informatieobject_url_are_not_given(self):
+    def test_besluit_information_object_form_throws_exception_if_informatieobject_and_url_are_not_given(
+        self,
+    ):
         form = BesluitInformatieObjectForm()
         form.cleaned_data = {}
         with self.assertRaises(forms.ValidationError):
