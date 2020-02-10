@@ -5,7 +5,6 @@ from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.utils.tests import AdminTestMixin
@@ -26,7 +25,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def _create_besluit(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        zaak = ZaakFactory.create()
         add_url = reverse("admin:besluiten_besluit_add")
         data = {
             "uuid": uuid.uuid4(),
@@ -35,7 +33,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
             "datum": "15-11-2019",
             "ingangsdatum": "15-11-2019",
             "toelichting": "desc",
-            "_zaak": zaak.id,
         }
         data.update(inline_data)
 
@@ -70,7 +67,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def test_change_besluit(self):
         besluit = BesluitFactory.create(toelichting="old")
-        zaak = ZaakFactory.create()
         besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
         change_url = reverse("admin:besluiten_besluit_change", args=(besluit.pk,))
         data = {
@@ -80,7 +76,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
             "datum": besluit.datum,
             "ingangsdatum": "15-11-2019",
             "toelichting": "new",
-            "_zaak": zaak.id,
         }
         data.update(inline_data)
 

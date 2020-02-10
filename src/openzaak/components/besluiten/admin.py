@@ -72,12 +72,6 @@ class BesluitForm(forms.ModelForm):
                 "selecteer een besluittype uit de catalogus of vul een externe URL in."
             )
 
-        if not cleaned_data.get("_zaak_url") and not cleaned_data.get("_zaak"):
-            raise forms.ValidationError(
-                "Je moet een zaak opgeven: "
-                "selecteer een zaak vul een externe URL in."
-            )
-
         return cleaned_data
 
 
