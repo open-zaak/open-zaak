@@ -62,7 +62,7 @@ jobs:
       install:
         - pip install black
       before_script: skip
-      script: black --check src
+      script: black --check src --diff
 
     - name: "Code style"
       before_install: skip

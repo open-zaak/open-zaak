@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from openzaak.utils.admin import (
@@ -54,6 +55,25 @@ from .objecten import (
 )
 
 
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_statustype") and not cleaned_data.get(
+            "_statustype_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een statustype opgeven: "
+                "selecteer een statustype uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
@@ -65,6 +85,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__uuid",
         "statustoelichting",
     )
+    form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
     raw_id_fields = ("zaak", "_statustype")
@@ -137,6 +158,25 @@ class KlantContactAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     viewset = "openzaak.components.zaken.api.viewsets.KlantContactViewSet"
 
 
+class ZaakEigenschapForm(forms.ModelForm):
+    class Meta:
+        model = ZaakEigenschap
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
+            "_eigenschap_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een eigenschap opgeven: "
+                "selecteer een eigenschap uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(ZaakEigenschap)
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "_eigenschap", "_eigenschap_url", "waarde")
@@ -148,9 +188,29 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
         "zaak__identificatie",
         "zaak__uuid",
     )
+    form = ZaakEigenschapForm
     ordering = ("zaak", "_eigenschap", "_eigenschap_url")
     raw_id_fields = ("zaak", "_eigenschap")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
+
+
+class ZaakInformatieObjectForm(forms.ModelForm):
+    class Meta:
+        model = ZaakInformatieObject
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
+            "_informatieobject_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een informatieobject opgeven: "
+                "selecteer een informatieobject of vul een externe URL in."
+            )
+
+        return cleaned_data
 
 
 @admin.register(ZaakInformatieObject)
@@ -173,10 +233,30 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "_informatieobject__enkelvoudiginformatieobject__identificatie",
         "_informatieobject_url",
     )
+    form = ZaakInformatieObjectForm
     date_hierarchy = "registratiedatum"
     ordering = ("zaak", "_informatieobject", "_informatieobject_url")
     raw_id_fields = ("zaak", "_informatieobject")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
+
+
+class ResultaatForm(forms.ModelForm):
+    class Meta:
+        model = Resultaat
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
+            "_resultaattype_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een resultaattype opgeven: "
+                "selecteer een resultaattype uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
 
 
 @admin.register(Resultaat)
@@ -191,9 +271,27 @@ class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__identificatie",
         "zaak__uuid",
     )
+    form = ResultaatForm
     ordering = ("zaak",)
     raw_id_fields = ("zaak", "_resultaattype")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
+
+
+class RolForm(forms.ModelForm):
+    class Meta:
+        model = Rol
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_roltype") and not cleaned_data.get("_roltype_url"):
+            raise forms.ValidationError(
+                "Je moet een roltype opgeven: "
+                "selecteer een roltype uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
 
 
 @admin.register(Rol)
@@ -209,6 +307,7 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "omschrijving",
         "roltoelichting",
     )
+    form = RolForm
     date_hierarchy = "registratiedatum"
     ordering = ("registratiedatum", "betrokkene")
     raw_id_fields = ("zaak", "_roltype")
@@ -222,6 +321,25 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     ]
 
 
+class RelevanteZaakRelatieForm(forms.ModelForm):
+    class Meta:
+        model = RelevanteZaakRelatie
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_relevant_zaak") and not cleaned_data.get(
+            "_relevant_zaak_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een relevante zaak opgeven: "
+                "selecteer een zaak of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(RelevanteZaakRelatie)
 class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
     list_display = ("zaak", "_relevant_zaak", "_relevant_zaak_url", "aard_relatie")
@@ -233,9 +351,27 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
         "_relevant_zaak__identificatie",
         "_relevant_zaak_url",
     )
+    form = RelevanteZaakRelatieForm
     ordering = ("zaak", "_relevant_zaak", "_relevant_zaak_url")
     raw_id_fields = ("zaak", "_relevant_zaak")
     list_select_related = ("zaak", "_relevant_zaak")
+
+
+class ZaakBesluitForm(forms.ModelForm):
+    class Meta:
+        model = ZaakBesluit
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_besluit") and not cleaned_data.get("_besluit_url"):
+            raise forms.ValidationError(
+                "Je moet een besluit opgeven: "
+                "selecteer een besluit of vul een externe URL in."
+            )
+
+        return cleaned_data
 
 
 @admin.register(ZaakBesluit)
@@ -250,6 +386,7 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "_besluit__identificatie",
         "_besluit_url",
     )
+    form = ZaakBesluitForm
     ordering = ("zaak", "_besluit", "_besluit_url")
     raw_id_fields = ("zaak", "_besluit")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
@@ -310,6 +447,23 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakForm(forms.ModelForm):
+    class Meta:
+        model = Zaak
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_zaaktype") and not cleaned_data.get("_zaaktype_url"):
+            raise forms.ValidationError(
+                "Je moet een zaaktype opgeven: "
+                "selecteer een zaaktype of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(Zaak)
 class ZaakAdmin(
     AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
@@ -327,6 +481,7 @@ class ZaakAdmin(
         "_zaaktype_url",
         "_zaaktype__identificatie",
     )
+    form = ZaakForm
     date_hierarchy = "registratiedatum"
     list_filter = ("startdatum", "archiefstatus", "vertrouwelijkheidaanduiding")
     ordering = ("-identificatie", "startdatum")

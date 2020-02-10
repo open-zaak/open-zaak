@@ -1,7 +1,9 @@
+from django import forms
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
+from vng_api_common.constants import ObjectTypes
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -37,10 +39,44 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     viewset = viewsets.GebruiksrechtenViewSet
 
 
+class ObjectInformatieObjectForm(forms.ModelForm):
+    class Meta:
+        model = ObjectInformatieObject
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        object_type = cleaned_data.get("object_type")
+
+        if (
+            object_type == ObjectTypes.zaak
+            and not cleaned_data.get("_zaak")
+            and not cleaned_data.get("_zaak_url")
+        ):
+            raise forms.ValidationError(
+                "Je moet een zaak opgeven: "
+                "selecteer een zaak of vul een externe URL in."
+            )
+
+        if (
+            object_type == ObjectTypes.besluit
+            and not cleaned_data.get("_besluit")
+            and not cleaned_data.get("_besluit_url")
+        ):
+            raise forms.ValidationError(
+                "Je moet een besluit opgeven: "
+                "selecteer een besluittype of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(ObjectInformatieObject)
 class ObjectInformatieObjectAdmin(
     AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
+    form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
     list_select_related = ("informatieobject", "_zaak", "_besluit")
