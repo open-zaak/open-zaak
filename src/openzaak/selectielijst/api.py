@@ -87,7 +87,7 @@ def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
     return client.retrieve("resultaat", url)
 
 
-@cache("referentielijsten:resultaattypeomschrijvinggeneriek", timeout=60 * 60)
+@cache_uuid("referentielijsten:resultaattypeomschrijvinggeneriek", timeout=60 * 60)
 def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
     """
     Fetch a generic resultaattype omschrijvingen
