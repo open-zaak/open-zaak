@@ -52,6 +52,10 @@ class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
 
         self.assertEqual(response.status_code, 200)
 
+        # Verify that the save button is visible
+        save_button = response.html.find("input", {"name": "_save"})
+        self.assertIsNotNone(save_button)
+
     def test_selectielijst_selectielijstklasse(self, m):
         """
         Test that the selectielijst procestype field is a dropdown.

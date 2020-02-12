@@ -310,9 +310,7 @@ class ReadOnlyPublishedBaseMixin:
             adminform.readonly_fields,
             model_admin=self,
         )
-        return super().render_change_form(
-            request, context, add=False, change=False, form_url="", obj=None
-        )
+        return super().render_change_form(request, context, add, change, form_url, obj)
 
     def render_readonly(self, field, result_repr, value):
         # override method to customize formatting
