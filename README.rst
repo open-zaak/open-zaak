@@ -1,5 +1,5 @@
 =========
-Open Zaak
+OpenZaak - productiewaardige API's voor Zaakgericht Werken
 =========
 
 :Version: 1.0.1
@@ -9,62 +9,77 @@ Open Zaak
 
 |build-status| |docs| |coverage| |black| |docker|
 
-API's voor Zaakgericht werken
+Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
-Ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam, Rotterdam,
-Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn,
-Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van
-`Dimpact`_.
-
-Inleiding
+Zaakgericht Werken
 =========
 
-Binnen het Nederlandse gemeentelandschap wordt zaakgericht werken nagestreefd.
-Om dit mogelijk te maken is er gegevensuitwisseling nodig. De kerngegevens van
-zaken, documenten en besluiten moeten ergens geregistreerd worden en
-opvraagbaar zijn.
+Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse gemeenten, en steeds meer landelijke overheden, wordt toegepast om verzoeken van burgers te behandelen. De zaak staat hierbij centraal. Een zaak is een samenhangende hoeveelheid werk met een gedefinieerde aanleiding en een gedefinieerd resultaat waarvan kwaliteit en doorlooptijd bewaakt moeten worden. De API's voor Zaakgericht Werken ondersteunen de registratie van alle metadata en gegevens die komen kijken bij Zaakgericht Werken.
 
-**Open Zaak** is een moderne, open source gegevens- en services-laag om
-`zaakgericht werken`_ te ondersteunen zoals voorgesteld in de onderste 2 lagen
-van het `Common Ground`_ 5-lagen model.
+Standaard "API's voor Zaakgericht Werken"
+=========
 
-De gegevens worden ontsloten middels een `gestandaardiseerde set VNG API's`_,
-te weten:
+In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. Daarbij zijn tegelijk met API-specificaties referentie-implementaties gerealiseerd om aan te tonen dat de specificaties in software kunnen worden geïmplementeerd. De volgende inhoudelijke API's maken onderdeel uit van de standaard:
 
-* Zaken API (`Zaken API-specificatie 1.0`_)
-* Documenten API (`Documenten API-specificatie 1.0`_)
-* Catalogi API (`Catalogi API-specificatie 1.0`_)
-* Besluiten API (`Besluiten API-specificatie 1.0`_)
-* Autorisaties API (`Autorisaties API-specificatie 1.0`_)
+* Catalogi - voor de registratie van zaaktype-catalogi, zaaktype en alle daarbij horende typen.
+* Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
+* Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
+* Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
+* Klantinteracties - deze API ondersteunt de registratie van Contactmomenten en Verzoeken. Verzoeken hebben een relatie met producten en diensten uit de Producten Diensten Catalogus (PDC) en kunnen leiden tot zaken. Deze API wordt op een later moment toegevoegd aan OpenZaak.
 
-De `Notificaties API`_ is nodig voor **Open Zaak** en is beschikbaar via
-`Open Notificaties`_.
+Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
 
-.. _`Common Ground`: https://commonground.nl/
-.. _`zaakgericht werken`: https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken
-.. _`gestandaardiseerde set VNG API's`: https://zaakgerichtwerken.vng.cloud/
-.. _`Zaken API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/zaken/index
-.. _`Documenten API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/documenten/index
-.. _`Catalogi API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index
-.. _`Besluiten API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/besluiten/index
-.. _`Autorisaties API-specificatie 1.0`: https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index
-.. _`Notificaties API`: https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index
-.. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
+* Notificaties - in Common Ground worden gegevens bij de bron geregistreerd en bijgehouden. Consumers krijgen niet vanzelf bericht als er iets is gewijzigd. Hiervoor kunnen ze een abonnement registreren bij de Notificaties API.
+* Autorisaties - via de Autorisaties API wordt de toegang van applicaties tot gegevens geregeld.
 
-**Open Zaak** gebruikt de code van de
-`referentie implementaties van VNG Realisatie`_ als basis om een stabiele set
-API's te realiseren die in productie gebruikt kunnen worden bij gemeenten.
+Productiewaardige API's
+==========
 
-.. _`referentie implementaties van VNG Realisatie`: https://github.com/VNG-Realisatie/gemma-zaken
+Bij de realisatie van productiewaardige API's is nadrukkelijk aandacht besteed aan performance schaalbaarheid en documentatie van de componenten. Om die reden zijn de API's voor Zaakgericht Werken grotendeels ondergebracht in een component met één database.
+
+Ook zijn er Docker containers en een Virtual Machine (VM) image beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
+
+Architectuur van OpenZaak
+De architectuur van OpenZaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
+
+* Notificatie-component die Notificaties API aanbiedt
+* Referentielijsten component die wordt gebruikt om de selectielijst voor archiveren te ontsluiten
+* Beheerportaal dat toegang biedt tot de verschillende beheerapps die bij de API's horen
+
+.. image:: assets/openzaak-component-overview.png
+    :width: 100%
+    :alt: OpenZaak Componenten-overzicht
+
+Implementatie
+=========
+
+Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke nieuwe versie van OpenZaak containers voor Docker gecreëerd die direct kunnen worden uitgerold in een Kubernetes cluster. Ook wordt er een applicatie VM image gecreëerd. In een diagram ziet de hosting van in een Kubernetes cluster als volgt uit:
+
+.. image:: assets/openzaak-deployment.png
+    :width: 100%
+    :alt: OpenZaak Deployment
 
 Links
 =====
 
+* `Standaard`_
 * `Documentatie`_
 * `Docker Hub`_
 
 .. _`Documentatie`: https://open-zaak.readthedocs.io/en/latest/
 .. _`Docker Hub`: https://hub.docker.com/u/openzaak
+.. _`Standaard`: https://github.com/VNG-Realisatie/gemma-zaken
+
+Bouw
+========
+
+Deze API's zijn ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam,
+Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn,
+Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van
+`Dimpact`_.
+
+.. _Maykin Media B.V.: https://www.maykinmedia.nl
+.. _Dimpact: https://www.dimpact.nl
 
 Licentie
 ========
@@ -72,8 +87,6 @@ Licentie
 Licensed under the EUPL_
 
 .. _EUPL: LICENSE.md
-.. _Maykin Media B.V.: https://www.maykinmedia.nl
-.. _Dimpact: https://www.dimpact.nl
 
 .. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
     :alt: Build status
