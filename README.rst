@@ -35,7 +35,11 @@ Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van dez
 Productiewaardige API's
 ==========
 
-Bij de realisatie van productiewaardige API's is nadrukkelijk aandacht besteed aan performance schaalbaarheid en documentatie van de componenten. Om die reden zijn de API's voor Zaakgericht Werken grotendeels ondergebracht in een component met één database.
+Bij de realisatie van productiewaardige API's is aandacht besteed aan een aantal belangrijke aspecten:
+
+* Beheer: er is een beheerportaal ingericht waarmee de verschillende API's door functioneel beheerders kunnen worden beheerd.
+* Performance en schaalbaarheid: er zijn performance-metingen verricht op basis van schattingen van de verwachte belasting door applicaties die eindgebruikers gebruiken. Benodigde verbeteringen zijn doorgevoerd waardoor een belasting door 2000 eindgebruikers geen problemen zou moeten opleveren.
+* Documentatie van de componenten, met name van de beheer applicaties.
 
 Ook zijn er Docker containers en een Virtual Machine (VM) image beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
 
