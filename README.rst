@@ -43,6 +43,8 @@ Bij de realisatie van productiewaardige API's is aandacht besteed aan een aantal
 * Uitrol: Om de uitrol naar servers te vereenvoudigen zijn er Docker containers en een Virtual Machine (VM) image beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
 
 Architectuur van OpenZaak
+===========
+
 De architectuur van OpenZaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
 
 * Notificatie-component die Notificaties API aanbiedt
