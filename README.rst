@@ -1,6 +1,7 @@
 =========
-OpenZaak - productiewaardige API's voor Zaakgericht Werken
+Open Zaak
 =========
+*Productiewaardige API's voor Zaakgericht Werken*
 
 :Version: 1.0.1
 :Source: https://github.com/open-zaak/open-zaak
@@ -12,7 +13,7 @@ OpenZaak - productiewaardige API's voor Zaakgericht Werken
 Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
 Zaakgericht Werken
-=========
+==================
 
 Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse gemeenten, en steeds meer landelijke overheden, wordt toegepast om verzoeken van burgers en bedrijven te behandelen. De zaak staat hierbij centraal. Een zaak is een samenhangende hoeveelheid werk met een gedefinieerde aanleiding en een gedefinieerd resultaat waarvan kwaliteit en doorlooptijd bewaakt moeten worden. De API's voor Zaakgericht Werken ondersteunen de registratie van alle metadata en gegevens die komen kijken bij Zaakgericht Werken. Zie ook `Zaakgericht werken in het gemeentelijk gegevenslandschap`_.
 
@@ -20,7 +21,7 @@ Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse 
 
 
 Standaard "API's voor Zaakgericht Werken"
-=========
+=========================================
 
 In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. Daarbij zijn tegelijk met API-specificaties referentie-implementaties gerealiseerd om aan te tonen dat de specificaties in software kunnen worden geïmplementeerd. De volgende inhoudelijke API's maken onderdeel uit van de standaard:
 
@@ -28,7 +29,7 @@ In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. D
 * Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
 * Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
 * Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
-* Klantinteracties - deze API ondersteunt de registratie van Contactmomenten en Verzoeken. Verzoeken hebben een relatie met producten en diensten uit de Producten Diensten Catalogus (PDC) en kunnen leiden tot zaken. Deze API wordt op een later moment toegevoegd aan OpenZaak.
+* Klantinteracties - deze API ondersteunt de registratie van Contactmomenten en Verzoeken. Verzoeken hebben een relatie met producten en diensten uit de Producten Diensten Catalogus (PDC) en kunnen leiden tot zaken. Deze API wordt op een later moment toegevoegd aan Open Zaak.
 
 Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
 
@@ -36,55 +37,50 @@ Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van dez
 * Autorisaties - via de Autorisaties API wordt de toegang van applicaties tot gegevens geregeld.
 
 Productiewaardige API's
-==========
+=======================
 
 Bij de realisatie van productiewaardige API's is aandacht besteed aan een aantal belangrijke aspecten:
 
 * Beheer: er is een beheerportaal ingericht waarmee de verschillende API's door functioneel beheerders kunnen worden beheerd.
 * Performance: er zijn performance-metingen verricht op basis van schattingen van de verwachte belasting door applicaties die eindgebruikers gebruiken. Benodigde verbeteringen zijn doorgevoerd waardoor een belasting door 2000 eindgebruikers geen problemen zou moeten opleveren.
 * Documentatie van de componenten, met name van de beheer applicaties. (De inhoudelijke documentatie over de API's is onderdeel van de standaard.)
-* Uitrol: Om de uitrol naar servers te vereenvoudigen zijn er Docker containers en een Virtual Machine (VM) image beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
+* Uitrol: Om de uitrol naar servers te vereenvoudigen is er een Docker container beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
 
-Architectuur van OpenZaak
-===========
+Architectuur van Open Zaak
+==========================
 
-De architectuur van OpenZaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
+De architectuur van Open Zaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
 
-* Notificatie-component die Notificaties API aanbiedt
-* Referentielijsten component die wordt gebruikt om de selectielijst voor archiveren te ontsluiten
+* Notificatie-component, noodzakelijk voor de werking van Open Zaak.
+* Selectielijst component die wordt gebruikt om de VNG Selectielijst voor archiveren te ontsluiten
 * Beheerportaal dat toegang biedt tot de verschillende beheerapps die bij de API's horen
 
-.. image:: assets/openzaak-component-overview.png
+.. image:: docs/introduction/_assets/architecture.png
     :width: 100%
-    :alt: OpenZaak Componenten-overzicht
+    :alt: Open-Zaak Componenten-overzicht
 
 Implementatie
-=========
+=============
 
-Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke nieuwe versie van OpenZaak containers voor Docker gecreëerd die direct kunnen worden uitgerold in een Kubernetes cluster. Ook wordt er een applicatie VM image gecreëerd. In een diagram ziet de hosting van in een Kubernetes cluster als volgt uit:
-
-.. image:: assets/openzaak-deployment.png
-    :width: 100%
-    :alt: OpenZaak Deployment
+Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke nieuwe versie van Open Zaak een Docker container die direct kunnen worden uitgerold in een Kubernetes cluster.
 
 Links
 =====
 
-* `Standaard`_
+* `VNG Standaard API's voor Zaakgericht Werken`_
 * `Documentatie`_
 * `Docker Hub`_
 
 .. _`Documentatie`: https://open-zaak.readthedocs.io/en/latest/
 .. _`Docker Hub`: https://hub.docker.com/u/openzaak
-.. _`Standaard`: https://github.com/VNG-Realisatie/gemma-zaken
+.. _`VNG Standaard API's voor Zaakgericht Werken`: https://github.com/VNG-Realisatie/gemma-zaken
 
 Bouw
-========
+====
 
 Deze API's zijn ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam,
-Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn,
-Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van
-`Dimpact`_.
+Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en een coalitie
+van Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van `Dimpact`_.
 
 .. _Maykin Media B.V.: https://www.maykinmedia.nl
 .. _Dimpact: https://www.dimpact.nl
