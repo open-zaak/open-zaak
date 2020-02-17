@@ -7,7 +7,14 @@ Changelog
 Bugfixes from initial release
 
 * Added version information to Docker image
-* ...
+* Added better admin validation in various places [prevent crashes]
+* Updated some documentation
+* Fixed Besluiten API spec defects
+* Fixed rendering the admin detail pages for read-only resources
+* Fixed the cache for resultaattypeomschrijvinggeneriek
+* Updated to latest Django security release
+* Improved help-text for read-only fields
+* Fixed CI
 
 1.0.0 (2020-02-06)
 ------------------
