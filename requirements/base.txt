@@ -26,7 +26,7 @@ django-redis==4.10.0
 django-relativedelta==1.0.5
 django-sendfile2==0.4.2   # via django-privates
 django-solo==1.1.3        # via vng-api-common
-django==2.2.9
+django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
 djangorestframework==3.9.4
@@ -56,6 +56,7 @@ pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0
 redis==3.3.8              # via django-redis
 requests==2.21.0
+ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
 six==1.11.0               # via django-markup, django-sendfile2, drf-yasg, isodate, python-dateutil
 sqlparse==0.3.0           # via django
