@@ -17,6 +17,7 @@ until [ "$status" = "200" ]; do
     >&2 echo "Waiting until migrations are finished..."
     sleep 3
     status=$(curl -s -o /dev/null -w "%{http_code}" $openzaak_url)
+    docker ps
 done
 
 status=$(curl -s -o /dev/null -w "%{http_code}" $nrc_url)
@@ -24,6 +25,7 @@ until [ "$status" = "200" ]; do
     >&2 echo "Waiting until notification migrations are finished..."
     sleep 3
     status=$(curl -s -o /dev/null -w "%{http_code}" $nrc_url)
+    docker ps
 done
 
 # Download and execute the ZGW postman tests
