@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.contrib.auth.models import Permission
 from django.urls import reverse
 
@@ -6,13 +8,14 @@ from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.tests import (
+    _get_base_url,
     mock_oas_get,
     mock_resource_get,
     mock_resource_list,
 )
 from openzaak.utils.tests import ClearCachesMixin
 
-from ..factories import ResultaatTypeFactory
+from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 
 
 @requests_mock.Mocker()
@@ -119,3 +122,179 @@ class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
         response = self.app.get(url)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_edit_resultaattype_selectielijst_filtered_by_procestype(self, m):
+        """
+        Test that the selectielijst procestype field is a dropdown.
+        """
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+
+        selectielijstklasse_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/d92e5a77-c523-4273-b8e0-c912115ef156"
+        )
+        m.get(
+            f"{_get_base_url()}resultaten?{urlencode({'procesType': procestype_url})}",
+            json={
+                "count": 100,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "algemeenBestuurEnInrichtingOrganisatie": True,
+                        "alleTaakgebieden": False,
+                        "bedrijfsvoeringEnPersoneel": True,
+                        "bewaartermijn": "P5Y",
+                        "burgerzaken": True,
+                        "economie": False,
+                        "generiek": True,
+                        "heffenBelastingen": False,
+                        "herkomst": "Risicoanalyse",
+                        "naam": "Niet doorgegaan",
+                        "nummer": 4,
+                        "omschrijving": "",
+                        "onderwijs": False,
+                        "procesType": procestype_url,
+                        "procestermijn": "nihil",
+                        "procestermijnOpmerking": "",
+                        "procestermijnWeergave": "Nihil",
+                        "publiekeInformatieEnRegistratie": False,
+                        "sociaalDomein": False,
+                        "specifiek": False,
+                        "sportCultuurEnRecreatie": False,
+                        "toelichting": "",
+                        "url": selectielijstklasse_url,
+                        "veiligheid": False,
+                        "verkeerEnVervoer": False,
+                        "vhrosv": False,
+                        "volksgezonheidEnMilieu": False,
+                        "volledigNummer": "1.4",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+        mock_resource_get(m, "procestypen", procestype_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms["resultaattype_form"]
+
+        zaaktype_procestype = (
+            response.html("div", {"class": "field-get_zaaktype_procestype"})[0]
+            .find_all("div")[-1]
+            .text
+        )
+        self.assertEqual(zaaktype_procestype, "1 - Instellen en inrichten organisatie")
+
+        field = form.fields["selectielijstklasse"][0]
+
+        self.assertEqual(field.tag, "input")
+        self.assertEqual(len(field.options), 1)
+        # first element of JSON response
+        self.assertEqual(
+            field._value,
+            "https://selectielijst.openzaak.nl/api/v1/resultaten/d92e5a77-c523-4273-b8e0-c912115ef156",
+        )
+
+    def test_create_resultaattype_selectielijst_filtered_by_procestype(self, m):
+        """
+        Test that the selectielijst procestype field is a dropdown.
+        """
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+
+        selectielijstklasse_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/d92e5a77-c523-4273-b8e0-c912115ef156"
+        )
+        m.get(
+            f"{_get_base_url()}resultaten?{urlencode({'procesType': procestype_url})}",
+            json={
+                "count": 100,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "algemeenBestuurEnInrichtingOrganisatie": True,
+                        "alleTaakgebieden": False,
+                        "bedrijfsvoeringEnPersoneel": True,
+                        "bewaartermijn": "P5Y",
+                        "burgerzaken": True,
+                        "economie": False,
+                        "generiek": True,
+                        "heffenBelastingen": False,
+                        "herkomst": "Risicoanalyse",
+                        "naam": "Niet doorgegaan",
+                        "nummer": 4,
+                        "omschrijving": "",
+                        "onderwijs": False,
+                        "procesType": procestype_url,
+                        "procestermijn": "nihil",
+                        "procestermijnOpmerking": "",
+                        "procestermijnWeergave": "Nihil",
+                        "publiekeInformatieEnRegistratie": False,
+                        "sociaalDomein": False,
+                        "specifiek": False,
+                        "sportCultuurEnRecreatie": False,
+                        "toelichting": "",
+                        "url": selectielijstklasse_url,
+                        "veiligheid": False,
+                        "verkeerEnVervoer": False,
+                        "vhrosv": False,
+                        "volksgezonheidEnMilieu": False,
+                        "volledigNummer": "1.4",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+        mock_resource_get(m, "procestypen", procestype_url)
+
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype_url)
+        query_params = urlencode(
+            {
+                "zaaktype__id__exact": zaaktype.id,
+                "zaaktype": zaaktype.id,
+                "catalogus": zaaktype.catalogus.pk,
+            }
+        )
+        url = f"{reverse('admin:catalogi_resultaattype_add')}?_changelist_filters={query_params}"
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms["resultaattype_form"]
+
+        zaaktype_procestype = (
+            response.html("div", {"class": "field-get_zaaktype_procestype"})[0]
+            .find_all("div")[-1]
+            .text
+        )
+        self.assertEqual(zaaktype_procestype, "1 - Instellen en inrichten organisatie")
+
+        field = form.fields["selectielijstklasse"][0]
+
+        self.assertEqual(field.tag, "input")
+        self.assertEqual(len(field.options), 1)
+        # first element of JSON response
+        self.assertEqual(
+            field._value,
+            "https://selectielijst.openzaak.nl/api/v1/resultaten/d92e5a77-c523-4273-b8e0-c912115ef156",
+        )
