@@ -230,24 +230,14 @@ paths:
     post:
       operationId: besluit_create
       summary: Maak een BESLUIT aan.
-      description: 'Indien geen identificatie gegeven is, dan wordt deze automatisch
-
-        gegenereerd.
-
-
-        Er wordt gevalideerd op:
-
-        - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-
-        - geldigheid `verantwoorlijkeOrganisatie` RSIN
-
-        - geldigheid `besluittype` URL
-
-        - geldigheid `zaak` URL
-
-        - `datum` in het verleden of nu
-
-        - publicatie `besluittype` - `concept` moet `false` zijn'
+      description: "Indien geen identificatie gegeven is, dan wordt deze automatisch\n\
+        gegenereerd.\n\nEr wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie`\
+        \ + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid\
+        \ `besluittype` URL - de resource moet opgevraagd kunnen\n  worden uit de\
+        \ Catalogi API en de vorm van een BESLUITTYPE hebben.\n- geldigheid `zaak`\
+        \ URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de\
+        \ vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie\
+        \ `besluittype` - `concept` moet `false` zijn"
       parameters:
       - name: X-NLX-Request-Application-Id
         in: header
@@ -812,19 +802,12 @@ paths:
     put:
       operationId: besluit_update
       summary: Werk een BESLUIT in zijn geheel bij.
-      description: 'Er wordt gevalideerd op:
-
-        - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-
-        - geldigheid `verantwoorlijkeOrganisatie` RSIN
-
-        - geldigheid `besluittype` URL
-
-        - geldigheid `zaak` URL
-
-        - `datum` in het verleden of nu
-
-        - publicatie `besluittype` - `concept` moet `false` zijn'
+      description: "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie`\
+        \ + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het\
+        \ `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource\
+        \ moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK\
+        \ hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept`\
+        \ moet `false` zijn"
       parameters:
       - name: X-NLX-Request-Application-Id
         in: header
@@ -989,19 +972,12 @@ paths:
     patch:
       operationId: besluit_partial_update
       summary: Werk een BESLUIT deels bij.
-      description: 'Er wordt gevalideerd op:
-
-        - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-
-        - geldigheid `verantwoorlijkeOrganisatie` RSIN
-
-        - geldigheid `besluittype` URL
-
-        - geldigheid `zaak` URL
-
-        - `datum` in het verleden of nu
-
-        - publicatie `besluittype` - `concept` moet `false` zijn'
+      description: "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie`\
+        \ + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het\
+        \ `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource\
+        \ moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK\
+        \ hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept`\
+        \ moet `false` zijn"
       parameters:
       - name: X-NLX-Request-Application-Id
         in: header
@@ -1983,6 +1959,7 @@ components:
           type: string
           format: uri
           maxLength: 200
+          minLength: 1
         zaak:
           title: Zaak
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit

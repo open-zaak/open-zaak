@@ -4,8 +4,9 @@ version: '3.4'
 services:
   db_notifications:
     image: postgres:11-alpine
-    ports:
-      - "5433"
+    environment:
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
   rabbitmq:
     image: rabbitmq:3.7-alpine

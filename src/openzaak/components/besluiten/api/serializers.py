@@ -61,6 +61,7 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
             "besluittype": {
                 "lookup_field": "uuid",
                 "max_length": 200,
+                "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
                     LooseFkIsImmutableValidator(),

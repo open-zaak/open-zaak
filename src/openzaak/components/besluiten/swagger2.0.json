@@ -258,7 +258,7 @@
             "post": {
                 "operationId": "besluit_create",
                 "summary": "Maak een BESLUIT aan.",
-                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd.\n\nEr wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid `besluittype` URL\n- geldigheid `zaak` URL\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
+                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd.\n\nEr wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid `besluittype` URL - de resource moet opgevraagd kunnen\n  worden uit de Catalogi API en de vorm van een BESLUITTYPE hebben.\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
                     {
                         "name": "data",
@@ -951,7 +951,7 @@
             "put": {
                 "operationId": "besluit_update",
                 "summary": "Werk een BESLUIT in zijn geheel bij.",
-                "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid `besluittype` URL\n- geldigheid `zaak` URL\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
+                "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
                     {
                         "name": "data",
@@ -1153,7 +1153,7 @@
             "patch": {
                 "operationId": "besluit_partial_update",
                 "summary": "Werk een BESLUIT deels bij.",
-                "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid `besluittype` URL\n- geldigheid `zaak` URL\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
+                "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
                     {
                         "name": "data",
@@ -2301,7 +2301,8 @@
                     "description": "URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
                     "type": "string",
                     "format": "uri",
-                    "maxLength": 200
+                    "maxLength": 200,
+                    "minLength": 1
                 },
                 "zaak": {
                     "title": "Zaak",

@@ -8,7 +8,7 @@ def settings(request):
         "ENVIRONMENT_SHOWN_IN_ADMIN",
         "PROJECT_NAME",
         "SITE_TITLE",
-        "API_VERSION",
+        "RELEASE",
         "GIT_SHA",
     )
 

@@ -341,3 +341,8 @@ div.help {
   margin-left: 0 !important;
   text-indent: -9999px;
 }
+
+.aligned label + div.readonly {
+  display: inline-block;
+  margin-left: inherit !important;
+}

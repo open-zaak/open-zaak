@@ -407,6 +407,8 @@ elif os.path.exists(os.path.join(BASE_DIR, ".git")):
 else:
     GIT_SHA = None
 
+RELEASE = config("RELEASE", GIT_SHA)
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #

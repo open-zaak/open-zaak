@@ -24,6 +24,7 @@ TAG=${1:-latest}
 docker build \
     -t $REPO:$TAG \
     --build-arg COMMIT_HASH=$git_hash \
+    --build-arg RELEASE=$TAG \
     .
 
 # Push the image

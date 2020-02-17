@@ -2,7 +2,7 @@
 Open Zaak
 =========
 
-:Version: 1.0.0
+:Version: 1.0.1
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
@@ -12,8 +12,9 @@ Open Zaak
 API's voor Zaakgericht werken
 
 Ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam, Rotterdam,
-Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn, onder
-regie van `Dimpact`_.
+Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en Hoorn,
+Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van
+`Dimpact`_.
 
 Inleiding
 =========
