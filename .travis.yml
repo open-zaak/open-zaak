@@ -98,8 +98,8 @@ jobs:
         - docker-compose -f docker-compose.travis.yml up -d
         - bin/postman_tests.sh
       after_script:
-        - docker-compose stop
-        - docker-compose rm -f
+        - docker-compose -f docker-compose.travis.yml stop
+        - docker-compose -f docker-compose.travis.yml rm -f
 
     - stage: "Publication"
       name: "Docker image"
