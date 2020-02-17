@@ -51,7 +51,7 @@ def get_selectielijstklasse_field(
 ) -> forms.ChoiceField:
     return forms.ChoiceField(
         label=db_field.verbose_name.capitalize(),
-        choices=get_selectielijst_resultaat_choices,
+        choices=get_selectielijst_resultaat_choices(kwargs.get("procestype")),
         required=not db_field.blank,
         help_text=db_field.help_text,
         widget=widgets.AdminRadioSelect(attrs={"id": "selectielijst-scroll"}),

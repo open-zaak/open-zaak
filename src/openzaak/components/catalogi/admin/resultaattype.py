@@ -10,7 +10,7 @@ from openzaak.selectielijst.admin_fields import (
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils.admin import UUIDAdminMixin
 
-from ..models import ResultaatType
+from ..models import ResultaatType, ZaakType
 from .forms import ResultaatTypeForm
 from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
 
@@ -41,8 +41,21 @@ class ResultaatTypeAdmin(
         "toelichting",
     )
 
+    def get_extra_context(self, request, *args, **kwargs):
+        context = super().get_extra_context(request, *args, **kwargs)
+        self.zaaktype = context.get("zaaktype")
+        return context
+
     def get_zaaktype_procestype(self, obj):
-        url = obj.zaaktype.selectielijst_procestype
+        try:
+            url = obj.zaaktype.selectielijst_procestype
+        except ZaakType.DoesNotExist:
+            if self.zaaktype:
+                url = self.zaaktype.selectielijst_procestype
+            else:
+                return _(
+                    "Please save this Resultaattype first to get proper filtering of selectielijstklasses"
+                )
         client = ReferentieLijstConfig.get_client()
         procestype = client.retrieve("procestype", url)
         return f"{procestype['nummer']} - {procestype['naam']}"
@@ -92,6 +105,13 @@ class ResultaatTypeAdmin(
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == "selectielijstklasse":
+            if self.zaaktype:
+                kwargs["procestype"] = self.zaaktype.selectielijst_procestype
+            elif request.resolver_match.kwargs.get("object_id"):
+                obj = self.get_object(
+                    request, request.resolver_match.kwargs.get("object_id")
+                )
+                kwargs["procestype"] = obj.zaaktype.selectielijst_procestype
             return get_selectielijstklasse_field(db_field, request, **kwargs)
 
         if db_field.name == "resultaattypeomschrijving":
