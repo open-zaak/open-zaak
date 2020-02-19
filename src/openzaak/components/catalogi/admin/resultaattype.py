@@ -41,25 +41,6 @@ class ResultaatTypeAdmin(
         "toelichting",
     )
 
-    def get_extra_context(self, request, *args, **kwargs):
-        context = super().get_extra_context(request, *args, **kwargs)
-        self.zaaktype = context.get("zaaktype")
-        return context
-
-    def get_zaaktype_procestype(self, obj):
-        try:
-            url = obj.zaaktype.selectielijst_procestype
-        except ZaakType.DoesNotExist:
-            if self.zaaktype:
-                url = self.zaaktype.selectielijst_procestype
-            else:
-                return _(
-                    "Please save this Resultaattype first to get proper filtering of selectielijstklasses"
-                )
-        client = ReferentieLijstConfig.get_client()
-        procestype = client.retrieve("procestype", url)
-        return f"{procestype['nummer']} - {procestype['naam']}"
-
     # Details
     fieldsets = (
         (
@@ -100,6 +81,25 @@ class ResultaatTypeAdmin(
     )
     raw_id_fields = ("zaaktype",)
     readonly_fields = ("get_zaaktype_procestype", "omschrijving_generiek")
+
+    def get_extra_context(self, request, *args, **kwargs):
+        context = super().get_extra_context(request, *args, **kwargs)
+        self.zaaktype = context.get("zaaktype")
+        return context
+
+    def get_zaaktype_procestype(self, obj):
+        try:
+            url = obj.zaaktype.selectielijst_procestype
+        except ZaakType.DoesNotExist:
+            if self.zaaktype:
+                url = self.zaaktype.selectielijst_procestype
+            else:
+                return _(
+                    "Please save this Resultaattype first to get proper filtering of selectielijstklasses"
+                )
+        client = ReferentieLijstConfig.get_client()
+        procestype = client.retrieve("procestype", url)
+        return f"{procestype['nummer']} - {procestype['naam']}"
 
     get_zaaktype_procestype.short_description = "zaaktype procestype"
 
