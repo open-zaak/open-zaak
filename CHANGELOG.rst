@@ -1,7 +1,16 @@
 Changelog
 =========
 
-1.0.1 (2020-02-07)
+1.0.2 (2020-02-19)
+------------------
+
+Bugfixes and usability improvements
+
+* Improve selectielijst-resultaten display in ResultaatType admin (#480)
+* Improved production description
+* Fixed file permissions for installation on single-server (#481)
+
+1.0.1 (2020-02-17)
 ------------------
 
 Bugfixes from initial release
