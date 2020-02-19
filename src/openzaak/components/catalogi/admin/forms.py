@@ -79,6 +79,8 @@ class ZaakTypeForm(forms.ModelForm):
 
 
 class ResultaatTypeForm(forms.ModelForm):
+    _zaaktype = None  # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute
+
     class Meta:
         model = ResultaatType
         fields = "__all__"
@@ -86,7 +88,10 @@ class ResultaatTypeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance.pk:
+        if not self.instance.pk and self._zaaktype:
+            self.instance.zaaktype = self._zaaktype
+
+        if self.instance.zaaktype_id:
             proces_type = self.instance.zaaktype.selectielijst_procestype
             if "selectielijstklasse" in self.fields:
                 self.fields[
