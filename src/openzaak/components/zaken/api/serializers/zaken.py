@@ -754,7 +754,7 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = ZaakBesluit
-        fields = ("url", "uuid", "besluit")
+        fields = ("url", "uuid", "besluit", "zaak")
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
