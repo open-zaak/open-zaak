@@ -868,7 +868,7 @@ class ZaakBesluitViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # DRF introspection
-        if not self.kwargs:
+        if not getattr(self, 'kwargs', None):
             return context
 
         context["parent_object"] = self._get_zaak()
