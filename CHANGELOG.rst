@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.3 (2020-02-25)
+------------------
+
+Fixed infrastructure on single-server where Open Zaak and Open
+Notificaties run on the same machine.
+
 1.0.2 (2020-02-19)
 ------------------
 
