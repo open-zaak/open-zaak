@@ -1,0 +1,77 @@
+---
+
+- name: Install NLX in the cluster
+  hosts: localhost
+
+  vars_files:
+    - vars/db_credentials.yml
+    - vars/open-zaak.yml
+    - vars/nlx.yml
+
+  collections:
+    - openzaak.deploy
+
+  vars:
+    nlx_instance: test
+
+    nlx_txlog_db_host: "{{ db.privateIp }}"
+    nlx_txdb_migrations_image: scrumteamzgw/txlog-db:latest  # fix with custom users/roles
+
+    nlx_inway_self_address: inway.openzaak.nl:8443
+    nlx_inway_services:
+      - name: openzaak-zaken
+        endpoint_url: https://{{ openzaak_domain }}/zaken/api/v1
+        documentation_url: https://open-zaak.readthedocs.org
+        authorization_model: none
+        api_specification_document_url: https://{{ openzaak_domain }}/zaken/api/v1/schema/openapi.yaml
+
+      - name: openzaak-documenten
+        endpoint_url: https://{{ openzaak_domain }}/documenten/api/v1
+        documentation_url: https://open-zaak.readthedocs.org
+        authorization_model: none
+        api_specification_document_url: https://{{ openzaak_domain }}/documenten/api/v1/schema/openapi.yaml
+
+      - name: openzaak-catalogi
+        endpoint_url: https://{{ openzaak_domain }}/catalogi/api/v1
+        documentation_url: https://open-zaak.readthedocs.org
+        authorization_model: none
+        api_specification_document_url: https://{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.yaml
+
+      - name: openzaak-besluiten
+        endpoint_url: https://{{ openzaak_domain }}/besluiten/api/v1
+        documentation_url: https://open-zaak.readthedocs.org
+        authorization_model: none
+        api_specification_document_url: https://{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.yaml
+
+      - name: openzaak-autorisaties
+        endpoint_url: https://{{ openzaak_domain }}/autorisaties/api/v1
+        documentation_url: https://open-zaak.readthedocs.org
+        authorization_model: none
+        api_specification_document_url: https://{{ openzaak_domain }}/autorisaties/api/v1/schema/openapi.yaml
+
+  roles:
+
+    - role: app_database
+      vars:
+        app_db_name: "{{ nlx_txlog_db_name }}"
+        app_db_user: "{{ nlx_txlog_db_username }}"
+        app_db_password: "{{ nlx_txlog_db_password }}"
+
+        app_db_extra_users:
+          - name: "{{ nlx_txlog_db_username_api }}"
+            password: "{{ nlx_txlog_db_password_api }}"
+          - name: "{{ nlx_txlog_db_username_writer }}"
+            password: "{{ nlx_txlog_db_password_writer }}"
+
+        # from vars/db_credentials.yml
+        app_db_host: "{{ db.host }}"
+        app_db_port: "{{ db.port }}"
+        app_db_login_user: "{{ db_superuser.username }}"
+        app_db_login_password: "{{ db_superuser.password }}"
+      tags:
+        - db
+
+    - role: nlx_k8s
+      tags:
+        - inway
+        - outway
