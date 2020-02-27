@@ -71,7 +71,7 @@ Open Zaak
       
       - **Label**: *For example:* ``Open Notificaties``
 
-      - **Client ID**: *For example:* ``open-notificaties*
+      - **Client ID**: *For example:* ``open-notificaties``
       - **Secret**: *Some random string. You will need this later on!*
    
    d. Click **Opslaan en opnieuw bewerken**.
