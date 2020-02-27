@@ -110,5 +110,5 @@ Licensed under the EUPL_
 .. |docker| image:: https://images.microbadger.com/badges/image/openzaak/open-zaak.svg
     :target: https://microbadger.com/images/openzaak/open-zaak
 
-.. |atp| image:: https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/ac45be32-19f5-44cb-bbdd-835f42b3dfa8/
-    :target: https://api-test.nl/server/1/be77d2e9-6843-47f9-b2d3-d426e92f1562/ac45be32-19f5-44cb-bbdd-835f42b3dfa8/latest/
+.. |atp| image:: https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/
+    :target: https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/
