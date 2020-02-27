@@ -20,7 +20,7 @@ Architecture
 ============
 
 The application is deployed as Docker containers, of which the images are
-available on `docker hub`_. Traffic is routed to the server, where the web
+available on `Docker hub`_. Traffic is routed to the server, where the web
 server (nginx) handles SSL termination and proxies the requests to the
 application containers.
 
@@ -71,6 +71,7 @@ dependencies:
 .. code-block:: shell
 
     (env) [user@laptop]$ pip install -r deployment/requirements.txt
+    (env) [user@laptop]$ cd deployment/single-server
     (env) [user@laptop]$ ansible-galaxy collection install -r requirements.yml
     (env) [user@laptop]$ ansible-galaxy role install -r requirements.yml
 
@@ -102,7 +103,7 @@ Navigate to the correct deployment directory:
 
 Create the ``vars/open-zaak.yml`` file - you can find an example in
 ``vars/open-zaak.yml.example``. Generate a secret key using the
-`django secret key generator`_ and put the value between single
+`Django secret key generator`_ and put the value between single
 quotes.
 
 Configure the host by creating the ``hosts`` file from the example:
@@ -111,9 +112,9 @@ Configure the host by creating the ``hosts`` file from the example:
 
     (env) [user@laptop]$ cp hosts.example hosts
 
-Edit the ``open-zaak.gemeente.nl`` to point to your actual domain name. You must
-make sure that the DNS entry for this domain points to the IP address of your
-server.
+In the `hosts` file, edit the ``open-zaak.gemeente.nl`` to point to your actual 
+domain name. You must make sure that the DNS entry for this domain points to the 
+IP address of your server.
 
 .. warning:: It's important to use the correct domain name, as the SSL certificate
    will be generated for this domain and only this domain will be whitelisted
@@ -162,7 +163,7 @@ A full example might look like this:
         --user admin
         --inventory my-hosts \  # Use inventory file ``my-hosts`` instead of ``hosts``.
         --limit open-zaak.gemeente.nl \  # Only pick open-zaak.gemeente.nl from the inventory file.
-        --extra-vars "openzaak_ssl=false app_db_name=openzaak-test app_db_user=openzaak-test" \
+        --extra-vars "openzaak_ssl=false openzaak_db_name=open-zaak-test openzaak_db_username=open-zaak-test" \
         --connection local \
         --become \
         --become-method=sudo \
@@ -243,13 +244,15 @@ Generic variables
 Open Zaak specific variables
 ----------------------------
 
-The default values can be found in ``roles/openzaak/defaults/main.yml``.
+The default values can be found in in the `Ansible role`_.
 
 * ``openzaak_db_port``: database port. If you are running multiple PostgreSQL versions
   on the same machine, you'll have to point to the correct port.
 * ``openzaak_db_host``: specify the hostname if you're using a cloud database
   or a database on a different server.
 * ``openzaak_db_name``: specify a different database name.
+* ``openzaak_db_username``: specify a different database username.
+* ``openzaak_db_password``: specify a different database username.
 * ``openzaak_secret_key``: A Django secret key. Used for cryptographic
   operations - this may NOT leak, ever. If it does leak, change it.
 
@@ -269,8 +272,9 @@ The format of each replica is:
 The port number must be available on the host - i.e. you may not have other
 services already listening on that port.
 
-.. _docker hub: https://hub.docker.com/u/openzaak
-.. _django secret key generator: https://miniwebtool.com/django-secret-key-generator/
+.. _Docker hub: https://hub.docker.com/u/openzaak
+.. _Django secret key generator: https://miniwebtool.com/django-secret-key-generator/
+.. _Ansible role: https://github.com/open-zaak/ansible-collection/blob/master/roles/open_zaak_docker/defaults/main.yml
 
 Next steps
 ==========
