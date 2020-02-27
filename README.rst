@@ -8,7 +8,7 @@ Open Zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
 
-|build-status| |docs| |coverage| |black| |docker| |atp|
+|atp| |build-status| |docs| |coverage| |black| |docker|
 
 Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
