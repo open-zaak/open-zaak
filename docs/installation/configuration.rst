@@ -88,7 +88,7 @@ Open Zaak
       
       - **Label**: *For example:* ``Open Zaak``
 
-      - **Client ID**: *For example:* ``open-zaak*
+      - **Client ID**: *For example:* ``open-zaak``
       - **Secret**: *Some random string*
    
    d. Click **Opslaan en opnieuw bewerken**.
@@ -141,7 +141,7 @@ Open Notificaties
    b. Click **Client credential toevoegen**.
    c. Fill out the form:
       
-      - **Client ID**: *For example:* ``open-zaak*
+      - **Client ID**: *For example:* ``open-zaak``
       - **Secret**: *The same secret as given in Open Zaak step 2c*
    
    d. Click **Opslaan en opnieuw bewerken**.
