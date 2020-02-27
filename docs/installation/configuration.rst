@@ -127,8 +127,8 @@ Open Notificaties
       - **API root**: *Same URL as used in step 1b.*
       - **Label**: *For example:* ``Open Zaak``
       
-      - **Client ID**: *For example:* ``open-notificaties-backend``
-      - **Secret**: *The same secret as given in Open Zaak step 3c*
+      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      - **Secret**: *The same Secret as given in Open Zaak step 3c*
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
 
@@ -141,13 +141,10 @@ Open Notificaties
    b. Click **Client credential toevoegen**.
    c. Fill out the form:
       
-      - **Client ID**: *For example:* ``open-zaak``
-      - **Secret**: *The same secret as given in Open Zaak step 2c*
+      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
+      - **Secret**: *The same Secret as given in Open Zaak step 2c*
    
-   d. Click **Opslaan en opnieuw bewerken**.
-   e. Click **Beheer autorisaties**.
-   f. Select component **Autorisaties API** and scope **autorisaties.lezen**.
-   g. Click **Opslaan**
+   d. Click **Opslaan**.
 
 All done!
 
