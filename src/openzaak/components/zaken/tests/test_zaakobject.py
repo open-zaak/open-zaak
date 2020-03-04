@@ -1,10 +1,12 @@
-from django.test import override_settings
+from django.test import override_settings, tag
 
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import ExternalAPICredential
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (
@@ -1062,3 +1064,62 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "invalid-object-type-overige-usage")
+
+
+@tag("bag")
+class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @requests_mock.Mocker()
+    def test_create_zaakobject_bag_auth(self, m):
+        m.get(
+            "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
+            json={
+                "identificatiecode": "0003100000118018",
+                "oorspronkelijkBouwjaar": 1965,
+                "status": "PandInGebruik",
+                "_links": {
+                    "self": {
+                        "href": "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708"
+                    }
+                },
+                "_embedded": {
+                    "geometrie": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [5.3329181, 52.113041],
+                                [5.3512001, 52.11283],
+                                [5.3510284, 52.10234],
+                                [5.3329181, 52.113041],
+                            ]
+                        ],
+                    },
+                },
+            },
+        )
+        ExternalAPICredential.objects.create(
+            api_root="https://bag.basisregistraties.overheid.nl/api/v1",
+            label="BAG",
+            header_key="X-Api-Key",
+            header_value="foo",
+        )
+
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.pand,
+            "relatieomschrijving": "",
+            "object": "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
+        }
+
+        resp = self.client.post(url, data)
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.data)
+        self.assertEqual(
+            m.last_request.url,
+            "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
+        )
+        self.assertIn("X-Api-Key", m.last_request.headers)
