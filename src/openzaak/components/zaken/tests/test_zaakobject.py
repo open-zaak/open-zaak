@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import ExternalAPICredential
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (
@@ -1096,6 +1097,12 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
                     },
                 },
             },
+        )
+        ExternalAPICredential.objects.create(
+            api_root="https://bag.basisregistraties.overheid.nl/api/v1",
+            label="BAG",
+            header_key="X-Api-Key",
+            header_value="foo",
         )
 
         url = get_operation_url("zaakobject_create")

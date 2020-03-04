@@ -17,7 +17,7 @@ from zds_client import ClientAuth
 
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
-from .models import AutorisatieSpec
+from .models import AutorisatieSpec, ExternalAPICredential
 from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
@@ -192,3 +192,8 @@ class AutorisatieSpecAdmin(admin.ModelAdmin):
     )
     list_filter = ("component", "applicatie")
     search_fields = ("applicatie__uuid",)
+
+
+@admin.register(ExternalAPICredential)
+class ExternalAPICredentialAdmin(admin.ModelAdmin):
+    list_display = ("label", "api_root", "header_key")
