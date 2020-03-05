@@ -45,6 +45,7 @@ jinja2==2.10.1            # via coreschema
 markdown==3.0.1
 markupsafe==1.0           # via jinja2
 maykin-django-better-admin-arrayfield==1.0.5
+nlx-url-rewriter==0.1.2
 oyaml==0.7                # via vng-api-common
 psycopg2==2.8.4
 pyjwt==1.6.4              # via gemma-zds-client, vng-api-common

@@ -67,6 +67,7 @@ markdown==3.0.1
 markupsafe==1.0
 maykin-django-better-admin-arrayfield==1.0.5
 mccabe==0.6.1             # via flake8
+nlx-url-rewriter==0.1.2
 oyaml==0.7
 packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
