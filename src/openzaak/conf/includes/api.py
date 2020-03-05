@@ -83,3 +83,5 @@ BRC_API_SPEC = (
 
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
+
+LINK_FETCHER = "openzaak.nlx.fetcher"
