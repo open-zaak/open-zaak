@@ -21,3 +21,4 @@ directly in the management interface.
    catalogi/index
    users
    api-authorizations
+   other_apis
