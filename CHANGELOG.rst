@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.0.4 (2020-03-05)
+------------------
+
+Improved support for integration with other APIs, most notably BAG/BRT APIs from the
+kadaster (see https://pdok.nl). This increases the usability of ZaakObject relations.
+
+* Added api-test.nl badge - proves that Open Zaak is compliant with the
+  *API's voor zaakgericht werken* standard
+* Added small documentation improvements
+* Updated notification setup instructions
+* Added support for API authentication with a simple *API key* (such as BAG or BRT)
+* Added support for URL transformation so that data-fetching is forced over NLX
+
 1.0.3 (2020-02-25)
 ------------------
 
