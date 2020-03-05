@@ -1,11 +1,13 @@
 from django.test import override_settings, tag
 
 import requests_mock
+from nlx_url_rewriter.models import URLRewrite
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.bag.tests import mock_pand_get
 from openzaak.components.autorisaties.models import ExternalAPICredential
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -1072,31 +1074,9 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_create_zaakobject_bag_auth(self, m):
-        m.get(
+        mock_pand_get(
+            m,
             "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
-            json={
-                "identificatiecode": "0003100000118018",
-                "oorspronkelijkBouwjaar": 1965,
-                "status": "PandInGebruik",
-                "_links": {
-                    "self": {
-                        "href": "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708"
-                    }
-                },
-                "_embedded": {
-                    "geometrie": {
-                        "type": "Polygon",
-                        "coordinates": [
-                            [
-                                [5.3329181, 52.113041],
-                                [5.3512001, 52.11283],
-                                [5.3510284, 52.10234],
-                                [5.3329181, 52.113041],
-                            ]
-                        ],
-                    },
-                },
-            },
         )
         ExternalAPICredential.objects.create(
             api_root="https://bag.basisregistraties.overheid.nl/api/v1",
@@ -1123,3 +1103,38 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
         )
         self.assertIn("X-Api-Key", m.last_request.headers)
+
+    @requests_mock.Mocker()
+    def test_create_zaakobject_bag_nlx(self, m):
+        """
+        Assuming the BAG has been configured to not require Auth header with NLX,
+        connect a BAG Pand to a ZAAK fetching the object through an NLX outway.
+        """
+        mock_pand_get(
+            m,
+            "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
+            "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
+        )
+        URLRewrite.objects.create(
+            from_value="https://bag.basisregistraties.overheid.nl/api/v1",
+            to_value="http://outway.nlx:8443/kadaster/bag",
+        )
+
+        url = get_operation_url("zaakobject_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "objectType": ZaakobjectTypes.pand,
+            "relatieomschrijving": "",
+            "object": "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
+        }
+
+        resp = self.client.post(url, data)
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.data)
+        self.assertEqual(
+            m.last_request.url,
+            "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
+        )
+        self.assertNotIn("X-Api-Key", m.last_request.headers)
