@@ -33,7 +33,7 @@ Service providers
 -----------------
 
 Service providers offer Open Zaak as a service or can manage an on-premise 
-installations for you.
+installation for you.
 
 Below is a list of service providers.
 
