@@ -8,6 +8,7 @@
 
   vars_files:
     - vars/postgres.yml
+    - vars/open-zaak.yml
     - vars/nlx.yml
 
   vars:

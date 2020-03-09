@@ -4,6 +4,9 @@
 # See https://github.com/open-zaak/ansible-collection/tree/master/roles/nlx_docker/defaults/main.yml
 # for all available variables
 
+# Typically set in vars/open-zaak.yml
+# openzaak_domain: https://open-zaak.gemeente.lan
+
 # INWAY
 nlx_inway_version: latest  # see https://hub.docker.com/r/nlxio/inway/tags
 nlx_inway_self_address: inway.gemeente.nl:8443  # domain must be publicly available
@@ -11,34 +14,34 @@ nlx_inway_directory_registration_address: directory-registration-api.demo.nlx.io
 
 nlx_inway_services:
   - name: openzaak-zaken
-    endpoint_url: "https://open-zaak.gemeente.lan/zaken/api/v1"
+    endpoint_url: "{{ openzaak_domain }}/zaken/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "https://open-zaak.gemeente.lan/zaken/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_domain }}/zaken/api/v1/schema/openapi.yaml"
 
   - name: openzaak-documenten
-    endpoint_url: "https://open-zaak.gemeente.lan/documenten/api/v1"
+    endpoint_url: "{{ openzaak_domain }}/documenten/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "https://open-zaak.gemeente.lan/documenten/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_domain }}/documenten/api/v1/schema/openapi.yaml"
 
   - name: openzaak-catalogi
-    endpoint_url: "https://open-zaak.gemeente.lan/catalogi/api/v1"
+    endpoint_url: "{{ openzaak_domain }}/catalogi/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "https://open-zaak.gemeente.lan/catalogi/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.yaml"
 
   - name: openzaak-besluiten
-    endpoint_url: "https://open-zaak.gemeente.lan/besluiten/api/v1"
+    endpoint_url: "{{ openzaak_domain }}/besluiten/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "https://open-zaak.gemeente.lan/besluiten/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.yaml"
 
   - name: openzaak-autorisaties
-    endpoint_url: "https://open-zaak.gemeente.lan/autorisaties/api/v1"
+    endpoint_url: "{{ openzaak_domain }}/autorisaties/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "https://open-zaak.gemeente.lan/autorisaties/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_domain }}/autorisaties/api/v1/schema/openapi.yaml"
 
 nlx_inway_replicas:  # add more replicas for HA setups
   - inway-0
