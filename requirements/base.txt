@@ -43,7 +43,7 @@ isodate==0.6.0            # via vng-api-common
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
 markdown==3.0.1
-markupsafe==1.0           # via jinja2
+markupsafe==1.1.1         # via jinja2
 maykin-django-better-admin-arrayfield==1.0.5
 nlx-url-rewriter==0.1.2
 oyaml==0.7                # via vng-api-common
