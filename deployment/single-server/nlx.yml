@@ -28,9 +28,6 @@
         owner: "{{ nlx_txlog_db_username }}"
         port: "{{ nlx_txlog_db_port }}"
 
-    # nlx vars
-    nlx_txdb_migrations_image: scrumteamzgw/txlog-db:latest  # fix with custom users/roles
-
   roles:
 
     - role: debian_setup
@@ -42,6 +39,8 @@
     - role: geerlingguy.docker
 
     - role: nlx_docker
+      vars:
+        nlx_txdb_migrations_image: scrumteamzgw/txlog-db:latest  # fix with custom users/roles
       tags:
         - inway
         - outway
