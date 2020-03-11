@@ -4,8 +4,9 @@
 # See https://github.com/open-zaak/ansible-collection/tree/master/roles/nlx_docker/defaults/main.yml
 # for all available variables
 
-# Typically set in vars/open-zaak.yml
-# openzaak_domain: https://open-zaak.gemeente.lan
+# Typically extrapolated from vars/open-zaak.yml where openzaak_domain and 
+# openzaak_ssl are defined.
+openzaak_base_url: https://open-zaak.gemeente.lan
 
 # INWAY
 nlx_inway_version: latest  # see https://hub.docker.com/r/nlxio/inway/tags
@@ -14,43 +15,43 @@ nlx_inway_directory_registration_address: directory-registration-api.demo.nlx.io
 
 nlx_inway_services:
   - name: openzaak-zaken
-    endpoint_url: "{{ openzaak_domain }}/zaken/api/v1"
+    endpoint_url: "{{ openzaak_base_url }}/zaken/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "{{ openzaak_domain }}/zaken/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_base_url }}/zaken/api/v1/schema/openapi.yaml"
 
   - name: openzaak-documenten
-    endpoint_url: "{{ openzaak_domain }}/documenten/api/v1"
+    endpoint_url: "{{ openzaak_base_url }}/documenten/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "{{ openzaak_domain }}/documenten/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_base_url }}/documenten/api/v1/schema/openapi.yaml"
 
   - name: openzaak-catalogi
-    endpoint_url: "{{ openzaak_domain }}/catalogi/api/v1"
+    endpoint_url: "{{ openzaak_base_url }}/catalogi/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "{{ openzaak_domain }}/catalogi/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_base_url }}/catalogi/api/v1/schema/openapi.yaml"
 
   - name: openzaak-besluiten
-    endpoint_url: "{{ openzaak_domain }}/besluiten/api/v1"
+    endpoint_url: "{{ openzaak_base_url }}/besluiten/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "{{ openzaak_domain }}/besluiten/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_base_url }}/besluiten/api/v1/schema/openapi.yaml"
 
   - name: openzaak-autorisaties
-    endpoint_url: "{{ openzaak_domain }}/autorisaties/api/v1"
+    endpoint_url: "{{ openzaak_base_url }}/autorisaties/api/v1"
     documentation_url: https://open-zaak.readthedocs.org
     authorization_model: none
-    api_specification_document_url: "{{ openzaak_domain }}/autorisaties/api/v1/schema/openapi.yaml"
+    api_specification_document_url: "{{ openzaak_base_url }}/autorisaties/api/v1/schema/openapi.yaml"
 
 nlx_inway_replicas:  # add more replicas for HA setups
-  - inway-0
+  - nlx-inway-0
 
 # OUTWAY
 nlx_outway_version: latest  # see https://hub.docker.com/r/nlxio/outway/tags
 nlx_outway_directory_inspection_address: directory-inspection-api.demo.nlx.io:443
 nlx_outway_replicas:  # add more replicas for HA setups
-  - outway-0
+  - nlx-outway-0
 
 # CERTIFICATES - you must obtain these yourself. See https://docs.nlx.io
 # See https://github.com/open-zaak/ansible-collection/tree/master/roles/nlx_docker/defaults/main.yml
