@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.0 (2020-03-??)
+1.1.0 (2020-03-11)
 ------------------
 
 New feature release. Note that this is **not** yet an implementation of the 1.1.x API
@@ -10,7 +10,7 @@ specs!
 * Included playbooks for NLX deployment
 * Added communication channels to the docs (i.e. - how to find/contact us!)
 * Added ADFS support (i.e. you can now log in to the admin with ADFS)
-* ... ?
+* Fixed some deployment tooling
 
 1.0.4 (2020-03-05)
 ------------------
