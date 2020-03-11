@@ -22,3 +22,4 @@ directly in the management interface.
    users
    api-authorizations
    other_apis
+   adfs
