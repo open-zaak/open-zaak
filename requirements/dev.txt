@@ -12,15 +12,19 @@ beautifulsoup4==4.8.1
 black==19.10b0
 bumpversion==0.5.3
 certifi==2018.4.16
+cffi==1.13.2
 chardet==3.0.4
 click==7.0                # via black, pip-tools
 commonmark==0.9.1         # via recommonmark
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
+cryptography==2.8
 dictdiffer==0.8.0
 django-admin-index==1.2.2
 django-appconf==1.0.2
+django-auth-adfs-db==0.1.1
+django-auth-adfs==1.3.1
 django-axes==4.4.0
 django-choices==1.7.0
 django-cors-middleware==1.3.1
@@ -74,6 +78,7 @@ pathspec==0.6.0           # via black
 pip-tools==4.4.0
 psycopg2==2.8.4
 pycodestyle==2.5.0        # via flake8
+pycparser==2.19
 pyflakes==2.1.1           # via flake8
 pygments==2.4.2           # via sphinx
 pyjwt==1.6.4

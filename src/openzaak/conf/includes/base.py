@@ -103,6 +103,8 @@ INSTALLED_APPS = [
     # 'django.contrib.humanize',
     # External applications.
     "axes",
+    "django_auth_adfs",
+    "django_auth_adfs_db",
     "django_filters",
     "django_db_logger",
     "corsheaders",
@@ -342,10 +344,14 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     "openzaak.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "django_auth_adfs_db.backends.AdfsAuthCodeBackend",
 ]
 
 SESSION_COOKIE_NAME = "openzaak_sessionid"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
+LOGIN_URL = reverse_lazy("admin:login")
+LOGIN_REDIRECT_URL = reverse_lazy("admin:index")
 
 #
 # SECURITY settings
@@ -415,6 +421,11 @@ RELEASE = config("RELEASE", GIT_SHA)
 # 3RD PARTY LIBRARY SETTINGS #
 #                            #
 ##############################
+
+#
+# AUTH-ADFS
+#
+AUTH_ADFS = {"SETTINGS_CLASS": "django_auth_adfs_db.settings.Settings"}
 
 #
 # DJANGO-AXES

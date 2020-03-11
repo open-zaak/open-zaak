@@ -9,7 +9,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RelatieAarden
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import (
@@ -35,7 +35,7 @@ from .utils import get_zaaktype_response
 
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
-    list_url = reverse(ZaakInformatieObject)
+    list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
     @freeze_time("2018-09-19T12:25:19+0200")
@@ -516,7 +516,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    list_url = reverse(ZaakInformatieObject)
+    list_url = reverse_lazy(ZaakInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
@@ -680,7 +680,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    list_url = reverse(ZaakInformatieObject)
+    list_url = reverse_lazy(ZaakInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 

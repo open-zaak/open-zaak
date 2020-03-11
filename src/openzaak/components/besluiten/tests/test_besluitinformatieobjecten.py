@@ -195,7 +195,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse(BesluitInformatieObject)
+    list_url = reverse_lazy(BesluitInformatieObject)
 
     def test_create_bio_external_document(self):
         base = "https://external.documenten.nl/api/v1/"
@@ -325,7 +325,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["openbesluit.nl"])
 class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse(BesluitInformatieObject)
+    list_url = reverse_lazy(BesluitInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
@@ -489,7 +489,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    list_url = reverse(BesluitInformatieObject)
+    list_url = reverse_lazy(BesluitInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 

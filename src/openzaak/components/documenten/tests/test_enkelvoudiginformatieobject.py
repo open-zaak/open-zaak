@@ -10,7 +10,7 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -29,7 +29,7 @@ from .utils import (
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
-    list_url = reverse(EnkelvoudigInformatieObject)
+    list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
     def test_create(self):
@@ -343,7 +343,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
 @override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
-    list_url = reverse(EnkelvoudigInformatieObject)
+    list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
     def test_eio_update(self):
@@ -577,7 +577,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
 
 
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
-    list_url = reverse(EnkelvoudigInformatieObject)
+    list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
     def test_pagination_default(self):
@@ -613,7 +613,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse(EnkelvoudigInformatieObject)
+    list_url = reverse_lazy(EnkelvoudigInformatieObject)
 
     def test_create_external_informatieobjecttype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
