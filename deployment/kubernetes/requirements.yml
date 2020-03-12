@@ -1,4 +1,4 @@
 collections:
   - name: openzaak.deploy
-    version: 0.8.0
+    version: 0.8.1
     source: https://galaxy.ansible.com
