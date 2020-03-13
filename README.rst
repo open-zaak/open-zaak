@@ -3,7 +3,7 @@ Open Zaak
 =========
 *Productiewaardige API's voor Zaakgericht Werken*
 
-:Version: 1.1.0
+:Version: 1.1.1
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
