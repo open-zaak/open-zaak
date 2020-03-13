@@ -20,9 +20,9 @@ You need the following libraries and/or programs:
 
 * `Python`_ 3.7 or above
 * Python `Virtualenv`_ and `Pip`_
-* `PostgreSQL`_ 10 or above, with the `PostGIS-extension`_
-* `Node.js`_
-* `npm`_
+* `PostgreSQL`_ 10.0 or above, with the `PostGIS-extension`_
+* `Node.js`_ 10.0 or above
+* `npm`_ 6.0 or above
 
 .. _Python: https://www.python.org/
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
@@ -52,7 +52,7 @@ development machine.
 
    .. code-block:: bash
 
-       $ virtualenv env
+       $ virtualenv env  # or, python -m venv env
        $ source env/bin/activate
        $ pip install -r requirements/dev.txt
 
