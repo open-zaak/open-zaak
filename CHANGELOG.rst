@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.1.1 (2020-03-13)
+------------------
+
+Bugfix release w/r to deployment and ADFS
+
+* Added option to disable group sync in ADFS login. If the ADFS provider
+  does not provide the group claim, this would otherwise reset the user
+  groups you carefully configured.
+* Updated single-server deployment to make sure the web-server can read
+  and serve uploaded files through the Documenten API.
+
 1.1.0 (2020-03-11)
 ------------------
 
