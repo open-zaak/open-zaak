@@ -29,12 +29,12 @@
                 "applicatie"
             ],
             [
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
                 "autorisaties",
                 "externalapicredential"
+            ],
+            [
+                "vng_api_common",
+                "apicredential"
             ]
         ]
     }
@@ -42,7 +42,7 @@
 {
     "model": "admin_index.appgroup",
     "fields": {
-        "order": 7,
+        "order": 3,
         "name": "Configuratie",
         "slug": "configuration",
         "models": [
@@ -51,16 +51,8 @@
                 "appgroup"
             ],
             [
-                "axes",
-                "accessattempt"
-            ],
-            [
-                "axes",
-                "accesslog"
-            ],
-            [
-                "selectielijst",
-                "referentielijstconfig"
+                "django_auth_adfs_db",
+                "adfsconfig"
             ],
             [
                 "nlx_url_rewriter",
@@ -75,6 +67,10 @@
                 "subscription"
             ],
             [
+                "selectielijst",
+                "referentielijstconfig"
+            ],
+            [
                 "sites",
                 "site"
             ]
@@ -84,7 +80,7 @@
 {
     "model": "admin_index.appgroup",
     "fields": {
-        "order": 6,
+        "order": 2,
         "name": "Gegevens",
         "slug": "gegevens",
         "models": [
@@ -110,10 +106,18 @@
 {
     "model": "admin_index.appgroup",
     "fields": {
-        "order": 7,
+        "order": 4,
         "name": "Logs",
         "slug": "logs",
         "models": [
+            [
+                "axes",
+                "accessattempt"
+            ],
+            [
+                "axes",
+                "accesslog"
+            ],
             [
                 "django_db_logger",
                 "statuslog"
@@ -129,8 +133,10 @@
     "model": "admin_index.applink",
     "fields": {
         "order": 0,
-        "app_group": ["configuration"],
-        "name": "Nlx config",
+        "app_group": [
+            "configuration"
+        ],
+        "name": "NLX configuratie",
         "link": "/admin/config/nlx"
     }
 }
