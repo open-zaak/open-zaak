@@ -93,3 +93,71 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Not tested with a filter attached to the all call.
         for document in self.documents:
             yield document
+
+    def create(self, **kwargs):
+        cmis_document = self.get_cmis_client.create_document(
+            identification=kwargs.get('identificatie'),
+            data=kwargs,
+            content=kwargs.get('inhoud')
+        )
+        django_document = super().create(**kwargs)
+        django_document.uuid = cmis_document.versionSeriesId
+        return django_document
+
+    def get(self, *args, **kwargs):
+        """
+        Gets the documents from the cmis backend through the identificatie or uuid fields.
+        """
+
+        self.documents = []
+
+        if kwargs.get('identificatie') is not None:
+            self.documents.append(
+                self.get_cmis_client.get_cmis_document(
+                    identification=kwargs.get('identificatie'),
+                    via_identification=True,
+                    filters=None
+                )
+            )
+        elif kwargs.get('uuid') is not None:
+            self.documents.append(
+                self.get_cmis_client.get_cmis_document(
+                    identification=kwargs.get('uuid'),
+                    via_identification=False,
+                    filters=None
+                )
+            )
+
+        if len(self.documents) == 1:
+            # Check if a model with that uuid already exists in the ORM otherwise create it
+            try:
+                return super().get(*args, **kwargs)
+            except self.model.DoesNotExist():
+                return cmis_doc_to_django_model(self.documents[0])
+        elif len(self.documents) == 0:
+            raise self.model.DoesNotExist(
+                "%s matching query does not exist." %
+                self.model._meta.object_name
+            )
+        else:
+            raise self.model.MultipleObjectsReturned(
+                "get() returned more than one %s -- it returned %s!" %
+                (self.model._meta.object_name, len(self.documents))
+            )
+
+
+
+    # def filter(self):
+    #     pass
+
+    # def delete(self):
+    #     pass
+    #
+    # def update(self):
+    #     pass
+    #
+    # def get_or_create(self, defaults=None, **kwargs):
+    #     pass
+    #
+    # def update_or_create(self, defaults=None, **kwargs):
+    #     pass

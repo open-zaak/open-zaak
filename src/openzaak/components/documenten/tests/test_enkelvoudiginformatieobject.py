@@ -59,7 +59,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         # Test database
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.get(identificatie=content["identificatie"])
 
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
