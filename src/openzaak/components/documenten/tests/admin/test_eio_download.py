@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -7,6 +8,7 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
