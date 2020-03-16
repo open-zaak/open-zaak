@@ -32,7 +32,7 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         self.assertEqual(download_link.text, "iets.txt")
 
         download_response = self.app.get(download_link.attrs["href"])
-        self.assertEqual(download_response.content, b"STUFF")
+        self.assertEqual(download_response.text, "STUFF")
         self.assertEqual(
             download_response.content_disposition, 'attachment; filename="iets.txt"'
         )
@@ -53,5 +53,5 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         self.assertEqual(download_link.text, eio.inhoud.url)
 
         download_response = self.app.get(download_link.attrs["href"])
-        self.assertEqual(download_response.content, b"STUFF")
+        self.assertEqual(download_response.text, "STUFF")
         self.assertEqual(download_response.content_disposition, "attachment")

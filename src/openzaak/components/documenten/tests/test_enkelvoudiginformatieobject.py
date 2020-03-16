@@ -338,7 +338,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response._container[0], b"inhoud1")
+        self.assertEqual(response.getvalue(), b"inhoud1")
 
 
 @override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
@@ -548,7 +548,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         response = self.client.get(eio_url, {"versie": "1"})
 
         response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response._container[0], b"inhoud1")
+        self.assertEqual(response.getvalue(), b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
@@ -573,7 +573,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
 
         response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response._container[0], b"inhoud1")
+        self.assertEqual(response.getvalue(), b"inhoud1")
 
 
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):

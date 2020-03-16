@@ -75,7 +75,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         response = self.client.get(file_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.content.decode("utf-8"), "some data")
+        self.assertEqual(response.getvalue().decode("utf-8"), "some data")
 
     def test_list_file(self):
         eio = EnkelvoudigInformatieObjectCanonicalFactory.create()
