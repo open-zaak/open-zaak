@@ -50,7 +50,7 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         bestand_field = response.html("div", {"class": "field-inhoud"})[0]
         download_link = bestand_field("a")[0]
 
-        self.assertEqual(download_link.text, eio.inhoud.url)
+        self.assertEqual(download_link.text, eio.inhoud.name)
 
         download_response = self.app.get(download_link.attrs["href"])
         self.assertEqual(download_response.text, "STUFF")

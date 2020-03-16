@@ -181,6 +181,8 @@ class EnkelvoudigInformatieObjectAdmin(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
+    private_media_view_class = PrivateMediaView
+    private_media_file_widget = PrivateFileWidget
 
     fieldsets = (
         (
@@ -252,29 +254,4 @@ class EnkelvoudigInformatieObjectAdmin(
         return (
             link_to_related_objects(Gebruiksrechten, obj.canonical),
             link_to_related_objects(ObjectInformatieObject, obj.canonical),
-        )
-
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
-        field = super().formfield_for_dbfield(db_field, request, **kwargs)
-        private_media_fields = self.get_private_media_fields()
-        if db_field.name in private_media_fields:
-            view_name = self._get_private_media_view_name(db_field.name)
-            obj = self.get_object(
-                request, request.resolver_match.kwargs.get("object_id")
-            )
-            attrs = {}
-            if obj:
-                display_value = obj.bestandsnaam if obj.bestandsnaam else obj.inhoud.url
-                attrs["display_value"] = display_value
-            field.widget = PrivateFileWidget(
-                url_name="admin:%s" % view_name, attrs=attrs,
-            )
-        return field
-
-    def get_private_media_view(self, field):
-        return PrivateMediaView.as_view(
-            model=self.model,
-            file_field=field,
-            permission_required=self.get_private_media_permission_required(field),
-            sendfile_options=self.get_private_media_view_options(field),
         )

@@ -2,8 +2,6 @@ from privates.widgets import PrivateFileWidget as _PrivateFileWidget
 
 
 class PrivateFileWidget(_PrivateFileWidget):
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name, value, attrs)
-
-        context["widget"]["value"] = self.attrs.get("display_value")
-        return context
+    def get_display_value(self, value):
+        instance = value.instance
+        return instance.bestandsnaam or super().get_display_value(value)
