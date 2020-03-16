@@ -21,6 +21,8 @@ from .models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from .views import PrivateMediaView
+from .widgets import PrivateFileWidget
 
 
 @admin.register(Gebruiksrechten)
@@ -179,6 +181,8 @@ class EnkelvoudigInformatieObjectAdmin(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
+    private_media_view_class = PrivateMediaView
+    private_media_file_widget = PrivateFileWidget
 
     fieldsets = (
         (
