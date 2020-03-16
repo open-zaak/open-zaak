@@ -477,7 +477,7 @@ PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private-media")
 PRIVATE_MEDIA_URL = "/private-media/"
 
 # requires an nginx container running in front
-SENDFILE_BACKEND = config("SENDFILE_BACKEND", "sendfile.backends.nginx")
+SENDFILE_BACKEND = config("SENDFILE_BACKEND", "django_sendfile.backends.nginx")
 SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
 SENDFILE_URL = PRIVATE_MEDIA_URL
 

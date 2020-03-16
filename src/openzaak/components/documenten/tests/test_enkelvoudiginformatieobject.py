@@ -341,7 +341,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.getvalue(), b"inhoud1")
 
 
-@override_settings(SENDFILE_BACKEND="sendfile.backends.simple")
+@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True

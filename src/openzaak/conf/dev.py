@@ -16,7 +16,7 @@ os.environ.setdefault("DB_NAME", "openzaak")
 os.environ.setdefault("DB_USER", "openzaak")
 os.environ.setdefault("DB_PASSWORD", "openzaak")
 
-os.environ.setdefault("SENDFILE_BACKEND", "sendfile.backends.development")
+os.environ.setdefault("SENDFILE_BACKEND", "django_sendfile.backends.development")
 
 os.environ.setdefault("ZTC_JWT_SECRET", "open-to-ztc")
 os.environ.setdefault("ZRC_JWT_SECRET", "open-to-zrc")

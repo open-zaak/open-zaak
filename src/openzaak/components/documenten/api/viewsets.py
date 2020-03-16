@@ -2,6 +2,7 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
+from django_sendfile import sendfile
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
@@ -10,7 +11,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
-from sendfile import sendfile
 from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
