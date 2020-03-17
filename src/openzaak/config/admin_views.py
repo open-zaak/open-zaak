@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 
-class NLXConfigView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-    template_name = "admin/nlx_config.html"
+class NLXInwayView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = "admin/nlx_inway.html"
     login_url = "admin:login"
 
     def test_func(self):
