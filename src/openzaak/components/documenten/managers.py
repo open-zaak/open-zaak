@@ -11,6 +11,17 @@ from .query import InformatieobjectQuerySet
 logger = logging.getLogger(__name__)
 
 
+def convert_timestamp_to_django_date(json_date):
+    """
+    Takes an int such as 1467717221000 as input and returns 2016-07-05 as output.
+    """
+    if json_date is not None:
+        import datetime
+        timestamp = int(str(json_date)[:10])
+        django_date = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+        return django_date
+
+
 def cmis_doc_to_django_model(cmis_doc):
     from .models import EnkelvoudigInformatieObject
 
@@ -21,6 +32,12 @@ def cmis_doc_to_django_model(cmis_doc):
         int_versie = 0
     except InvalidOperation:
         int_versie = 0
+
+    date_fields = ['creatiedatum', 'ontvangstdatum', 'verzenddatum']
+    for date_field in date_fields:
+        date_value = getattr(cmis_doc, date_field)
+        if isinstance(date_value, int):
+            setattr(cmis_doc, date_field, convert_timestamp_to_django_date(date_value))
 
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
@@ -102,39 +119,45 @@ class CMISQuerySet(InformatieobjectQuerySet):
         )
         django_document = super().create(**kwargs)
         django_document.uuid = cmis_document.versionSeriesId
+        django_document.save()
         return django_document
 
     def get(self, *args, **kwargs):
         """
         Gets the documents from the cmis backend through the identificatie or uuid fields.
         """
-
-        self.documents = []
+        django_documents = []
 
         if kwargs.get('identificatie') is not None:
-            self.documents.append(
-                self.get_cmis_client.get_cmis_document(
-                    identification=kwargs.get('identificatie'),
-                    via_identification=True,
-                    filters=None
-                )
+            cmis_doc = self.get_cmis_client.get_cmis_document(
+                identification=kwargs.get('identificatie'),
+                via_identification=True,
+                filters=None
             )
-        elif kwargs.get('uuid') is not None:
-            self.documents.append(
-                self.get_cmis_client.get_cmis_document(
-                    identification=kwargs.get('uuid'),
-                    via_identification=False,
-                    filters=None
-                )
-            )
+            # Check if a model with that identificatie already exists in the ORM otherwise create it
+            documents_in_orm = self.filter(identificatie=kwargs.get('identificatie'))
 
-        if len(self.documents) == 1:
+        elif kwargs.get('uuid') is not None:
+            cmis_doc = self.get_cmis_client.get_cmis_document(
+                identification=kwargs.get('uuid'),
+                via_identification=False,
+                filters=None
+            )
             # Check if a model with that uuid already exists in the ORM otherwise create it
-            try:
-                return super().get(*args, **kwargs)
-            except self.model.DoesNotExist():
-                return cmis_doc_to_django_model(self.documents[0])
-        elif len(self.documents) == 0:
+            documents_in_orm = self.filter(uuid=kwargs.get('uuid'))
+        else:
+            # TODO
+            raise NotImplementedError("Getting with filters other than uuid and identificatie to be implemented.")
+
+        if documents_in_orm.count() == 0:
+            django_documents.append(cmis_doc_to_django_model(cmis_doc))
+        else:
+            for doc in documents_in_orm:
+                django_documents.append(doc)
+
+        if len(django_documents) == 1:
+            return django_documents[0]
+        elif len(django_documents) == 0:
             raise self.model.DoesNotExist(
                 "%s matching query does not exist." %
                 self.model._meta.object_name
@@ -145,7 +168,8 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 (self.model._meta.object_name, len(self.documents))
             )
 
-
+    # def delete(self):
+    #     pass
 
     # def filter(self):
     #     pass
