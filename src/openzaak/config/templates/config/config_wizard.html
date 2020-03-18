@@ -16,7 +16,9 @@
         {{ wizard.management_form }}
 
         <fieldset>
-            {{ wizard.form.as_p }}
+            {% block fields %}
+                {{ wizard.form.as_p }}
+            {% endblock %}
         </fieldset>
 
         {% if wizard.steps.prev %}
