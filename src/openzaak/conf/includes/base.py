@@ -122,6 +122,7 @@ INSTALLED_APPS = [
     "rest_framework_gis",
     "django_markup",
     "solo",
+    "sniplates",
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     "django_loose_fk",
