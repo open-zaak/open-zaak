@@ -1,28 +1,31 @@
 {% extends "master.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Service configuratie</h1>
-    <p class="lead">NLX</p>
-  </div>
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie: {{ wizard.steps.current| upper }}</h1>
+    <p class="lead">Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+</div>
 
-  <div class="container">
-      <form action="." method="post">
-            {% csrf_token %}
-            {{ wizard.management_form }}
+<div class="container">
+    {% load i18n %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ wizard.form.media }}
+        {{ wizard.management_form }}
 
-            <fieldset class="fieldset">
-                {{ form.as_p }}
-            </fieldset>
+        <fieldset>
+            {{ wizard.form.as_p }}
+        </fieldset>
 
-            <div class="text-center">
-                <input class="btn btn-success" type="submit" name="Submit" value="Submit">
-            </div>
+        {% if wizard.steps.prev %}
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+        {% endif %}
+        <input class="btn btn-sm btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+    </form>
 
-        </form>
-
-
-  </div>
+</div>
 
 {% endblock %}

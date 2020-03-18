@@ -21,7 +21,7 @@ class ConfigDetailView(TemplateView):
 
 
 class ConfigWizardView(SessionWizardView):
-    # template_name = 'config/nlx_config.html'
+    template_name = 'config/config_wizard.html'
     form_list = [("nlx", NLXConfigForm)]
 
     def get_form_instance(self, step):
