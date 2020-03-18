@@ -8,14 +8,13 @@
 
 <div class="container text-left">
 
-<div class="text-right">
-    <a href="{% url 'config-change' %}" class="btn btn-sm btn-secondary">Change</a>
-</div>
+    <div class="text-right">
+        <a href="{% url 'config-change' %}" class="btn btn-sm btn-secondary">Change</a>
+    </div>
 
-<div class="text-center">
-    <p class="lead">NLX</p>
-</div>
-
+    <div class="text-center">
+        <p class="lead">NLX</p>
+    </div>
 
     <table class="table table-striped">
         <thead>
@@ -25,7 +24,6 @@
             </tr>
         </thead>
         <tbody>
-{#            {% for param, value in config %}#}
             <tr>
                 <td><strong>NLX directory</strong></td>
                 <td>{{ nlx.directory_url| urlize }}</td>
@@ -34,7 +32,6 @@
                 <td><strong>Outway address</strong></td>
                 <td>{{ nlx.outway| urlize }}</td>
             </tr>
-{#            {% endfor %}#}
         </tbody>
     </table>
 </div>

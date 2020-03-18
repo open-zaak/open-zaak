@@ -1,0 +1,28 @@
+{% extends "master.html" %}
+
+{% block content %}
+
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie</h1>
+    <p class="lead">NLX</p>
+  </div>
+
+  <div class="container">
+      <form action="." method="post">
+            {% csrf_token %}
+            {{ wizard.management_form }}
+
+            <fieldset class="fieldset">
+                {{ form.as_p }}
+            </fieldset>
+
+            <div class="text-center">
+                <input class="btn btn-success" type="submit" name="Submit" value="Submit">
+            </div>
+
+        </form>
+
+
+  </div>
+
+{% endblock %}
