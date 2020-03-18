@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,3 +15,7 @@ class NLXConfig(SingletonModel):
 
     class Meta:
         verbose_name = _("NLX configuration")
+
+    @property
+    def directory_url(self) -> str:
+        return settings.NLX_DIRECTORY_URLS.get(self.directory, "")

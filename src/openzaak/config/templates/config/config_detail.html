@@ -1,0 +1,44 @@
+{% extends "master.html" %}
+
+{% block content %}
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie</h1>
+    <p class="lead">Open Zaak API dashboard</p>
+</div>
+
+<div class="container text-left">
+
+<div class="text-right">
+    <a href="{% url 'config-change' %}" class="btn btn-sm btn-secondary">Change</a>
+</div>
+
+<div class="text-center">
+    <p class="lead">NLX</p>
+</div>
+
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Parameter</th>
+                <th scope="col">Waarde</th>
+            </tr>
+        </thead>
+        <tbody>
+{#            {% for param, value in config %}#}
+            <tr>
+                <td><strong>NLX directory</strong></td>
+                <td>{{ nlx.directory_url| urlize }}</td>
+            </tr>
+            <tr>
+                <td><strong>Outway address</strong></td>
+                <td>{{ nlx.outway| urlize }}</td>
+            </tr>
+{#            {% endfor %}#}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock %}

@@ -73,6 +73,10 @@
             [
                 "sites",
                 "site"
+            ],
+            [
+                "config",
+                "nlxconfig"
             ]
         ]
     }

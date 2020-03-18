@@ -5,6 +5,9 @@ from django.urls import reverse_lazy
 
 import raven
 
+# NLX directory urls
+from openzaak.config.constants import NLXDirectories
+
 from .api import *  # noqa
 from .environ import config
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -523,3 +526,10 @@ STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
+
+
+NLX_DIRECTORY_URLS = {
+    NLXDirectories.demo: "https://directory.demo.nlx.io/",
+    NLXDirectories.preprod: "https://directory.preprod.nlx.io/",
+    NLXDirectories.prod: "https://directory.prod.nlx.io/",
+}
