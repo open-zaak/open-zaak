@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db.models import manager
 
-from drc_cmis.client import CMISDRCClient
+from drc_cmis.client import CMISDRCClient, exceptions
 
 from .query import InformatieobjectQuerySet
 
@@ -117,66 +117,59 @@ class CMISQuerySet(InformatieobjectQuerySet):
             data=kwargs,
             content=kwargs.get('inhoud')
         )
-        django_document = super().create(**kwargs)
+
+        #TODO fix cmis_doc_to_django_model()
+        django_document = self.model(**kwargs)
         django_document.uuid = cmis_document.versionSeriesId
         django_document.save()
         return django_document
 
-    def get(self, *args, **kwargs):
-        """
-        Gets the documents from the cmis backend through the identificatie or uuid fields.
-        """
-        django_documents = []
+    def filter(self, *args, **kwargs):
+        filters = {}
+        #TODO
+        # Limit filter to just exact lookup for now (until implemented in drc_cmis)
+        for key, value in kwargs.items():
+            new_key = key.split("__")
+            if len(new_key) > 1 and new_key[1] != "exact":
+                raise NotImplementedError("Fields lookups other than exact are not implemented yet.")
+            filters[new_key[0]] = value
 
-        if kwargs.get('identificatie') is not None:
-            cmis_doc = self.get_cmis_client.get_cmis_document(
-                identification=kwargs.get('identificatie'),
-                via_identification=True,
-                filters=None
-            )
-            # Check if a model with that identificatie already exists in the ORM otherwise create it
-            documents_in_orm = self.filter(identificatie=kwargs.get('identificatie'))
+        self.documents = []
 
-        elif kwargs.get('uuid') is not None:
-            cmis_doc = self.get_cmis_client.get_cmis_document(
-                identification=kwargs.get('uuid'),
-                via_identification=False,
-                filters=None
-            )
-            # Check if a model with that uuid already exists in the ORM otherwise create it
-            documents_in_orm = self.filter(uuid=kwargs.get('uuid'))
-        else:
-            # TODO
-            raise NotImplementedError("Getting with filters other than uuid and identificatie to be implemented.")
+        try:
+            if filters.get('identificatie') is not None:
+                cmis_doc = self.get_cmis_client.get_cmis_document(
+                    identification=filters.get('identificatie'),
+                    via_identification=True,
+                    filters=None
+                )
+                self.documents.append(cmis_doc_to_django_model(cmis_doc))
+            elif filters.get('uuid') is not None:
+                cmis_doc = self.get_cmis_client.get_cmis_document(
+                    identification=filters.get('uuid'),
+                    via_identification=False,
+                    filters=None
+                )
+                self.documents.append(cmis_doc_to_django_model(cmis_doc))
+            else:
+                #Filter the alfresco database
+                cmis_documents = self.get_cmis_client.get_cmis_documents(filters=filters)
+                for cmis_doc in cmis_documents['results']:
+                    self.documents.append(cmis_doc_to_django_model(cmis_doc))
+        except exceptions.DocumentDoesNotExistError:
+            pass
 
-        if documents_in_orm.count() == 0:
-            django_documents.append(cmis_doc_to_django_model(cmis_doc))
-        else:
-            for doc in documents_in_orm:
-                django_documents.append(doc)
+        return self
 
-        if len(django_documents) == 1:
-            return django_documents[0]
-        elif len(django_documents) == 0:
-            raise self.model.DoesNotExist(
-                "%s matching query does not exist." %
-                self.model._meta.object_name
-            )
-        else:
-            raise self.model.MultipleObjectsReturned(
-                "get() returned more than one %s -- it returned %s!" %
-                (self.model._meta.object_name, len(self.documents))
-            )
+    def delete(self):
+        # Updating all the documents from Alfresco to have 'verwijderd=True'
+        number_alfresco_updates = 0
+        for cmis_doc in self.documents:
+            self.get_cmis_client.delete_cmis_document(cmis_doc.uuid)
+            number_alfresco_updates += 1
 
-    # def delete(self):
-    #     pass
+        return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
 
-    # def filter(self):
-    #     pass
-
-    # def delete(self):
-    #     pass
-    #
     # def update(self):
     #     pass
     #
