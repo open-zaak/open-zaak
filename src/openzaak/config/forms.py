@@ -2,6 +2,7 @@ import socket
 from urllib.parse import urlparse
 
 from django.forms import ModelForm, ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from .models import NLXConfig
 
@@ -24,7 +25,7 @@ class NLXConfigForm(ModelForm):
                 s.connect((parsed.hostname, parsed.port))
             except ConnectionRefusedError:
                 raise ValidationError(
-                    "Connection refused. Please, provide a correct address"
+                    _("Connection refused. Please, provide a correct address")
                 )
 
         return outway

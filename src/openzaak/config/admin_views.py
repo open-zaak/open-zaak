@@ -1,19 +1,13 @@
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
 from django.views.generic import TemplateView
 
+from .utils import AdminRequiredMixin
 
-class NLXInwayView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+
+class NLXInwayView(AdminRequiredMixin, TemplateView):
     template_name = "admin/nlx_inway.html"
     login_url = "admin:login"
-
-    def test_func(self):
-        user = self.request.user
-        return (
-            user.is_superuser
-            or user.groups.filter(name__in=["Admin", "API admin"]).exists()
-        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

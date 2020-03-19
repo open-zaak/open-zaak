@@ -6,9 +6,10 @@ from formtools.wizard.views import SessionWizardView
 
 from .forms import NLXConfigForm
 from .models import NLXConfig
+from .utils import AdminRequiredMixin
 
 
-class ConfigDetailView(TemplateView):
+class ConfigDetailView(AdminRequiredMixin, TemplateView):
     template_name = "config/config_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -20,7 +21,7 @@ class ConfigDetailView(TemplateView):
         return context
 
 
-class ConfigWizardView(SessionWizardView):
+class ConfigWizardView(AdminRequiredMixin, SessionWizardView):
     form_list = [("nlx", NLXConfigForm)]
     templates = {"nlx": "config/config_wizard_nlx.html"}
 
