@@ -11,6 +11,8 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from drc_cmis.client import exceptions
+
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -31,6 +33,11 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
+
+    def tearDown(self) -> None:
+        #TODO understand why this doesnt work
+        qs = EnkelvoudigInformatieObject.objects.all()
+        qs.delete()
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -142,7 +149,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "max_length")
 
     def test_read(self):
-        test_object = EnkelvoudigInformatieObjectFactory.create()
+        test_object = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
         # Retrieve from the API
         detail_url = reverse(test_object)
 
@@ -234,7 +241,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.get(identificatie=content['identificatie'])
         self.assertEqual(
             stored_object.integriteit, {"algoritme": "", "waarde": "", "datum": None}
         )
@@ -268,7 +275,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get()
+        stored_object = EnkelvoudigInformatieObject.objects.get(identificatie=content['identificatie'])
         self.assertEqual(
             stored_object.integriteit,
             {
@@ -294,18 +301,25 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Assert that destroying is possible when there are no relations.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        uuid_eio = eio.uuid
         url = reverse(eio)
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+        self.assertRaises(
+            exceptions.DocumentDoesNotExistError,
+            EnkelvoudigInformatieObject.objects.get,
+            uuid=uuid_eio
+        )
+
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
         ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
         url = reverse(eio)
 
@@ -316,7 +330,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
     def test_validate_unknown_query_params(self):
-        EnkelvoudigInformatieObjectFactory.create_batch(2)
+        # EnkelvoudigInformatieObjectFactory.create_batch(2)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
         url = reverse(EnkelvoudigInformatieObject)
 
         response = self.client.get(url, {"someparam": "somevalue"})
@@ -328,6 +344,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_eio_download_with_accept_application_octet_stream_header(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
+            identificatie=uuid.uuid4().hex,
             beschrijving="beschrijving1", inhoud__data=b"inhoud1"
         )
 
@@ -338,7 +355,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.content, b"inhoud1")
+        # self.assertEqual(response._container[0], b"inhoud1")
+        self.assertEqual(list(response.streaming_content)[0], b"inhoud1")
 
     def test_invalid_inhoud(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
