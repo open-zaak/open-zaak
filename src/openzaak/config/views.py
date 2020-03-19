@@ -38,3 +38,9 @@ class ConfigWizardView(AdminRequiredMixin, SessionWizardView):
         nlx = form_dict["nlx"]
         nlx.save()
         return HttpResponseRedirect(reverse("config-detail"))
+
+    def post(self, *args, **kwargs):
+        cancel = self.request.POST.get("cancel", None)
+        if cancel:
+            return HttpResponseRedirect(reverse("config-detail"))
+        return super().post(*args, **kwargs)

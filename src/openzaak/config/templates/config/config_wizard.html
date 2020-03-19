@@ -26,6 +26,7 @@
             <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
             <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
             {% endif %}
+            <input class="btn btn-sm btn-danger" type="submit" name="cancel" value="{% trans "cancel" %}" />
             <input class="btn btn-sm btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
         </div>
     </form>
