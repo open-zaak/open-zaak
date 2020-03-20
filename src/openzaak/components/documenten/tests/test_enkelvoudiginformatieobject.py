@@ -34,9 +34,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def tearDown(self) -> None:
-        #TODO understand why this doesnt work
-        qs = EnkelvoudigInformatieObject.objects.all()
-        qs.delete()
+        # Removes the created documents from alfresco
+        qs = EnkelvoudigInformatieObject.objects.filter()
+        qs.obliterate()
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -148,7 +148,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "max_length")
 
     def test_read(self):
-        test_object = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        test_object = EnkelvoudigInformatieObjectFactory.create()
         # Retrieve from the API
         detail_url = reverse(test_object)
 
@@ -300,7 +300,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Assert that destroying is possible when there are no relations.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        eio = EnkelvoudigInformatieObjectFactory.create()
         uuid_eio = eio.uuid
         url = reverse(eio)
 
@@ -318,8 +318,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         """
         Assert that destroying is not possible when there are relations.
         """
-        eio = EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
-        ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_canonical = ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
         url = reverse(eio)
 
         response = self.client.delete(url)
@@ -343,7 +343,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_eio_download_with_accept_application_octet_stream_header(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
-            identificatie=uuid.uuid4().hex,
             beschrijving="beschrijving1", inhoud__data=b"inhoud1"
         )
 
