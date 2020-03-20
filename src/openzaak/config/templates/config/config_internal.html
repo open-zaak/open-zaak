@@ -1,0 +1,22 @@
+{% extends "config/config_wizard.html" %}
+{% load sniplates %}
+
+{% block step_title %}
+    <h1 class="display-4">Service configuratie: Open Zaak services</h1>
+{% endblock %}
+
+
+{% block forms %}
+    {% load_widgets form='snippets/forms.html' %}
+
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+        {{ form.instance.component|title }}
+        {{ form.as_p }}
+    {% endfor %}
+
+
+{#    {% form_field form.directory %}#}
+{#    {% form_field form.outway %}#}
+
+{% endblock %}
