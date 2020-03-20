@@ -2,7 +2,10 @@ import logging
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import manager
+from django.core.files.base import ContentFile
+from django.core.files import File
+from django.db.models.fields import files
+from django.db.models import manager, fields
 
 from drc_cmis.client import CMISDRCClient, exceptions
 
@@ -39,6 +42,12 @@ def cmis_doc_to_django_model(cmis_doc):
         if isinstance(date_value, int):
             setattr(cmis_doc, date_field, convert_timestamp_to_django_date(date_value))
 
+    # Ensuring the charfields are not null
+    for field in EnkelvoudigInformatieObject._meta.get_fields():
+        if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
+            if getattr(cmis_doc, field.name) is None:
+                setattr(cmis_doc, field.name, '')
+
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
         begin_registratie=cmis_doc.begin_registratie,
@@ -47,11 +56,12 @@ def cmis_doc_to_django_model(cmis_doc):
         bronorganisatie=cmis_doc.bronorganisatie,
         creatiedatum=cmis_doc.creatiedatum,
         formaat=cmis_doc.formaat,
-        id=cmis_doc.versionSeriesId,
+        # id=cmis_doc.versionSeriesId,
+        # canonical_id=1,
         identificatie=cmis_doc.identificatie,
         indicatie_gebruiksrecht=cmis_doc.indicatie_gebruiksrecht,
         informatieobjecttype=cmis_doc.informatieobjecttype,
-        inhoud="",
+        inhoud=File(cmis_doc.get_content_stream()),
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,
@@ -62,6 +72,12 @@ def cmis_doc_to_django_model(cmis_doc):
         vertrouwelijkheidaanduiding=cmis_doc.vertrouwelijkheidaanduiding,
         verzenddatum=cmis_doc.verzenddatum,
     )
+
+    # inhoud = ContentFile(cmis_doc.get_content_stream().read())
+    # inhoud = document.inhoud
+    # inhoud.save(name="inhoud", content=File(cmis_doc.get_content_stream()))
+    # document.inhoud = File(cmis_doc.get_content_stream())
+    # document.save()
     return document
 
 
@@ -122,6 +138,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         django_document = self.model(**kwargs)
         django_document.uuid = cmis_document.versionSeriesId
         django_document.save()
+        # django_document = cmis_doc_to_django_model(cmis_document)
         return django_document
 
     def filter(self, *args, **kwargs):
@@ -134,7 +151,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 raise NotImplementedError("Fields lookups other than exact are not implemented yet.")
             filters[new_key[0]] = value
 
-        self.documents = []
+        self._result_cache = []
 
         try:
             if filters.get('identificatie') is not None:
@@ -143,19 +160,19 @@ class CMISQuerySet(InformatieobjectQuerySet):
                     via_identification=True,
                     filters=None
                 )
-                self.documents.append(cmis_doc_to_django_model(cmis_doc))
+                self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
             elif filters.get('uuid') is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
                     identification=filters.get('uuid'),
                     via_identification=False,
                     filters=None
                 )
-                self.documents.append(cmis_doc_to_django_model(cmis_doc))
+                self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
             else:
                 #Filter the alfresco database
                 cmis_documents = self.get_cmis_client.get_cmis_documents(filters=filters)
                 for cmis_doc in cmis_documents['results']:
-                    self.documents.append(cmis_doc_to_django_model(cmis_doc))
+                    self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
         except exceptions.DocumentDoesNotExistError:
             pass
 
@@ -164,7 +181,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def delete(self):
         # Updating all the documents from Alfresco to have 'verwijderd=True'
         number_alfresco_updates = 0
-        for cmis_doc in self.documents:
+        for cmis_doc in self._result_cache:
             try:
                 self.get_cmis_client.delete_cmis_document(cmis_doc.uuid)
                 number_alfresco_updates += 1
@@ -178,13 +195,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def obliterate(self):
         # This actually removes the documents from alfresco
         number_alfresco_updates = 0
-        for cmis_doc in self.documents:
+        for cmis_doc in self._result_cache:
             try:
                 self.get_cmis_client.obliterate_document(cmis_doc.uuid)
                 number_alfresco_updates += 1
             except exceptions.DocumentConflictException:
                 logger.log(
-                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
+                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden verwijderd"
                 )
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
