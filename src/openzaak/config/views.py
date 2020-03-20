@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, UpdateView
 
 from .forms import NLXConfigForm
-from .models import NLXConfig
+from .models import InternalService, NLXConfig
 from .utils import AdminRequiredMixin
 
 
@@ -14,6 +14,9 @@ class ConfigDetailView(AdminRequiredMixin, TemplateView):
 
         nlx = NLXConfig.get_solo()
         context["nlx"] = nlx
+
+        internal_services = InternalService.objects.order_by("api_type").all()
+        context["internal_services"] = internal_services
 
         return context
 

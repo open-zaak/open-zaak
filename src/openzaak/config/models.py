@@ -52,4 +52,7 @@ class InternalService(models.Model):
 
     @property
     def component(self) -> str:
-        return COMPONENT_MAPPING.get(self.api_type, "")
+        for component, api_type in COMPONENT_MAPPING.items():
+            if api_type == self.api_type:
+                return component
+        return ""

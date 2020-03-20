@@ -11,29 +11,62 @@
     <div class="text-right">
         <a href="{% url 'config-change' %}" class="btn btn-sm btn-secondary">Change</a>
     </div>
+    <!-- NLX config -->
+    <section>
+        <div class="text-center">
+            <h3>NLX</h3>
+        </div>
 
-    <div class="text-center">
-        <p class="lead">NLX</p>
-    </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Parameter</th>
+                    <th scope="col">Waarde</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>NLX directory</strong></td>
+                    <td>{{ nlx.directory_url| urlize }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Outway address</strong></td>
+                    <td>{{ nlx.outway| urlize }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Parameter</th>
-                <th scope="col">Waarde</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>NLX directory</strong></td>
-                <td>{{ nlx.directory_url| urlize }}</td>
-            </tr>
-            <tr>
-                <td><strong>Outway address</strong></td>
-                <td>{{ nlx.outway| urlize }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Internal API config -->
+    <section>
+        <div class="text-center">
+            <h3>Open Zaak services</h3>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Service</th>
+                    <th scope="col">Enabled</th>
+                    <th scope="col">NLX</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in internal_services %}
+                <tr>
+                    <td>{{ service.component|title }} API</td>
+                    <td class="text-{{ service.enabled|yesno:'success,danger,muted' }}">
+                        <i class="fa fa-{{ service.enabled|yesno:'check,times,minus' }}"></i>
+                    </td>
+                    <td class="text-{{ service.nlx|yesno:'success,danger,muted' }}">
+                        <i class="fa fa-{{ service.nlx|yesno:'check,times,minus' }}"></i>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
 </div>
 
 
