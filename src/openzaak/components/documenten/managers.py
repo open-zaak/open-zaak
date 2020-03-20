@@ -165,8 +165,27 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Updating all the documents from Alfresco to have 'verwijderd=True'
         number_alfresco_updates = 0
         for cmis_doc in self.documents:
-            self.get_cmis_client.delete_cmis_document(cmis_doc.uuid)
-            number_alfresco_updates += 1
+            try:
+                self.get_cmis_client.delete_cmis_document(cmis_doc.uuid)
+                number_alfresco_updates += 1
+            except exceptions.DocumentConflictException:
+                logger.log(
+                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
+                )
+
+        return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
+
+    def obliterate(self):
+        # This actually removes the documents from alfresco
+        number_alfresco_updates = 0
+        for cmis_doc in self.documents:
+            try:
+                self.get_cmis_client.obliterate_document(cmis_doc.uuid)
+                number_alfresco_updates += 1
+            except exceptions.DocumentConflictException:
+                logger.log(
+                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
+                )
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
 
