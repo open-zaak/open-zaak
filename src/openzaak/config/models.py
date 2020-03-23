@@ -11,7 +11,7 @@ class NLXConfig(SingletonModel):
     directory = models.CharField(
         _("NLX directory"), max_length=50, choices=NLXDirectories.choices, blank=True
     )
-    outway = models.URLField(_("outway address"), blank=True)
+    outway = models.URLField(_("outway address"), blank=True, help_text=_("Example: http://my-outway.nlx:8080")
 
     class Meta:
         verbose_name = _("NLX configuration")
