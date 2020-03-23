@@ -1,0 +1,32 @@
+{% extends "master.html" %}
+{% load i18n sniplates %}
+
+{% block content %}
+
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie: NLX</h1>
+    <p class="lead">Step 1 of 1</p>
+</div>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
+
+        <fieldset>
+            {{ form.non_field_errors }}
+
+            {% form_field form.directory %}
+            {% form_field form.outway %}
+
+        </fieldset>
+
+        <div class="text-right">
+            <a class="btn btn-sm btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
+            <input class="btn btn-sm btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

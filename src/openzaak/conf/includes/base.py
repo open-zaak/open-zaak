@@ -111,7 +111,6 @@ INSTALLED_APPS = [
     "django_filters",
     "django_db_logger",
     "corsheaders",
-    "formtools",
     "vng_api_common",  # before drf_yasg to override the management command
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",

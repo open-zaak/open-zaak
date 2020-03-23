@@ -1,8 +1,5 @@
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.views.generic import TemplateView
-
-from formtools.wizard.views import SessionWizardView
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, UpdateView
 
 from .forms import NLXConfigForm
 from .models import NLXConfig
@@ -21,26 +18,12 @@ class ConfigDetailView(AdminRequiredMixin, TemplateView):
         return context
 
 
-class ConfigWizardView(AdminRequiredMixin, SessionWizardView):
-    form_list = [("nlx", NLXConfigForm)]
-    templates = {"nlx": "config/config_wizard_nlx.html"}
+class ConfigWizardView(AdminRequiredMixin, UpdateView):
+    model = NLXConfig
+    form_class = NLXConfigForm
+    template_name = "config/config_nlx.html"
+    success_url = reverse_lazy("config-detail")
 
-    def get_template_names(self):
-        return [self.templates[self.steps.current]]
-
-    def get_form_instance(self, step):
-        if step == "nlx":
-            return NLXConfig.get_solo()
-
-        return super().get_form_instance(step)
-
-    def done(self, form_list, form_dict, **kwargs):
-        nlx = form_dict["nlx"]
-        nlx.save()
-        return HttpResponseRedirect(reverse("config-detail"))
-
-    def post(self, *args, **kwargs):
-        cancel = self.request.POST.get("cancel", None)
-        if cancel:
-            return HttpResponseRedirect(reverse("config-detail"))
-        return super().post(*args, **kwargs)
+    def get_object(self, queryset=None):
+        nlx = NLXConfig.get_solo()
+        return nlx
