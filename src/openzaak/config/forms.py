@@ -39,4 +39,4 @@ class InternalServiceForm(ModelForm):
         fields = ("enabled", "nlx")
 
 
-InternalServiceFormSet = modelformset_factory(InternalService, InternalServiceForm)
+InternalServiceFormSet = modelformset_factory(InternalService, InternalServiceForm, extra=0)

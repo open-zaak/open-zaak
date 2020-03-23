@@ -1,22 +1,41 @@
-{% extends "config/config_wizard.html" %}
-{% load sniplates %}
+{% extends "master.html" %}
+{% load i18n sniplates %}
 
-{% block step_title %}
-    <h1 class="display-4">Service configuratie: Open Zaak services</h1>
-{% endblock %}
+{% block content %}
 
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie: NLX</h1>
+    <p class="lead">Step 2 of 2</p>
+</div>
 
-{% block forms %}
-    {% load_widgets form='snippets/forms.html' %}
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
 
-    {{ wizard.form.management_form }}
-    {% for form in wizard.form.forms %}
-        {{ form.instance.component|title }}
-        {{ form.as_p }}
-    {% endfor %}
+        {{ form.management_form }}
+        {{ form.forms.non_form_errors }}
 
+        {% for form in wizard.form.forms %}
 
-{#    {% form_field form.directory %}#}
-{#    {% form_field form.outway %}#}
+            <fieldset>
+            {{ form.non_field_errors }}
+            {{ form.id }}
+
+            <div class="row">
+                {{ form.instance.component|title }} API
+                {{ form.enabled }}
+                {{ form.nlx }}
+            </div>
+        {% endfor %}
+        </fieldset>
+
+        <div class="text-right">
+            <a class="btn btn-sm btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
+            <input class="btn btn-sm btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+        </div>
+    </form>
+
+</div>
 
 {% endblock %}

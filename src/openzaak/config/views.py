@@ -25,7 +25,7 @@ class NLXConfigView(AdminRequiredMixin, UpdateView):
     model = NLXConfig
     form_class = NLXConfigForm
     template_name = "config/config_nlx.html"
-    success_url = reverse_lazy("config-detail")
+    success_url = reverse_lazy("config-internal")
 
     def get_object(self, queryset=None):
         nlx = NLXConfig.get_solo()
@@ -36,3 +36,4 @@ class InternalConfigView(AdminRequiredMixin, FormView):
     model = InternalService
     form_class = InternalServiceFormSet
     template_name = "config/config_internal.html"
+    success_url = reverse_lazy("config-detail")
