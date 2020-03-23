@@ -21,6 +21,7 @@ class NLXConfigForm(ModelForm):
         # try to tcp connect to the port
         parsed = urlparse(outway)
         with socket.socket() as s:
+            s.settimeout(2)  # 2 seconds
             try:
                 s.connect((parsed.hostname, parsed.port))
             except ConnectionRefusedError:

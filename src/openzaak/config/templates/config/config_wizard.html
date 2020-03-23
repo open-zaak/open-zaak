@@ -9,7 +9,6 @@
 </div>
 
 <div class="container">
-    {% load i18n %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ wizard.form.media }}
