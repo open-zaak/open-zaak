@@ -17,7 +17,7 @@ from vng_api_common.validators import alphanumeric_excluding_diacritic
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .managers import AdapterManager
+from .managers import AdapterManager, CanonicalAdapterManager
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -223,6 +223,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         max_length=100,
         help_text="Hash string, wordt gebruikt als ID voor de lock",
     )
+
+    objects = CanonicalAdapterManager()
 
     def __str__(self):
         return str(self.latest_version)

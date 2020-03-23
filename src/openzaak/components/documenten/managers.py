@@ -1,10 +1,10 @@
 import logging
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
+from privates.storages import private_media_storage
 
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.core.files import File
-from django.db.models.fields import files
+from django.core.files.base import ContentFile
 from django.db.models import manager, fields
 
 from drc_cmis.client import CMISDRCClient, exceptions
@@ -26,7 +26,12 @@ def convert_timestamp_to_django_date(json_date):
 
 
 def cmis_doc_to_django_model(cmis_doc):
-    from .models import EnkelvoudigInformatieObject
+    from .models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+
+    if cmis_doc.versionSeriesCheckedOutId is None:
+        canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
+    else:
+        canonical = EnkelvoudigInformatieObjectCanonical.objects.create(cmis_doc=cmis_doc)
 
     versie = cmis_doc.versie
     try:
@@ -48,6 +53,13 @@ def cmis_doc_to_django_model(cmis_doc):
             if getattr(cmis_doc, field.name) is None:
                 setattr(cmis_doc, field.name, '')
 
+    # Setting up a local file with the content of the cmis document
+    content_file = File(cmis_doc.get_content_stream())
+    content_file.name = cmis_doc.name
+    data_in_file = ContentFile(cmis_doc.get_content_stream().read())
+    content_file.content = data_in_file
+    content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
+
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
         begin_registratie=cmis_doc.begin_registratie,
@@ -57,11 +69,11 @@ def cmis_doc_to_django_model(cmis_doc):
         creatiedatum=cmis_doc.creatiedatum,
         formaat=cmis_doc.formaat,
         # id=cmis_doc.versionSeriesId,
-        # canonical_id=1,
+        canonical=canonical,
         identificatie=cmis_doc.identificatie,
         indicatie_gebruiksrecht=cmis_doc.indicatie_gebruiksrecht,
         informatieobjecttype=cmis_doc.informatieobjecttype,
-        inhoud=File(cmis_doc.get_content_stream()),
+        inhoud=content_file,
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,
@@ -73,11 +85,6 @@ def cmis_doc_to_django_model(cmis_doc):
         verzenddatum=cmis_doc.verzenddatum,
     )
 
-    # inhoud = ContentFile(cmis_doc.get_content_stream().read())
-    # inhoud = document.inhoud
-    # inhoud.save(name="inhoud", content=File(cmis_doc.get_content_stream()))
-    # document.inhoud = File(cmis_doc.get_content_stream())
-    # document.save()
     return document
 
 
@@ -85,6 +92,14 @@ class AdapterManager(manager.Manager):
     def get_queryset(self):
         if settings.CMIS_ENABLED:
             return CMISQuerySet(model=self.model, using=self._db, hints=self._hints)
+        else:
+            return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
+
+
+class CanonicalAdapterManager(manager.Manager):
+    def get_queryset(self):
+        if settings.CMIS_ENABLED:
+            return CMISCanonicalQuerySet(model=self.model, using=self._db, hints=self._hints)
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
 
@@ -135,10 +150,10 @@ class CMISQuerySet(InformatieobjectQuerySet):
         )
 
         #TODO fix cmis_doc_to_django_model()
-        django_document = self.model(**kwargs)
-        django_document.uuid = cmis_document.versionSeriesId
-        django_document.save()
-        # django_document = cmis_doc_to_django_model(cmis_document)
+        # django_document = self.model(**kwargs)
+        # django_document.uuid = cmis_document.versionSeriesId
+        # django_document.save()
+        django_document = cmis_doc_to_django_model(cmis_document)
         return django_document
 
     def filter(self, *args, **kwargs):
@@ -214,3 +229,24 @@ class CMISQuerySet(InformatieobjectQuerySet):
     #
     # def update_or_create(self, defaults=None, **kwargs):
     #     pass
+
+
+class CMISCanonicalQuerySet(InformatieobjectQuerySet):
+
+    _client = None
+
+    @property
+    def get_cmis_client(self):
+        if not self._client:
+            self._client = CMISDRCClient()
+
+        return self._client
+
+    def create(self, **kwargs):
+
+        cmis_doc = kwargs.get('cmis_doc')
+        if cmis_doc is not None:
+            lock_id = cmis_doc.versionSeriesCheckedOutId.split(";")[0]
+            return super().create(lock=lock_id)
+        else:
+            return super().create(**kwargs)
