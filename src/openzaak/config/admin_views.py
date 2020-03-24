@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.views.generic import TemplateView
 
+from .models import InternalService
 from .utils import AdminRequiredMixin
 
 
@@ -18,14 +19,13 @@ class NLXInwayView(AdminRequiredMixin, TemplateView):
         version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
 
         services = []
-        for component in [
-            "autorisaties",
-            "besluiten",
-            "catalogi",
-            "documenten",
-            "zaken",
-        ]:
-            api_root_url = reverse(f"api-root-{component}", kwargs={"version": version})
+        for internal_service in InternalService.objects.filter(nlx=True).order_by(
+            "api_type"
+        ):
+            component = internal_service.component
+            api_root_url = reverse(
+                f"api-root-{internal_service.component}", kwargs={"version": version}
+            )
             schema_url = reverse(
                 f"schema-json-{component}",
                 kwargs={"version": version, "format": ".yaml"},
