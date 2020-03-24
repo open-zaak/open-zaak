@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import FormView, TemplateView, UpdateView
+from django.views.generic import TemplateView, UpdateView
 
 from extra_views import ModelFormSetView
 
