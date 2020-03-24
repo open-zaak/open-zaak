@@ -94,6 +94,7 @@ class AdapterManager(manager.Manager):
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
 
+
 class DjangoQuerySet(InformatieobjectQuerySet):
     pass
 
@@ -179,16 +180,31 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return self
 
+    def get(self, *args, **kwargs):
+        clone = self.filter(*args, **kwargs)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+            raise self.model.DoesNotExist(
+                "%s matching query does not exist." %
+                self.model._meta.object_name
+            )
+        raise self.model.MultipleObjectsReturned(
+            "get() returned more than one %s -- it returned %s!" %
+            (self.model._meta.object_name, num)
+        )
+
     def delete(self):
         # Updating all the documents from Alfresco to have 'verwijderd=True'
         number_alfresco_updates = 0
-        for cmis_doc in self._result_cache:
+        for django_doc in self._result_cache:
             try:
-                self.get_cmis_client.delete_cmis_document(cmis_doc.uuid)
+                self.get_cmis_client.delete_cmis_document(django_doc.uuid)
                 number_alfresco_updates += 1
             except exceptions.DocumentConflictException:
                 logger.log(
-                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
+                    f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
                 )
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
@@ -197,19 +213,50 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def obliterate(self):
         # This actually removes the documents from alfresco
         number_alfresco_updates = 0
-        for cmis_doc in self._result_cache:
+        for django_doc in self._result_cache:
             try:
-                self.get_cmis_client.obliterate_document(cmis_doc.uuid)
+                self.get_cmis_client.obliterate_document(django_doc.uuid)
                 number_alfresco_updates += 1
             except exceptions.DocumentConflictException:
                 logger.log(
-                    f"Document met identificatie {cmis_doc.identificatie} kan niet worden verwijderd"
+                    f"Document met identificatie {django_doc.identificatie} kan niet worden verwijderd"
                 )
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
 
-    # def update(self):
-    #     pass
+    def update(self, **kwargs):
+        cmis_storage = CMISDRCStorageBackend()
+
+        for django_doc in self._result_cache:
+            cmis_doc = cmis_storage.get_document(uuid=django_doc.uuid)
+            # If the document exists already, lock it in Alfresco
+            lock_id = cmis_storage.lock_document(uuid=django_doc.uuid)
+
+            # Mirror lock in canonical
+            django_doc.canonical.lock = lock_id
+
+            # Update the document
+            cmis_storage.update_document(
+                uuid=django_doc.uuid,
+                lock=lock_id,
+                data=kwargs,
+                content=kwargs.get('inhoud'),
+            )
+
+            # Release lock in Alfresco
+            cmis_storage.unlock_document(
+                uuid=django_doc.uuid,
+                lock=lock_id
+            )
+
+            # Release lock in Canonical
+            django_doc.canonical.lock = ""
+
+    def count(self):
+        # Populate the cache with the Alfresco documents
+        self.filter()
+        return super().count()
+
     #
     # def get_or_create(self, defaults=None, **kwargs):
     #     pass
