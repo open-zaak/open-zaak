@@ -2,7 +2,6 @@ import socket
 from urllib.parse import urlparse
 
 from django.forms import ModelForm, ValidationError
-from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from .models import InternalService, NLXConfig
@@ -37,6 +36,3 @@ class InternalServiceForm(ModelForm):
     class Meta:
         model = InternalService
         fields = ("enabled", "nlx")
-
-
-InternalServiceFormSet = modelformset_factory(InternalService, InternalServiceForm, extra=0)

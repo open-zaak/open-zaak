@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ConfigDetailView, NLXConfigView, InternalConfigView
+from .views import ConfigDetailView, InternalConfigView, NLXConfigView
 
 urlpatterns = [
     path("", ConfigDetailView.as_view(), name="config-detail"),
