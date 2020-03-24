@@ -2,7 +2,8 @@ import logging
 from typing import Dict, Optional
 
 from django.conf import settings
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseNotFound
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -10,6 +11,10 @@ from vng_api_common.middleware import (
     VERSION_HEADER,
     APIVersionHeaderMiddleware as _APIVersionHeaderMiddleware,
 )
+
+from openzaak.config.models import InternalService
+
+from .constants import COMPONENT_MAPPING
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +71,31 @@ class APIVersionHeaderMiddleware(_APIVersionHeaderMiddleware):
             if path.startswith(prefix):
                 return version
         return None
+
+
+class EnabledMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    @staticmethod
+    def get_component_type(request):
+        url = request.path
+        # All component names match the first parts of urls
+        component = url.strip("/").split("/")[0]
+        return COMPONENT_MAPPING.get(component)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        component_type = self.get_component_type(request)
+        try:
+            service = InternalService.objects.get(api_type=component_type)
+        except InternalService.DoesNotExist:
+            return None
+
+        if service.enabled:
+            return None
+
+        return HttpResponseNotFound()

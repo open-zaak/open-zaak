@@ -153,6 +153,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
+    "openzaak.utils.middleware.EnabledMiddleware",
 ]
 
 ROOT_URLCONF = "openzaak.urls"
