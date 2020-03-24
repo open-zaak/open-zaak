@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.db.models import manager, fields
 
 from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.backend import CMISDRCStorageBackend
 
 from .query import InformatieobjectQuerySet
 
@@ -28,10 +29,8 @@ def convert_timestamp_to_django_date(json_date):
 def cmis_doc_to_django_model(cmis_doc):
     from .models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 
-    if cmis_doc.versionSeriesCheckedOutId is None:
-        canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
-    else:
-        canonical = EnkelvoudigInformatieObjectCanonical.objects.create(cmis_doc=cmis_doc)
+    # The canonical field cannot be NULL
+    canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
 
     versie = cmis_doc.versie
     try:
@@ -95,15 +94,6 @@ class AdapterManager(manager.Manager):
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
 
-
-class CanonicalAdapterManager(manager.Manager):
-    def get_queryset(self):
-        if settings.CMIS_ENABLED:
-            return CMISCanonicalQuerySet(model=self.model, using=self._db, hints=self._hints)
-        else:
-            return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
-
-
 class DjangoQuerySet(InformatieobjectQuerySet):
     pass
 
@@ -149,10 +139,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
             content=kwargs.get('inhoud')
         )
 
-        #TODO fix cmis_doc_to_django_model()
-        # django_document = self.model(**kwargs)
-        # django_document.uuid = cmis_document.versionSeriesId
-        # django_document.save()
         django_document = cmis_doc_to_django_model(cmis_document)
         return django_document
 
@@ -207,6 +193,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
 
+    #TODO make obliterate be called by delete
     def obliterate(self):
         # This actually removes the documents from alfresco
         number_alfresco_updates = 0
@@ -229,24 +216,3 @@ class CMISQuerySet(InformatieobjectQuerySet):
     #
     # def update_or_create(self, defaults=None, **kwargs):
     #     pass
-
-
-class CMISCanonicalQuerySet(InformatieobjectQuerySet):
-
-    _client = None
-
-    @property
-    def get_cmis_client(self):
-        if not self._client:
-            self._client = CMISDRCClient()
-
-        return self._client
-
-    def create(self, **kwargs):
-
-        cmis_doc = kwargs.get('cmis_doc')
-        if cmis_doc is not None:
-            lock_id = cmis_doc.versionSeriesCheckedOutId.split(";")[0]
-            return super().create(lock=lock_id)
-        else:
-            return super().create(**kwargs)

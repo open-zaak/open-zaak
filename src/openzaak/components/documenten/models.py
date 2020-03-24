@@ -1,8 +1,11 @@
 import logging
 import uuid as _uuid
+from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.backend import CMISDRCStorageBackend
 
 from django.db import models, transaction
 from django.db.models import Q
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
@@ -17,7 +20,7 @@ from vng_api_common.validators import alphanumeric_excluding_diacritic
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .managers import AdapterManager, CanonicalAdapterManager
+from .managers import AdapterManager
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -224,8 +227,6 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         help_text="Hash string, wordt gebruikt als ID voor de lock",
     )
 
-    objects = CanonicalAdapterManager()
-
     def __str__(self):
         return str(self.latest_version)
 
@@ -234,6 +235,14 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
+
+    # def save(self, force_insert=False, force_update=False, using=None,
+    #          update_fields=None):
+    #     if not settings.CMIS_ENABLED:
+    #         return super().save(force_insert, force_update, using, update_fields)
+    #     else:
+    #         # Not sure
+    #         pass
 
 
 class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
@@ -351,6 +360,52 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
 
     def _set_locked(self, value: bool) -> None:
         self._locked = value
+
+    def save(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            return super().save(*args, **kwargs)
+        else:
+            cmis_storage = CMISDRCStorageBackend()
+
+            try:
+                cmis_doc = cmis_storage.get_document(uuid=self.uuid)
+                # Lock document in Alfresco
+                lock_id = cmis_storage.lock_document(uuid=self.uuid)
+
+                # Mirror lock in canonical
+                self.canonical.lock = lock_id
+
+                # Update the document
+                cmis_storage.update_document(
+                    uuid=self.uuid,
+                    lock=lock_id,
+                    data=kwargs,
+                    content=kwargs.get('inhoud'),
+                )
+
+                # Release lock in Alfresco
+                cmis_storage.unlock_document(
+                    uuid=self.uuid,
+                    lock=lock_id
+                )
+
+                # Release lock in Canonical
+                self.canonical.lock = ""
+
+            except exceptions.DocumentDoesNotExistError:
+                cmis_storage.create_document(
+                    data=kwargs,
+                    content=kwargs.get('inhoud')
+                )
+
+
+
+    def delete(self, using=None, keep_parents=False):
+        if not settings.CMIS_ENABLED:
+            return super().save(using, keep_parents)
+        else:
+            cmis_storage = CMISDRCStorageBackend()
+            cmis_storage.delete_document(self.uuid)
 
     locked = property(_get_locked, _set_locked)
 
