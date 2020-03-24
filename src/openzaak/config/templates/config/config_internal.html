@@ -13,22 +13,34 @@
         {% csrf_token %}
         {% load_widgets form='snippets/forms.html' %}
 
-        {{ form.management_form }}
-        {{ form.forms.non_form_errors }}
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
 
-        {% for form in wizard.form.forms %}
+        <div class="form-group row">
+            <div class="col"><strong>Service</strong></div>
+            <div class="col"><strong>Enabled?</strong></div>
+            <div class="col"><strong>NLX?</strong></div>
+        </div>
 
-            <fieldset>
+        {% for form in formset %}
             {{ form.non_field_errors }}
             {{ form.id }}
 
-            <div class="row">
-                {{ form.instance.component|title }} API
-                {{ form.enabled }}
-                {{ form.nlx }}
+            <div class="form-group row">
+                <div class="col">{{ form.instance.component|title }} API</div>
+                <div class="col">
+                    {% if form.instance.component == 'autorisaties' %}
+                        {% form_field form.enabled widget='form:ToggleDisabled' %}
+                    {% else %}
+                        {% form_field form.enabled widget='form:Toggle' %}
+                    {% endif %}
+                </div>
+                <div class="col">{% form_field form.nlx widget='form:Toggle' %}</div>
             </div>
+
         {% endfor %}
-        </fieldset>
+
+
 
         <div class="text-right">
             <a class="btn btn-sm btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
