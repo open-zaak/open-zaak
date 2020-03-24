@@ -1,5 +1,6 @@
 import logging
 import uuid as _uuid
+import dataclasses
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 
@@ -236,13 +237,13 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
-    # def save(self, force_insert=False, force_update=False, using=None,
-    #          update_fields=None):
-    #     if not settings.CMIS_ENABLED:
-    #         return super().save(force_insert, force_update, using, update_fields)
-    #     else:
-    #         # Not sure
-    #         pass
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if not settings.CMIS_ENABLED:
+            return super().save(force_insert, force_update, using, update_fields)
+        else:
+            # Not sure
+            pass
 
 
 class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
@@ -365,40 +366,38 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         if not settings.CMIS_ENABLED:
             return super().save(*args, **kwargs)
         else:
-            cmis_storage = CMISDRCStorageBackend()
-
+            # If the document doesn't exist, pass
             try:
-                cmis_doc = cmis_storage.get_document(uuid=self.uuid)
-                # Lock document in Alfresco
-                lock_id = cmis_storage.lock_document(uuid=self.uuid)
+                cmis_storage = CMISDRCStorageBackend()
+                django_class_doc = cmis_storage.get_document(uuid=self.uuid)
 
-                # Mirror lock in canonical
-                self.canonical.lock = lock_id
+                updated_data = {}
+                current_data = dataclasses.asdict(django_class_doc)
+                # Loop through the fields and compare with self, check if anything has changed
+                for field, value in current_data.items():
+                    try:
+                        if getattr(self, field) != value:
+                            updated_data[field] = value
+                    except AttributeError:
+                        continue
 
-                # Update the document
-                cmis_storage.update_document(
-                    uuid=self.uuid,
-                    lock=lock_id,
-                    data=kwargs,
-                    content=kwargs.get('inhoud'),
-                )
-
-                # Release lock in Alfresco
-                cmis_storage.unlock_document(
-                    uuid=self.uuid,
-                    lock=lock_id
-                )
-
-                # Release lock in Canonical
-                self.canonical.lock = ""
-
+                # If updated data is not empty, update document in CMIS
+                if len(updated_data) > 0:
+                    lock_id = cmis_storage.lock_document(uuid=self.uuid)
+                    self.canonical.lock = lock_id
+                    cmis_storage.update_document(
+                        uuid=self.uuid,
+                        lock=lock_id,
+                        data=updated_data,
+                        content=updated_data.get('inhoud'),
+                    )
+                    cmis_storage.unlock_document(
+                        uuid=self.uuid,
+                        lock=lock_id
+                    )
+                    self.canonical.lock = ""
             except exceptions.DocumentDoesNotExistError:
-                cmis_storage.create_document(
-                    data=kwargs,
-                    content=kwargs.get('inhoud')
-                )
-
-
+                pass
 
     def delete(self, using=None, keep_parents=False):
         if not settings.CMIS_ENABLED:
