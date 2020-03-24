@@ -47,18 +47,18 @@
             <thead>
                 <tr>
                     <th scope="col">Service</th>
-                    <th scope="col">Enabled</th>
-                    <th scope="col">NLX</th>
+                    <th scope="col" class="text-center">Enabled</th>
+                    <th scope="col" class="text-center">NLX</th>
                 </tr>
             </thead>
             <tbody>
                 {% for service in internal_services %}
                 <tr>
                     <td>{{ service.component|title }} API</td>
-                    <td class="text-{{ service.enabled|yesno:'success,danger,muted' }}">
+                    <td class="text-center text-{{ service.enabled|yesno:'success,danger,muted' }}">
                         <i class="fa fa-{{ service.enabled|yesno:'check,times,minus' }}"></i>
                     </td>
-                    <td class="text-{{ service.nlx|yesno:'success,danger,muted' }}">
+                    <td class="text-center text-{{ service.nlx|yesno:'success,danger,muted' }}">
                         <i class="fa fa-{{ service.nlx|yesno:'check,times,minus' }}"></i>
                     </td>
                 </tr>

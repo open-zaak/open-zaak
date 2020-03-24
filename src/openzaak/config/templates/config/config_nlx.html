@@ -21,9 +21,12 @@
 
         </fieldset>
 
-        <div class="text-right">
-            <a class="btn btn-sm btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
-            <input class="btn btn-sm btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+        <div class="btn-toolbar justify-content-between py-sm-3">
+            <a class="btn btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
+            <div>
+                <a class="btn btn-outline-dark" href="{% url 'config-internal' %}">{% trans "skip" %}</a>
+                <input class="btn btn-success" type="submit" name="submit" value="{% trans "next" %}" />
+            </div>
         </div>
     </form>
 
