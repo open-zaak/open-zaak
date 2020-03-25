@@ -6,6 +6,7 @@ from drc_cmis.backend import CMISDRCStorageBackend
 
 from django.db import models, transaction
 from django.db.models import Q
+from django.forms.models import model_to_dict
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -237,13 +238,23 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    @property
+    def locked_doc(self):
+        return EnkelvoudigInformatieObject.objects.get(versionSeriesCheckedOutId=self.lock_id)
+
+    def save(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
-            return super().save(force_insert, force_update, using, update_fields)
+            return super().save(*args, **kwargs)
         else:
-            # Not sure
-            pass
+            cmis_storage = CMISDRCStorageBackend()
+            #FIXME problem of infinite recursion
+            if self.lock:
+                # Overrides the lock value created by LockEnkelvoudigInformatieObjectSerializer save() method
+                # with the value of the lock in Alfresco
+                self.lock_id = cmis_storage.lock_document(uuid=self.latest_version.uuid)
+            else:
+                uuid = self.locked_doc.uuid
+                cmis_storage.unlock_document(uuid=self.latest_version.uuid, lock=self.lock_id)
 
 
 class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
@@ -366,38 +377,14 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         if not settings.CMIS_ENABLED:
             return super().save(*args, **kwargs)
         else:
-            # If the document doesn't exist, pass
+            cmis_storage = CMISDRCStorageBackend()
+            model_data = model_to_dict(self)
+            # If the document doesn't exist, create it, otherwise update it
             try:
-                cmis_storage = CMISDRCStorageBackend()
-                django_class_doc = cmis_storage.get_document(uuid=self.uuid)
-
-                updated_data = {}
-                current_data = dataclasses.asdict(django_class_doc)
-                # Loop through the fields and compare with self, check if anything has changed
-                for field, value in current_data.items():
-                    try:
-                        if getattr(self, field) != value:
-                            updated_data[field] = value
-                    except AttributeError:
-                        continue
-
-                # If updated data is not empty, update document in CMIS
-                if len(updated_data) > 0:
-                    lock_id = cmis_storage.lock_document(uuid=self.uuid)
-                    self.canonical.lock = lock_id
-                    cmis_storage.update_document(
-                        uuid=self.uuid,
-                        lock=lock_id,
-                        data=updated_data,
-                        content=updated_data.get('inhoud'),
-                    )
-                    cmis_storage.unlock_document(
-                        uuid=self.uuid,
-                        lock=lock_id
-                    )
-                    self.canonical.lock = ""
+                cmis_storage.get_document(uuid=self.uuid)
+                EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(**model_data)
             except exceptions.DocumentDoesNotExistError:
-                pass
+                EnkelvoudigInformatieObject.objects.create(**model_data)
 
     def delete(self, using=None, keep_parents=False):
         if not settings.CMIS_ENABLED:

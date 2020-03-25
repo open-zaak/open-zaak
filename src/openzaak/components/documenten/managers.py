@@ -22,15 +22,18 @@ def convert_timestamp_to_django_date(json_date):
     if json_date is not None:
         import datetime
         timestamp = int(str(json_date)[:10])
-        django_date = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+        # django_date = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+        django_date = datetime.datetime.fromtimestamp(timestamp).date()
         return django_date
 
 
 def cmis_doc_to_django_model(cmis_doc):
     from .models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 
-    # The canonical field cannot be NULL
-    canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
+    # The if the document is locked, the lock_id is stored in versionSeriesCheckedOutId
+    canonical = EnkelvoudigInformatieObjectCanonical(
+        lock=cmis_doc.versionSeriesCheckedOutId
+    )
 
     versie = cmis_doc.versie
     try:
@@ -40,24 +43,22 @@ def cmis_doc_to_django_model(cmis_doc):
     except InvalidOperation:
         int_versie = 0
 
-    date_fields = ['creatiedatum', 'ontvangstdatum', 'verzenddatum']
-    for date_field in date_fields:
-        date_value = getattr(cmis_doc, date_field)
-        if isinstance(date_value, int):
-            setattr(cmis_doc, date_field, convert_timestamp_to_django_date(date_value))
-
-    # Ensuring the charfields are not null
+    # Ensuring the charfields are not null and dates are in the correct format
     for field in EnkelvoudigInformatieObject._meta.get_fields():
         if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
             if getattr(cmis_doc, field.name) is None:
                 setattr(cmis_doc, field.name, '')
+        elif isinstance(field, fields.DateField):
+            date_value = getattr(cmis_doc, field.name)
+            if isinstance(date_value, int):
+                setattr(cmis_doc, field.name, convert_timestamp_to_django_date(date_value))
 
     # Setting up a local file with the content of the cmis document
-    content_file = File(cmis_doc.get_content_stream())
-    content_file.name = cmis_doc.name
-    data_in_file = ContentFile(cmis_doc.get_content_stream().read())
-    content_file.content = data_in_file
-    content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
+    # content_file = File(cmis_doc.get_content_stream())
+    # content_file.name = cmis_doc.name
+    # data_in_file = ContentFile(cmis_doc.get_content_stream().read())
+    # content_file.content = data_in_file
+    # content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
 
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
@@ -72,7 +73,7 @@ def cmis_doc_to_django_model(cmis_doc):
         identificatie=cmis_doc.identificatie,
         indicatie_gebruiksrecht=cmis_doc.indicatie_gebruiksrecht,
         informatieobjecttype=cmis_doc.informatieobjecttype,
-        inhoud=content_file,
+        inhoud="",
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,
@@ -134,6 +135,10 @@ class CMISQuerySet(InformatieobjectQuerySet):
             yield document
 
     def create(self, **kwargs):
+        #FIXME
+        # Putting the URL value into informatieobjecttype
+        url_informatieobjecttype = kwargs.get('informatieobjecttype')
+        kwargs['informatieobjecttype'] = url_informatieobjecttype.get_absolute_api_url()
         cmis_document = self.get_cmis_client.create_document(
             identification=kwargs.get('identificatie'),
             data=kwargs,
@@ -151,7 +156,10 @@ class CMISQuerySet(InformatieobjectQuerySet):
             new_key = key.split("__")
             if len(new_key) > 1 and new_key[1] != "exact":
                 raise NotImplementedError("Fields lookups other than exact are not implemented yet.")
-            filters[new_key[0]] = value
+            if new_key[0] == 'canonical':
+                filters[new_key[0]] = 'Some Value'
+            else:
+                filters[new_key[0]] = value
 
         self._result_cache = []
 
@@ -196,30 +204,20 @@ class CMISQuerySet(InformatieobjectQuerySet):
         )
 
     def delete(self):
-        # Updating all the documents from Alfresco to have 'verwijderd=True'
+
         number_alfresco_updates = 0
         for django_doc in self._result_cache:
             try:
-                self.get_cmis_client.delete_cmis_document(django_doc.uuid)
+                if settings.CMIS_DELETE_IS_OBLITERATE:
+                    # Actually removing the files from Alfresco
+                    self.get_cmis_client.obliterate_document(django_doc.uuid)
+                else:
+                    # Updating all the documents from Alfresco to have 'verwijderd=True'
+                    self.get_cmis_client.delete_cmis_document(django_doc.uuid)
                 number_alfresco_updates += 1
             except exceptions.DocumentConflictException:
                 logger.log(
                     f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
-                )
-
-        return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
-
-    #TODO make obliterate be called by delete
-    def obliterate(self):
-        # This actually removes the documents from alfresco
-        number_alfresco_updates = 0
-        for django_doc in self._result_cache:
-            try:
-                self.get_cmis_client.obliterate_document(django_doc.uuid)
-                number_alfresco_updates += 1
-            except exceptions.DocumentConflictException:
-                logger.log(
-                    f"Document met identificatie {django_doc.identificatie} kan niet worden verwijderd"
                 )
 
         return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
