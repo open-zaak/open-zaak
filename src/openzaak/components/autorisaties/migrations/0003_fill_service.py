@@ -1,5 +1,5 @@
 from django.db import migrations
-from openzaak.utils.constants import COMPONENT_MAPPING
+from ..middleware import COMPONENT_MAPPING
 from zgw_consumers.constants import APITypes, AuthTypes
 from urllib.parse import urljoin
 
@@ -61,6 +61,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("autorisaties", "0002_externalapicredential"),
         ("zgw_consumers", "0005_auto_20200326_1040"),
+        ("vng_api_common", "0002_apicredential"),
     ]
 
     operations = [migrations.RunPython(upload_services, migrations.RunPython.noop)]

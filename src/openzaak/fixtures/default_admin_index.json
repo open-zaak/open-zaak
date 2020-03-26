@@ -29,8 +29,8 @@
                 "applicatie"
             ],
             [
-                "vng_api_common",
-                "apicredential"
+                "zgw_consumers",
+                "service"
             ]
         ]
     }
