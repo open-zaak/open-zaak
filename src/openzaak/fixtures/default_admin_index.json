@@ -73,6 +73,10 @@
             [
                 "sites",
                 "site"
+            ],
+            [
+                "config",
+                "nlxconfig"
             ]
         ]
     }
@@ -136,8 +140,8 @@
         "app_group": [
             "configuration"
         ],
-        "name": "NLX configuratie",
-        "link": "/admin/config/nlx"
+        "name": "NLX inway",
+        "link": "/admin/config/nlx-inway"
     }
 }
 ]

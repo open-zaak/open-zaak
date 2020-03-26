@@ -1,0 +1,56 @@
+{% extends "sniplates/django.html" %}
+{% load sniplates %}
+
+How to render labels
+{% block _label %}
+{% if label %}<label for="{{ id_for_label }}" class="col-sm-2 col-form-label">{{ label }}</label>{% endif %}
+{% endblock %}
+
+How to render errors
+{% block _errors %}
+{% if errors %}
+<div class="invalid-feedback">
+{% for error in errors %}
+    <div>{{ error }}</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+
+
+
+{% block URLInput %}
+<div class="form-group row">
+    {% reuse "_label" %}
+    <div class="col-sm-10">
+        {% with errors|yesno:'is-invalid,' as validation_class %}
+            {% reuse "input" type="url" css_classes='form-control '|add:validation_class %}
+        {% endwith %}
+        {% reuse "_errors" %}
+    </div>
+</div>
+{% endblock %}
+
+
+{% block Select %}
+<div class="form-group row">
+    {% reuse "_label" %}
+    <div class="col-sm-10">
+        <select name="{{ html_name }}" id="{{ id }}" {{ widget.attrs|flatattrs }} class="form-control {{ errors|yesno:'is-invalid,' }}">
+        {% for choice in choices %}
+            {% if choice.is_group %}
+            <optgroup label="{{ choice.value }}">
+                {% for val, display in choice.display %}
+                    {% reuse '_Select_Option' val=val value=value display=display %}
+                {% endfor %}
+            </optgroup>
+            {% else %}
+                {% reuse '_Select_Option' val=choice.value value=value display=choice.display %}
+            {% endif %}
+        {% endfor %}
+        </select>
+        {% reuse "_errors" %}
+    </div>
+</div>
+{% endblock %}
