@@ -6,9 +6,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.bag.tests import mock_pand_get
-from openzaak.components.autorisaties.models import ExternalAPICredential
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import (
@@ -1078,8 +1079,10 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             m,
             "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
         )
-        ExternalAPICredential.objects.create(
+        Service.objects.create(
             api_root="https://bag.basisregistraties.overheid.nl/api/v1",
+            api_type=APITypes.orc,
+            auth_type=AuthTypes.token,
             label="BAG",
             header_key="X-Api-Key",
             header_value="foo",
