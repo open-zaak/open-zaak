@@ -31,7 +31,7 @@ django-redis==4.10.0
 django-relativedelta==1.0.5
 django-sendfile2==0.5.1   # via django-privates
 django-sniplates==0.7.0
-django-solo==1.1.3        # via django-auth-adfs-db, vng-api-common
+django-solo==1.1.3        # via django-auth-adfs-db, vng-api-common, zgw-consumers
 django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
@@ -40,7 +40,7 @@ drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3
 drf-yasg==1.16.0
-gemma-zds-client==0.13.0  # via vng-api-common
+gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
 humanize==0.5.1
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
@@ -73,3 +73,4 @@ uritemplate==3.0.0        # via coreapi, drf-yasg
 urllib3==1.24.3           # via requests
 uwsgi==2.0.18
 vng-api-common==1.0.37
+zgw-consumers==0.5.1

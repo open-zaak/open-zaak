@@ -86,3 +86,4 @@ vng-api-common==1.0.37
 waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
+zgw-consumers==0.5.1
