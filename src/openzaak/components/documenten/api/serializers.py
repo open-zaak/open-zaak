@@ -4,6 +4,7 @@ Serializers of the Document Registratie Component REST API
 import binascii
 import uuid
 from base64 import b64decode
+from drc_cmis.backend import CMISDRCStorageBackend
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -404,7 +405,7 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
-        self.instance.lock = uuid.uuid4().hex
+        self.instance.lock_document(doc_uuid=self.context['uuid'])
         self.instance.save()
 
         return self.instance
@@ -436,7 +437,10 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
-        self.instance.lock = ""
+        self.instance.unlock_document(
+            doc_uuid=self.context['uuid'],
+            lock=self.context['request'].data['lock']
+        )
         self.instance.save()
         return self.instance
 

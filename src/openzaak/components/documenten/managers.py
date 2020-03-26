@@ -32,7 +32,7 @@ def cmis_doc_to_django_model(cmis_doc):
 
     # The if the document is locked, the lock_id is stored in versionSeriesCheckedOutId
     canonical = EnkelvoudigInformatieObjectCanonical(
-        lock=cmis_doc.versionSeriesCheckedOutId
+        # lock=cmis_doc.versionSeriesCheckedOutId
     )
 
     versie = cmis_doc.versie
@@ -54,11 +54,11 @@ def cmis_doc_to_django_model(cmis_doc):
                 setattr(cmis_doc, field.name, convert_timestamp_to_django_date(date_value))
 
     # Setting up a local file with the content of the cmis document
-    # content_file = File(cmis_doc.get_content_stream())
-    # content_file.name = cmis_doc.name
-    # data_in_file = ContentFile(cmis_doc.get_content_stream().read())
-    # content_file.content = data_in_file
-    # content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
+    content_file = File(cmis_doc.get_content_stream())
+    content_file.name = cmis_doc.name
+    data_in_file = ContentFile(cmis_doc.get_content_stream().read())
+    content_file.content = data_in_file
+    content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
 
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
@@ -73,7 +73,7 @@ def cmis_doc_to_django_model(cmis_doc):
         identificatie=cmis_doc.identificatie,
         indicatie_gebruiksrecht=cmis_doc.indicatie_gebruiksrecht,
         informatieobjecttype=cmis_doc.informatieobjecttype,
-        inhoud="",
+        inhoud=content_file,
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,
@@ -106,6 +106,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
     https://github.com/GemeenteUtrecht/gemma-drc-cmis
     """
     _client = None
+    documents = []
 
     @property
     def get_cmis_client(self):
@@ -120,17 +121,18 @@ class CMISQuerySet(InformatieobjectQuerySet):
         """
         logger.debug(f"MANAGER ALL: get_documents start")
         cmis_documents = self.get_cmis_client.get_cmis_documents()
-        self._result_cache = []
+        self.documents = []
         for cmis_doc in cmis_documents['results']:
-            self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
+            self.documents.append(cmis_doc_to_django_model(cmis_doc))
 
+        self._result_cache = self.documents
         logger.debug(f"CMIS_BACKEND: get_documents successful")
         return self
 
     def iterator(self):
         # loop though the results to return them when requested.
         # Not tested with a filter attached to the all call.
-        for document in self._result_cache:
+        for document in self.documents:
             yield document
 
     def create(self, **kwargs):

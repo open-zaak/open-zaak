@@ -4,6 +4,7 @@ from datetime import date
 
 from django.test import override_settings, tag
 from django.utils import timezone
+from django.conf import settings
 
 import requests_mock
 from freezegun import freeze_time
@@ -37,7 +38,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def tearDown(self) -> None:
         # Removes the created documents from alfresco
         qs = EnkelvoudigInformatieObject.objects.filter()
-        qs.obliterate()
+        qs.delete()
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -75,7 +76,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.auteur, "test_auteur")
         self.assertEqual(stored_object.formaat, "txt")
         self.assertEqual(stored_object.taal, "eng")
-        self.assertEqual(stored_object.versie, 1)
+        if settings.CMIS_ENABLED:
+            self.assertEqual(stored_object.versie, 110)
+        else:
+            self.assertEqual(stored_object.versie, 1)
         self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())
         self.assertEqual(stored_object.bestandsnaam, "dummy.txt")
         self.assertEqual(stored_object.inhoud.read(), b"some file content")
@@ -189,12 +193,36 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
         }
+
+        if settings.CMIS_ENABLED:
+            expected['versie'] = 110
+
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected.keys()))
 
         for key in response_data.keys():
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected[key])
+
+    def test_lock_unlock(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+
+        lock_url = reverse(
+            "enkelvoudiginformatieobject-lock",
+            kwargs={"uuid": eio.uuid}
+        )
+        unlock_url = reverse(
+            "enkelvoudiginformatieobject-unlock",
+            kwargs={"uuid": eio.uuid}
+        )
+
+        lock_content = {}
+        lock_response = self.client.post(lock_url, lock_content)
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+
+        unlock_content = {'lock': lock_response.data['lock']}
+        unlock_response = self.client.post(unlock_url, unlock_content)
+        self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_bestandsomvang(self):
         """
@@ -310,7 +338,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertRaises(
-            exceptions.DocumentDoesNotExistError,
+            EnkelvoudigInformatieObject.DoesNotExist,
             EnkelvoudigInformatieObject.objects.get,
             uuid=uuid_eio
         )
@@ -320,7 +348,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that destroying is not possible when there are relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_canonical = ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
+        ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
         url = reverse(eio)
 
         response = self.client.delete(url)
@@ -393,6 +421,11 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
+
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        qs = EnkelvoudigInformatieObject.objects.filter()
+        qs.delete()
 
     def test_eio_update(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
@@ -628,12 +661,18 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        qs = EnkelvoudigInformatieObject.objects.filter()
+        qs.delete()
+
     def test_pagination_default(self):
         """
         Deleting a Besluit causes all related objects to be deleted as well.
         """
-        EnkelvoudigInformatieObjectFactory.create_batch(2)
-
+        # EnkelvoudigInformatieObjectFactory.create_batch(2)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -644,7 +683,9 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["next"])
 
     def test_pagination_page_param(self):
-        EnkelvoudigInformatieObjectFactory.create_batch(2)
+        # EnkelvoudigInformatieObjectFactory.create_batch(2)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
 
         response = self.client.get(self.list_url, {"page": 1})
 

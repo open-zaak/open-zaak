@@ -1,7 +1,7 @@
 import logging
 import uuid as _uuid
 import dataclasses
-from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.client import exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 
 from django.db import models, transaction
@@ -238,23 +238,30 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
-    @property
-    def locked_doc(self):
-        return EnkelvoudigInformatieObject.objects.get(versionSeriesCheckedOutId=self.lock_id)
-
     def save(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
             return super().save(*args, **kwargs)
         else:
+            pass
+
+    def delete(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            return super().delete(*args, **kwargs)
+        else:
+            pass
+
+    def lock_document(self, doc_uuid):
+        if settings.CMIS_ENABLED:
             cmis_storage = CMISDRCStorageBackend()
-            #FIXME problem of infinite recursion
-            if self.lock:
-                # Overrides the lock value created by LockEnkelvoudigInformatieObjectSerializer save() method
-                # with the value of the lock in Alfresco
-                self.lock_id = cmis_storage.lock_document(uuid=self.latest_version.uuid)
-            else:
-                uuid = self.locked_doc.uuid
-                cmis_storage.unlock_document(uuid=self.latest_version.uuid, lock=self.lock_id)
+            self.lock = cmis_storage.lock_document(uuid=doc_uuid)
+        else:
+            self.lock = _uuid.uuid4().hex
+
+    def unlock_document(self, doc_uuid, lock):
+        if settings.CMIS_ENABLED:
+            cmis_storage = CMISDRCStorageBackend()
+            cmis_storage.unlock_document(uuid=doc_uuid, lock=lock)
+        self.lock = ""
 
 
 class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
