@@ -106,7 +106,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
     https://github.com/GemeenteUtrecht/gemma-drc-cmis
     """
     _client = None
-    documents = []
 
     @property
     def get_cmis_client(self):
@@ -117,21 +116,21 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
     def all(self):
         """
-        Fetch all the needed resutls. from the cmis backend.
+        Fetch all the needed results. from the cmis backend.
         """
         logger.debug(f"MANAGER ALL: get_documents start")
         cmis_documents = self.get_cmis_client.get_cmis_documents()
-        self.documents = []
+        self._result_cache = []
         for cmis_doc in cmis_documents['results']:
-            self.documents.append(cmis_doc_to_django_model(cmis_doc))
+            self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
 
         logger.debug(f"CMIS_BACKEND: get_documents successful")
         return self
 
     def iterator(self):
-        # loop though the results to retrurn them when requested.
+        # loop though the results to return them when requested.
         # Not tested with a filter attached to the all call.
-        for document in self.documents:
+        for document in self._result_cache:
             yield document
 
     def create(self, **kwargs):
@@ -249,11 +248,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
             # Release lock in Canonical
             django_doc.canonical.lock = ""
-
-    def count(self):
-        # Populate the cache with the Alfresco documents
-        self.filter()
-        return super().count()
 
     #
     # def get_or_create(self, defaults=None, **kwargs):
