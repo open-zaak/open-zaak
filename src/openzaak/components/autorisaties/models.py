@@ -1,11 +1,8 @@
 from collections import defaultdict
-from typing import Dict, Union
-from urllib.parse import urlsplit, urlunsplit
 
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models.functions import Length
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -153,56 +150,3 @@ class AutorisatieSpec(models.Model):
         changed = {autorisatie.applicatie for autorisatie in (to_delete + _to_add)}
         for applicatie in changed:
             send_applicatie_changed_notification(applicatie)
-
-
-class ExternalAPICredential(models.Model):
-    """
-    Store auth credentials for external APIs.
-
-    This is used as fallback for vng_api_common.models.APICredential where the API
-    uses an Auth scheme that is not client_id/secret based.
-    """
-
-    api_root = models.URLField(
-        _("API-root"),
-        unique=True,
-        help_text=_(
-            "URL of the external API, ending in a trailing slash. Example: https://example.com/api/v1/"
-        ),
-    )
-    label = models.CharField(
-        _("label"),
-        max_length=100,
-        default="",
-        help_text=_("Human readable label of the external API."),
-    )
-    header_key = models.CharField(_("header key"), max_length=100)
-    header_value = models.CharField(_("header value"), max_length=255)
-
-    class Meta:
-        verbose_name = _("other external API credential")
-        verbose_name_plural = _("other external API credentials")
-
-    def __str__(self):
-        return self.label
-
-    @classmethod
-    def get_auth_header(cls, url: str) -> Union[Dict[str, str], None]:
-        split_url = urlsplit(url)
-        scheme_and_domain = urlunsplit(split_url[:2] + ("", "", ""))
-
-        candidates = (
-            cls.objects.filter(api_root__startswith=scheme_and_domain)
-            .annotate(api_root_length=Length("api_root"))
-            .order_by("-api_root_length")
-        )
-
-        # select the one matching
-        for candidate in candidates.iterator():
-            if url.startswith(candidate.api_root):
-                credentials = candidate
-                break
-        else:
-            return None
-
-        return {credentials.header_key: credentials.header_value}

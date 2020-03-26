@@ -29,10 +29,6 @@
                 "applicatie"
             ],
             [
-                "autorisaties",
-                "externalapicredential"
-            ],
-            [
                 "vng_api_common",
                 "apicredential"
             ]
