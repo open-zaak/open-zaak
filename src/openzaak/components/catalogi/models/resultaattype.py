@@ -231,8 +231,10 @@ class ResultaatType(models.Model):
 
         if not self.archiefactietermijn and self.selectielijstklasse:
             selectielijstklasse = self.get_selectielijstklasse()
-            parsed_relativedelta = parse_relativedelta(
-                selectielijstklasse["bewaartermijn"]
+            parsed_relativedelta = (
+                parse_relativedelta(selectielijstklasse["bewaartermijn"])
+                if selectielijstklasse["bewaartermijn"]
+                else None
             )
             self.archiefactietermijn = parsed_relativedelta
 
