@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.contrib.admin.sites import site
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -17,6 +18,7 @@ from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choi
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import BesluitType, InformatieObjectType, ResultaatType, ZaakType
+from .widgets import CatalogusFilterM2MRawIdWidget
 
 
 class ZaakTypeForm(forms.ModelForm):
@@ -466,3 +468,31 @@ InformatieObjectTypeFormSet = forms.formset_factory(
 BesluitTypeFormSet = forms.formset_factory(
     ExistingBesluitTypeForm, extra=0, formset=BaseFormSet
 )
+
+
+class BesluitTypeAdminForm(forms.ModelForm):
+    class Meta:
+        model = BesluitType
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        catalogus_pk = (
+            kwargs["instance"].catalogus.pk
+            if "instance" in kwargs
+            else kwargs["initial"].get("catalogus")
+        )
+
+        if "zaaktypen" in self.fields:
+            self.fields["zaaktypen"].widget = CatalogusFilterM2MRawIdWidget(
+                rel=BesluitType.zaaktypen.rel,
+                admin_site=site,
+                catalogus_pk=catalogus_pk,
+            )
+        if "informatieobjecttypen" in self.fields:
+            self.fields["informatieobjecttypen"].widget = CatalogusFilterM2MRawIdWidget(
+                rel=BesluitType.informatieobjecttypen.rel,
+                admin_site=site,
+                catalogus_pk=catalogus_pk,
+            )
