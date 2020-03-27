@@ -1,7 +1,6 @@
 from django.test import override_settings, tag
 
 import requests_mock
-from nlx_url_rewriter.models import URLRewrite
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
@@ -1118,9 +1117,12 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
             "https://bag.basisregistraties.overheid.nl/api/v1/panden/0344100000011708?geldigOp=2020-03-04",
         )
-        URLRewrite.objects.create(
-            from_value="https://bag.basisregistraties.overheid.nl/api/v1",
-            to_value="http://outway.nlx:8443/kadaster/bag",
+        Service.objects.create(
+            api_root="https://bag.basisregistraties.overheid.nl/api/v1/",
+            api_type=APITypes.orc,
+            auth_type=AuthTypes.no_auth,
+            label="BAG",
+            nlx="http://outway.nlx:8443/kadaster/bag/",
         )
 
         url = get_operation_url("zaakobject_create")

@@ -21,7 +21,7 @@ class AuthorizedRequestsLoader(BaseLoader):
     def fetch_object(url: str, do_underscoreize=True) -> dict:
         from zgw_consumers.models import Service
 
-        # FIXME should we replace it with Service.get_client() and use it instead of requests?
+        # TODO should we replace it with Service.get_client() and use it instead of requests?
         # but in this case we couldn't catch separate FetchJsonError
         client_auth_header = Service.get_auth_header(url)
         headers = client_auth_header or {}
