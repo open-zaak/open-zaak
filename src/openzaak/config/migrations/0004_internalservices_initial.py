@@ -13,4 +13,4 @@ class Migration(migrations.Migration):
         ("config", "0003_internalservice"),
     ]
 
-    operations = [migrations.RunPython(initial)]
+    operations = [migrations.RunPython(initial, migrations.RunPython.noop)]

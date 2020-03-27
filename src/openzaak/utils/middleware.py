@@ -89,12 +89,7 @@ class EnabledMiddleware:
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         component_type = self.get_component_type(request)
-        try:
-            service = InternalService.objects.get(api_type=component_type)
-        except InternalService.DoesNotExist:
+        disabled = InternalService.objects.filter(api_type=component_type, enabled=False).exists()
+        if not disabled:
             return None
-
-        if service.enabled:
-            return None
-
         return HttpResponseNotFound()

@@ -28,7 +28,7 @@ class DisableTests(JWTAuthMixin, APITestCase):
 
     def test_zaken(self):
         self._test_service_disabled(
-            ComponentTypes.zrc, reverse("zaak-list"), **ZAAK_WRITE_KWARGS
+            ComponentTypes.zrc, reverse("zaak-list"), **ZAAK_READ_KWARGS
         )
 
     def test_catalogi(self):

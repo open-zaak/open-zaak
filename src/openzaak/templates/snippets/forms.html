@@ -58,14 +58,14 @@ How to render errors
 
 {% block Toggle %}
 <div class="custom-control custom-switch">
-  <input name="{{ html_name }}" id="{{ id }}" type="checkbox" class="custom-control-input" {{ form_field.value|yesno:'checked,' }}>
+  <input name="{{ html_name }}" id="{{ id }}" type="checkbox" class="custom-control-input" {{ raw_value|yesno:'checked,' }}>
   <label for="{{ form_field.id_for_label }}" class="custom-control-label"/>
 </div>
 {% endblock %}
 
 {% block ToggleDisabled %}
 <div class="custom-control custom-switch">
-  <input name="{{ html_name }}" id="{{ id }}" type="checkbox" class="custom-control-input" {{ form_field.value|yesno:'checked,' }} disabled>
+  <input name="{{ html_name }}" id="{{ id }}" type="checkbox" class="custom-control-input" {{ raw_value|yesno:'checked,' }} disabled>
   <label for="{{ form_field.id_for_label }}" class="custom-control-label"/>
 </div>
 {% endblock %}

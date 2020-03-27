@@ -35,7 +35,7 @@ class InternalService(models.Model):
     enabled = models.BooleanField(
         _("enabled"),
         default=True,
-        help_text=_("Boolean indicates if internal API is enabled"),
+        help_text=_("Indicates if the API is enabled in Open Zaak."),
     )
     nlx = models.BooleanField(
         _("nlx"),
@@ -48,11 +48,11 @@ class InternalService(models.Model):
         verbose_name_plural = _("Internal services")
 
     def __str__(self):
-        return self.api_type
+        return self.get_api_type_display()
 
     @property
     def component(self) -> str:
         for component, api_type in COMPONENT_MAPPING.items():
             if api_type == self.api_type:
                 return component
-        return ""
+        raise ValueError(f"Unknown component for api_type '{api_type}'")
