@@ -1,11 +1,13 @@
 import logging
 from decimal import Decimal, InvalidOperation
 from privates.storages import private_media_storage
+import datetime
 
 from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db.models import manager, fields
+from django.utils import timezone
 
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
@@ -15,16 +17,14 @@ from .query import InformatieobjectQuerySet
 logger = logging.getLogger(__name__)
 
 
-def convert_timestamp_to_django_date(json_date):
+def convert_timestamp_to_django_datetime(json_date):
     """
     Takes an int such as 1467717221000 as input and returns 2016-07-05 as output.
     """
     if json_date is not None:
-        import datetime
         timestamp = int(str(json_date)[:10])
-        # django_date = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
-        django_date = datetime.datetime.fromtimestamp(timestamp).date()
-        return django_date
+        django_datetime = timezone.make_aware(datetime.datetime.fromtimestamp(timestamp))
+        return django_datetime
 
 
 def cmis_doc_to_django_model(cmis_doc):
@@ -48,10 +48,15 @@ def cmis_doc_to_django_model(cmis_doc):
         if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
             if getattr(cmis_doc, field.name) is None:
                 setattr(cmis_doc, field.name, '')
+        elif isinstance(field, fields.DateTimeField):
+            date_value = getattr(cmis_doc, field.name)
+            if isinstance(date_value, int):
+                setattr(cmis_doc, field.name, convert_timestamp_to_django_datetime(date_value))
         elif isinstance(field, fields.DateField):
             date_value = getattr(cmis_doc, field.name)
             if isinstance(date_value, int):
-                setattr(cmis_doc, field.name, convert_timestamp_to_django_date(date_value))
+                converted_datetime = convert_timestamp_to_django_datetime(date_value)
+                setattr(cmis_doc, field.name, converted_datetime.date())
 
     # Setting up a local file with the content of the cmis document
     content_file = File(cmis_doc.get_content_stream())
@@ -136,10 +141,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
             yield document
 
     def create(self, **kwargs):
-        #FIXME
-        # Putting the URL value into informatieobjecttype
+        # The url needs to be added manually otherwise
         url_informatieobjecttype = kwargs.get('informatieobjecttype')
         kwargs['informatieobjecttype'] = url_informatieobjecttype.get_absolute_api_url()
+
+        # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
+        kwargs['begin_registratie'] = timezone.now()
+
         cmis_document = self.get_cmis_client.create_document(
             identification=kwargs.get('identificatie'),
             data=kwargs,
@@ -189,20 +197,20 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return self
 
-    def get(self, *args, **kwargs):
-        clone = self.filter(*args, **kwargs)
-        num = len(clone)
-        if num == 1:
-            return clone._result_cache[0]
-        if not num:
-            raise self.model.DoesNotExist(
-                "%s matching query does not exist." %
-                self.model._meta.object_name
-            )
-        raise self.model.MultipleObjectsReturned(
-            "get() returned more than one %s -- it returned %s!" %
-            (self.model._meta.object_name, num)
-        )
+    # def get(self, *args, **kwargs):
+    #     clone = self.filter(*args, **kwargs)
+    #     num = len(clone)
+    #     if num == 1:
+    #         return clone._result_cache[0]
+    #     if not num:
+    #         raise self.model.DoesNotExist(
+    #             "%s matching query does not exist." %
+    #             self.model._meta.object_name
+    #         )
+    #     raise self.model.MultipleObjectsReturned(
+    #         "get() returned more than one %s -- it returned %s!" %
+    #         (self.model._meta.object_name, num)
+    #     )
 
     def delete(self):
 
@@ -227,29 +235,20 @@ class CMISQuerySet(InformatieobjectQuerySet):
         cmis_storage = CMISDRCStorageBackend()
 
         for django_doc in self._result_cache:
-            cmis_doc = cmis_storage.get_document(uuid=django_doc.uuid)
-            # If the document exists already, lock it in Alfresco
-            lock_id = cmis_storage.lock_document(uuid=django_doc.uuid)
-
-            # Mirror lock in canonical
-            django_doc.canonical.lock = lock_id
-
-            # Update the document
+            canonical_obj = django_doc.canonical
+            canonical_obj.lock_document(
+                doc_uuid=django_doc.uuid
+            )
             cmis_storage.update_document(
                 uuid=django_doc.uuid,
-                lock=lock_id,
+                lock=canonical_obj.lock,
                 data=kwargs,
                 content=kwargs.get('inhoud'),
             )
-
-            # Release lock in Alfresco
-            cmis_storage.unlock_document(
-                uuid=django_doc.uuid,
-                lock=lock_id
+            canonical_obj.unlock_document(
+                doc_uuid=django_doc.uuid,
+                lock=canonical_obj.lock
             )
-
-            # Release lock in Canonical
-            django_doc.canonical.lock = ""
 
     #
     # def get_or_create(self, defaults=None, **kwargs):

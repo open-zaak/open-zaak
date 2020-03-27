@@ -28,7 +28,7 @@ from .utils import (
 )
 
 
-@freeze_time("2018-06-27")
+@freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
@@ -66,9 +66,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test database
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
-        stored_object = EnkelvoudigInformatieObject.objects.get(identificatie=content["identificatie"])
+        queryset = EnkelvoudigInformatieObject.objects.filter()
+        stored_object = queryset.first()
 
+        self.assertEqual(queryset.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
@@ -77,7 +78,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.formaat, "txt")
         self.assertEqual(stored_object.taal, "eng")
         if settings.CMIS_ENABLED:
-            self.assertEqual(stored_object.versie, 110)
+            self.assertEqual(stored_object.versie, 200)
         else:
             self.assertEqual(stored_object.versie, 1)
         self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())

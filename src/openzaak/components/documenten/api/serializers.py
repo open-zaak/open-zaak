@@ -318,6 +318,15 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         eio.save()
         return eio
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if settings.CMIS_ENABLED:
+            ret['url'] = reverse(
+                "enkelvoudiginformatieobject-detail",
+                #FIXME conversion from Alfresco versions and django version
+                kwargs={'version': "1", 'uuid': instance.uuid})
+        return ret
+
     def update(self, instance, validated_data):
         """
         Instead of updating an existing EnkelvoudigInformatieObject,
