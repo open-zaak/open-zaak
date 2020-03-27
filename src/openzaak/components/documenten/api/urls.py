@@ -5,6 +5,7 @@ from django.urls import include, path
 from vng_api_common import routers
 from vng_api_common.schema import SchemaView as _SchemaView
 
+from ..api.schema import info
 from .viewsets import (
     EnkelvoudigInformatieObjectAuditTrailViewSet,
     EnkelvoudigInformatieObjectViewSet,
@@ -26,6 +27,7 @@ router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 # set the path to schema file
 class SchemaView(_SchemaView):
     schema_path = settings.SPEC_URL["documenten"]
+    info = info
 
 
 urlpatterns = [
