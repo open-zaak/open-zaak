@@ -15,6 +15,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.utils.tests import ClearCachesMixin
 
+from ...models import ResultaatType
 from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 
 
@@ -298,3 +299,48 @@ class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
             field._value,
             "https://selectielijst.openzaak.nl/api/v1/resultaten/d92e5a77-c523-4273-b8e0-c912115ef156",
         )
+
+    def test_create_resultaattype_selectielijst_bewaartermijn_null(self, m):
+        """
+        Test if creating a resultaattype with selectielijstklasse.bewaartermijn
+        = null is possible
+        """
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        selectielijstklasse_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a"
+        )
+        omschrijving_url = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
+
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaten", selectielijstklasse_url)
+        mock_resource_get(m, "resultaattypeomschrijvingen", omschrijving_url)
+
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype_url)
+
+        url = reverse("admin:catalogi_resultaattype_add")
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms["resultaattype_form"]
+        form["zaaktype"] = zaaktype.pk
+        form["omschrijving"] = "test"
+        form["selectielijstklasse"] = selectielijstklasse_url
+        form["resultaattypeomschrijving"] = omschrijving_url
+        form["brondatum_archiefprocedure_afleidingswijze"] = "ingangsdatum_besluit"
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ResultaatType.objects.count(), 1)
+        self.assertEqual(ResultaatType.objects.first().omschrijving, "test")
