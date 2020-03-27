@@ -55,4 +55,4 @@ class InternalService(models.Model):
         for component, api_type in COMPONENT_MAPPING.items():
             if api_type == self.api_type:
                 return component
-        raise ValueError(f"Unknown component for api_type '{api_type}'")
+        raise ValueError(f"Unknown component for api_type '{self.api_type}'")

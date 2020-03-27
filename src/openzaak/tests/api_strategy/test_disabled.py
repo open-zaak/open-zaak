@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 
-from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
+from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.models import InternalService
 from openzaak.utils.tests import JWTAuthMixin
 
