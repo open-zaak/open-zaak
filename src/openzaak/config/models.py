@@ -40,7 +40,7 @@ class InternalService(models.Model):
     nlx = models.BooleanField(
         _("nlx"),
         default=True,
-        help_text=_("Boolean indicated if the service is available via NLX inway"),
+        help_text=_("Indicates if the service is to be provided over NLX."),
     )
 
     class Meta:
