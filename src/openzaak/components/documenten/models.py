@@ -390,6 +390,10 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             try:
                 cmis_storage.get_document(uuid=self.uuid)
                 EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(**model_data)
+                # Needed or the current django object will contain the version number from before the update
+                # and this data is sent back in the response
+                modified_document = EnkelvoudigInformatieObject.objects.filter(identificatie=self.identificatie).first()
+                self.__dict__['versie'] = modified_document.versie
             except exceptions.DocumentDoesNotExistError:
                 EnkelvoudigInformatieObject.objects.create(**model_data)
 

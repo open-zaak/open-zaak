@@ -320,11 +320,14 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+        # With Alfresco, the URL cannot be retrieved using the
+        # latest_version property of the canonical object
         if settings.CMIS_ENABLED:
-            ret['url'] = reverse(
+            path = reverse(
                 "enkelvoudiginformatieobject-detail",
-                #FIXME conversion from Alfresco versions and django version
                 kwargs={'version': "1", 'uuid': instance.uuid})
+            # Following what is done in drc_cmis/client/convert.py
+            ret['url'] = f"{settings.HOST_URL}{path}"
         return ret
 
     def update(self, instance, validated_data):
