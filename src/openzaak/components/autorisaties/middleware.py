@@ -4,19 +4,12 @@ from django.db import models
 from django.db.models import Subquery
 
 from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.middleware import (
     AuthMiddleware as _AuthMiddleware,
     JWTAuth as _JWTAuth,
 )
 
-COMPONENT_MAPPING = {
-    "autorisaties": ComponentTypes.ac,
-    "zaken": ComponentTypes.zrc,
-    "catalogi": ComponentTypes.ztc,
-    "documenten": ComponentTypes.drc,
-    "besluiten": ComponentTypes.brc,
-}
+from openzaak.utils.constants import COMPONENT_MAPPING
 
 
 class JWTAuth(_JWTAuth):

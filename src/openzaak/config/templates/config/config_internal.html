@@ -1,0 +1,60 @@
+{% extends "master.html" %}
+{% load i18n sniplates %}
+
+{% block content %}
+
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie: NLX</h1>
+    <p class="lead">Step 2 of 2</p>
+</div>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
+
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        <div class="form-group row">
+            <div class="col"><strong>Service</strong></div>
+            <div class="col text-center" data-toggle="tooltip"
+                 title="Service activeren en aanbieden in Open Zaak">
+                    <strong>Activeren?</strong>
+            </div>
+            <div class="col text-center" data-toggle="tooltip"
+                 title="Service opnemen in de NLX-inway configuratie">
+                    <strong>NLX?</strong>
+            </div>
+        </div>
+
+        {% for form in formset %}
+            {{ form.non_field_errors }}
+            {{ form.id }}
+
+            <div class="form-group row">
+                <div class="col">{{ form.instance.component|title }} API</div>
+                <div class="col text-center">
+                    {% if form.instance.component == 'autorisaties' %}
+                        {% form_field form.enabled widget='form:ToggleDisabled' %}
+                    {% else %}
+                        {% form_field form.enabled widget='form:Toggle' %}
+                    {% endif %}
+                </div>
+                <div class="col text-center">
+                    {% form_field form.nlx widget='form:Toggle' %}
+                </div>
+            </div>
+
+        {% endfor %}
+
+
+        <div class="btn-toolbar justify-content-between py-sm-3">
+            <a class="btn btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
+            <input class="btn btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

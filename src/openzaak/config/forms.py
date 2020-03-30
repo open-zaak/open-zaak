@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from .models import NLXConfig
+from .models import InternalService, NLXConfig
 
 
 class NLXConfigForm(ModelForm):
@@ -30,3 +30,9 @@ class NLXConfigForm(ModelForm):
                 )
 
         return outway
+
+
+class InternalServiceForm(ModelForm):
+    class Meta:
+        model = InternalService
+        fields = ("enabled", "nlx")

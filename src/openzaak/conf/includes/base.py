@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_db_logger",
     "corsheaders",
+    "extra_views",
     "vng_api_common",  # before drf_yasg to override the management command
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
@@ -152,6 +153,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
+    "openzaak.utils.middleware.EnabledMiddleware",
 ]
 
 ROOT_URLCONF = "openzaak.urls"
