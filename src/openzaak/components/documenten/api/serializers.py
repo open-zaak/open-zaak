@@ -1,9 +1,12 @@
 """
 Serializers of the Document Registratie Component REST API
 """
+import binascii
 import uuid
+from base64 import b64decode
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
@@ -53,6 +56,22 @@ class AnyBase64File(Base64FileField):
 
     def get_file_extension(self, filename, decoded_file):
         return "bin"
+
+    def to_internal_value(self, base64_data):
+        try:
+            return super().to_internal_value(base64_data)
+        except Exception:
+            try:
+                b64decode(base64_data)
+            except binascii.Error as e:
+                if str(e) == "Incorrect padding":
+                    raise ValidationError(
+                        _("The provided base64 data has incorrect padding"),
+                        code="incorrect-base64-padding",
+                    )
+                raise ValidationError(str(e), code="invalid-base64")
+            except TypeError as exc:
+                raise ValidationError(str(exc))
 
     def to_representation(self, file):
         is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
