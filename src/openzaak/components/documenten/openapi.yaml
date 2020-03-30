@@ -37,8 +37,10 @@ info:
     \ en als eerste in een samenwerkingsketen heeft vastgelegd.\n* `informatieobjecttype`:\
     \ URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`:\
     \ Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd\
-    \ is.\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
-    * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
+    \ is.\n\n**Resources en acties**\n- `enkelvoudiginformatieobject`: create, update,\
+    \ destroy\n- `gebruiksrechten`: create, update, destroy\n\n\n**Handige links**\n\
+    \n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht\
+    \ werken](https://zaakgerichtwerken.vng.cloud)\n"
   contact:
     url: https://www.maykinmedia.nl
     email: support@maykinmedia.nl

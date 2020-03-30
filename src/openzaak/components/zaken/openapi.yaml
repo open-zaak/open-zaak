@@ -26,7 +26,11 @@ info:
     \ gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef\n\
     * `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`:\
     \ Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid\
-    \ bestemd is.\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
+    \ bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n\
+    - `status`: create\n- `zaakobject`: create\n- `zaakinformatieobject`: create,\
+    \ update, destroy\n- `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`:\
+    \ create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n\
+    \n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
     * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
   contact:
     url: https://www.maykinmedia.nl
