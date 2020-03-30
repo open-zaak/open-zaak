@@ -23,7 +23,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
 
     body = {"informatieobject": io_url, "object": object_url, "objectType": object_type}
 
-    response = client.create("objectinformatieobject_create", data=body)
+    response = client.create("objectinformatieobject", data=body)
     return response
 
 
@@ -32,4 +32,4 @@ def delete_remote_oio(oio_url: str) -> None:
     if client is None:
         raise UnknownService(f"{oio_url} API should be added to Service model")
 
-    client.delete("objectinformatieobject_delete", oio_url)
+    client.delete("objectinformatieobject", oio_url)

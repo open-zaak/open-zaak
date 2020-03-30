@@ -15,7 +15,8 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -28,7 +29,8 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import mock_service_oas_get
+from openzaak.utils.tests import JWTAuthMixin, mock_client
 
 from .factories import (
     RelevanteZaakRelatieFactory,
@@ -491,6 +493,13 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak_object2 = ZaakObjectFactory.create(
             zaak=zaak, object_type=zaak_object1.object_type
         )
+        for object in [zaak_object1.object, zaak_object2.object]:
+            Service.objects.create(
+                api_type=APITypes.orc,
+                api_root=object,
+                label="BAG",
+                auth_type=AuthTypes.no_auth,
+            )
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,

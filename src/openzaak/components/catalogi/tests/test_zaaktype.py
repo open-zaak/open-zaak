@@ -7,7 +7,8 @@ from django.urls import reverse as django_reverse
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
+
+from openzaak.utils.tests import mock_client
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (

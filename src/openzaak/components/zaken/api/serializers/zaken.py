@@ -568,9 +568,12 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         except Exception as exception:
             zio.delete()
             raise serializers.ValidationError(
-                _("Could not create remote relation: {exception}").format(
-                    exception=exception
-                ),
+                {
+                    "informatieobject": _(
+                        "Could not create remote relation: {}".format(exception)
+                    )
+                },
+                code="pending-relations",
             )
         else:
             zio._objectinformatieobject_url = response["url"]

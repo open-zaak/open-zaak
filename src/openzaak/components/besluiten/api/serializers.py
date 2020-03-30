@@ -209,8 +209,12 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         except Exception as exception:
             bio.delete()
             raise serializers.ValidationError(
-                _("Could not create remote relation: {exception}"),
-                params={"exception": exception},
+                {
+                    "informatieobject": _(
+                        "Could not create remote relation: {}".format(exception)
+                    )
+                },
+                code="pending-relations",
             )
         else:
             bio._objectinformatieobject_url = response["url"]
