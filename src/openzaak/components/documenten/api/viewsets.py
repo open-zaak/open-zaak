@@ -38,7 +38,6 @@ from .filters import (
 from .kanalen import KANAAL_DOCUMENTEN
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
-from .schema import EIOAutoSchema
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -195,7 +194,13 @@ class EnkelvoudigInformatieObjectViewSet(
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
 
-    swagger_schema = EIOAutoSchema
+    @property
+    def swagger_schema(self):
+        # Ensure that schema is not imported at module level, needed to
+        # properly generate notification documentation for API schema
+        from .schema import EIOAutoSchema
+
+        return EIOAutoSchema
 
     def get_renderers(self):
         if self.action == "download":

@@ -9,3 +9,6 @@ class DocumentenConfig(AppConfig):
     def ready(self):
         # load the signal receivers
         from . import signals  # noqa
+
+        # Initialize the viewset for Kanaal.get_usage
+        from .api.viewsets import EnkelvoudigInformatieObjectViewSet  # noqa
