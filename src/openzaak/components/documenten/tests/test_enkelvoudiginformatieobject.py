@@ -340,6 +340,37 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.content, b"inhoud1")
 
+    def test_invalid_inhoud(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": [1, 2, 3],
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "inhoud")
+
+        self.assertEqual(error["code"], "invalid")
+
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
