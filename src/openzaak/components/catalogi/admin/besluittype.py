@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import BesluitType
+from .forms import BesluitTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
@@ -31,6 +32,7 @@ class BesluitTypeAdmin(
         "zaaktypen",
         "informatieobjecttypen",
     )
+    form = BesluitTypeAdminForm
 
     # Details
     fieldsets = (
