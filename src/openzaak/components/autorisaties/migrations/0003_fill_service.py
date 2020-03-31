@@ -32,7 +32,7 @@ def upload_services(apps, schema_editor):
                 label=api_credential.label,
                 api_root=api_credential.api_root,
                 api_type=api_type,
-                auth_type=AuthTypes.jwt,
+                auth_type=AuthTypes.zgw,
                 client_id=api_credential.client_id,
                 secret=api_credential.secret,
                 oas=oas,
@@ -47,7 +47,7 @@ def upload_services(apps, schema_editor):
                 label=external_credential.label,
                 api_root=external_credential.api_root,
                 api_type=APITypes.orc,
-                auth_type=AuthTypes.token,
+                auth_type=AuthTypes.api_key,
                 header_key=external_credential.header_key,
                 header_value=external_credential.header_value,
                 oas=oas,
@@ -60,7 +60,7 @@ def upload_services(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("autorisaties", "0002_externalapicredential"),
-        ("zgw_consumers", "0005_auto_20200326_1040"),
+        ("zgw_consumers", "0008_auto_20200331_1400"),
         ("vng_api_common", "0002_apicredential"),
     ]
 

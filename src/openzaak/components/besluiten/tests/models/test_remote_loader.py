@@ -20,7 +20,7 @@ class BesluitTests(TestCase):
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/",
             api_type=APITypes.ztc,
-            auth_type=AuthTypes.jwt,
+            auth_type=AuthTypes.zgw,
             label="external ZTC",
             client_id="client-id",
             secret="secret",

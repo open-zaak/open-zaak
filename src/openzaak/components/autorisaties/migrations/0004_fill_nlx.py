@@ -35,7 +35,7 @@ def upload_nlx(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("autorisaties", "0004_delete_externalapicredential"),
-        ("zgw_consumers", "0007_service_nlx"),
+        ("zgw_consumers", "0008_auto_20200331_1400"),
         ("nlx_url_rewriter", "0001_initial"),
     ]
 

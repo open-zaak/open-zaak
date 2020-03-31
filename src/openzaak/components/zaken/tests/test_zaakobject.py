@@ -1081,7 +1081,7 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
         Service.objects.create(
             api_root="https://bag.basisregistraties.overheid.nl/api/v1",
             api_type=APITypes.orc,
-            auth_type=AuthTypes.token,
+            auth_type=AuthTypes.api_key,
             label="BAG",
             header_key="X-Api-Key",
             header_value="foo",
