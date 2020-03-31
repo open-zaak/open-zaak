@@ -29,7 +29,6 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin, mock_client
 
 from .factories import (
