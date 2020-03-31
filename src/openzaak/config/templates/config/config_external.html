@@ -1,0 +1,38 @@
+{% extends "master.html" %}
+{% load i18n sniplates %}
+
+{% block content %}
+
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Service configuratie: External Services</h1>
+    <p class="lead">Step 2 of 2</p>
+</div>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
+
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        {% for form in formset %}
+            {{ form.non_field_errors }}
+            {{ form.id }}
+
+            <div class="form-group row">
+                {{ form.as_p }}
+            </div>
+
+        {% endfor %}
+
+
+        <div class="btn-toolbar justify-content-between py-sm-3">
+            <a class="btn btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
+            <input class="btn btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

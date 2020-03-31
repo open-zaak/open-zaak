@@ -4,6 +4,8 @@ from urllib.parse import urlparse
 from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+from zgw_consumers.models import Service
+
 from .models import InternalService, NLXConfig
 
 
@@ -43,3 +45,9 @@ class InternalServiceForm(ModelForm):
 
         if instance and instance.component == "autorisaties":
             self.fields["enabled"].disabled = True
+
+
+class ExternalServiceForm(ModelForm):
+    class Meta:
+        model = Service
+        fields = ("api_root", "api_type", "label", "auth_type")
