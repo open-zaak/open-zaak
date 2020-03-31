@@ -36,3 +36,10 @@ class InternalServiceForm(ModelForm):
     class Meta:
         model = InternalService
         fields = ("enabled", "nlx")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = getattr(self, "instance", None)
+
+        if instance and instance.component == "autorisaties":
+            self.fields["enabled"].disabled = True
