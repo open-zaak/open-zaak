@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import transaction
+from django.http import FileResponse
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -286,12 +288,18 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
-        return sendfile(
-            request,
-            eio.inhoud.path,
-            attachment=True,
-            mimetype="application/octet-stream",
-        )
+        if settings.CMIS_ENABLED:
+            return FileResponse(
+                eio.inhoud.file,
+                as_attachment=True
+            )
+        else:
+            return sendfile(
+                request,
+                eio.inhoud.path,
+                attachment=True,
+                mimetype="application/octet-stream",
+            )
 
     @swagger_auto_schema(
         request_body=LockEnkelvoudigInformatieObjectSerializer,

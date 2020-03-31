@@ -84,7 +84,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             self.assertEqual(stored_object.versie, 1)
         self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())
         self.assertEqual(stored_object.bestandsnaam, "dummy.txt")
-        # self.assertEqual(stored_object.inhoud.read(), b"some file content")
+        self.assertEqual(stored_object.inhoud.read(), b"some file content")
         self.assertEqual(stored_object.link, "http://een.link")
         self.assertEqual(stored_object.beschrijving, "test_beschrijving")
         self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
@@ -117,7 +117,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         if settings.CMIS_ENABLED:
-            expected_response['inhoud'] = f"http://testserver{expected_file_url}?versie=200"
+            expected_response['inhoud'] = \
+                f"http://localhost:8082/alfresco/s/api/node/content/workspace/SpacesStore/{stored_object.uuid}"
             expected_response['versie'] = 200
 
         response_data = response.json()
@@ -202,7 +203,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         if settings.CMIS_ENABLED:
             expected['versie'] = 110
-            expected['inhoud'] = f"http://testserver{file_url}?versie=110"
+            expected['inhoud'] = \
+                f"http://localhost:8082/alfresco/s/api/node/content/workspace/SpacesStore/{test_object.uuid}"
 
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected.keys()))

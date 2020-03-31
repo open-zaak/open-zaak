@@ -14,6 +14,7 @@ from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 
 from .query import InformatieobjectQuerySet
+from .utils import CMISStorageFile
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +61,14 @@ def cmis_doc_to_django_model(cmis_doc):
 
     # Setting up a local file with the content of the cmis document
     #TODO modify
-    content_file = File(cmis_doc.get_content_stream())
-    content_file.name = cmis_doc.name
-    data_in_file = ContentFile(cmis_doc.get_content_stream().read())
-    content_file.content = data_in_file
-    content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
+    # content_file = File(cmis_doc.get_content_stream())
+    # content_file.name = cmis_doc.name
+    # data_in_file = ContentFile(cmis_doc.get_content_stream().read())
+    # content_file.content = data_in_file
+    # content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
+    content_file = CMISStorageFile(
+        uuid=cmis_doc.versionSeriesId,
+    )
 
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,

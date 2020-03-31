@@ -29,6 +29,7 @@ from .query import (
     ObjectInformatieObjectQuerySet,
 )
 from .validators import validate_status
+from .utils import private_media_storage_cmis
 
 logger = logging.getLogger(__name__)
 
@@ -308,7 +309,8 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             "informatieobject is vastgelegd, inclusief extensie."
         ),
     )
-    inhoud = PrivateMediaFileField(upload_to="uploads/%Y/%m/")
+
+    inhoud = PrivateMediaFileField(upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis)
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
         max_length=200,
