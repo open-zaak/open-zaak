@@ -570,8 +570,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError(
                 {
                     "informatieobject": _(
-                        "Could not create remote relation: {}".format(exception)
-                    )
+                        "Could not create remote relation: {exception}"
+                    ).format(exception)
                 },
                 code="pending-relations",
             )

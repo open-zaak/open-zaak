@@ -36,6 +36,8 @@ def upload_services(apps, schema_editor):
                 client_id=api_credential.client_id,
                 secret=api_credential.secret,
                 oas=oas,
+                user_id=api_credential.user_id,
+                user_representation=api_credential.user_representation,
             )
         )
 
@@ -60,7 +62,7 @@ def upload_services(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("autorisaties", "0002_externalapicredential"),
-        ("zgw_consumers", "0008_auto_20200331_1400"),
+        ("zgw_consumers", "0009_auto_20200401_0829"),
         ("vng_api_common", "0002_apicredential"),
     ]
 

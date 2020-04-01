@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.1.2 (2020-04-01)
+------------------
+
+Improved configuration of external API services
+
+* 3 configuration tables APICredential, ExternalAPICredential and URLRewrite
+  are replaced with one table - zgw_consumers.Service
+* Added support for custom OAS urls. **Note**: you need to add them manually
+  in zgw_consumers.Service (you can do it in the admin).
+
 1.1.1 (2020-03-13)
 ------------------
 
