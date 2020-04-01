@@ -16,12 +16,24 @@
         {{ formset.management_form }}
         {{ formset.non_form_errors }}
 
+        <div class="form-group row text-center">
+            <div class="col"><strong>Label</strong></div>
+            <div class="col"><strong>API type</strong></div>
+            <div class="col-sm-3"><strong>Url</strong></div>
+            <div class="col"><strong>NLX</strong></div>
+            <div class="col"><strong>Authorization</strong></div>
+        </div>
+
         {% for form in formset %}
             {{ form.non_field_errors }}
             {{ form.id }}
 
-            <div class="form-group row">
-                {{ form.as_p }}
+            <div class="row">
+                <div class="form-group col">{% form_field form.label %}</div>
+                <div class="form-group col">{% form_field form.api_type %}</div>
+                <div class="form-group col-sm-3">{% form_field form.api_root widget='form:URLInput' %}</div>
+                <div class="form-group col">{% form_field form.nlx %}</div>
+                <div class="form-group col">{% form_field form.auth_type %}</div>
             </div>
 
         {% endfor %}

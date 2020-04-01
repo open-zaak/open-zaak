@@ -50,4 +50,4 @@ class InternalServiceForm(ModelForm):
 class ExternalServiceForm(ModelForm):
     class Meta:
         model = Service
-        fields = ("api_root", "api_type", "label", "auth_type")
+        fields = ("api_root", "api_type", "label", "auth_type", "nlx")
