@@ -15,6 +15,7 @@ from drc_cmis.backend import CMISDRCStorageBackend
 
 from .query import InformatieobjectQuerySet
 from .utils import CMISStorageFile
+from ..catalogi.models.informatieobjecttype import InformatieObjectType
 
 logger = logging.getLogger(__name__)
 
@@ -60,12 +61,6 @@ def cmis_doc_to_django_model(cmis_doc):
                 setattr(cmis_doc, field.name, converted_datetime.date())
 
     # Setting up a local file with the content of the cmis document
-    #TODO modify
-    # content_file = File(cmis_doc.get_content_stream())
-    # content_file.name = cmis_doc.name
-    # data_in_file = ContentFile(cmis_doc.get_content_stream().read())
-    # content_file.content = data_in_file
-    # content_file.path = private_media_storage.save(f'{content_file.name}', data_in_file)
     content_file = CMISStorageFile(
         uuid=cmis_doc.versionSeriesId,
     )
@@ -101,6 +96,18 @@ def cmis_doc_to_django_model(cmis_doc):
     return document
 
 
+def get_informatie_object_url(informatie_obj_type):
+    """
+    Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
+    informatieobjecttype).
+    """
+    if informatie_obj_type._meta.model_name == "virtualinformatieobjecttype":
+        return informatie_obj_type._initial_data['url']
+    elif isinstance(informatie_obj_type, InformatieObjectType):
+        path = informatie_obj_type.get_absolute_api_url()
+        return f"{settings.HOST_URL}{path}"
+
+
 class AdapterManager(manager.Manager):
     def get_queryset(self):
         if settings.CMIS_ENABLED:
@@ -128,6 +135,14 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return self._client
 
+    def _chain(self, **kwargs):
+        obj = super()._chain(**kwargs)
+        # In the super, when _clone() is performed on the queryset,
+        # an SQL query is run to retrieve the objects, but with
+        # alfresco it doesn't work, so the cache is re-added manually
+        obj._result_cache = self._result_cache
+        return obj
+
     def all(self):
         """
         Fetch all the needed results. from the cmis backend.
@@ -149,21 +164,29 @@ class CMISQuerySet(InformatieobjectQuerySet):
             yield document
 
     def create(self, **kwargs):
-        # The url needs to be added manually otherwise
-        informatieobjecttype = kwargs.get('informatieobjecttype')
-        path_informatieobjecttype = informatieobjecttype.get_absolute_api_url()
-        kwargs['informatieobjecttype'] = f"{settings.HOST_URL}{path_informatieobjecttype}"
+        # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
+        # of the informatie object type
+        kwargs['informatieobjecttype'] = get_informatie_object_url(kwargs.get('informatieobjecttype'))
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
         kwargs['begin_registratie'] = timezone.now()
 
-        cmis_document = self.get_cmis_client.create_document(
-            identification=kwargs.get('identificatie'),
-            data=kwargs,
-            content=kwargs.get('inhoud')
-        )
+        try:
+            # Needed because the API calls the create function for an update request
+            new_cmis_document = self.get_cmis_client.update_cmis_document(
+                uuid=kwargs.get('uuid'),
+                lock=kwargs.get('lock'),
+                data=kwargs,
+                content=kwargs.get('inhoud')
+            )
+        except exceptions.DocumentDoesNotExistError:
+            new_cmis_document = self.get_cmis_client.create_document(
+                identification=kwargs.get('identificatie'),
+                data=kwargs,
+                content=kwargs.get('inhoud')
+            )
 
-        django_document = cmis_doc_to_django_model(cmis_document)
+        django_document = cmis_doc_to_django_model(new_cmis_document)
         return django_document
 
     def filter(self, *args, **kwargs):

@@ -350,7 +350,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # Remove the lock from the data from which a new
         # EnkelvoudigInformatieObject will be created, because lock is not a
         # part of that model
-        validated_data.pop("lock")
+        if not settings.CMIS_ENABLED:
+            validated_data.pop("lock")
 
         return super().create(validated_data)
 

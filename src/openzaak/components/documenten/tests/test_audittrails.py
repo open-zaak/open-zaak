@@ -9,6 +9,8 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
+from django.conf import settings
+
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -52,6 +54,15 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.informatieobject_list_url, content, **HEADERS)
 
         return response.data
+
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        if settings.CMIS_ENABLED:
+            from drc_cmis.client import CMISDRCClient
+            client = CMISDRCClient()
+            client.delete_cmis_folders_in_base()
+        else:
+            super().tearDown()
 
     def test_create_enkelvoudiginformatieobject_audittrail(self):
         informatieobject_data = self._create_enkelvoudiginformatieobject()
@@ -125,9 +136,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         informatieobjecttype_url = informatieobject_data["informatieobjecttype"]
 
         # lock for update
-        eio = EnkelvoudigInformatieObjectCanonical.objects.get()
-        eio.lock = "0f60f6d2d2714c809ed762372f5a363a"
-        eio.save()
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObject.objects.get()
+            eio_canonical = eio.canonical
+            eio_canonical.lock_document(doc_uuid=eio.uuid)
+        else:
+            eio_canonical = EnkelvoudigInformatieObjectCanonical.objects.get()
+            eio_canonical.lock = "0f60f6d2d2714c809ed762372f5a363a"
+            eio_canonical.save()
 
         content = {
             "identificatie": uuid.uuid4().hex,
@@ -143,7 +159,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "beschrijving": "test_beschrijving",
             "informatieobjecttype": informatieobjecttype_url,
             "vertrouwelijkheidaanduiding": "openbaar",
-            "lock": "0f60f6d2d2714c809ed762372f5a363a",
+            "lock": eio_canonical.lock,
         }
 
         informatieobject_response = self.client.put(informatieobject_url, content).data
@@ -173,13 +189,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         informatieobject_url = informatieobject_data["url"]
 
         # lock for update
-        eio = EnkelvoudigInformatieObjectCanonical.objects.get()
-        eio.lock = "0f60f6d2d2714c809ed762372f5a363a"
-        eio.save()
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObject.objects.get()
+            eio_canonical = eio.canonical
+            eio_canonical.lock_document(doc_uuid=eio.uuid)
+        else:
+            eio_canonical = EnkelvoudigInformatieObjectCanonical.objects.get()
+            eio_canonical.lock = "0f60f6d2d2714c809ed762372f5a363a"
+            eio_canonical.save()
 
         informatieobject_response = self.client.patch(
             informatieobject_url,
-            {"titel": "changed", "lock": "0f60f6d2d2714c809ed762372f5a363a"},
+            {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
