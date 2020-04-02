@@ -30,6 +30,8 @@ from .query import (
 )
 from .validators import validate_status
 from .utils import private_media_storage_cmis
+from ..besluiten.models import BesluitInformatieObject
+from ..zaken.models import ZaakInformatieObject
 
 logger = logging.getLogger(__name__)
 
@@ -399,12 +401,30 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             except exceptions.DocumentDoesNotExistError:
                 EnkelvoudigInformatieObject.objects.create(**model_data)
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
-            return super().save(using, keep_parents)
+            return super().delete(*args, **kwargs)
         else:
             cmis_storage = CMISDRCStorageBackend()
-            cmis_storage.delete_document(self.uuid)
+            cmis_storage.obliterate_document(self.uuid)
+
+    def has_references(self):
+        if settings.CMIS_ENABLED:
+            if (
+                BesluitInformatieObject.objects.filter(_informatieobject=self.canonical).exists()
+                or ZaakInformatieObject.objects.filter(_informatieobject=self.canonical).exists()
+            ):
+                return True
+            else:
+                return False
+        else:
+            if (
+                self.canonical.besluitinformatieobject_set.exists()
+                or self.canonical.zaakinformatieobject_set.exists()
+            ):
+                return True
+            else:
+                return False
 
     locked = property(_get_locked, _set_locked)
 

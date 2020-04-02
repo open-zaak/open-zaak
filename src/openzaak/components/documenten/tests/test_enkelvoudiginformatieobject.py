@@ -336,7 +336,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 1)
         self.assertEqual(response_data[0]["identificatie"], "foo")
 
-    #FIXME
     def test_destroy_no_relations_allowed(self):
         """
         Assert that destroying is possible when there are no relations.
@@ -345,7 +344,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         uuid_eio = eio.uuid
         url = reverse(eio)
 
-        # Doesn't work with CMIS yet, because the destroy deletes the canonical
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -364,7 +362,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
         url = reverse(eio)
-
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

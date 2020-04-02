@@ -5,8 +5,6 @@ import datetime
 import io
 
 from django.conf import settings
-from django.core.files import File
-from django.core.files.base import ContentFile
 from django.db.models import manager, fields
 from django.utils import timezone
 

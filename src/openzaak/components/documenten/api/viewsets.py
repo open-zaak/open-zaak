@@ -211,10 +211,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
     @transaction.atomic
     def perform_destroy(self, instance):
-        if (
-            instance.canonical.besluitinformatieobject_set.exists()
-            or instance.canonical.zaakinformatieobject_set.exists()
-        ):
+        if instance.has_references():
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
@@ -223,8 +220,10 @@ class EnkelvoudigInformatieObjectViewSet(
                 },
                 code="pending-relations",
             )
-
-        super().perform_destroy(instance.canonical)
+        if settings.CMIS_ENABLED:
+            instance.delete()
+        else:
+            super().perform_destroy(instance.canonical)
 
     @property
     def filterset_class(self):
