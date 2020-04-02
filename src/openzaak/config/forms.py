@@ -1,10 +1,13 @@
 import socket
+from typing import List, Tuple
 from urllib.parse import urlparse
 
-from django.forms import ModelForm, ValidationError
+from django.forms import ChoiceField, ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from zgw_consumers.models import Service
+
+from openzaak.nlx.api import get_services
 
 from .models import InternalService, NLXConfig
 
@@ -47,7 +50,47 @@ class InternalServiceForm(ModelForm):
             self.fields["enabled"].disabled = True
 
 
+def get_nlx_choices() -> List[Tuple[str, str]]:
+    choices = [("", "---No NLX---")]
+    nlx_outway = NLXConfig.get_solo().outway
+    if not nlx_outway:
+        return choices
+
+    services = get_services()
+    for service in services:
+        url = f"{nlx_outway}{service['organization_name']}/{service['service_name']}"
+        label = f"{service['organization_name']}: {service['service_name']}"
+        choices.append((url, label))
+    return choices
+
+
+class NLXField(ChoiceField):
+    def __init__(self, *args, **kwargs):
+        self._max_length = kwargs.pop("max_length")
+        kwargs.setdefault("choices", get_nlx_choices)
+
+        super().__init__(*args, **kwargs)
+
+
 class ExternalServiceForm(ModelForm):
     class Meta:
         model = Service
-        fields = ("api_root", "api_type", "label", "auth_type", "nlx")
+        fields = (
+            "api_root",
+            "api_type",
+            "label",
+            "auth_type",
+            "nlx",
+            "client_id",
+            "secret",
+            "header_key",
+            "header_value",
+        )
+        field_classes = {"nlx": NLXField}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        print(self.fields)
+        if self.instance:
+            self.fields["nlx"].initial = self.instance.nlx
