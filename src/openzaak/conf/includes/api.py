@@ -85,3 +85,9 @@ BRC_API_SPEC = (
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
 LINK_FETCHER = "openzaak.nlx.fetcher"
+
+# URLs for documentation that are shown in API schema
+DOCUMENTATION_URL = "https://vng-realisatie.github.io/gemma-zaken/standaard/"
+OPENZAAK_DOCS_URL = "https://open-zaak.readthedocs.io/en/latest/"
+OPENZAAK_GITHUB_URL = "https://github.com/open-zaak/open-zaak"
+ZGW_URL = "https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken"
