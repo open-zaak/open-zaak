@@ -30,8 +30,10 @@ info:
     - `status`: create\n- `zaakobject`: create\n- `zaakinformatieobject`: create,\
     \ update, destroy\n- `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`:\
     \ create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n\
-    \n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
-    * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
+    \n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
+    \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
+    * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
   contact:
     url: https://www.maykinmedia.nl
     email: support@maykinmedia.nl

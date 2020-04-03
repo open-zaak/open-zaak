@@ -26,16 +26,16 @@ info:
     \n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `zaaktypen`.\n\
     \n**Main resource**\n\n`zaaktype`\n\n\n\n**Kenmerken**\n\n* `catalogus`: URL-referentie\
     \ naar de CATALOGUS waartoe dit ZAAKTYPE behoort.\n\n**Resources en acties**\n\
-    - `zaaktype`: create, update, destroy\n\n\nDeze API publiceert notificaties op\
-    \ het kanaal `besluittypen`.\n\n**Main resource**\n\n`besluittype`\n\n\n\n**Kenmerken**\n\
-    \n* `catalogus`: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.\n\
-    \n**Resources en acties**\n- `besluittype`: create, update, destroy\n\n\nDeze\
-    \ API publiceert notificaties op het kanaal `informatieobjecttypen`.\n\n**Main\
+    \n\nDeze API publiceert notificaties op het kanaal `besluittypen`.\n\n**Main resource**\n\
+    \n`besluittype`\n\n\n\n**Kenmerken**\n\n* `catalogus`: URL-referentie naar de\
+    \ CATALOGUS waartoe dit BESLUITTYPE behoort.\n\n**Resources en acties**\n\n\n\
+    Deze API publiceert notificaties op het kanaal `informatieobjecttypen`.\n\n**Main\
     \ resource**\n\n`informatieobjecttype`\n\n\n\n**Kenmerken**\n\n* `catalogus`:\
     \ URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.\n\
-    \n**Resources en acties**\n- `informatieobjecttype`: create, update, destroy\n\
-    \n\n**Handige links**\n\n* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n\
-    * [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)\n"
+    \n**Resources en acties**\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
+    \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
+    * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
   contact:
     url: https://www.maykinmedia.nl
     email: support@maykinmedia.nl
