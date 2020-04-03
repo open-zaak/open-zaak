@@ -515,6 +515,41 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-zaaktype")
 
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.oas.fetcher.fetch", return_value={})
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_update_resultaattype_omschrijving_generiek(self, *mocks):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse(zaaktype)
+
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "GET", resultaattypeomschrijving_url, json={"omschrijving": "init"}
+            )
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving_url,
+            )
+        self.assertEqual(resultaattype.omschrijving_generiek, "init")
+
+        resultaattype_url = reverse(resultaattype)
+
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "aangepast",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+        }
+
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
+            )
+            response = self.client.patch(resultaattype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["omschrijving_generiek"], "test")
+
 
 class ResultaatTypeFilterAPITests(APITestCase):
     maxDiff = None
