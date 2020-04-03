@@ -109,3 +109,6 @@ class AdminTestMixin:
     def tearDown(self) -> None:
         super().tearDown()
         self.client.logout()
+
+
+no_fetch = object()
