@@ -5,6 +5,7 @@ from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
+from ...models import InformatieObjectType, ZaakType
 from ..factories import (
     BesluitTypeFactory,
     CatalogusFactory,
@@ -24,10 +25,20 @@ class BesluitTypeAdminTests(WebTest):
         self.app.set_user(self.user)
 
         self.catalogus = CatalogusFactory.create()
+
+        # Delete automatically created ZaakTypen
+        ZaakType.objects.all().delete()
         self.zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        ZaakTypeFactory.create_batch(3)
-        self.iotype = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
-        InformatieObjectTypeFactory.create_batch(3)
+        ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
+
+        # Delete automatically created IOTypen
+        InformatieObjectType.objects.all().delete()
+        self.iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus, zaaktypen=[]
+        )
+        InformatieObjectTypeFactory.create_batch(
+            3, catalogus=CatalogusFactory.create(), zaaktypen=[]
+        )
 
     def test_create_besluittype_m2m_relation_popup_filters_no_catalogus(self):
         response = self.app.get(reverse("admin:catalogi_besluittype_add"))
@@ -38,12 +49,9 @@ class BesluitTypeAdminTests(WebTest):
         )
         # Verify that the popup screen shows only one Zaaktype
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
-        self.assertEqual(len(rows), 1)
+
+        rows = popup_response.html.findAll("tr")[1:]
+        self.assertEqual(len(rows), 4)
 
         popup_iotypen = response.html.find(
             "a", {"id": "lookup_id_informatieobjecttypen"}
@@ -54,12 +62,8 @@ class BesluitTypeAdminTests(WebTest):
         )
         # Verify that the popup screen shows only one IOtype
         popup_response = self.app.get(popup_iotypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
-        self.assertEqual(len(rows), 1)
+        rows = popup_response.html.findAll("tr")[1:]
+        self.assertEqual(len(rows), 4)
 
     def test_create_besluittype_m2m_relation_popup_filters_with_catalogus(self):
         query_params = urlencode(
@@ -75,11 +79,7 @@ class BesluitTypeAdminTests(WebTest):
             f'{zaaktype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
+        rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
         popup_iotypen = response.html.find(
@@ -93,15 +93,12 @@ class BesluitTypeAdminTests(WebTest):
             f'{iotype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
+        rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
     def test_change_besluittype_m2m_relation_popup_filters(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype.zaaktypen.all().delete()
         response = self.app.get(
             reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
         )
@@ -113,11 +110,7 @@ class BesluitTypeAdminTests(WebTest):
             f'{zaaktype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
+        rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
         popup_iotypen = response.html.find(
@@ -131,11 +124,7 @@ class BesluitTypeAdminTests(WebTest):
             f'{iotype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
-        rows = (
-            popup_response.html.find("table", {"id": "result_list"})
-            .find("tbody")
-            .findAll("tr")
-        )
+        rows = popup_response.html.findAll("tr")[1:]
         self.assertEqual(len(rows), 1)
 
     def test_read_published_besluittype_m2m_relation(self):

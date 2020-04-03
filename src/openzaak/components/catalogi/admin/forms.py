@@ -17,8 +17,14 @@ from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
-from ..models import BesluitType, InformatieObjectType, ResultaatType, ZaakType
-from .widgets import CatalogusFilterM2MRawIdWidget
+from ..models import (
+    BesluitType,
+    InformatieObjectType,
+    ResultaatType,
+    ZaakType,
+    ZaakTypeInformatieObjectType,
+)
+from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 
 class ZaakTypeForm(forms.ModelForm):
@@ -493,6 +499,30 @@ class BesluitTypeAdminForm(forms.ModelForm):
         if "informatieobjecttypen" in self.fields:
             self.fields["informatieobjecttypen"].widget = CatalogusFilterM2MRawIdWidget(
                 rel=BesluitType.informatieobjecttypen.rel,
+                admin_site=site,
+                catalogus_pk=catalogus_pk,
+            )
+
+
+class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
+    class Meta:
+        model = ZaakTypeInformatieObjectType
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        catalogus_pk = (
+            kwargs["instance"].informatieobjecttype.catalogus.pk
+            if "instance" in kwargs
+            else kwargs["initial"].get("catalogus")
+        )
+
+        if "zaaktype" in self.fields:
+            self.fields["zaaktype"].widget = CatalogusFilterFKRawIdWidget(
+                rel=ZaakTypeInformatieObjectType._meta.get_field(
+                    "zaaktype"
+                ).remote_field,
                 admin_site=site,
                 catalogus_pk=catalogus_pk,
             )

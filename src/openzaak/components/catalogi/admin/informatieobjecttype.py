@@ -10,6 +10,7 @@ from openzaak.utils.admin import (
 )
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
+from .forms import ZaakTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
@@ -21,9 +22,13 @@ from .mixins import (
 
 @admin.register(ZaakTypeInformatieObjectType)
 class ZaakTypeInformatieObjectTypeAdmin(
-    ReadOnlyPublishedParentMixin, UUIDAdminMixin, admin.ModelAdmin
+    CatalogusContextAdminMixin,
+    ReadOnlyPublishedParentMixin,
+    UUIDAdminMixin,
+    admin.ModelAdmin,
 ):
     model = ZaakTypeInformatieObjectType
+    form = ZaakTypeInformatieObjectTypeAdminForm
 
     # List
     list_display = ("zaaktype", "informatieobjecttype", "statustype", "volgnummer")

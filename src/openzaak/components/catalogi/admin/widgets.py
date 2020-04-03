@@ -1,7 +1,7 @@
-from django.contrib.admin.widgets import ManyToManyRawIdWidget
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget, ManyToManyRawIdWidget
 
 
-class CatalogusFilterM2MRawIdWidget(ManyToManyRawIdWidget):
+class RawIdWidgetMixin:
     def __init__(self, *args, **kwargs):
         self.catalogus_pk = kwargs.pop("catalogus_pk")
         super().__init__(*args, **kwargs)
@@ -11,3 +11,11 @@ class CatalogusFilterM2MRawIdWidget(ManyToManyRawIdWidget):
         if self.catalogus_pk:
             params["catalogus__exact"] = self.catalogus_pk
         return params
+
+
+class CatalogusFilterM2MRawIdWidget(RawIdWidgetMixin, ManyToManyRawIdWidget):
+    pass
+
+
+class CatalogusFilterFKRawIdWidget(RawIdWidgetMixin, ForeignKeyRawIdWidget):
+    pass
