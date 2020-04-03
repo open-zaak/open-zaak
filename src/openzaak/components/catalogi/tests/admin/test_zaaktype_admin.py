@@ -123,7 +123,11 @@ class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
         )
         # reverse fk relations
         statustype_old = StatusTypeFactory.create(zaaktype=zaaktype_old)
-        resultaattype_old = ResultaatTypeFactory.create(zaaktype=zaaktype_old)
+        resultaattypeomschrijving = "https://example.com/resultaattypeomschrijving/1"
+        m.register_uri("GET", resultaattypeomschrijving, json={"omschrijving": "init"})
+        resultaattype_old = ResultaatTypeFactory.create(
+            zaaktype=zaaktype_old, resultaattypeomschrijving=resultaattypeomschrijving
+        )
         roltype_old = RolTypeFactory.create(zaaktype=zaaktype_old)
         eigenschap_old = EigenschapFactory.create(zaaktype=zaaktype_old)
         zaaktypenrelatie_old = ZaakTypenRelatieFactory.create(zaaktype=zaaktype_old)

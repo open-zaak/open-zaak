@@ -2,6 +2,8 @@ import factory
 import factory.fuzzy
 from dateutil.relativedelta import relativedelta
 
+from openzaak.utils.tests import no_fetch
+
 from ...models import ResultaatType
 from .zaaktype import ZaakTypeFactory
 
@@ -9,7 +11,7 @@ from .zaaktype import ZaakTypeFactory
 class ResultaatTypeFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
     omschrijving = factory.Faker("word", locale="nl")
-    resultaattypeomschrijving = factory.Faker("url")
+    resultaattypeomschrijving = no_fetch
     omschrijving_generiek = factory.Faker("word")
     selectielijstklasse = factory.Faker("url")
     archiefnominatie = factory.fuzzy.FuzzyChoice(["blijvend_bewaren", "vernietigen"])

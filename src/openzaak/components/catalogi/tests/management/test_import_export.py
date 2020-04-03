@@ -232,14 +232,22 @@ class ImportCatalogiTests(TestCase):
             zaaktype=zaaktype, statustype_omschrijving="bla"
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        resultaattype = ResultaatTypeFactory.create(
-            zaaktype=zaaktype,
-            omschrijving_generiek="bla",
-            brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
-            brondatum_archiefprocedure_datumkenmerk="datum",
-            brondatum_archiefprocedure_registratie="bla",
-            brondatum_archiefprocedure_objecttype="besluit",
-        )
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.register_uri(
+                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
+            )
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                omschrijving_generiek="bla",
+                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
+                brondatum_archiefprocedure_datumkenmerk="datum",
+                brondatum_archiefprocedure_registratie="bla",
+                brondatum_archiefprocedure_objecttype="besluit",
+                resultaattypeomschrijving=resultaattypeomschrijving,
+            )
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 

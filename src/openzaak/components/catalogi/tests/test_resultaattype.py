@@ -83,7 +83,16 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{resultaattype2_url}")
 
     def test_get_detail(self):
-        resultaattype = ResultaatTypeFactory.create()
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.register_uri(
+                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
+            )
+            resultaattype = ResultaatTypeFactory.create(
+                resultaattypeomschrijving=resultaattypeomschrijving
+            )
         url = reverse(resultaattype)
         zaaktype_url = reverse(
             "zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
@@ -464,10 +473,21 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_resultaattype(self):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
-        resultaattype_url = reverse(resultaattype)
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.register_uri(
+                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
+            )
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype, resultaattypeomschrijving=resultaattypeomschrijving
+            )
+            resultaattype_url = reverse(resultaattype)
 
-        response = self.client.patch(resultaattype_url, {"omschrijving": "aangepast"})
+            response = self.client.patch(
+                resultaattype_url, {"omschrijving": "aangepast"}
+            )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["omschrijving"], "aangepast")

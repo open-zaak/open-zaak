@@ -13,6 +13,7 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
+from openzaak.utils.tests import no_fetch
 
 
 class ResultaatType(models.Model):
@@ -220,7 +221,10 @@ class ResultaatType(models.Model):
         """
         Save some derived fields into local object as a means of caching.
         """
-        if self.resultaattypeomschrijving:
+        if (
+            self.resultaattypeomschrijving
+            and self.resultaattypeomschrijving is not no_fetch
+        ):
             response = requests.get(self.resultaattypeomschrijving).json()
             self.omschrijving_generiek = response["omschrijving"]
 
