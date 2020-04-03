@@ -21,7 +21,10 @@ from .mixins import (
 
 @admin.register(ZaakTypeInformatieObjectType)
 class ZaakTypeInformatieObjectTypeAdmin(
-    ReadOnlyPublishedParentMixin, UUIDAdminMixin, admin.ModelAdmin
+    CatalogusContextAdminMixin,
+    ReadOnlyPublishedParentMixin,
+    UUIDAdminMixin,
+    admin.ModelAdmin,
 ):
     model = ZaakTypeInformatieObjectType
 

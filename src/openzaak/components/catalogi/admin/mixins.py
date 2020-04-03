@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from openzaak.utils.admin import ExtraContextAdminMixin
 
-from ..models import Catalogus, ZaakType
+from ..models import Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
 
@@ -194,11 +194,16 @@ class CatalogusContextAdminMixin(ExtraContextAdminMixin):
         context = super().get_extra_context(request, *args, **kwargs)
 
         zaaktype = None
+        iotype = None
         catalogus = None
 
         _changelist_filters = dict(parse_qsl(request.GET.get("_changelist_filters")))
         zaaktype_pk = _changelist_filters.get(
             "zaaktype__id__exact", request.GET.get("zaaktype__id__exact")
+        )
+        iotype_pk = _changelist_filters.get(
+            "informatieobjecttype__id__exact",
+            request.GET.get("informatieobjecttype__id__exact"),
         )
         catalogus_pk = _changelist_filters.get(
             "catalogus__id__exact", request.GET.get("catalogus__id__exact")
@@ -211,11 +216,22 @@ class CatalogusContextAdminMixin(ExtraContextAdminMixin):
                 .first()
             )
             catalogus = zaaktype.catalogus
+        elif iotype_pk:
+            iotype = (
+                InformatieObjectType.objects.select_related("catalogus")
+                .filter(pk=int(iotype_pk))
+                .first()
+            )
+            catalogus = iotype.catalogus
         elif catalogus_pk:
             catalogus = Catalogus.objects.get(pk=int(catalogus_pk))
 
         context.update(
-            {"zaaktype": zaaktype, "catalogus": catalogus,}
+            {
+                "zaaktype": zaaktype,
+                "informatieobjecttype": iotype,
+                "catalogus": catalogus,
+            }
         )
 
         return context
