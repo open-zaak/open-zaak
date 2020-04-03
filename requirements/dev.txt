@@ -122,7 +122,7 @@ vng-api-common==1.0.37
 waitress==1.4.3
 webob==1.8.5
 webtest==2.0.33
-zgw-consumers==0.5.1
+zgw-consumers==0.8.1
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

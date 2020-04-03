@@ -73,4 +73,4 @@ uritemplate==3.0.0        # via coreapi, drf-yasg
 urllib3==1.24.3           # via requests
 uwsgi==2.0.18
 vng-api-common==1.0.37
-zgw-consumers==0.5.1
+zgw-consumers==0.8.1
