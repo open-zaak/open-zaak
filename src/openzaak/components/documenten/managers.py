@@ -59,8 +59,9 @@ def cmis_doc_to_django_model(cmis_doc):
                 setattr(cmis_doc, field.name, converted_datetime.date())
 
     # Setting up a local file with the content of the cmis document
+    uuid_with_version = cmis_doc.versionSeriesId + ";" + cmis_doc.versie
     content_file = CMISStorageFile(
-        uuid=cmis_doc.versionSeriesId,
+        uuid_version=uuid_with_version,
     )
 
     document = EnkelvoudigInformatieObject(
