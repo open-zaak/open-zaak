@@ -57,8 +57,10 @@ Deze API is afhankelijk van:
 
 **Handige links**
 
-* [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)
-* [Zaakgericht werken](https://zaakgerichtwerken.vng.cloud)
+* [API-documentatie]({settings.DOCUMENTATION_URL})
+* [Open Zaak documentatie]({settings.OPENZAAK_DOCS_URL})
+* [Zaakgericht werken]({settings.ZGW_URL})
+* [Open Zaak GitHub]({settings.OPENZAAK_GITHUB_URL})
 """
 
 info = openapi.Info(

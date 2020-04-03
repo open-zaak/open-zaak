@@ -23,8 +23,10 @@ info:
     \n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `autorisaties`.\n\
     \n**Main resource**\n\n`applicatie`\n\n\n\n**Kenmerken**\n\n\n\n**Resources en\
     \ acties**\n- `applicatie`: create, update, destroy\n\n\n**Handige links**\n\n\
-    * [Documentatie](https://zaakgerichtwerken.vng.cloud/standaard)\n* [Zaakgericht\
-    \ werken](https://zaakgerichtwerken.vng.cloud)\n"
+    * [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
+    \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
+    * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
   contact:
     url: https://www.maykinmedia.nl
     email: support@maykinmedia.nl
