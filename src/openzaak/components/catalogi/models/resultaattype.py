@@ -220,7 +220,7 @@ class ResultaatType(models.Model):
         """
         Save some derived fields into local object as a means of caching.
         """
-        if not self.omschrijving_generiek and self.resultaattypeomschrijving:
+        if self.resultaattypeomschrijving:
             response = requests.get(self.resultaattypeomschrijving).json()
             self.omschrijving_generiek = response["omschrijving"]
 
