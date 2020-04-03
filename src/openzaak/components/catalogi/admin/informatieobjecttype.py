@@ -10,6 +10,7 @@ from openzaak.utils.admin import (
 )
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
+from .forms import ZaakTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
@@ -27,6 +28,7 @@ class ZaakTypeInformatieObjectTypeAdmin(
     admin.ModelAdmin,
 ):
     model = ZaakTypeInformatieObjectType
+    form = ZaakTypeInformatieObjectTypeAdminForm
 
     # List
     list_display = ("zaaktype", "informatieobjecttype", "statustype", "volgnummer")
