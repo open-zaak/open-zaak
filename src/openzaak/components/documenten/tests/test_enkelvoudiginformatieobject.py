@@ -1,6 +1,7 @@
 import uuid
 from base64 import b64encode
 from datetime import date
+import requests
 
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -12,7 +13,7 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
-from drc_cmis.client import exceptions, CMISDRCClient
+from drc_cmis.client import CMISDRCClient
 
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -528,7 +529,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             self.assertEqual(first_version.versie, 1)
             self.assertEqual(first_version.beschrijving, "beschrijving1")
 
-    #FIXME
     def test_eio_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
@@ -598,7 +598,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response_data[0]["beschrijving"], "object1 versie2")
         self.assertEqual(response_data[1]["beschrijving"], "object2 versie2")
 
-    #FIXME
     def test_eio_detail_filter_by_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
@@ -617,7 +616,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
 
-    #FIXME
     def test_eio_detail_filter_by_wrong_version_gives_404(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
@@ -654,6 +652,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
 
+    #FIXME
     @freeze_time("2019-01-01 12:00:00")
     def test_eio_detail_filter_by_wrong_registratie_op_gives_404(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -667,6 +666,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T11:59:00"})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    #FIXME
     def test_eio_download_content_filter_by_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             beschrijving="beschrijving1", inhoud__data=b"inhoud1"
@@ -685,11 +685,19 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             },
         )
 
-        response = self.client.get(eio_url, {"versie": "1"})
+        if settings.CMIS_ENABLED:
+            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+            response = self.client.get(eio_url, {"versie": "1.1"})
+            response_download = requests.get(
+                response.data['inhoud'],
+                auth=requests.auth.HTTPBasicAuth('admin', 'admin'))
+        else:
+            response = self.client.get(eio_url, {"versie": "1"})
+            response_download = self.client.get(response.data["inhoud"])
 
-        response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response.content, b"inhoud1")
+        self.assertEqual(response_download.content, b"inhoud1")
 
+    #FIXME
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
             eio = EnkelvoudigInformatieObjectFactory.create(

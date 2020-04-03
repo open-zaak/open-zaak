@@ -3,6 +3,7 @@ import re
 import uuid
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
@@ -32,6 +33,14 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
     registratie_op = filters.IsoDateTimeFilter(
         field_name="begin_registratie", lookup_expr="lte", label="begin_registratie"
     )
+
+    def filter_queryset(self, queryset):
+        if settings.CMIS_ENABLED:
+            filters = self.form.cleaned_data
+            filters.update({'uuid': self.request.parser_context['kwargs']['uuid']})
+            return queryset.filter(**filters)
+        else:
+            return super().filter_queryset(queryset)
 
 
 class GebruiksrechtenFilter(FilterSet):

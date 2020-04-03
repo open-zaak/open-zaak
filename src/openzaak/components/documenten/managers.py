@@ -207,6 +207,16 @@ class CMISQuerySet(InformatieobjectQuerySet):
                     filters=None
                 )
                 self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
+            elif filters.get('versie') is not None and filters.get('uuid') is not None:
+                cmis_doc = self.get_cmis_client.get_cmis_document(
+                    identification=filters.get('uuid'),
+                    via_identification=False,
+                    filters=None
+                )
+                all_versions = cmis_doc.get_all_versions()
+                for version_number, cmis_document in all_versions.items():
+                    if version_number == str(filters['versie']):
+                        self._result_cache.append(cmis_doc_to_django_model(cmis_document))
             elif filters.get('uuid') is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
                     identification=filters.get('uuid'),
@@ -225,6 +235,23 @@ class CMISQuerySet(InformatieobjectQuerySet):
         self.documents = self._result_cache.copy()
 
         return self
+
+    def get(self, *args, **kwargs):
+        if self._result_cache is None or len(self._result_cache) == 0:
+            return super().get(*args, **kwargs)
+        else:
+            num = len(self._result_cache)
+            if num == 1:
+                return self._result_cache[0]
+            if not num:
+                raise self.model.DoesNotExist(
+                    "%s matching query does not exist." %
+                    self.model._meta.object_name
+                )
+            raise self.model.MultipleObjectsReturned(
+                "get() returned more than one %s -- it returned %s!" %
+                (self.model._meta.object_name, num)
+            )
 
     def delete(self):
 
