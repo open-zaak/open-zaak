@@ -36,9 +36,14 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
 
     def filter_queryset(self, queryset):
         if settings.CMIS_ENABLED:
-            filters = self.form.cleaned_data
-            filters.update({'uuid': self.request.parser_context['kwargs']['uuid']})
-            return queryset.filter(**filters)
+            filters_for_alfresco = {}
+            filters_for_alfresco.update({'uuid': self.request.parser_context['kwargs']['uuid']})
+            for name, value in self.form.cleaned_data.items():
+                if value is not None:
+                    filter_name = name # + "__" + self.filters[name].lookup_expr
+                    filters_for_alfresco[filter_name] = value
+
+            return queryset.filter(**filters_for_alfresco)
         else:
             return super().filter_queryset(queryset)
 

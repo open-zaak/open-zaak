@@ -126,6 +126,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
     """
     _client = None
     documents = []
+    has_been_filtered = False
 
     @property
     def get_cmis_client(self):
@@ -195,7 +196,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         for key, value in kwargs.items():
             new_key = key.split("__")
             if len(new_key) > 1 and new_key[1] != "exact":
-                raise NotImplementedError("Fields lookups other than exact are not implemented yet.")
+                raise NotImplementedError("Fields lookups other than exact and lte are not implemented yet.")
             filters[new_key[0]] = value
 
         self._result_cache = []
@@ -218,6 +219,17 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 for version_number, cmis_document in all_versions.items():
                     if version_number == str(filters['versie']):
                         self._result_cache.append(cmis_doc_to_django_model(cmis_document))
+            elif filters.get('registratie_op') is not None and filters.get('uuid') is not None:
+                cmis_doc = self.get_cmis_client.get_cmis_document(
+                    identification=filters.get('uuid'),
+                    via_identification=False,
+                    filters=None
+                )
+                all_versions = cmis_doc.get_all_versions()
+                for versie, cmis_document in all_versions.items():
+                    if convert_timestamp_to_django_datetime(cmis_document.begin_registratie) <= filters['registratie_op']:
+                        self._result_cache.append(cmis_doc_to_django_model(cmis_document))
+                        break
             elif filters.get('uuid') is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
                     identification=filters.get('uuid'),
@@ -226,7 +238,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 )
                 self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
             else:
-                #Filter the alfresco database
+                # Filter the alfresco database
                 cmis_documents = self.get_cmis_client.get_cmis_documents(filters=filters)
                 for cmis_doc in cmis_documents['results']:
                     self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
@@ -234,13 +246,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
             pass
 
         self.documents = self._result_cache.copy()
+        self.has_been_filtered = True
 
         return self
 
     def get(self, *args, **kwargs):
-        if self._result_cache is None or len(self._result_cache) == 0:
-            return super().get(*args, **kwargs)
-        else:
+
+        if self.has_been_filtered:
             num = len(self._result_cache)
             if num == 1:
                 return self._result_cache[0]
@@ -253,6 +265,8 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 "get() returned more than one %s -- it returned %s!" %
                 (self.model._meta.object_name, num)
             )
+        else:
+            return super().get(*args, **kwargs)
 
     def delete(self):
 

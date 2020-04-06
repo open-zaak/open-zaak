@@ -631,7 +631,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         response = self.client.get(eio_url, {"versie": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    #FIXME cant filter on registratie less than equal
     def test_eio_detail_filter_by_registratie_op(self):
         with freeze_time("2019-01-01 12:00:00"):
             eio = EnkelvoudigInformatieObjectFactory.create(
@@ -652,7 +651,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
 
-    #FIXME
     @freeze_time("2019-01-01 12:00:00")
     def test_eio_detail_filter_by_wrong_registratie_op_gives_404(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -666,7 +664,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T11:59:00"})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    #FIXME
     def test_eio_download_content_filter_by_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             beschrijving="beschrijving1", inhoud__data=b"inhoud1"
@@ -697,7 +694,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
 
         self.assertEqual(response_download.content, b"inhoud1")
 
-    #FIXME
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
             eio = EnkelvoudigInformatieObjectFactory.create(
@@ -718,10 +714,17 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
                 },
             )
 
-        response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+        if settings.CMIS_ENABLED:
+            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+            response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+            response_download = requests.get(
+                response.data['inhoud'],
+                auth=requests.auth.HTTPBasicAuth('admin', 'admin'))
+        else:
+            response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+            response_download = self.client.get(response.data["inhoud"])
 
-        response = self.client.get(response.data["inhoud"])
-        self.assertEqual(response.content, b"inhoud1")
+        self.assertEqual(response_download.content, b"inhoud1")
 
 
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
