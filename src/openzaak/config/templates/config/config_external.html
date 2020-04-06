@@ -1,5 +1,5 @@
 {% extends "master.html" %}
-{% load i18n sniplates %}
+{% load i18n sniplates static %}
 
 {% block content %}
 
@@ -9,8 +9,15 @@
 </div>
 
 <div class="container">
+    {{ formdata|json_script:"formdata" }}
+    {{ nlx_choices|json_script:"nlx-choices" }}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
+        <div id="react-external-services">
+            {# empty on purpose - react managed #}
+        </div>
+
         {% load_widgets form='snippets/forms.html' %}
 
         {{ formset.management_form }}
@@ -46,5 +53,9 @@
     </form>
 
 </div>
+{% endblock %}
 
+
+{% block extra_scripts %}
+    <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
