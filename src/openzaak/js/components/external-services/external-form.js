@@ -16,6 +16,7 @@ function ExternalForm(props) {
 
     return (
         <div className='form-group row'>
+             <input type="hidden" name={name_prefix('id')} defaultValue={ values.id } />
             {/*label*/}
             <div className='form-group col'>
                 <TextInput
