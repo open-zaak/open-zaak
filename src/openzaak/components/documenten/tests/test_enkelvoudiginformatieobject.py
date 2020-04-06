@@ -24,6 +24,7 @@ from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCan
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
+    get_eio_response,
     get_informatieobjecttype_response,
     get_operation_url,
 )
@@ -355,15 +356,27 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             uuid=uuid_eio
         )
 
-    #FIXME
     def test_destroy_with_relations_not_allowed(self):
         """
         Assert that destroying is not possible when there are relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
-        url = reverse(eio)
-        response = self.client.delete(url)
+        eio_path = reverse(eio)
+        if settings.CMIS_ENABLED:
+            eio_url = f"https://external.documenten.nl/{eio_path}"
+
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        else:
+            ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
+
+        response = self.client.delete(eio_path)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
