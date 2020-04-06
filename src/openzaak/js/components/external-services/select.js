@@ -8,7 +8,7 @@ const SelectInput = (props) => {
 
     const options = choices.map(([value, label], index) => {
         return (
-            <option value={value} selected={value == selected}>{label}</option>
+            <option key={index} value={value}>{label}</option>
         );
     });
 
@@ -16,6 +16,7 @@ const SelectInput = (props) => {
         <select
             name={name}
             className={classes}
+            value={selected}
             onChange={(event, value) => setSelected(value)}>
             { options }
         </select>

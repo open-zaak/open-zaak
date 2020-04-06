@@ -31,6 +31,14 @@ class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
                 "formdata": [get_form_data(form) for form in formset],
                 # "nlx_choices": get_nlx_choices(),
                 "auth_types": AuthTypes.choices,
+                "formset_config": {
+                    "prefix": formset.prefix,
+                    "extra": formset.extra,
+                    **{
+                        field.name: int(field.value())
+                        for field in formset.management_form
+                    },
+                },
             }
         )
 

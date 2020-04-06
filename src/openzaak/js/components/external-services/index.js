@@ -16,13 +16,15 @@ const mount = () => {
     if (!node) return;
 
     const authTypeChoices = jsonScriptToVar('auth-type-choices');
+
+    const formsetConfig = jsonScriptToVar('formset-config');
     const formData = jsonScriptToVar('formdata');
 
     const constants = {authTypeChoices};
 
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>
-            <ExternalFormSet formData={formData} />
+            <ExternalFormSet config={formsetConfig} formData={formData}/>
         </ConstantsContext.Provider>,
         node
     );
