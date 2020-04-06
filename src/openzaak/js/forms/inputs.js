@@ -40,7 +40,7 @@ const CheckboxInput = (props) => {
 }
 
 const TextInput = (props) => {
-    const { id, name, initial } = props;
+    const { id, name, initial, classes } = props;
     const [value, setValue] = useState(initial || "")
 
     return (
@@ -50,6 +50,7 @@ const TextInput = (props) => {
             id={id}
             onChange={ (event) => setValue(event.text)}
             defaultValue={value}
+            className={classes}
         ></input>
     );
 }

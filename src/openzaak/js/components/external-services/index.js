@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {ConstantsContext} from "../../admin/applicatie-autorisaties/context";
+import {ConstantsContext} from "../admin/applicatie-autorisaties/context";
 import {ExternalFormSet} from "./external-formset";
 
 
