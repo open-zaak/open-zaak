@@ -64,14 +64,6 @@ def get_nlx_choices() -> List[Tuple[str, str]]:
     return choices
 
 
-class NLXField(ChoiceField):
-    def __init__(self, *args, **kwargs):
-        self._max_length = kwargs.pop("max_length")
-        kwargs.setdefault("choices", get_nlx_choices)
-
-        super().__init__(*args, **kwargs)
-
-
 class ExternalServiceForm(ModelForm):
     class Meta:
         model = Service
@@ -86,11 +78,3 @@ class ExternalServiceForm(ModelForm):
             "header_key",
             "header_value",
         )
-        field_classes = {"nlx": NLXField}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        print(self.fields)
-        if self.instance:
-            self.fields["nlx"].initial = self.instance.nlx

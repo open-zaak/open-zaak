@@ -33,11 +33,11 @@ Input.propTypes = {
 
 const RadioInput = (props) => {
     return <Input type="radio" {...props} />;
-}
+};
 
 const CheckboxInput = (props) => {
     return <Input type="checkbox" {...props} />;
-}
+};
 
 const TextInput = (props) => {
     const { id, name, initial, classes } = props;
@@ -53,6 +53,7 @@ const TextInput = (props) => {
             className={classes}
         ></input>
     );
-}
+};
+
 
 export { CheckboxInput, RadioInput, TextInput };

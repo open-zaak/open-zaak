@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 
 from extra_views import ModelFormSetView
+from zgw_consumers.constants import AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.admin_views import get_form_data
@@ -28,7 +29,8 @@ class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
         context.update(
             {
                 "formdata": [get_form_data(form) for form in formset],
-                "nlx_choices": get_nlx_choices(),
+                # "nlx_choices": get_nlx_choices(),
+                "auth_types": AuthTypes.choices,
             }
         )
 

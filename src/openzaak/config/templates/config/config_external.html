@@ -10,7 +10,8 @@
 
 <div class="container">
     {{ formdata|json_script:"formdata" }}
-    {{ nlx_choices|json_script:"nlx-choices" }}
+    {{ auth_types|json_script:"auth-type-choices" }}
+{#    {{ nlx_choices|json_script:"nlx-choices" }}#}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 

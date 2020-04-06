@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {ConstantsContext} from "../admin/applicatie-autorisaties/context";
+import {ConstantsContext} from "./context";
 import {ExternalFormSet} from "./external-formset";
 
 
@@ -15,10 +15,15 @@ const mount = () => {
     const node = document.getElementById('react-external-services');
     if (!node) return;
 
+    const authTypeChoices = jsonScriptToVar('auth-type-choices');
     const formData = jsonScriptToVar('formdata');
 
+    const constants = {authTypeChoices};
+
     ReactDOM.render(
-        <ExternalFormSet formData={formData} />,
+        <ConstantsContext.Provider value={constants}>
+            <ExternalFormSet formData={formData} />
+        </ConstantsContext.Provider>,
         node
     );
 };
