@@ -16,11 +16,13 @@ const mount = () => {
     if (!node) return;
 
     const authTypeChoices = jsonScriptToVar('auth-type-choices');
+    const nlxOutway = jsonScriptToVar('nlx-outway');
+    const nlxChoices = jsonScriptToVar('nlx-choices');
 
     const formsetConfig = jsonScriptToVar('formset-config');
     const formData = jsonScriptToVar('formdata');
 
-    const constants = {authTypeChoices};
+    const constants = { authTypeChoices, nlxOutway, nlxChoices };
 
     ReactDOM.render(
         <ConstantsContext.Provider value={constants}>

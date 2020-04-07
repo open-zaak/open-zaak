@@ -1,5 +1,5 @@
 import React, {useContext, useState} from "react";
-import {TextInput} from "../../forms/inputs";
+import {TextInput, CheckboxInput} from "../../forms/inputs";
 import {API_TYPES} from "../../forms/constants";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
@@ -10,8 +10,8 @@ function ExternalForm(props) {
     const { index, data } = props;
     const { values, errors } = data;
 
-    // const { authTypeChoices } = useContext(ConstantsContext);
-    // const [ selectedAuthType, setSelectedAuthType ] = useState(values.auth_type);
+    const { nlxOutway, nlxChoices } = useContext(ConstantsContext);
+    const [ isNlx, toggleNlx ] = useState(Boolean(values.nlx));
 
     const id_prefix = (field) => `id_form-${index}-${field}`;
     const name_prefix = (field) => `form-${index}-${field}`;
@@ -54,13 +54,24 @@ function ExternalForm(props) {
 
             {/*nlx*/}
             <div className='form-group col'>
-                <TextInput
-                    id={id_prefix('nlx')}
-                    name={name_prefix('nlx')}
-                    initial={values.nlx}
-                    classes='form-control'
-                    errors={errors.nlx}
+                <CheckboxInput
+                    name={name_prefix('is_nlx')}
+                    value={'is_nlx'}
+                    label={'Use nlx?'}
+                    i={index}
+                    checked={isNlx}
+                    onChange={() => toggleNlx(!isNlx)}
                 />
+
+                {(isNlx) ?
+                    <TextInput
+                        id={id_prefix('nlx')}
+                        name={name_prefix('nlx')}
+                        initial={values.nlx}
+                        classes='form-control'
+                        errors={errors.nlx}
+                    /> : null
+                }
             </div>
 
             {/*auth_type*/}

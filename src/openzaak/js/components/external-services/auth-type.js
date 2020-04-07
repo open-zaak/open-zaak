@@ -1,7 +1,8 @@
+import React, {useContext, useState} from "react";
 import {SelectInput} from "./select";
 import {TextInput} from "../../forms/inputs";
-import React, {useContext, useState} from "react";
 import {ConstantsContext} from "./context";
+
 
 function AuthType(props) {
     const { index, data } = props;
@@ -35,7 +36,6 @@ function AuthType(props) {
                 </div>
             </div>
         )
-
     };
 
     return (
@@ -96,7 +96,6 @@ function AuthType(props) {
         </div>
     );
 }
-
 
 
 export { AuthType };

@@ -10,10 +10,11 @@
 
 <div class="container">
     {{ auth_types|json_script:"auth-type-choices" }}
-{#    {{ nlx_choices|json_script:"nlx-choices" }}#}
-
+    {{ nlx_choices|json_script:"nlx-choices" }}
+    {{ nlx_outway|json_script:"nlx-outway" }}
     {{ formset_config|json_script:"formset-config" }}
     {{ formdata|json_script:"formdata" }}
+
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 

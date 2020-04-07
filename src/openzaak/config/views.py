@@ -29,7 +29,8 @@ class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
         context.update(
             {
                 "formdata": [get_form_data(form) for form in formset],
-                # "nlx_choices": get_nlx_choices(),
+                "nlx_choices": get_nlx_choices(),
+                "nlx_outway": NLXConfig.get_solo().outway,
                 "auth_types": AuthTypes.choices,
                 "formset_config": {
                     "prefix": formset.prefix,
