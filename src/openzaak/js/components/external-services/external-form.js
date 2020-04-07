@@ -1,5 +1,5 @@
 import React, {useContext, useState} from "react";
-import {TextInput, CheckboxInput} from "../../forms/inputs";
+import {TextInput, CheckboxInput, CheckBoxInputBS} from "../../forms/inputs";
 import {API_TYPES} from "../../forms/constants";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
@@ -74,17 +74,19 @@ function ExternalForm(props) {
 
             {/*nlx*/}
             <div className='form-group col'>
-                <CheckboxInput
+                <div className='pt-1'>
+                <CheckBoxInputBS
                     name={name_prefix('is_nlx')}
                     value={'is_nlx'}
-                    label={'Use nlx?'}
-                    i={index}
+                    label={'Use NLX?'}
+                    id={id_prefix('nlx_organizations')}
                     checked={isNlx}
                     onChange={() => toggleNlx(!isNlx)}
                 />
+                </div>
 
                 {(isNlx) ? (
-                    <div className='form-group'>
+                    <div className='form-group pt-3'>
                         <label
                             htmlFor={id_prefix('nlx_organizations')}
                             className='col-form-label col-form-label-sm'

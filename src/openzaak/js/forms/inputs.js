@@ -40,6 +40,28 @@ const CheckboxInput = (props) => {
     return <Input type="checkbox" {...props} />;
 };
 
+
+// checkbox for bootstrap-formatted pages
+const CheckBoxInputBS = (props) => {
+    const { type, name, value, id, label, checked, onChange, disabled } = props;
+    return (
+        <div className='form-check'>
+            <input
+                type="checkbox"
+                id={id}
+                name={name}
+                value={value}
+                checked={checked}
+                onChange={ (event) => onChange(event, value) }
+                disabled={disabled}
+                className="form-check-input"
+            />
+            <label htmlFor={id} className="form-check-label">{label}</label>
+        </div>
+    );
+};
+
+
 const TextInput = (props) => {
     const { id, name, initial, classes, errors } = props;
     const [value, setValue] = useState(initial || "");
@@ -64,4 +86,4 @@ const TextInput = (props) => {
 };
 
 
-export { CheckboxInput, RadioInput, TextInput };
+export { CheckboxInput, CheckBoxInputBS, RadioInput, TextInput };
