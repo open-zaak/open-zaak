@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import {ErrorList} from "./error-list";
 
 
 const Input = (props) => {
@@ -40,18 +41,25 @@ const CheckboxInput = (props) => {
 };
 
 const TextInput = (props) => {
-    const { id, name, initial, classes } = props;
-    const [value, setValue] = useState(initial || "")
+    const { id, name, initial, classes, errors } = props;
+    const [value, setValue] = useState(initial || "");
+    const [_errors, setErrors] = useState(errors);
 
     return (
-        <input
-            type="text"
-            name={name}
-            id={id}
-            onChange={ (event) => setValue(event.text)}
-            defaultValue={value}
-            className={classes}
-        ></input>
+        <>
+            <ErrorList errors={_errors} />
+            <input
+                type="text"
+                name={name}
+                id={id}
+                onChange={ (event) => {
+                    setValue(event.text);
+                    setErrors([]);
+                }}
+                defaultValue={value}
+                className={classes}
+            ></input>
+        </>
     );
 };
 

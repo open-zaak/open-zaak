@@ -5,5 +5,5 @@ from .views import (
 )
 
 urlpatterns = [
-    path("exetrnal/", ExternalConfigView.as_view(), name="config-external"),
+    path("external/", ExternalConfigView.as_view(), name="config-external"),
 ]

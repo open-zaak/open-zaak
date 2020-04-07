@@ -24,6 +24,7 @@ function ExternalForm(props) {
                     name={name_prefix('label')}
                     initial={values.label}
                     classes='form-control'
+                    errors={errors.label}
                 />
             </div>
 
@@ -34,6 +35,7 @@ function ExternalForm(props) {
                     name={name_prefix('api_type')}
                     initialValue={values.api_type}
                     classes='form-control'
+                    errors={errors.api_type}
                 />
             </div>
 
@@ -44,6 +46,7 @@ function ExternalForm(props) {
                     name={name_prefix('api_root')}
                     initial={values.api_root}
                     classes='form-control'
+                    errors={errors.api_root}
                 />
             </div>
 
@@ -54,6 +57,7 @@ function ExternalForm(props) {
                     name={name_prefix('nlx')}
                     initial={values.nlx}
                     classes='form-control'
+                    errors={errors.nlx}
                 />
             </div>
 
@@ -64,6 +68,7 @@ function ExternalForm(props) {
                     name={name_prefix('auth_type')}
                     initialValue={values.auth_type}
                     classes='form-control'
+                    errors={errors.auth_type}
                 />
             </div>
         </div>

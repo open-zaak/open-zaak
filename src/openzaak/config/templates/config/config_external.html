@@ -17,8 +17,17 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
+        {% if formset.errors %}
+            <p>{% trans "Please correct the error(s) below." %}</p>
+            {% if formset.non_form_errors %}
+            <ul>
+                {% for error in formset.non_form_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        {% endif %}
+
         <div id="react-external-services">
-            {# empty on purpose - react managed #}
+{#             empty on purpose - react managed #}
         </div>
 
 {#        {% load_widgets form='snippets/forms.html' %}#}
