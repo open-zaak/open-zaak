@@ -34,7 +34,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     canonical = factory.SubFactory(
         EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None
     )
-    identificatie = uuid.uuid4().hex
+    identificatie = factory.fuzzy.FuzzyAttribute(uuid.uuid4)
     bronorganisatie = factory.Faker("ssn", locale="nl_NL")
     creatiedatum = datetime.date(2018, 6, 27)
     titel = "some titel"

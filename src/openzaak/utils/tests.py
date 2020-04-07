@@ -1,3 +1,7 @@
+from drc_cmis.client import CMISDRCClient
+from rest_framework.test import APITestCase
+
+from django.conf import settings
 from django.core.cache import caches
 from django.db.models import Model
 
@@ -112,3 +116,14 @@ class AdminTestMixin:
 
 
 no_fetch = object()
+
+
+class APITestCaseCMIS(APITestCase):
+
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        if settings.CMIS_ENABLED:
+            client = CMISDRCClient()
+            client.delete_cmis_folders_in_base()
+        else:
+            super().tearDown()

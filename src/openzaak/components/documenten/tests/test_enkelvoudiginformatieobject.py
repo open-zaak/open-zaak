@@ -11,14 +11,12 @@ import requests_mock
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
-from drc_cmis.client import CMISDRCClient
 
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -32,18 +30,10 @@ from .utils import (
 
 @freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
-class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
-
-    def tearDown(self) -> None:
-        # Removes the created documents from alfresco
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            client.delete_cmis_folders_in_base()
-        else:
-            super().tearDown()
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -217,26 +207,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected[key])
 
-    def test_lock_unlock(self):
-        eio = EnkelvoudigInformatieObjectFactory.create()
-
-        lock_url = reverse(
-            "enkelvoudiginformatieobject-lock",
-            kwargs={"uuid": eio.uuid}
-        )
-        unlock_url = reverse(
-            "enkelvoudiginformatieobject-unlock",
-            kwargs={"uuid": eio.uuid}
-        )
-
-        lock_content = {}
-        lock_response = self.client.post(lock_url, lock_content)
-        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
-
-        unlock_content = {'lock': lock_response.data['lock']}
-        unlock_response = self.client.post(unlock_url, unlock_content)
-        self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
-
     def test_bestandsomvang(self):
         """
         Assert that the API shows the filesize.
@@ -383,9 +353,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
     def test_validate_unknown_query_params(self):
-        # EnkelvoudigInformatieObjectFactory.create_batch(2)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        EnkelvoudigInformatieObjectFactory.create_batch(2)
         url = reverse(EnkelvoudigInformatieObject)
 
         response = self.client.get(url, {"someparam": "somevalue"})
@@ -443,17 +411,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
-class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCaseCMIS):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
-
-    def tearDown(self) -> None:
-        # Removes the created documents from alfresco
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            client.delete_cmis_folders_in_base()
-        else:
-            super().tearDown()
 
     def test_eio_update(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
@@ -551,8 +511,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        if settings.CMIS_ENABLED:
-            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+        self.client.post(f"{eio_url}/unlock", {'lock': lock})
 
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -568,8 +527,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        if settings.CMIS_ENABLED:
-            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+        self.client.post(f"{eio_url}/unlock", {'lock': lock})
 
         response = self.client.get(eio_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -577,7 +535,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
 
     def test_eio_list_shows_latest_versions(self):
         eio1 = EnkelvoudigInformatieObjectFactory.create(
-            identificatie=uuid.uuid4().hex,
             beschrijving="object1"
         )
 
@@ -588,7 +545,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
 
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            identificatie=uuid.uuid4().hex,
             beschrijving="object2",
         )
 
@@ -598,9 +554,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock2 = self.client.post(f"{eio2_url}/lock").data["lock"]
         self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock2})
 
-        if settings.CMIS_ENABLED:
-            self.client.post(f"{eio1_url}/unlock", {'lock': lock1})
-            self.client.post(f"{eio2_url}/unlock", {'lock': lock2})
+        self.client.post(f"{eio1_url}/unlock", {'lock': lock1})
+        self.client.post(f"{eio2_url}/unlock", {'lock': lock2})
 
         response = self.client.get(reverse(EnkelvoudigInformatieObject))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -638,8 +593,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        if settings.CMIS_ENABLED:
-            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+        self.client.post(f"{eio_url}/unlock", {'lock': lock})
 
         response = self.client.get(eio_url, {"versie": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -657,8 +611,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         with freeze_time("2019-01-01 13:00:00"):
             self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        if settings.CMIS_ENABLED:
-            self.client.post(f"{eio_url}/unlock", {'lock': lock})
+        self.client.post(f"{eio_url}/unlock", {'lock': lock})
 
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -740,25 +693,15 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(response_download.content, b"inhoud1")
 
 
-class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCaseCMIS):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
-
-    def tearDown(self) -> None:
-        # Removes the created documents from alfresco
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            client.delete_cmis_folders_in_base()
-        else:
-            super().tearDown()
 
     def test_pagination_default(self):
         """
         Deleting a Besluit causes all related objects to be deleted as well.
         """
-        # EnkelvoudigInformatieObjectFactory.create_batch(2)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
+        EnkelvoudigInformatieObjectFactory.create_batch(2)
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -769,10 +712,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["next"])
 
     def test_pagination_page_param(self):
-        # EnkelvoudigInformatieObjectFactory.create_batch(2)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
-        EnkelvoudigInformatieObjectFactory.create(identificatie=uuid.uuid4().hex)
-
+        EnkelvoudigInformatieObjectFactory.create_batch(2)
         response = self.client.get(self.list_url, {"page": 1})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -786,17 +726,9 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 @tag("external-urls")
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
-
-    def tearDown(self) -> None:
-        # Removes the created documents from alfresco
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            client.delete_cmis_folders_in_base()
-        else:
-            super().tearDown()
 
     def test_create_external_informatieobjecttype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"

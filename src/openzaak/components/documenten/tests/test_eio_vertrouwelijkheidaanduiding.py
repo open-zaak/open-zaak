@@ -7,15 +7,14 @@ https://github.com/VNG-Realisatie/gemma-zaken/issues/609
 from base64 import b64encode
 
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 
-class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
+class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCaseCMIS):
 
     heeft_alle_autorisaties = True
 

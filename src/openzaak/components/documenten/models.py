@@ -396,7 +396,7 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
                 EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(**model_data)
                 # Needed or the current django object will contain the version number and the download url
                 # from before the update and this data is sent back in the response
-                modified_document = EnkelvoudigInformatieObject.objects.filter(identificatie=self.identificatie).first()
+                modified_document = EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).first()
                 self.__dict__['versie'] = modified_document.versie
                 self.__dict__['inhoud'] = modified_document.inhoud
             except exceptions.DocumentDoesNotExistError:

@@ -452,7 +452,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         self.instance.unlock_document(
             doc_uuid=self.context['uuid'],
-            lock=self.context['request'].data['lock']
+            lock=self.context['request'].data.get('lock'),
         )
         self.instance.save()
         return self.instance
