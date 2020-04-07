@@ -1,8 +1,8 @@
 import socket
-from typing import List, Tuple
+from typing import Dict
 from urllib.parse import urlparse
 
-from django.forms import ChoiceField, ModelForm, ValidationError
+from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from zgw_consumers.models import Service
@@ -50,17 +50,18 @@ class InternalServiceForm(ModelForm):
             self.fields["enabled"].disabled = True
 
 
-def get_nlx_choices() -> List[Tuple[str, str]]:
-    choices = [("", "---No NLX---")]
+def get_nlx_choices() -> Dict[str, dict]:
+    choices = {}
     nlx_outway = NLXConfig.get_solo().outway
-    if not nlx_outway:
-        return choices
-
     services = get_services()
     for service in services:
-        url = f"{nlx_outway}{service['organization_name']}/{service['service_name']}"
-        label = f"{service['organization_name']}: {service['service_name']}"
-        choices.append((url, label))
+        url = f"{nlx_outway}{service['organization_name']}/{service['service_name']}/"
+        service_data = {
+            "service_name": service["service_name"],
+            "oas": service.get("documentation_url", ""),
+        }
+        choices.setdefault(service["organization_name"], {}).update({url: service_data})
+
     return choices
 
 
