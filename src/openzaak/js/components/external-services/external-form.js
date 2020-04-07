@@ -1,15 +1,17 @@
-import React, {useContext} from "react";
+import React, {useContext, useState} from "react";
 import {TextInput} from "../../forms/inputs";
 import {API_TYPES} from "../../forms/constants";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
+import {AuthType} from "./auth-type";
 
 
 function ExternalForm(props) {
     const { index, data } = props;
     const { values, errors } = data;
 
-    const { authTypeChoices } = useContext(ConstantsContext);
+    // const { authTypeChoices } = useContext(ConstantsContext);
+    // const [ selectedAuthType, setSelectedAuthType ] = useState(values.auth_type);
 
     const id_prefix = (field) => `id_form-${index}-${field}`;
     const name_prefix = (field) => `form-${index}-${field}`;
@@ -62,15 +64,8 @@ function ExternalForm(props) {
             </div>
 
             {/*auth_type*/}
-            <div className='form-group col'>
-                <SelectInput
-                    choices={authTypeChoices}
-                    name={name_prefix('auth_type')}
-                    initialValue={values.auth_type}
-                    classes='form-control'
-                    errors={errors.auth_type}
-                />
-            </div>
+            <AuthType index={index} data={data} />
+
         </div>
     );
 

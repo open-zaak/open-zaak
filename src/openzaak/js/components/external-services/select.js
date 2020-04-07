@@ -3,7 +3,7 @@ import {ErrorList} from "../../forms/error-list";
 
 
 const SelectInput = (props) => {
-    const { choices, name, initialValue, classes, errors } = props;
+    const { choices, name, initialValue, classes, errors, onChange } = props;
     const [selected, setSelected] = useState(initialValue);
     const [_errors, setErrors] = useState(errors);
 
@@ -21,11 +21,11 @@ const SelectInput = (props) => {
                 name={name}
                 className={classes}
                 value={selected}
-                onChange={(event, value) => {
-                    setSelected(value);
+                onChange={(event) => {
+                    setSelected(event.target.value);
                     setErrors([]);
                     if (onChange) {
-                        onChange(value);
+                        onChange(event.target.value);
                     }
                 }}>
                 { options }
