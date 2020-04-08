@@ -26,6 +26,7 @@ function ExternalFormSet(props) {
                 <div className="col"><strong>API type</strong></div>
                 <div className="col"><strong>Url</strong></div>
                 <div className="col"><strong>NLX</strong></div>
+                <div className="col"><strong>Documentation</strong></div>
                 <div className="col"><strong>Authorization</strong></div>
             </div>
 

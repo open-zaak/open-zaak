@@ -21,20 +21,17 @@ function ExternalForm(props) {
     const id_prefix = (field) => `id_form-${index}-${field}`;
     const name_prefix = (field) => `form-${index}-${field}`;
 
+    // nlx calculation
     const { nlxOutway, nlxChoices } = useContext(ConstantsContext);
     const [ isNlx, toggleNlx ] = useState(Boolean(values.nlx));
-
     const initialOrganization = getInitialOrganization(values.nlx, nlxOutway);
     const [ selectedOrganization, setSelectedOrganization ] = useState(initialOrganization);
-
     const [ selectedService, setSelectedService ] = useState(values.nlx);
-
     const organizationChoices = Object.keys(nlxChoices).map((value) => [value, value]);
     const services = nlxChoices[selectedOrganization];
     const serviceChoices = selectedOrganization
         ? Object.keys(services).map((service) => [service, services[service].service_name])
         : [];
-
 
     return (
         <div className='form-group row'>
@@ -79,7 +76,7 @@ function ExternalForm(props) {
                     name={name_prefix('is_nlx')}
                     value={'is_nlx'}
                     label={'Use NLX?'}
-                    id={id_prefix('nlx_organizations')}
+                    id={id_prefix('is_nlx')}
                     checked={isNlx}
                     onChange={() => toggleNlx(!isNlx)}
                 />
@@ -116,6 +113,17 @@ function ExternalForm(props) {
                     </div>
                     ): null
                 }
+            </div>
+
+            {/*OAS*/}
+            <div className='form-group col'>
+                <TextInput
+                    id={id_prefix('oas')}
+                    name={name_prefix('oas')}
+                    initial={values.oas}
+                    classes='form-control'
+                    errors={errors.oas}
+                />
             </div>
 
             {/*auth_type*/}
