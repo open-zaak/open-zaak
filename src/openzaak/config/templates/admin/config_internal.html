@@ -1,14 +1,24 @@
-{% extends "master.html" %}
-{% load i18n sniplates %}
+{% extends "admin/base_site.html" %}
+{% load i18n static sniplates %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
+&rsaquo; <a href="{% url 'config:config-nlx' %}">{% trans 'NLX' %}</a>
+&rsaquo; {% trans 'Open Zaak services' %}
+</div>
+{% endblock %}
 
 {% block content %}
+<h1>{% trans 'Service configuratie: Open Zaak' %}</h1>
+<h3>Step 2 of 2</h3>
 
-<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Service configuratie: NLX</h1>
-    <p class="lead">Step 2 of 2</p>
-</div>
-
-<div class="container">
+<div id="content-main">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% load_widgets form='snippets/forms.html' %}
@@ -16,43 +26,36 @@
         {{ formset.management_form }}
         {{ formset.non_form_errors }}
 
-        <div class="form-group row">
-            <div class="col"><strong>Service</strong></div>
-            <div class="col text-center" data-toggle="tooltip"
-                 title="Service activeren en aanbieden in Open Zaak">
-                    <strong>Activeren?</strong>
-            </div>
-            <div class="col text-center" data-toggle="tooltip"
-                 title="Service opnemen in de NLX-inway configuratie">
-                    <strong>NLX?</strong>
-            </div>
+        <fieldset class="module">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th title="Service activeren en aanbieden in Open Zaak">Activeren?</th>
+                        <th title="Service opnemen in de NLX-inway configuratie">NLX?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    <tr class="form-row">
+                    {{ form.non_field_errors }}
+                    {{ form.id }}
+                        <td>{{ form.instance.component|title }} API</td>
+                        <td>{{ form.enabled }}</td>
+                        <td>{{ form.nlx }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+
+        <div class="submit-row">
+            <input class="default" type="submit" name="submit" value="{% trans "submit" %}" />
+            <p class="deletelink-box">
+                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "cancel" %}</a>
+            </p>
         </div>
 
-        {% for form in formset %}
-            {{ form.non_field_errors }}
-            {{ form.id }}
-
-            <div class="form-group row">
-                <div class="col">{{ form.instance.component|title }} API</div>
-                <div class="col text-center">
-                    {% if form.instance.component == 'autorisaties' %}
-                        {% form_field form.enabled widget='form:ToggleDisabled' %}
-                    {% else %}
-                        {% form_field form.enabled widget='form:Toggle' %}
-                    {% endif %}
-                </div>
-                <div class="col text-center">
-                    {% form_field form.nlx widget='form:Toggle' %}
-                </div>
-            </div>
-
-        {% endfor %}
-
-
-        <div class="btn-toolbar justify-content-between py-sm-3">
-            <a class="btn btn-danger" href="{% url 'config-detail' %}">{% trans "cancel" %}</a>
-            <input class="btn btn-success" type="submit" name="submit" value="{% trans "submit" %}" />
-        </div>
     </form>
 
 </div>
