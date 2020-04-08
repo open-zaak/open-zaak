@@ -6,7 +6,7 @@ import {ConstantsContext} from "./context";
 import {AuthType} from "./auth-type";
 
 function getInitialOrganization (nlx_url, outway) {
-    if (!outway || !nlx_url.startsWith(outway)) {
+    if (!outway || !nlx_url || !nlx_url.startsWith(outway)) {
         return '';
     }
     const path = nlx_url.slice(outway.length);
@@ -131,7 +131,10 @@ function ExternalForm(props) {
 
         </div>
     );
-
 }
+
+ExternalForm.defaultProps = {
+    data: {errors: {}, values: {}}
+};
 
 export { ExternalForm };

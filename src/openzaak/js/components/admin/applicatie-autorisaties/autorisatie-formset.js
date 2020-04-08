@@ -3,20 +3,7 @@ import PropTypes from "prop-types";
 
 import { AutorisatieForm } from './autorisatie-form';
 import { ManagementForm} from "../../../forms/management-form";
-
-
-const AddRow = ({ className="add-row", onAdd, children }) => {
-    return (
-        <div className={className}>
-            <a href="#" onClick={onAdd}>{ children }</a>
-        </div>
-    );
-};
-
-AddRow.propTypes = {
-    className: PropTypes.string,
-    onAdd: PropTypes.func.isRequired,
-};
+import { AddRow} from "../../../forms/add-row";
 
 
 const AutorisatieFormSet = (props) => {
