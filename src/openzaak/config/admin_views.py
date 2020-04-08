@@ -1,7 +1,8 @@
 from django.conf import settings
-from django.urls import reverse
-from django.views.generic import TemplateView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import TemplateView, UpdateView
 
+from .forms import NLXConfigForm
 from .models import InternalService, NLXConfig
 from .utils import AdminRequiredMixin
 
@@ -58,3 +59,14 @@ class ConfigDetailView(AdminRequiredMixin, TemplateView):
         context["internal_services"] = internal_services
 
         return context
+
+
+class NLXConfigView(AdminRequiredMixin, UpdateView):
+    model = NLXConfig
+    form_class = NLXConfigForm
+    template_name = "admin/config_nlx.html"
+    success_url = reverse_lazy("config-internal")
+
+    def get_object(self, queryset=None):
+        nlx = NLXConfig.get_solo()
+        return nlx

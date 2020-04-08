@@ -1,12 +1,11 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static config %}
+{% load i18n config %}
 
 {% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="#">{% trans 'Configuratie' %}</a>
 &rsaquo; {% trans 'Service configuratie' %}
 </div>
 {% endblock %}
@@ -14,8 +13,6 @@
 {% block content %}
     <h1>{% trans 'Open Zaak API dashboard' %}</h1>
     <div id="content-main">
-{#        <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'admin:config-nlx' %}';">#}
-
         <!-- NLX config -->
         <section class="module">
             <table class="table">
@@ -69,6 +66,10 @@
                 </tbody>
             </table>
         </section>
+
+        <div class="submit-row">
+            <input type="button" class="default" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
+        </div>
     </div>
 
 {% endblock %}
