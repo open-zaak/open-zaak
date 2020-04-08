@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static config %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="#">{% trans 'Configuratie' %}</a>
+&rsaquo; {% trans 'Service configuratie' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans 'Open Zaak API dashboard' %}</h1>
+    <div id="content-main">
+{#        <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'admin:config-nlx' %}';">#}
+
+        <!-- NLX config -->
+        <section class="module">
+            <table class="table">
+                <caption>NLX</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Parameter</th>
+                        <th scope="col">Waarde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NLX directory</strong></td>
+                        <td>{{ nlx.directory_url| urlize }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Outway address</strong></td>
+                        <td>{{ nlx.outway| urlize }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Internal API config -->
+        <section class="module">
+            <table class="table">
+                <caption>Open Zaak services</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Service</th>
+                        <th scope="col" title="Service geactiveerd en aangeboden door Open Zaak">
+                            Geactiveerd
+                        </th>
+                        <th scope="col" title="Service wordt aangeboden over NLX">
+                            NLX
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in internal_services %}
+                    <tr>
+                        <td>{{ service.component|title }} API</td>
+                        <td>
+                            {{ service.enabled|boolean_icon }}
+                        </td>
+                        <td>
+                            {{ service.nlx|boolean_icon }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+{% endblock %}
