@@ -234,7 +234,7 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_unlock_force(self):
-        self.autorisatie.scopes = [SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK]
+        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK)
         self.autorisatie.save()
 
         eio = EnkelvoudigInformatieObjectFactory.create(
@@ -248,7 +248,14 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
             "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
         )
 
-        self.client.post(lock_url)
+        lock_response = self.client.post(lock_url)
+
+        self.assertEqual(
+            lock_response.status_code,
+            status.HTTP_200_OK,
+            lock_response.data
+        )
+
         unlock_response = self.client.post(unlock_url, {'force_unlock': 'True'})
 
         self.assertEqual(

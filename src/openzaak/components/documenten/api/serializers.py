@@ -453,6 +453,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         self.instance.unlock_document(
             doc_uuid=self.context['uuid'],
             lock=self.context['request'].data.get('lock'),
+            force_unlock=self.context['force_unlock']
         )
         self.instance.save()
         return self.instance

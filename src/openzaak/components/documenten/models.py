@@ -260,10 +260,10 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         else:
             self.lock = _uuid.uuid4().hex
 
-    def unlock_document(self, doc_uuid, lock):
+    def unlock_document(self, doc_uuid, lock, force_unlock=False):
         if settings.CMIS_ENABLED:
             cmis_storage = CMISDRCStorageBackend()
-            cmis_storage.unlock_document(uuid=doc_uuid, lock=lock)
+            cmis_storage.unlock_document(uuid=doc_uuid, lock=lock, force=force_unlock)
         self.lock = ""
 
 
