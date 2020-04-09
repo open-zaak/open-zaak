@@ -75,6 +75,45 @@
             </div>
         </section>
 
+        <!-- External API config -->
+        <section class="module">
+            <table class="table">
+                <caption>External services</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans "Service" %}</th>
+                        <th scope="col">{% trans "Type" %}</th>
+                        <th scope="col">{% trans "Url" %}</th>
+                        <th scope="col">{% trans "NLX" %}</th>
+                        <th scope="col">{% trans "OAS" %}</th>
+                        <th scope="col">{% trans "Authorization" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in external_services %}
+                    <tr>
+                        <td>{{ service.label }}</td>
+                        <td>{{ service.get_api_type_display }}</td>
+                        <td>{{ service.api_root|urlize }}</td>
+                        <td>{{ service.nlx|urlize }}</td>
+                        <td>{{ service.oas|urlize }}</td>
+                        <td>
+                            [{{ service.get_auth_type_display}}]
+                            {% if service.auth_type == 'zgw' %}
+                                Client ID: {{ service.client_id }} Secret: {{ service.secret }}
+                            {% elif service.auth_type == 'api_key' %}
+                                Header: {{ service.header_key }} Value: {{ service.header_value }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="submit-row">
+                <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'config:config-external' %}';">
+            </div>
+        </section>
+
         <div class="submit-row submit-row-extended">
             <input type="button" class="default" value="{% trans 'Wizard configuratie' %}" onclick="location.href='{% url 'config:config-nlx' %}?wizard=true';">
         </div>
