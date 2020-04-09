@@ -141,4 +141,3 @@ def mock_client(responses: dict):
         delattr(sys.modules["zds_client.tests.mocks"], name)
     finally:
         pass
-

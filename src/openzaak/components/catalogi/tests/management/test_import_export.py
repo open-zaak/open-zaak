@@ -247,6 +247,7 @@ class ImportCatalogiTests(TestCase):
             zaaktype=zaaktype, statustype_omschrijving="bla"
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
+
         with requests_mock.Mocker() as m:
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"
@@ -261,8 +262,8 @@ class ImportCatalogiTests(TestCase):
                 brondatum_archiefprocedure_datumkenmerk="datum",
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
-                resultaattypeomschrijving=f"{self.base}/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7",
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()

@@ -98,7 +98,7 @@ class CatalogusAdminImportExportTests(WebTest):
                 brondatum_archiefprocedure_datumkenmerk="datum",
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
-                resultaattypeomschrijving=f"{self.base}/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7",
+                resultaattypeomschrijving=resultaattypeomschrijving,
                 selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
@@ -238,7 +238,7 @@ class CatalogusAdminImportExportTests(WebTest):
                 brondatum_archiefprocedure_datumkenmerk="datum",
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
-                resultaattypeomschrijving=f"{self.base}/resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7",
+                resultaattypeomschrijving=resultaattypeomschrijving,
                 selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
