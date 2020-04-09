@@ -3,8 +3,17 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, UpdateView
 
 from extra_views import ModelFormSetView
+from zgw_consumers.constants import AuthTypes
+from zgw_consumers.models import Service
 
-from .forms import InternalServiceForm, NLXConfigForm
+from openzaak.components.autorisaties.admin_views import get_form_data
+
+from .forms import (
+    ExternalServiceForm,
+    InternalServiceForm,
+    NLXConfigForm,
+    get_nlx_choices,
+)
 from .models import InternalService, NLXConfig
 from .utils import AdminRequiredMixin
 
@@ -77,7 +86,6 @@ class NLXConfigView(AdminRequiredMixin, UpdateView):
     def get_success_url(self):
         if "next" in self.request.POST:
             self.success_url = f"{self.next_url}?wizard=true"
-
         else:
             self.success_url = self.submit_url
 
@@ -91,3 +99,36 @@ class InternalConfigView(AdminRequiredMixin, ModelFormSetView):
     factory_kwargs = {"extra": 0}
     template_name = "admin/config_internal.html"
     success_url = reverse_lazy("config:config-detail")
+
+
+class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
+    model = Service
+    queryset = Service.objects.order_by("api_type", "api_root")
+    form_class = ExternalServiceForm
+    factory_kwargs = {"extra": 0}
+    template_name = "admin/config_external.html"
+    success_url = reverse_lazy("config-detail")
+
+    def get_context_data(self, **kwargs):
+        formset = kwargs.pop("formset", self.get_formset())
+        kwargs["formset"] = formset
+
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "formdata": [get_form_data(form) for form in formset],
+                "nlx_choices": get_nlx_choices(),
+                "nlx_outway": NLXConfig.get_solo().outway,
+                "auth_types": AuthTypes.choices,
+                "formset_config": {
+                    "prefix": formset.prefix,
+                    "extra": formset.extra,
+                    **{
+                        field.name: int(field.value())
+                        for field in formset.management_form
+                    },
+                },
+            }
+        )
+
+        return context
