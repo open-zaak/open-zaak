@@ -9,7 +9,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
-&rsaquo; <a href="{% url 'config:config-nlx' %}">{% trans 'NLX' %}</a>
+{% if request.GET.wizard == 'true' %}&rsaquo; <a href="{% url 'config:config-nlx' %}">{% trans 'NLX' %}</a>{% endif %}
 &rsaquo; {% trans 'Open Zaak services' %}
 </div>
 {% endblock %}
@@ -51,13 +51,13 @@
 
         <div class="submit-row">
             {% if request.GET.wizard == 'true' %}
-                <input class="default" type="submit" name="submit" value="{% trans "voltooien" %}" />
-                <input type="button" value="{% trans 'vorige' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
+                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
+                <input type="button" value="{% trans 'Vorige' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
             {%  else %}
-                <input class="default" type="submit" name="submit" value="{% trans "opslaan" %}" />
+                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
             {% endif %}
             <p class="deletelink-box">
-                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "annuleren" %}</a>
+                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
             </p>
         </div>
 
