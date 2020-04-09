@@ -1,3 +1,8 @@
+import contextlib
+import hashlib
+import json
+import sys
+
 from django.core.cache import caches
 from django.db.models import Model
 
@@ -5,6 +10,7 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import generate_jwt_auth, reverse
+from zds_client.tests.mocks import MockClient
 
 from openzaak.accounts.models import User
 
@@ -112,3 +118,26 @@ class AdminTestMixin:
 
 
 no_fetch = object()
+
+
+@contextlib.contextmanager
+def mock_client(responses: dict):
+    try:
+        from django.test import override_settings
+    except ImportError as exc:
+        raise ImportError("You can only use this in a django context") from exc
+
+    try:
+        json_string = json.dumps(responses).encode("utf-8")
+        md5 = hashlib.md5(json_string).hexdigest()
+        name = f"MockClient{md5}"
+        # create the class
+        type(name, (MockClient,), {"responses": responses})
+        dotted_path = f"zds_client.tests.mocks.{name}"
+        with override_settings(ZGW_CONSUMERS_CLIENT_CLASS=dotted_path):
+            yield
+
+        # clean up
+        delattr(sys.modules["zds_client.tests.mocks"], name)
+    finally:
+        pass

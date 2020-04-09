@@ -7,8 +7,6 @@ from django.utils import timezone
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
 
-from openzaak.components.documenten.api.utils import _get_oio_endpoint
-
 JsonValue = Union[str, None, int, float]
 
 
@@ -55,7 +53,8 @@ def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
 def get_oio_response(
     io_url: str, object_url: str, object_type: str = "zaak"
 ) -> Dict[str, JsonValue]:
-    url = f"{_get_oio_endpoint(io_url)}/{uuid.uuid4()}"
+    start = io_url.split("enkelvoudiginformatieobjecten")[0]
+    url = f"{start}objectinformatieobjecten"
     oio = {
         "url": url,
         "informatieobject": io_url,

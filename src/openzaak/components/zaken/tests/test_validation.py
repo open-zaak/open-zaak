@@ -18,7 +18,6 @@ from vng_api_common.validators import (
     ResourceValidator,
     URLValidator,
 )
-from zds_client.tests.mocks import mock_client
 
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
@@ -31,7 +30,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, mock_client
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject

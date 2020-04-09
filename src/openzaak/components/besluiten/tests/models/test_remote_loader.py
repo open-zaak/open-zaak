@@ -5,7 +5,8 @@ from django.test import TestCase, override_settings
 
 import jwt
 import requests_mock
-from vng_api_common.models import APICredential
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from ..factories import BesluitFactory
 from ..utils import get_besluittype_response
@@ -16,8 +17,11 @@ class BesluitTests(TestCase):
     def test_remote_besluittype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        APICredential.objects.create(
+        Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+            auth_type=AuthTypes.zgw,
+            label="external ZTC",
             client_id="client-id",
             secret="secret",
         )

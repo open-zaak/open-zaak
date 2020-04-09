@@ -9,7 +9,10 @@ from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
 import requests_mock
-from zds_client.tests.mocks import mock_client
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
+
+from openzaak.utils.tests import mock_client
 
 from ...models import (
     BesluitType,
@@ -158,6 +161,18 @@ class ExportCatalogiTests(TestCase):
 
 
 class ImportCatalogiTests(TestCase):
+    base = "https://selectielijst.example.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Service.objects.create(
+            api_type=APITypes.orc,
+            api_root=cls.base,
+            label="external selectielijst",
+            auth_type=AuthTypes.no_auth,
+        )
+
     def setUp(self):
         self.filepath = os.path.join(PATH, "export_test.zip")
         self.addCleanup(lambda: os.remove(self.filepath))
@@ -232,6 +247,7 @@ class ImportCatalogiTests(TestCase):
             zaaktype=zaaktype, statustype_omschrijving="bla"
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
+
         with requests_mock.Mocker() as m:
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"
@@ -247,6 +263,7 @@ class ImportCatalogiTests(TestCase):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()

@@ -466,7 +466,9 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, APITestCase):
         self.assertCreateAllowed(url, data)
 
     def test_rollen(self):
-        roltype = RolTypeFactory.create(zaaktype=self.zaaktype)
+        roltype = RolTypeFactory.create(
+            zaaktype=self.zaaktype, omschrijving_generiek=RolOmschrijving.behandelaar
+        )
         rol = RolFactory.create(zaak=self.zaak, roltype=roltype)
         rol_url = reverse(rol)
 

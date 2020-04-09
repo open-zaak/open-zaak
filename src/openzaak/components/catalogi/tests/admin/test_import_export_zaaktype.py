@@ -10,14 +10,17 @@ from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import TransactionWebTest, WebTest
-from zds_client.tests.mocks import mock_client
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
     mock_oas_get,
     mock_resource_get,
     mock_resource_list,
 )
+from openzaak.utils.tests import mock_client
 
 from ...models import (
     BesluitType,
@@ -44,6 +47,18 @@ from ..factories import (
 
 
 class MockSelectielijst:
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.base = ReferentieLijstConfig.get_solo().api_root
+        Service.objects.create(
+            api_type=APITypes.orc,
+            api_root=cls.base,
+            label="external selectielijst",
+            auth_type=AuthTypes.no_auth,
+        )
+
     def setUp(self):
         super().setUp()
 
@@ -67,6 +82,7 @@ class MockSelectielijst:
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.user = SuperUserFactory.create()
 
     def setUp(self):
@@ -117,6 +133,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
+                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
@@ -242,6 +259,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
+                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")

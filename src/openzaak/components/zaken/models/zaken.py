@@ -2,13 +2,11 @@ import logging
 import uuid
 from datetime import date
 
-from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.crypto import get_random_string
-from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
@@ -22,10 +20,11 @@ from vng_api_common.constants import (
 )
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.models import APICredential, APIMixin
+from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.utils.fields import DurationField
 from openzaak.utils.mixins import AuditTrailMixin
@@ -668,10 +667,7 @@ class ZaakObject(models.Model):
             object_url = self.object
             self._object = None
             if object_url:
-                Client = import_string(settings.ZDS_CLIENT_CLASS)
-                client = Client.from_url(object_url)
-                client.auth = APICredential.get_auth(object_url)
-                self._object = client.retrieve(self.object_type.lower(), url=object_url)
+                self._object = fetch_object(self.object_type.lower(), url=object_url)
         return self._object
 
     def unique_representation(self):

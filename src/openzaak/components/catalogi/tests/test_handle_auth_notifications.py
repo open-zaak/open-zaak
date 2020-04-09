@@ -8,9 +8,8 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from zds_client.tests.mocks import mock_client
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, mock_client
 
 
 @skip("Authorization component is internal. Webhooks are not used")

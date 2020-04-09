@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     "django_loose_fk",
+    "zgw_consumers",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
