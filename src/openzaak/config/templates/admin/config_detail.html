@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+{% load i18n config static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Service configuratie' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans 'Open Zaak API dashboard' %}</h1>
+    <div id="content-main">
+        <!-- NLX config -->
+        <section class="module">
+            <table class="table">
+                <caption>NLX</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Parameter</th>
+                        <th scope="col">Waarde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>{% trans "NLX directory" %}</strong></td>
+                        <td>{{ nlx.directory_url| urlize }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{% trans "NLX outway address" %}</strong></td>
+                        <td>{{ nlx.outway| urlize }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="submit-row">
+                <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
+            </div>
+        </section>
+
+        <!-- Internal API config -->
+        <section class="module">
+            <table class="table">
+                <caption>Open Zaak services</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">{% trans "Service" %}</th>
+                        <th scope="col" title="Service geactiveerd en aangeboden door Open Zaak">
+                            {% trans "Geactiveerd" %}
+                        </th>
+                        <th scope="col" title="Service wordt ook aangeboden over NLX">
+                            {% trans "Aanbieden via NLX" %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in internal_services %}
+                    <tr>
+                        <td>{{ service.component|title }} API</td>
+                        <td>
+                            {{ service.enabled|boolean_icon }}
+                        </td>
+                        <td>
+                            {{ service.nlx|boolean_icon }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="submit-row">
+                <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'config:config-internal' %}';">
+            </div>
+        </section>
+
+        <div class="submit-row submit-row-extended">
+            <input type="button" class="default" value="{% trans 'Wizard configuratie' %}" onclick="location.href='{% url 'config:config-nlx' %}?wizard=true';">
+        </div>
+    </div>
+
+{% endblock %}

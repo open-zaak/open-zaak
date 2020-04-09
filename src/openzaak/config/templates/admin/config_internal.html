@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static sniplates %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
+{% if request.GET.wizard == 'true' %}&rsaquo; <a href="{% url 'config:config-nlx' %}">{% trans 'NLX' %}</a>{% endif %}
+&rsaquo; {% trans 'Open Zaak services' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Service configuratie: Open Zaak' %}</h1>
+{% if request.GET.wizard == 'true' %}<h3>Step 2 of 2</h3>{% endif %}
+
+<div id="content-main">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
+
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        <fieldset class="module">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th title="Service activeren en aanbieden in Open Zaak">Activeren?</th>
+                        <th title="Service opnemen in de NLX-inway configuratie">NLX?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    <tr class="form-row">
+                    {{ form.non_field_errors }}
+                    {{ form.id }}
+                        <td>{{ form.instance.component|title }} API</td>
+                        <td>{{ form.enabled }}</td>
+                        <td>{{ form.nlx }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </fieldset>
+
+        <div class="submit-row">
+            {% if request.GET.wizard == 'true' %}
+                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
+                <input type="button" value="{% trans 'Vorige' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
+            {%  else %}
+                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
+            {% endif %}
+            <p class="deletelink-box">
+                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
+            </p>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

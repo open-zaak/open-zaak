@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static sniplates %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
+&rsaquo; {% trans 'NLX' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Service configuratie: NLX' %}</h1>
+{% if request.GET.wizard == 'true' %}<h3>Step 1 of 2</h3>{% endif %}
+
+<div id="content-main">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% load_widgets form='snippets/forms.html' %}
+
+        <fieldset class="module aligned">
+            {{ form.non_field_errors }}
+
+            {% form_field form.directory %}
+            {% form_field form.outway %}
+
+        </fieldset>
+
+        <div class="submit-row">
+            {% if request.GET.wizard == 'true' %}
+                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
+                <input type="button" value="{% trans 'Overslaan' %}" onclick="location.href='{% url 'config:config-internal' %}';">
+                <input type="submit" name="next" value="{% trans "Volgende" %}" />
+            {%  else %}
+                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
+            {% endif %}
+            <p class="deletelink-box">
+                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
+            </p>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}
