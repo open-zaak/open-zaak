@@ -15,7 +15,7 @@
 
 {% block content %}
 <h1>{% trans 'Service configuratie: NLX' %}</h1>
-<h3>Step 1 of 2</h3>
+{% if request.GET.wizard == 'true' %}<h3>Step 1 of 2</h3>{% endif %}
 
 <div id="content-main">
     <form method="post" enctype="multipart/form-data">
@@ -31,11 +31,16 @@
         </fieldset>
 
         <div class="submit-row">
-            <input class="default" type="submit" name="submit" value="{% trans "next" %}" />
+            {% if request.GET.wizard == 'true' %}
+                <input class="default" type="submit" name="submit" value="{% trans "voltooien" %}" />
+                <input type="button" value="{% trans 'overslaan' %}" onclick="location.href='{% url 'config:config-internal' %}';">
+                <input type="submit" name="next" value="{% trans "volgende" %}" />
+            {%  else %}
+                <input class="default" type="submit" name="submit" value="{% trans "opslaan" %}" />
+            {% endif %}
             <p class="deletelink-box">
-                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "cancel" %}</a>
+                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "annuleren" %}</a>
             </p>
-            <input type="button" value="{% trans 'skip' %}" onclick="location.href='{% url 'config:config-internal' %}';">
         </div>
 
     </form>

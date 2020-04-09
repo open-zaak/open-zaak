@@ -67,11 +67,21 @@ class NLXConfigView(AdminRequiredMixin, UpdateView):
     model = NLXConfig
     form_class = NLXConfigForm
     template_name = "admin/config_nlx.html"
-    success_url = reverse_lazy("config:config-internal")
+    next_url = reverse_lazy("config:config-internal")
+    submit_url = reverse_lazy("config:config-detail")
 
     def get_object(self, queryset=None):
         nlx = NLXConfig.get_solo()
         return nlx
+
+    def get_success_url(self):
+        if "next" in self.request.POST:
+            self.success_url = f"{self.next_url}?wizard=true"
+
+        else:
+            self.success_url = self.submit_url
+
+        return super().get_success_url()
 
 
 class InternalConfigView(AdminRequiredMixin, ModelFormSetView):
