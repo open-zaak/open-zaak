@@ -62,30 +62,6 @@
         }
     },
     {
-        "model": "vng_api_common.apicredential",
-        "pk": 1,
-        "fields": {
-            "api_root": "http://notifications:8000/api/v1/",
-            "label": "notificaties",
-            "client_id": "openzaak",
-            "secret": "openzaak",
-            "user_id": "openzaak",
-            "user_representation": "OpenZaak"
-        }
-    },
-    {
-        "model": "vng_api_common.apicredential",
-        "pk": 4,
-        "fields": {
-            "api_root": "http://localhost:8000/",
-            "label": "openzaak",
-            "client_id": "openzaak",
-            "secret": "openzaak",
-            "user_id": "openzaak",
-            "user_representation": "OpenZaak"
-        }
-    },
-    {
         "model": "notifications.notificationsconfig",
         "pk": 1,
         "fields": {
@@ -102,21 +78,135 @@
     },
     {
         "model":"zgw_consumers.service",
-        "pk":1,
+        "pk": 1,
         "fields":{
             "label":"referentielijsten",
             "api_type":"orc",
             "api_root":"https://referentielijsten-api.vng.cloud/api/v1/",
-            "extra":{},
-            "client_id":"",
+            "extra": {},
+            "client_id": "",
             "secret":"",
-            "auth_type":"no_auth",
-            "header_key":"",
-            "header_value":"",
-            "oas":"https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml",
-            "nlx":"",
-            "user_id":"",
-            "user_representation":""
+            "auth_type": "no_auth",
+            "header_key": "",
+            "header_value": "",
+            "oas": "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": ""
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 2,
+        "fields": {
+            "label": "notificaties",
+            "api_type": "nrc",
+            "api_root": "http://notifications:8000/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 3,
+        "fields": {
+            "label": "openzaak zaken",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8000/zaken/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://localhost:8000/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 4,
+        "fields": {
+            "label": "openzaak documenten",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8000/documenten/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://localhost:8000/documenten/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 5,
+        "fields": {
+            "label": "openzaak catalogi",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8000/catalogi/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://localhost:8000/catalogi/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 6,
+        "fields": {
+            "label": "openzaak besluiten",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8000/besluiten/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://localhost:8000/besluiten/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
+        }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 7,
+        "fields": {
+            "label": "openzaak autorisaties",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8000/autorisaties/api/v1/",
+            "extra": {},
+            "client_id": "openzaak",
+            "secret": "openzaak",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://localhost:8000/autorisaties/api/v1/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "openzaak",
+            "user_representation": "OpenZaak"
         }
     }
 ]
