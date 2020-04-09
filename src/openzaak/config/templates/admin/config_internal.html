@@ -16,7 +16,7 @@
 
 {% block content %}
 <h1>{% trans 'Service configuratie: Open Zaak' %}</h1>
-<h3>Step 2 of 2</h3>
+{% if request.GET.wizard=True %}<h3>Step 2 of 2</h3>
 
 <div id="content-main">
     <form method="post" enctype="multipart/form-data">
