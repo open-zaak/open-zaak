@@ -16,6 +16,7 @@ from django.utils import timezone
 import factory
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 
@@ -61,3 +62,11 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
         return datetime.datetime.combine(
             self.informatieobject.latest_version.creatiedatum, datetime.time(0, 0)
         ).replace(tzinfo=timezone.utc)
+
+
+class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
+    startdatum = datetime.datetime.now(tz=timezone.utc)
+    omschrijving_voorwaarden = factory.Faker("paragraph")
+
+    class Meta:
+        model = "documenten.Gebruiksrechten"

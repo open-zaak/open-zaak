@@ -35,6 +35,15 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
+    def test_list(self):
+        EnkelvoudigInformatieObjectFactory.create_batch(4)
+        url = reverse("enkelvoudiginformatieobject-list")
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            response.data)
+
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)

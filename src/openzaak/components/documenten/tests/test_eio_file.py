@@ -5,16 +5,16 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.test import override_settings
 
 from privates.test import temp_private_root
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import (
@@ -26,7 +26,7 @@ from .utils import get_operation_url
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 @temp_private_root()
-class US39TestCase(JWTAuthMixin, APITestCase):
+class US39TestCase(JWTAuthMixin, APITestCaseCMIS):
 
     heeft_alle_autorisaties = True
 
@@ -78,7 +78,8 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.getvalue().decode("utf-8"), "some data")
 
     def test_list_file(self):
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        EnkelvoudigInformatieObjectCanonicalFactory.create()
+        eio = EnkelvoudigInformatieObject.objects.get()
         list_url = get_operation_url("enkelvoudiginformatieobject_list")
 
         response = self.client.get(list_url)
@@ -88,9 +89,15 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         data = response.data["results"]
         download_url = urlparse(data[0]["inhoud"])
 
-        self.assertEqual(
-            download_url.path,
-            get_operation_url(
-                "enkelvoudiginformatieobject_download", uuid=eio.latest_version.uuid
-            ),
-        )
+        if settings.CMIS_ENABLED:
+            self.assertEqual(
+                download_url.path,
+                f"/alfresco/s/api/node/content/workspace/SpacesStore/{eio.uuid}",
+            )
+        else:
+            self.assertEqual(
+                download_url.path,
+                get_operation_url(
+                    "enkelvoudiginformatieobject_download", uuid=eio.uuid
+                ),
+            )

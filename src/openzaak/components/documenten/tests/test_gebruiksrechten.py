@@ -1,28 +1,29 @@
+import datetime
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import JWTAuthMixin
+from django.conf import settings
+
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..models import Gebruiksrechten
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenFactory,
+    GebruiksrechtenCMISFactory
 )
 
 
-class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
+class GebruiksrechtenTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 
     def test_create(self):
         url = reverse("gebruiksrechten-list")
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
-            latest_version__creatiedatum="2018-12-24"
-        )
+        eio = EnkelvoudigInformatieObjectFactory.create(creatiedatum=datetime.date(2018, 12, 24))
         eio_url = reverse(
             "enkelvoudiginformatieobject-detail",
-            kwargs={"uuid": eio.latest_version.uuid},
+            kwargs={"uuid": eio.uuid},
         )
 
         eio_detail = self.client.get(eio_url)
@@ -49,14 +50,23 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         If gebruiksrechten exist, you cannot change the indicatieGebruiksrechten
         anymore.
         """
-        gebruiksrechten = GebruiksrechtenFactory.create()
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObjectFactory.create()
+            eio_url = reverse(eio)
+            gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
+        else:
+            gebruiksrechten = GebruiksrechtenFactory.create()
+
         url = reverse(
             "enkelvoudiginformatieobject-detail",
-            kwargs={"uuid": gebruiksrechten.informatieobject.latest_version.uuid},
+            kwargs={"uuid": gebruiksrechten.get_informatieobject().uuid},
         )
 
+        # Locking the EnkelvoudigInformatieObject before attempting to change it
+        lock = self.client.post(f"{url}/lock").data["lock"]
+
         for invalid_value in (None, False):
-            data = {"indicatieGebruiksrecht": invalid_value}
+            data = {"indicatieGebruiksrecht": invalid_value, "lock": lock}
             response = self.client.patch(url, data)
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -78,9 +88,15 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "missing-gebruiksrechten")
 
     def test_delete_gebruiksrechten(self):
-        gebruiksrechten = GebruiksrechtenFactory.create()
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObjectFactory.create()
+            eio_url = reverse(eio)
+            gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
+        else:
+            gebruiksrechten = GebruiksrechtenFactory.create()
+
         url = reverse(gebruiksrechten)
-        eio_url = reverse(gebruiksrechten.informatieobject.latest_version)
+        eio_url = reverse(gebruiksrechten.get_informatieobject())
 
         eio_data = self.client.get(eio_url).json()
         self.assertTrue(eio_data["indicatieGebruiksrecht"])
@@ -94,7 +110,14 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(eio_data["indicatieGebruiksrecht"])
 
     def test_validate_unknown_query_params(self):
-        GebruiksrechtenFactory.create_batch(2)
+        if settings.CMIS_ENABLED:
+            for i in range(2):
+                eio = EnkelvoudigInformatieObjectFactory.create()
+                eio_url = reverse(eio)
+                GebruiksrechtenCMISFactory(informatieobject=eio_url)
+        else:
+            GebruiksrechtenFactory.create_batch(2)
+
         url = reverse(Gebruiksrechten)
 
         response = self.client.get(url, {"someparam": "somevalue"})

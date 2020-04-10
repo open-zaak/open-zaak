@@ -12,7 +12,7 @@ from vng_api_common.utils import get_uuid_from_path
 from django.conf import settings
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -24,7 +24,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @freeze_time("2019-01-01")
-class AuditTrailTests(JWTAuthMixin, APITestCase):
+class AuditTrailTests(JWTAuthMixin, APITestCaseCMIS):
 
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)

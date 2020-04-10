@@ -1,17 +1,20 @@
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import JWTAuthMixin
+from django.conf import settings
+
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..models import Gebruiksrechten, ObjectInformatieObject
 from .factories import (
+    EnkelvoudigInformatieObjectFactory,
     EnkelvoudigInformatieObjectCanonicalFactory,
     GebruiksrechtenFactory,
+    GebruiksrechtenCMISFactory,
 )
 
 
-class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
+class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):
@@ -25,10 +28,16 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
-            latest_version__informatieobjecttype__concept=False
-        )
-        GebruiksrechtenFactory.create(informatieobject=eio)
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObjectFactory.create()
+            eio_url = reverse(eio)
+            GebruiksrechtenCMISFactory(informatieobject=eio_url)
+        else:
+            eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
+                latest_version__informatieobjecttype__concept=False
+            )
+            GebruiksrechtenFactory.create(informatieobject=eio)
+
         response = self.client.get(
             reverse(Gebruiksrechten), {"informatieobject": "https://google.com"}
         )
@@ -37,7 +46,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data, [])
 
 
-class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):
