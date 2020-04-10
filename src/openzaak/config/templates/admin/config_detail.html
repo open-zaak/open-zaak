@@ -82,10 +82,10 @@
                 <thead>
                     <tr>
                         <th scope="col">{% trans "Service" %}</th>
-                        <th scope="col">{% trans "Type" %}</th>
-                        <th scope="col">{% trans "Url" %}</th>
-                        <th scope="col">{% trans "NLX" %}</th>
-                        <th scope="col">{% trans "OAS" %}</th>
+                        <th scope="col">{% trans "API Type" %}</th>
+                        <th scope="col">{% trans "URL" %}</th>
+                        <th scope="col">{% trans "NLX outway URL" %}</th>
+                        <th scope="col">{% trans "OAS URL" %}</th>
                         <th scope="col">{% trans "Authorization" %}</th>
                     </tr>
                 </thead>
@@ -96,13 +96,13 @@
                         <td>{{ service.get_api_type_display }}</td>
                         <td>{{ service.api_root|urlize }}</td>
                         <td>{{ service.nlx|urlize }}</td>
-                        <td>{{ service.oas|urlize }}</td>
+                        <td><a href="{{ service.oas|urlize }}" target="_blank">{% trans "Externe link" %}</td>
                         <td>
-                            [{{ service.get_auth_type_display}}]
+                            <strong>{{ service.get_auth_type_display}}</strong>
                             {% if service.auth_type == 'zgw' %}
-                                Client ID: {{ service.client_id }} Secret: {{ service.secret }}
+                                Client ID: <i>{{ service.client_id }}</i> Secret: <i>*****</i>
                             {% elif service.auth_type == 'api_key' %}
-                                Header: {{ service.header_key }} Value: {{ service.header_value }}
+                                Header: <i>{{ service.header_key }}={{ service.header_value }}</i>
                             {% endif %}
                         </td>
                     </tr>
