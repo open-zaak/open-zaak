@@ -30,18 +30,7 @@
 
         </fieldset>
 
-        <div class="submit-row">
-            {% if request.GET.wizard == 'true' %}
-                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
-                <input type="button" value="{% trans 'Overslaan' %}" onclick="location.href='{% url 'config:config-internal' %}';">
-                <input type="submit" name="next" value="{% trans "Volgende" %}" />
-            {%  else %}
-                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
-            {% endif %}
-            <p class="deletelink-box">
-                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
-            </p>
-        </div>
+        {% include 'admin/includes/wizard_buttons.html' %}
 
     </form>
 </div>

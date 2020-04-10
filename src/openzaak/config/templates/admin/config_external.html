@@ -44,18 +44,7 @@
 {#             empty on purpose - react managed #}
         </div>
 
-
-        <div class="submit-row">
-            {% if request.GET.wizard == 'true' %}
-                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
-                <input type="button" value="{% trans 'Vorige' %}" onclick="location.href='{% url 'config:config-internal' %}';">
-            {%  else %}
-                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
-            {% endif %}
-            <p class="deletelink-box">
-                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
-            </p>
-        </div>
+        {% include 'admin/includes/wizard_buttons.html' %}
     </form>
 
 </div>

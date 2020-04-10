@@ -1,0 +1,20 @@
+{% load i18n  %}
+
+<div class="submit-row">
+    {% if request.GET.wizard == 'true' %}
+
+        <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
+        {% if previous_url %}<input type="button" value="{% trans 'Vorige' %}" onclick="location.href='{{ previous_url }}?wizard=true';">{% endif %}
+        {% if next_url %}
+            <input type="button" value="{% trans 'Overslaan' %}" onclick="location.href='{{ next_url }}?wizard=true';">
+            <input type="submit" name="next" value="{% trans "Volgende" %}" />
+        {% endif %}
+
+    {%  else %}
+        <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
+    {% endif %}
+
+    <p class="deletelink-box">
+        <a class="deletelink" href="{{ submit_url }}">{% trans "Annuleren" %}</a>
+    </p>
+</div>

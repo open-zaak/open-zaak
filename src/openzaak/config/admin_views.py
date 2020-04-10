@@ -74,7 +74,32 @@ class ConfigDetailView(AdminRequiredMixin, TemplateView):
         return context
 
 
-class NLXConfigView(AdminRequiredMixin, UpdateView):
+class WizardMixin:
+    next_url = None
+    previous_url = None
+    submit_url = None
+
+    def get_success_url(self):
+        if "next" in self.request.POST and self.next_url:
+            self.success_url = f"{self.next_url}?wizard=true"
+        else:
+            self.success_url = self.submit_url
+
+        return super().get_success_url()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "next_url": self.next_url,
+                "previous_url": self.previous_url,
+                "submit_url": self.submit_url,
+            }
+        )
+        return context
+
+
+class NLXConfigView(WizardMixin, AdminRequiredMixin, UpdateView):
     model = NLXConfig
     form_class = NLXConfigForm
     template_name = "admin/config_nlx.html"
@@ -85,31 +110,26 @@ class NLXConfigView(AdminRequiredMixin, UpdateView):
         nlx = NLXConfig.get_solo()
         return nlx
 
-    def get_success_url(self):
-        if "next" in self.request.POST:
-            self.success_url = f"{self.next_url}?wizard=true"
-        else:
-            self.success_url = self.submit_url
 
-        return super().get_success_url()
-
-
-class InternalConfigView(AdminRequiredMixin, ModelFormSetView):
+class InternalConfigView(WizardMixin, AdminRequiredMixin, ModelFormSetView):
     model = InternalService
     queryset = InternalService.objects.order_by("api_type")
     form_class = InternalServiceForm
     factory_kwargs = {"extra": 0}
     template_name = "admin/config_internal.html"
-    success_url = reverse_lazy("config:config-detail")
+    next_url = reverse_lazy("config:config-external")
+    previous_url = reverse_lazy("config:config-nlx")
+    submit_url = reverse_lazy("config:config-detail")
 
 
-class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
+class ExternalConfigView(WizardMixin, AdminRequiredMixin, ModelFormSetView):
     model = Service
     queryset = Service.objects.order_by("api_type", "api_root")
     form_class = ExternalServiceForm
     factory_kwargs = {"extra": 0}
     template_name = "admin/config_external.html"
-    success_url = reverse_lazy("config:config-detail")
+    previous_url = reverse_lazy("config:config-internal")
+    submit_url = reverse_lazy("config:config-detail")
 
     def get_context_data(self, **kwargs):
         formset = kwargs.pop("formset", self.get_formset())
@@ -132,5 +152,4 @@ class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
                 },
             }
         )
-
         return context
