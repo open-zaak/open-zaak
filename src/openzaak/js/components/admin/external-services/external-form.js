@@ -1,5 +1,5 @@
 import React, {useContext, useState} from "react";
-import {TextInput, CheckboxInput, CheckBoxInputBS} from "../../../forms/inputs";
+import {TextInput, CheckBoxInputLabel} from "../../../forms/inputs";
 import {API_TYPES} from "../../../forms/constants";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
@@ -48,6 +48,7 @@ function ExternalForm(props) {
                     name={name_prefix('label')}
                     initial={values.label}
                     errors={errors.label}
+                    classes="external-form__field--wide"
                 />
             </td>
 
@@ -58,6 +59,7 @@ function ExternalForm(props) {
                     name={name_prefix('api_type')}
                     initialValue={values.api_type}
                     errors={errors.api_type}
+                    classes="external-form__field--wide"
                 />
             </td>
 
@@ -68,12 +70,13 @@ function ExternalForm(props) {
                     name={name_prefix('api_root')}
                     initial={values.api_root}
                     errors={errors.api_root}
+                    classes="external-form__field--wide"
                 />
             </td>
 
             {/*nlx*/}
             <td className='external-form__field'>
-                <CheckBoxInputBS
+                <CheckBoxInputLabel
                     name={name_prefix('is_nlx')}
                     value={'is_nlx'}
                     label={'Use NLX?'}
@@ -95,6 +98,7 @@ function ExternalForm(props) {
                                 id={id_prefix('nlx_organizations')}
                                 initialValue={selectedOrganization}
                                 onChange={(organization) => setSelectedOrganization(organization)}
+                                classes="external-form__field--wide"
                             />
                         </div>
 
@@ -109,6 +113,7 @@ function ExternalForm(props) {
                                 id={id_prefix('nlx')}
                                 initialValue={selectedService}
                                 onChange={(service) => setSelectedService(service)}
+                                classes="external-form__field--wide"
                             />
                         </div>
                     </>
@@ -123,6 +128,7 @@ function ExternalForm(props) {
                     name={name_prefix('oas')}
                     initial={values.oas}
                     errors={errors.oas}
+                    classes="external-form__field--wide"
                 />
             </td>
 

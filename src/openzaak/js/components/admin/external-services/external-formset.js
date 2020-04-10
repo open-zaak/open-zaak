@@ -1,7 +1,22 @@
 import React, {useState} from "react";
 import {ExternalForm} from "./external-form";
-import {ManagementForm} from "../../forms/management-form";
-import {AddRow} from "../../forms/add-row";
+import {ManagementForm} from "../../../forms/management-form";
+import PropTypes from "prop-types";
+
+const AddRow = ({ className="add-row", onAdd, children }) => {
+    return (
+        <tr className={className}>
+            <td colSpan="4">
+                <a href="#" onClick={onAdd}>{ children }</a>
+            </td>
+        </tr>
+    );
+};
+
+AddRow.propTypes = {
+    className: PropTypes.string,
+    onAdd: PropTypes.func.isRequired,
+};
 
 
 function ExternalFormSet(props) {
@@ -22,7 +37,7 @@ function ExternalFormSet(props) {
     const allForms = forms.concat(extraForms);
 
     return (
-        <>
+        <div className="external-formset">
             <ManagementForm
                 prefix={config.prefix}
                 initial_forms={config.INITIAL_FORMS}
@@ -33,21 +48,23 @@ function ExternalFormSet(props) {
 
             <fieldset className="module">
                 <table className="table">
+                    <caption>External services</caption>
                     <thead>
                         <tr>
                             <th className='external-form__hidden'></th>
-                            <th>Label</th>
-                            <th>API type</th>
-                            <th>Url</th>
-                            <th>NLX</th>
-                            <th>Documentation</th>
-                            <th>Authorization</th>
+                            <th className='external-formset__col'>Label</th>
+                            <th className='external-formset__col'>API type</th>
+                            <th className='external-formset__col--wide'>Url</th>
+                            <th className='external-formset__col'>NLX</th>
+                            <th className='external-formset__col--wide'>Documentation</th>
+                            <th className='external-formset__col'>Authorization</th>
                         </tr>
                     </thead>
                     <tbody>
                     { allForms }
+
                     <AddRow
-                        className="autorisatie-formset__add-row"
+                        className="external-formset__add-row"
                         onAdd={(event) => {
                             event.preventDefault();
                             setExtra(extra + 1);
@@ -57,7 +74,8 @@ function ExternalFormSet(props) {
                     </tbody>
                 </table>
             </fieldset>
-        </>
+
+        </div>
     );
 
 }

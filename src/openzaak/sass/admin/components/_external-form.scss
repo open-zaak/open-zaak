@@ -9,6 +9,10 @@ $color-row-background: #f9f9f9 !default;
     padding: 20px 10px;
   }
 
+  &__field--wide {
+    width: 95%;
+  }
+
   &__hidden {
     display: none;
   }
@@ -20,4 +24,5 @@ $color-row-background: #f9f9f9 !default;
   &__group {
     padding-top: 10px;
   }
+
 }

@@ -29,6 +29,7 @@ function AuthType(props) {
                     name={name_prefix(name)}
                     initial={value}
                     errors={errors}
+                    classes="external-form__field--wide"
                 />
             </div>
         )
@@ -42,6 +43,7 @@ function AuthType(props) {
                 initialValue={values.auth_type}
                 errors={errors.auth_type}
                 onChange={(auth_type) => setSelectedAuthType(auth_type)}
+                classes="external-form__field--wide"
             />
 
             {(selectedAuthType === 'zgw') ?
