@@ -1,0 +1,23 @@
+$color-row-background: #f9f9f9 !default;
+
+.external-form {
+  &#{&}--odd {
+    background: $color-row-background;
+  }
+
+  &__field {
+    padding: 20px 10px;
+  }
+
+  &__hidden {
+    display: none;
+  }
+
+  &__label {
+    display: block;
+  }
+
+  &__group {
+    padding-top: 10px;
+  }
+}

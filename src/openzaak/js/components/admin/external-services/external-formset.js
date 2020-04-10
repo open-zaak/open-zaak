@@ -31,25 +31,32 @@ function ExternalFormSet(props) {
                 max_num_forms={config.MAX_NUM_FORMS}
             />
 
-            <div className="form-group row text-center">
-                <div className="col"><strong>Label</strong></div>
-                <div className="col"><strong>API type</strong></div>
-                <div className="col"><strong>Url</strong></div>
-                <div className="col"><strong>NLX</strong></div>
-                <div className="col"><strong>Documentation</strong></div>
-                <div className="col"><strong>Authorization</strong></div>
-            </div>
-
-            { allForms }
-
-            <AddRow
-                className="autorisatie-formset__add-row"
-                onAdd={(event) => {
-                    event.preventDefault();
-                    setExtra(extra + 1);
-                }}>
-                Add Service
-            </AddRow>
+            <fieldset className="module">
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th className='external-form__hidden'></th>
+                            <th>Label</th>
+                            <th>API type</th>
+                            <th>Url</th>
+                            <th>NLX</th>
+                            <th>Documentation</th>
+                            <th>Authorization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    { allForms }
+                    <AddRow
+                        className="autorisatie-formset__add-row"
+                        onAdd={(event) => {
+                            event.preventDefault();
+                            setExtra(extra + 1);
+                        }}>
+                        Add Service
+                    </AddRow>
+                    </tbody>
+                </table>
+            </fieldset>
         </>
     );
 

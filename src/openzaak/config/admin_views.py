@@ -109,7 +109,7 @@ class ExternalConfigView(AdminRequiredMixin, ModelFormSetView):
     form_class = ExternalServiceForm
     factory_kwargs = {"extra": 0}
     template_name = "admin/config_external.html"
-    success_url = reverse_lazy("config-detail")
+    success_url = reverse_lazy("config:config-detail")
 
     def get_context_data(self, **kwargs):
         formset = kwargs.pop("formset", self.get_formset())

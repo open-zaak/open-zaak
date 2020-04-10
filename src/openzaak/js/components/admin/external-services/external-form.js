@@ -1,6 +1,6 @@
 import React, {useContext, useState} from "react";
-import {TextInput, CheckboxInput, CheckBoxInputBS} from "../../forms/inputs";
-import {API_TYPES} from "../../forms/constants";
+import {TextInput, CheckboxInput, CheckBoxInputBS} from "../../../forms/inputs";
+import {API_TYPES} from "../../../forms/constants";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
 import {AuthType} from "./auth-type";
@@ -33,45 +33,46 @@ function ExternalForm(props) {
         ? Object.keys(services).map((service) => [service, services[service].service_name])
         : [];
 
+    const isEven = (index % 2) === 0;
+
     return (
-        <div className='form-group row'>
-             <input type="hidden" name={name_prefix('id')} defaultValue={ values.id } />
+        <tr className={`form-row external-form external-form--${isEven ? 'even' : 'odd'}`}>
+            <td className='external-form__hidden'>
+                <input type="hidden" name={name_prefix('id')} defaultValue={ values.id } />
+             </td>
+
             {/*label*/}
-            <div className='form-group col'>
+            <td className='external-form__field'>
                 <TextInput
                     id={id_prefix('label')}
                     name={name_prefix('label')}
                     initial={values.label}
-                    classes='form-control'
                     errors={errors.label}
                 />
-            </div>
+            </td>
 
             {/*api_type*/}
-            <div className='form-group col'>
+            <td className='external-form__field'>
                 <SelectInput
                     choices={API_TYPES}
                     name={name_prefix('api_type')}
                     initialValue={values.api_type}
-                    classes='form-control'
                     errors={errors.api_type}
                 />
-            </div>
+            </td>
 
             {/*api_root*/}
-            <div className='form-group col'>
+            <td className='external-form__field'>
                 <TextInput
                     id={id_prefix('api_root')}
                     name={name_prefix('api_root')}
                     initial={values.api_root}
-                    classes='form-control'
                     errors={errors.api_root}
                 />
-            </div>
+            </td>
 
             {/*nlx*/}
-            <div className='form-group col'>
-                <div className='pt-1'>
+            <td className='external-form__field'>
                 <CheckBoxInputBS
                     name={name_prefix('is_nlx')}
                     value={'is_nlx'}
@@ -80,56 +81,57 @@ function ExternalForm(props) {
                     checked={isNlx}
                     onChange={() => toggleNlx(!isNlx)}
                 />
-                </div>
 
                 {(isNlx) ? (
-                    <div className='form-group pt-3'>
-                        <label
-                            htmlFor={id_prefix('nlx_organizations')}
-                            className='col-form-label col-form-label-sm'
-                        >Organization:</label>
-                        <SelectInput
-                            choices={organizationChoices}
-                            name={name_prefix('nlx_organizations')}
-                            id={id_prefix('nlx_organizations')}
-                            initialValue={selectedOrganization}
-                            classes='form-control form-control-sm'
-                            onChange={(organization) => setSelectedOrganization(organization)}
-                        />
+                    <>
+                        <div className='external-form__group'>
+                            <label
+                                htmlFor={id_prefix('nlx_organizations')}
+                                className='external-form__label'
+                            >Organization:</label>
+                            <SelectInput
+                                choices={organizationChoices}
+                                name={name_prefix('nlx_organizations')}
+                                id={id_prefix('nlx_organizations')}
+                                initialValue={selectedOrganization}
+                                onChange={(organization) => setSelectedOrganization(organization)}
+                            />
+                        </div>
 
-                        <label
-                            htmlFor={id_prefix('nlx')}
-                            className='col-form-label col-form-label-sm'
-                        >Service:</label>
-                        <SelectInput
-                            choices={serviceChoices}
-                            name={name_prefix('nlx')}
-                            id={id_prefix('nlx')}
-                            initialValue={selectedService}
-                            classes='form-control form-control-sm'
-                            onChange={(service) => setSelectedService(service)}
-                        />
-
-                    </div>
+                        <div className='external-form__group'>
+                            <label
+                                htmlFor={id_prefix('nlx')}
+                                className='external-form__label'
+                            >Service:</label>
+                            <SelectInput
+                                choices={serviceChoices}
+                                name={name_prefix('nlx')}
+                                id={id_prefix('nlx')}
+                                initialValue={selectedService}
+                                onChange={(service) => setSelectedService(service)}
+                            />
+                        </div>
+                    </>
                     ): null
                 }
-            </div>
+            </td>
 
             {/*OAS*/}
-            <div className='form-group col'>
+            <td className='external-form__field'>
                 <TextInput
                     id={id_prefix('oas')}
                     name={name_prefix('oas')}
                     initial={values.oas}
-                    classes='form-control'
                     errors={errors.oas}
                 />
-            </div>
+            </td>
 
             {/*auth_type*/}
-            <AuthType index={index} data={data} />
+            <td className='external-form__field'>
+                <AuthType index={index} data={data} />
+            </td>
 
-        </div>
+        </tr>
     );
 }
 

@@ -1,6 +1,6 @@
 import React, {useContext, useState} from "react";
 import {SelectInput} from "./select";
-import {TextInput} from "../../forms/inputs";
+import {TextInput} from "../../../forms/inputs";
 import {ConstantsContext} from "./context";
 
 
@@ -19,38 +19,33 @@ function AuthType(props) {
         const { name, value, label, errors} = props;
 
         return (
-            <div className='form-group row'>
+            <div className='external-form__group'>
                 <label
                     htmlFor={id_prefix(name)}
-                    className='col-form-label col-form-label-sm col'
-                >{label}:
-                </label>
-                <div className='col'>
-                    <TextInput
-                        id={id_prefix(name)}
-                        name={name_prefix(name)}
-                        initial={value}
-                        classes='form-control form-control-sm'
-                        errors={errors}
-                    />
-                </div>
+                    className='external-form__label'
+                >{label}: </label>
+                <TextInput
+                    id={id_prefix(name)}
+                    name={name_prefix(name)}
+                    initial={value}
+                    errors={errors}
+                />
             </div>
         )
     };
 
     return (
-        <div className='form-group col'>
+        <>
             <SelectInput
                 choices={authTypeChoices}
                 name={name_prefix('auth_type')}
                 initialValue={values.auth_type}
-                classes='form-control'
                 errors={errors.auth_type}
                 onChange={(auth_type) => setSelectedAuthType(auth_type)}
             />
 
             {(selectedAuthType === 'zgw') ?
-                (<div className='pt-3'>
+                (<>
                     <AuthField
                         name='client_id'
                         value={values.client_id}
@@ -75,10 +70,10 @@ function AuthType(props) {
                         label='User representation'
                         errors={errors.user_representation}
                     />
-                </div>) : null}
+                </>) : null}
 
             {(selectedAuthType === 'api_key') ?
-                (<div className='pt-3'>
+                (<div>
                     <AuthField
                         name='header_key'
                         value={values.header_key}
@@ -93,7 +88,7 @@ function AuthType(props) {
                     />
                 </div>) : null}
 
-        </div>
+        </>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {ErrorList} from "../../forms/error-list";
+import {ErrorList} from "../../../forms/error-list";
 
 
 const SelectInput = (props) => {
