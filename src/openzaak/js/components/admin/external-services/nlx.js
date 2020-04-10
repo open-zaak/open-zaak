@@ -19,18 +19,21 @@ function Nlx(props) {
     const id_prefix = (field) => `id_form-${index}-${field}`;
     const name_prefix = (field) => `form-${index}-${field}`;
 
-    // nlx calculation
     const { nlxOutway, nlxChoices } = useContext(ConstantsContext);
     const [ isNlx, toggleNlx ] = useState(Boolean(values.nlx));
-    const initialOrganization = getInitialOrganization(values.nlx, nlxOutway);
-    const [ selectedOrganization, setSelectedOrganization ] = useState(initialOrganization);
-    const [ selectedService, setSelectedService ] = useState(values.nlx);
+    const isNlxDisabled = !nlxOutway;
+
+    // calculations for organization select
     const organizationChoices = Object.keys(nlxChoices).map((value) => [value, value]);
+    const initialOrganization = getInitialOrganization(values.nlx, nlxOutway);
+    const [ selectedOrganization, setSelectedOrganization ] = useState(initialOrganization || organizationChoices[0][0]);
+
+    // calculations for service select
+    const [ selectedService, setSelectedService ] = useState(values.nlx);
     const services = nlxChoices[selectedOrganization];
     const serviceChoices = selectedOrganization
         ? Object.keys(services).map((service) => [service, services[service].service_name])
         : [];
-    const isNlxDisabled = !nlxOutway;
 
     return (
         <div title={isNlxDisabled ? "NLW outway must be set up" : null}>
