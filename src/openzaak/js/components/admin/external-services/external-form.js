@@ -32,6 +32,7 @@ function ExternalForm(props) {
     const serviceChoices = selectedOrganization
         ? Object.keys(services).map((service) => [service, services[service].service_name])
         : [];
+    const isNlxDisabled = !nlxOutway;
 
     const isEven = (index % 2) === 0;
 
@@ -76,6 +77,7 @@ function ExternalForm(props) {
 
             {/*nlx*/}
             <td className='external-form__field'>
+                <div title={isNlxDisabled ? "NLW outway must be set up" : null}>
                 <CheckBoxInputLabel
                     name={name_prefix('is_nlx')}
                     value={'is_nlx'}
@@ -83,9 +85,11 @@ function ExternalForm(props) {
                     id={id_prefix('is_nlx')}
                     checked={isNlx}
                     onChange={() => toggleNlx(!isNlx)}
+                    disabled={isNlxDisabled}
                 />
+                </div>
 
-                {(isNlx) ? (
+                {(isNlx && !isNlxDisabled) ? (
                     <>
                         <div className='external-form__group'>
                             <label
