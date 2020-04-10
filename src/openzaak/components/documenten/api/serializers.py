@@ -2,9 +2,8 @@
 Serializers of the Document Registratie Component REST API
 """
 import binascii
-import uuid
 from base64 import b64decode
-from drc_cmis.backend import CMISDRCStorageBackend
+from drc_cmis.client import CMISDRCClient
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -142,7 +141,10 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     """
 
     def get_url(self, obj, view_name, request, format):
-        obj_latest_version = obj.latest_version
+        if settings.CMIS_ENABLED:
+            obj_latest_version = self.parent.instance.get_informatieobject()
+        else:
+            obj_latest_version = obj.latest_version
         return super().get_url(obj_latest_version, view_name, request, format)
 
     def get_object(self, view_name, view_args, view_kwargs):
@@ -272,7 +274,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if (
             self.instance
             and not indicatie
-            and self.instance.canonical.gebruiksrechten_set.exists()
+            and self.instance.has_gebruiksrechten()
         ):
             raise serializers.ValidationError(
                 _(
@@ -284,7 +286,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # create: not self.instance or update: usage_rights exists
         elif indicatie and (
             not self.instance
-            or not self.instance.canonical.gebruiksrechten_set.exists()
+            or not self.instance.has_gebruiksrechten()
         ):
             raise serializers.ValidationError(
                 _(
@@ -480,6 +482,26 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
+
+    def create(self, validated_data):
+        if settings.CMIS_ENABLED:
+            # The URL of the EnkelvoudigInformatieObject is needed rather than the canonical object
+            if validated_data.get('informatieobject') is not None:
+                validated_data['informatieobject'] = self.initial_data['informatieobject']
+        return super().create(validated_data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # With Alfresco, the URL of the Gebruiksrechten and EnkelvoudigInformatieObject
+        # cannot be retrieved using the latest_version property of the canonical object
+        if settings.CMIS_ENABLED:
+            path = reverse(
+                'gebruiksrechten-detail',
+                kwargs={'version': 1, 'uuid': instance.uuid}
+            )
+            ret['url'] = f"{settings.HOST_URL}{path}"
+            ret['informatieobject'] = self.instance.get_informatieobject_url()
+        return ret
 
 
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):

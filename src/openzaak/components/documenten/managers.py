@@ -1,8 +1,6 @@
 import logging
 from decimal import Decimal, InvalidOperation
-from privates.storages import private_media_storage
 import datetime
-import io
 
 from django.conf import settings
 from django.db.models import manager, fields
@@ -11,7 +9,7 @@ from django.utils import timezone
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 
-from .query import InformatieobjectQuerySet
+from .query import InformatieobjectQuerySet, InformatieobjectRelatedQuerySet
 from .utils import CMISStorageFile
 from ..catalogi.models.informatieobjecttype import InformatieObjectType
 
@@ -26,6 +24,27 @@ def convert_timestamp_to_django_datetime(json_date):
         timestamp = int(str(json_date)[:10])
         django_datetime = timezone.make_aware(datetime.datetime.fromtimestamp(timestamp))
         return django_datetime
+
+
+def format_fields(obj, obj_fields):
+    """
+    Ensuring the charfields are not null and dates are in the correct format
+    """
+    for field in obj_fields:
+        if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
+            if getattr(obj, field.name) is None:
+                setattr(obj, field.name, '')
+        elif isinstance(field, fields.DateTimeField):
+            date_value = getattr(obj, field.name)
+            if isinstance(date_value, int):
+                setattr(obj, field.name, convert_timestamp_to_django_datetime(date_value))
+        elif isinstance(field, fields.DateField):
+            date_value = getattr(obj, field.name)
+            if isinstance(date_value, int):
+                converted_datetime = convert_timestamp_to_django_datetime(date_value)
+                setattr(obj, field.name, converted_datetime.date())
+
+    return obj
 
 
 def cmis_doc_to_django_model(cmis_doc):
@@ -44,19 +63,7 @@ def cmis_doc_to_django_model(cmis_doc):
         int_versie = 0
 
     # Ensuring the charfields are not null and dates are in the correct format
-    for field in EnkelvoudigInformatieObject._meta.get_fields():
-        if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
-            if getattr(cmis_doc, field.name) is None:
-                setattr(cmis_doc, field.name, '')
-        elif isinstance(field, fields.DateTimeField):
-            date_value = getattr(cmis_doc, field.name)
-            if isinstance(date_value, int):
-                setattr(cmis_doc, field.name, convert_timestamp_to_django_datetime(date_value))
-        elif isinstance(field, fields.DateField):
-            date_value = getattr(cmis_doc, field.name)
-            if isinstance(date_value, int):
-                converted_datetime = convert_timestamp_to_django_datetime(date_value)
-                setattr(cmis_doc, field.name, converted_datetime.date())
+    cmis_doc = format_fields(cmis_doc, EnkelvoudigInformatieObject._meta.get_fields())
 
     # Setting up a local file with the content of the cmis document
     uuid_with_version = cmis_doc.versionSeriesId + ";" + cmis_doc.versie
@@ -95,6 +102,25 @@ def cmis_doc_to_django_model(cmis_doc):
     return document
 
 
+def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
+
+    from .models import EnkelvoudigInformatieObjectCanonical, Gebruiksrechten
+
+    canonical = EnkelvoudigInformatieObjectCanonical()
+
+    cmis_gebruiksrechten = format_fields(cmis_gebruiksrechten, Gebruiksrechten._meta.get_fields())
+
+    django_gebruiksrechten = Gebruiksrechten(
+        uuid=cmis_gebruiksrechten.versionSeriesId,
+        informatieobject=canonical,
+        omschrijving_voorwaarden=cmis_gebruiksrechten.omschrijving_voorwaarden,
+        startdatum=cmis_gebruiksrechten.startdatum,
+        einddatum=cmis_gebruiksrechten.einddatum,
+    )
+
+    return django_gebruiksrechten
+
+
 def get_informatie_object_url(informatie_obj_type):
     """
     Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
@@ -111,6 +137,14 @@ class AdapterManager(manager.Manager):
     def get_queryset(self):
         if settings.CMIS_ENABLED:
             return CMISQuerySet(model=self.model, using=self._db, hints=self._hints)
+        else:
+            return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
+
+
+class GebruiksrechtenAdapterManager(manager.Manager):
+    def get_queryset(self):
+        if settings.CMIS_ENABLED:
+            return GebruiksrechtenQuerySet(model=self.model, using=self._db, hints=self._hints)
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
 
@@ -315,9 +349,57 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
             # Should return the number of rows that have been modified
             return number_docs_to_update
-    #
-    # def get_or_create(self, defaults=None, **kwargs):
-    #     pass
-    #
-    # def update_or_create(self, defaults=None, **kwargs):
-    #     pass
+
+
+class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
+
+    _client = None
+    has_been_filtered = False
+
+    def __len__(self):
+        # Overwritten to prevent prefetching of related objects
+        return len(self._result_cache)
+
+    @property
+    def get_cmis_client(self):
+        if not self._client:
+            self._client = CMISDRCClient()
+
+        return self._client
+
+    def _chain(self, **kwargs):
+        obj = super()._chain(**kwargs)
+        # In the super, when _clone() is performed on the queryset,
+        # an SQL query is run to retrieve the objects, but with
+        # alfresco it doesn't work, so the cache is re-added manually
+        obj._result_cache = self._result_cache
+        return obj
+
+    def create(self, **kwargs):
+        from .models import EnkelvoudigInformatieObject
+
+        cmis_gebruiksrechten = self.get_cmis_client.create_cmis_gebruiksrechten(
+            data=kwargs
+        )
+
+        # Get EnkelvoudigInformatieObject uuid from URL
+        uuid = kwargs.get('informatieobject').split("/")[-1]
+        modified_data = {"indicatie_gebruiksrecht": True}
+        EnkelvoudigInformatieObject.objects.filter(uuid=uuid).update(**modified_data)
+
+        django_gebruiksrechten = cmis_gebruiksrechten_to_django(cmis_gebruiksrechten)
+
+        return django_gebruiksrechten
+
+    def filter(self, *args, **kwargs):
+
+        self._result_cache = []
+
+        cmis_gebruiksrechten = self.get_cmis_client.get_cmis_gebruiksrechten(kwargs)
+
+        for a_cmis_gebruiksrechten in cmis_gebruiksrechten['results']:
+            self._result_cache.append(cmis_gebruiksrechten_to_django(a_cmis_gebruiksrechten))
+
+        self.has_been_filtered = True
+
+        return self

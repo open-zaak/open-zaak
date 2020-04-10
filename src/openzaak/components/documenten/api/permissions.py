@@ -1,5 +1,7 @@
 from openzaak.utils.permissions import AuthRequired
 
+from django.conf import settings
+
 
 class InformationObjectAuthRequired(AuthRequired):
     """
@@ -13,4 +15,7 @@ class InformationObjectAuthRequired(AuthRequired):
     )
 
     def get_main_object(self, obj, permission_main_object):
-        return getattr(obj, permission_main_object).latest_version
+        if settings.CMIS_ENABLED:
+            return obj.get_informatieobject()
+        else:
+            return getattr(obj, permission_main_object).latest_version

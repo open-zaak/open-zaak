@@ -3,6 +3,7 @@ import uuid as _uuid
 import dataclasses
 from drc_cmis.client import exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
+from drc_cmis.client import CMISDRCClient
 
 from django.db import models, transaction
 from django.db.models import Q
@@ -18,11 +19,12 @@ from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
+from rest_framework.reverse import reverse
 
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .managers import AdapterManager
+from .managers import AdapterManager, GebruiksrechtenAdapterManager
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -237,6 +239,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
 
     @property
     def latest_version(self):
+        if settings.CMIS_ENABLED:
+            raise RecursionError("Using latest_version() with CMIS enabled causes an infinite loop.")
         # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
@@ -427,6 +431,15 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             else:
                 return False
 
+    def has_gebruiksrechten(self):
+        if settings.CMIS_ENABLED:
+            eio_url = reverse(
+                "enkelvoudiginformatieobject-detail",
+                kwargs={'version': "1", 'uuid': self.uuid})
+            return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
+        else:
+            return self.canonical.gebruiksrechten_set.exists()
+
     locked = property(_get_locked, _set_locked)
 
 
@@ -464,7 +477,7 @@ class Gebruiksrechten(models.Model):
         db_index=True,
     )
 
-    objects = InformatieobjectRelatedQuerySet.as_manager()
+    objects = GebruiksrechtenAdapterManager()
 
     class Meta:
         verbose_name = _("gebruiksrecht informatieobject")
@@ -475,25 +488,65 @@ class Gebruiksrechten(models.Model):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        informatieobject_versie = self.informatieobject.latest_version
-        # ensure the indication is set properly on the IO
-        if not informatieobject_versie.indicatie_gebruiksrecht:
-            informatieobject_versie.indicatie_gebruiksrecht = True
-            informatieobject_versie.save()
-        super().save(*args, **kwargs)
+        if not settings.CMIS_ENABLED:
+            informatieobject_versie = self.informatieobject.latest_version
+            # ensure the indication is set properly on the IO
+            if not informatieobject_versie.indicatie_gebruiksrecht:
+                informatieobject_versie.indicatie_gebruiksrecht = True
+                informatieobject_versie.save()
+            super().save(*args, **kwargs)
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        informatieobject = self.informatieobject
-        other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(pk=self.pk)
-        if not other_gebruiksrechten.exists():
-            informatieobject_versie = self.informatieobject.latest_version
-            informatieobject_versie.indicatie_gebruiksrecht = None
-            informatieobject_versie.save()
+        if not settings.CMIS_ENABLED:
+            super().delete(*args, **kwargs)
+            informatieobject = self.informatieobject
+            other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(pk=self.pk)
+            if not other_gebruiksrechten.exists():
+                informatieobject_versie = self.informatieobject.latest_version
+                informatieobject_versie.indicatie_gebruiksrecht = None
+                informatieobject_versie.save()
+        else:
+            # Check if there are other Gebruiksrechten for the EnkelvoudigInformatieObject in alfresco
+            eio_url = self.get_informatieobject_url()
+            if Gebruiksrechten.objects.filter(informatieobject=eio_url).count() <= 1:
+                eio = self.get_informatieobject()
+                eio.indicatie_gebruiksrecht = None
+                eio.save()
+            client = CMISDRCClient()
+            client.delete_cmis_geruiksrechten(self.uuid)
+
+    def get_informatieobject_url(self):
+        """
+        Retrieves the EnkelvoudigInformatieObject url from Alfresco
+        """
+        client = CMISDRCClient()
+        cmis_gebruiksrechten = client.get_a_cmis_gebruiksrechten(self.uuid)
+        return cmis_gebruiksrechten.informatieobject
+
+    def get_informatieobject(self):
+        """
+        Retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
+        """
+        if settings.CMIS_ENABLED:
+            client = CMISDRCClient()
+            # Get the uuid of the object and retrieve it from alfresco
+            cmis_gebruiksrechten = client.get_a_cmis_gebruiksrechten(self.uuid)
+            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
+            eio_uuid = cmis_gebruiksrechten.informatieobject.split("/")[-1]
+            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        else:
+            return self.informatieobject.latest_version
 
     def unique_representation(self):
-        informatieobject = self.informatieobject.latest_version
+        if settings.CMIS_ENABLED:
+            try:
+                informatieobject = self.get_informatieobject()
+            # This happens when the audittrail accesses unique_representation() after deleting the gebruiksrechten
+            except exceptions.DocumentDoesNotExistError:
+                return f"{self.uuid}"
+        else:
+            informatieobject = self.informatieobject.latest_version
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
