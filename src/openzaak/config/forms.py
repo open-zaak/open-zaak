@@ -53,7 +53,11 @@ class InternalServiceForm(ModelForm):
 def get_nlx_choices() -> Dict[str, dict]:
     choices = {}
     nlx_outway = NLXConfig.get_solo().outway
-    services = get_services()
+    try:
+        services = get_services()
+    except Exception:
+        return {}
+
     for service in services:
         url = f"{nlx_outway}{service['organization_name']}/{service['service_name']}/"
         service_data = {
