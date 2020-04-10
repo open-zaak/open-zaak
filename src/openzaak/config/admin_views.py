@@ -126,7 +126,7 @@ class ExternalConfigView(WizardMixin, AdminRequiredMixin, ModelFormSetView):
     model = Service
     queryset = Service.objects.order_by("api_type", "api_root")
     form_class = ExternalServiceForm
-    factory_kwargs = {"extra": 0}
+    factory_kwargs = {"extra": 0, "can_delete": True}
     template_name = "admin/config_external.html"
     previous_url = reverse_lazy("config:config-internal")
     submit_url = reverse_lazy("config:config-detail")

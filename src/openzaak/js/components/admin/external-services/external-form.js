@@ -1,5 +1,5 @@
 import React from "react";
-import {TextInput} from "../../../forms/inputs";
+import {CheckBoxInputLabel, TextInput} from "../../../forms/inputs";
 import {API_TYPES} from "../../../forms/constants";
 import {SelectInput} from "./select";
 import {AuthType} from "./auth-type";
@@ -73,6 +73,16 @@ function ExternalForm(props) {
             <td className='external-form__field'>
                 <AuthType index={index} data={data} />
             </td>
+
+            {/*delete*/}
+            <td className='external-form__field'>
+                <CheckBoxInputLabel
+                    name={name_prefix('DELETE')}
+                    value={'can_delete'}
+                    id={id_prefix('DELETE')}
+                />
+            </td>
+
 
         </tr>
     );

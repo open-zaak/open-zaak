@@ -6,12 +6,16 @@
       font-size: 12px;
   }
 
-  &__col--wide {
+  &__col--big {
       width: 25em;
   }
 
    &__col {
       width: 18em;
+  }
+
+  &__col--small {
+      width: 8em;
   }
 
 }

@@ -54,10 +54,11 @@ function ExternalFormSet(props) {
                             <th className='external-form__hidden'></th>
                             <th className='external-formset__col'>Label</th>
                             <th className='external-formset__col'>API type</th>
-                            <th className='external-formset__col--wide'>Url</th>
+                            <th className='external-formset__col--big'>Url</th>
                             <th className='external-formset__col'>NLX</th>
-                            <th className='external-formset__col--wide'>Documentation</th>
+                            <th className='external-formset__col--big'>Documentation</th>
                             <th className='external-formset__col'>Authorization</th>
+                            <th className='external-formset__col--small'>Verwijderen</th>
                         </tr>
                     </thead>
                     <tbody>
