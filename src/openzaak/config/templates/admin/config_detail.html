@@ -18,7 +18,7 @@
         <!-- NLX config -->
         <section class="module">
             <table class="table">
-                <caption>NLX</caption>
+                <caption>NLX outway configuration</caption>
                 <thead>
                     <tr>
                         <th scope="col">Parameter</th>
@@ -71,6 +71,7 @@
                 </tbody>
             </table>
             <div class="submit-row">
+                <input type="button" value="{% trans 'Show NLX inway configuration' %}" onclick="location.href='{% url 'config:nlx-inway' %}';">
                 <input type="button" value="{% trans 'Wijzigen' %}" onclick="location.href='{% url 'config:config-internal' %}';">
             </div>
         </section>
