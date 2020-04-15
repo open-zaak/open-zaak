@@ -1,14 +1,16 @@
+from vng_api_common.tests import reverse
+
+from django.conf import settings
 from django.test import tag
 
-from rest_framework.test import APITestCase
-
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.utils.tests import APITestCaseCMIS
 
 from ...models import ObjectInformatieObject
-from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
+from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,GebruiksrechtenCMISFactory
 
 
-class UniqueRepresentationTestCase(APITestCase):
+class UniqueRepresentationTestCase(APITestCaseCMIS):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
             bronorganisatie=730924658,
@@ -21,11 +23,22 @@ class UniqueRepresentationTestCase(APITestCase):
         )
 
     def test_gebruiksrechten(self):
-        gebruiksrechten = GebruiksrechtenFactory(
-            informatieobject__latest_version__bronorganisatie=730924658,
-            informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
-            omschrijving_voorwaarden="some conditions",
-        )
+        if settings.CMIS_ENABLED:
+            eio = EnkelvoudigInformatieObjectFactory.create(
+                bronorganisatie=730924658,
+                identificatie="5d940d52-ff5e-4b18-a769-977af9130c04"
+            )
+            eio_url = reverse(eio)
+            gebruiksrechten = GebruiksrechtenCMISFactory(
+                informatieobject=eio_url,
+                omschrijving_voorwaarden="some conditions"
+            )
+        else:
+            gebruiksrechten = GebruiksrechtenFactory(
+                informatieobject__latest_version__bronorganisatie=730924658,
+                informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+                omschrijving_voorwaarden="some conditions",
+            )
 
         self.assertEqual(
             gebruiksrechten.unique_representation(),
