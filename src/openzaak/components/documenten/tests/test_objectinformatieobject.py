@@ -11,6 +11,8 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 
+from django.conf import settings
+
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
@@ -21,9 +23,11 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import get_zaak_response
+from openzaak.utils.tests import APITestCaseCMIS
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
+from .utils import get_eio_response
 
 
 @tag("oio")
@@ -71,13 +75,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         ObjectInformatieObject.objects.get()
 
         besluit_url = reverse(besluit)
-        eio_url = reverse(eio)
+        eio_path = reverse(eio)
 
         response = self.client.post(
             self.list_url,
             {
                 "object": f"http://testserver{besluit_url}",
-                "informatieobject": f"http://testserver{eio_url}",
+                "informatieobject": f"http://testserver{eio_path}",
                 "objectType": "besluit",
             },
         )
@@ -289,7 +293,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class OIOreateExternalURLsTests(JWTAuthMixin, APITestCase):
+class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(ObjectInformatieObject)
 

@@ -126,7 +126,10 @@ def get_informatie_object_url(informatie_obj_type):
     Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
     informatieobjecttype).
     """
-    if informatie_obj_type._meta.model_name == "virtualinformatieobjecttype":
+    # Case in which the informatie_object_type is already a url
+    if isinstance(informatie_obj_type, str):
+        return informatie_obj_type
+    elif informatie_obj_type._meta.model_name == "virtualinformatieobjecttype":
         return informatie_obj_type._initial_data['url']
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()

@@ -6,19 +6,18 @@ from django.test import override_settings, tag
 
 from privates.test import temp_private_root
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
 
 from ..constants import OndertekeningSoorten, Statussen
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 
     def assertGegevensGroepRequired(
@@ -204,7 +203,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
+class InformatieObjectStatusTests(JWTAuthMixin, APITestCaseCMIS):
 
     url = reverse_lazy("enkelvoudiginformatieobject-list")
     heeft_alle_autorisaties = True
@@ -278,7 +277,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
 
 
 @tag("oio")
-class FilterValidationTests(JWTAuthMixin, APITestCase):
+class FilterValidationTests(JWTAuthMixin, APITestCaseCMIS):
     """
     Test that incorrect filter usage results in HTTP 400.
     """
