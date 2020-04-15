@@ -1,10 +1,12 @@
 import logging
 from decimal import Decimal, InvalidOperation
 import datetime
+from vng_api_common.utils import generate_unique_identification
 
 from django.conf import settings
 from django.db.models import manager, fields
 from django.utils import timezone
+from django.forms.models import model_to_dict
 
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
@@ -224,6 +226,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
             )
 
         django_document = cmis_doc_to_django_model(new_cmis_document)
+
+        #TODO needed to fix test src/openzaak/components/documenten/tests/models/test_human_readable_identification.py
+        # but first filters on regex need to be implemented in alfresco
+        # if not django_document.identificatie:
+        #     django_document.identificatie = generate_unique_identification(django_document, "creatiedatum")
+        #     model_data = model_to_dict(django_document)
+        #     self.filter(uuid=django_document.uuid).update(**model_data)
         return django_document
 
     def filter(self, *args, **kwargs):

@@ -1,11 +1,11 @@
 from datetime import date
 
-from django.test import TestCase
+from openzaak.utils.tests import APITestCaseCMIS
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-class EIOTests(TestCase):
+class EIOTests(APITestCaseCMIS):
     def test_default_human_readable(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             identificatie="", creatiedatum=date(2019, 7, 1)
