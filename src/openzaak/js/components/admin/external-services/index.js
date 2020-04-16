@@ -1,14 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import { jsonScriptToVar } from '../../../utils';
 import {ConstantsContext} from "./context";
 import {ExternalFormSet} from "./external-formset";
-
-
-const jsonScriptToVar = (id) => {
-    const node = document.getElementById(id);
-    return JSON.parse(node.text);
-};
 
 
 const mount = () => {

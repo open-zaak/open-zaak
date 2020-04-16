@@ -1,3 +1,4 @@
+import logging
 import socket
 from typing import Dict
 from urllib.parse import urlparse
@@ -5,11 +6,14 @@ from urllib.parse import urlparse
 from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+import requests
 from zgw_consumers.models import Service
 
 from openzaak.nlx.api import get_services
 
 from .models import InternalService, NLXConfig
+
+logger = logging.getLogger(__name__)
 
 
 class NLXConfigForm(ModelForm):
@@ -55,7 +59,8 @@ def get_nlx_choices() -> Dict[str, dict]:
     nlx_outway = NLXConfig.get_solo().outway
     try:
         services = get_services()
-    except Exception:
+    except requests.HTTPError:
+        logger.warning("Failed fetching the NLX services", exc_info=True)
         return {}
 
     for service in services:
