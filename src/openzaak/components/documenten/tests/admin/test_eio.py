@@ -6,7 +6,6 @@ from webtest import Upload
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 
-from ...models import EnkelvoudigInformatieObject
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
