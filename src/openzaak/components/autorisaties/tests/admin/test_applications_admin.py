@@ -43,7 +43,7 @@ class ApplicationsTests(WebTest):
         self.assertEqual(credential.secret, "bar")
 
     def test_delete_applicatie_cascade_inline_credentials(self):
-        jwt = JWTSecret.objects.create(identifier="testid", secret="bla")
+        JWTSecret.objects.create(identifier="testid", secret="bla")
         applicatie = ApplicatieFactory.create(client_ids=["testid"])
 
         url = reverse("admin:authorizations_applicatie_delete", args=(applicatie.pk,))
