@@ -1,8 +1,9 @@
 import logging
 from decimal import Decimal, InvalidOperation
 import datetime
-from vng_api_common.utils import generate_unique_identification
+from vng_api_common.tests import reverse
 
+from django_loose_fk.virtual_models import ProxyMixin
 from django.conf import settings
 from django.db.models import manager, fields
 from django.utils import timezone
@@ -11,7 +12,11 @@ from django.forms.models import model_to_dict
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 
-from .query import InformatieobjectQuerySet, InformatieobjectRelatedQuerySet
+from .query import (
+    InformatieobjectQuerySet,
+    InformatieobjectRelatedQuerySet,
+    ObjectInformatieObjectQuerySet,
+)
 from .utils import CMISStorageFile
 from ..catalogi.models.informatieobjecttype import InformatieObjectType
 
@@ -123,7 +128,24 @@ def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
     return django_gebruiksrechten
 
 
-def get_informatie_object_url(informatie_obj_type):
+def cmis_oio_to_django(cmis_oio):
+
+    from .models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
+
+    canonical = EnkelvoudigInformatieObjectCanonical()
+
+    django_oio = ObjectInformatieObject(
+        uuid=cmis_oio.versionSeriesId,
+        informatieobject=canonical,
+        zaak=cmis_oio.zaak_url,
+        besluit=cmis_oio.besluit_url,
+        object_type=cmis_oio.related_object_type,
+    )
+
+    return django_oio
+
+
+def get_object_url(informatie_obj_type):
     """
     Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
     informatieobjecttype).
@@ -131,7 +153,7 @@ def get_informatie_object_url(informatie_obj_type):
     # Case in which the informatie_object_type is already a url
     if isinstance(informatie_obj_type, str):
         return informatie_obj_type
-    elif informatie_obj_type._meta.model_name == "virtualinformatieobjecttype":
+    elif isinstance(informatie_obj_type, ProxyMixin):
         return informatie_obj_type._initial_data['url']
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
@@ -152,6 +174,20 @@ class GebruiksrechtenAdapterManager(manager.Manager):
             return GebruiksrechtenQuerySet(model=self.model, using=self._db, hints=self._hints)
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
+
+
+class ObjectInformatieObjectAdapterManager(manager.Manager):
+    def get_queryset(self):
+        if settings.CMIS_ENABLED:
+            return ObjectInformatieObjectCMISQuerySet(model=self.model, using=self._db, hints=self._hints)
+        else:
+            return ObjectInformatieObjectQuerySet(model=self.model, using=self._db, hints=self._hints)
+
+    def create_from(self, relation):
+        return self.get_queryset().create_from(relation)
+
+    def delete_for(self, relation):
+        return self.get_queryset().delete_for(relation)
 
 
 class DjangoQuerySet(InformatieobjectQuerySet):
@@ -205,7 +241,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def create(self, **kwargs):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
-        kwargs['informatieobjecttype'] = get_informatie_object_url(kwargs.get('informatieobjecttype'))
+        kwargs['informatieobjecttype'] = get_object_url(kwargs.get('informatieobjecttype'))
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
         kwargs['begin_registratie'] = timezone.now()
@@ -411,6 +447,87 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
         for a_cmis_gebruiksrechten in cmis_gebruiksrechten['results']:
             self._result_cache.append(cmis_gebruiksrechten_to_django(a_cmis_gebruiksrechten))
+
+        self.has_been_filtered = True
+
+        return self
+
+
+class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
+
+    _client = None
+    has_been_filtered = False
+
+    @property
+    def get_cmis_client(self):
+        if not self._client:
+            self._client = CMISDRCClient()
+
+        return self._client
+
+    def __len__(self):
+        # Overwritten to prevent prefetching of related objects
+        return len(self._result_cache)
+
+    def _fetch_all(self):
+        # Overwritten to prevent prefetching of related objects
+        self._result_cache = []
+        cmis_oio = self.get_cmis_client.get_all_cmis_oio()
+        for a_cmis_oio in cmis_oio['results']:
+            self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
+
+    def _chain(self, **kwargs):
+        obj = super()._chain(**kwargs)
+        # In the super, when _clone() is performed on the queryset,
+        # an SQL query is run to retrieve the objects, but with
+        # alfresco it doesn't work, so the cache is re-added manually
+        obj._result_cache = self._result_cache
+        return obj
+
+    def create(self, **kwargs):
+        cmis_oio = self.get_cmis_client.create_cmis_oio(
+            data=kwargs
+        )
+
+        django_oio = cmis_oio_to_django(cmis_oio)
+        return django_oio
+
+    def create_from(self, relation):
+        object_type = self.RELATIONS[type(relation)]
+        relation_object = getattr(relation, object_type)
+        data = {
+            "enkelvoudiginformatieobject": relation._informatieobject_url,
+            "related_object_type": f"{object_type}",
+            f"{object_type}_url": f"{settings.HOST_URL}{reverse(relation_object)}",
+        }
+        return self.create(**data)
+
+    def delete_for(self, relation):
+        object_type = self.RELATIONS[type(relation)]
+        relation_object = getattr(relation, object_type)
+        filters = {
+            "informatieobject": relation._informatieobject_url,
+            "object_type": f"{object_type}",
+            f"object": relation_object,
+        }
+        obj = self.get(**filters)
+        return obj.delete()
+
+    def filter(self, *args, **kwargs):
+
+        self._result_cache = []
+
+        filters = {}
+        #FIXME write a conversion between cmis and django names
+        if kwargs.get("informatieobject"):
+            filters['enkelvoudiginformatieobject'] = kwargs.get("informatieobject")
+        if kwargs.get('object_type') and kwargs.get('object'):
+            filters[f"{kwargs.get('object_type')}_url"] = f"{settings.HOST_URL}{reverse(kwargs.get('object'))}"
+
+        cmis_oio = self.get_cmis_client.get_cmis_oio(filters)
+
+        for a_cmis_oio in cmis_oio['results']:
+            self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
 
         self.has_been_filtered = True
 

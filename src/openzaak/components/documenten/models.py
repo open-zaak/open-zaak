@@ -24,7 +24,7 @@ from rest_framework.reverse import reverse
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .managers import AdapterManager, GebruiksrechtenAdapterManager
+from .managers import AdapterManager, GebruiksrechtenAdapterManager, ObjectInformatieObjectAdapterManager
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -583,7 +583,7 @@ class ObjectInformatieObject(models.Model):
         fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
     )
 
-    objects = ObjectInformatieObjectQuerySet.as_manager()
+    objects = ObjectInformatieObjectAdapterManager()
 
     class Meta:
         verbose_name = _("objectinformatieobject")
@@ -637,3 +637,34 @@ class ObjectInformatieObject(models.Model):
     def unique_representation(self):
         io_id = self.object.identificatie
         return f"({self.informatieobject.latest_version.unique_representation()}) - {io_id}"
+
+    def save(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            super().delete(*args, **kwargs)
+        else:
+            client = CMISDRCClient()
+            client.delete_cmis_oio(self.uuid)
+
+    def get_informatieobject(self):
+        """
+        For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
+        """
+        if settings.CMIS_ENABLED:
+            eio_url = self.get_informatieobject_url()
+            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
+            eio_uuid = eio_url.split("/")[-1]
+            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        else:
+            return self.informatieobject.latest_version
+
+    def get_informatieobject_url(self):
+        """
+        Retrieves the EnkelvoudigInformatieObject url from Alfresco
+        """
+        client = CMISDRCClient()
+        cmis_oio = client.get_a_cmis_oio(self.uuid)
+        return cmis_oio.enkelvoudiginformatieobject

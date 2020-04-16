@@ -560,12 +560,25 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
+        if settings.CMIS_ENABLED:
+            # res contains the canonical object instead of the document url, but if only the
+            # canonical object is given, the document cannot be retrieved from Alfresco
+            res['informatieobject'] = data['informatieobject']
         return res
 
     def to_representation(self, instance):
         object_type = instance.object_type
         self.set_object_properties(object_type)
-        return super().to_representation(instance)
+        ret = super().to_representation(instance)
+        if settings.CMIS_ENABLED:
+            # Objects without a public key will have 'None' as the URL, so it is added manually
+            path = reverse(
+                'objectinformatieobject-detail',
+                kwargs={'version': 1, 'uuid': instance.uuid}
+            )
+            ret['url'] = f"{settings.HOST_URL}{path}"
+            ret['informatieobject'] = self.instance.get_informatieobject_url()
+        return ret
 
     def create(self, validated_data):
         object_type = validated_data["object_type"]
