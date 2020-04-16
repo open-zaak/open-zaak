@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import set_script_prefix
 
 from vng_api_common.management.commands import generate_swagger
 
@@ -38,6 +39,9 @@ class Command(generate_swagger.Command):
 
         # Setting must exist for vng-api-common, so monkeypatch it in
         settings.API_VERSION = _version
+
+        if settings.SUBPATH:
+            set_script_prefix(settings.SUBPATH)
 
         if not component:
             super().handle(
