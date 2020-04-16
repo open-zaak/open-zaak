@@ -2,6 +2,7 @@ from django.urls import path
 
 from .admin_views import (
     ConfigDetailView,
+    ExternalConfigView,
     InternalConfigView,
     NLXConfigView,
     NLXInwayView,
@@ -14,4 +15,5 @@ urlpatterns = [
     path(r"detail", ConfigDetailView.as_view(), name="config-detail"),
     path(r"nlx", NLXConfigView.as_view(), name="config-nlx"),
     path(r"internal", InternalConfigView.as_view(), name="config-internal"),
+    path(r"external", ExternalConfigView.as_view(), name="config-external"),
 ]

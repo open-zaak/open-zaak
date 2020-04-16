@@ -16,7 +16,7 @@
 
 {% block content %}
 <h1>{% trans 'Service configuratie: Open Zaak' %}</h1>
-{% if request.GET.wizard == 'true' %}<h3>Step 2 of 2</h3>{% endif %}
+{% if request.GET.wizard == 'true' %}<h3>Step 2 of 3</h3>{% endif %}
 
 <div id="content-main">
     <form method="post" enctype="multipart/form-data">
@@ -31,8 +31,8 @@
                 <thead>
                     <tr>
                         <th>Service</th>
-                        <th title="Service activeren en aanbieden in Open Zaak">Activeren?</th>
-                        <th title="Service opnemen in de NLX-inway configuratie">NLX?</th>
+                        <th title="Service activeren en aanbieden in Open Zaak">Activeren</th>
+                        <th title="Service opnemen in de NLX-inway configuratie">Aanbieden via NLX</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,17 +49,7 @@
             </table>
         </fieldset>
 
-        <div class="submit-row">
-            {% if request.GET.wizard == 'true' %}
-                <input class="default" type="submit" name="submit" value="{% trans "Voltooien" %}" />
-                <input type="button" value="{% trans 'Vorige' %}" onclick="location.href='{% url 'config:config-nlx' %}';">
-            {%  else %}
-                <input class="default" type="submit" name="submit" value="{% trans "Opslaan" %}" />
-            {% endif %}
-            <p class="deletelink-box">
-                <a class="deletelink" href="{% url 'config:config-detail' %}">{% trans "Annuleren" %}</a>
-            </p>
-        </div>
+        {% include 'admin/includes/wizard_buttons.html' %}
 
     </form>
 

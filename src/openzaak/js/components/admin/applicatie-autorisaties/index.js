@@ -1,16 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import { jsonScriptToVar } from '../../../utils';
 import { AutorisatieFormSet } from './autorisatie-formset';
-
 import { ConstantsContext, CatalogiContext } from './context';
-
 import { Catalogus } from './data/catalogus';
-
-const jsonScriptToVar = (id) => {
-    const node = document.getElementById(id);
-    return JSON.parse(node.text);
-};
 
 
 const mount = () => {

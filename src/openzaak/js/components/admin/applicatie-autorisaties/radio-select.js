@@ -2,9 +2,9 @@ import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { PrefixContext } from './context';
-import { ErrorList } from './error-list';
-import { RadioInput } from "./inputs";
-import { Choice, Err } from "./types";
+import { ErrorList } from '../../../forms/error-list';
+import { RadioInput } from "../../../forms/inputs";
+import { Choice, Err } from "../../../forms/types";
 
 
 const RadioSelect = (props) => {

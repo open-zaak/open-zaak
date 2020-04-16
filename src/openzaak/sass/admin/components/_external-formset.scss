@@ -1,0 +1,21 @@
+.external-formset {
+
+  &__add-row a {
+      background: url('../../admin/img/icon-addlink.svg') 0 1px no-repeat;
+      padding-left: 16px;
+      font-size: 12px;
+  }
+
+  &__col--big {
+      width: 25em;
+  }
+
+   &__col {
+      width: 18em;
+  }
+
+  &__col--small {
+      width: 8em;
+  }
+
+}

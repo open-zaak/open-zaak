@@ -139,5 +139,16 @@
         "name": "NLX inway",
         "link": "/admin/config/nlx-inway"
     }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 1,
+        "app_group": [
+            "configuration"
+        ],
+        "name": "Service configuration",
+        "link": "/admin/config/detail"
+    }
 }
 ]

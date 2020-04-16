@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static sniplates %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
+{% if request.GET.wizard == 'true' %}
+    &rsaquo; <a href="{% url 'config:config-nlx' %}">{% trans 'NLX' %}</a>
+    &rsaquo; <a href="{% url 'config:config-internal' %}">{% trans 'Open Zaak services' %}</a>
+{% endif %}
+&rsaquo; {% trans 'External services' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Service configuratie: External Services' %}</h1>
+{% if request.GET.wizard == 'true' %}<h3>Step 3 of 3</h3>{% endif %}
+
+<div id="content-main">
+    {{ auth_types|json_script:"auth-type-choices" }}
+    {{ nlx_choices|json_script:"nlx-choices" }}
+    {{ nlx_outway|json_script:"nlx-outway" }}
+    {{ formset_config|json_script:"formset-config" }}
+    {{ formdata|json_script:"formdata" }}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if formset.errors %}
+            <p>{% trans "Please correct the error(s) below." %}</p>
+            {% if formset.non_form_errors %}
+            <ul>
+                {% for error in formset.non_form_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        {% endif %}
+
+        <div id="react-external-services">
+{#             empty on purpose - react managed #}
+        </div>
+
+        {% include 'admin/includes/wizard_buttons.html' %}
+    </form>
+
+</div>
+{% endblock %}
+
+
+{% block extra_scripts %}
+    <script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

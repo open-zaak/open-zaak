@@ -33,7 +33,8 @@ module.exports = {
 
     jsSrc: `${sourcesRoot}js/**/*.js`,
 
-    jsEntryAdmin: `${sourcesRoot}js/admin.js`,
-
     jsDir: `${staticRoot}js/`,
+
+    // Path to the js entry point (source)
+    jsEntry: `${sourcesRoot}js/index.js`,
 };
