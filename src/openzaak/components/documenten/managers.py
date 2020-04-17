@@ -1,15 +1,17 @@
 import datetime
 import logging
 from decimal import Decimal, InvalidOperation
+from typing import Optional
 
 from django.conf import settings
 from django.db.models import fields, manager
-from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.backend import CMISDRCStorageBackend
 from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.client.convert import make_absolute_uri
+from rest_framework.request import Request
 from vng_api_common.tests import reverse
 
 from ..catalogi.models.informatieobjecttype import InformatieObjectType
@@ -71,7 +73,7 @@ def cmis_doc_to_django_model(cmis_doc):
     versie = cmis_doc.versie
     try:
         int_versie = int(Decimal(versie) * 100)
-    except ValueError as e:
+    except ValueError:
         int_versie = 0
     except InvalidOperation:
         int_versie = 0
@@ -152,7 +154,7 @@ def cmis_oio_to_django(cmis_oio):
     return django_oio
 
 
-def get_object_url(informatie_obj_type):
+def get_object_url(informatie_obj_type, request: Optional[Request] = None):
     """
     Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
     informatieobjecttype).
@@ -164,7 +166,7 @@ def get_object_url(informatie_obj_type):
         return informatie_obj_type._initial_data["url"]
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
-        return f"{settings.HOST_URL}{path}"
+        return make_absolute_uri(path, request=request)
 
 
 class AdapterManager(manager.Manager):
@@ -256,7 +258,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
         kwargs["informatieobjecttype"] = get_object_url(
-            kwargs.get("informatieobjecttype")
+            kwargs.get("informatieobjecttype"), request=kwargs.get("_request"),
         )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
@@ -526,7 +528,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         data = {
             "enkelvoudiginformatieobject": relation._informatieobject_url,
             "related_object_type": f"{object_type}",
-            f"{object_type}_url": f"{settings.HOST_URL}{reverse(relation_object)}",
+            f"{object_type}_url": make_absolute_uri(reverse(relation_object)),
         }
         return self.create(**data)
 
@@ -550,9 +552,9 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         if kwargs.get("informatieobject"):
             filters["enkelvoudiginformatieobject"] = kwargs.get("informatieobject")
         if kwargs.get("object_type") and kwargs.get("object"):
-            filters[
-                f"{kwargs.get('object_type')}_url"
-            ] = f"{settings.HOST_URL}{reverse(kwargs.get('object'))}"
+            filters[f"{kwargs.get('object_type')}_url"] = make_absolute_uri(
+                reverse(kwargs.get("object"))
+            )
 
         cmis_oio = self.get_cmis_client.get_cmis_oio(filters)
 

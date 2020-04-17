@@ -387,6 +387,10 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         indexes = [models.Index(fields=["canonical", "-versie"])]
         ordering = ["canonical", "-versie"]
 
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
+        super().__init__(*args, **kwargs)
+
     def _get_locked(self) -> bool:
         if self.pk:
             return bool(self.canonical.lock)

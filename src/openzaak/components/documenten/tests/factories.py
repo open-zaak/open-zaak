@@ -11,12 +11,12 @@ Factory models for the documenten application.
 import datetime
 import uuid
 
+from django.test import RequestFactory
 from django.utils import timezone
 
 import factory
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 
@@ -48,6 +48,14 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
+
+    @classmethod
+    def create(cls, **kwargs):
+        # for DRC-CMIS, we pass in a request object containing the correct host.
+        # This way, we don't have to set up the sites framework for every test (case).
+        # The result is that informatieobjecttype has the correct URL reference in CMIS.
+        kwargs["_request"] = RequestFactory().get("/")
+        return super().create(**kwargs)
 
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
