@@ -11,7 +11,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField
-from drc_cmis.client import CMISDRCClient
+from drc_cmis.client.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -312,6 +312,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
         validated_data["canonical"] = canonical
 
+        # pass the request so possible adapters can use this to build fully qualified
+        # absolute URLs
+        validated_data["_request"] = self.context.get("request")
+
         eio = super().create(validated_data)
         eio.integriteit = integriteit
         eio.ondertekening = ondertekening
@@ -328,7 +332,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 kwargs={"version": "1", "uuid": instance.uuid},
             )
             # Following what is done in drc_cmis/client/convert.py
-            ret["url"] = f"{settings.HOST_URL}{path}"
+            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
         return ret
 
     def update(self, instance, validated_data):
@@ -354,6 +358,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if not settings.CMIS_ENABLED:
             validated_data.pop("lock")
 
+        validated_data["_request"] = self.context.get("request")
         return super().create(validated_data)
 
 
@@ -499,7 +504,7 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             path = reverse(
                 "gebruiksrechten-detail", kwargs={"version": 1, "uuid": instance.uuid}
             )
-            ret["url"] = f"{settings.HOST_URL}{path}"
+            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
             ret["informatieobject"] = self.instance.get_informatieobject_url()
         return ret
 
@@ -576,7 +581,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 "objectinformatieobject-detail",
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
-            ret["url"] = f"{settings.HOST_URL}{path}"
+            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
             if hasattr(instance, "get_informatieobject_url"):
                 ret["informatieobject"] = instance.get_informatieobject_url()
             else:

@@ -1,14 +1,20 @@
 import datetime
 import logging
 from decimal import Decimal, InvalidOperation
+from typing import List, Optional, Tuple
 
 from django.conf import settings
 from django.db.models import fields, manager
+from django.db.models.query import BaseIterable
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.backend import CMISDRCStorageBackend
 from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.client.mapper import mapper
+from drc_cmis.cmis.drc_document import Document
+from rest_framework.request import Request
 from vng_api_common.tests import reverse
 
 from ..besluiten.models import Besluit
@@ -72,7 +78,7 @@ def cmis_doc_to_django_model(cmis_doc):
     versie = cmis_doc.versie
     try:
         int_versie = int(Decimal(versie) * 100)
-    except ValueError as e:
+    except ValueError:
         int_versie = 0
     except InvalidOperation:
         int_versie = 0
@@ -152,20 +158,21 @@ def cmis_oio_to_django(cmis_oio):
 
     return django_oio
 
+def get_object_url(
+    informatie_obj_type: InformatieObjectType, request: Optional[Request] = None
+):
 
-def get_object_url(the_object, object_type=None):
     """
     Retrieves the url for a local or an external object.
     """
     # Case in which the informatie_object_type is already a url
-    if isinstance(the_object, str):
-        return the_object
-    elif isinstance(the_object, ProxyMixin):
-        return the_object._initial_data["url"]
-    elif object_type is not None and isinstance(the_object, object_type):
-        path = reverse(the_object)
-        return f"{settings.HOST_URL}{path}"
-
+    if isinstance(informatie_obj_type, str):
+        return informatie_obj_type
+    elif isinstance(informatie_obj_type, ProxyMixin):
+        return informatie_obj_type._initial_data["url"]
+    elif isinstance(informatie_obj_type, InformatieObjectType):
+        path = informatie_obj_type.get_absolute_api_url()
+        return make_absolute_uri(path, request=request)
 
 class AdapterManager(manager.Manager):
     def get_queryset(self):
@@ -207,6 +214,54 @@ class DjangoQuerySet(InformatieobjectQuerySet):
     pass
 
 
+RHS_FILTER_MAP = {
+    "_informatieobjecttype__in": lambda val: [get_object_url(item) for item in val],
+    "identificatie": lambda val: f"drc:document__identificatie = '{val}'",
+}
+
+LHS_FILTER_MAP = {
+    "_informatieobjecttype__in": "informatieobjecttype__in",
+}
+
+
+class CMISDocumentIterable(BaseIterable):
+
+    table = "drc:document"
+    return_type = Document
+
+    def __iter__(self):
+        queryset = self.queryset
+
+        lhs, rhs = self._normalize_filters(queryset._cmis_query)
+        documents = queryset.cmis_client.query(self.return_type, lhs, rhs)
+        for document in documents:
+            yield cmis_doc_to_django_model(document)
+
+    def _normalize_filters(self, filters: List[Tuple]) -> Tuple[List[str], List[str]]:
+        """
+        Normalize the various flavours of ORM filters.
+
+        Turn dict filters into something that looks like SQL 92 suitable for Alfresco
+        CMIS query. Note that all filters are AND-ed together.
+
+        Ideally, this would be an implementation of the as_sql for a custom database
+        backend, returning lhs and rhs parts.
+        """
+        _lhs = []
+        _rhs = []
+
+        # TODO: make this more declarative
+        for key, value in filters:
+            name = mapper(key, type="document")
+            if name is None:
+                raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
+
+            _rhs.append(value)
+            _lhs.append(f"{name} = '%s'")
+
+        return _lhs, _rhs
+
+
 class CMISQuerySet(InformatieobjectQuerySet):
     """
     Find more information about the drc-cmis adapter on github here.
@@ -217,34 +272,24 @@ class CMISQuerySet(InformatieobjectQuerySet):
     documents = []
     has_been_filtered = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._iterable_class = CMISDocumentIterable
+
+        self._cmis_query = []
+
     @property
-    def get_cmis_client(self):
+    def cmis_client(self):
         if not self._client:
             self._client = CMISDRCClient()
 
         return self._client
 
-    def _chain(self, **kwargs):
-        obj = super()._chain(**kwargs)
-        # In the super, when _clone() is performed on the queryset,
-        # an SQL query is run to retrieve the objects, but with
-        # alfresco it doesn't work, so the cache is re-added manually
-        obj._result_cache = self._result_cache
-        return obj
-
-    def all(self):
-        """
-        Fetch all the needed results. from the cmis backend.
-        """
-        logger.debug(f"MANAGER ALL: get_documents start")
-        cmis_documents = self.get_cmis_client.get_cmis_documents()
-        self.documents = []
-        for cmis_doc in cmis_documents["results"]:
-            self.documents.append(cmis_doc_to_django_model(cmis_doc))
-
-        self._result_cache = self.documents
-        logger.debug(f"CMIS_BACKEND: get_documents successful")
-        return self
+    def _clone(self):
+        clone = super()._clone()
+        clone._cmis_query = self._cmis_query
+        return clone
 
     def iterator(self):
         # loop though the results to return them when requested.
@@ -256,7 +301,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
         kwargs["informatieobjecttype"] = get_object_url(
-            kwargs.get("informatieobjecttype"), InformatieObjectType
+            kwargs.get("informatieobjecttype"), request=kwargs.get("_request"),
         )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
@@ -264,14 +309,14 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         try:
             # Needed because the API calls the create function for an update request
-            new_cmis_document = self.get_cmis_client.update_cmis_document(
+            new_cmis_document = self.cmis_client.update_cmis_document(
                 uuid=kwargs.get("uuid"),
                 lock=kwargs.get("lock"),
                 data=kwargs,
                 content=kwargs.get("inhoud"),
             )
         except exceptions.DocumentDoesNotExistError:
-            new_cmis_document = self.get_cmis_client.create_document(
+            new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
                 data=kwargs,
                 content=kwargs.get("inhoud"),
@@ -289,80 +334,88 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
     def filter(self, *args, **kwargs):
         filters = {}
-        # TODO
+
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
-            new_key = key.split("__")
-            if len(new_key) > 1 and new_key[1] != "exact":
+            key_bits = key.split("__")
+            if len(key_bits) > 1 and key_bits[1] != "exact":
                 raise NotImplementedError(
-                    "Fields lookups other than exact and lte are not implemented yet."
+                    "Fields lookups other than exact are not implemented yet."
                 )
-            filters[new_key[0]] = value
+            filters[key_bits[0]] = value
 
-        self._result_cache = []
+        # keep track of all the filters when chaining
+        self._cmis_query += [tuple(x) for x in filters.items()]
 
-        try:
-            if filters.get("identificatie") is not None:
-                cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get("identificatie"),
-                    via_identification=True,
-                    filters=None,
-                )
-                self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-            elif filters.get("versie") is not None and filters.get("uuid") is not None:
-                cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get("uuid"),
-                    via_identification=False,
-                    filters=None,
-                )
-                all_versions = cmis_doc.get_all_versions()
-                for version_number, cmis_document in all_versions.items():
-                    if version_number == str(filters["versie"]):
-                        self._result_cache.append(
-                            cmis_doc_to_django_model(cmis_document)
-                        )
-            elif (
-                filters.get("registratie_op") is not None
-                and filters.get("uuid") is not None
-            ):
-                cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get("uuid"),
-                    via_identification=False,
-                    filters=None,
-                )
-                all_versions = cmis_doc.get_all_versions()
-                for versie, cmis_document in all_versions.items():
-                    if (
-                        convert_timestamp_to_django_datetime(
-                            cmis_document.begin_registratie
-                        )
-                        <= filters["registratie_op"]
-                    ):
-                        self._result_cache.append(
-                            cmis_doc_to_django_model(cmis_document)
-                        )
-                        break
-            elif filters.get("uuid") is not None:
-                cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get("uuid"),
-                    via_identification=False,
-                    filters=None,
-                )
-                self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-            else:
-                # Filter the alfresco database
-                cmis_documents = self.get_cmis_client.get_cmis_documents(
-                    filters=filters
-                )
-                for cmis_doc in cmis_documents["results"]:
-                    self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-        except exceptions.DocumentDoesNotExistError:
-            pass
+        return super().filter(*args, **kwargs)
 
-        self.documents = self._result_cache.copy()
-        self.has_been_filtered = True
+        # # TODO
 
-        return self
+        # self._result_cache = []
+
+        # try:
+        #     if filters.get("identificatie") is not None:
+        #         client = self.cmis_client
+        #         cmis_doc = client.get_cmis_document(
+        #             identification=filters.get("identificatie"),
+        #             via_identification=True,
+        #             filters=None,
+        #         )
+        #         self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
+        #     elif filters.get("versie") is not None and filters.get("uuid") is not None:
+        #         cmis_doc = self.cmis_client.get_cmis_document(
+        #             identification=filters.get("uuid"),
+        #             via_identification=False,
+        #             filters=None,
+        #         )
+        #         all_versions = cmis_doc.get_all_versions()
+        #         for version_number, cmis_document in all_versions.items():
+        #             if version_number == str(filters["versie"]):
+        #                 self._result_cache.append(
+        #                     cmis_doc_to_django_model(cmis_document)
+        #                 )
+        #     elif (
+        #         filters.get("registratie_op") is not None
+        #         and filters.get("uuid") is not None
+        #     ):
+        #         cmis_doc = self.cmis_client.get_cmis_document(
+        #             identification=filters.get("uuid"),
+        #             via_identification=False,
+        #             filters=None,
+        #         )
+        #         all_versions = cmis_doc.get_all_versions()
+        #         for versie, cmis_document in all_versions.items():
+        #             if (
+        #                 convert_timestamp_to_django_datetime(
+        #                     cmis_document.begin_registratie
+        #                 )
+        #                 <= filters["registratie_op"]
+        #             ):
+        #                 self._result_cache.append(
+        #                     cmis_doc_to_django_model(cmis_document)
+        #                 )
+        #                 break
+        #     elif filters.get("uuid") is not None:
+        #         cmis_doc = self.cmis_client.get_cmis_document(
+        #             identification=filters.get("uuid"),
+        #             via_identification=False,
+        #             filters=None,
+        #         )
+        #         self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
+        #     else:
+        #         # Filter the alfresco database
+        #         cmis_documents = self.cmis_client.get_cmis_documents(
+        #             filters=filters
+        #         )
+        #         for cmis_doc in cmis_documents["results"]:
+        #             self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
+        # except exceptions.DocumentDoesNotExistError:
+        #     pass
+
+        # self.documents = self._result_cache.copy()
+        # self.has_been_filtered = True
+
+        # return self
 
     def get(self, *args, **kwargs):
 
@@ -388,10 +441,10 @@ class CMISQuerySet(InformatieobjectQuerySet):
             try:
                 if settings.CMIS_DELETE_IS_OBLITERATE:
                     # Actually removing the files from Alfresco
-                    self.get_cmis_client.obliterate_document(django_doc.uuid)
+                    self.cmis_client.obliterate_document(django_doc.uuid)
                 else:
                     # Updating all the documents from Alfresco to have 'verwijderd=True'
-                    self.get_cmis_client.delete_cmis_document(django_doc.uuid)
+                    self.cmis_client.delete_cmis_document(django_doc.uuid)
                 number_alfresco_updates += 1
             except exceptions.DocumentConflictException:
                 logger.log(
@@ -437,7 +490,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
         return len(self._result_cache)
 
     @property
-    def get_cmis_client(self):
+    def cmis_client(self):
         if not self._client:
             self._client = CMISDRCClient()
 
@@ -454,9 +507,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
     def create(self, **kwargs):
         from .models import EnkelvoudigInformatieObject
 
-        cmis_gebruiksrechten = self.get_cmis_client.create_cmis_gebruiksrechten(
-            data=kwargs
-        )
+        cmis_gebruiksrechten = self.cmis_client.create_cmis_gebruiksrechten(data=kwargs)
 
         # Get EnkelvoudigInformatieObject uuid from URL
         uuid = kwargs.get("informatieobject").split("/")[-1]
@@ -471,7 +522,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
         self._result_cache = []
 
-        cmis_gebruiksrechten = self.get_cmis_client.get_cmis_gebruiksrechten(kwargs)
+        cmis_gebruiksrechten = self.cmis_client.get_cmis_gebruiksrechten(kwargs)
 
         for a_cmis_gebruiksrechten in cmis_gebruiksrechten["results"]:
             self._result_cache.append(
@@ -489,7 +540,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
     has_been_filtered = False
 
     @property
-    def get_cmis_client(self):
+    def cmis_client(self):
         if not self._client:
             self._client = CMISDRCClient()
 
@@ -502,7 +553,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
     def _fetch_all(self):
         # Overwritten to prevent prefetching of related objects
         self._result_cache = []
-        cmis_oio = self.get_cmis_client.get_all_cmis_oio()
+        cmis_oio = self.cmis_client.get_all_cmis_oio()
         for a_cmis_oio in cmis_oio["results"]:
             self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
 
@@ -553,6 +604,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         converted_data = self.convert_django_names_to_alfresco(kwargs)
 
         cmis_oio = self.get_cmis_client.create_cmis_oio(data=converted_data)
+        cmis_oio = self.cmis_client.create_cmis_oio(data=kwargs)
 
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
@@ -563,7 +615,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         data = {
             "informatieobject": relation._informatieobject_url,
             "object_type": f"{object_type}",
-            f"{object_type}": f"{settings.HOST_URL}{reverse(relation_object)}",
+            f"{object_type}": make_absolute_uri(reverse(relation_object)),
         }
         return self.create(**data)
 
@@ -587,7 +639,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         if filters.get('related_object_type'):
             filters.pop('related_object_type')
 
-        cmis_oio = self.get_cmis_client.get_cmis_oio(filters)
+        cmis_oio = self.cmis_client.get_cmis_oio(filters)
 
         for a_cmis_oio in cmis_oio["results"]:
             self._result_cache.append(cmis_oio_to_django(a_cmis_oio))

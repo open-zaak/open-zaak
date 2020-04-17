@@ -82,6 +82,7 @@ class CMISStorage(Storage):
         # Example nodeRef: workspace://SpacesStore/b09fac1f-f295-4b44-a94b-97126edec2f3
         node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
         node_ref = node_ref.split("://")
+        # TODO: configurable!
         host_url = "http://localhost:8082/"
         content_base_url = "alfresco/s/api/node/content/"
         node_ref_url = node_ref[0] + "/" + node_ref[1]
