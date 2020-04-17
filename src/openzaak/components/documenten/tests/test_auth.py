@@ -4,7 +4,6 @@ Guarantee that the proper authorization amchinery is in place.
 from django.test import override_settings, tag
 
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     ComponentTypes,
     ObjectTypes,
@@ -17,7 +16,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
@@ -26,7 +25,7 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactor
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
 
-class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
+class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCaseCMIS):
     def test_cannot_create_io_without_correct_scope(self):
         url = reverse("enkelvoudiginformatieobject-list")
         self.assertForbidden(url, method="post")
@@ -50,7 +49,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get")
 
 
-class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
+class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCaseCMIS):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -149,7 +148,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 4)
 
 
-class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
+class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -231,7 +230,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
 
-class OioReadTests(JWTAuthMixin, APITestCase):
+class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -333,7 +332,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
+class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -444,7 +443,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
+class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
