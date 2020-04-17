@@ -136,7 +136,7 @@ class ProcestermijnAfleidingswijzeValidator:
         selectielijstklasse_url = attrs.get(self.selectielijstklasse_field)
         archiefprocedure = attrs.get(self.archiefprocedure_field)
 
-        if not selectielijstklasse_url:
+        if not selectielijstklasse_url or not archiefprocedure:
             return
 
         selectielijstklasse = fetch_object("resultaat", selectielijstklasse_url)
