@@ -1,17 +1,18 @@
 import datetime
-from rest_framework import status
-from vng_api_common.tests import get_validation_errors, reverse
 
 from django.conf import settings
 
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from rest_framework import status
+from vng_api_common.tests import get_validation_errors, reverse
+
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..models import Gebruiksrechten
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenCMISFactory,
     GebruiksrechtenFactory,
-    GebruiksrechtenCMISFactory
 )
 
 
@@ -20,10 +21,11 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCaseCMIS):
 
     def test_create(self):
         url = reverse("gebruiksrechten-list")
-        eio = EnkelvoudigInformatieObjectFactory.create(creatiedatum=datetime.date(2018, 12, 24))
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            creatiedatum=datetime.date(2018, 12, 24)
+        )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail",
-            kwargs={"uuid": eio.uuid},
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid},
         )
 
         eio_detail = self.client.get(eio_url)

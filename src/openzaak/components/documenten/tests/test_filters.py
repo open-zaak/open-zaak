@@ -1,16 +1,16 @@
+from django.conf import settings
+
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
-from django.conf import settings
-
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..models import Gebruiksrechten, ObjectInformatieObject
 from .factories import (
-    EnkelvoudigInformatieObjectFactory,
     EnkelvoudigInformatieObjectCanonicalFactory,
-    GebruiksrechtenFactory,
+    EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenCMISFactory,
+    GebruiksrechtenFactory,
 )
 
 

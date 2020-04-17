@@ -11,3 +11,15 @@ def mock_nrc_oas_get(m: Mocker) -> None:
     oas_url = "https://notificaties-api.vng.cloud/api/v1/schema/openapi.yaml?v=3"
     with open(NRC_API_SPEC, "rb") as api_spec:
         m.get(oas_url, content=api_spec.read())
+
+
+def mock_service_oas_get(
+    m: Mocker, service: str, url: str = None, oas_url: str = None
+) -> None:
+    file_name = f"{service}.yaml"
+    file = os.path.join(MOCK_FILES_DIR, file_name)
+    if not oas_url:
+        oas_url = f"{url}schema/openapi.yaml?v=3"
+
+    with open(file, "rb") as api_spec:
+        m.get(oas_url, content=api_spec.read())

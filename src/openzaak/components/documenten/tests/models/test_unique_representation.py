@@ -1,13 +1,17 @@
-from vng_api_common.tests import reverse
-
 from django.conf import settings
 from django.test import tag
+
+from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.tests import APITestCaseCMIS
 
 from ...models import ObjectInformatieObject
-from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory,GebruiksrechtenCMISFactory
+from ..factories import (
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenCMISFactory,
+    GebruiksrechtenFactory,
+)
 
 
 class UniqueRepresentationTestCase(APITestCaseCMIS):
@@ -26,12 +30,11 @@ class UniqueRepresentationTestCase(APITestCaseCMIS):
         if settings.CMIS_ENABLED:
             eio = EnkelvoudigInformatieObjectFactory.create(
                 bronorganisatie=730924658,
-                identificatie="5d940d52-ff5e-4b18-a769-977af9130c04"
+                identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
             )
             eio_url = reverse(eio)
             gebruiksrechten = GebruiksrechtenCMISFactory(
-                informatieobject=eio_url,
-                omschrijving_voorwaarden="some conditions"
+                informatieobject=eio_url, omschrijving_voorwaarden="some conditions"
             )
         else:
             gebruiksrechten = GebruiksrechtenFactory(

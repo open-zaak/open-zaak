@@ -2,6 +2,8 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
+from django.conf import settings
+
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,10 +11,8 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
-from django.conf import settings
-
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -59,6 +59,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCaseCMIS):
         # Removes the created documents from alfresco
         if settings.CMIS_ENABLED:
             from drc_cmis.client import CMISDRCClient
+
             client = CMISDRCClient()
             client.delete_cmis_folders_in_base()
         else:
@@ -199,8 +200,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCaseCMIS):
             eio_canonical.save()
 
         informatieobject_response = self.client.patch(
-            informatieobject_url,
-            {"titel": "changed", "lock": eio_canonical.lock},
+            informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)

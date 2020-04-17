@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
     "django_loose_fk",
+    "zgw_consumers",
     "drc_cmis",
     # Project applications.
     "openzaak",
@@ -538,4 +539,3 @@ NLX_DIRECTORY_URLS = {
 
 CMIS_ENABLED = True
 CMIS_DELETE_IS_OBLITERATE = True
-

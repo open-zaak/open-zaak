@@ -1,9 +1,13 @@
+import uuid
+
 from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -13,6 +17,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaak_response,
     get_zaakbesluit_response,
 )
+from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import VervalRedenen
@@ -23,8 +28,20 @@ from .utils import get_operation_url
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
+class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    base = "https://externe.catalogus.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_type=APITypes.zrc,
+            api_root=cls.base,
+            label="external zaken",
+            auth_type=AuthTypes.no_auth,
+        )
 
     def _create_besluit(self, zaak: str) -> Besluit:
         besluittype = BesluitTypeFactory.create(concept=False, zaaktypen=[])
@@ -44,7 +61,7 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         return besluit
 
     def test_create_with_external_zaak(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = BesluitTypeFactory.create(concept=False)
         zaaktype = ZaakTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
@@ -55,8 +72,9 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
-            m.post(f"{zaak}/besluiten", json=zaakbesluit_data)
+            m.post(f"{zaak}/besluiten", json=zaakbesluit_data, status_code=201)
 
             response = self.client.post(
                 url,
@@ -94,10 +112,11 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype.besluittypen.add(besluittype)
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.post(f"{zaak}/besluiten", status_code=404, text="Not Found")
 
@@ -124,22 +143,23 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
     def test_update_external_zaak(self):
-        zaak_old = "https://externe.catalogus.nl/api/v1/zaken/old"
+        zaak_old = f"{self.base}zaken/{uuid.uuid4()}"
         besluit = self._create_besluit(zaak_old)
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
         old_zaakbesluit_url = besluit._zaakbesluit_url
 
         # update zaak in the besluit
-        zaak_new = "https://externe.catalogus.nl/api/v1/zaken/new"
+        zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
         besluit_url = f"http://testserver{reverse(besluit)}"
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
             m.get(zaak_new, json=get_zaak_response(zaak_new, zaaktype_url))
-            m.delete(old_zaakbesluit_url)
-            m.post(f"{zaak_new}/besluiten", json=zaakbesluit_new_data)
+            m.delete(old_zaakbesluit_url, status_code=204)
+            m.post(f"{zaak_new}/besluiten", json=zaakbesluit_new_data, status_code=201)
 
             response = self.client.patch(besluit_url, {"zaak": zaak_new})
 
@@ -167,22 +187,23 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(len(history_delete), 1)
 
     def test_update_external_zaak_fail_delete_zaakbesluit(self):
-        zaak_old = "https://externe.catalogus.nl/api/v1/zaken/old"
+        zaak_old = f"{self.base}zaken/{uuid.uuid4()}"
         besluit = self._create_besluit(zaak_old)
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
         old_zaakbesluit_url = besluit._zaakbesluit_url
 
         # update zaak in the besluit
-        zaak_new = "https://externe.catalogus.nl/api/v1/zaken/new"
+        zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
         besluit_url = f"http://testserver{reverse(besluit)}"
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
             m.get(zaak_new, json=get_zaak_response(zaak_new, zaaktype_url))
             m.delete(old_zaakbesluit_url, status_code=404, text="not found")
-            m.post(f"{zaak_new}/besluiten", json=zaakbesluit_new_data)
+            m.post(f"{zaak_new}/besluiten", json=zaakbesluit_new_data, status_code=201)
 
             response = self.client.patch(besluit_url, {"zaak": zaak_new})
 
@@ -194,7 +215,7 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "pending-relations")
 
     def test_delete_with_external_zaak(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
         besluit_url = f"http://testserver{reverse(besluit)}"
         zaakbesluit_url = besluit._zaakbesluit_url
@@ -202,8 +223,9 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
-            m.delete(zaakbesluit_url)
+            m.delete(zaakbesluit_url, status_code=204)
 
             response = self.client.delete(besluit_url)
 
@@ -220,7 +242,7 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(len(history_delete), 1)
 
     def test_delete_with_external_zaak_fail_delete_zaakbesluit(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
         besluit_url = f"http://testserver{reverse(besluit)}"
         zaakbesluit_url = besluit._zaakbesluit_url
@@ -228,6 +250,7 @@ class BesluitCreateExternalzaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.zrc, self.base)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.delete(zaakbesluit_url, status_code=404, text="Not found")
 

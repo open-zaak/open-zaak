@@ -15,7 +15,10 @@ from vng_api_common.tests import (
     reverse,
     reverse_lazy,
 )
-from zds_client.tests.mocks import mock_client
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
+
+from openzaak.utils.tests import mock_client
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -41,6 +44,17 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     component = ComponentTypes.ztc
 
     list_url = reverse_lazy(ResultaatType)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_root="http://example.com/",
+            api_type=APITypes.orc,
+            auth_type=AuthTypes.no_auth,
+            label="Selectielijst",
+        )
 
     def test_get_list(self):
         ResultaatTypeFactory.create_batch(3, zaaktype__concept=False)
@@ -707,6 +721,17 @@ class ResultaatTypeValidationTests(APITestCase):
             "procestermijn": Procestermijn.ingeschatte_bestaansduur_procesobject,
         },
     }
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_root="http://example.com/",
+            api_type=APITypes.orc,
+            auth_type=AuthTypes.no_auth,
+            label="Selectielijst",
+        )
 
     def _get_selectielijstklasse_url(self, afleidingswijze):
         if afleidingswijze == Afleidingswijze.afgehandeld:

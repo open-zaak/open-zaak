@@ -11,7 +11,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 
 class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCaseCMIS):

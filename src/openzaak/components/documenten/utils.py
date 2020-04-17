@@ -1,11 +1,12 @@
 import io
-from privates.storages import PrivateMediaFileSystemStorage
-from drc_cmis.client import CMISDRCClient
 
 from django.conf import settings
 from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.utils.functional import LazyObject
+
+from drc_cmis.client import CMISDRCClient
+from privates.storages import PrivateMediaFileSystemStorage
 
 
 class CMISStorageFile(File):
@@ -22,7 +23,7 @@ class CMISStorageFile(File):
 
     @property
     def size(self):
-        if not hasattr(self, '_size'):
+        if not hasattr(self, "_size"):
             self._size = self._storage.size(self.name)
         return self._size
 
@@ -57,9 +58,7 @@ class CMISStorage(Storage):
     def _read(self, uuid_version):
         uuid, wanted_version = self._get_uuid_and_version(uuid_version)
         cmis_doc = self._client.get_cmis_document(
-            identification=uuid,
-            via_identification=False,
-            filters=None
+            identification=uuid, via_identification=False, filters=None
         )
 
         cmis_doc = self._get_correct_doc_version(cmis_doc, wanted_version)
@@ -75,15 +74,13 @@ class CMISStorage(Storage):
         uuid, wanted_version = self._get_uuid_and_version(uuid_version)
 
         cmis_doc = self._client.get_cmis_document(
-            identification=uuid,
-            via_identification=False,
-            filters=None
+            identification=uuid, via_identification=False, filters=None
         )
 
         cmis_doc = self._get_correct_doc_version(cmis_doc, wanted_version)
 
         # Example nodeRef: workspace://SpacesStore/b09fac1f-f295-4b44-a94b-97126edec2f3
-        node_ref = cmis_doc.properties['alfcmis:nodeRef']['value']
+        node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
         node_ref = node_ref.split("://")
         host_url = "http://localhost:8082/"
         content_base_url = "alfresco/s/api/node/content/"

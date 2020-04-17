@@ -7,7 +7,8 @@ from django.urls import reverse as django_reverse
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
-from zds_client.tests.mocks import mock_client
+
+from openzaak.utils.tests import mock_client
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
@@ -166,6 +167,56 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 }
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [f"http://testserver{besluittype_url}"],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaaktype = ZaakType.objects.get(zaaktype_omschrijving="some test")
+
+        self.assertEqual(zaaktype.catalogus, self.catalogus)
+        self.assertEqual(zaaktype.besluittypen.get(), besluittype)
+        self.assertEqual(zaaktype.referentieproces_naam, "ReferentieProces 0")
+        self.assertEqual(
+            zaaktype.zaaktypenrelaties.get().gerelateerd_zaaktype,
+            "http://example.com/zaaktype/1",
+        )
+        self.assertEqual(zaaktype.concept, True)
+
+    def test_create_zaaktype_referentieproces_no_link(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0"},
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",

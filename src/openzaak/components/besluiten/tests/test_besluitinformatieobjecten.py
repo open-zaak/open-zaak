@@ -6,6 +6,8 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
@@ -18,6 +20,7 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
     get_oio_response,
 )
+from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Besluit, BesluitInformatieObject
@@ -196,10 +199,21 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(BesluitInformatieObject)
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
 
     def test_create_bio_external_document(self):
-        base = "https://external.documenten.nl/api/v1/"
-        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -214,6 +228,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker(real_http=True) as m:
+                mock_service_oas_get(m, APITypes.drc, self.base)
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -329,6 +344,17 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
+
     def test_besluittype_internal_iotype_internal_fail(self):
         besluit = BesluitFactory.create()
         besluit_url = f"http://openbesluit.nl{reverse(besluit)}"
@@ -363,6 +389,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         besluittype_data["informatieobjecttypen"] = [informatieobjecttype]
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.drc, self.base)
             m.get(besluittype, json=besluittype_data)
             m.get(
                 informatieobjecttype,
@@ -493,11 +520,23 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
+
     def test_destroy_with_external_informatieobject(self):
         oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.drc, self.base)
             m.get(
                 self.document,
                 json=get_eio_response(
@@ -505,7 +544,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
                     informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
                 ),
             )
-            m.delete(oio)
+            m.delete(oio, status_code=204)
 
             bio = BesluitInformatieObjectFactory.create(
                 informatieobject=self.document, _objectinformatieobject_url=oio
@@ -531,6 +570,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker(real_http=True) as m:
+            mock_service_oas_get(m, APITypes.drc, self.base)
             m.get(
                 self.document,
                 json=get_eio_response(

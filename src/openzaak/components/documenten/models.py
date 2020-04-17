@@ -1,39 +1,42 @@
+import dataclasses
 import logging
 import uuid as _uuid
-import dataclasses
-from drc_cmis.client import exceptions
-from drc_cmis.backend import CMISDRCStorageBackend
-from drc_cmis.client import CMISDRCClient
 
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
+from drc_cmis.backend import CMISDRCStorageBackend
+from drc_cmis.client import CMISDRCClient, exceptions
 from privates.fields import PrivateMediaFileField
+from rest_framework.reverse import reverse
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
-from rest_framework.reverse import reverse
 
 from openzaak.utils.mixins import AuditTrailMixin
 
+from ..besluiten.models import BesluitInformatieObject
+from ..zaken.models import ZaakInformatieObject
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
-from .managers import AdapterManager, GebruiksrechtenAdapterManager, ObjectInformatieObjectAdapterManager
+from .managers import (
+    AdapterManager,
+    GebruiksrechtenAdapterManager,
+    ObjectInformatieObjectAdapterManager,
+)
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
-from .validators import validate_status
 from .utils import private_media_storage_cmis
-from ..besluiten.models import BesluitInformatieObject
-from ..zaken.models import ZaakInformatieObject
+from .validators import validate_status
 
 logger = logging.getLogger(__name__)
 
@@ -240,7 +243,9 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
     @property
     def latest_version(self):
         if settings.CMIS_ENABLED:
-            raise RecursionError("Using latest_version() with CMIS enabled causes an infinite loop.")
+            raise RecursionError(
+                "Using latest_version() with CMIS enabled causes an infinite loop."
+            )
         # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
@@ -316,7 +321,9 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         ),
     )
 
-    inhoud = PrivateMediaFileField(upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis)
+    inhoud = PrivateMediaFileField(
+        upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis
+    )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
         max_length=200,
@@ -397,12 +404,16 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             # If the document doesn't exist, create it, otherwise update it
             try:
                 cmis_storage.get_document(uuid=self.uuid)
-                EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(**model_data)
+                EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(
+                    **model_data
+                )
                 # Needed or the current django object will contain the version number and the download url
                 # from before the update and this data is sent back in the response
-                modified_document = EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).first()
-                self.__dict__['versie'] = modified_document.versie
-                self.__dict__['inhoud'] = modified_document.inhoud
+                modified_document = EnkelvoudigInformatieObject.objects.filter(
+                    uuid=self.uuid
+                ).first()
+                self.__dict__["versie"] = modified_document.versie
+                self.__dict__["inhoud"] = modified_document.inhoud
             except exceptions.DocumentDoesNotExistError:
                 EnkelvoudigInformatieObject.objects.create(**model_data)
 
@@ -416,8 +427,12 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     def has_references(self):
         if settings.CMIS_ENABLED:
             if (
-                BesluitInformatieObject.objects.filter(_informatieobject=self.canonical).exists()
-                or ZaakInformatieObject.objects.filter(_informatieobject=self.canonical).exists()
+                BesluitInformatieObject.objects.filter(
+                    _informatieobject=self.canonical
+                ).exists()
+                or ZaakInformatieObject.objects.filter(
+                    _informatieobject=self.canonical
+                ).exists()
             ):
                 return True
             else:
@@ -435,7 +450,8 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         if settings.CMIS_ENABLED:
             eio_url = reverse(
                 "enkelvoudiginformatieobject-detail",
-                kwargs={'version': "1", 'uuid': self.uuid})
+                kwargs={"version": "1", "uuid": self.uuid},
+            )
             return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
         else:
             return self.canonical.gebruiksrechten_set.exists()
@@ -501,7 +517,9 @@ class Gebruiksrechten(models.Model):
         if not settings.CMIS_ENABLED:
             super().delete(*args, **kwargs)
             informatieobject = self.informatieobject
-            other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(pk=self.pk)
+            other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(
+                pk=self.pk
+            )
             if not other_gebruiksrechten.exists():
                 informatieobject_versie = self.informatieobject.latest_version
                 informatieobject_versie.indicatie_gebruiksrecht = None

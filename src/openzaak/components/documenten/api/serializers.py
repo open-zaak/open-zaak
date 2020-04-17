@@ -3,7 +3,6 @@ Serializers of the Document Registratie Component REST API
 """
 import binascii
 from base64 import b64decode
-from drc_cmis.client import CMISDRCClient
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -12,6 +11,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField
+from drc_cmis.client import CMISDRCClient
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -271,11 +271,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         self.fields["status"].help_text += f"\n\n{value_display_mapping}"
 
     def validate_indicatie_gebruiksrecht(self, indicatie):
-        if (
-            self.instance
-            and not indicatie
-            and self.instance.has_gebruiksrechten()
-        ):
+        if self.instance and not indicatie and self.instance.has_gebruiksrechten():
             raise serializers.ValidationError(
                 _(
                     "De indicatie kan niet weggehaald worden of ongespecifieerd "
@@ -285,8 +281,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             )
         # create: not self.instance or update: usage_rights exists
         elif indicatie and (
-            not self.instance
-            or not self.instance.has_gebruiksrechten()
+            not self.instance or not self.instance.has_gebruiksrechten()
         ):
             raise serializers.ValidationError(
                 _(
@@ -327,9 +322,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if settings.CMIS_ENABLED:
             path = reverse(
                 "enkelvoudiginformatieobject-detail",
-                kwargs={'version': "1", 'uuid': instance.uuid})
+                kwargs={"version": "1", "uuid": instance.uuid},
+            )
             # Following what is done in drc_cmis/client/convert.py
-            ret['url'] = f"{settings.HOST_URL}{path}"
+            ret["url"] = f"{settings.HOST_URL}{path}"
         return ret
 
     def update(self, instance, validated_data):
@@ -420,7 +416,7 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
-        self.instance.lock_document(doc_uuid=self.context['uuid'])
+        self.instance.lock_document(doc_uuid=self.context["uuid"])
         self.instance.save()
 
         return self.instance
@@ -453,9 +449,9 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         self.instance.unlock_document(
-            doc_uuid=self.context['uuid'],
-            lock=self.context['request'].data.get('lock'),
-            force_unlock=self.context['force_unlock']
+            doc_uuid=self.context["uuid"],
+            lock=self.context["request"].data.get("lock"),
+            force_unlock=self.context["force_unlock"],
         )
         self.instance.save()
         return self.instance
@@ -486,8 +482,10 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         if settings.CMIS_ENABLED:
             # The URL of the EnkelvoudigInformatieObject is needed rather than the canonical object
-            if validated_data.get('informatieobject') is not None:
-                validated_data['informatieobject'] = self.initial_data['informatieobject']
+            if validated_data.get("informatieobject") is not None:
+                validated_data["informatieobject"] = self.initial_data[
+                    "informatieobject"
+                ]
         return super().create(validated_data)
 
     def to_representation(self, instance):
@@ -496,11 +494,10 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
         # cannot be retrieved using the latest_version property of the canonical object
         if settings.CMIS_ENABLED:
             path = reverse(
-                'gebruiksrechten-detail',
-                kwargs={'version': 1, 'uuid': instance.uuid}
+                "gebruiksrechten-detail", kwargs={"version": 1, "uuid": instance.uuid}
             )
-            ret['url'] = f"{settings.HOST_URL}{path}"
-            ret['informatieobject'] = self.instance.get_informatieobject_url()
+            ret["url"] = f"{settings.HOST_URL}{path}"
+            ret["informatieobject"] = self.instance.get_informatieobject_url()
         return ret
 
 
@@ -563,7 +560,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         if settings.CMIS_ENABLED:
             # res contains the canonical object instead of the document url, but if only the
             # canonical object is given, the document cannot be retrieved from Alfresco
-            res['informatieobject'] = data['informatieobject']
+            res["informatieobject"] = data["informatieobject"]
         return res
 
     def to_representation(self, instance):
@@ -573,11 +570,11 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         if settings.CMIS_ENABLED:
             # Objects without a public key will have 'None' as the URL, so it is added manually
             path = reverse(
-                'objectinformatieobject-detail',
-                kwargs={'version': 1, 'uuid': instance.uuid}
+                "objectinformatieobject-detail",
+                kwargs={"version": 1, "uuid": instance.uuid},
             )
-            ret['url'] = f"{settings.HOST_URL}{path}"
-            ret['informatieobject'] = self.instance.get_informatieobject_url()
+            ret["url"] = f"{settings.HOST_URL}{path}"
+            ret["informatieobject"] = self.instance.get_informatieobject_url()
         return ret
 
     def create(self, validated_data):

@@ -29,12 +29,8 @@
                 "applicatie"
             ],
             [
-                "autorisaties",
-                "externalapicredential"
-            ],
-            [
-                "vng_api_common",
-                "apicredential"
+                "zgw_consumers",
+                "service"
             ]
         ]
     }
@@ -136,12 +132,12 @@
 {
     "model": "admin_index.applink",
     "fields": {
-        "order": 0,
+        "order": 1,
         "app_group": [
             "configuration"
         ],
-        "name": "NLX inway",
-        "link": "/admin/config/nlx-inway"
+        "name": "Service configuration",
+        "link": "/admin/config/detail"
     }
 }
 ]

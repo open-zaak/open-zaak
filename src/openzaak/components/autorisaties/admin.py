@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -17,7 +18,7 @@ from zds_client import ClientAuth
 
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
-from .models import AutorisatieSpec, ExternalAPICredential
+from .models import AutorisatieSpec
 from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
@@ -183,6 +184,12 @@ class ApplicatieAdmin(admin.ModelAdmin):
             )
         return super().response_post_save_change(request, obj)
 
+    @transaction.atomic
+    def delete_model(self, request, obj):
+        secrets = JWTSecret.objects.filter(identifier__in=obj.client_ids)
+        secrets.delete()
+        super().delete_model(request, obj)
+
 
 @admin.register(AutorisatieSpec)
 class AutorisatieSpecAdmin(admin.ModelAdmin):
@@ -192,8 +199,3 @@ class AutorisatieSpecAdmin(admin.ModelAdmin):
     )
     list_filter = ("component", "applicatie")
     search_fields = ("applicatie__uuid",)
-
-
-@admin.register(ExternalAPICredential)
-class ExternalAPICredentialAdmin(admin.ModelAdmin):
-    list_display = ("label", "api_root", "header_key")

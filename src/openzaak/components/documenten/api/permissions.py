@@ -1,6 +1,6 @@
-from openzaak.utils.permissions import AuthRequired
-
 from django.conf import settings
+
+from openzaak.utils.permissions import AuthRequired
 
 
 class InformationObjectAuthRequired(AuthRequired):

@@ -1,16 +1,16 @@
 import uuid
 from base64 import b64encode
 
+from django.conf import settings
+
 from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
-from django.conf import settings
-
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
 from .factories import (
@@ -32,8 +32,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
         assert canonical.lock == ""
 
         lock_url = reverse(
-            "enkelvoudiginformatieobject-lock",
-            kwargs={"uuid": eio.uuid}
+            "enkelvoudiginformatieobject-lock", kwargs={"uuid": eio.uuid}
         )
 
         lock_response = self.client.post(lock_url)
@@ -53,16 +52,14 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
     def test_lock_fail_locked_doc(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         response_1st_lock = self.client.post(url)
         response_2nd_lock = self.client.post(url)
 
         self.assertEqual(
             response_2nd_lock.status_code,
             status.HTTP_400_BAD_REQUEST,
-            response_2nd_lock.data
+            response_2nd_lock.data,
         )
 
         error = get_validation_errors(response_2nd_lock, "nonFieldErrors")
@@ -71,9 +68,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
     def test_update_success(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        lock_url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        lock_url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         response_lock = self.client.post(lock_url)
 
         update_url = get_operation_url(
@@ -81,22 +76,18 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
         )
 
         response_update = self.client.patch(
-            update_url,
-            {"titel": "changed", "lock": response_lock.data['lock']}
+            update_url, {"titel": "changed", "lock": response_lock.data["lock"]}
         )
 
         self.assertEqual(
-            response_update.status_code,
-            status.HTTP_200_OK,
-            response_update.data
+            response_update.status_code, status.HTTP_200_OK, response_update.data
         )
 
         if settings.CMIS_ENABLED:
             unlock_url = reverse(
-                "enkelvoudiginformatieobject-unlock",
-                kwargs={"uuid": eio.uuid}
+                "enkelvoudiginformatieobject-unlock", kwargs={"uuid": eio.uuid}
             )
-            self.client.post(unlock_url, {'lock': response_lock.data['lock']})
+            self.client.post(unlock_url, {"lock": response_lock.data["lock"]})
             eio = EnkelvoudigInformatieObject.objects.get()
         else:
             eio = eio.canonical.latest_version
@@ -111,15 +102,12 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
             "enkelvoudiginformatieobject_update", uuid=eio.uuid
         )
 
-        response_update = self.client.patch(
-            update_url,
-            {"titel": "changed"}
-        )
+        response_update = self.client.patch(update_url, {"titel": "changed"})
 
         self.assertEqual(
             response_update.status_code,
             status.HTTP_400_BAD_REQUEST,
-            response_update.data
+            response_update.data,
         )
 
         error = get_validation_errors(response_update, "nonFieldErrors")
@@ -128,14 +116,10 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
     def test_update_fail_wrong_id(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        lock_url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        lock_url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         self.client.post(lock_url)
 
-        url = get_operation_url(
-            "enkelvoudiginformatieobject_update", uuid=eio.uuid
-        )
+        url = get_operation_url("enkelvoudiginformatieobject_update", uuid=eio.uuid)
 
         response = self.client.patch(url, {"titel": "changed", "lock": 12345})
 
@@ -188,23 +172,21 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype
         )
 
-        lock_url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        lock_url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         unlock_url = get_operation_url(
             "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
         )
 
         lock_response = self.client.post(lock_url)
 
-        unlock_content = {'lock': lock_response.data['lock']}
+        unlock_content = {"lock": lock_response.data["lock"]}
         unlock_response = self.client.post(unlock_url, unlock_content)
         self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertEqual(
             unlock_response.status_code,
             status.HTTP_204_NO_CONTENT,
-            unlock_response.data
+            unlock_response.data,
         )
 
         self.assertEqual(eio.canonical.lock, "")
@@ -214,9 +196,7 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype
         )
 
-        lock_url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        lock_url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         unlock_url = get_operation_url(
             "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
         )
@@ -227,7 +207,7 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(
             unlock_response.status_code,
             status.HTTP_400_BAD_REQUEST,
-            unlock_response.data
+            unlock_response.data,
         )
 
         error = get_validation_errors(unlock_response, "nonFieldErrors")
@@ -241,9 +221,7 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        lock_url = get_operation_url(
-            "enkelvoudiginformatieobject_lock", uuid=eio.uuid
-        )
+        lock_url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
         unlock_url = get_operation_url(
             "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
         )
@@ -251,17 +229,15 @@ class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
         lock_response = self.client.post(lock_url)
 
         self.assertEqual(
-            lock_response.status_code,
-            status.HTTP_200_OK,
-            lock_response.data
+            lock_response.status_code, status.HTTP_200_OK, lock_response.data
         )
 
-        unlock_response = self.client.post(unlock_url, {'force_unlock': 'True'})
+        unlock_response = self.client.post(unlock_url, {"force_unlock": "True"})
 
         self.assertEqual(
             unlock_response.status_code,
             status.HTTP_204_NO_CONTENT,
-            unlock_response.data
+            unlock_response.data,
         )
 
         self.assertEqual(eio.canonical.lock, "")

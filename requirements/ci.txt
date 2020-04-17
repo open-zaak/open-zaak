@@ -29,7 +29,7 @@ django-ipware==2.1.0
 django-loose-fk==0.7.0
 django-markup==1.3
 django-ordered-model==2.1.0
-django-privates==1.2.0
+django-privates==1.2.1
 django-redis==4.10.0
 django-relativedelta==1.0.5
 django-sendfile2==0.5.1
@@ -87,7 +87,8 @@ unidecode==1.0.22
 uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
-vng-api-common==1.0.37
+vng-api-common==1.0.38
 waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
+zgw-consumers==0.8.1

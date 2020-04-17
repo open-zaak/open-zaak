@@ -37,7 +37,7 @@ def get_form_data(form: forms.Form) -> Dict[str, Dict]:
     """
     errors = (
         {
-            field: [{"msg": error.message, "code": error.code} for error in _errors]
+            field: [{"msg": next(iter(error)), "code": error.code} for error in _errors]
             for field, _errors in form.errors.as_data().items()
         }
         if form.is_bound

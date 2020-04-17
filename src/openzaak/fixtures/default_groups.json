@@ -785,26 +785,6 @@
                 "site"
             ],
             [
-                "add_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "change_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "delete_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "view_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
                 "add_jwtsecret",
                 "vng_api_common",
                 "jwtsecret"
@@ -3374,26 +3354,6 @@
                 "view_autorisatiespec",
                 "autorisaties",
                 "autorisatiespec"
-            ],
-            [
-                "add_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "change_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "delete_apicredential",
-                "vng_api_common",
-                "apicredential"
-            ],
-            [
-                "view_apicredential",
-                "vng_api_common",
-                "apicredential"
             ],
             [
                 "add_jwtsecret",

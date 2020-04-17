@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -10,8 +11,6 @@ from vng_api_common.tests import (
     reverse,
     reverse_lazy,
 )
-
-from django.conf import settings
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,

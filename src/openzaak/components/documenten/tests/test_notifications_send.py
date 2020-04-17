@@ -15,9 +15,13 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
-from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory, GebruiksrechtenCMISFactory
+from .factories import (
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenCMISFactory,
+    GebruiksrechtenFactory,
+)
 from .utils import get_operation_url
 
 

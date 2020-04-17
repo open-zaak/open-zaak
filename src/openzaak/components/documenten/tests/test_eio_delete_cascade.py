@@ -1,24 +1,24 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
+from django.conf import settings
+
+import requests_mock
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
-import requests_mock
-
-from django.conf import settings
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenFactory,
     GebruiksrechtenCMISFactory,
+    GebruiksrechtenFactory,
 )
-from .utils import get_operation_url, get_eio_response
+from .utils import get_eio_response, get_operation_url
 
 
 class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
@@ -40,8 +40,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
             eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -63,9 +62,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
 
             with requests_mock.Mocker(real_http=True) as m:
                 m.register_uri(
-                    "GET",
-                    eio_url,
-                    json=get_eio_response(eio_path),
+                    "GET", eio_url, json=get_eio_response(eio_path),
                 )
 
                 BesluitInformatieObjectFactory.create(informatieobject=eio_url)
@@ -75,8 +72,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
             BesluitInformatieObjectFactory.create(informatieobject=informatieobject)
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -97,9 +93,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
 
             with requests_mock.Mocker(real_http=True) as m:
                 m.register_uri(
-                    "GET",
-                    eio_url,
-                    json=get_eio_response(eio_path),
+                    "GET", eio_url, json=get_eio_response(eio_path),
                 )
 
                 ZaakInformatieObjectFactory.create(informatieobject=eio_url)
@@ -109,8 +103,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
             eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)

@@ -10,7 +10,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin, APITestCaseCMIS
+from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
 
 from ..constants import OndertekeningSoorten, Statussen
 from .factories import EnkelvoudigInformatieObjectFactory

@@ -17,7 +17,7 @@ class InternalServicesFormTests(AdminTestMixin, WebTest):
         autorisaties = InternalService.objects.get(api_type=ComponentTypes.ac)
         assert autorisaties.enabled is True
 
-        add_url = reverse("config-internal")
+        add_url = reverse("config:config-internal")
 
         get_response = self.app.get(add_url)
 

@@ -1,24 +1,24 @@
+import datetime
 import logging
 from decimal import Decimal, InvalidOperation
-import datetime
-from vng_api_common.tests import reverse
+
+from django.conf import settings
+from django.db.models import fields, manager
+from django.forms.models import model_to_dict
+from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
-from django.conf import settings
-from django.db.models import manager, fields
-from django.utils import timezone
-from django.forms.models import model_to_dict
-
-from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
+from drc_cmis.client import CMISDRCClient, exceptions
+from vng_api_common.tests import reverse
 
+from ..catalogi.models.informatieobjecttype import InformatieObjectType
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
 from .utils import CMISStorageFile
-from ..catalogi.models.informatieobjecttype import InformatieObjectType
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,9 @@ def convert_timestamp_to_django_datetime(json_date):
     """
     if json_date is not None:
         timestamp = int(str(json_date)[:10])
-        django_datetime = timezone.make_aware(datetime.datetime.fromtimestamp(timestamp))
+        django_datetime = timezone.make_aware(
+            datetime.datetime.fromtimestamp(timestamp)
+        )
         return django_datetime
 
 
@@ -40,11 +42,13 @@ def format_fields(obj, obj_fields):
     for field in obj_fields:
         if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
             if getattr(obj, field.name) is None:
-                setattr(obj, field.name, '')
+                setattr(obj, field.name, "")
         elif isinstance(field, fields.DateTimeField):
             date_value = getattr(obj, field.name)
             if isinstance(date_value, int):
-                setattr(obj, field.name, convert_timestamp_to_django_datetime(date_value))
+                setattr(
+                    obj, field.name, convert_timestamp_to_django_datetime(date_value)
+                )
         elif isinstance(field, fields.DateField):
             date_value = getattr(obj, field.name)
             if isinstance(date_value, int):
@@ -55,7 +59,10 @@ def format_fields(obj, obj_fields):
 
 
 def cmis_doc_to_django_model(cmis_doc):
-    from .models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+    from .models import (
+        EnkelvoudigInformatieObject,
+        EnkelvoudigInformatieObjectCanonical,
+    )
 
     # The if the document is locked, the lock_id is stored in versionSeriesCheckedOutId
     canonical = EnkelvoudigInformatieObjectCanonical()
@@ -74,9 +81,7 @@ def cmis_doc_to_django_model(cmis_doc):
 
     # Setting up a local file with the content of the cmis document
     uuid_with_version = cmis_doc.versionSeriesId + ";" + cmis_doc.versie
-    content_file = CMISStorageFile(
-        uuid_version=uuid_with_version,
-    )
+    content_file = CMISStorageFile(uuid_version=uuid_with_version,)
 
     document = EnkelvoudigInformatieObject(
         auteur=cmis_doc.auteur,
@@ -115,7 +120,9 @@ def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
 
     canonical = EnkelvoudigInformatieObjectCanonical()
 
-    cmis_gebruiksrechten = format_fields(cmis_gebruiksrechten, Gebruiksrechten._meta.get_fields())
+    cmis_gebruiksrechten = format_fields(
+        cmis_gebruiksrechten, Gebruiksrechten._meta.get_fields()
+    )
 
     django_gebruiksrechten = Gebruiksrechten(
         uuid=cmis_gebruiksrechten.versionSeriesId,
@@ -154,7 +161,7 @@ def get_object_url(informatie_obj_type):
     if isinstance(informatie_obj_type, str):
         return informatie_obj_type
     elif isinstance(informatie_obj_type, ProxyMixin):
-        return informatie_obj_type._initial_data['url']
+        return informatie_obj_type._initial_data["url"]
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
         return f"{settings.HOST_URL}{path}"
@@ -171,7 +178,9 @@ class AdapterManager(manager.Manager):
 class GebruiksrechtenAdapterManager(manager.Manager):
     def get_queryset(self):
         if settings.CMIS_ENABLED:
-            return GebruiksrechtenQuerySet(model=self.model, using=self._db, hints=self._hints)
+            return GebruiksrechtenQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )
         else:
             return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
 
@@ -179,9 +188,13 @@ class GebruiksrechtenAdapterManager(manager.Manager):
 class ObjectInformatieObjectAdapterManager(manager.Manager):
     def get_queryset(self):
         if settings.CMIS_ENABLED:
-            return ObjectInformatieObjectCMISQuerySet(model=self.model, using=self._db, hints=self._hints)
+            return ObjectInformatieObjectCMISQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )
         else:
-            return ObjectInformatieObjectQuerySet(model=self.model, using=self._db, hints=self._hints)
+            return ObjectInformatieObjectQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )
 
     def create_from(self, relation):
         return self.get_queryset().create_from(relation)
@@ -199,6 +212,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
     Find more information about the drc-cmis adapter on github here.
     https://github.com/GemeenteUtrecht/gemma-drc-cmis
     """
+
     _client = None
     documents = []
     has_been_filtered = False
@@ -225,7 +239,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         logger.debug(f"MANAGER ALL: get_documents start")
         cmis_documents = self.get_cmis_client.get_cmis_documents()
         self.documents = []
-        for cmis_doc in cmis_documents['results']:
+        for cmis_doc in cmis_documents["results"]:
             self.documents.append(cmis_doc_to_django_model(cmis_doc))
 
         self._result_cache = self.documents
@@ -241,29 +255,31 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def create(self, **kwargs):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
-        kwargs['informatieobjecttype'] = get_object_url(kwargs.get('informatieobjecttype'))
+        kwargs["informatieobjecttype"] = get_object_url(
+            kwargs.get("informatieobjecttype")
+        )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
-        kwargs['begin_registratie'] = timezone.now()
+        kwargs["begin_registratie"] = timezone.now()
 
         try:
             # Needed because the API calls the create function for an update request
             new_cmis_document = self.get_cmis_client.update_cmis_document(
-                uuid=kwargs.get('uuid'),
-                lock=kwargs.get('lock'),
+                uuid=kwargs.get("uuid"),
+                lock=kwargs.get("lock"),
                 data=kwargs,
-                content=kwargs.get('inhoud')
+                content=kwargs.get("inhoud"),
             )
         except exceptions.DocumentDoesNotExistError:
             new_cmis_document = self.get_cmis_client.create_document(
-                identification=kwargs.get('identificatie'),
+                identification=kwargs.get("identificatie"),
                 data=kwargs,
-                content=kwargs.get('inhoud')
+                content=kwargs.get("inhoud"),
             )
 
         django_document = cmis_doc_to_django_model(new_cmis_document)
 
-        #TODO needed to fix test src/openzaak/components/documenten/tests/models/test_human_readable_identification.py
+        # TODO needed to fix test src/openzaak/components/documenten/tests/models/test_human_readable_identification.py
         # but first filters on regex need to be implemented in alfresco
         # if not django_document.identificatie:
         #     django_document.identificatie = generate_unique_identification(django_document, "creatiedatum")
@@ -273,56 +289,72 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
     def filter(self, *args, **kwargs):
         filters = {}
-        #TODO
+        # TODO
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
             new_key = key.split("__")
             if len(new_key) > 1 and new_key[1] != "exact":
-                raise NotImplementedError("Fields lookups other than exact and lte are not implemented yet.")
+                raise NotImplementedError(
+                    "Fields lookups other than exact and lte are not implemented yet."
+                )
             filters[new_key[0]] = value
 
         self._result_cache = []
 
         try:
-            if filters.get('identificatie') is not None:
+            if filters.get("identificatie") is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get('identificatie'),
+                    identification=filters.get("identificatie"),
                     via_identification=True,
-                    filters=None
+                    filters=None,
                 )
                 self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-            elif filters.get('versie') is not None and filters.get('uuid') is not None:
+            elif filters.get("versie") is not None and filters.get("uuid") is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get('uuid'),
+                    identification=filters.get("uuid"),
                     via_identification=False,
-                    filters=None
+                    filters=None,
                 )
                 all_versions = cmis_doc.get_all_versions()
                 for version_number, cmis_document in all_versions.items():
-                    if version_number == str(filters['versie']):
-                        self._result_cache.append(cmis_doc_to_django_model(cmis_document))
-            elif filters.get('registratie_op') is not None and filters.get('uuid') is not None:
+                    if version_number == str(filters["versie"]):
+                        self._result_cache.append(
+                            cmis_doc_to_django_model(cmis_document)
+                        )
+            elif (
+                filters.get("registratie_op") is not None
+                and filters.get("uuid") is not None
+            ):
                 cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get('uuid'),
+                    identification=filters.get("uuid"),
                     via_identification=False,
-                    filters=None
+                    filters=None,
                 )
                 all_versions = cmis_doc.get_all_versions()
                 for versie, cmis_document in all_versions.items():
-                    if convert_timestamp_to_django_datetime(cmis_document.begin_registratie) <= filters['registratie_op']:
-                        self._result_cache.append(cmis_doc_to_django_model(cmis_document))
+                    if (
+                        convert_timestamp_to_django_datetime(
+                            cmis_document.begin_registratie
+                        )
+                        <= filters["registratie_op"]
+                    ):
+                        self._result_cache.append(
+                            cmis_doc_to_django_model(cmis_document)
+                        )
                         break
-            elif filters.get('uuid') is not None:
+            elif filters.get("uuid") is not None:
                 cmis_doc = self.get_cmis_client.get_cmis_document(
-                    identification=filters.get('uuid'),
+                    identification=filters.get("uuid"),
                     via_identification=False,
-                    filters=None
+                    filters=None,
                 )
                 self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
             else:
                 # Filter the alfresco database
-                cmis_documents = self.get_cmis_client.get_cmis_documents(filters=filters)
-                for cmis_doc in cmis_documents['results']:
+                cmis_documents = self.get_cmis_client.get_cmis_documents(
+                    filters=filters
+                )
+                for cmis_doc in cmis_documents["results"]:
                     self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
         except exceptions.DocumentDoesNotExistError:
             pass
@@ -340,12 +372,11 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 return self._result_cache[0]
             if not num:
                 raise self.model.DoesNotExist(
-                    "%s matching query does not exist." %
-                    self.model._meta.object_name
+                    "%s matching query does not exist." % self.model._meta.object_name
                 )
             raise self.model.MultipleObjectsReturned(
-                "get() returned more than one %s -- it returned %s!" %
-                (self.model._meta.object_name, num)
+                "get() returned more than one %s -- it returned %s!"
+                % (self.model._meta.object_name, num)
             )
         else:
             return super().get(*args, **kwargs)
@@ -367,7 +398,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
                     f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
                 )
 
-        return number_alfresco_updates, {'cmis_document': number_alfresco_updates}
+        return number_alfresco_updates, {"cmis_document": number_alfresco_updates}
 
     def update(self, **kwargs):
         cmis_storage = CMISDRCStorageBackend()
@@ -375,22 +406,19 @@ class CMISQuerySet(InformatieobjectQuerySet):
         number_docs_to_update = len(self._result_cache)
 
         if kwargs.get("inhoud") == "":
-            kwargs['inhoud'] = None
+            kwargs["inhoud"] = None
 
         for django_doc in self._result_cache:
             canonical_obj = django_doc.canonical
-            canonical_obj.lock_document(
-                doc_uuid=django_doc.uuid
-            )
+            canonical_obj.lock_document(doc_uuid=django_doc.uuid)
             cmis_storage.update_document(
                 uuid=django_doc.uuid,
                 lock=canonical_obj.lock,
                 data=kwargs,
-                content=kwargs.get('inhoud'),
+                content=kwargs.get("inhoud"),
             )
             canonical_obj.unlock_document(
-                doc_uuid=django_doc.uuid,
-                lock=canonical_obj.lock
+                doc_uuid=django_doc.uuid, lock=canonical_obj.lock
             )
 
             self._result_cache = None
@@ -431,7 +459,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
         )
 
         # Get EnkelvoudigInformatieObject uuid from URL
-        uuid = kwargs.get('informatieobject').split("/")[-1]
+        uuid = kwargs.get("informatieobject").split("/")[-1]
         modified_data = {"indicatie_gebruiksrecht": True}
         EnkelvoudigInformatieObject.objects.filter(uuid=uuid).update(**modified_data)
 
@@ -445,8 +473,10 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
         cmis_gebruiksrechten = self.get_cmis_client.get_cmis_gebruiksrechten(kwargs)
 
-        for a_cmis_gebruiksrechten in cmis_gebruiksrechten['results']:
-            self._result_cache.append(cmis_gebruiksrechten_to_django(a_cmis_gebruiksrechten))
+        for a_cmis_gebruiksrechten in cmis_gebruiksrechten["results"]:
+            self._result_cache.append(
+                cmis_gebruiksrechten_to_django(a_cmis_gebruiksrechten)
+            )
 
         self.has_been_filtered = True
 
@@ -473,7 +503,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         # Overwritten to prevent prefetching of related objects
         self._result_cache = []
         cmis_oio = self.get_cmis_client.get_all_cmis_oio()
-        for a_cmis_oio in cmis_oio['results']:
+        for a_cmis_oio in cmis_oio["results"]:
             self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
 
     def _chain(self, **kwargs):
@@ -485,9 +515,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         return obj
 
     def create(self, **kwargs):
-        cmis_oio = self.get_cmis_client.create_cmis_oio(
-            data=kwargs
-        )
+        cmis_oio = self.get_cmis_client.create_cmis_oio(data=kwargs)
 
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
@@ -518,15 +546,17 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         self._result_cache = []
 
         filters = {}
-        #FIXME write a conversion between cmis and django names
+        # FIXME write a conversion between cmis and django names
         if kwargs.get("informatieobject"):
-            filters['enkelvoudiginformatieobject'] = kwargs.get("informatieobject")
-        if kwargs.get('object_type') and kwargs.get('object'):
-            filters[f"{kwargs.get('object_type')}_url"] = f"{settings.HOST_URL}{reverse(kwargs.get('object'))}"
+            filters["enkelvoudiginformatieobject"] = kwargs.get("informatieobject")
+        if kwargs.get("object_type") and kwargs.get("object"):
+            filters[
+                f"{kwargs.get('object_type')}_url"
+            ] = f"{settings.HOST_URL}{reverse(kwargs.get('object'))}"
 
         cmis_oio = self.get_cmis_client.get_cmis_oio(filters)
 
-        for a_cmis_oio in cmis_oio['results']:
+        for a_cmis_oio in cmis_oio["results"]:
             self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
 
         self.has_been_filtered = True
