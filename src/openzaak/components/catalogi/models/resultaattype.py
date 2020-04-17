@@ -199,6 +199,7 @@ class ResultaatType(models.Model):
             "registratie",
             "procestermijn",
         ),
+        required=False,
         none_for_empty=False,
     )
 
