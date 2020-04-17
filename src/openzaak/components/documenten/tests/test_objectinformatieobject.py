@@ -3,7 +3,6 @@ from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import (
     JWTAuthMixin,
@@ -30,27 +29,41 @@ from .utils import get_eio_response
 
 
 @tag("oio")
-class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
     def test_create_with_objecttype_zaak(self):
         zaak = ZaakFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
         # relate the two
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                ZaakInformatieObjectFactory.create(
+                    zaak=zaak,
+                    informatieobject=eio_url
+                )
+        else:
+            ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
         zaak_url = reverse(zaak)
-        eio_url = reverse(eio)
 
         response = self.client.post(
             self.list_url,
             {
                 "object": f"http://testserver{zaak_url}",
-                "informatieobject": f"http://testserver{eio_url}",
+                "informatieobject": eio_url,
                 "objectType": "zaak",
             },
         )
@@ -65,16 +78,29 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_create_with_objecttype_besluit(self):
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
-        # relate the two
-        BesluitInformatieObjectFactory.create(
-            besluit=besluit, informatieobject=eio.canonical
-        )
+        eio_path = reverse(eio)
+        if settings.CMIS_ENABLED:
+            eio_url = f"http://testserver{eio_path}"
+
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                BesluitInformatieObjectFactory.create(
+                    besluit=besluit, informatieobject=eio_url
+                )
+        else:
+            BesluitInformatieObjectFactory.create(
+                besluit=besluit, informatieobject=eio.canonical
+            )
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
         besluit_url = reverse(besluit)
-        eio_path = reverse(eio)
 
         response = self.client.post(
             self.list_url,
@@ -95,19 +121,33 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_create_with_objecttype_other_fail(self):
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
         # relate the two
-        BesluitInformatieObjectFactory.create(
-            besluit=besluit, informatieobject=eio.canonical
-        )
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                BesluitInformatieObjectFactory.create(
+                    besluit=besluit, informatieobject=eio_url
+                )
+        else:
+            # relate the two
+            BesluitInformatieObjectFactory.create(
+                besluit=besluit, informatieobject=eio.canonical
+            )
 
         besluit_url = reverse(besluit)
-        eio_url = reverse(eio)
 
         response = self.client.post(
             self.list_url,
             {
                 "object": f"http://testserver{besluit_url}",
-                "informatieobject": f"http://testserver{eio_url}",
+                "informatieobject": eio_url,
                 "objectType": "other",
             },
         )
@@ -121,15 +161,29 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_read_with_objecttype_zaak(self):
         zaak = ZaakFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
         # relate the two
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                ZaakInformatieObjectFactory.create(
+                    zaak=zaak,
+                    informatieobject=eio_url
+                )
+        else:
+            ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
         zaak_url = reverse(zaak)
-        eio_url = reverse(eio)
 
         response = self.client.get(oio_url)
 
@@ -139,7 +193,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             {
                 "url": f"http://testserver{oio_url}",
                 "object": f"http://testserver{zaak_url}",
-                "informatieobject": f"http://testserver{eio_url}",
+                "informatieobject": eio_url,
                 "object_type": "zaak",
             },
         )
@@ -147,17 +201,32 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_read_with_objecttype_besluit(self):
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
         # relate the two
-        BesluitInformatieObjectFactory.create(
-            besluit=besluit, informatieobject=eio.canonical
-        )
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                BesluitInformatieObjectFactory.create(
+                    besluit=besluit, informatieobject=eio_url
+                )
+        else:
+            # relate the two
+            BesluitInformatieObjectFactory.create(
+                besluit=besluit, informatieobject=eio.canonical
+            )
+
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
         besluit_url = reverse(besluit)
-        eio_url = reverse(eio)
 
         response = self.client.get(oio_url)
 
@@ -167,7 +236,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
             {
                 "url": f"http://testserver{oio_url}",
                 "object": f"http://testserver{besluit_url}",
-                "informatieobject": f"http://testserver{eio_url}",
+                "informatieobject": eio_url,
                 "object_type": "besluit",
             },
         )
@@ -202,9 +271,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_filter_eio(self):
-        bio = BesluitInformatieObjectFactory.create()
-        ZaakInformatieObjectFactory.create()  # may not show up
-        eio_detail_url = reverse(bio.informatieobject.latest_version)
+        if settings.CMIS_ENABLED:
+            eio_1 = EnkelvoudigInformatieObjectFactory.create()
+            eio_detail_url = f"http://openzaak.nl{reverse(eio_1)}"
+
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri("GET", eio_detail_url, json=get_eio_response(reverse(eio_1)))
+                BesluitInformatieObjectFactory.create(informatieobject=eio_detail_url)
+                ZaakInformatieObjectFactory.create(informatieobject=eio_detail_url)  # may not show up
+        else:
+            bio = BesluitInformatieObjectFactory.create()
+            ZaakInformatieObjectFactory.create()  # may not show up
+            eio_detail_url = reverse(bio.informatieobject.latest_version)
 
         response = self.client.get(
             self.list_url,
@@ -219,9 +297,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         )
 
     def test_filter_zaak(self):
-        zio = ZaakInformatieObjectFactory.create()
-        ZaakInformatieObjectFactory.create()  # may not show up
-        eio_detail_url = reverse(zio.informatieobject.latest_version)
+        if settings.CMIS_ENABLED:
+            eio_1 = EnkelvoudigInformatieObjectFactory.create()
+            eio_detail_url = f"http://openzaak.nl{reverse(eio_1)}"
+
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri("GET", eio_detail_url, json=get_eio_response(reverse(eio_1)))
+                zio = ZaakInformatieObjectFactory.create(informatieobject=eio_detail_url)
+                ZaakInformatieObjectFactory.create(informatieobject=eio_detail_url)  # may not show up
+        else:
+            zio = ZaakInformatieObjectFactory.create()
+            ZaakInformatieObjectFactory.create()  # may not show up
+            eio_detail_url = reverse(zio.informatieobject.latest_version)
         zaak_url = reverse(zio.zaak)
 
         response = self.client.get(
@@ -265,11 +352,28 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
-class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 
     def test_destroy_oio_remote_gone(self):
-        zio = ZaakInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+        # relate the two
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                zio = ZaakInformatieObjectFactory.create(
+                    informatieobject=eio_url
+                )
+        else:
+            zio = ZaakInformatieObjectFactory.create()
+
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
         zio.delete()
@@ -279,7 +383,23 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_oio_remote_still_present(self):
-        BesluitInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+        # relate the two
+        if settings.CMIS_ENABLED:
+            with requests_mock.Mocker(real_http=True) as m:
+                m.register_uri(
+                    "GET",
+                    eio_url,
+                    json=get_eio_response(eio_path),
+                )
+
+                BesluitInformatieObjectFactory.create(
+                    informatieobject=eio_url
+                )
+        else:
+            BesluitInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
 
@@ -301,7 +421,8 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = reverse(eio)
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(zaak, json=get_zaak_response(zaak, zaaktype))
@@ -310,7 +431,7 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
                 self.list_url,
                 {
                     "object": zaak,
-                    "informatieobject": f"http://testserver{eio_url}",
+                    "informatieobject": eio_url,
                     "objectType": "zaak",
                 },
             )
@@ -321,7 +442,11 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
 
             oio = ObjectInformatieObject.objects.get()
 
-            self.assertEqual(oio.informatieobject, eio.canonical)
+            if not settings.CMIS_ENABLED:
+                self.assertEqual(oio.informatieobject, eio.canonical)
+            else:
+                self.assertEqual(oio.get_informatieobject_url(), eio_url)
+
             self.assertEqual(oio.object, zaak)
 
     def test_create_external_besluit(self):
@@ -329,7 +454,8 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = reverse(eio)
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
@@ -338,7 +464,7 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
                 self.list_url,
                 {
                     "object": besluit,
-                    "informatieobject": f"http://testserver{eio_url}",
+                    "informatieobject": eio_url,
                     "objectType": "besluit",
                 },
             )
@@ -349,7 +475,11 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
 
             oio = ObjectInformatieObject.objects.get()
 
-            self.assertEqual(oio.informatieobject, eio.canonical)
+            if not settings.CMIS_ENABLED:
+                self.assertEqual(oio.informatieobject, eio.canonical)
+            else:
+                self.assertEqual(oio.get_informatieobject_url(), eio_url)
+
             self.assertEqual(oio.object, besluit)
 
     def test_create_external_zaak_fail_invalid_schema(self):
@@ -422,9 +552,14 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = reverse(eio)
 
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
-        )
+        if settings.CMIS_ENABLED:
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio_url, besluit=besluit, object_type="besluit"
+            )
+        else:
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
+            )
 
         with requests_mock.Mocker(real_http=True) as m:
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
@@ -446,9 +581,16 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
     def test_read_external_zaak(self):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         eio = EnkelvoudigInformatieObjectFactory.create()
-        oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
-        )
+        if settings.CMIS_ENABLED:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                zaak=zaak,
+                object_type="zaak"
+            )
+        else:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
+            )
         url = reverse(oio)
 
         response = self.client.get(url)
@@ -463,9 +605,16 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
     def test_read_external_besluit(self):
         besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         eio = EnkelvoudigInformatieObjectFactory.create()
-        oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
-        )
+        if settings.CMIS_ENABLED:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                besluit=besluit,
+                object_type="besluit"
+            )
+        else:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
+            )
         url = reverse(oio)
 
         response = self.client.get(url)
@@ -481,12 +630,25 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         eio = EnkelvoudigInformatieObjectFactory.create()
         zaak1 = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaak2 = "https://externe.catalogus.nl/api/v1/zaken/b923543f-97aa-4a55-8c20-889b5906cf75"
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, zaak=zaak1, object_type="zaak"
-        )
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, zaak=zaak2, object_type="zaak"
-        )
+        if settings.CMIS_ENABLED:
+            ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                zaak=zaak1,
+                object_type="zaak"
+            )
+            ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                zaak=zaak2,
+                object_type="zaak"
+            )
+        else:
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, zaak=zaak1, object_type="zaak"
+            )
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, zaak=zaak2, object_type="zaak"
+            )
+
         url = reverse(ObjectInformatieObject)
 
         response = self.client.get(url, {"object": zaak2})
@@ -499,12 +661,22 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         eio = EnkelvoudigInformatieObjectFactory.create()
         besluit1 = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit2 = "https://externe.catalogus.nl/api/v1/besluiten/b923543f-97aa-4a55-8c20-889b5906cf75"
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, besluit=besluit1, object_type="besluit"
-        )
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, besluit=besluit2, object_type="besluit"
-        )
+        if settings.CMIS_ENABLED:
+            ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                besluit=besluit1, object_type="besluit"
+            )
+            ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                besluit=besluit2, object_type="besluit"
+            )
+        else:
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, besluit=besluit1, object_type="besluit"
+            )
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, besluit=besluit2, object_type="besluit"
+            )
         url = reverse(ObjectInformatieObject)
 
         response = self.client.get(url, {"object": besluit2})
@@ -517,9 +689,16 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
-        oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
-        )
+        if settings.CMIS_ENABLED:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                zaak=zaak,
+                object_type="zaak"
+            )
+        else:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
+            )
         url = reverse(oio)
 
         with requests_mock.Mocker(real_http=True) as m:
@@ -534,9 +713,15 @@ class OIOreateExternalURLsTests(JWTAuthMixin, APITestCaseCMIS):
         besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
-        oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
-        )
+        if settings.CMIS_ENABLED:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=f"http://testserver{reverse(eio)}",
+                besluit=besluit, object_type="besluit"
+            )
+        else:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
+            )
         url = reverse(oio)
 
         with requests_mock.Mocker(real_http=True) as m:

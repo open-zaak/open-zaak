@@ -686,3 +686,31 @@ class ObjectInformatieObject(models.Model):
         client = CMISDRCClient()
         cmis_oio = client.get_a_cmis_oio(self.uuid)
         return cmis_oio.enkelvoudiginformatieobject
+
+    def does_besluitinformatieobject_exist(self):
+        """
+        Checks if the corresponding BesluitInformatieObject still exists
+        """
+        if settings.CMIS_ENABLED:
+            eio_url = self.get_informatieobject_url()
+            return BesluitInformatieObject.objects.filter(
+                informatieobject=eio_url, besluit=self.besluit
+            ).exists()
+        else:
+            return BesluitInformatieObject.objects.filter(
+                informatieobject=self.informatieobject, besluit=self.besluit
+            ).exists()
+
+    def does_zaakinformatieobject_exist(self):
+        """
+        Checks if the corresponding ZaakInformatieObject still exists
+        """
+        if settings.CMIS_ENABLED:
+            eio_url = self.get_informatieobject_url()
+            return ZaakInformatieObject.objects.filter(
+                informatieobject=eio_url, zaak=self.zaak
+            ).exists()
+        else:
+            return ZaakInformatieObject.objects.filter(
+                informatieobject=self.informatieobject, zaak=self.zaak
+            ).exists()

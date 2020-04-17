@@ -142,7 +142,10 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
 
     def get_url(self, obj, view_name, request, format):
         if settings.CMIS_ENABLED:
-            obj_latest_version = self.parent.instance.get_informatieobject()
+            if hasattr(self.parent.instance, "get_informatieobject_url"):
+                obj_latest_version = self.parent.instance.get_informatieobject()
+            else:
+                return None
         else:
             obj_latest_version = obj.latest_version
         return super().get_url(obj_latest_version, view_name, request, format)
@@ -574,7 +577,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
             ret["url"] = f"{settings.HOST_URL}{path}"
-            ret["informatieobject"] = self.instance.get_informatieobject_url()
+            if hasattr(instance, "get_informatieobject_url"):
+                ret["informatieobject"] = instance.get_informatieobject_url()
+            else:
+                ret["informatieobject"] = self.instance.get_informatieobject_url()
         return ret
 
     def create(self, validated_data):

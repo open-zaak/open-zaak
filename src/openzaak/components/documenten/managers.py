@@ -4,7 +4,6 @@ from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.db.models import fields, manager
-from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -12,7 +11,9 @@ from drc_cmis.backend import CMISDRCStorageBackend
 from drc_cmis.client import CMISDRCClient, exceptions
 from vng_api_common.tests import reverse
 
+from ..besluiten.models import Besluit
 from ..catalogi.models.informatieobjecttype import InformatieObjectType
+from ..zaken.models.zaken import Zaak
 from .query import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -152,18 +153,17 @@ def cmis_oio_to_django(cmis_oio):
     return django_oio
 
 
-def get_object_url(informatie_obj_type):
+def get_object_url(the_object, object_type=None):
     """
-    Retrieves the url for the informatieobjecttypes and virtual informatieobjecttype (used for external
-    informatieobjecttype).
+    Retrieves the url for a local or an external object.
     """
     # Case in which the informatie_object_type is already a url
-    if isinstance(informatie_obj_type, str):
-        return informatie_obj_type
-    elif isinstance(informatie_obj_type, ProxyMixin):
-        return informatie_obj_type._initial_data["url"]
-    elif isinstance(informatie_obj_type, InformatieObjectType):
-        path = informatie_obj_type.get_absolute_api_url()
+    if isinstance(the_object, str):
+        return the_object
+    elif isinstance(the_object, ProxyMixin):
+        return the_object._initial_data["url"]
+    elif object_type is not None and isinstance(the_object, object_type):
+        path = reverse(the_object)
         return f"{settings.HOST_URL}{path}"
 
 
@@ -256,7 +256,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
         kwargs["informatieobjecttype"] = get_object_url(
-            kwargs.get("informatieobjecttype")
+            kwargs.get("informatieobjecttype"), InformatieObjectType
         )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
@@ -514,8 +514,45 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         obj._result_cache = self._result_cache
         return obj
 
+    def convert_django_names_to_alfresco(self, data):
+
+        converted_data = {}
+        object_types = {"besluit": Besluit, "zaak": Zaak}
+
+        if data.get('object_type'):
+            object_type = data.pop('object_type')
+            if data.get(object_type):
+                relation_object = data.pop(object_type)
+            else:
+                relation_object = data.pop("object")
+            relation_url = get_object_url(relation_object, object_types[object_type])
+            converted_data["related_object_type"] = object_type
+            converted_data[f"{object_type}_url"] = relation_url
+
+        for key, value in data.items():
+            split_key = key.split("__")
+            split_key[0] = split_key[0].strip("_")
+            if len(split_key) > 1 and split_key[1] != "exact":
+                raise NotImplementedError(
+                    "Fields lookups other than exact are not implemented yet."
+                )
+            if split_key[0] == 'informatieobject':
+                converted_data["enkelvoudiginformatieobject"] = data.get('informatieobject')
+            elif object_types.get(split_key[0]):
+                converted_data[f"{split_key[0]}_url"] = get_object_url(value, object_types[split_key[0]])
+            else:
+                converted_data[split_key[0]] = value
+
+        return converted_data
+
+    def all(self):
+        self._fetch_all()
+        return self
+
     def create(self, **kwargs):
-        cmis_oio = self.get_cmis_client.create_cmis_oio(data=kwargs)
+        converted_data = self.convert_django_names_to_alfresco(kwargs)
+
+        cmis_oio = self.get_cmis_client.create_cmis_oio(data=converted_data)
 
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
@@ -524,9 +561,9 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         object_type = self.RELATIONS[type(relation)]
         relation_object = getattr(relation, object_type)
         data = {
-            "enkelvoudiginformatieobject": relation._informatieobject_url,
-            "related_object_type": f"{object_type}",
-            f"{object_type}_url": f"{settings.HOST_URL}{reverse(relation_object)}",
+            "informatieobject": relation._informatieobject_url,
+            "object_type": f"{object_type}",
+            f"{object_type}": f"{settings.HOST_URL}{reverse(relation_object)}",
         }
         return self.create(**data)
 
@@ -545,14 +582,10 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
 
         self._result_cache = []
 
-        filters = {}
-        # FIXME write a conversion between cmis and django names
-        if kwargs.get("informatieobject"):
-            filters["enkelvoudiginformatieobject"] = kwargs.get("informatieobject")
-        if kwargs.get("object_type") and kwargs.get("object"):
-            filters[
-                f"{kwargs.get('object_type')}_url"
-            ] = f"{settings.HOST_URL}{reverse(kwargs.get('object'))}"
+        filters = self.convert_django_names_to_alfresco(kwargs)
+        # Not needed for retrieving ObjectInformatieobjects from alfresco
+        if filters.get('related_object_type'):
+            filters.pop('related_object_type')
 
         cmis_oio = self.get_cmis_client.get_cmis_oio(filters)
 

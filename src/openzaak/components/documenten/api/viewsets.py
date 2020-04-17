@@ -593,9 +593,7 @@ class ObjectInformatieObjectViewSet(
 
         if (
             instance.object_type == "zaak"
-            and ZaakInformatieObject.objects.filter(
-                informatieobject=instance.informatieobject, zaak=instance.zaak
-            ).exists()
+            and instance.does_zaakinformatieobject_exist()
         ):
             raise ValidationError(
                 {
@@ -608,9 +606,7 @@ class ObjectInformatieObjectViewSet(
 
         if (
             instance.object_type == "besluit"
-            and BesluitInformatieObject.objects.filter(
-                informatieobject=instance.informatieobject, besluit=instance.besluit
-            ).exists()
+            and instance.does_besluitinformatieobject_exist()
         ):
             raise ValidationError(
                 {
