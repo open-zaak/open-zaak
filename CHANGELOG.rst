@@ -1,15 +1,53 @@
 Changelog
 =========
 
-1.1.2 (2020-04-01)
+1.2.0 (2020-04-20)
 ------------------
 
-Improved configuration of external API services
+New feature release and a set of bugfixes included.
 
-* 3 configuration tables APICredential, ExternalAPICredential and URLRewrite
-  are replaced with one table - zgw_consumers.Service
-* Added support for custom OAS urls. **Note**: you need to add them manually
-  in zgw_consumers.Service (you can do it in the admin).
+**Features**
+
+* Update admin layout version
+* #507 -- use the original filename when downloading a document from the admin
+* Reworked configuration of external APIs
+* Added option to specify your NLX outway location and network
+* Added the ability to enable/disable APIs offered by Open Zaak
+* Added the option to configure external APIs, optionally selecting services from the
+  NLX network.
+* Added support for custom OAS urls. **Note** that you need to add them manually
+  in ``zgw_consumers.Service`` for existing APIs (you can do it in the admin).
+
+**Bugfixes**
+
+* Bumped a number of libraries to their latest security releases
+* #511 -- fix saving of resultaattype if bewaartermijn is null
+* #495 -- use correct page titles for api schemas per component
+* #318 -- Fixed (BesluitType)Admin M2M relations so that they show content from the same
+  catalogus only
+* Fixed Document inhoud base64 validation
+* Enabled pre-filling the informatieobjecttype in zaaktype-informatieobjecttype admin
+* #532 -- fixed issue with ``Resultaattype.omschrijving_generiek`` not updating
+* #551 -- ensure client credentials are deleted when an ``Applicatie`` is deleted in
+  in the admin
+* #543 -- fix error when trying to create a document in the admin
+* Fixed creating a Zaaktype with partial ``referentieProces`` gegevensgroep
+* #553 -- made Eigenschap.specificatie required in admin
+* #557 -- fix handling of ``brondatumArchiefProcedure: null``
+* #558 -- fixed ``ZaakBesluit`` ``DELETE`` calls
+* #556 -- fixed admin crash for resultaattype when the related zaaktype does not have
+  a selectielijst procestype set
+* #559 -- fixed deploying Open Zaak on a subpath (as opposed to on its own (sub)domain)
+* #554 -- fixed admin crash when related informatieobjecttypen/besluiten are not
+  available for a given zaak.
+* #562 -- fixed nested ``Eigenschap.specificatie`` being ignored
+
+**Documentation**
+
+* Documentation minimal version of required development tooling
+* #299 -- Fixed notification documentation generation
+* Updated PR template
+* #534 -- updated documentation links in the API specs
 
 1.1.1 (2020-03-13)
 ------------------
