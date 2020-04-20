@@ -5,6 +5,10 @@ from .zaaktype import ZaakTypeFactory
 
 
 class EigenschapSpecificatieFactory(factory.django.DjangoModelFactory):
+    groep = "groep"
+    formaat = "datum"
+    lengte = "8"
+    kardinaliteit = "1"
     waardenverzameling = []  # ArrayField has blank=True but not null=True
 
     class Meta:

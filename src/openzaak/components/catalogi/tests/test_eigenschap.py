@@ -98,7 +98,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "toelichting": "",
                 "specificatie": {
                     "formaat": FormaatChoices.tekst,
-                    "groep": "",
+                    "groep": "groep",
                     "kardinaliteit": "1",
                     "lengte": "255",
                     "waardenverzameling": ["boot", "zwerfvuil"],
@@ -146,7 +146,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "naam": "Beoogd product",
             "definitie": "",
             "specificatie": {
-                "formaat": "",
+                "formaat": "datum",
                 "groep": "groep",
                 "kardinaliteit": "1",
                 "lengte": "1",
@@ -271,6 +271,38 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         eigenschap.refresh_from_db()
         self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+    def test_update_eigenschap_nested_spec(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+
+        data = {
+            "naam": "aangepast",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": zaaktype_url,
+            "specificatie": {
+                "groep": "een_groep",
+                "formaat": "datum",
+                "lengte": "8",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+        }
+
+        response = self.client.put(eigenschap_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        eigenschap.refresh_from_db()
+        spec = eigenschap.specificatie_van_eigenschap
+        self.assertEqual(spec.groep, "een_groep")
+        self.assertEqual(spec.formaat, FormaatChoices.datum)
+        self.assertEqual(spec.lengte, "8")
+        self.assertEqual(spec.kardinaliteit, "1")
+        self.assertEqual(spec.waardenverzameling, [])
 
     def test_update_eigenschap_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
