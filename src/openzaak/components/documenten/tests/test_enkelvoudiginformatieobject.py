@@ -39,6 +39,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
         url = reverse("enkelvoudiginformatieobject-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['results']), 4)
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -66,10 +67,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test database
-        queryset = EnkelvoudigInformatieObject.objects.filter()
-        stored_object = queryset.first()
+        stored_object = EnkelvoudigInformatieObject.objects.filter().first()
 
-        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.filter().count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))

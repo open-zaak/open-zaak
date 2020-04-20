@@ -1,3 +1,4 @@
+import copy
 import datetime
 import logging
 from decimal import Decimal, InvalidOperation
@@ -158,10 +159,10 @@ def cmis_oio_to_django(cmis_oio):
 
     return django_oio
 
+
 def get_object_url(
     informatie_obj_type: InformatieObjectType, request: Optional[Request] = None
 ):
-
     """
     Retrieves the url for a local or an external object.
     """
@@ -173,6 +174,7 @@ def get_object_url(
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
         return make_absolute_uri(path, request=request)
+
 
 class AdapterManager(manager.Manager):
     def get_queryset(self):
@@ -234,6 +236,12 @@ class CMISDocumentIterable(BaseIterable):
 
         lhs, rhs = self._normalize_filters(queryset._cmis_query)
         documents = queryset.cmis_client.query(self.return_type, lhs, rhs)
+
+        if self._needs_older_version(queryset._cmis_query):
+            documents = self._retrive_older_version(queryset._cmis_query, documents)
+        elif self._needs_registratie_filter(queryset._cmis_query):
+            documents = self._filter_by_registratie(queryset._cmis_query, documents)
+
         for document in documents:
             yield cmis_doc_to_django_model(document)
 
@@ -251,8 +259,20 @@ class CMISDocumentIterable(BaseIterable):
         _rhs = []
 
         # TODO: make this more declarative
+
         for key, value in filters:
             name = mapper(key, type="document")
+
+            if key == 'uuid':
+                name = 'cmis:objectId'
+                value = f'workspace://SpacesStore/{value};1.0'
+            elif key == 'versie':
+                # The older versions can be accessed once the latest document is available
+                continue
+            elif key == 'begin_registratie':
+                # In order to retrieve all the versions from before a certain date, the latest document is needed
+                continue
+
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
 
@@ -260,6 +280,59 @@ class CMISDocumentIterable(BaseIterable):
             _lhs.append(f"{name} = '%s'")
 
         return _lhs, _rhs
+
+    def _needs_older_version(self, filters: List[Tuple]) -> bool:
+        for key, value in filters:
+            if key == 'versie':
+                return True
+        return False
+
+    def _needs_registratie_filter(self, filters: List[Tuple]) -> bool:
+        for key, value in filters:
+            if key == 'begin_registratie':
+                return True
+        return False
+
+    #FIXME
+    # This wont work if various versions of different documents have to be retrieved
+    def _retrive_older_version(self, filters: List[Tuple], documents: List) -> List:
+        """
+        Older versions of documents cannot be retrieved directly through the uuid. More info:
+        https://hub.alfresco.com/t5/alfresco-content-services-forum/how-to-generate-document-location-url-for-previous-verions-using/td-p/279115
+        """
+        older_versions_documents = []
+
+        for key, value in filters:
+            if key == 'versie':
+                version_needed = str(value)
+
+        for cmis_doc in documents:
+            all_versions = cmis_doc.get_all_versions()
+            for version_number, cmis_document in all_versions.items():
+                if version_number == version_needed:
+                    older_versions_documents.append(cmis_document)
+        return older_versions_documents
+
+    def _filter_by_registratie(self, filters: List[Tuple], documents: List) -> List:
+
+        before_date_documents = []
+
+        for key, value in filters:
+            if key == 'begin_registratie':
+                requested_date = value
+
+        for cmis_doc in documents:
+            all_versions = cmis_doc.get_all_versions()
+            for versie, cmis_document in all_versions.items():
+                if (
+                    convert_timestamp_to_django_datetime(
+                        cmis_document.begin_registratie
+                    )
+                    <= requested_date
+                ):
+                    before_date_documents.append(cmis_document)
+                    break
+        return before_date_documents
 
 
 class CMISQuerySet(InformatieobjectQuerySet):
@@ -288,7 +361,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
     def _clone(self):
         clone = super()._clone()
-        clone._cmis_query = self._cmis_query
+        clone._cmis_query = copy.copy(self._cmis_query)
         return clone
 
     def iterator(self):
@@ -296,6 +369,12 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Not tested with a filter attached to the all call.
         for document in self.documents:
             yield document
+
+    def count(self):
+        if self._result_cache is not None:
+            return len(self._result_cache)
+
+        return len(self)
 
     def create(self, **kwargs):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
@@ -417,22 +496,22 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         # return self
 
-    def get(self, *args, **kwargs):
-
-        if self.has_been_filtered:
-            num = len(self._result_cache)
-            if num == 1:
-                return self._result_cache[0]
-            if not num:
-                raise self.model.DoesNotExist(
-                    "%s matching query does not exist." % self.model._meta.object_name
-                )
-            raise self.model.MultipleObjectsReturned(
-                "get() returned more than one %s -- it returned %s!"
-                % (self.model._meta.object_name, num)
-            )
-        else:
-            return super().get(*args, **kwargs)
+    # def get(self, *args, **kwargs):
+    #
+    #     if self.has_been_filtered:
+    #         num = len(self._result_cache)
+    #         if num == 1:
+    #             return self._result_cache[0]
+    #         if not num:
+    #             raise self.model.DoesNotExist(
+    #                 "%s matching query does not exist." % self.model._meta.object_name
+    #             )
+    #         raise self.model.MultipleObjectsReturned(
+    #             "get() returned more than one %s -- it returned %s!"
+    #             % (self.model._meta.object_name, num)
+    #         )
+    #     else:
+    #         return super().get(*args, **kwargs)
 
     def delete(self):
 
@@ -456,12 +535,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def update(self, **kwargs):
         cmis_storage = CMISDRCStorageBackend()
 
-        number_docs_to_update = len(self._result_cache)
+        docs_to_update = list(super().iterator())
+        number_docs_to_update = len(docs_to_update)
 
         if kwargs.get("inhoud") == "":
             kwargs["inhoud"] = None
 
-        for django_doc in self._result_cache:
+        for django_doc in docs_to_update:
             canonical_obj = django_doc.canonical
             canonical_obj.lock_document(doc_uuid=django_doc.uuid)
             cmis_storage.update_document(
@@ -473,8 +553,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
             canonical_obj.unlock_document(
                 doc_uuid=django_doc.uuid, lock=canonical_obj.lock
             )
-
-            self._result_cache = None
 
             # Should return the number of rows that have been modified
             return number_docs_to_update
@@ -601,11 +679,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         return self
 
     def create(self, **kwargs):
-        converted_data = self.convert_django_names_to_alfresco(kwargs)
-
-        cmis_oio = self.get_cmis_client.create_cmis_oio(data=converted_data)
         cmis_oio = self.cmis_client.create_cmis_oio(data=kwargs)
-
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
 

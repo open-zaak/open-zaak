@@ -40,7 +40,7 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
             filters_for_alfresco.update({'uuid': self.request.parser_context['kwargs']['uuid']})
             for name, value in self.form.cleaned_data.items():
                 if value is not None:
-                    filter_name = name # + "__" + self.filters[name].lookup_expr
+                    filter_name = self.filters[name].label.lower() # + "__" + self.filters[name].lookup_expr
                     filters_for_alfresco[filter_name] = value
 
             return queryset.filter(**filters_for_alfresco)
