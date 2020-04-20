@@ -82,7 +82,7 @@ unidecode==1.0.22
 uritemplate==3.0.0
 urllib3==1.24.3
 uwsgi==2.0.18
-vng-api-common==1.0.38
+vng-api-common==1.0.41
 waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
