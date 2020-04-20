@@ -247,7 +247,10 @@ class ResultaatType(models.Model):
         # geparametrieerd. Dit is alleen relevant indien sprake is van de Archiefnominatie
         # "vernietigen"; voor te bewaren zaakdossiers start de Archiefactietermijn op de
         # einddatum van de zaak.
-        if self.archiefnominatie == Archiefnominatie.blijvend_bewaren:
+        if (
+            self.archiefnominatie == Archiefnominatie.blijvend_bewaren
+            and not self.brondatum_archiefprocedure_afleidingswijze
+        ):
             self.brondatum_archiefprocedure_afleidingswijze = (
                 Afleidingswijze.afgehandeld
             )

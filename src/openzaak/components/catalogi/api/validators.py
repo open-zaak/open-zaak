@@ -202,6 +202,7 @@ class BrondatumArchiefprocedureValidator:
         """
         # Determine the existing instance, if this is an update operation.
         self.instance = getattr(serializer, "instance", None)
+        self.partial = getattr(serializer, "partial", None)
 
     def __call__(self, attrs: dict):
         archiefprocedure = attrs.get(self.archiefprocedure_field)
@@ -209,8 +210,10 @@ class BrondatumArchiefprocedureValidator:
             archiefnominatie = attrs.get(
                 "archiefnominatie", getattr(self.instance, "archiefnominatie", None)
             )
-
-            if archiefnominatie != Archiefnominatie.blijvend_bewaren:
+            if (
+                not self.partial
+                and archiefnominatie != Archiefnominatie.blijvend_bewaren
+            ):
                 raise ValidationError(
                     {
                         self.archiefprocedure_field: _(

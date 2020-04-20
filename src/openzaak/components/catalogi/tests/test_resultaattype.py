@@ -130,7 +130,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "archiefnominatie": resultaattype.archiefnominatie,
                 "archiefactietermijn": "P10Y",
                 "brondatumArchiefprocedure": {
-                    "afleidingswijze": "",
+                    "afleidingswijze": resultaattype.brondatum_archiefprocedure_afleidingswijze,
                     "datumkenmerk": "",
                     "einddatumBekend": False,
                     "objecttype": "",
@@ -618,7 +618,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
             )
             resultaattype = ResultaatTypeFactory.create(
-                zaaktype=zaaktype, resultaattypeomschrijving=resultaattypeomschrijving
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                archiefnominatie="blijvend_bewaren",
             )
             resultaattype_url = reverse(resultaattype)
 
@@ -633,7 +635,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype, archiefnominatie="blijvend_bewaren"
+        )
         resultaattype_url = reverse(resultaattype)
 
         response = self.client.patch(resultaattype_url, {"omschrijving": "aangepast"})
@@ -653,7 +657,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
         zaaktype_url = reverse(zaaktype)
-        resultaattype = ResultaatTypeFactory.create()
+        resultaattype = ResultaatTypeFactory.create(archiefnominatie="vernietigen")
         resultaattype_url = reverse(resultaattype)
 
         responses = {
