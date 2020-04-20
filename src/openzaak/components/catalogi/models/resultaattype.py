@@ -243,6 +243,15 @@ class ResultaatType(models.Model):
             )
             self.archiefactietermijn = parsed_relativedelta
 
+        # Met de attribuutsoorten van dit groepatribuutsoort worden deze situaties
+        # geparametrieerd. Dit is alleen relevant indien sprake is van de Archiefnominatie
+        # "vernietigen"; voor te bewaren zaakdossiers start de Archiefactietermijn op de
+        # einddatum van de zaak.
+        if self.archiefnominatie == Archiefnominatie.blijvend_bewaren:
+            self.brondatum_archiefprocedure_afleidingswijze = (
+                Afleidingswijze.afgehandeld
+            )
+
         super().save(*args, **kwargs)
 
     def __str__(self):

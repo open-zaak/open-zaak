@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import ValidationError
 from vng_api_common.constants import (
+    Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 
@@ -194,9 +195,30 @@ class BrondatumArchiefprocedureValidator:
     def __init__(self, archiefprocedure_field="brondatum_archiefprocedure"):
         self.archiefprocedure_field = archiefprocedure_field
 
+    def set_context(self, serializer):
+        """
+        This hook is called by the serializer instance,
+        prior to the validation call being made.
+        """
+        # Determine the existing instance, if this is an update operation.
+        self.instance = getattr(serializer, "instance", None)
+
     def __call__(self, attrs: dict):
         archiefprocedure = attrs.get(self.archiefprocedure_field)
         if archiefprocedure is None:
+            archiefnominatie = attrs.get(
+                "archiefnominatie", getattr(self.instance, "archiefnominatie", None)
+            )
+
+            if archiefnominatie != Archiefnominatie.blijvend_bewaren:
+                raise ValidationError(
+                    {
+                        self.archiefprocedure_field: _(
+                            "This field is required if archiefnominatie is {an}"
+                        ).format(an=archiefnominatie)
+                    },
+                    code="required",
+                )
             return
 
         afleidingswijze = archiefprocedure["afleidingswijze"]
