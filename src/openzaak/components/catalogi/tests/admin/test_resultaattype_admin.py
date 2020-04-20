@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 
 from django.contrib.auth.models import Permission
 from django.urls import reverse
+from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -344,3 +345,24 @@ class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ResultaatType.objects.count(), 1)
         self.assertEqual(ResultaatType.objects.first().omschrijving, "test")
+
+    def test_resultaattype_detail_no_procestype(self, m):
+        procestype_url = ""
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+
+        response = self.app.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn(
+            _(
+                "Please select a Procestype for the related ZaakType to get "
+                "proper filtering of selectielijstklasses"
+            ),
+            response.text,
+        )
