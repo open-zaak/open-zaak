@@ -130,7 +130,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "archiefnominatie": resultaattype.archiefnominatie,
                 "archiefactietermijn": "P10Y",
                 "brondatumArchiefprocedure": {
-                    "afleidingswijze": "",
+                    "afleidingswijze": resultaattype.brondatum_archiefprocedure_afleidingswijze,
                     "datumkenmerk": "",
                     "einddatumBekend": False,
                     "objecttype": "",
@@ -220,6 +220,129 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(resultaattype.zaaktype, zaaktype)
         self.assertEqual(
             resultaattype.brondatum_archiefprocedure_afleidingswijze,
+            Afleidingswijze.afgehandeld,
+        )
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.oas.fetcher.fetch", return_value={})
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_create_resultaattype_brondatum_archiefprocedure_null(
+        self, mock_shape, mock_fetch
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": None,
+        }
+
+        responses = {
+            SELECTIELIJSTKLASSE_URL: {
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            }
+        }
+
+        with mock_client(responses):
+            with requests_mock.Mocker() as m:
+                m.register_uri(
+                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
+                )
+                response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.json()["brondatumArchiefprocedure"],
+            {
+                "afleidingswijze": "afgehandeld",
+                "datumkenmerk": "",
+                "einddatumBekend": False,
+                "objecttype": "",
+                "registratie": "",
+                "procestermijn": None,
+            },
+        )
+
+        resultaattype = ResultaatType.objects.get()
+        self.assertEqual(
+            resultaattype.brondatum_archiefprocedure,
+            {
+                "afleidingswijze": "afgehandeld",
+                "datumkenmerk": "",
+                "einddatum_bekend": False,
+                "objecttype": "",
+                "registratie": "",
+                "procestermijn": None,
+            },
+        )
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.oas.fetcher.fetch", return_value={})
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_create_resultaattype_brondatum_archiefprocedure_null_with_vernietigen(
+        self, mock_shape, mock_fetch
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "vernietigen",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": None,
+        }
+
+        responses = {
+            SELECTIELIJSTKLASSE_URL: {
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            }
+        }
+
+        with mock_client(responses):
+            with requests_mock.Mocker() as m:
+                m.register_uri(
+                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
+                )
+                response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_partial_update_resultaattype_brondatum_archiefprocedure(self):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL,)
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.register_uri(
+                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
+            )
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.afgehandeld,
+            )
+            resultaattype_url = reverse(resultaattype)
+
+            response = self.client.patch(
+                resultaattype_url, {"omschrijving": "aangepast"}
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["omschrijving"], "aangepast")
+        self.assertEqual(
+            response.data["brondatum_archiefprocedure"]["afleidingswijze"],
             Afleidingswijze.afgehandeld,
         )
 
@@ -495,7 +618,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
             )
             resultaattype = ResultaatTypeFactory.create(
-                zaaktype=zaaktype, resultaattypeomschrijving=resultaattypeomschrijving
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                archiefnominatie="blijvend_bewaren",
             )
             resultaattype_url = reverse(resultaattype)
 
@@ -510,7 +635,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype, archiefnominatie="blijvend_bewaren"
+        )
         resultaattype_url = reverse(resultaattype)
 
         response = self.client.patch(resultaattype_url, {"omschrijving": "aangepast"})
@@ -530,7 +657,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
         zaaktype_url = reverse(zaaktype)
-        resultaattype = ResultaatTypeFactory.create()
+        resultaattype = ResultaatTypeFactory.create(archiefnominatie="vernietigen")
         resultaattype_url = reverse(resultaattype)
 
         responses = {

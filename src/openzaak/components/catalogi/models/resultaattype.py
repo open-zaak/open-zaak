@@ -199,6 +199,7 @@ class ResultaatType(models.Model):
             "registratie",
             "procestermijn",
         ),
+        required=False,
         none_for_empty=False,
     )
 
@@ -241,6 +242,18 @@ class ResultaatType(models.Model):
                 else None
             )
             self.archiefactietermijn = parsed_relativedelta
+
+        # Met de attribuutsoorten van dit groepatribuutsoort worden deze situaties
+        # geparametrieerd. Dit is alleen relevant indien sprake is van de Archiefnominatie
+        # "vernietigen"; voor te bewaren zaakdossiers start de Archiefactietermijn op de
+        # einddatum van de zaak.
+        if (
+            self.archiefnominatie == Archiefnominatie.blijvend_bewaren
+            and not self.brondatum_archiefprocedure_afleidingswijze
+        ):
+            self.brondatum_archiefprocedure_afleidingswijze = (
+                Afleidingswijze.afgehandeld
+            )
 
         super().save(*args, **kwargs)
 
