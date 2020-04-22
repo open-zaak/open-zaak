@@ -10,6 +10,7 @@ from drc_cmis.client.mapper import mapper
 from drc_cmis.client.convert import make_absolute_uri
 from typing import List, Optional, Tuple
 from rest_framework.request import Request
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from django.conf import settings
 from django.db.models import fields
@@ -47,13 +48,17 @@ class CMISDocumentIterable(BaseIterable):
     def __iter__(self):
         queryset = self.queryset
 
-        lhs, rhs = self._normalize_filters(queryset._cmis_query)
+        filters = self._check_for_pk_filter(queryset._cmis_query)
+
+        lhs, rhs = self._normalize_filters(filters)
         documents = queryset.cmis_client.query(self.return_type, lhs, rhs)
 
-        if self._needs_older_version(queryset._cmis_query):
-            documents = self._retrive_older_version(queryset._cmis_query, documents)
-        elif self._needs_registratie_filter(queryset._cmis_query):
-            documents = self._filter_by_registratie(queryset._cmis_query, documents)
+        if self._needs_older_version(filters):
+            documents = self._retrive_older_version(filters, documents)
+        elif self._needs_registratie_filter(filters):
+            documents = self._filter_by_registratie(filters, documents)
+        elif self._needs_vertrowelijkaanduiding_filter(filters):
+            documents = self._filter_by_va(filters, documents)
 
         for document in documents:
             yield cmis_doc_to_django_model(document)
@@ -85,6 +90,20 @@ class CMISDocumentIterable(BaseIterable):
             elif key == 'begin_registratie':
                 # In order to retrieve all the versions from before a certain date, the latest document is needed
                 continue
+            elif key == '_va_order':
+                continue
+            elif key == 'informatieobjecttype':
+                if isinstance(value, list) and len(value) == 0:
+                    # In this case there are no authorised informatieobjecttypes
+                    _lhs.append("drc:document__informatieobjecttype = '%s'")
+                    _rhs.append("")
+                    continue
+                else:
+                    # In this case there are multiple allowed informatieobjecttypes
+                    lhs, rhs = self._build_authorisation_filter(name, value)
+                    _lhs.append(lhs)
+                    _rhs += rhs
+                    continue
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -93,6 +112,18 @@ class CMISDocumentIterable(BaseIterable):
             _lhs.append(f"{name} = '%s'")
 
         return _lhs, _rhs
+
+    def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
+        new_filters = None
+        for key, value in filters:
+            if key == 'pk' and isinstance(value, CMISQuerySet):
+                new_filters = value._cmis_query
+                break
+
+        if new_filters:
+            return new_filters
+        else:
+            return filters
 
     def _needs_older_version(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
@@ -103,6 +134,12 @@ class CMISDocumentIterable(BaseIterable):
     def _needs_registratie_filter(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
             if key == 'begin_registratie':
+                return True
+        return False
+
+    def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
+        for key, value in filters:
+            if key == '_va_order':
                 return True
         return False
 
@@ -146,6 +183,47 @@ class CMISDocumentIterable(BaseIterable):
                     before_date_documents.append(cmis_document)
                     break
         return before_date_documents
+
+    def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
+        # get the vertrowelijkaanduiding filter
+        for filter_name, filter_value in filters:
+            if filter_name == '_va_order':
+                # In case there are multiple different vertrouwelijk aanduiding,
+                # it chooses the lowest one
+                all_vertrowelijkaanduiding = []
+                if isinstance(filter_value, list):
+                    for order in filter_value:
+                        for case in order.cases:
+                            all_vertrowelijkaanduiding.append(case.result.identity[1][1])
+
+                else:
+                    for case in filter_value.cases:
+                        all_vertrowelijkaanduiding.append(case.result.identity[1][1])
+                va_order = min(all_vertrowelijkaanduiding)
+                break
+
+        filtered_docs = []
+        for cmis_doc in documents:
+            # Check that the vertrouwelijkaanduiding autorisation is as required
+            django_doc = cmis_doc_to_django_model(cmis_doc)
+            doc_va_order = get_doc_va_order(django_doc)
+            if doc_va_order <= va_order:
+                filtered_docs.append(cmis_doc)
+
+        return filtered_docs
+
+    def _build_authorisation_filter(self, key: str, value: List) -> Tuple[str, List[str]]:
+        """
+        :param key: Alfresco name of the property to filter on
+        :param value: List of the values that the key should take
+        """
+        lhs = "( "
+        for _ in value:
+            lhs += f"{key} = '%s' OR "
+        # stripping the last OR
+        lhs = lhs[:-3] + ")"
+
+        return lhs, value
 
 
 class CMISOioIterable(BaseIterable):
@@ -240,6 +318,31 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return len(self)
 
+    def union(self, *args, **kwargs):
+        unified_queryset = super().union(*args, **kwargs)
+
+        unified_query = {}
+        for key, value in self._cmis_query:
+            unified_query[key] = value
+
+        # Adding the cmis queries of the other qs
+        for qs in args:
+            if isinstance(qs, CMISQuerySet):
+                for key, value in qs._cmis_query:
+                    if unified_query.get(key) is not None:
+                        if isinstance(unified_query.get(key), list) and isinstance(value, list):
+                            unified_query[key] += value
+                        elif isinstance(unified_query.get(key), list):
+                            unified_query[key].append(value)
+                        else:
+                            unified_query[key] = [unified_query.get(key), value]
+                    else:
+                        unified_query[key] = value
+
+        unified_queryset._cmis_query = [tuple(x) for x in unified_query.items()]
+
+        return unified_queryset
+
     def create(self, **kwargs):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
@@ -281,11 +384,18 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
             key_bits = key.split("__")
-            if len(key_bits) > 1 and key_bits[1] != "exact":
+            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte"]:
                 raise NotImplementedError(
                     "Fields lookups other than exact are not implemented yet."
                 )
-            filters[key_bits[0]] = value
+            if 'informatieobjecttype' in key:
+                if isinstance(value, list):
+                    filters['informatieobjecttype'] = [get_object_url(item) for item in value]
+                else:
+                    filters['informatieobjecttype'] = get_object_url(value)
+            else:
+                filters[key_bits[0]] = value
+
 
         # keep track of all the filters when chaining
         self._cmis_query += [tuple(x) for x in filters.items()]
@@ -734,3 +844,10 @@ def get_object_url(
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
         return make_absolute_uri(path, request=request)
+
+def get_doc_va_order(django_doc):
+    choice_item = VertrouwelijkheidsAanduiding.get_choice(
+        django_doc.vertrouwelijkheidaanduiding
+    )
+    return choice_item.order
+
