@@ -158,6 +158,8 @@ class CMISOioIterable(BaseIterable):
 
         lhs, rhs = self._normalize_filters(queryset._cmis_query)
         oios = queryset.cmis_client.query(self.return_type, lhs, rhs)
+        # To avoid attempting prefetch of the canonical objects
+        queryset._prefetch_done = True
 
         for oio in oios:
             yield cmis_oio_to_django(oio)
@@ -177,6 +179,10 @@ class CMISOioIterable(BaseIterable):
 
         for key, value in filters:
             name = mapper(key, type="objectinformatieobject")
+
+            if key == 'uuid':
+                name = 'cmis:objectId'
+                value = f'workspace://SpacesStore/{value};1.0'
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -482,10 +488,6 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
 
         self._cmis_query = []
 
-    def __len__(self):
-        # Overwritten to prevent prefetching of related objects
-        return len(self._result_cache)
-
     @property
     def cmis_client(self):
         if not self._client:
@@ -498,13 +500,6 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         clone._cmis_query = copy.copy(self._cmis_query)
         return clone
 
-    def _fetch_all(self):
-        # Overwritten to prevent prefetching of related objects
-        self._result_cache = []
-        cmis_oio = self.cmis_client.get_all_cmis_oio()
-        for a_cmis_oio in cmis_oio["results"]:
-            self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
-
     def convert_django_names_to_alfresco(self, data):
 
         converted_data = {}
@@ -516,8 +511,10 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
             else:
                 relation_object = data.pop("object")
             relation_url = get_object_url(relation_object)
-            converted_data["related_object_type"] = object_type
-            converted_data[f"{object_type}_url"] = relation_url
+            if relation_url is None:
+                relation_url = make_absolute_uri(reverse(relation_object))
+            converted_data["object_type"] = object_type
+            converted_data[f"{object_type}"] = relation_url
 
         for key, value in data.items():
             split_key = key.split("__")
@@ -526,18 +523,15 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
                 raise NotImplementedError(
                     "Fields lookups other than exact are not implemented yet."
                 )
-            if split_key[0] == 'informatieobject':
-                converted_data["enkelvoudiginformatieobject"] = data.get('informatieobject')
-            elif split_key[0] in ['besluit', 'zaak']:
-                converted_data[f"{split_key[0]}_url"] = make_absolute_uri(reverse(value))
+
+            if split_key[0] in ['besluit', 'zaak']:
+                converted_data[split_key[0]] = make_absolute_uri(reverse(value))
+            elif split_key[0] in ['besluit_url', 'zaak_url']:
+                converted_data[split_key[0].split("_")[0]] = value
             else:
                 converted_data[split_key[0]] = value
 
         return converted_data
-
-    def all(self):
-        self._fetch_all()
-        return self
 
     def create(self, **kwargs):
         data = self.convert_django_names_to_alfresco(kwargs)
@@ -580,26 +574,18 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
                 )
             filters[key_bits[0]] = value
 
+        if filters.get('object_type'):
+            filters.pop('object_type')
+
         # keep track of all the filters when chaining
         self._cmis_query += [tuple(x) for x in filters.items()]
 
-        return super().filter(*args, **kwargs)
+        return self
 
-        # self._result_cache = []
-        #
-        # filters = self.convert_django_names_to_alfresco(kwargs)
-        # # Not needed for retrieving ObjectInformatieobjects from alfresco
-        # if filters.get('related_object_type'):
-        #     filters.pop('related_object_type')
-        #
-        # cmis_oio = self.cmis_client.get_cmis_oio(filters)
-        #
-        # for a_cmis_oio in cmis_oio["results"]:
-        #     self._result_cache.append(cmis_oio_to_django(a_cmis_oio))
-        #
-        # self.has_been_filtered = True
-        #
-        # return self
+    def exists(self):
+        if self._result_cache is None:
+            return bool(len(self))
+        return bool(self._result_cache)
 
 
 # ---------------- Utility Functions --------------------
@@ -725,9 +711,9 @@ def cmis_oio_to_django(cmis_oio):
     django_oio = ObjectInformatieObject(
         uuid=cmis_oio.versionSeriesId,
         informatieobject=canonical,
-        zaak=cmis_oio.zaak_url,
-        besluit=cmis_oio.besluit_url,
-        object_type=cmis_oio.related_object_type,
+        zaak=cmis_oio.zaak,
+        besluit=cmis_oio.besluit,
+        object_type=cmis_oio.object_type,
     )
 
     return django_oio

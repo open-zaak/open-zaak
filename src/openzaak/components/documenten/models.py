@@ -689,7 +689,7 @@ class ObjectInformatieObject(models.Model):
         """
         client = CMISDRCClient()
         cmis_oio = client.get_a_cmis_oio(self.uuid)
-        return cmis_oio.enkelvoudiginformatieobject
+        return cmis_oio.informatieobject
 
     def does_besluitinformatieobject_exist(self):
         """

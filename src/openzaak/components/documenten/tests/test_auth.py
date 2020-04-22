@@ -1,6 +1,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
+from django.conf import settings
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -494,18 +495,31 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-        )
+        if settings.CMIS_ENABLED:
+            eio1_url = f"http://testserver{reverse(eio1)}"
+            oio1 = ObjectInformatieObject.objects.create(
+                informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            )
+        else:
+            oio1 = ObjectInformatieObject.objects.create(
+                informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            )
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-        )
+
+        if settings.CMIS_ENABLED:
+            eio2_url = f"http://testserver{reverse(eio2)}"
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            )
+        else:
+            ObjectInformatieObject.objects.create(
+                informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            )
 
         response = self.client.get(url)
 
