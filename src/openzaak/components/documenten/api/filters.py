@@ -108,3 +108,14 @@ class ObjectInformatieObjectFilter(FilterSet):
     class Meta:
         model = ObjectInformatieObject
         fields = ("object", "informatieobject")
+
+    def filter_queryset(self, queryset):
+        if settings.CMIS_ENABLED and self.data.get('informatieobject') is not None:
+            # The cleaned value for informatieobject needs to be reset since a url_to_pk function
+            # makes its value None when CMIS is enabled (as the eio object has no PK).
+            self.form.cleaned_data['informatieobject'] = self.data['informatieobject']
+            qs = super().filter_queryset(queryset)
+            # Refresh queryset
+            qs._result_cache = None
+            return qs
+        return super().filter_queryset(queryset)
