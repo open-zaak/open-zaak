@@ -187,16 +187,19 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCaseCMIS):
 
         response = self.client.get(oio_url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(
-            response.data,
-            {
+        expeceted_response_data = {
                 "url": f"http://testserver{oio_url}",
                 "object": f"http://testserver{zaak_url}",
                 "informatieobject": eio_url,
                 "object_type": "zaak",
-            },
-        )
+            }
+
+        if settings.CMIS_ENABLED:
+            from drc_cmis.client.convert import make_absolute_uri
+            expeceted_response_data['object'] = make_absolute_uri(zaak_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data, expeceted_response_data)
 
     def test_read_with_objecttype_besluit(self):
         besluit = BesluitFactory.create()
@@ -230,16 +233,19 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCaseCMIS):
 
         response = self.client.get(oio_url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(
-            response.data,
-            {
+        expeceted_response_data = {
                 "url": f"http://testserver{oio_url}",
                 "object": f"http://testserver{besluit_url}",
                 "informatieobject": eio_url,
                 "object_type": "besluit",
-            },
-        )
+            }
+
+        if settings.CMIS_ENABLED:
+            from drc_cmis.client.convert import make_absolute_uri
+            expeceted_response_data['object'] = make_absolute_uri(besluit_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data, expeceted_response_data)
 
     def test_post_object_without_created_relations(self):
         """

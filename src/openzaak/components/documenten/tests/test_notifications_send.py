@@ -201,7 +201,7 @@ class FailedNotificationTests(JWTAuthMixin, APITestCaseCMIS):
     def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self):
         if settings.CMIS_ENABLED:
             eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = f"{settings.HOST_URL}{reverse(eio)}"
+            eio_url = f"http://testserver{reverse(eio)}"
             gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
         else:
             gebruiksrechten = GebruiksrechtenFactory.create()

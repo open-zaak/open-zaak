@@ -34,19 +34,6 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
         field_name="begin_registratie", lookup_expr="lte", label="begin_registratie"
     )
 
-    def filter_queryset(self, queryset):
-        if settings.CMIS_ENABLED:
-            filters_for_alfresco = {}
-            filters_for_alfresco.update({'uuid': self.request.parser_context['kwargs']['uuid']})
-            for name, value in self.form.cleaned_data.items():
-                if value is not None:
-                    filter_name = self.filters[name].label.lower() # + "__" + self.filters[name].lookup_expr
-                    filters_for_alfresco[filter_name] = value
-
-            return queryset.filter(**filters_for_alfresco)
-        else:
-            return super().filter_queryset(queryset)
-
 
 class GebruiksrechtenFilter(FilterSet):
     informatieobject = URLModelChoiceFilter(
