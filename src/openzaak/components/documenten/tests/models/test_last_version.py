@@ -1,3 +1,6 @@
+from unittest import skipIf
+
+from django.conf import settings
 from django.test import TestCase
 
 from ..factories import (
@@ -6,6 +9,7 @@ from ..factories import (
 )
 
 
+@skipIf(settings.CMIS_ENABLED, "last_version doesn't work with CMIS enabled.")
 class LastVersionTests(TestCase):
     def test_canonical_last_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory()

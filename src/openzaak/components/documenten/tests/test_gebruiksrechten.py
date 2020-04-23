@@ -54,7 +54,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCaseCMIS):
         """
         if settings.CMIS_ENABLED:
             eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = reverse(eio)
+            eio_url = f"http://example.com{reverse(eio)}"
             gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
         else:
             gebruiksrechten = GebruiksrechtenFactory.create()

@@ -31,7 +31,7 @@ class US349TestCase(JWTAuthMixin, APITestCaseCMIS):
         """
         if settings.CMIS_ENABLED:
             eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = reverse(eio)
+            eio_url = f"http://example.com{reverse(eio)}"
             GebruiksrechtenCMISFactory(informatieobject=eio_url)
             eio_uuid = eio.uuid
         else:
