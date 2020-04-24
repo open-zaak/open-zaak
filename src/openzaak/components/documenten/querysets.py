@@ -185,6 +185,9 @@ class CMISDocumentIterable(BaseIterable):
         return before_date_documents
 
     def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
+        if len(documents) == 0:
+            return documents
+
         # get the vertrowelijkaanduiding filter
         for filter_name, filter_value in filters:
             if filter_name == '_va_order':
@@ -234,7 +237,10 @@ class CMISOioIterable(BaseIterable):
     def __iter__(self):
         queryset = self.queryset
 
-        lhs, rhs = self._normalize_filters(queryset._cmis_query)
+        filters = self._check_for_pk_filter(queryset._cmis_query)
+        unique_filters = self._combine_duplicate_filters(filters)
+
+        lhs, rhs = self._normalize_filters(unique_filters)
         oios = queryset.cmis_client.query(self.return_type, lhs, rhs)
         # To avoid attempting prefetch of the canonical objects
         queryset._prefetch_done = True
@@ -265,10 +271,37 @@ class CMISOioIterable(BaseIterable):
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
 
-            _rhs.append(value)
-            _lhs.append(f"{name} = '%s'")
+            lhs_filter, rhs_filter = build_filter(name, value)
+
+            _rhs += rhs_filter
+            _lhs += lhs_filter
 
         return _lhs, _rhs
+
+    def _combine_duplicate_filters(self, filters: List[Tuple]) -> List[Tuple]:
+        unique_filters = {}
+        for key, value in filters:
+            if unique_filters.get(key) is None:
+                unique_filters[key] = value
+            else:
+                unique_filters[key] = modify_value_in_dictionary(unique_filters[key], value)
+
+        formatted_unique_filters = []
+        for key, value in unique_filters.items():
+            formatted_unique_filters.append((key, value))
+
+        return formatted_unique_filters
+
+    def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
+        new_filters = []
+        for key, value in filters:
+            if key == 'pk' and isinstance(value, ObjectInformatieObjectCMISQuerySet):
+                new_filters += value._cmis_query
+            else:
+                new_filters.append((key, value))
+
+        return new_filters
+
 
 # --------------- Querysets --------------------------
 
@@ -610,7 +643,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         clone._cmis_query = copy.copy(self._cmis_query)
         return clone
 
-    def convert_django_names_to_alfresco(self, data):
+    def process_filters(self, data):
 
         converted_data = {}
 
@@ -629,10 +662,17 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         for key, value in data.items():
             split_key = key.split("__")
             split_key[0] = split_key[0].strip("_")
-            if len(split_key) > 1 and split_key[1] != "exact":
+            if len(split_key) > 1 and split_key[1] not in ["exact", "in"]:
                 raise NotImplementedError(
                     "Fields lookups other than exact are not implemented yet."
                 )
+
+            # If the value is a queryset, extract the objects
+            if split_key[0] == 'informatieobject' and isinstance(value, CMISQuerySet):
+                list_value = []
+                for item in value:
+                    list_value.append(make_absolute_uri(reverse(item)))
+                value = list_value
 
             if split_key[0] in ['besluit', 'zaak']:
                 converted_data[split_key[0]] = make_absolute_uri(reverse(value))
@@ -644,7 +684,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         return converted_data
 
     def create(self, **kwargs):
-        data = self.convert_django_names_to_alfresco(kwargs)
+        data = self.process_filters(kwargs)
         cmis_oio = self.cmis_client.create_cmis_oio(data=data)
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
@@ -671,18 +711,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         return obj.delete()
 
     def filter(self, *args, **kwargs):
-        # TODO make sure the names match the current names
-        converted_kwargs = self.convert_django_names_to_alfresco(kwargs)
-
-        filters = {}
-
-        for key, value in converted_kwargs.items():
-            key_bits = key.split("__")
-            if len(key_bits) > 1 and key_bits[1] != "exact":
-                raise NotImplementedError(
-                    "Fields lookups other than exact are not implemented yet."
-                )
-            filters[key_bits[0]] = value
+        filters = self.process_filters(kwargs)
 
         if filters.get('object_type'):
             filters.pop('object_type')
@@ -851,3 +880,38 @@ def get_doc_va_order(django_doc):
     )
     return choice_item.order
 
+
+def build_filter(filter_name, filter_value):
+    rhs = []
+    lhs = []
+
+    if isinstance(filter_value, list):
+        if len(filter_value) == 0:
+            lhs.append(f"{filter_name} = '%s'")
+            rhs.append("")
+        else:
+            lhs_string = "( "
+            for item in filter_value:
+                lhs_string += f"{filter_name} = '%s' OR "
+                rhs.append(item)
+            # stripping the last OR
+            lhs_string = lhs_string[:-3] + ")"
+            lhs.append(lhs_string)
+    else:
+        lhs.append(f"{filter_name} = '%s'")
+        rhs.append(filter_value)
+
+    return lhs, rhs
+
+def modify_value_in_dictionary(existing_value, new_value):
+    """
+    Checks if the key in the dictionary is already a list and then adds the new value accordingly.
+    """
+    if isinstance(existing_value, list) and isinstance(new_value, list):
+        existing_value += new_value
+    elif isinstance(existing_value, list):
+        existing_value.append(new_value)
+    else:
+        existing_value = [existing_value, new_value]
+
+    return existing_value

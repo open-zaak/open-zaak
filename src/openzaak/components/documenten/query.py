@@ -1,6 +1,7 @@
 from typing import Dict, Tuple
 
 from django.apps import apps
+from django.conf import settings
 from django.db import models
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -58,11 +59,14 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
             # for which the user is authorized and then return the objects
             # related to those EnkelvoudigInformatieObjectCanonicals
             model = apps.get_model("documenten", "EnkelvoudigInformatieObject")
-            filtered = (
-                model.objects.annotate(**annotations)
-                .filter(**filters)
-                .values("canonical")
-            )
+            if settings.CMIS_ENABLED:
+                filtered = model.objects.annotate(**annotations).filter(**filters)
+            else:
+                filtered = (
+                    model.objects.annotate(**annotations)
+                    .filter(**filters)
+                    .values("canonical")
+                )
             queryset = self.filter(informatieobject__in=filtered)
             # bring it all together now to build the resulting queryset
         else:
