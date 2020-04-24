@@ -18,7 +18,9 @@ class DisableTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         # service is disabled
-        service = InternalService.objects.get(api_type=component_type)
+        service, created = InternalService.objects.get_or_create(
+            api_type=component_type
+        )
         service.enabled = False
         service.save()
 
