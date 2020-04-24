@@ -515,7 +515,7 @@ class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
         catalogus_pk = (
             kwargs["instance"].informatieobjecttype.catalogus.pk
             if kwargs.get("instance")
-            else None
+            else kwargs.get("initial", {}).get("catalogus")
         )
 
         if "zaaktype" in self.fields:
