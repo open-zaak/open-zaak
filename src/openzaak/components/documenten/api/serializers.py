@@ -505,7 +505,7 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
                 "gebruiksrechten-detail", kwargs={"version": 1, "uuid": instance.uuid}
             )
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
-            ret["informatieobject"] = self.instance.get_informatieobject_url()
+            ret["informatieobject"] = instance.get_informatieobject_url()
         return ret
 
 

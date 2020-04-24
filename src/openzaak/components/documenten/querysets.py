@@ -5,7 +5,7 @@ from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
 import logging
 from vng_api_common.tests import reverse
-from drc_cmis.cmis.drc_document import Document, ObjectInformatieObject
+from drc_cmis.cmis.drc_document import Document, ObjectInformatieObject, Gebruiksrechten
 from drc_cmis.client.mapper import mapper
 from drc_cmis.client.convert import make_absolute_uri
 from typing import List, Optional, Tuple
@@ -39,7 +39,7 @@ LHS_FILTER_MAP = {
     "_informatieobjecttype__in": "informatieobjecttype__in",
 }
 
-
+#TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable):
 
     table = "drc:document"
@@ -296,6 +296,79 @@ class CMISOioIterable(BaseIterable):
         new_filters = []
         for key, value in filters:
             if key == 'pk' and isinstance(value, ObjectInformatieObjectCMISQuerySet):
+                new_filters += value._cmis_query
+            else:
+                new_filters.append((key, value))
+
+        return new_filters
+
+
+class CMISGebruiksrechtenIterable(BaseIterable):
+    table = "drc:gebruiksrechten"
+    return_type = Gebruiksrechten
+
+    def __iter__(self):
+        queryset = self.queryset
+
+        filters = self._check_for_pk_filter(queryset._cmis_query)
+        unique_filters = self._combine_duplicate_filters(filters)
+
+        lhs, rhs = self._normalize_filters(unique_filters)
+        gebruiksrechten_cmis = queryset.cmis_client.query(self.return_type, lhs, rhs)
+        # To avoid attempting prefetch of the canonical objects
+        queryset._prefetch_done = True
+
+        for gebruiksrechten_doc in gebruiksrechten_cmis:
+            yield cmis_gebruiksrechten_to_django(gebruiksrechten_doc)
+
+    def _normalize_filters(self, filters: List[Tuple]) -> Tuple[List[str], List[str]]:
+        """
+        Normalize the various flavours of ORM filters.
+
+        Turn dict filters into something that looks like SQL 92 suitable for Alfresco
+        CMIS query. Note that all filters are AND-ed together.
+
+        Ideally, this would be an implementation of the as_sql for a custom database
+        backend, returning lhs and rhs parts.
+        """
+        _lhs = []
+        _rhs = []
+
+        for key, value in filters:
+            name = mapper(key, type="gebruiksrechten")
+
+            if key == 'uuid':
+                name = 'cmis:objectId'
+                value = f'workspace://SpacesStore/{value};1.0'
+
+            if name is None:
+                raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
+
+            lhs_filter, rhs_filter = build_filter(name, value)
+
+            _rhs += rhs_filter
+            _lhs += lhs_filter
+
+        return _lhs, _rhs
+
+    def _combine_duplicate_filters(self, filters: List[Tuple]) -> List[Tuple]:
+        unique_filters = {}
+        for key, value in filters:
+            if unique_filters.get(key) is None:
+                unique_filters[key] = value
+            else:
+                unique_filters[key] = modify_value_in_dictionary(unique_filters[key], value)
+
+        formatted_unique_filters = []
+        for key, value in unique_filters.items():
+            formatted_unique_filters.append((key, value))
+
+        return formatted_unique_filters
+
+    def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
+        new_filters = []
+        for key, value in filters:
+            if key == 'pk' and isinstance(value, GebruiksrechtenQuerySet):
                 new_filters += value._cmis_query
             else:
                 new_filters.append((key, value))
@@ -568,11 +641,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
 class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
     _client = None
-    has_been_filtered = False
 
-    def __len__(self):
-        # Overwritten to prevent prefetching of related objects
-        return len(self._result_cache)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._iterable_class = CMISGebruiksrechtenIterable
+
+        self._cmis_query = []
 
     @property
     def cmis_client(self):
@@ -581,13 +656,10 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
         return self._client
 
-    def _chain(self, **kwargs):
-        obj = super()._chain(**kwargs)
-        # In the super, when _clone() is performed on the queryset,
-        # an SQL query is run to retrieve the objects, but with
-        # alfresco it doesn't work, so the cache is re-added manually
-        obj._result_cache = self._result_cache
-        return obj
+    def _clone(self):
+        clone = super()._clone()
+        clone._cmis_query = copy.copy(self._cmis_query)
+        return clone
 
     def create(self, **kwargs):
         from .models import EnkelvoudigInformatieObject
@@ -605,18 +677,45 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
     def filter(self, *args, **kwargs):
 
-        self._result_cache = []
+        filters = self.process_filters(kwargs)
 
-        cmis_gebruiksrechten = self.cmis_client.get_cmis_gebruiksrechten(kwargs)
-
-        for a_cmis_gebruiksrechten in cmis_gebruiksrechten["results"]:
-            self._result_cache.append(
-                cmis_gebruiksrechten_to_django(a_cmis_gebruiksrechten)
-            )
-
-        self.has_been_filtered = True
+        self._cmis_query += [tuple(x) for x in filters.items()]
 
         return self
+
+    def exists(self):
+        if self._result_cache is None:
+            return bool(len(self))
+        return bool(self._result_cache)
+
+    def none(self):
+        """Adds a query to the _cmis_query that will match nothing"""
+        clone = self._chain()
+        clone._cmis_query = [('uuid', '')]
+        return clone
+
+    def process_filters(self, data):
+
+        converted_data = {}
+
+        for key, value in data.items():
+            split_key = key.split("__")
+            split_key[0] = split_key[0].strip("_")
+            if len(split_key) > 1 and split_key[1] not in ["exact", "in"]:
+                raise NotImplementedError(
+                    "Fields lookups other than exact are not implemented yet."
+                )
+
+            # If the value is a queryset, extract the objects
+            if split_key[0] == 'informatieobject' and isinstance(value, CMISQuerySet):
+                list_value = []
+                for item in value:
+                    list_value.append(make_absolute_uri(reverse(item)))
+                value = list_value
+
+            converted_data[split_key[0]] = value
+
+        return converted_data
 
 
 class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):

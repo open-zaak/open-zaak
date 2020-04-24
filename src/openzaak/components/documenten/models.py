@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.fields import FkOrURLField
 from drc_cmis.backend import CMISDRCStorageBackend
 from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.client.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.constants import ObjectTypes
@@ -425,6 +426,11 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         if not settings.CMIS_ENABLED:
             return super().delete(*args, **kwargs)
         else:
+            if self.has_gebruiksrechten():
+                eio_instance_url = self.get_url()
+                gebruiksrechten = Gebruiksrechten.objects.filter(informatieobject=eio_instance_url)
+                for gebruiksrechten_doc in gebruiksrechten:
+                    gebruiksrechten_doc.delete()
             cmis_storage = CMISDRCStorageBackend()
             cmis_storage.obliterate_document(self.uuid)
 
@@ -450,12 +456,16 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             else:
                 return False
 
+    def get_url(self):
+        eio_path = reverse(
+            "enkelvoudiginformatieobject-detail",
+            kwargs={"version": "1", "uuid": self.uuid},
+        )
+        return make_absolute_uri(eio_path)
+
     def has_gebruiksrechten(self):
         if settings.CMIS_ENABLED:
-            eio_url = reverse(
-                "enkelvoudiginformatieobject-detail",
-                kwargs={"version": "1", "uuid": self.uuid},
-            )
+            eio_url = self.get_url()
             return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
         else:
             return self.canonical.gebruiksrechten_set.exists()
