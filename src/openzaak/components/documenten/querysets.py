@@ -1,5 +1,6 @@
 import copy
 import datetime
+import re
 from decimal import Decimal, InvalidOperation
 from drc_cmis.client import CMISDRCClient, exceptions
 from drc_cmis.backend import CMISDRCStorageBackend
@@ -11,9 +12,12 @@ from drc_cmis.client.convert import make_absolute_uri
 from typing import List, Optional, Tuple
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+# from vng_api_common.utils import generate_unique_identification
 
 from django.conf import settings
+from django.db import models
 from django.db.models import fields
+from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.db.models.query import BaseIterable
 from django_loose_fk.virtual_models import ProxyMixin
@@ -104,6 +108,10 @@ class CMISDocumentIterable(BaseIterable):
                     _lhs.append(lhs)
                     _rhs += rhs
                     continue
+            elif key == 'identificatie' and '%' in value:
+                _lhs.append(f"{name} LIKE '%s'")
+                _rhs.append(f"{value}")
+                continue
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -418,6 +426,11 @@ class CMISQuerySet(InformatieobjectQuerySet):
         for document in self.documents:
             yield document
 
+    def exists(self):
+        if self._result_cache is None:
+            return bool(len(self))
+        return bool(self._result_cache)
+
     def count(self):
         if self._result_cache is not None:
             return len(self._result_cache)
@@ -476,12 +489,14 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         django_document = cmis_doc_to_django_model(new_cmis_document)
 
-        # TODO needed to fix test src/openzaak/components/documenten/tests/models/test_human_readable_identification.py
-        # but first filters on regex need to be implemented in alfresco
-        # if not django_document.identificatie:
-        #     django_document.identificatie = generate_unique_identification(django_document, "creatiedatum")
-        #     model_data = model_to_dict(django_document)
-        #     self.filter(uuid=django_document.uuid).update(**model_data)
+        # If no identificatie field is present, it generates a unique, human readable one
+        if not django_document.identificatie:
+            #FIXME when aggregation operations will work in alfresco, should use
+            # vng_api_common.utils.generate_unique_identification rather than the one defined below
+            django_document.identificatie = generate_unique_identification(django_document, "creatiedatum")
+            model_data = model_to_dict(django_document)
+            self.filter(uuid=django_document.uuid).update(**model_data)
+
         return django_document
 
     def filter(self, *args, **kwargs):
@@ -490,15 +505,22 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
             key_bits = key.split("__")
-            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte"]:
+            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte", "regex"]:
                 raise NotImplementedError(
-                    "Fields lookups other than exact are not implemented yet."
+                    f"Fields lookups other than exact are not implemented yet (searched key: {key})"
                 )
             if 'informatieobjecttype' in key:
                 if isinstance(value, list):
                     filters['informatieobjecttype'] = [get_object_url(item) for item in value]
                 else:
                     filters['informatieobjecttype'] = get_object_url(value)
+            elif key == 'identificatie__regex':
+                if "%" in value:
+                    filters[key_bits[0]] = value
+                else:
+                    raise NotImplementedError(
+                        f"This regex field lookup has not been implemented yet (searched key: {key})"
+                    )
             else:
                 filters[key_bits[0]] = value
 
@@ -1014,3 +1036,22 @@ def modify_value_in_dictionary(existing_value, new_value):
         existing_value = [existing_value, new_value]
 
     return existing_value
+
+
+def generate_unique_identification(instance: models.Model, date_field_name: str):
+    model = type(instance)
+    model_name = getattr(model, "IDENTIFICATIE_PREFIX", model._meta.model_name.upper())
+
+    year = getattr(instance, date_field_name).year
+    pattern = f"{model_name}-{year}-%"
+
+    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
+
+    max_identificatie = 0
+    if issued_ids_for_year.exists():
+        for document in issued_ids_for_year:
+            number = int(document.identificatie.split("-")[-1])
+            max_identificatie = max(max_identificatie, number)
+
+    padded_number = str(max_identificatie+1).zfill(10)
+    return f"{model_name}-{year}-{padded_number}"
