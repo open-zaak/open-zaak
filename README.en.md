@@ -10,7 +10,6 @@
 | **Source:** | https://github.com/open-zaak/open-zaak |
 | **Keywords:** | zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api |
 | **PythonVersion:** | 3.7 |
-| | | |
 
 [![API test platform](https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/)](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 [![Build status](https://travis-ci.org/open-zaak/open-zaak.svg?branch=master)](https://travis-ci.org/open-zaak/open-zaak)
