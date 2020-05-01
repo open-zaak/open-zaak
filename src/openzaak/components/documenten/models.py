@@ -400,6 +400,15 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     def _set_locked(self, value: bool) -> None:
         self._locked = value
 
+    def full_clean(self, exclude=None, validate_unique=True):
+        if settings.CMIS_ENABLED:
+            return super().full_clean(
+                exclude=('canonical',),
+                validate_unique=validate_unique
+            )
+        else:
+            return super().full_clean(exclude, validate_unique)
+
     def save(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
             return super().save(*args, **kwargs)

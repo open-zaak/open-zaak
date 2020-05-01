@@ -764,6 +764,12 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         clone._cmis_query = copy.copy(self._cmis_query)
         return clone
 
+    def count(self):
+        if self._result_cache is not None:
+            return len(self._result_cache)
+
+        return len(self)
+
     def process_filters(self, data):
 
         converted_data = {}
