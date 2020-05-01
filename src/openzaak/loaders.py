@@ -1,4 +1,5 @@
 import json
+import traceback
 from inspect import getmembers
 from typing import Any, Dict
 
@@ -48,6 +49,8 @@ class AuthorizedRequestsLoader(BaseLoader):
 
     def load(self, url: str, model: ModelBase) -> models.Model:
         if self.is_local_url(url):
+            # print(url)
+            # assert False, "Stopped here"
             return self.load_local_object(url, model)
 
         data = self.fetch_object(url)

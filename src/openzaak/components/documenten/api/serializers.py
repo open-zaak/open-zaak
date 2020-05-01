@@ -141,13 +141,7 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     """
 
     def get_url(self, obj, view_name, request, format):
-        if settings.CMIS_ENABLED:
-            if hasattr(self.parent.instance, "get_informatieobject_url"):
-                obj_latest_version = self.parent.instance.get_informatieobject()
-            else:
-                return None
-        else:
-            obj_latest_version = obj.latest_version
+        obj_latest_version = obj.get_latest_version(self.parent)
         return super().get_url(obj_latest_version, view_name, request, format)
 
     def get_object(self, view_name, view_args, view_kwargs):
