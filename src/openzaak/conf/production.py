@@ -50,14 +50,9 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Sets X-Content-Type-Options: nosniff
 SECURE_BROWSER_XSS_FILTER = True  # Sets X-XSS-Protection: 1; mode=block
 
 # Deal with being hosted on a subpath
-subpath = config("SUBPATH", None)
 if subpath:
-    if not subpath.startswith("/"):
-        subpath = f"/{subpath}"
-
-    FORCE_SCRIPT_NAME = subpath
-    STATIC_URL = f"{FORCE_SCRIPT_NAME}{STATIC_URL}"
-    MEDIA_URL = f"{FORCE_SCRIPT_NAME}{MEDIA_URL}"
+    STATIC_URL = f"{subpath}{STATIC_URL}"
+    MEDIA_URL = f"{subpath}{MEDIA_URL}"
 
 #
 # Custom settings overrides

@@ -6,6 +6,7 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'config:config-detail' %}">{% trans 'Service configuratie' %}</a>
 &rsaquo; {% trans 'NLX inway' %}
 </div>
 {% endblock %}
@@ -35,7 +36,7 @@
             {% endfor %}</code></pre>
         </div>
 
-        <input type="button" value="{% trans 'Terug' %}" onclick="location.href='{% url 'admin:index' %}';">
+        <input type="button" value="{% trans 'Terug' %}" onclick="location.href='{% url 'config:config-detail' %}';">
 
     </div>
 {% endblock %}

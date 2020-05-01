@@ -134,6 +134,11 @@ class ResultaatTypeAdmin(
                 "Please save this Resultaattype first to get proper filtering of selectielijstklasses"
             )
         url = obj.zaaktype.selectielijst_procestype
+        if not url:
+            return _(
+                "Please select a Procestype for the related ZaakType to "
+                "get proper filtering of selectielijstklasses"
+            )
         client = ReferentieLijstConfig.get_client()
         procestype = client.retrieve("procestype", url)
         return f"{procestype['nummer']} - {procestype['naam']}"

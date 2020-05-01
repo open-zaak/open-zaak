@@ -14,7 +14,7 @@ if (argv.production) {
 module.exports = {
     // Path to the js entry point (source).
     entry: {
-        admin: __dirname + '/' + paths.jsEntryAdmin,
+        main: __dirname + '/' + paths.jsEntry,
     },
 
     // Path to the (transpiled) js

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -182,6 +183,12 @@ class ApplicatieAdmin(admin.ModelAdmin):
                 "admin:authorizations_applicatie_autorisaties", object_id=obj.id
             )
         return super().response_post_save_change(request, obj)
+
+    @transaction.atomic
+    def delete_model(self, request, obj):
+        secrets = JWTSecret.objects.filter(identifier__in=obj.client_ids)
+        secrets.delete()
+        super().delete_model(request, obj)
 
 
 @admin.register(AutorisatieSpec)

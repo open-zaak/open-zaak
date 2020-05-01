@@ -29,7 +29,6 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
-from openzaak.components.besluiten.models import Besluit
 from openzaak.components.documenten.api.utils import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
@@ -930,9 +929,7 @@ class ZaakBesluitViewSet(
 
         # for local besluit the actual relation information must be updated in the Besluiten API,
         # so this is just a check.
-        if Besluit.objects.filter(
-            id=instance.zaak.id, besluit=instance.besluit
-        ).exists():
+        if instance.besluit.zaak == instance.zaak:
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
@@ -942,3 +939,5 @@ class ZaakBesluitViewSet(
                 },
                 code="inconsistent-relation",
             )
+        super().perform_destroy(instance)
+        return

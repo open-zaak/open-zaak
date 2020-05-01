@@ -1,3 +1,4 @@
+from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
@@ -18,9 +19,11 @@ class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
         self.fields["formaat"].help_text += f"\n\n{value_display_mapping}"
 
 
-class EigenschapSerializer(serializers.HyperlinkedModelSerializer):
+class EigenschapSerializer(
+    NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
+):
     specificatie = EigenschapSpecificatieSerializer(
-        read_only=True, source="specificatie_van_eigenschap"
+        source="specificatie_van_eigenschap", required=False,
     )
 
     class Meta:

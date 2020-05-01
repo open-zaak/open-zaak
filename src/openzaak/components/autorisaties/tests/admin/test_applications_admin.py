@@ -6,6 +6,8 @@ from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
+from ..factories import ApplicatieFactory
+
 
 class ApplicationsTests(WebTest):
     @classmethod
@@ -39,6 +41,19 @@ class ApplicationsTests(WebTest):
         self.assertEqual(applicatie.client_ids, ["foo"])
         self.assertEqual(credential.identifier, "foo")
         self.assertEqual(credential.secret, "bar")
+
+    def test_delete_applicatie_cascade_inline_credentials(self):
+        JWTSecret.objects.create(identifier="testid", secret="bla")
+        applicatie = ApplicatieFactory.create(client_ids=["testid"])
+
+        url = reverse("admin:authorizations_applicatie_delete", args=(applicatie.pk,))
+        response = self.app.get(url)
+        response = response.form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(Applicatie.objects.count(), 0)
+        self.assertEqual(JWTSecret.objects.count(), 0)
 
     def test_show_related_jwt_secrets(self):
         application = Applicatie.objects.create(label="test", client_ids=["foo"])

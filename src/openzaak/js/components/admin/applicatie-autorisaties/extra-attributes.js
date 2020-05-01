@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 
 import { CheckboxSelect } from './checkbox-select';
 import { ConstantsContext, CatalogiContext, PrefixContext } from './context';
-import { ErrorList } from './error-list';
-import { TextInput } from './inputs';
+import { ErrorList } from '../../../forms/error-list';
+import { TextInput } from '../../../forms/inputs';
 import { RadioSelect } from './radio-select';
-import { Err, Pk } from './types';
+import { Err, Pk } from '../../../forms/types';
 
 
 const CatalogusOptions = (props) => {

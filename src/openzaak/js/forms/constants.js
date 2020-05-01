@@ -8,4 +8,10 @@ const COMPONENT_CHOICES = [
     ["brc", "Besluiten API"],
 ];
 
-export { COMPONENT_CHOICES };
+// See zgw_consumers.constants.ApiTypes
+const API_TYPES = COMPONENT_CHOICES.concat([
+    ["kic", "Klantinteracties API"],
+    ["orc", "Overige"],
+]);
+
+export { COMPONENT_CHOICES, API_TYPES };

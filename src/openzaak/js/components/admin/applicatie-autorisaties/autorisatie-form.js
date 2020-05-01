@@ -1,10 +1,10 @@
 import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 
-import { COMPONENT_CHOICES } from './constants';
+import { COMPONENT_CHOICES } from '../../../forms/constants';
 import { CheckboxSelect } from './checkbox-select';
 import { RadioSelect } from './radio-select';
-import { Choice } from "./types";
+import { Choice } from "../../../forms/types";
 
 import { ConstantsContext, PrefixContext } from './context';
 
