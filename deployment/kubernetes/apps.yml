@@ -7,6 +7,7 @@
     - vars/db_credentials.yml
     - vars/open-zaak.yml
     - vars/open-notificaties.yml
+    # NLX is done separately via the nlx.yml playbook.
     # - vars/nlx.yml
 
   collections:
@@ -23,6 +24,7 @@
 
     - role: open_notificaties_k8s
       vars:
+        opennotificaties_version: '1.1.0'
         opennotificaties_db_host: "{{ db.privateIp }}"
         opennotificaties_db_port: "{{ db.port }}"
       tags:
