@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,6 +40,24 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_delete_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_change_permission(request, obj)
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):
@@ -101,6 +120,24 @@ class ObjectInformatieObjectAdmin(
         return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
 
     get_object_display.short_description = "object"
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_delete_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_change_permission(request, obj)
 
 
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
@@ -255,3 +292,21 @@ class EnkelvoudigInformatieObjectAdmin(
             link_to_related_objects(Gebruiksrechten, obj.canonical),
             link_to_related_objects(ObjectInformatieObject, obj.canonical),
         )
+
+    def has_delete_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_delete_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_change_permission(request, obj)

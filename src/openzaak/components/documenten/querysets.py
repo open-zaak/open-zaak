@@ -112,6 +112,10 @@ class CMISDocumentIterable(BaseIterable):
                 _lhs.append(f"{name} LIKE '%s'")
                 _rhs.append(f"{value}")
                 continue
+            elif key == 'creatiedatum' and value == '':
+                _lhs.append(f"{name} LIKE '%s'")
+                _rhs.append(f"%-%-%")
+                continue
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -505,9 +509,9 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
             key_bits = key.split("__")
-            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte", "regex"]:
+            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte", "regex", "isnull"]:
                 raise NotImplementedError(
-                    f"Fields lookups other than exact are not implemented yet (searched key: {key})"
+                    f"Filter on '{key}' is not implemented yet"
                 )
             if 'informatieobjecttype' in key:
                 if isinstance(value, list):
@@ -519,8 +523,10 @@ class CMISQuerySet(InformatieobjectQuerySet):
                     filters[key_bits[0]] = value
                 else:
                     raise NotImplementedError(
-                        f"This regex field lookup has not been implemented yet (searched key: {key})"
+                        f"Filter on '{key}' is not implemented yet"
                     )
+            elif key == "creatiedatum__isnull":
+                filters['creatiedatum'] = ""
             else:
                 filters[key_bits[0]] = value
 
@@ -659,6 +665,15 @@ class CMISQuerySet(InformatieobjectQuerySet):
             # Should return the number of rows that have been modified
             return number_docs_to_update
 
+    # FIXME This is a temporary fix to make date_hierarchy work for the admin,
+    #  so that EIOs can be viewed
+    def dates(self, field_name, kind, order='ASC'):
+        filter = {f"{field_name}__isnull": False}
+        filtered_qs = self.filter(**filter)
+        for item in filtered_qs:
+            date = getattr(item, field_name)
+            yield date
+
 
 class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
 
@@ -725,7 +740,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
             split_key[0] = split_key[0].strip("_")
             if len(split_key) > 1 and split_key[1] not in ["exact", "in"]:
                 raise NotImplementedError(
-                    "Fields lookups other than exact are not implemented yet."
+                    f"Filter on '{key}' is not implemented yet"
                 )
 
             # If the value is a queryset, extract the objects

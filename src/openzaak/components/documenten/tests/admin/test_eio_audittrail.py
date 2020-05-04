@@ -1,5 +1,7 @@
+from unittest import skipIf
 import uuid
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -17,6 +19,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
+@skipIf(settings.CMIS_ENABLED, "Modifying documents through the Admin is disabled if CMIS_ENABLED")
 class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 

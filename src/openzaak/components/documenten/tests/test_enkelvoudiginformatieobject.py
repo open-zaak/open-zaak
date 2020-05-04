@@ -174,7 +174,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
         )
         expected = {
             "url": f"http://testserver{detail_url}",
-            "identificatie": test_object.identificatie,
+            "identificatie": str(test_object.identificatie),
             "bronorganisatie": test_object.bronorganisatie,
             "creatiedatum": "2018-06-27",
             "titel": "some titel",
@@ -384,8 +384,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCaseCMIS):
         response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # self.assertEqual(response._container[0], b"inhoud1")
-        self.assertEqual(list(response.streaming_content)[0], b"inhoud1")
+        try:
+            self.assertEqual(list(response.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response._container[0], b"inhoud1")
 
     def test_invalid_inhoud(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -664,7 +666,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             response = self.client.get(eio_url, {"versie": "1"})
             response_download = self.client.get(response.data["inhoud"])
 
-        self.assertEqual(response_download.content, b"inhoud1")
+        try:
+            self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response_download.content, b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
@@ -701,7 +706,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             )
             response_download = self.client.get(response.data["inhoud"])
 
-        self.assertEqual(response_download.content, b"inhoud1")
+        try:
+            self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
+        except AttributeError:
+            self.assertEqual(response_download.content, b"inhoud1")
 
 
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCaseCMIS):

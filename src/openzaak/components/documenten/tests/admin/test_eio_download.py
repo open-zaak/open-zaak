@@ -1,3 +1,6 @@
+from unittest import skipIf
+
+from django.conf import settings
 from django.test import override_settings
 from django.urls import reverse
 
@@ -8,6 +11,7 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@skipIf(settings.CMIS_ENABLED, "Modifying documents through the Admin is disabled if CMIS_ENABLED")
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
     @classmethod

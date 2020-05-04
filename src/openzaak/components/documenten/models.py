@@ -402,8 +402,13 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
 
     def full_clean(self, exclude=None, validate_unique=True):
         if settings.CMIS_ENABLED:
+            if exclude is None:
+                exclude = ['canonical']
+            elif 'canonical' not in exclude:
+                exclude.append('canonical')
+
             return super().full_clean(
-                exclude=('canonical',),
+                exclude=exclude,
                 validate_unique=validate_unique
             )
         else:
