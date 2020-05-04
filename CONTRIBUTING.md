@@ -16,6 +16,8 @@ To keep the code clean and readable, Open Zaak uses:
 
 Whenever a branch is pushed or a pull request is made, the code will be checked in CI by the tools mentioned above, so make sure to install these tools and run them locally before pushing branches/making PRs.
 
+Open Zaak aims to meet the criteria of the [Standard for Public Code](https://standard.publiccode.net).
+
 ### Forking the repository
 In order to implement changes to Open Zaak when you do not have rights for the [Open Zaak repository](https://github.com/open-zaak/open-zaak), you must first fork the repository. Once the repository is forked, you can clone it to your local machine.
 
@@ -28,3 +30,19 @@ Once you have made changes or additions to the code, you can commit them (try to
 
 ### Making a pull request
 If all changes have been committed, you can push the branch to your fork of the repository and create a pull request to the `master` branch of the Open Zaak repository. Your pull request will be reviewed, if applicable feedback will be given and if everything is approved, it will be merged.
+
+### Reviews on releases
+
+All pull requests will be reviewed before they are merged to a release branch. As well as being reviewed for functionality and following the code style they will be checked against the [Standard for Public Code](https://standard.publiccode.net) by a [codebase steward](https://publiccode.net/codebase-stewardship/) from the [Foundation for Public Code](https://publiccode.net). Reviews will usually start within two business days of a submitted pull request.
+
+## Under Foundation for Public Code incubating codebase stewardship
+
+Open Zaak is in incubation [codebase stewardship](https://publiccode.net/codebase-stewardship/) with the [Foundation for Public Code](https://publiccode.net).
+
+The [codebase stewardship activities](https://about.publiccode.net/activities/codebase-stewardship/activities.html) by the Foundation for Public Code on this codebase include:
+
+* facilitating the community and its members
+* help all contributors contribute in line with the contributing guidelines and the [Standard for Public Code](https://standard.publiccode.net/)
+* work with the community to tell their stories, create their brand and market their products
+* support the technical and product steering teams
+

@@ -3,7 +3,7 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
@@ -187,6 +187,34 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_while_relation_exists_fails(self):
+        BesluitFactory.create(for_zaak=True)
+        zaakbesluit = ZaakBesluit.objects.get()
+        url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
+        )
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
+
+    def test_delete_while_relation_does_not_exist(self):
+        besluit = BesluitFactory.create(for_zaak=False)
+        zaak = ZaakFactory.create()
+        zaakbesluit = ZaakBesluit.objects.create(zaak=zaak, besluit=besluit)
+        url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
+        )
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertFalse(ZaakBesluit.objects.exists())
 
 
 @tag("external-urls")

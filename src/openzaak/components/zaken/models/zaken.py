@@ -10,6 +10,7 @@ from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
+from django_loose_fk.loaders import FetchError
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -841,7 +842,11 @@ class ZaakInformatieObject(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.zaak} - {self.informatieobject}"
+        # In case of an external informatieobject, use the URL as fallback
+        try:
+            return f"{self.zaak} - {self.informatieobject}"
+        except FetchError:
+            return f"{self.zaak} - {self._informatieobject_url}"
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()
@@ -968,9 +973,14 @@ class ZaakBesluit(models.Model):
         ]
 
     def __str__(self):
-        return _("Relation between {zaak} and {besluit}").format(
-            zaak=self.zaak, besluit=self.besluit
-        )
+        try:
+            return _("Relation between {zaak} and {besluit}").format(
+                zaak=self.zaak, besluit=self.besluit
+            )
+        except FetchError:
+            return _("Relation between {zaak} and {besluit}").format(
+                zaak=self.zaak, besluit=self._besluit_url
+            )
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()

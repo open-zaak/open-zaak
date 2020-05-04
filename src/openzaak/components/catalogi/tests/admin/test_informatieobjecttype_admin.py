@@ -5,15 +5,16 @@ from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
-from ...models import ZaakType
+from ...models import ZaakType, ZaakTypeInformatieObjectType
 from ..factories import (
     CatalogusFactory,
+    InformatieObjectTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
 
 
-class BesluitTypeAdminTests(WebTest):
+class ZiotFilterAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
@@ -103,3 +104,39 @@ class BesluitTypeAdminTests(WebTest):
 
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktype"})
         self.assertIsNone(popup_zaaktypen)
+
+
+class AddZiotAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+        self.catalogus = CatalogusFactory.create()
+
+        # Delete automatically created ZaakTypen
+        ZaakType.objects.all().delete()
+        self.zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+
+    def test_add_ziot(self):
+        iot = InformatieObjectTypeFactory.create(catalogus=self.catalogus, zaaktypen=[])
+        url = reverse("admin:catalogi_zaaktypeinformatieobjecttype_add")
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms["zaaktypeinformatieobjecttype_form"]
+        form["volgnummer"] = 1
+        form["richting"] = "intern"
+        form["zaaktype"] = self.zaaktype.id
+        form["informatieobjecttype"] = iot.id
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakTypeInformatieObjectType.objects.count(), 1)

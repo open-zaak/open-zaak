@@ -178,7 +178,7 @@ class Eigenschap(models.Model):
     specificatie_van_eigenschap = models.ForeignKey(
         "catalogi.EigenschapSpecificatie",
         verbose_name=_("specificatie van eigenschap"),
-        blank=True,
+        blank=False,
         null=True,
         help_text=_("Attribuutkenmerken van de eigenschap"),
         on_delete=models.CASCADE,
@@ -207,14 +207,3 @@ class Eigenschap(models.Model):
 
     def __str__(self):
         return self.eigenschapnaam
-
-    def clean(self):
-        """
-        De eigenschap wordt gegevenstechnisch gespecificeerd met één van twee groepen attributen:
-        - specificatie van eigenschap, of
-        - referentie naar eigenschap
-        """
-        super().clean()
-
-        if not bool(self.specificatie_van_eigenschap):
-            raise ValidationError(_("Het attribuut specificatie is verplicht."))

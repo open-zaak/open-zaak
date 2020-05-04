@@ -413,7 +413,7 @@ subpath = config("SUBPATH", None)
 if subpath:
     if not subpath.startswith("/"):
         subpath = f"/{subpath}"
-    FORCE_SCRIPT_NAME = subpath
+    SUBPATH = subpath
 
 if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
