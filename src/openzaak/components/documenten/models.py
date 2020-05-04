@@ -276,6 +276,15 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
             cmis_storage.unlock_document(uuid=doc_uuid, lock=lock, force=force_unlock)
         self.lock = ""
 
+    def get_latest_version(self, parent):
+        if settings.CMIS_ENABLED:
+            if hasattr(parent.instance, "get_informatieobject_url"):
+                return parent.instance.get_informatieobject()
+            else:
+                return None
+        else:
+            return self.latest_version
+
 
 class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     """
@@ -699,7 +708,7 @@ class ObjectInformatieObject(models.Model):
             client = CMISDRCClient()
             client.delete_cmis_oio(self.uuid)
 
-    def get_informatieobject(self):
+    def get_informatieobject(self, permission_main_object=None):
         """
         For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
         """
@@ -708,6 +717,8 @@ class ObjectInformatieObject(models.Model):
             # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
             eio_uuid = eio_url.split("/")[-1]
             return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        elif permission_main_object:
+            return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version
 

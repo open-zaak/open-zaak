@@ -51,7 +51,7 @@ djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
 djangorestframework==3.9.4
 docutils==0.15.2          # via recommonmark, sphinx
-drc-cmis==0.3.7
+drc-cmis==0.4.0
 drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2
 drf-writable-nested==0.4.3
