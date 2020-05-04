@@ -55,9 +55,16 @@ class UniqueRepresentationTestCase(APITestCaseCMIS):
             bronorganisatie=730924658,
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
-        oio = ObjectInformatieObject.objects.create(
-            zaak=zaak, object_type="zaak", informatieobject=eio.canonical
-        )
+        eio_url = f"http://testserver{reverse(eio)}"
+
+        if settings.CMIS_ENABLED:
+            oio = ObjectInformatieObject.objects.create(
+                informatieobject=eio_url, zaak=zaak, object_type="zaak"
+            )
+        else:
+            oio = ObjectInformatieObject.objects.create(
+                zaak=zaak, object_type="zaak", informatieobject=eio.canonical
+            )
 
         self.assertEqual(
             oio.unique_representation(),

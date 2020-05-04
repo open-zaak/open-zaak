@@ -676,8 +676,12 @@ class ObjectInformatieObject(models.Model):
         return getattr(self, self.object_type)
 
     def unique_representation(self):
+        if settings.CMIS_ENABLED:
+            informatieobject = self.get_informatieobject()
+        else:
+            informatieobject = self.informatieobject.latest_version
         io_id = self.object.identificatie
-        return f"({self.informatieobject.latest_version.unique_representation()}) - {io_id}"
+        return f"({informatieobject.unique_representation()}) - {io_id}"
 
     def save(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
