@@ -71,9 +71,9 @@ IMPORT_ORDER = [
     "InformatieObjectType",
     "BesluitType",
     "ZaakType",
+    "StatusType",
     "ZaakTypeInformatieObjectType",
     "ResultaatType",
     "RolType",
-    "StatusType",
     "Eigenschap",
 ]

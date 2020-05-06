@@ -77,11 +77,13 @@ class CatalogusAdminImportExportTests(WebTest):
         besluittype.zaaktypen.all().delete()
         besluittype.zaaktypen.set([zaaktype])
         besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
         statustype = StatusTypeFactory.create(
             zaaktype=zaaktype, statustype_omschrijving="bla"
+        )
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+            statustype=statustype,
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
         with requests_mock.Mocker() as m:
@@ -183,6 +185,7 @@ class CatalogusAdminImportExportTests(WebTest):
 
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(ziot.statustype, statustype)
 
         self.assertEqual(roltype.zaaktype, zaaktype)
         self.assertEqual(resultaattype.zaaktype, zaaktype)
@@ -217,11 +220,13 @@ class CatalogusAdminImportExportTests(WebTest):
         besluittype.zaaktypen.all().delete()
         besluittype.zaaktypen.set([zaaktype])
         besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
         statustype = StatusTypeFactory.create(
             zaaktype=zaaktype, statustype_omschrijving="bla"
+        )
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype,
+            informatieobjecttype=informatieobjecttype,
+            statustype=statustype,
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
         with requests_mock.Mocker() as m:
@@ -324,6 +329,7 @@ class CatalogusAdminImportExportTests(WebTest):
 
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(ziot.statustype, statustype)
 
         self.assertEqual(roltype.zaaktype, zaaktype)
         self.assertEqual(resultaattype.zaaktype, zaaktype)
