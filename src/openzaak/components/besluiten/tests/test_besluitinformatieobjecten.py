@@ -244,7 +244,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-
+            informatie_object = ObjectInformatieObject.objects.first()
+            informatie_object.delete()
             posts = [req for req in m.request_history if req.method == "POST"]
             self.assertEqual(len(posts), 1)
             request = posts[0]
@@ -412,6 +413,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 {"besluit": besluit_url, "informatieobject": self.document},
                 HTTP_HOST="openbesluit.nl",
             )
+
+            informatie_object = ObjectInformatieObject.objects.first()
+            informatie_object.delete()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

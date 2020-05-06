@@ -264,6 +264,9 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             zio_list_url, {"informatieobject": io_url}, HTTP_HOST="openzaak.nl"
         )
 
+        informatie_object = ObjectInformatieObject.objects.first()
+        informatie_object.delete()
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], io_url)
@@ -612,6 +615,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 HTTP_HOST="openzaak.nl",
             )
 
+        informatie_object = ObjectInformatieObject.objects.first()
+        informatie_object.delete()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_zaaktype_external_iotype_external_fail(self):
