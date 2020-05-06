@@ -278,7 +278,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
 
     def get_latest_version(self, parent):
         if settings.CMIS_ENABLED:
-            if hasattr(parent.instance, "get_informatieobject_url"):
+            if hasattr(parent.instance, "get_informatieobject"):
                 return parent.instance.get_informatieobject()
             else:
                 return None
@@ -579,7 +579,7 @@ class Gebruiksrechten(models.Model):
         cmis_gebruiksrechten = client.get_a_cmis_gebruiksrechten(self.uuid)
         return cmis_gebruiksrechten.informatieobject
 
-    def get_informatieobject(self):
+    def get_informatieobject(self, permission_main_object=None):
         """
         Retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
         """
@@ -590,6 +590,8 @@ class Gebruiksrechten(models.Model):
             # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
             eio_uuid = cmis_gebruiksrechten.informatieobject.split("/")[-1]
             return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        elif permission_main_object:
+            return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version
 

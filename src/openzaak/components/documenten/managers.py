@@ -3,6 +3,7 @@ from django.db.models import manager
 
 from .query import (
     ObjectInformatieObjectQuerySet,
+    InformatieobjectRelatedQuerySet,
 )
 from .querysets import (
     CMISQuerySet,
@@ -27,7 +28,7 @@ class GebruiksrechtenAdapterManager(manager.Manager):
                 model=self.model, using=self._db, hints=self._hints
             )
         else:
-            return DjangoQuerySet(model=self.model, using=self._db, hints=self._hints)
+            return InformatieobjectRelatedQuerySet(model=self.model, using=self._db, hints=self._hints)
 
 
 class ObjectInformatieObjectAdapterManager(manager.Manager):
