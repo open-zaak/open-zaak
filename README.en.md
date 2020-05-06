@@ -26,7 +26,7 @@ Case management is a form of process-oriented working that is used by Dutch muni
 
 ## Standard 'APIs for case management'
 
-VNG Realisation developed this standard within the Common Ground framework. Along with API specifications, reference implementations were created to demonstrate that the specifications can be implemented in software. The following substantive APIs are part of the standard:
+VNG Realisatie developed this standard within the Common Ground framework. Along with API specifications, reference implementations were created to demonstrate that the specifications can be implemented in software. The following substantive APIs are part of the standard:
 
 - Catalogues - for the registration of case type catalogues, case type and all associated types.
 - Cases - for the registration of cases. Cases can have relationships with documents, decisions and contacts (among others). The API includes audit trail and archiving functionality.
