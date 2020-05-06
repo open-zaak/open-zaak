@@ -231,9 +231,15 @@ copy of the repository, change into the ``deployment`` directory:
 
 To install the required dependencies, we use the Python package manager ``pip``:
 
+.. note::
+
+    These requirements are different from the the ones in the Open Zaak root
+    directory. They can be installed on top of eachother though.
+
 .. code-block:: shell
 
     (env) [user@host]$ pip install -r requirements.txt
+    (env) [user@host]$ cd kubernetes
     (env) [user@host]$ ansible-galaxy collection install -r requirements.yml
 
 Roughly said, this installs Ansible and the modules to talk to the PostgreSQL
@@ -289,7 +295,7 @@ able to do this, you need superuser access. See the
 ``vars/db_credentials.example.yml`` file for the example configuration.
 
 Both Open Zaak and Open Notificaties require database configuration to be
-defined in the ``vars/openzaak.yml`` and ``vars/opennotificaties.yml``
+defined in the ``vars/open-zaak.yml`` and ``vars/open-notificaties.yml``
 variable files:
 
 .. code-block:: yaml
@@ -326,9 +332,9 @@ I already have an ingress-controller
 Configuring Open Zaak
 ^^^^^^^^^^^^^^^^^^^^^
 
-To deploy Open Zaak, some variables need to be set (in ``vars/openzaak.yml``):
+To deploy Open Zaak, some variables need to be set (in ``vars/open-zaak.yml``):
 
-* ``domain``: the domain name, e.g. ``open-zaak.gemeente.nl``
+* ``openzaak_domain``: the domain name, e.g. ``open-zaak.gemeente.nl``
 * ``openzaak_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
   Make sure to put the value between single quotes!
 
@@ -338,9 +344,9 @@ override.
 Configuring Open Notificaties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To deploy Open Notificaties, some variables need to be set (in ``vars/opennotificaties.yml``):
+To deploy Open Notificaties, some variables need to be set (in ``vars/open-notificaties.yml``):
 
-* ``opennotificaties``: the domain name, e.g. ``open-notificaties.gemeente.nl``
+* ``opennotificaties_domain``: the domain name, e.g. ``open-notificaties.gemeente.nl``
 * ``opennotificaties_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
   Make sure to put the value between single quotes!
 
@@ -359,6 +365,12 @@ The key and certificate need to be set in ``vars/nlx.yml``:
 
 Deploying the applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure your ``kubectl`` command can access the correct cluster:
+
+.. code-block:: shell
+
+    (env) [user@host]$ kubectl cluster-info
 
 Run the ``apps.yml`` playbook using:
 
@@ -407,8 +419,29 @@ Open Zaak deployment code defines variables to specify the Docker image tag to u
 is synchronized with the git tag you're checking out.
 
 .. warning::
+
     Make sure you are aware of possible breaking changes or manual interventions by
     reading the :ref:`development_changelog`!
+
+Make sure your ``kubectl`` command can access the correct cluster:
+
+.. code-block:: shell
+
+    (env) [user@host]$ kubectl cluster-info
+
+.. note:: 
+
+    You need access to the cluster for ``kubectl`` to work. With Google Cloud 
+    you can get the proper configuration using the Google Cloud SDK:
+
+    .. code-block:: shell
+
+        (env) [user@host]$ gcloud container clusters get-credentials <cluster name> --region <region>
+
+    For the proper authentication setup, you might need a service account. See
+    the 
+    [Getting Started with Authentication on Google Cloud](https://cloud.google.com/docs/authentication/getting-started#command-line).
+
 
 Next, to perform the upgrade, you run the ``apps.yml`` playbook just like with the
 installation:
@@ -416,6 +449,13 @@ installation:
 .. code-block:: shell
 
     (env) [user@host]$ ./deploy.sh apps.yml
+
+You can see the status and events with:
+
+.. code-block:: shell
+
+    (env) [user@host]$ kubectl -n <namespace> get pods
+    (env) [user@host]$ kubectl -n <namespace> describe pod <pod name>
 
 .. note::
 
