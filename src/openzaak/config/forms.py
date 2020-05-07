@@ -59,7 +59,7 @@ def get_nlx_choices() -> Dict[str, dict]:
     nlx_outway = NLXConfig.get_solo().outway
     try:
         services = get_services()
-    except requests.HTTPError:
+    except requests.RequestException:
         logger.warning("Failed fetching the NLX services", exc_info=True)
         return {}
 
