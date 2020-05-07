@@ -49,14 +49,14 @@ def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
         "locked": False,
     }
     eio.update(**overrides)
+    if overrides.get('_informatieobjecttype_url') is not None:
+        eio['informatieobjecttype'] = overrides.get('_informatieobjecttype_url')
     return eio
 
 
 def serialise_eio(eio, eio_url):
     serialised_eio = json.loads(serializers.serialize('json', [eio, ]))[0]['fields']
     serialised_eio = get_eio_response(eio_url, **serialised_eio)
-
-    serialised_eio['informatieobjecttype'] = serialised_eio['_informatieobjecttype_url']
     return serialised_eio
 
 

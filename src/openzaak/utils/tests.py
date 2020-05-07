@@ -3,6 +3,8 @@ import hashlib
 import json
 import sys
 
+import requests
+import requests_mock
 from django.conf import settings
 from django.core.cache import caches
 from django.db.models import Model
@@ -146,6 +148,7 @@ def mock_client(responses: dict):
         pass
 
 
+# TODO Remove
 class APITestCaseCMIS(APITestCase):
     def tearDown(self) -> None:
         # Removes the created documents from alfresco
@@ -154,3 +157,18 @@ class APITestCaseCMIS(APITestCase):
             client.delete_cmis_folders_in_base()
         else:
             super().tearDown()
+
+
+class APICMISTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.adapter = requests_mock.Mocker(real_http=True)
+        self.adapter.start()
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        # Removes the created documents from alfresco
+        client = CMISDRCClient()
+        client.delete_cmis_folders_in_base()
+        self.adapter.stop()
+        super().tearDown()
+
