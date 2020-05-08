@@ -861,6 +861,7 @@ class ZaakInformatieObject(models.Model):
     def save(self, *args, **kwargs):
         # override to set aard_relatie
         self.aard_relatie = RelatieAarden.from_object_type("zaak")
+        print(self.__dict__)
         super().save(*args, **kwargs)
 
 
