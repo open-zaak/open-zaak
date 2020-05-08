@@ -3,9 +3,12 @@ import {CheckBoxInputLabel} from "../../../forms/inputs";
 import {SelectInput} from "./select";
 import {ConstantsContext} from "./context";
 
-function getInitialOrganization (nlx_url, outway) {
-    if (!outway || !nlx_url || !nlx_url.startsWith(outway)) {
+function getInitialOrganization (choices, nlx_url, outway) {
+    if (!choices || !choices.length) {
         return '';
+    }
+    if (!outway || !nlx_url || !nlx_url.startsWith(outway)) {
+        return choices[0][0];
     }
     const path = nlx_url.slice(outway.length);
     return path.split('/')[0];
@@ -25,8 +28,8 @@ function Nlx(props) {
 
     // calculations for organization select
     const organizationChoices = Object.keys(nlxChoices).map((value) => [value, value]);
-    const initialOrganization = getInitialOrganization(values.nlx, nlxOutway);
-    const [ selectedOrganization, setSelectedOrganization ] = useState(initialOrganization || organizationChoices[0][0]);
+    const initialOrganization = getInitialOrganization(organizationChoices, values.nlx, nlxOutway);
+    const [ selectedOrganization, setSelectedOrganization ] = useState(initialOrganization);
 
     // calculations for service select
     const [ selectedService, setSelectedService ] = useState(values.nlx);
