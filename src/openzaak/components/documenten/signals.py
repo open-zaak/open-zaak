@@ -8,8 +8,9 @@ from django.dispatch import receiver
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
+from .api.viewsets import EnkelvoudigInformatieObjectViewSet, ObjectInformatieObjectViewSet, GebruiksrechtenViewSet
 
-from .models import ObjectInformatieObject
+from .models import ObjectInformatieObject, EnkelvoudigInformatieObject, Gebruiksrechten
 from .typing import IORelation
 from .utils import private_media_storage_cmis
 
@@ -59,4 +60,22 @@ def sync_oio(
 def rerun_cmis_storage_setup(signal: ModelSignal, setting: str, **kwargs) -> None:
     if setting == 'CMIS_ENABLED':
         private_media_storage_cmis._setup()
-
+        EnkelvoudigInformatieObjectViewSet.queryset = (
+            EnkelvoudigInformatieObject.objects.select_related(
+                "canonical", "_informatieobjecttype"
+            )
+            .order_by("canonical", "-versie")
+            .distinct("canonical")
+        )
+        ObjectInformatieObjectViewSet.queryset = (
+            ObjectInformatieObject.objects.select_related(
+                "_zaak", "_besluit", "informatieobject"
+            )
+            .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+            .all()
+        )
+        GebruiksrechtenViewSet.queryset = (
+            Gebruiksrechten.objects.select_related("informatieobject")
+            .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
+            .all()
+        )

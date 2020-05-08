@@ -1,4 +1,4 @@
-from django.test import tag
+from django.test import tag, override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -8,11 +8,12 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.catalogi.tests.utils import (
     get_operation_url as get_catalogus_operation_url,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, APICMISTestCase
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url
+from .utils import get_operation_url, serialise_eio
+from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("external-urls")
@@ -70,6 +71,7 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
         )
 
 
+@override_settings(CMIS_ENABLED=False)
 class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -94,6 +96,46 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         BesluitInformatieObjectFactory.create()
+        response = self.client.get(
+            reverse(BesluitInformatieObject), {"besluit": "https://google.com"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+
+@override_settings(CMIS_ENABLED=True)
+class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
+    heeft_alle_autorisaties = True
+
+    def test_validate_unknown_query_params(self):
+        for counter in range(2):
+            eio = EnkelvoudigInformatieObjectFactory.create()
+            eio_url = eio.get_url()
+            self.adapter.register_uri('GET', eio_url, json=serialise_eio(eio, eio_url))
+            BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        url = reverse(BesluitInformatieObject)
+
+        response = self.client.get(url, {"someparam": "somevalue"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_by_invalid_url(self):
+        response = self.client.get(reverse(BesluitInformatieObject), {"besluit": "bla"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluit")
+        self.assertEqual(error["code"], "invalid")
+
+    def test_filter_by_valid_url_object_does_not_exist(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = eio.get_url()
+        self.adapter.register_uri('GET', eio_url, json=serialise_eio(eio, eio_url))
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         response = self.client.get(
             reverse(BesluitInformatieObject), {"besluit": "https://google.com"}
         )
