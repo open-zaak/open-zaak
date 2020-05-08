@@ -1,7 +1,7 @@
 import uuid
-from unittest import skipIf
 
 from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
 from vng_api_common import tests
@@ -15,7 +15,7 @@ from openzaak.utils.tests import AdminTestMixin, APITestCaseCMIS
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory, EnkelvoudigInformatieObjectFactory
 
 
-@skipIf(settings.CMIS_ENABLED, "Modifying documents through the Admin is disabled if CMIS_ENABLED")
+@override_settings(CMIS_ENABLED=False)
 class EnkelvoudigInformatieObjectAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -55,7 +55,7 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         self.assertEqual(response.status_code, 200)
 
 
-@skipIf(settings.CMIS_ENABLED is False, "CMIS is not enabled")
+@override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 

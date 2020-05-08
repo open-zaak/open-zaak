@@ -1,10 +1,9 @@
 import requests_mock
-from unittest import skipIf
 from vng_api_common.tests import reverse
 
 from django.conf import settings
 from django.db import IntegrityError
-from django.test import TestCase, tag
+from django.test import TestCase, tag, override_settings
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -23,7 +22,7 @@ from ..utils import serialise_eio
 
 
 @tag("oio")
-@skipIf(settings.CMIS_ENABLED, "Cannot use canonical objects if CMIS is enabled. Test replaced by OIOCMISTests")
+@override_settings(CMIS_ENABLED=False)
 class OIOTests(TestCase):
     def test_not_both_zaak_besluit(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
@@ -79,7 +78,7 @@ class OIOTests(TestCase):
 
 
 @tag("oio")
-@skipIf(settings.CMIS_ENABLED == False, "This is the replacement of OIOTests for when CMIS is enabled")
+@override_settings(CMIS_ENABLED=True)
 class OIOCMISTests(APITestCaseCMIS):
     def setUp(self) -> None:
         self.eio = EnkelvoudigInformatieObjectFactory.create()

@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from rest_framework import status
+from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     ComponentTypes,
     ObjectTypes,
@@ -36,7 +37,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCaseCMIS):
         url = reverse("enkelvoudiginformatieobject-list")
         self.assertForbidden(url, method="post")
 
-    @skipIf(settings.CMIS_ENABLED, "Using latest_version doesnt work when CMIS is enabled")
+    @override_settings(CMIS_ENABLED=False)
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
@@ -59,7 +60,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCaseCMIS):
             with self.subTest(url=url):
                 self.assertForbidden(url, method="get")
 
-    @skipIf(settings.CMIS_ENABLED is False, "Replaced by test_cannot_read_without_correct_scope")
+    @override_settings(CMIS_ENABLED=True)
     def test_cannot_read_without_correct_scope_cmis(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
@@ -199,7 +200,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
         site.save()
         super().setUpTestData()
 
-    @skipIf(settings.CMIS_ENABLED is False, "Replaced by test_list_gebruiksrechten_limited_to_authorized_zaken")
+    @override_settings(CMIS_ENABLED=True)
     def test_list_gebruiksrechten_limited_to_authorized_zaken_cmis(self):
         url = reverse("gebruiksrechten-list")
 
@@ -238,7 +239,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
             response_data[0]["url"], f"http://testserver{reverse(gebruiksrechten1)}"
         )
 
-    @skipIf(settings.CMIS_ENABLED, "Using latest_version doesnt work when CMIS is enabled")
+    @override_settings(CMIS_ENABLED=False)
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
         url = reverse("gebruiksrechten-list")
         # must show up
@@ -294,7 +295,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skipIf(settings.CMIS_ENABLED, "Using latest_version doesnt work when CMIS is enabled")
+    @override_settings(CMIS_ENABLED=False)
     def test_read_gebruiksrechten_limited_to_authorized_io(self):
         gebruiksrechten1 = GebruiksrechtenFactory(
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
@@ -310,7 +311,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-    @skipIf(settings.CMIS_ENABLED is False, "Replaced by test_read_gebruiksrechten_limited_to_authorized_io")
+    @override_settings(CMIS_ENABLED=True)
     def test_read_gebruiksrechten_limited_to_authorized_io_cmis(self):
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
@@ -336,6 +337,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
 
+@override_settings(CMIS_ENABLED=False)
 class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -347,7 +349,6 @@ class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         super().setUpTestData()
 
-    @skipIf(settings.CMIS_ENABLED, "Using latest_version doesnt work when CMIS is enabled")
     def test_list_oio_limited_to_authorized_zaken(self):
         url = reverse("objectinformatieobject-list")
         zaak = ZaakFactory.create()
@@ -386,7 +387,6 @@ class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(len(response_data), 1)
         self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
 
-    @skipIf(settings.CMIS_ENABLED, "Using latest_version doesnt work when CMIS is enabled")
     def test_detail_oio_limited_to_authorized_zaken(self):
         zaak = ZaakFactory.create()
         # must show up
@@ -437,7 +437,19 @@ class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skipIf(settings.CMIS_ENABLED is False, "Replaced by test_detail_oio_limited_to_authorized_zaken")
+
+@override_settings(CMIS_ENABLED=True)
+class OioReadCMISTests(JWTAuthMixin, APITestCaseCMIS):
+
+    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        super().setUpTestData()
+
     def test_detail_oio_limited_to_authorized_zaken_cmis(self):
         zaak = ZaakFactory.create()
         # must show up
@@ -491,7 +503,6 @@ class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @skipIf(settings.CMIS_ENABLED is False, "Replaced by test_list_oio_limited_to_authorized_zaken")
     def test_list_oio_limited_to_authorized_zaken_cmis(self):
         url = reverse("objectinformatieobject-list")
         zaak = ZaakFactory.create()

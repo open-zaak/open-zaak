@@ -5,7 +5,7 @@ from rest_framework import status
 from vng_api_common import tests
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
@@ -17,7 +17,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFacto
 from ..utils import get_operation_url
 
 
-@skipIf(settings.CMIS_ENABLED, "Modifying documents through the Admin is disabled if CMIS_ENABLED")
+@override_settings(CMIS_ENABLED=False)
 class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 
@@ -207,7 +207,7 @@ class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(old_data["omschrijving_voorwaarden"], "desc")
 
 
-@skipIf(settings.CMIS_ENABLED is False, "CMIS is not enabled")
+@override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenCMISAdminTests(AdminTestMixin, APITestCaseCMIS):
     heeft_alle_autorisaties = True
 

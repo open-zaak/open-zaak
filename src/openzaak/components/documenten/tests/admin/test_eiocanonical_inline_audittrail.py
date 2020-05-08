@@ -1,7 +1,6 @@
 import tempfile
-from unittest import skipIf
 
-from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -18,7 +17,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
-@skipIf(settings.CMIS_ENABLED, "Modifying documents through the Admin is disabled if CMIS_ENABLED")
+@override_settings(CMIS_ENABLED=False)
 class EioAdminInlineTests(WebTest):
     @classmethod
     def setUpTestData(cls):
