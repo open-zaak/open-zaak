@@ -265,7 +265,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
             self.assertEqual(besluit.besluitinformatieobject_set.count(), 1)
             self.assertEqual(
-                besluit.besluitinformatieobject_set.get().informatieobject, io.canonical
+                besluit.besluitinformatieobject_set.get().informatieobject.uuid, io.uuid
             )
 
     def test_opvragen_informatieobjecten_besluit(self):

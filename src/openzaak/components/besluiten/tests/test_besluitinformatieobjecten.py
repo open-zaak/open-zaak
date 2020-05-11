@@ -209,6 +209,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
+        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
 
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         besluit_url = reverse(besluit)
@@ -386,7 +387,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"], CMIS_ENABLED=False)
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(BesluitInformatieObject)
@@ -435,10 +436,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-            informatie_object = ObjectInformatieObject.objects.first()
-            informatie_object.delete()
-            # If CMIS is enabled, there will be some extra requests to alfresco
-            posts = [req for req in m.request_history if req.method == "POST" and 'alfresco' not in req.path]
+            posts = [req for req in m.request_history if req.method == "POST"]
             self.assertEqual(len(posts), 1)
             request = posts[0]
             self.assertEqual(
@@ -530,7 +528,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["openbesluit.nl"])
+@override_settings(ALLOWED_HOSTS=["openbesluit.nl"], CMIS_ENABLED=False)
 class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(BesluitInformatieObject)
@@ -605,9 +603,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 {"besluit": besluit_url, "informatieobject": self.document},
                 HTTP_HOST="openbesluit.nl",
             )
-
-            informatie_object = ObjectInformatieObject.objects.first()
-            informatie_object.delete()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -708,7 +703,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+@override_settings(ALLOWED_HOSTS=["openzaak.nl"], CMIS_ENABLED=False)
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

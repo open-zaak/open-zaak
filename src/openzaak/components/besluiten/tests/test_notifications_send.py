@@ -421,11 +421,12 @@ class FailedNotificationCMISTests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
+        io_url = f"http://testserver{reverse(io)}"
+        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         besluit_url = reverse(besluit)
-        io_url = reverse(io)
         data = {
-            "informatieobject": f"http://testserver{io_url}",
+            "informatieobject": io_url,
             "besluit": f"http://testserver{besluit_url}",
         }
 
