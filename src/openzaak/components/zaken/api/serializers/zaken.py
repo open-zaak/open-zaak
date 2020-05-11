@@ -34,6 +34,7 @@ from vng_api_common.validators import (
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.api.utils import create_remote_oio
+from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.validators import (
@@ -564,7 +565,10 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # If it fails in any other way, we need to handle that by rolling back
         # the ZIO creation.
         try:
-            response = create_remote_oio(io_url, zaak_url)
+            if settings.CMIS_ENABLED:
+                oio = ObjectInformatieObject.objects.create(informatieobject=io_url, zaak=zaak_url, object_type='zaak')
+            else:
+                response = create_remote_oio(io_url, zaak_url)
         except Exception as exception:
             zio.delete()
             raise serializers.ValidationError(
@@ -576,10 +580,23 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 code="pending-relations",
             )
         else:
-            zio._objectinformatieobject_url = response["url"]
+            if settings.CMIS_ENABLED:
+                zio._objectinformatieobject_url = oio.get_url()
+            else:
+                zio._objectinformatieobject_url = response["url"]
             zio.save()
 
         return zio
+
+    def run_validators(self, value):
+        """
+        Add read_only fields with defaults to value before running validators.
+        """
+        # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
+        if value.get('informatieobject') is not None and settings.CMIS_ENABLED:
+            value['informatieobject'] = self.initial_data.get('informatieobject')
+
+        return super().run_validators(value)
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):

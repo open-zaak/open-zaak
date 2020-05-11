@@ -6,6 +6,7 @@ from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.validators import IsImmutableValidator
+from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
@@ -138,10 +139,14 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
 
         objecttype = getattr(object, self.objecttype_field)
 
-        if not isinstance(informatieobject, EnkelvoudigInformatieObject):
-            io_type = informatieobject.latest_version.informatieobjecttype
-        else:
+        if isinstance(informatieobject, EnkelvoudigInformatieObject):
             io_type = informatieobject.informatieobjecttype
+        elif isinstance(informatieobject, str):
+            io_uuid = get_uuid_from_path(informatieobject)
+            io = EnkelvoudigInformatieObject.objects.get(uuid=io_uuid)
+            io_type = io.informatieobjecttype
+        else:
+            io_type = informatieobject.latest_version.informatieobjecttype
 
         # zaaktype/besluittype and informatieobjecttype should be both internal or external
         if bool(objecttype.pk) != bool(io_type.pk):

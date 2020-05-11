@@ -703,6 +703,13 @@ class ObjectInformatieObject(models.Model):
         if not settings.CMIS_ENABLED:
             super().save(*args, **kwargs)
 
+    def get_url(self):
+        oio_path = reverse(
+            "objectinformatieobject-detail",
+            kwargs={"version": "1", "uuid": self.uuid},
+        )
+        return make_absolute_uri(oio_path)
+
     def delete(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:
             super().delete(*args, **kwargs)
