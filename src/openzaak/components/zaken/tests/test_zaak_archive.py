@@ -988,6 +988,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(CMIS_ENABLED=False)
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     """
     Test archiving with remote documents involved.

@@ -1,6 +1,6 @@
 import uuid
 
-from django.test import TestCase
+from django.test import override_settings, TestCase
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
@@ -15,6 +15,7 @@ from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 from ..utils import get_operation_url
 
 
+@override_settings(CMIS_ENABLED=False)
 class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 
