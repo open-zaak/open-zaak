@@ -1,6 +1,7 @@
 import datetime
 from unittest import skip
 
+from django.contrib.sites.models import Site
 from django.test import tag, override_settings
 from django.utils import timezone
 
@@ -376,6 +377,9 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
     def setUp(self):
         super().setUp()
         self.adapter.register_uri('GET', "https://example.com", status_code=200)
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
 
     def assertCreateBlocked(self, url: str, data: dict):
         with self.subTest(action="create"):
@@ -410,15 +414,22 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
             )
 
     def test_zaakinformatieobjecten(self):
-        io = EnkelvoudigInformatieObjectFactory.create(
+        io1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
             informatieobjecttype__catalogus=self.zaaktype.catalogus,
         )
-        io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
+        io1_url = f"http://testserver{reverse(io1)}"
+        self.adapter.register_uri('GET', io1_url, json=serialise_eio(io1, io1_url))
+
+        io2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
+            informatieobjecttype__catalogus=self.zaaktype.catalogus,
+        )
+        io2_url = f"http://testserver{reverse(io2)}"
+        self.adapter.register_uri('GET', io2_url, json=serialise_eio(io2, io2_url))
         zio = ZaakInformatieObjectFactory(
             zaak=self.zaak,
-            informatieobject=io_url,
+            informatieobject=io2_url,
             informatieobject__informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
             informatieobject__informatieobjecttype__catalogus=self.zaaktype.catalogus,
         )
@@ -428,7 +439,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
             reverse(ZaakInformatieObject),
             {
                 "zaak": reverse(self.zaak),
-                "informatieobject": io_url,
+                "informatieobject": io1_url,
             },
         )
         self.assertUpdateBlocked(zio_url)
@@ -752,6 +763,9 @@ class ClosedZaakRelatedDataAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
     def setUp(self):
         super().setUp()
         self.adapter.register_uri('GET', "https://example.com", status_code=200)
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
 
     def assertCreateAllowed(self, url: str, data: dict):
         with self.subTest(action="create"):
@@ -784,15 +798,22 @@ class ClosedZaakRelatedDataAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
             )
 
     def test_zaakinformatieobjecten(self):
-        io = EnkelvoudigInformatieObjectFactory.create(
+        io1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
             informatieobjecttype__catalogus=self.zaaktype.catalogus,
         )
-        io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
+        io1_url = f"http://testserver{reverse(io1)}"
+        self.adapter.register_uri('GET', io1_url, json=serialise_eio(io1, io1_url))
+
+        io2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
+            informatieobjecttype__catalogus=self.zaaktype.catalogus,
+        )
+        io2_url = f"http://testserver{reverse(io2)}"
+        self.adapter.register_uri('GET', io2_url, json=serialise_eio(io2, io2_url))
         zio = ZaakInformatieObjectFactory(
             zaak=self.zaak,
-            informatieobject=io_url,
+            informatieobject=io2_url,
             informatieobject__informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
             informatieobject__informatieobjecttype__catalogus=self.zaaktype.catalogus,
         )
@@ -802,7 +823,7 @@ class ClosedZaakRelatedDataAllowedCMISTests(JWTAuthMixin, APICMISTestCase):
             reverse(ZaakInformatieObject),
             {
                 "zaak": reverse(self.zaak),
-                "informatieobject": io_url,
+                "informatieobject": io1_url,
             },
         )
         self.assertUpdateAllowed(zio_url)

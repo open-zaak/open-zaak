@@ -1,8 +1,10 @@
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
+from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.validators import IsImmutableValidator
@@ -73,6 +75,21 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
 
             new_value = self.resolver.resolve(self.host, new_value)
 
+        if settings.CMIS_ENABLED:
+            if (
+                isinstance(current_value, ProxyMixin) and
+                isinstance(current_value, EnkelvoudigInformatieObject) and
+                isinstance(new_value, EnkelvoudigInformatieObject)
+            ):
+                current_value_url = current_value._initial_data['url']
+                new_value_url = new_value.get_url()
+
+                if new_value_url != current_value_url:
+                    raise serializers.ValidationError(
+                        IsImmutableValidator.message, code=IsImmutableValidator.code
+                    )
+                return
+
         if self.instance_path:
             for bit in self.instance_path.split("."):
                 new_value = getattr(new_value, bit)
@@ -139,7 +156,11 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
 
         objecttype = getattr(object, self.objecttype_field)
 
-        if isinstance(informatieobject, EnkelvoudigInformatieObject):
+        if isinstance(informatieobject, ProxyMixin) and settings.CMIS_ENABLED:
+            io_uuid = get_uuid_from_path(informatieobject._initial_data['url'])
+            io = EnkelvoudigInformatieObject.objects.get(uuid=io_uuid)
+            io_type = io.informatieobjecttype
+        elif isinstance(informatieobject, EnkelvoudigInformatieObject):
             io_type = informatieobject.informatieobjecttype
         elif isinstance(informatieobject, str):
             io_uuid = get_uuid_from_path(informatieobject)

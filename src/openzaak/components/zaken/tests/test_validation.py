@@ -632,7 +632,8 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
-        io_url = reverse(io)
+        io_url = f"http://testserver{reverse(io)}"
+        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
@@ -643,7 +644,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
             url,
             {
                 "zaak": f"http://testserver{zaak_url}",
-                "informatieobject": f"http://testserver{io_url}",
+                "informatieobject": io_url,
             },
         )
 
@@ -1162,7 +1163,8 @@ class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     def test_status_with_informatieobject_lock(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        io = EnkelvoudigInformatieObjectFactory.create(canonical__lock=uuid.uuid4().hex)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        io.canonical.lock_document(io.uuid)
         io_url = io.get_url()
         self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io_url)

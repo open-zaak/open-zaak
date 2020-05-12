@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils import timezone
 
@@ -401,6 +402,12 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
+    def setUp(self):
+        super().setUp()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
     @freeze_time("2018-09-19T12:25:19+0200")
     def test_create(self):
         zaak = ZaakFactory.create()
@@ -408,7 +415,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
-        io_url = reverse(io)
+        io_url = f"http://testserver{reverse(io)}"
+        self.adapter.register_uri('GET', io_url, json=serialise_eio(io, io_url))
+
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
@@ -416,7 +425,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         titel = "some titel"
         beschrijving = "some beschrijving"
         content = {
-            "informatieobject": f"http://testserver{io_url}",
+            "informatieobject": io_url,
             "zaak": f"http://testserver{zaak_url}",
             "titel": titel,
             "beschrijving": beschrijving,
@@ -576,7 +585,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["zaak"], f"http://openzaak.nl{zaak_url}")
 
-    def test_filter_by_local_informatieobject(self):
+    def test_filter_by_informatieobject(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"
         self.adapter.register_uri('GET', eio_url, json=serialise_eio(eio, eio_url))
@@ -595,55 +604,6 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(
             response.data[0]["informatieobject"], eio_url
         )
-
-    def test_filter_by_external_informatieobject(self):
-        base = "https://external.documenten.nl/api/v1/"
-        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-
-        Service.objects.create(
-            api_type=APITypes.drc,
-            api_root=base,
-            label="external documents",
-            auth_type=AuthTypes.no_auth,
-        )
-        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
-            informatieobjecttype__concept=False, zaaktype__concept=False
-        )
-        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
-        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        eio_response = get_eio_response(
-            document,
-            informatieobjecttype=f"http://openzaak.nl{reverse(zio_type.informatieobjecttype)}",
-        )
-
-        with requests_mock.Mocker(real_http=True) as m:
-            mock_service_oas_get(m, APITypes.drc, base)
-            m.get(document, json=eio_response)
-            m.post(
-                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
-                json=get_oio_response(document, zaak_url),
-                status_code=201,
-            )
-
-            response = self.client.post(
-                reverse(ZaakInformatieObject),
-                {"zaak": zaak_url, "informatieobject": document},
-                HTTP_HOST="openzaak.nl",
-            )
-
-        io_url = response.data["informatieobject"]
-        zio_list_url = reverse("zaakinformatieobject-list")
-
-        response = self.client.get(
-            zio_list_url, {"informatieobject": io_url}, HTTP_HOST="openzaak.nl"
-        )
-
-        informatie_object = ObjectInformatieObject.objects.first()
-        informatie_object.delete()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["informatieobject"], io_url)
 
     def test_update_zaak_and_informatieobject_fails(self):
         zaak = ZaakFactory.create()

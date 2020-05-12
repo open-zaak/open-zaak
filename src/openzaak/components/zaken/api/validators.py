@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Max, Subquery
 from django.utils import timezone
@@ -175,7 +176,8 @@ class ZaakArchiveIOsArchivedValidator:
             code="documents-not-archived",
         )
 
-        self.validate_local_eios_archived(attrs, documents_not_archived_error)
+        if not settings.CMIS_ENABLED:
+            self.validate_local_eios_archived(attrs, documents_not_archived_error)
         self.validate_remote_eios_archived(attrs, documents_not_archived_error)
         self.validate_extra_attributes(attrs)
 
@@ -293,7 +295,8 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
         if not zaak:
             return
 
-        self.validate_local_eios_indicatie_set(zaak)
+        if not settings.CMIS_ENABLED:
+            self.validate_local_eios_indicatie_set(zaak)
         self.validate_remote_eios_indicatie_set(zaak)
 
     def validate_local_eios_indicatie_set(self, zaak: Zaak):

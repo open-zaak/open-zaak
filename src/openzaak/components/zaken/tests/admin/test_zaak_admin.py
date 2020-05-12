@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
@@ -12,6 +13,7 @@ from openzaak.components.zaken.tests.factories import (
 from ...models import ZaakBesluit
 
 
+@override_settings(CMIS_ENABLED=False)
 class ZaaktypeAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

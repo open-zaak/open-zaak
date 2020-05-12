@@ -404,6 +404,16 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     def _get_locked(self) -> bool:
         if self.pk:
             return bool(self.canonical.lock)
+
+        if settings.CMIS_ENABLED:
+            client = CMISDRCClient()
+            cmis_doc = client.get_cmis_document(
+                identification=self.uuid,
+                via_identification=False,
+                filters=None,
+            )
+            return bool(cmis_doc.versionSeriesCheckedOutId)
+
         return self._locked
 
     def _set_locked(self, value: bool) -> None:
