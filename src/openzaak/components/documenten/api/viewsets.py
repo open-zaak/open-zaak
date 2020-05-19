@@ -288,10 +288,7 @@ class EnkelvoudigInformatieObjectViewSet(
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
         if settings.CMIS_ENABLED:
-            return FileResponse(
-                eio.inhoud.file,
-                as_attachment=True
-            )
+            return FileResponse(eio.inhoud.file, as_attachment=True)
         else:
             return sendfile(
                 request,
@@ -336,7 +333,9 @@ class EnkelvoudigInformatieObjectViewSet(
         eio = self.get_object()
         canonical = eio.canonical
         lock_serializer = LockEnkelvoudigInformatieObjectSerializer(
-            canonical, data=request.data, context={'request': request, 'uuid': kwargs.get('uuid')}
+            canonical,
+            data=request.data,
+            context={"request": request, "uuid": kwargs.get("uuid")},
         )
         lock_serializer.is_valid(raise_exception=True)
         lock_serializer.save()
@@ -390,7 +389,13 @@ class EnkelvoudigInformatieObjectViewSet(
             force_unlock = True
 
         unlock_serializer = UnlockEnkelvoudigInformatieObjectSerializer(
-            canonical, data=request.data, context={'request': request, "force_unlock": force_unlock, 'uuid': kwargs.get('uuid')}
+            canonical,
+            data=request.data,
+            context={
+                "request": request,
+                "force_unlock": force_unlock,
+                "uuid": kwargs.get("uuid"),
+            },
         )
         unlock_serializer.is_valid(raise_exception=True)
         unlock_serializer.save()

@@ -408,9 +408,7 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         if settings.CMIS_ENABLED:
             client = CMISDRCClient()
             cmis_doc = client.get_cmis_document(
-                identification=self.uuid,
-                via_identification=False,
-                filters=None,
+                identification=self.uuid, via_identification=False, filters=None,
             )
             return bool(cmis_doc.versionSeriesCheckedOutId)
 
@@ -422,14 +420,11 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
     def full_clean(self, exclude=None, validate_unique=True):
         if settings.CMIS_ENABLED:
             if exclude is None:
-                exclude = ['canonical']
-            elif 'canonical' not in exclude:
-                exclude.append('canonical')
+                exclude = ["canonical"]
+            elif "canonical" not in exclude:
+                exclude.append("canonical")
 
-            return super().full_clean(
-                exclude=exclude,
-                validate_unique=validate_unique
-            )
+            return super().full_clean(exclude=exclude, validate_unique=validate_unique)
         else:
             return super().full_clean(exclude, validate_unique)
 
@@ -461,7 +456,9 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         else:
             if self.has_gebruiksrechten():
                 eio_instance_url = self.get_url()
-                gebruiksrechten = Gebruiksrechten.objects.filter(informatieobject=eio_instance_url)
+                gebruiksrechten = Gebruiksrechten.objects.filter(
+                    informatieobject=eio_instance_url
+                )
                 for gebruiksrechten_doc in gebruiksrechten:
                     gebruiksrechten_doc.delete()
             cmis_storage = CMISDRCStorageBackend()
@@ -715,8 +712,7 @@ class ObjectInformatieObject(models.Model):
 
     def get_url(self):
         oio_path = reverse(
-            "objectinformatieobject-detail",
-            kwargs={"version": "1", "uuid": self.uuid},
+            "objectinformatieobject-detail", kwargs={"version": "1", "uuid": self.uuid},
         )
         return make_absolute_uri(oio_path)
 

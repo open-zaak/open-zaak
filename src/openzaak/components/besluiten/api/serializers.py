@@ -14,7 +14,7 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.api.utils import create_remote_oio, get_absolute_url
+from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.components.zaken.api.utils import (
     create_remote_zaakbesluit,
     delete_remote_zaakbesluit,
@@ -26,10 +26,10 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
+from ...documenten.models import ObjectInformatieObject
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
-from ...documenten.models import ObjectInformatieObject
 
 
 class BesluitSerializer(serializers.HyperlinkedModelSerializer):
@@ -206,10 +206,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # If it fails in any other way, we need to handle that by rolling back
         # the BIO creation.
         try:
-            if settings.CMIS_ENABLED:
-                oio = ObjectInformatieObject.objects.create(informatieobject=io_url, besluit=besluit_url, object_type='besluit')
-            else:
-                response = create_remote_oio(io_url, besluit_url, "besluit")
+            response = create_remote_oio(io_url, besluit_url, "besluit")
         except Exception as exception:
             bio.delete()
             raise serializers.ValidationError(
@@ -221,10 +218,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 code="pending-relations",
             )
         else:
-            if settings.CMIS_ENABLED:
-                bio._objectinformatieobject_url = oio.get_url()
-            else:
-                bio._objectinformatieobject_url = response["url"]
+            bio._objectinformatieobject_url = response["url"]
             bio.save()
         return bio
 
@@ -233,7 +227,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         Add read_only fields with defaults to value before running validators.
         """
         # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
-        if value.get('informatieobject') is not None and settings.CMIS_ENABLED:
-            value['informatieobject'] = self.initial_data.get('informatieobject')
+        if value.get("informatieobject") is not None and settings.CMIS_ENABLED:
+            value["informatieobject"] = self.initial_data.get("informatieobject")
 
         return super().run_validators(value)

@@ -1,9 +1,7 @@
-import requests_mock
-from vng_api_common.tests import reverse
-
-from django.conf import settings
 from django.db import IntegrityError
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, tag
+
+from rest_framework.test import APITestCase
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -13,16 +11,13 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.utils.tests import APITestCaseCMIS
 from openzaak.utils.query import QueryBlocked
 
 from ...models import ObjectInformatieObject
-from ..factories import EnkelvoudigInformatieObjectFactory, EnkelvoudigInformatieObjectCanonicalFactory
-from ..utils import serialise_eio
+from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
 @tag("oio")
-@override_settings(CMIS_ENABLED=False)
 class OIOTests(TestCase):
     def test_not_both_zaak_besluit(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
@@ -77,92 +72,13 @@ class OIOTests(TestCase):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
 
-@tag("oio")
-@override_settings(CMIS_ENABLED=True)
-class OIOCMISTests(APITestCaseCMIS):
-    def setUp(self) -> None:
-        self.eio = EnkelvoudigInformatieObjectFactory.create()
-        self.eio_url = f"http://openzaak.nl{reverse(self.eio)}"
-        self.eio_response = serialise_eio(self.eio, self.eio_url)
-
-        return super().setUp()
-
-    def test_not_both_zaak_besluit(self):
-        zaak = ZaakFactory.create()
-        besluit = BesluitFactory.create()
-
-        with self.assertRaises(IntegrityError):
-            ObjectInformatieObject.objects.create(
-                informatieobject=self.eio_url, zaak=zaak, besluit=besluit
-            )
-
-    def test_either_zaak_or_besluit_required(self):
-        with self.assertRaises(IntegrityError):
-            ObjectInformatieObject.objects.create(
-                informatieobject=self.eio_url
-            )
-
-    def test_zio_creates_oio(self):
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", self.eio_url, json=self.eio_response)
-            zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
-
-            oio = ObjectInformatieObject.objects.get()
-
-            self.assertEqual(oio.get_informatieobject_url(), zio.informatieobject._initial_data["url"])
-            self.assertEqual(oio.object, zio.zaak)
-
-    def test_bio_creates_oio(self):
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", self.eio_url, json=self.eio_response)
-            bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
-
-            oio = ObjectInformatieObject.objects.get()
-
-            self.assertEqual(oio.get_informatieobject_url(), bio.informatieobject._initial_data["url"])
-            self.assertEqual(oio.object, bio.besluit)
-
-    def test_zio_delete_oio(self):
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", self.eio_url, json=self.eio_response)
-            zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
-
-            self.assertEqual(ObjectInformatieObject.objects.count(), 1)
-
-            zio.delete()
-
-            self.assertEqual(ObjectInformatieObject.objects.count(), 0)
-
-    def test_bio_delete_oio(self):
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", self.eio_url, json=self.eio_response)
-            bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
-
-            self.assertEqual(ObjectInformatieObject.objects.count(), 1)
-
-            bio.delete()
-
-            self.assertEqual(ObjectInformatieObject.objects.count(), 0)
-
-
-class BlockChangeTestCase(APITestCaseCMIS):
+class BlockChangeTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
-        if settings.CMIS_ENABLED:
-            eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = f"http://openzaak.nl{reverse(eio)}"
-            eio_response = serialise_eio(eio, eio_url)
-
-            with requests_mock.Mocker(real_http=True) as m:
-                m.register_uri("GET", eio_url, json=eio_response)
-                ZaakInformatieObjectFactory.create(informatieobject=eio_url)
-
-                cls.oio = ObjectInformatieObject.objects.get()
-        else:
-            ZaakInformatieObjectFactory.create()
-            cls.oio = ObjectInformatieObject.objects.get()
+        ZaakInformatieObjectFactory.create()
+        cls.oio = ObjectInformatieObject.objects.get()
 
     def test_update(self):
         self.assertRaises(

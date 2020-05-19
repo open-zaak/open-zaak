@@ -1,9 +1,10 @@
 from django.conf import settings
 
 from rest_framework import status
+from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Gebruiksrechten, ObjectInformatieObject
 from .factories import (
@@ -14,7 +15,7 @@ from .factories import (
 )
 
 
-class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCaseCMIS):
+class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):
@@ -28,15 +29,10 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(error["code"], "invalid")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        if settings.CMIS_ENABLED:
-            eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = reverse(eio)
-            GebruiksrechtenCMISFactory(informatieobject=eio_url)
-        else:
-            eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
-                latest_version__informatieobjecttype__concept=False
-            )
-            GebruiksrechtenFactory.create(informatieobject=eio)
+        eio = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version__informatieobjecttype__concept=False
+        )
+        GebruiksrechtenFactory.create(informatieobject=eio)
 
         response = self.client.get(
             reverse(Gebruiksrechten), {"informatieobject": "https://google.com"}
@@ -46,7 +42,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(response.data, [])
 
 
-class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCaseCMIS):
+class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_by_invalid_url(self):

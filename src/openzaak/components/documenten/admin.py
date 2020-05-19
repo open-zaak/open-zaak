@@ -9,6 +9,7 @@ from vng_api_common.constants import ObjectTypes
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
+    CMISAdminMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
@@ -95,7 +96,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
 
 @admin.register(ObjectInformatieObject)
 class ObjectInformatieObjectAdmin(
-    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    AuditTrailAdminMixin, CMISAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
@@ -120,24 +121,6 @@ class ObjectInformatieObjectAdmin(
         return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
 
     get_object_display.short_description = "object"
-
-    def has_delete_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_delete_permission(request, obj)
-
-    def has_add_permission(self, request):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_add_permission(request)
-
-    def has_change_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_change_permission(request, obj)
 
 
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
@@ -198,6 +181,7 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
     AuditTrailAdminMixin,
+    CMISAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     PrivateMediaMixin,
@@ -292,21 +276,3 @@ class EnkelvoudigInformatieObjectAdmin(
             link_to_related_objects(Gebruiksrechten, obj.canonical),
             link_to_related_objects(ObjectInformatieObject, obj.canonical),
         )
-
-    def has_delete_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_delete_permission(request, obj)
-
-    def has_add_permission(self, request):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_add_permission(request)
-
-    def has_change_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        else:
-            return super().has_change_permission(request, obj)

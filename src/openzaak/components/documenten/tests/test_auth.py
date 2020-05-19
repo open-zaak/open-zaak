@@ -1,10 +1,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
-from unittest import skipIf
 
-import requests_mock
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
@@ -22,29 +19,24 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
-from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory, GebruiksrechtenFactory
-from .utils import get_eio_response
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
 
-class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCaseCMIS):
+class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_io_without_correct_scope(self):
         url = reverse("enkelvoudiginformatieobject-list")
         self.assertForbidden(url, method="post")
 
-    @override_settings(CMIS_ENABLED=False)
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
-        if settings.CMIS_ENABLED:
-            gebruiksrechten = GebruiksrechtenCMISFactory.create(informatieobject=eio_url)
-        else:
-            gebruiksrechten = GebruiksrechtenFactory.create()
+        gebruiksrechten = GebruiksrechtenFactory.create()
         ZaakInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()
         urls = [
@@ -60,31 +52,8 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCaseCMIS):
             with self.subTest(url=url):
                 self.assertForbidden(url, method="get")
 
-    @override_settings(CMIS_ENABLED=True)
-    def test_cannot_read_without_correct_scope_cmis(self):
-        eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = f"http://testserver{reverse(eio)}"
-        gebruiksrechten = GebruiksrechtenCMISFactory.create(informatieobject=eio_url)
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", eio_url, json=get_eio_response(reverse(eio)))
-            ZaakInformatieObjectFactory.create(informatieobject=eio_url)
-        oio = ObjectInformatieObject.objects.get()
-        urls = [
-            reverse("enkelvoudiginformatieobject-list"),
-            reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
-            reverse("gebruiksrechten-list"),
-            reverse(gebruiksrechten),
-            reverse("objectinformatieobject-list"),
-            reverse(oio),
-        ]
-
-        for url in urls:
-            with self.subTest(url=url):
-                self.assertForbidden(url, method="get")
-
-
-class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCaseCMIS):
+class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -186,7 +155,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(len(response_data), 4)
 
 
-class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
+class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -200,46 +169,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
         site.save()
         super().setUpTestData()
 
-    @override_settings(CMIS_ENABLED=True)
-    def test_list_gebruiksrechten_limited_to_authorized_zaken_cmis(self):
-        url = reverse("gebruiksrechten-list")
-
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio1_url = f"http://testserver{reverse(eio1)}"
-        gebruiksrechten1 = GebruiksrechtenCMISFactory(
-            informatieobject=eio1_url
-        )
-
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-        )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        GebruiksrechtenCMISFactory(
-            informatieobject=eio2_url
-        )
-
-        eio3 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio3_url = f"http://testserver{reverse(eio3)}"
-        GebruiksrechtenCMISFactory(
-            informatieobject=eio3_url
-        )
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response_data = response.json()
-        self.assertEqual(len(response_data), 1)
-        self.assertEqual(
-            response_data[0]["url"], f"http://testserver{reverse(gebruiksrechten1)}"
-        )
-
-    @override_settings(CMIS_ENABLED=False)
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
         url = reverse("gebruiksrechten-list")
         # must show up
@@ -295,7 +224,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @override_settings(CMIS_ENABLED=False)
     def test_read_gebruiksrechten_limited_to_authorized_io(self):
         gebruiksrechten1 = GebruiksrechtenFactory(
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
@@ -311,34 +239,8 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
-    @override_settings(CMIS_ENABLED=True)
-    def test_read_gebruiksrechten_limited_to_authorized_io_cmis(self):
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio1_url = f"http://testserver{reverse(eio1)}"
-        gebruiksrechten1 = GebruiksrechtenCMISFactory(
-            informatieobject=eio1_url
-        )
 
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        gebruiksrechten2 = GebruiksrechtenCMISFactory(
-            informatieobject=eio2_url
-        )
-
-        response1 = self.client.get(reverse(gebruiksrechten1))
-        response2 = self.client.get(reverse(gebruiksrechten2))
-
-        self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(response2.status_code, status.HTTP_200_OK)
-
-
-@override_settings(CMIS_ENABLED=False)
-class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
+class OioReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -438,116 +340,9 @@ class OioReadTests(JWTAuthMixin, APITestCaseCMIS):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-@override_settings(CMIS_ENABLED=True)
-class OioReadCMISTests(JWTAuthMixin, APITestCaseCMIS):
-
-    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
-    component = ComponentTypes.drc
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        super().setUpTestData()
-
-    def test_detail_oio_limited_to_authorized_zaken_cmis(self):
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio1_url = f"http://testserver{reverse(eio1)}"
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-        )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        # must not show up
-        eio3 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
-        )
-        eio3_url = f"http://testserver{reverse(eio3)}"
-        oio3 = ObjectInformatieObject.objects.create(
-            informatieobject=eio3_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        with self.subTest(
-            informatieobjecttype=eio1.informatieobjecttype,
-            vertrouwelijkheidaanduiding=eio1.vertrouwelijkheidaanduiding,
-        ):
-            url = reverse(oio1)
-
-            response = self.client.get(url)
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # not allowed to see these
-        for oio, eio in ((oio2, eio2), (oio3, eio3)):
-            with self.subTest(
-                informatieobjecttype=eio.informatieobjecttype,
-                vertrouwelijkheidaanduiding=eio.vertrouwelijkheidaanduiding,
-            ):
-                url = reverse(oio)
-
-                response = self.client.get(url)
-
-                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_list_oio_limited_to_authorized_zaken_cmis(self):
-        url = reverse("objectinformatieobject-list")
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio1_url = f"http://testserver{reverse(eio1)}"
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-        )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        # must not show up
-        eio3 = EnkelvoudigInformatieObjectFactory.create(
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
-        )
-        eio3_url = f"http://testserver{reverse(eio3)}"
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio3_url, zaak=zaak, object_type=ObjectTypes.zaak
-        )
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response_data = response.json()
-
-        self.assertEqual(len(response_data), 1)
-        self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
-
-
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
+class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -608,31 +403,19 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        eio1_url = f"http://testserver{reverse(eio1)}"
 
-        if settings.CMIS_ENABLED:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio1 = ObjectInformatieObject.objects.create(
+            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        if settings.CMIS_ENABLED:
-            ObjectInformatieObject.objects.create(
-                informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            ObjectInformatieObject.objects.create(
-                informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         response = self.client.get(url)
 
@@ -650,31 +433,18 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        eio1_url = f"http://testserver{reverse(eio1)}"
-
-        if settings.CMIS_ENABLED:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio1 = ObjectInformatieObject.objects.create(
+            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        eio2_url = f"http://testserver{reverse(eio2)}"
-        if settings.CMIS_ENABLED:
-            oio2 = ObjectInformatieObject.objects.create(
-                informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio2 = ObjectInformatieObject.objects.create(
-                informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio2 = ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         url1 = reverse(oio1)
         url2 = reverse(oio2)
@@ -688,7 +458,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
+class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
@@ -745,15 +515,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        if settings.CMIS_ENABLED:
-            eio1_url = f"http://testserver{reverse(eio1)}"
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio1 = ObjectInformatieObject.objects.create(
+            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
@@ -761,15 +525,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
-        if settings.CMIS_ENABLED:
-            eio2_url = f"http://testserver{reverse(eio2)}"
-            ObjectInformatieObject.objects.create(
-                informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            ObjectInformatieObject.objects.create(
-                informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         response = self.client.get(url)
 
@@ -787,30 +545,18 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCaseCMIS):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        if settings.CMIS_ENABLED:
-            eio1_url = f"http://testserver{reverse(eio1)}"
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio1 = ObjectInformatieObject.objects.create(
-                informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio1 = ObjectInformatieObject.objects.create(
+            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        if settings.CMIS_ENABLED:
-            eio2_url = f"http://testserver{reverse(eio2)}"
-            oio2 = ObjectInformatieObject.objects.create(
-                informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
-            )
-        else:
-            oio2 = ObjectInformatieObject.objects.create(
-                informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
-            )
+        oio2 = ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+        )
         url1 = reverse(oio1)
         url2 = reverse(oio2)
 

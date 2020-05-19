@@ -3,15 +3,15 @@ Tests for the business logic w/r to statussen, from RGBZ.
 """
 from datetime import date
 
-from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 
-from openzaak.utils.tests import APITestCaseCMIS
+from rest_framework.test import APITestCase
+
 from ...constants import Statussen
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-class StatusTests(APITestCaseCMIS):
+class StatusTests(APITestCase):
     def test_empty_status_empty_ontvangstdatum(self):
         try:
             eio = EnkelvoudigInformatieObjectFactory.create(
@@ -19,7 +19,9 @@ class StatusTests(APITestCaseCMIS):
             )
             # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
             # 'testserver', which doesn't match the regex of the URLValidator.
-            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace("testserver", "example.com")
+            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
+                "testserver", "example.com"
+            )
             eio.full_clean()
         except ValidationError:
             self.fail("Empty status and ontvangstdatum should be possible")
@@ -31,7 +33,9 @@ class StatusTests(APITestCaseCMIS):
             )
             # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
             # 'testserver', which doesn't match the regex of the URLValidator.
-            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace("testserver", "example.com")
+            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
+                "testserver", "example.com"
+            )
             eio.full_clean()
         except ValidationError:
             self.fail("Empty status and non-empty ontvangstdatum should be possible")
@@ -44,7 +48,9 @@ class StatusTests(APITestCaseCMIS):
                 )
                 # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
                 # 'testserver', which doesn't match the regex of the URLValidator.
-                eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace("testserver", "example.com")
+                eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
+                    "testserver", "example.com"
+                )
                 with self.assertRaises(ValidationError) as exc_context:
                     eio.full_clean()
 

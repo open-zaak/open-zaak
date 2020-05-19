@@ -1,9 +1,8 @@
 import uuid
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
-import requests_mock
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.documenten.tests.factories import (
@@ -19,28 +18,20 @@ from ..utils import get_operation_url
 class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 
-    @requests_mock.Mocker(real_http=True)
-    def test_create_zaakinformatieobject(self, mock):
+    def test_create_zaakinformatieobject(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
-        mock.get(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid),
-            json={'url': informatieobject.get_url(), 'locked': False, 'uuid': str(informatieobject.uuid)}
-        )
 
         add_url = reverse("admin:zaken_zaakinformatieobject_add")
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "_informatieobject_url": informatieobject.get_url(),
+            "_informatieobject": informatieobject.canonical.id,
             "aard_relatie": "hoort_bij",
             "beschrijving": "description",
         }
-        mock.post(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid),
-            json={'url': informatieobject.get_url(), 'locked': False}, status_code=201
-        )
+
         self.client.post(add_url, data)
 
         self.assertEqual(ZaakInformatieObject.objects.count(), 1)
@@ -73,20 +64,9 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
         new_data = audittrail.nieuw
 
         self.assertEqual(new_data["beschrijving"], "description")
-        informatieobject.delete()
 
-    @requests_mock.Mocker(real_http=True)
-    @override_settings(CMIS_ENABLED=False)
-    def test_change_zaakinformatieobject(self, mock):
-        informatieobject = EnkelvoudigInformatieObjectFactory()
-        mock.get(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid),
-            json={'url': informatieobject.get_url(), 'locked': False, 'uuid': str(informatieobject.uuid)}
-        )
-        zaakinformatieobject = ZaakInformatieObjectFactory.create(
-            beschrijving="old",
-            informatieobject=informatieobject.get_url(),
-        )
+    def test_change_zaakinformatieobject(self):
+        zaakinformatieobject = ZaakInformatieObjectFactory.create(beschrijving="old")
         zaakinformatieobject_url = get_operation_url(
             "zaakinformatieobject_read", uuid=zaakinformatieobject.uuid
         )
@@ -97,14 +77,11 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": zaakinformatieobject.uuid,
             "zaak": zaakinformatieobject.zaak.id,
-            "_informatieobject_url": zaakinformatieobject.informatieobject.get_url(),
+            "_informatieobject": zaakinformatieobject.informatieobject.id,
             "aard_relatie": zaakinformatieobject.aard_relatie,
             "beschrijving": "new",
         }
-        mock.post(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid),
-            json={'url': informatieobject.get_url(), 'locked': False}, status_code=201
-        )
+
         self.client.post(change_url, data)
 
         self.assertEqual(AuditTrail.objects.count(), 1)
@@ -130,14 +107,10 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
         old_data, new_data = audittrail.oud, audittrail.nieuw
         self.assertEqual(old_data["beschrijving"], "old")
         self.assertEqual(new_data["beschrijving"], "new")
-        informatieobject.delete()
 
-    @requests_mock.Mocker(real_http=True)
-    def test_delete_zaakinformatieobject_action(self, mock):
-        informatieobject = EnkelvoudigInformatieObjectFactory()
+    def test_delete_zaakinformatieobject_action(self):
         zaakinformatieobject = ZaakInformatieObjectFactory.create(
-            beschrijving="description",
-            informatieobject=informatieobject.get_url(),
+            beschrijving="description"
         )
         zaakinformatieobject_url = get_operation_url(
             "zaakinformatieobject_read", uuid=zaakinformatieobject.uuid
@@ -149,10 +122,6 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
             "_selected_action": [zaakinformatieobject.id],
             "post": "yes",
         }
-
-        mock.get(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid), json={'url': informatieobject.get_url(), 'locked': False}
-        )
 
         self.client.post(change_list_url, data)
 
@@ -179,14 +148,10 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
         old_data = audittrail.oud
 
         self.assertEqual(old_data["beschrijving"], "description")
-        informatieobject.delete()
 
-    @requests_mock.Mocker(real_http=True)
-    def test_delete_zaakinformatieobject(self, mock):
-        informatieobject = EnkelvoudigInformatieObjectFactory()
+    def test_delete_zaakinformatieobject(self):
         zaakinformatieobject = ZaakInformatieObjectFactory.create(
-            beschrijving="description",
-            informatieobject=informatieobject.get_url(),
+            beschrijving="description"
         )
         zaakinformatieobject_url = get_operation_url(
             "zaakinformatieobject_read", uuid=zaakinformatieobject.uuid
@@ -196,10 +161,6 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
             "admin:zaken_zaakinformatieobject_delete", args=(zaakinformatieobject.pk,)
         )
         data = {"post": "yes"}
-
-        mock.get(
-            "http://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/{}".format(informatieobject.uuid), json={'url': informatieobject.get_url(), 'locked': False}
-        )
 
         self.client.post(delete_url, data)
 
@@ -226,4 +187,3 @@ class ZaakInformatieObjectAdminTests(AdminTestMixin, TestCase):
         old_data = audittrail.oud
 
         self.assertEqual(old_data["beschrijving"], "description")
-        informatieobject.delete()

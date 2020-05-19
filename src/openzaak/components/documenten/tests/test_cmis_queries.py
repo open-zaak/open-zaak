@@ -1,14 +1,14 @@
 from django.contrib.sites.models import Site
 from django.test import override_settings
 
-from openzaak.utils.tests import APITestCaseCMIS
+from openzaak.utils.tests import APICMISTestCase
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @override_settings(CMIS_ENABLED=True)
-class QueryTests(APITestCaseCMIS):
+class QueryTests(APICMISTestCase):
     """
     Test that the query interface works with CMIS as backend.
     """

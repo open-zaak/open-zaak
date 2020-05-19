@@ -7,8 +7,8 @@ from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from vng_api_common.oas import fetcher, obj_has_shape
-from vng_api_common.validators import IsImmutableValidator
 from vng_api_common.utils import get_uuid_from_path
+from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
@@ -77,11 +77,11 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
 
         if settings.CMIS_ENABLED:
             if (
-                isinstance(current_value, ProxyMixin) and
-                isinstance(current_value, EnkelvoudigInformatieObject) and
-                isinstance(new_value, EnkelvoudigInformatieObject)
+                isinstance(current_value, ProxyMixin)
+                and isinstance(current_value, EnkelvoudigInformatieObject)
+                and isinstance(new_value, EnkelvoudigInformatieObject)
             ):
-                current_value_url = current_value._initial_data['url']
+                current_value_url = current_value._initial_data["url"]
                 new_value_url = new_value.get_url()
 
                 if new_value_url != current_value_url:
@@ -157,7 +157,7 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         objecttype = getattr(object, self.objecttype_field)
 
         if isinstance(informatieobject, ProxyMixin) and settings.CMIS_ENABLED:
-            io_uuid = get_uuid_from_path(informatieobject._initial_data['url'])
+            io_uuid = get_uuid_from_path(informatieobject._initial_data["url"])
             io = EnkelvoudigInformatieObject.objects.get(uuid=io_uuid)
             io_type = io.informatieobjecttype
         elif isinstance(informatieobject, EnkelvoudigInformatieObject):

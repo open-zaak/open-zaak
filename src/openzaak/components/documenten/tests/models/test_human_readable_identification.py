@@ -1,11 +1,11 @@
 from datetime import date
 
-from openzaak.utils.tests import APITestCaseCMIS
+from rest_framework.test import APITestCase
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-class EIOTests(APITestCaseCMIS):
+class EIOTests(APITestCase):
     def test_default_human_readable(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             identificatie="", creatiedatum=date(2019, 7, 1)

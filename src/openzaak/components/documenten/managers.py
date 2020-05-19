@@ -1,15 +1,12 @@
 from django.conf import settings
 from django.db.models import manager
 
-from .query import (
-    ObjectInformatieObjectQuerySet,
-    InformatieobjectRelatedQuerySet,
-)
+from .query import InformatieobjectRelatedQuerySet, ObjectInformatieObjectQuerySet
 from .querysets import (
     CMISQuerySet,
     DjangoQuerySet,
-    ObjectInformatieObjectCMISQuerySet,
     GebruiksrechtenQuerySet,
+    ObjectInformatieObjectCMISQuerySet,
 )
 
 
@@ -28,7 +25,9 @@ class GebruiksrechtenAdapterManager(manager.Manager):
                 model=self.model, using=self._db, hints=self._hints
             )
         else:
-            return InformatieobjectRelatedQuerySet(model=self.model, using=self._db, hints=self._hints)
+            return InformatieobjectRelatedQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )
 
 
 class ObjectInformatieObjectAdapterManager(manager.Manager):

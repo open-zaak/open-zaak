@@ -537,5 +537,5 @@ NLX_DIRECTORY_URLS = {
     NLXDirectories.prod: "https://directory.prod.nlx.io/",
 }
 
-CMIS_ENABLED = True
+CMIS_ENABLED = False
 CMIS_DELETE_IS_OBLITERATE = True

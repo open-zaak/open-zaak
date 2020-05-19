@@ -3,12 +3,10 @@ import hashlib
 import json
 import sys
 
-import requests
-import requests_mock
-from django.conf import settings
 from django.core.cache import caches
 from django.db.models import Model
 
+import requests_mock
 from drc_cmis.client import CMISDRCClient
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -148,17 +146,6 @@ def mock_client(responses: dict):
         pass
 
 
-# TODO Remove
-class APITestCaseCMIS(APITestCase):
-    def tearDown(self) -> None:
-        # Removes the created documents from alfresco
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            client.delete_cmis_folders_in_base()
-        else:
-            super().tearDown()
-
-
 class APICMISTestCase(APITestCase):
     def setUp(self) -> None:
         self.adapter = requests_mock.Mocker(real_http=True)
@@ -171,4 +158,3 @@ class APICMISTestCase(APITestCase):
         client.delete_cmis_folders_in_base()
         self.adapter.stop()
         super().tearDown()
-

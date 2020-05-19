@@ -1,26 +1,26 @@
 import copy
 import datetime
+import logging
 import re
 from decimal import Decimal, InvalidOperation
-from drc_cmis.client import CMISDRCClient, exceptions
-from drc_cmis.backend import CMISDRCStorageBackend
-import logging
-from vng_api_common.tests import reverse
-from drc_cmis.cmis.drc_document import Document, ObjectInformatieObject, Gebruiksrechten
-from drc_cmis.client.mapper import mapper
-from drc_cmis.client.convert import make_absolute_uri
 from typing import List, Optional, Tuple
-from rest_framework.request import Request
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
-# from vng_api_common.utils import generate_unique_identification
 
 from django.conf import settings
 from django.db import models
 from django.db.models import fields
+from django.db.models.query import BaseIterable
 from django.forms.models import model_to_dict
 from django.utils import timezone
-from django.db.models.query import BaseIterable
+
 from django_loose_fk.virtual_models import ProxyMixin
+from drc_cmis.backend import CMISDRCStorageBackend
+from drc_cmis.client import CMISDRCClient, exceptions
+from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.client.mapper import mapper
+from drc_cmis.cmis.drc_document import Document, Gebruiksrechten, ObjectInformatieObject
+from rest_framework.request import Request
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.tests import reverse
 
 from ..catalogi.models.informatieobjecttype import InformatieObjectType
 from .query import (
@@ -29,6 +29,9 @@ from .query import (
     ObjectInformatieObjectQuerySet,
 )
 from .utils import CMISStorageFile
+
+# from vng_api_common.utils import generate_unique_identification
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +46,7 @@ LHS_FILTER_MAP = {
     "_informatieobjecttype__in": "informatieobjecttype__in",
 }
 
-#TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
+# TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable):
 
     table = "drc:document"
@@ -85,18 +88,18 @@ class CMISDocumentIterable(BaseIterable):
         for key, value in filters:
             name = mapper(key, type="document")
 
-            if key == 'uuid':
-                name = 'cmis:objectId'
-                value = f'workspace://SpacesStore/{value};1.0'
-            elif key == 'versie':
+            if key == "uuid":
+                name = "cmis:objectId"
+                value = f"workspace://SpacesStore/{value};1.0"
+            elif key == "versie":
                 # The older versions can be accessed once the latest document is available
                 continue
-            elif key == 'begin_registratie':
+            elif key == "begin_registratie":
                 # In order to retrieve all the versions from before a certain date, the latest document is needed
                 continue
-            elif key == '_va_order':
+            elif key == "_va_order":
                 continue
-            elif key == 'informatieobjecttype':
+            elif key == "informatieobjecttype":
                 if isinstance(value, list) and len(value) == 0:
                     # In this case there are no authorised informatieobjecttypes
                     _lhs.append("drc:document__informatieobjecttype = '%s'")
@@ -108,11 +111,11 @@ class CMISDocumentIterable(BaseIterable):
                     _lhs.append(lhs)
                     _rhs += rhs
                     continue
-            elif key == 'identificatie' and '%' in value:
+            elif key == "identificatie" and "%" in value:
                 _lhs.append(f"{name} LIKE '%s'")
                 _rhs.append(f"{value}")
                 continue
-            elif key == 'creatiedatum' and value == '':
+            elif key == "creatiedatum" and value == "":
                 _lhs.append(f"{name} LIKE '%s'")
                 _rhs.append(f"%-%-%")
                 continue
@@ -128,7 +131,7 @@ class CMISDocumentIterable(BaseIterable):
     def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
         new_filters = None
         for key, value in filters:
-            if key == 'pk' and isinstance(value, CMISQuerySet):
+            if key == "pk" and isinstance(value, CMISQuerySet):
                 new_filters = value._cmis_query
                 break
 
@@ -139,23 +142,23 @@ class CMISDocumentIterable(BaseIterable):
 
     def _needs_older_version(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
-            if key == 'versie':
+            if key == "versie":
                 return True
         return False
 
     def _needs_registratie_filter(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
-            if key == 'begin_registratie':
+            if key == "begin_registratie":
                 return True
         return False
 
     def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
-            if key == '_va_order':
+            if key == "_va_order":
                 return True
         return False
 
-    #FIXME
+    # FIXME
     # This wont work if various versions of different documents have to be retrieved
     def _retrive_older_version(self, filters: List[Tuple], documents: List) -> List:
         """
@@ -165,7 +168,7 @@ class CMISDocumentIterable(BaseIterable):
         older_versions_documents = []
 
         for key, value in filters:
-            if key == 'versie':
+            if key == "versie":
                 version_needed = str(value)
 
         for cmis_doc in documents:
@@ -180,7 +183,7 @@ class CMISDocumentIterable(BaseIterable):
         before_date_documents = []
 
         for key, value in filters:
-            if key == 'begin_registratie':
+            if key == "begin_registratie":
                 requested_date = value
 
         for cmis_doc in documents:
@@ -202,14 +205,16 @@ class CMISDocumentIterable(BaseIterable):
 
         # get the vertrowelijkaanduiding filter
         for filter_name, filter_value in filters:
-            if filter_name == '_va_order':
+            if filter_name == "_va_order":
                 # In case there are multiple different vertrouwelijk aanduiding,
                 # it chooses the lowest one
                 all_vertrowelijkaanduiding = []
                 if isinstance(filter_value, list):
                     for order in filter_value:
                         for case in order.cases:
-                            all_vertrowelijkaanduiding.append(case.result.identity[1][1])
+                            all_vertrowelijkaanduiding.append(
+                                case.result.identity[1][1]
+                            )
 
                 else:
                     for case in filter_value.cases:
@@ -227,7 +232,9 @@ class CMISDocumentIterable(BaseIterable):
 
         return filtered_docs
 
-    def _build_authorisation_filter(self, key: str, value: List) -> Tuple[str, List[str]]:
+    def _build_authorisation_filter(
+        self, key: str, value: List
+    ) -> Tuple[str, List[str]]:
         """
         :param key: Alfresco name of the property to filter on
         :param value: List of the values that the key should take
@@ -276,9 +283,9 @@ class CMISOioIterable(BaseIterable):
         for key, value in filters:
             name = mapper(key, type="objectinformatieobject")
 
-            if key == 'uuid':
-                name = 'cmis:objectId'
-                value = f'workspace://SpacesStore/{value};1.0'
+            if key == "uuid":
+                name = "cmis:objectId"
+                value = f"workspace://SpacesStore/{value};1.0"
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -296,7 +303,9 @@ class CMISOioIterable(BaseIterable):
             if unique_filters.get(key) is None:
                 unique_filters[key] = value
             else:
-                unique_filters[key] = modify_value_in_dictionary(unique_filters[key], value)
+                unique_filters[key] = modify_value_in_dictionary(
+                    unique_filters[key], value
+                )
 
         formatted_unique_filters = []
         for key, value in unique_filters.items():
@@ -307,7 +316,7 @@ class CMISOioIterable(BaseIterable):
     def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
         new_filters = []
         for key, value in filters:
-            if key == 'pk' and isinstance(value, ObjectInformatieObjectCMISQuerySet):
+            if key == "pk" and isinstance(value, ObjectInformatieObjectCMISQuerySet):
                 new_filters += value._cmis_query
             else:
                 new_filters.append((key, value))
@@ -349,9 +358,9 @@ class CMISGebruiksrechtenIterable(BaseIterable):
         for key, value in filters:
             name = mapper(key, type="gebruiksrechten")
 
-            if key == 'uuid':
-                name = 'cmis:objectId'
-                value = f'workspace://SpacesStore/{value};1.0'
+            if key == "uuid":
+                name = "cmis:objectId"
+                value = f"workspace://SpacesStore/{value};1.0"
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -369,7 +378,9 @@ class CMISGebruiksrechtenIterable(BaseIterable):
             if unique_filters.get(key) is None:
                 unique_filters[key] = value
             else:
-                unique_filters[key] = modify_value_in_dictionary(unique_filters[key], value)
+                unique_filters[key] = modify_value_in_dictionary(
+                    unique_filters[key], value
+                )
 
         formatted_unique_filters = []
         for key, value in unique_filters.items():
@@ -380,7 +391,7 @@ class CMISGebruiksrechtenIterable(BaseIterable):
     def _check_for_pk_filter(self, filters: List[Tuple]) -> List[Tuple]:
         new_filters = []
         for key, value in filters:
-            if key == 'pk' and isinstance(value, GebruiksrechtenQuerySet):
+            if key == "pk" and isinstance(value, GebruiksrechtenQuerySet):
                 new_filters += value._cmis_query
             else:
                 new_filters.append((key, value))
@@ -453,7 +464,9 @@ class CMISQuerySet(InformatieobjectQuerySet):
             if isinstance(qs, CMISQuerySet):
                 for key, value in qs._cmis_query:
                     if unified_query.get(key) is not None:
-                        if isinstance(unified_query.get(key), list) and isinstance(value, list):
+                        if isinstance(unified_query.get(key), list) and isinstance(
+                            value, list
+                        ):
                             unified_query[key] += value
                         elif isinstance(unified_query.get(key), list):
                             unified_query[key].append(value)
@@ -495,9 +508,11 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         # If no identificatie field is present, it generates a unique, human readable one
         if not django_document.identificatie:
-            #FIXME when aggregation operations will work in alfresco, should use
+            # FIXME when aggregation operations will work in alfresco, should use
             # vng_api_common.utils.generate_unique_identification rather than the one defined below
-            django_document.identificatie = generate_unique_identification(django_document, "creatiedatum")
+            django_document.identificatie = generate_unique_identification(
+                django_document, "creatiedatum"
+            )
             model_data = model_to_dict(django_document)
             self.filter(uuid=django_document.uuid).update(**model_data)
 
@@ -509,16 +524,22 @@ class CMISQuerySet(InformatieobjectQuerySet):
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
         for key, value in kwargs.items():
             key_bits = key.split("__")
-            if len(key_bits) > 1 and key_bits[1] not in ["exact", "in", "lte", "regex", "isnull"]:
-                raise NotImplementedError(
-                    f"Filter on '{key}' is not implemented yet"
-                )
-            if 'informatieobjecttype' in key:
+            if len(key_bits) > 1 and key_bits[1] not in [
+                "exact",
+                "in",
+                "lte",
+                "regex",
+                "isnull",
+            ]:
+                raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
+            if "informatieobjecttype" in key:
                 if isinstance(value, list):
-                    filters['informatieobjecttype'] = [get_object_url(item) for item in value]
+                    filters["informatieobjecttype"] = [
+                        get_object_url(item) for item in value
+                    ]
                 else:
-                    filters['informatieobjecttype'] = get_object_url(value)
-            elif key == 'identificatie__regex':
+                    filters["informatieobjecttype"] = get_object_url(value)
+            elif key == "identificatie__regex":
                 if "%" in value:
                     filters[key_bits[0]] = value
                 else:
@@ -526,10 +547,9 @@ class CMISQuerySet(InformatieobjectQuerySet):
                         f"Filter on '{key}' is not implemented yet"
                     )
             elif key == "creatiedatum__isnull":
-                filters['creatiedatum'] = ""
+                filters["creatiedatum"] = ""
             else:
                 filters[key_bits[0]] = value
-
 
         # keep track of all the filters when chaining
         self._cmis_query += [tuple(x) for x in filters.items()]
@@ -667,7 +687,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
     # FIXME This is a temporary fix to make date_hierarchy work for the admin,
     #  so that EIOs can be viewed
-    def dates(self, field_name, kind, order='ASC'):
+    def dates(self, field_name, kind, order="ASC"):
         filter = {f"{field_name}__isnull": False}
         filtered_qs = self.filter(**filter)
         for item in filtered_qs:
@@ -728,7 +748,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
     def none(self):
         """Adds a query to the _cmis_query that will match nothing"""
         clone = self._chain()
-        clone._cmis_query = [('uuid', '')]
+        clone._cmis_query = [("uuid", "")]
         return clone
 
     def process_filters(self, data):
@@ -739,12 +759,10 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
             split_key = key.split("__")
             split_key[0] = split_key[0].strip("_")
             if len(split_key) > 1 and split_key[1] not in ["exact", "in"]:
-                raise NotImplementedError(
-                    f"Filter on '{key}' is not implemented yet"
-                )
+                raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
 
             # If the value is a queryset, extract the objects
-            if split_key[0] == 'informatieobject' and isinstance(value, CMISQuerySet):
+            if split_key[0] == "informatieobject" and isinstance(value, CMISQuerySet):
                 list_value = []
                 for item in value:
                     list_value.append(make_absolute_uri(reverse(item)))
@@ -789,8 +807,8 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
 
         converted_data = {}
 
-        if data.get('object_type'):
-            object_type = data.pop('object_type')
+        if data.get("object_type"):
+            object_type = data.pop("object_type")
             if data.get(object_type):
                 relation_object = data.pop(object_type)
             else:
@@ -810,15 +828,15 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
                 )
 
             # If the value is a queryset, extract the objects
-            if split_key[0] == 'informatieobject' and isinstance(value, CMISQuerySet):
+            if split_key[0] == "informatieobject" and isinstance(value, CMISQuerySet):
                 list_value = []
                 for item in value:
                     list_value.append(make_absolute_uri(reverse(item)))
                 value = list_value
 
-            if split_key[0] in ['besluit', 'zaak']:
+            if split_key[0] in ["besluit", "zaak"]:
                 converted_data[split_key[0]] = make_absolute_uri(reverse(value))
-            elif split_key[0] in ['besluit_url', 'zaak_url']:
+            elif split_key[0] in ["besluit_url", "zaak_url"]:
                 converted_data[split_key[0].split("_")[0]] = value
             else:
                 converted_data[split_key[0]] = value
@@ -855,8 +873,8 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
     def filter(self, *args, **kwargs):
         filters = self.process_filters(kwargs)
 
-        if filters.get('object_type'):
-            filters.pop('object_type')
+        if filters.get("object_type"):
+            filters.pop("object_type")
 
         # keep track of all the filters when chaining
         self._cmis_query += [tuple(x) for x in filters.items()]
@@ -870,6 +888,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
 
 
 # ---------------- Utility Functions --------------------
+
 
 def convert_timestamp_to_django_datetime(json_date):
     """
@@ -1016,6 +1035,7 @@ def get_object_url(
         path = informatie_obj_type.get_absolute_api_url()
         return make_absolute_uri(path, request=request)
 
+
 def get_doc_va_order(django_doc):
     choice_item = VertrouwelijkheidsAanduiding.get_choice(
         django_doc.vertrouwelijkheidaanduiding
@@ -1044,6 +1064,7 @@ def build_filter(filter_name, filter_value):
         rhs.append(filter_value)
 
     return lhs, rhs
+
 
 def modify_value_in_dictionary(existing_value, new_value):
     """
@@ -1074,5 +1095,5 @@ def generate_unique_identification(instance: models.Model, date_field_name: str)
             number = int(document.identificatie.split("-")[-1])
             max_identificatie = max(max_identificatie, number)
 
-    padded_number = str(max_identificatie+1).zfill(10)
+    padded_number = str(max_identificatie + 1).zfill(10)
     return f"{model_name}-{year}-{padded_number}"

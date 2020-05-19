@@ -1,5 +1,6 @@
-from dateutil import parser
 from django.test import override_settings
+
+from dateutil import parser
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -183,7 +184,6 @@ class Application:
         )
 
 
-@override_settings(CMIS_ENABLED=False)
 class US39IntegrationTestCase(JWTAuthMixin, APITestCase):
     """
     Simulate a full realistic flow.

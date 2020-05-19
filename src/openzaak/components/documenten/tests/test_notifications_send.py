@@ -2,12 +2,12 @@ import base64
 import uuid
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import override_settings
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
+from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
@@ -15,19 +15,15 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin
 
-from .factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenCMISFactory,
-    GebruiksrechtenFactory,
-)
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 from .utils import get_operation_url
 
 
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
-class SendNotifTestCase(JWTAuthMixin, APITestCaseCMIS):
+class SendNotifTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
@@ -78,7 +74,7 @@ class SendNotifTestCase(JWTAuthMixin, APITestCaseCMIS):
 
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationTests(JWTAuthMixin, APITestCaseCMIS):
+class FailedNotificationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
@@ -199,12 +195,7 @@ class FailedNotificationTests(JWTAuthMixin, APITestCaseCMIS):
         self.assertEqual(failed.message, message)
 
     def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self):
-        if settings.CMIS_ENABLED:
-            eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = f"http://testserver{reverse(eio)}"
-            gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
-        else:
-            gebruiksrechten = GebruiksrechtenFactory.create()
+        gebruiksrechten = GebruiksrechtenFactory.create()
 
         url = reverse(gebruiksrechten)
 

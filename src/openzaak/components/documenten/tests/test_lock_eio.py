@@ -5,23 +5,21 @@ from django.conf import settings
 
 from privates.test import temp_private_root
 from rest_framework import status
+from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
-from .factories import (
-    EnkelvoudigInformatieObjectCanonicalFactory,
-    EnkelvoudigInformatieObjectFactory,
-)
+from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @temp_private_root()
-class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
+class EioLockAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
@@ -40,11 +38,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
 
         data = lock_response.json()
 
-        if settings.CMIS_ENABLED:
-            eio = EnkelvoudigInformatieObject.objects.get(uuid=eio.uuid)
-            canonical = eio.canonical
-        else:
-            canonical.refresh_from_db()
+        canonical.refresh_from_db()
 
         self.assertEqual(data["lock"], canonical.lock)
         self.assertNotEqual(data["lock"], "")
@@ -83,14 +77,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
             response_update.status_code, status.HTTP_200_OK, response_update.data
         )
 
-        if settings.CMIS_ENABLED:
-            unlock_url = reverse(
-                "enkelvoudiginformatieobject-unlock", kwargs={"uuid": eio.uuid}
-            )
-            self.client.post(unlock_url, {"lock": response_lock.data["lock"]})
-            eio = EnkelvoudigInformatieObject.objects.get()
-        else:
-            eio = eio.canonical.latest_version
+        eio = eio.canonical.latest_version
 
         self.assertEqual(eio.titel, "changed")
 
@@ -157,7 +144,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCaseCMIS):
         self.assertNotIn("lock", response.data)
 
 
-class EioUnlockAPITests(JWTAuthMixin, APITestCaseCMIS):
+class EioUnlockAPITests(JWTAuthMixin, APITestCase):
 
     component = ComponentTypes.drc
     scopes = [SCOPE_DOCUMENTEN_LOCK]

@@ -42,7 +42,6 @@ class InformatieObjectUniqueValidator:
     def __call__(self, context: OrderedDict):
         informatieobject = context["informatieobject"]
         if settings.CMIS_ENABLED:
-            # TODO understand why it doesn't find the document
             oios = ObjectInformatieObject.objects.filter(**context).exists()
         else:
             oios = informatieobject.objectinformatieobject_set.filter(

@@ -52,7 +52,7 @@ def get_besluit_response(besluit: str, besluittype: str, zaak: str = "") -> dict
 
 
 def serialise_eio(eio, eio_url):
-    serialised_eio = json.loads(serializers.serialize('json', [eio, ]))[0]['fields']
+    serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
     serialised_eio = get_eio_response(eio_url, **serialised_eio)
     return serialised_eio
 
@@ -89,7 +89,7 @@ def get_eio_response(url, **overrides):
     }
     eio.update(**overrides)
 
-    if overrides.get('_informatieobjecttype_url') is not None:
-        eio['informatieobjecttype'] = overrides.get('_informatieobjecttype_url')
+    if overrides.get("_informatieobjecttype_url") is not None:
+        eio["informatieobjecttype"] = overrides.get("_informatieobjecttype_url")
 
     return eio

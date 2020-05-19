@@ -1,16 +1,19 @@
 import logging
 
-from django.db.models.base import ModelBase
-from django.dispatch.dispatcher import receiver
-from django.db.models.signals import ModelSignal, post_delete, post_save
 from django.core.signals import setting_changed
-from django.dispatch import receiver
+from django.db.models.base import ModelBase
+from django.db.models.signals import ModelSignal, post_delete, post_save
+from django.dispatch.dispatcher import receiver
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
-from .api.viewsets import EnkelvoudigInformatieObjectViewSet, ObjectInformatieObjectViewSet, GebruiksrechtenViewSet
 
-from .models import ObjectInformatieObject, EnkelvoudigInformatieObject, Gebruiksrechten
+from .api.viewsets import (
+    EnkelvoudigInformatieObjectViewSet,
+    GebruiksrechtenViewSet,
+    ObjectInformatieObjectViewSet,
+)
+from .models import EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
 from .typing import IORelation
 from .utils import private_media_storage_cmis
 
@@ -58,7 +61,7 @@ def sync_oio(
 
 @receiver(setting_changed)
 def rerun_cmis_storage_setup(signal: ModelSignal, setting: str, **kwargs) -> None:
-    if setting == 'CMIS_ENABLED':
+    if setting == "CMIS_ENABLED":
         private_media_storage_cmis._setup()
         EnkelvoudigInformatieObjectViewSet.queryset = (
             EnkelvoudigInformatieObject.objects.select_related(

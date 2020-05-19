@@ -1,5 +1,4 @@
 import json
-import traceback
 from inspect import getmembers
 from typing import Any, Dict
 

@@ -565,10 +565,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # If it fails in any other way, we need to handle that by rolling back
         # the ZIO creation.
         try:
-            if settings.CMIS_ENABLED:
-                oio = ObjectInformatieObject.objects.create(informatieobject=io_url, zaak=zaak_url, object_type='zaak')
-            else:
-                response = create_remote_oio(io_url, zaak_url)
+            response = create_remote_oio(io_url, zaak_url)
         except Exception as exception:
             zio.delete()
             raise serializers.ValidationError(
@@ -580,10 +577,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 code="pending-relations",
             )
         else:
-            if settings.CMIS_ENABLED:
-                zio._objectinformatieobject_url = oio.get_url()
-            else:
-                zio._objectinformatieobject_url = response["url"]
+            zio._objectinformatieobject_url = response["url"]
             zio.save()
 
         return zio
@@ -593,8 +587,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         Add read_only fields with defaults to value before running validators.
         """
         # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
-        if value.get('informatieobject') is not None and settings.CMIS_ENABLED:
-            value['informatieobject'] = self.initial_data.get('informatieobject')
+        if value.get("informatieobject") is not None and settings.CMIS_ENABLED:
+            value["informatieobject"] = self.initial_data.get("informatieobject")
 
         return super().run_validators(value)
 

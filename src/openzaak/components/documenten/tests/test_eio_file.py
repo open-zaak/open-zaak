@@ -10,11 +10,12 @@ from django.test import override_settings
 
 from privates.test import temp_private_root
 from rest_framework import status
+from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import APITestCaseCMIS, JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import (
@@ -26,7 +27,7 @@ from .utils import get_operation_url
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 @temp_private_root()
-class US39TestCase(JWTAuthMixin, APITestCaseCMIS):
+class US39TestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
@@ -89,15 +90,7 @@ class US39TestCase(JWTAuthMixin, APITestCaseCMIS):
         data = response.data["results"]
         download_url = urlparse(data[0]["inhoud"])
 
-        if settings.CMIS_ENABLED:
-            self.assertEqual(
-                download_url.path,
-                f"/alfresco/s/api/node/content/workspace/SpacesStore/{eio.uuid}",
-            )
-        else:
-            self.assertEqual(
-                download_url.path,
-                get_operation_url(
-                    "enkelvoudiginformatieobject_download", uuid=eio.uuid
-                ),
-            )
+        self.assertEqual(
+            download_url.path,
+            get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
+        )
