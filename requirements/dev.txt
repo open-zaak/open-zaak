@@ -54,15 +54,15 @@ drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2
 drf-writable-nested==0.4.3
 drf-yasg==1.16.0
-entrypoints==0.3          # via flake8
 factory-boy==2.12.0
 faker==2.0.1
-flake8==3.7.9
+flake8==3.8.2
 freezegun==0.3.12
 gemma-zds-client==0.13.0
 humanize==0.5.1
 idna==2.6
 imagesize==1.1.0          # via sphinx
+importlib-metadata==1.6.0  # via flake8
 inflection==0.3.1
 iso-639==0.4.5
 isodate==0.6.0
@@ -79,9 +79,9 @@ packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
 pip-tools==4.4.0
 psycopg2==2.8.4
-pycodestyle==2.5.0        # via flake8
+pycodestyle==2.6.0        # via flake8
 pycparser==2.19
-pyflakes==2.1.1           # via flake8
+pyflakes==2.2.0           # via flake8
 pygments==2.4.2           # via sphinx
 pyjwt==1.6.4
 pyparsing==2.4.2          # via packaging
@@ -123,6 +123,7 @@ waitress==1.4.3
 webob==1.8.5
 webtest==2.0.33
 zgw-consumers==0.8.1
+zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
