@@ -11177,7 +11177,10 @@
                     "title": "Archiefnominatie",
                     "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "blijvend_bewaren",
+                        "vernietigen"
+                    ]
                 },
                 "archiefnominatie__in": {
                     "title": "Archiefnominatie  in",
@@ -11207,7 +11210,12 @@
                     "title": "Archiefstatus",
                     "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "nog_te_archiveren",
+                        "gearchiveerd",
+                        "gearchiveerd_procestermijn_onbekend",
+                        "overgedragen"
+                    ]
                 },
                 "archiefstatus__in": {
                     "title": "Archiefstatus  in",
@@ -11249,7 +11257,13 @@
                     "title": "Rol  betrokkenetype",
                     "description": "Type van de `betrokkene`.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "natuurlijk_persoon",
+                        "niet_natuurlijk_persoon",
+                        "vestiging",
+                        "organisatorische_eenheid",
+                        "medewerker"
+                    ]
                 },
                 "rol__betrokkene": {
                     "title": "Rol  betrokkene",
@@ -11261,13 +11275,31 @@
                     "title": "Rol  omschrijvinggeneriek",
                     "description": "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "adviseur",
+                        "behandelaar",
+                        "belanghebbende",
+                        "beslisser",
+                        "initiator",
+                        "klantcontacter",
+                        "zaakcoordinator",
+                        "mede_initiator"
+                    ]
                 },
                 "maximaleVertrouwelijkheidaanduiding": {
                     "title": "Maximalevertrouwelijkheidaanduiding",
                     "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "openbaar",
+                        "beperkt_openbaar",
+                        "intern",
+                        "zaakvertrouwelijk",
+                        "vertrouwelijk",
+                        "confidentieel",
+                        "geheim",
+                        "zeer_geheim"
+                    ]
                 },
                 "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": {
                     "title": "Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn",
