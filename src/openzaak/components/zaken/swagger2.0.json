@@ -11175,7 +11175,7 @@
                 },
                 "archiefnominatie": {
                     "title": "Archiefnominatie",
-                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
+                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.\n\nUitleg bij mogelijke waarden:\n\n* `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.\n* `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.",
                     "type": "string",
                     "enum": [
                         "blijvend_bewaren",
@@ -11208,7 +11208,7 @@
                 },
                 "archiefstatus": {
                     "title": "Archiefstatus",
-                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
+                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.\n\nUitleg bij mogelijke waarden:\n\n* `nog_te_archiveren` - De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd.\n* `gearchiveerd` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt.\n* `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum kan nog niet bepaald worden.\n* `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats.",
                     "type": "string",
                     "enum": [
                         "nog_te_archiveren",
@@ -11255,7 +11255,7 @@
                 },
                 "rol__betrokkeneType": {
                     "title": "Rol  betrokkenetype",
-                    "description": "Type van de `betrokkene`.",
+                    "description": "Type van de `betrokkene`.\n\nUitleg bij mogelijke waarden:\n\n* `natuurlijk_persoon` - Natuurlijk persoon\n* `niet_natuurlijk_persoon` - Niet-natuurlijk persoon\n* `vestiging` - Vestiging\n* `organisatorische_eenheid` - Organisatorische eenheid\n* `medewerker` - Medewerker",
                     "type": "string",
                     "enum": [
                         "natuurlijk_persoon",
@@ -11273,7 +11273,7 @@
                 },
                 "rol__omschrijvingGeneriek": {
                     "title": "Rol  omschrijvinggeneriek",
-                    "description": "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.",
+                    "description": "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` - Adviseur\n* `behandelaar` - Behandelaar\n* `belanghebbende` - Belanghebbende\n* `beslisser` - Beslisser\n* `initiator` - Initiator\n* `klantcontacter` - Klantcontacter\n* `zaakcoordinator` - Zaakco\u00f6rdinator\n* `mede_initiator` - Mede-initiator",
                     "type": "string",
                     "enum": [
                         "adviseur",
@@ -11288,7 +11288,7 @@
                 },
                 "maximaleVertrouwelijkheidaanduiding": {
                     "title": "Maximalevertrouwelijkheidaanduiding",
-                    "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.",
+                    "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.\n\nUitleg bij mogelijke waarden:\n\n* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim",
                     "type": "string",
                     "enum": [
                         "openbaar",
