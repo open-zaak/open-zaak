@@ -139,12 +139,12 @@ class CatalogusAdmin(
             path(
                 "<path:catalogus_pk>/zaaktype/import/",
                 self.admin_site.admin_view(CatalogusZaakTypeImportUploadView.as_view()),
-                name=f"catalogi_catalogus_import_zaaktype",
+                name="catalogi_catalogus_import_zaaktype",
             ),
             path(
                 "<path:catalogus_pk>/zaaktype/import/select",
                 self.admin_site.admin_view(CatalogusZaakTypeImportSelectView.as_view()),
-                name=f"catalogi_catalogus_import_zaaktype_select",
+                name="catalogi_catalogus_import_zaaktype_select",
             ),
         ]
         return my_urls + urls
