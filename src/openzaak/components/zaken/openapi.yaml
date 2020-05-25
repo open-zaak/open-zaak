@@ -9471,8 +9471,18 @@ components:
           minLength: 1
         archiefnominatie:
           title: Archiefnominatie
-          description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
+          description: 'Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
             termijn vernietigd moet worden.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum
+            overgedragen worden naar een archiefbewaarplaats.
+
+            * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd
+            worden.'
           type: string
           enum:
           - blijvend_bewaren
@@ -9508,8 +9518,25 @@ components:
           minLength: 1
         archiefstatus:
           title: Archiefstatus
-          description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
+          description: 'Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
             termijn vernietigd moet worden.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `nog_te_archiveren` - De zaak cq. het zaakdossier is nog niet als geheel
+            gearchiveerd.
+
+            * `gearchiveerd` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar
+            bewaarbaar gemaakt.
+
+            * `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier
+            is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum
+            kan nog niet bepaald worden.
+
+            * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een
+            archiefbewaarplaats.'
           type: string
           enum:
           - nog_te_archiveren
@@ -9548,7 +9575,21 @@ components:
           minLength: 1
         rol__betrokkeneType:
           title: Rol  betrokkenetype
-          description: Type van de `betrokkene`.
+          description: 'Type van de `betrokkene`.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+
+            * `vestiging` - Vestiging
+
+            * `organisatorische_eenheid` - Organisatorische eenheid
+
+            * `medewerker` - Medewerker'
           type: string
           enum:
           - natuurlijk_persoon
@@ -9563,8 +9604,12 @@ components:
           minLength: 1
         rol__omschrijvingGeneriek:
           title: Rol  omschrijvinggeneriek
-          description: Algemeen gehanteerde benaming van de aard van de ROL, afgeleid
-            uit het ROLTYPE.
+          description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
+            \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
+            \ Adviseur\n* `behandelaar` - Behandelaar\n* `belanghebbende` - Belanghebbende\n\
+            * `beslisser` - Beslisser\n* `initiator` - Initiator\n* `klantcontacter`\
+            \ - Klantcontacter\n* `zaakcoordinator` - Zaakco\xF6rdinator\n* `mede_initiator`\
+            \ - Mede-initiator"
           type: string
           enum:
           - adviseur
@@ -9577,8 +9622,28 @@ components:
           - mede_initiator
         maximaleVertrouwelijkheidaanduiding:
           title: Maximalevertrouwelijkheidaanduiding
-          description: Zaken met een vertrouwelijkheidaanduiding die beperkter is
+          description: 'Zaken met een vertrouwelijkheidaanduiding die beperkter is
             dan de aangegeven aanduiding worden uit de resultaten gefiltered.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `openbaar` - Openbaar
+
+            * `beperkt_openbaar` - Beperkt openbaar
+
+            * `intern` - Intern
+
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+
+            * `vertrouwelijk` - Vertrouwelijk
+
+            * `confidentieel` - Confidentieel
+
+            * `geheim` - Geheim
+
+            * `zeer_geheim` - Zeer geheim'
           type: string
           enum:
           - openbaar
