@@ -56,16 +56,16 @@ drf-flex-fields==0.5.0    # via -r requirements/ci.txt
 drf-nested-routers==0.90.2  # via -r requirements/ci.txt, vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/ci.txt
 drf-yasg==1.16.0          # via -r requirements/ci.txt, vng-api-common
-entrypoints==0.3          # via flake8
 factory-boy==2.12.0       # via -r requirements/ci.txt
 faker==2.0.1              # via -r requirements/ci.txt, factory-boy
-flake8==3.7.9             # via -r requirements/dev.in
+flake8==3.8.2             # via -r requirements/dev.in
 freezegun==0.3.12         # via -r requirements/ci.txt
 gemma-zds-client==0.13.0  # via -r requirements/ci.txt, vng-api-common, zgw-consumers
 gprof2dot==2019.11.30     # via django-silk
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
+importlib-metadata==1.6.0  # via flake8
 inflection==0.3.1         # via -r requirements/ci.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/ci.txt, vng-api-common
 isodate==0.6.0            # via -r requirements/ci.txt, vng-api-common
@@ -82,9 +82,9 @@ packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
 pip-tools==5.1.2          # via -r requirements/dev.in
 psycopg2==2.8.4           # via -r requirements/ci.txt
-pycodestyle==2.5.0        # via autopep8, flake8
+pycodestyle==2.6.0        # via autopep8, flake8
 pycparser==2.19           # via -r requirements/ci.txt, cffi
-pyflakes==2.1.1           # via flake8
+pyflakes==2.2.0           # via flake8
 pygments==2.4.2           # via django-silk, sphinx
 pyjwt==1.6.4              # via -r requirements/ci.txt, django-auth-adfs, gemma-zds-client, vng-api-common
 pyparsing==2.4.2          # via packaging
@@ -121,12 +121,13 @@ unidecode==1.0.22         # via -r requirements/ci.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/ci.txt, coreapi, drf-yasg
 urllib3==1.24.3           # via -r requirements/ci.txt, requests
 uwsgi==2.0.18             # via -r requirements/ci.txt
-vng-api-common==1.0.41    # via -r requirements/ci.txt
+vng-api-common==1.0.46    # via -r requirements/ci.txt
 waitress==1.4.3           # via -r requirements/ci.txt, webtest
 webob==1.8.5              # via -r requirements/ci.txt, webtest
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
 whitenoise==5.1.0         # via -r requirements/dev.in
 zgw-consumers==0.8.1      # via -r requirements/ci.txt
+zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
