@@ -5050,6 +5050,23 @@
                         "type": "string"
                     },
                     {
+                        "name": "maximaleVertrouwelijkheidaanduiding",
+                        "in": "query",
+                        "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "beperkt_openbaar",
+                            "intern",
+                            "zaakvertrouwelijk",
+                            "vertrouwelijk",
+                            "confidentieel",
+                            "geheim",
+                            "zeer_geheim"
+                        ]
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "description": "Which field to use when ordering the results.",
@@ -11172,6 +11189,12 @@
                 "startdatum__lte": {
                     "title": "Startdatum  lte",
                     "description": "De datum waarop met de uitvoering van de zaak is gestart",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "maximaleVertrouwelijkheidaanduiding": {
+                    "title": "Maximalevertrouwelijkheidaanduiding",
+                    "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.",
                     "type": "string",
                     "minLength": 1
                 },
