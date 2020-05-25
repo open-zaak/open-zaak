@@ -3,6 +3,8 @@ from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
+
 from ..models import (
     KlantContact,
     Resultaat,
@@ -15,6 +17,14 @@ from ..models import (
 
 
 class ZaakFilter(FilterSet):
+    maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
+        field_name="vertrouwelijkheidaanduiding",
+        help_text=(
+            "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de "
+            "aangegeven aanduiding worden uit de resultaten gefiltered."
+        ),
+    )
+
     class Meta:
         model = Zaak
         fields = {
