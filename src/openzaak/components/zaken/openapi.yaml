@@ -9474,7 +9474,9 @@ components:
           description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
             termijn vernietigd moet worden.
           type: string
-          minLength: 1
+          enum:
+          - blijvend_bewaren
+          - vernietigen
         archiefnominatie__in:
           title: Archiefnominatie  in
           description: Multiple values may be separated by commas.
@@ -9509,7 +9511,11 @@ components:
           description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
             termijn vernietigd moet worden.
           type: string
-          minLength: 1
+          enum:
+          - nog_te_archiveren
+          - gearchiveerd
+          - gearchiveerd_procestermijn_onbekend
+          - overgedragen
         archiefstatus__in:
           title: Archiefstatus  in
           description: Multiple values may be separated by commas.
@@ -9544,7 +9550,12 @@ components:
           title: Rol  betrokkenetype
           description: Type van de `betrokkene`.
           type: string
-          minLength: 1
+          enum:
+          - natuurlijk_persoon
+          - niet_natuurlijk_persoon
+          - vestiging
+          - organisatorische_eenheid
+          - medewerker
         rol__betrokkene:
           title: Rol  betrokkene
           description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
@@ -9555,13 +9566,29 @@ components:
           description: Algemeen gehanteerde benaming van de aard van de ROL, afgeleid
             uit het ROLTYPE.
           type: string
-          minLength: 1
+          enum:
+          - adviseur
+          - behandelaar
+          - belanghebbende
+          - beslisser
+          - initiator
+          - klantcontacter
+          - zaakcoordinator
+          - mede_initiator
         maximaleVertrouwelijkheidaanduiding:
           title: Maximalevertrouwelijkheidaanduiding
           description: Zaken met een vertrouwelijkheidaanduiding die beperkter is
             dan de aangegeven aanduiding worden uit de resultaten gefiltered.
           type: string
-          minLength: 1
+          enum:
+          - openbaar
+          - beperkt_openbaar
+          - intern
+          - zaakvertrouwelijk
+          - vertrouwelijk
+          - confidentieel
+          - geheim
+          - zeer_geheim
         rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn:
           title: Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn
           description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
