@@ -505,6 +505,35 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(data[1]["startdatum"], "2019-02-01")
         self.assertEqual(data[2]["startdatum"], "2019-01-01")
 
+    def test_filter_max_vertrouwelijkheidaanduiding(self):
+        zaak1 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        zaak2 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        url = reverse(Zaak)
+
+        response = self.client.get(
+            url,
+            {
+                "maximaleVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zaakvertrouwelijk
+            },
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(
+            response.data["results"][0]["url"], f"http://testserver{reverse(zaak1)}",
+        )
+        self.assertNotEqual(
+            response.data["results"][0]["url"], f"http://testserver{reverse(zaak2)}",
+        )
+
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
 
