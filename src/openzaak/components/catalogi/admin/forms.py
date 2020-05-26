@@ -484,11 +484,14 @@ class BesluitTypeAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        catalogus_pk = (
-            kwargs["instance"].catalogus.pk
-            if "instance" in kwargs
-            else kwargs["initial"].get("catalogus")
-        )
+        catalogus_pk = None
+        if kwargs.get("instance"):
+            catalogus_pk = kwargs["instance"].catalogus.pk
+        elif "catalogus" in kwargs.get("initial", {}):
+            catalogus_pk = kwargs["initial"].get("catalogus")
+
+        if not catalogus_pk:
+            return
 
         if "zaaktypen" in self.fields:
             self.fields["zaaktypen"].widget = CatalogusFilterM2MRawIdWidget(

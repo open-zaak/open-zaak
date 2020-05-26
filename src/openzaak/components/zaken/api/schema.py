@@ -38,7 +38,7 @@ Deze API is afhankelijk van:
 """
 
 info = openapi.Info(
-    title=f"Zaken API",
+    title="Zaken API",
     default_version=settings.ZAKEN_API_VERSION,
     description=description,
     contact=openapi.Contact(

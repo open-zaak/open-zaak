@@ -45,7 +45,7 @@ Deze API is afhankelijk van:
 """
 
 info = openapi.Info(
-    title=f"Besluiten API",
+    title="Besluiten API",
     default_version=settings.BESLUITEN_API_VERSION,
     description=description,
     contact=openapi.Contact(

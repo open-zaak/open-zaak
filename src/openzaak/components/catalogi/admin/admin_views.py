@@ -45,7 +45,7 @@ class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
             if besluittypen or iotypen:
                 return HttpResponseRedirect(
                     reverse(
-                        f"admin:catalogi_catalogus_import_zaaktype_select",
+                        "admin:catalogi_catalogus_import_zaaktype_select",
                         kwargs={"catalogus_pk": catalogus_pk},
                     )
                 )
@@ -60,7 +60,7 @@ class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
                         request, messages.SUCCESS, _("ZaakType successfully imported")
                     )
                     return HttpResponseRedirect(
-                        reverse(f"admin:catalogi_catalogus_changelist")
+                        reverse("admin:catalogi_catalogus_changelist")
                     )
                 except CommandError as exc:
                     messages.add_message(request, messages.ERROR, exc)
@@ -156,7 +156,7 @@ class CatalogusZaakTypeImportSelectView(PermissionRequiredMixin, TemplateView):
             messages.add_message(
                 request, messages.SUCCESS, _("ZaakType successfully imported")
             )
-            return HttpResponseRedirect(reverse(f"admin:catalogi_catalogus_changelist"))
+            return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
         return TemplateResponse(request, self.template_name, context)

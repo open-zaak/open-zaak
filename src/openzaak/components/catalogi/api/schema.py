@@ -45,7 +45,7 @@ Deze API is afhankelijk van:
 """
 
 info = openapi.Info(
-    title=f"Catalogi API",
+    title="Catalogi API",
     default_version=settings.CATALOGI_API_VERSION,
     description=description,
     contact=openapi.Contact(
