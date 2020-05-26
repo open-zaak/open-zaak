@@ -38,7 +38,7 @@ Deze API is afhankelijk van:
 """
 
 info = openapi.Info(
-    title=f"Autorisaties API",
+    title="Autorisaties API",
     default_version=settings.AUTORISATIES_API_VERSION,
     description=description,
     contact=openapi.Contact(
