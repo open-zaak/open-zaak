@@ -47,6 +47,14 @@
                 "appgroup"
             ],
             [
+                "config",
+                "featureflags"
+            ],
+            [
+                "config",
+                "nlxconfig"
+            ],
+            [
                 "django_auth_adfs_db",
                 "adfsconfig"
             ],
@@ -69,10 +77,6 @@
             [
                 "sites",
                 "site"
-            ],
-            [
-                "config",
-                "nlxconfig"
             ]
         ]
     }
@@ -132,7 +136,7 @@
 {
     "model": "admin_index.applink",
     "fields": {
-        "order": 1,
+        "order": 0,
         "app_group": [
             "configuration"
         ],

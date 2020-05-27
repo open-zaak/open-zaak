@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from solo.models import SingletonModel
@@ -56,3 +57,30 @@ class InternalService(models.Model):
             if api_type == self.api_type:
                 return component
         raise ValueError(f"Unknown component for api_type '{self.api_type}'")
+
+
+class FeatureFlags(SingletonModel):
+    """
+    Configure global feature flags for the system.
+
+    Feature flags are usually booleans indicating if some feature is enabled/disabled.
+    They can have side-effects that make the APIs operate in a non-standards compliant
+    way, so think carefully about default values.
+    """
+
+    allow_unpublished_typen = models.BooleanField(
+        _("allow concept *typen"),
+        default=False,
+        help_text=_(
+            "Normally, a type must be published before an object of that type (ZAAK, "
+            "INFORMATIEOBJECT, BESLUIT) can be created from it. Enabling this flag "
+            "bypasses this check. This is intended to support development - do not "
+            "enable this in production."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("feature flags")
+
+    def __str__(self):
+        return force_text(self._meta.verbose_name)
