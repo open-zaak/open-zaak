@@ -1,13 +1,17 @@
+from base64 import b64encode
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.components.besluiten.models import Besluit
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from openzaak.utils.tests import JWTAuthMixin
@@ -47,5 +51,46 @@ class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
         }
 
         response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_informatieobject_create(self):
+        eio_url = reverse(EnkelvoudigInformatieObject)
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(eio_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_besluit_create(self):
+        besluit_url = reverse(Besluit)
+        besluittype = BesluitTypeFactory.create(concept=True)
+        besluittype_url = reverse(besluittype)
+
+        data = {
+            "verantwoordelijke_organisatie": "517439943",
+            "besluittype": f"http://testserver{besluittype_url}",
+            "datum": "2018-09-06",
+            "ingangsdatum": "2018-10-01",
+        }
+
+        response = self.client.post(besluit_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
