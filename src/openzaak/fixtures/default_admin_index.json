@@ -48,6 +48,10 @@
             ],
             [
                 "config",
+                "featureflags"
+            ],
+            [
+                "config",
                 "nlxconfig"
             ],
             [
