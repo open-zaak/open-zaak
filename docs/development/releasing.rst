@@ -64,3 +64,14 @@ Once the PR is merged to master, check out the ``master`` branch and tag it:
     git tag 1.0.0
 
 Tagging will ensure that a Docker image ``openzaak/open-zaak:1.0.0`` is published.
+
+Releasing a dev-version
+-----------------------
+
+You can also make use of bumpversion to mark a release as a dev release:
+
+.. code-block:: bash
+
+    bumpversion dev
+
+Which will take care of the ``major.minor.patch.devX`` suffix of ``devX``.
