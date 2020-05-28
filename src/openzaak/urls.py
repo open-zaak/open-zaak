@@ -42,7 +42,7 @@ urlpatterns += static(
     settings.PRIVATE_MEDIA_URL, document_root=settings.PRIVATE_MEDIA_ROOT
 )
 
-if settings.DEBUG and "debug_toolbar" in settings.INSTALLED_APPS:
+if apps.is_installed("debug_toolbar"):
     import debug_toolbar
 
     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
