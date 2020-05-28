@@ -11,6 +11,7 @@ flake8
 django-debug-toolbar
 django-extensions
 django-silk
+whitenoise
 
 # Documentation
 sphinx

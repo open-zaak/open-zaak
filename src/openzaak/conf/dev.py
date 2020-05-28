@@ -78,6 +78,8 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
 if config("PROFILE", default=False):
     INSTALLED_APPS += ["silk"]
     MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
+    security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
+    MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 warnings.filterwarnings(
     "error",
