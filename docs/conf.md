@@ -94,6 +94,9 @@ on Docker, since `localhost` is contained within the container:
 * `LOG_STDOUT`: whether to log to stdout or not. For Docker environments, defaults to
   `True`, for other environments the default is to log to file.
 
+* `PROFILE`: whether to enable profiling-tooling or not. Applies to the development
+  settings only. Defaults to `False`.
+
 ## Specifying the environment variables
 
 There are two strategies to specify the environment variables:

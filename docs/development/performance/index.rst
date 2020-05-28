@@ -10,5 +10,6 @@ Performance is measured using different types of scenarios.
    :maxdepth: 1
    :caption: Further reading
 
+   profiling
    scenarios
    apachebench
