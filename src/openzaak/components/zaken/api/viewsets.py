@@ -205,6 +205,7 @@ class ZaakViewSet(
             "relevante_andere_zaken",
             "zaakkenmerk_set",
             "resultaat",
+            "zaakeigenschap_set",
             models.Prefetch(
                 "status_set", Status.objects.order_by("-datum_status_gezet")
             ),
