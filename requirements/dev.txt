@@ -7,6 +7,7 @@
 alabaster==0.7.12         # via sphinx
 appdirs==1.4.3            # via black
 attrs==19.1.0             # via black
+autopep8==1.5.2           # via django-silk
 babel==2.7.0              # via sphinx
 beautifulsoup4==4.8.1     # via -r requirements/ci.txt, webtest
 black==19.10b0            # via -r requirements/dev.in
@@ -42,10 +43,11 @@ django-privates==1.2.1    # via -r requirements/ci.txt
 django-redis==4.10.0      # via -r requirements/ci.txt
 django-relativedelta==1.0.5  # via -r requirements/ci.txt
 django-sendfile2==0.5.1   # via -r requirements/ci.txt, django-privates
+django-silk==4.0.1        # via -r requirements/dev.in
 django-sniplates==0.7.0   # via -r requirements/ci.txt
 django-solo==1.1.3        # via -r requirements/ci.txt, django-auth-adfs-db, vng-api-common, zgw-consumers
 django-webtest==1.9.7     # via -r requirements/ci.txt
-django==2.2.10            # via -r requirements/ci.txt, django-auth-adfs, django-auth-adfs-db, django-choices, django-db-logger, django-debug-toolbar, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-sniplates, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
+django==2.2.10            # via -r requirements/ci.txt, django-auth-adfs, django-auth-adfs-db, django-choices, django-db-logger, django-debug-toolbar, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-silk, django-sniplates, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
 djangorestframework-camel-case==0.2.0  # via -r requirements/ci.txt, vng-api-common
 djangorestframework-gis==0.14  # via -r requirements/ci.txt
 djangorestframework==3.9.4  # via -r requirements/ci.txt, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
@@ -60,6 +62,7 @@ faker==2.0.1              # via -r requirements/ci.txt, factory-boy
 flake8==3.7.9             # via -r requirements/dev.in
 freezegun==0.3.12         # via -r requirements/ci.txt
 gemma-zds-client==0.13.0  # via -r requirements/ci.txt, vng-api-common, zgw-consumers
+gprof2dot==2019.11.30     # via django-silk
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
@@ -68,7 +71,7 @@ iso-639==0.4.5            # via -r requirements/ci.txt, vng-api-common
 isodate==0.6.0            # via -r requirements/ci.txt, vng-api-common
 isort==4.3.21             # via -r requirements/dev.in
 itypes==1.1.0             # via -r requirements/ci.txt, coreapi
-jinja2==2.10.1            # via -r requirements/ci.txt, coreschema, sphinx
+jinja2==2.10.1            # via -r requirements/ci.txt, coreschema, django-silk, sphinx
 markdown==3.0.1           # via -r requirements/ci.txt
 markupsafe==1.1.1         # via -r requirements/ci.txt, jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/ci.txt
@@ -79,23 +82,23 @@ packaging==19.2           # via sphinx
 pathspec==0.6.0           # via black
 pip-tools==5.1.2          # via -r requirements/dev.in
 psycopg2==2.8.4           # via -r requirements/ci.txt
-pycodestyle==2.5.0        # via flake8
+pycodestyle==2.5.0        # via autopep8, flake8
 pycparser==2.19           # via -r requirements/ci.txt, cffi
 pyflakes==2.1.1           # via flake8
-pygments==2.4.2           # via sphinx
+pygments==2.4.2           # via django-silk, sphinx
 pyjwt==1.6.4              # via -r requirements/ci.txt, django-auth-adfs, gemma-zds-client, vng-api-common
 pyparsing==2.4.2          # via packaging
-python-dateutil==2.7.3    # via -r requirements/ci.txt, django-relativedelta, faker, freezegun
+python-dateutil==2.7.3    # via -r requirements/ci.txt, django-relativedelta, django-silk, faker, freezegun
 python-decouple==3.1      # via -r requirements/ci.txt
 python-dotenv==0.8.2      # via -r requirements/ci.txt
-pytz==2019.1              # via -r requirements/ci.txt, babel, django, django-axes
+pytz==2019.1              # via -r requirements/ci.txt, babel, django, django-axes, django-silk
 pyyaml==5.1               # via -r requirements/ci.txt, gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0              # via -r requirements/ci.txt
 recommonmark==0.6.0       # via -r requirements/dev.in
 redis==3.3.8              # via -r requirements/ci.txt, django-redis
 regex==2019.11.1          # via black
 requests-mock==1.6.0      # via -r requirements/ci.txt
-requests==2.21.0          # via -r requirements/ci.txt, coreapi, django-auth-adfs, gemma-zds-client, requests-mock, sphinx, vng-api-common
+requests==2.21.0          # via -r requirements/ci.txt, coreapi, django-auth-adfs, django-silk, gemma-zds-client, requests-mock, sphinx, vng-api-common
 ruamel.yaml.clib==0.2.0   # via -r requirements/ci.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg
 six==1.11.0               # via -r requirements/ci.txt, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, packaging, pip-tools, python-dateutil, requests-mock, webtest
@@ -109,7 +112,7 @@ sphinxcontrib-htmlhelp==1.0.2  # via sphinx
 sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-qthelp==1.0.2  # via sphinx
 sphinxcontrib-serializinghtml==1.1.3  # via sphinx
-sqlparse==0.3.0           # via -r requirements/ci.txt, django, django-debug-toolbar
+sqlparse==0.3.0           # via -r requirements/ci.txt, django, django-debug-toolbar, django-silk
 tblib==1.4.0              # via -r requirements/ci.txt
 text-unidecode==1.2       # via -r requirements/ci.txt, faker
 toml==0.10.0              # via black
@@ -122,6 +125,7 @@ vng-api-common==1.0.41    # via -r requirements/ci.txt
 waitress==1.4.3           # via -r requirements/ci.txt, webtest
 webob==1.8.5              # via -r requirements/ci.txt, webtest
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
+whitenoise==5.1.0         # via -r requirements/dev.in
 zgw-consumers==0.8.1      # via -r requirements/ci.txt
 
 # The following packages are considered to be unsafe in a requirements file:
