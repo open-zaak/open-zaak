@@ -10,6 +10,7 @@ flake8
 # Debug tooling
 django-debug-toolbar
 django-extensions
+django-silk
 
 # Documentation
 sphinx
