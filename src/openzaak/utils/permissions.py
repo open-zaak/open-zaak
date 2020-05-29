@@ -3,7 +3,10 @@ from typing import Any, Dict
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    ValidationError as DjangoValidationError,
+)
 from django.db.models import ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
@@ -11,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ValidationError, as_serializer_error
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.utils import get_resource_for_path
 
@@ -114,6 +117,12 @@ class AuthRequired(permissions.BasePermission):
                             ).detail
                         }
                     )
+                except DjangoValidationError as exc:
+                    err_dict = as_serializer_error(
+                        ValidationError({view.permission_main_object: exc})
+                    )
+                    raise ValidationError(err_dict)
+
                 main_object_data = self.format_data(main_object, request)
 
             fields = self.get_fields(main_object_data)
