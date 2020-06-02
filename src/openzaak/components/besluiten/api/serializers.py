@@ -14,11 +14,11 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.components.zaken.api.utils import (
     create_remote_zaakbesluit,
     delete_remote_zaakbesluit,
 )
+from openzaak.utils.api import create_remote_oio
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,

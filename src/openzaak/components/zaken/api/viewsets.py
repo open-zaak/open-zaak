@@ -29,7 +29,7 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
-from openzaak.components.documenten.api.utils import delete_remote_oio
+from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
