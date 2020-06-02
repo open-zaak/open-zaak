@@ -110,3 +110,12 @@ Finally, run a simple Postman collection on the new install of Open Zaak:
     :alt: Postman collection runner results
 
 .. _`here`: https://documenter.getpostman.com/view/7083537/SWT8gKYU?version=latest
+
+
+References
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   conf
