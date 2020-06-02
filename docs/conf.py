@@ -39,7 +39,11 @@ release = openzaak.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.todo"]
+extensions = [
+    "sphinx.ext.todo",
+    "recommonmark",
+    "sphinx_markdown_tables",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -56,6 +60,7 @@ language = "en"
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+source_suffix = [".rst", ".md"]
 
 # -- Options for HTML output -------------------------------------------------
 

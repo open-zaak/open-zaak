@@ -72,7 +72,7 @@ isodate==0.6.0            # via -r requirements/ci.txt, vng-api-common
 isort==4.3.21             # via -r requirements/dev.in
 itypes==1.1.0             # via -r requirements/ci.txt, coreapi
 jinja2==2.10.1            # via -r requirements/ci.txt, coreschema, django-silk, sphinx
-markdown==3.0.1           # via -r requirements/ci.txt
+markdown==3.0.1           # via -r requirements/ci.txt, sphinx-markdown-tables
 markupsafe==1.1.1         # via -r requirements/ci.txt, jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/ci.txt
 mccabe==0.6.1             # via flake8
@@ -104,6 +104,7 @@ ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg
 six==1.11.0               # via -r requirements/ci.txt, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, packaging, pip-tools, python-dateutil, requests-mock, webtest
 snowballstemmer==2.0.0    # via sphinx
 soupsieve==1.9.5          # via -r requirements/ci.txt, beautifulsoup4
+sphinx-markdown-tables==0.0.14  # via -r requirements/dev.in
 sphinx-rtd-theme==0.4.3   # via -r requirements/dev.in
 sphinx==2.2.0             # via -r requirements/dev.in, recommonmark, sphinx-rtd-theme
 sphinxcontrib-applehelp==1.0.1  # via sphinx
