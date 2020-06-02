@@ -35,7 +35,6 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
 
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenFactory.create()
         ZaakInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()

@@ -1,7 +1,6 @@
 import uuid
 from base64 import b64encode
 
-from django.conf import settings
 from django.test import override_settings
 
 from privates.test import temp_private_root
@@ -49,7 +48,8 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
         url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
-        response_1st_lock = self.client.post(url)
+        # 1st lock
+        self.client.post(url)
         response_2nd_lock = self.client.post(url)
 
         self.assertEqual(

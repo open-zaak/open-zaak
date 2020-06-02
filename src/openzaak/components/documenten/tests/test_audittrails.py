@@ -2,8 +2,6 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
-from django.conf import settings
-
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase

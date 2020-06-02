@@ -2,11 +2,9 @@ import uuid
 from base64 import b64encode
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
-import requests
 import requests_mock
 from freezegun import freeze_time
 from privates.test import temp_private_root

@@ -1,7 +1,7 @@
 import datetime
 from unittest import skip
 
-from django.test import override_settings, tag
+from django.test import tag
 from django.utils import timezone
 
 import requests_mock

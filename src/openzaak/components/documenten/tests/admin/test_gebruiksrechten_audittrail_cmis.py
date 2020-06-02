@@ -9,11 +9,7 @@ from vng_api_common import tests
 
 from openzaak.utils.tests import AdminTestMixin, APICMISTestCase
 
-from ..factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenCMISFactory,
-    GebruiksrechtenFactory,
-)
+from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 from ..utils import get_operation_url
 
 

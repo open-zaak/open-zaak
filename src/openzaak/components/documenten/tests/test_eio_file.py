@@ -5,7 +5,6 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.test import override_settings
 
 from privates.test import temp_private_root

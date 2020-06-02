@@ -1,4 +1,3 @@
-import dataclasses
 import logging
 import uuid as _uuid
 
@@ -31,11 +30,7 @@ from .managers import (
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
-from .query import (
-    InformatieobjectQuerySet,
-    InformatieobjectRelatedQuerySet,
-    ObjectInformatieObjectQuerySet,
-)
+from .query import InformatieobjectQuerySet
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 

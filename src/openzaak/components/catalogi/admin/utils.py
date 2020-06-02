@@ -26,8 +26,8 @@ def retrieve_iotypen(catalogus_pk, import_file_content):
 
     iotypen = []
     with zipfile.ZipFile(import_file, "r") as zip_file:
-        if f"InformatieObjectType.json" in zip_file.namelist():
-            data = zip_file.read(f"InformatieObjectType.json").decode()
+        if "InformatieObjectType.json" in zip_file.namelist():
+            data = zip_file.read("InformatieObjectType.json").decode()
 
             data = json.loads(data)
 
@@ -48,8 +48,8 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
 
     besluittypen = []
     with zipfile.ZipFile(import_file, "r") as zip_file:
-        if f"BesluitType.json" in zip_file.namelist():
-            data = zip_file.read(f"BesluitType.json").decode()
+        if "BesluitType.json" in zip_file.namelist():
+            data = zip_file.read("BesluitType.json").decode()
 
             data = json.loads(data)
 

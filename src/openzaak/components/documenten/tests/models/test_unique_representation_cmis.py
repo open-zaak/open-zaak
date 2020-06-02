@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import override_settings, tag
 
 from vng_api_common.tests import reverse
@@ -7,11 +6,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.tests import APICMISTestCase
 
 from ...models import ObjectInformatieObject
-from ..factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenCMISFactory,
-    GebruiksrechtenFactory,
-)
+from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
 
 @override_settings(CMIS_ENABLED=True)

@@ -21,8 +21,6 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.components.besluiten.models import BesluitInformatieObject
-from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (

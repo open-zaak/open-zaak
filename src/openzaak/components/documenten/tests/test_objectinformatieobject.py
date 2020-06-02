@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -25,7 +24,6 @@ from openzaak.components.zaken.tests.utils import get_zaak_response
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
-from .utils import get_eio_response
 
 
 @tag("oio")
@@ -269,9 +267,8 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_destroy_oio_remote_gone(self):
-        eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_path = reverse(eio)
-        eio_url = f"http://testserver{eio_path}"
+        EnkelvoudigInformatieObjectFactory.create()
+
         # relate the two
         zio = ZaakInformatieObjectFactory.create()
 
@@ -284,9 +281,8 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_oio_remote_still_present(self):
-        eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_path = reverse(eio)
-        eio_url = f"http://testserver{eio_path}"
+        EnkelvoudigInformatieObjectFactory.create()
+
         # relate the two
         BesluitInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()

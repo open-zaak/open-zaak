@@ -2,12 +2,10 @@ import uuid
 from base64 import b64encode
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests
-import requests_mock
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
@@ -88,15 +86,13 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
 
         expected_url = reverse(stored_object)
-        expected_file_url = get_operation_url(
-            "enkelvoudiginformatieobject_download", uuid=stored_object.uuid
-        )
 
         expected_response = content.copy()
         expected_response.update(
             {
                 "url": f"http://testserver{expected_url}",
-                "inhoud": f"http://localhost:8082/alfresco/s/api/node/content/workspace/SpacesStore/{stored_object.uuid}",
+                "inhoud": f"http://localhost:8082/"
+                f"alfresco/s/api/node/content/workspace/SpacesStore/{stored_object.uuid}",
                 "versie": 200,
                 "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
                     "+00:00", "Z"
@@ -161,9 +157,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        file_url = get_operation_url(
-            "enkelvoudiginformatieobject_download", uuid=test_object.uuid
-        )
         expected = {
             "url": f"http://testserver{detail_url}",
             "identificatie": str(test_object.identificatie),

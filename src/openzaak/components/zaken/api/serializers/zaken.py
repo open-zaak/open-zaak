@@ -34,7 +34,6 @@ from vng_api_common.validators import (
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.documenten.api.utils import create_remote_oio
-from openzaak.components.documenten.models import ObjectInformatieObject
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.validators import (

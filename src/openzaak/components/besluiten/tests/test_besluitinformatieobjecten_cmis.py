@@ -125,7 +125,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://openzaak.nl{reverse(io)}"
         self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
 
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(

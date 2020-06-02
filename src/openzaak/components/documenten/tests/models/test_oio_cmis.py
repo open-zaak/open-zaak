@@ -1,8 +1,6 @@
-from django.conf import settings
 from django.db import IntegrityError
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag
 
-import requests_mock
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.tests.factories import (

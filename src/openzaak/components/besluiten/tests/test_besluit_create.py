@@ -18,7 +18,7 @@ from openzaak.utils.tests import JWTAuthMixin
 from ..constants import VervalRedenen
 from ..models import Besluit
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_besluittype_response, get_operation_url, serialise_eio
+from .utils import get_besluittype_response, get_operation_url
 
 
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):

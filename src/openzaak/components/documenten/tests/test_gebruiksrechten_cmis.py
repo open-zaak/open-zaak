@@ -1,6 +1,5 @@
 import datetime
 
-from django.conf import settings
 from django.test import override_settings
 
 from rest_framework import status
@@ -9,11 +8,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ..models import Gebruiksrechten
-from .factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenCMISFactory,
-    GebruiksrechtenFactory,
-)
+from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
 
 @override_settings(CMIS_ENABLED=True)

@@ -1,8 +1,6 @@
 import uuid
 from base64 import b64encode
 
-from django.conf import settings
-
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,7 +8,6 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
@@ -47,7 +44,8 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
         url = get_operation_url("enkelvoudiginformatieobject_lock", uuid=eio.uuid)
-        response_1st_lock = self.client.post(url)
+        # 1st lock
+        self.client.post(url)
         response_2nd_lock = self.client.post(url)
 
         self.assertEqual(

@@ -3,9 +3,8 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
-import requests_mock
 from rest_framework import status
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -37,7 +36,7 @@ from .factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url, get_zaak_response, isodatetime
+from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 

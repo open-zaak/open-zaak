@@ -1,7 +1,6 @@
 import copy
 import datetime
 import logging
-import re
 from decimal import Decimal, InvalidOperation
 from typing import List, Optional, Tuple
 
@@ -30,9 +29,6 @@ from .query import (
 )
 from .utils import CMISStorageFile
 
-# from vng_api_common.utils import generate_unique_identification
-
-
 logger = logging.getLogger(__name__)
 
 # ---------------------- Iterable classes -----------
@@ -45,6 +41,7 @@ RHS_FILTER_MAP = {
 LHS_FILTER_MAP = {
     "_informatieobjecttype__in": "informatieobjecttype__in",
 }
+
 
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable):
@@ -117,7 +114,7 @@ class CMISDocumentIterable(BaseIterable):
                 continue
             elif key == "creatiedatum" and value == "":
                 _lhs.append(f"{name} LIKE '%s'")
-                _rhs.append(f"%-%-%")
+                _rhs.append("%-%-%")
                 continue
 
             if name is None:
@@ -865,7 +862,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         filters = {
             "informatieobject": relation._informatieobject_url,
             "object_type": f"{object_type}",
-            f"object": relation_object,
+            "object": relation_object,
         }
         obj = self.get(**filters)
         return obj.delete()

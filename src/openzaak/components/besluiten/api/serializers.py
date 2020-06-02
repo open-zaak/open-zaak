@@ -26,7 +26,6 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
-from ...documenten.models import ObjectInformatieObject
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
