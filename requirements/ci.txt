@@ -40,7 +40,8 @@ django==2.2.10
 djangorestframework-camel-case==0.2.0
 djangorestframework-gis==0.14
 djangorestframework==3.9.4
-drc-cmis==0.4.0
+# drc-cmis==0.4.0
+git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@non-intrusive_cmis-integration
 drf-flex-fields==0.5.0
 drf-nested-routers==0.90.2
 drf-writable-nested==0.4.3
@@ -54,7 +55,6 @@ humanize==0.5.1
 idna==2.6
 inflection==0.3.1
 iso-639==0.4.5
-iso-8601==0.3.0
 iso8601==0.1.12
 isodate==0.6.0
 itypes==1.1.0

@@ -99,7 +99,6 @@ raven==6.9.0
 recommonmark==0.6.0
 redis==3.3.8
 regex==2019.11.1          # via black
-requests-mock==1.6.0
 requests==2.21.0
 ruamel.yaml.clib==0.2.0
 ruamel.yaml==0.16.7
