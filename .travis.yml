@@ -46,9 +46,14 @@ jobs:
     # Run jobs in parallel in stage Tests
     - stage: "Tests"
       name: "Unit tests"
+      services:
+        - docker
       script:
+        - docker-compose -f docker-compose.travis-cmis.yml up -d
         - python src/manage.py collectstatic --noinput --link
         - coverage run src/manage.py test src
+      after_script:
+        - docker-compose -f docker-compose.travis-cmis.yml down
 
     - name: "Code imports"
       before_install: skip
