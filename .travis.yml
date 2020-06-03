@@ -53,7 +53,7 @@ jobs:
         - python src/manage.py collectstatic --noinput --link
         - coverage run src/manage.py test src
       after_script:
-        - docker-compose -f docker-compose.travis-cmis.yml down
+        - docker-compose -f docker-compose.travis-cmis.yml down -v --rmi all --remove-orphans
 
     - name: "Code imports"
       before_install: skip
