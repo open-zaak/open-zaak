@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.client.convert import make_absolute_uri
@@ -286,6 +287,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 @override_settings(CMIS_ENABLED=True)
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+        super().setUpTestData()
 
     def test_destroy_oio_remote_gone(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
