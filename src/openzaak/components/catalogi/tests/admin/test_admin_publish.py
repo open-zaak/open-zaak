@@ -12,7 +12,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
 )
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.utils.tests import ClearCachesMixin, ReferentieLijstServiceMixin
 
 from ..factories import (
     BesluitTypeFactory,
@@ -23,7 +23,7 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
+class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

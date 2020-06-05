@@ -14,14 +14,14 @@ from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
 )
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.utils.tests import ClearCachesMixin, ReferentieLijstServiceMixin
 
 from ...models import ResultaatType
 from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 
 
 @requests_mock.Mocker()
-class ResultaattypeAdminTests(ClearCachesMixin, WebTest):
+class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

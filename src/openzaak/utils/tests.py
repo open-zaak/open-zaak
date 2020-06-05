@@ -9,10 +9,14 @@ from django.db.models import Model
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import generate_jwt_auth, reverse
 from zds_client.tests.mocks import MockClient
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.accounts.models import User
+from openzaak.selectielijst.models import ReferentieLijstConfig
 
 
 class JWTAuthMixin:
@@ -141,3 +145,32 @@ def mock_client(responses: dict):
         delattr(sys.modules["zds_client.tests.mocks"], name)
     finally:
         pass
+
+
+class NotificationServiceMixin:
+    def setUp(self):
+        super().setUp()
+
+        config = NotificationsConfig.get_solo()
+        Service.objects.create(
+            api_type=APITypes.nrc,
+            api_root=config.api_root,
+            client_id="test",
+            secret="test",
+            user_id="test",
+            user_representation="Test",
+        )
+
+
+class ReferentieLijstServiceMixin:
+    def setUp(self):
+        super().setUp()
+        config = ReferentieLijstConfig.get_solo()
+        Service.objects.create(
+            api_type=APITypes.orc,
+            api_root=config.api_root,
+            client_id="test",
+            secret="test",
+            user_id="test",
+            user_representation="Test",
+        )

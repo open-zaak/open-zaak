@@ -8,6 +8,7 @@ from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
+from openzaak.utils.tests import NotificationServiceMixin
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase
@@ -17,7 +18,7 @@ from .utils import get_operation_url
 
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationTests(APITestCase):
+class FailedNotificationTests(NotificationServiceMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
