@@ -1,4 +1,5 @@
 from vng_api_common.notifications.models import NotificationsConfig
+from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 
