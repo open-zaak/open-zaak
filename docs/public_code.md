@@ -34,7 +34,8 @@ Requirement | meets | links and notes
 The codebase MUST be developed to be reusable in different contexts. | yes | Designed to be so from the start.
 The codebase MUST be independent from any secret, undisclosed, proprietary or non-open licensed code or services for execution and understanding. | yes | installation supports docker, kubernetes, vmware appliances, bare-metal is possible
 The codebase MUST be in use by multiple parties. | yes | Deployed in multiple sandbox environments (e.g: Utrecht is testing it, others Den Haag, Delft looking at it.)
-The roadmap SHOULD be influenced by the needs of multiple parties. | yes | [Dimpact](https://www.dimpact.nl/openzaak), [market consultation](https://github.com/open-zaak/open-zaak-market-consultation) | Code SHOULD be general purpose and SHOULD be configurable. |
+The roadmap SHOULD be influenced by the needs of multiple parties. | yes | [Dimpact](https://www.dimpact.nl/openzaak), [market consultation](https://github.com/open-zaak/open-zaak-market-consultation) |
+Code SHOULD be general purpose and SHOULD be configurable. |
 Codebases SHOULD include a publiccode.yml metadata description so that they’re easily discoverable. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
 Code and its documentation SHOULD NOT contain situation-specific information. For example, personal and organizational data as well as tokens and passwords used in the production system should never be included. | yes | Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
 
