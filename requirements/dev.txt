@@ -121,7 +121,7 @@ unidecode==1.0.22         # via -r requirements/ci.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/ci.txt, coreapi, drf-yasg
 urllib3==1.24.3           # via -r requirements/ci.txt, requests
 uwsgi==2.0.18             # via -r requirements/ci.txt
-vng-api-common==1.0.41    # via -r requirements/ci.txt
+vng-api-common==1.0.47    # via -r requirements/ci.txt
 waitress==1.4.3           # via -r requirements/ci.txt, webtest
 webob==1.8.5              # via -r requirements/ci.txt, webtest
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
