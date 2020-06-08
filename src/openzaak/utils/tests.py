@@ -11,7 +11,6 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import generate_jwt_auth, reverse
 from zds_client.tests.mocks import MockClient
-from zgw_consumers.constants import APITypes
 
 from openzaak.accounts.models import User
 
