@@ -10,7 +10,8 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
-from openzaak.utils.tests import ClearCachesMixin, ReferentieLijstServiceMixin
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.utils.tests import ClearCachesMixin
 
 from ...models import ZaakType
 from ..factories import (

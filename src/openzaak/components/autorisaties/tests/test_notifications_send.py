@@ -10,8 +10,9 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import JWTAuthMixin, NotificationServiceMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from .factories import ApplicatieFactory, AutorisatieFactory

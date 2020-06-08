@@ -7,8 +7,8 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import NotificationServiceMixin
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase

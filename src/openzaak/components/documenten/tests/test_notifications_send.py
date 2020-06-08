@@ -13,8 +13,9 @@ from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import JWTAuthMixin, NotificationServiceMixin
+from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 from .utils import get_operation_url

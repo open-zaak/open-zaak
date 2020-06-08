@@ -10,7 +10,7 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.tests import NotificationServiceMixin
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 
 from ..models import FailedNotification
 from . import mock_notification_send, mock_oas_get
