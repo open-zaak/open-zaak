@@ -108,7 +108,7 @@
             "auth_type": "zgw",
             "header_key": "",
             "header_value": "",
-            "oas": "https://referentielijsten-api.vng.cloud/api/v1/schema/openapi.yaml",
+            "oas": "http://notifications:8000/api/v1/schema/openapi.yaml",
             "nlx": "",
             "user_id": "openzaak",
             "user_representation": "OpenZaak"

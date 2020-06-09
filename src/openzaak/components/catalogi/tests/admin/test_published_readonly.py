@@ -12,6 +12,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
 )
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..factories import (
@@ -25,7 +26,7 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ReadonlyAdminTests(ClearCachesMixin, WebTest):
+class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

@@ -4,6 +4,7 @@ from django.test import TestCase
 
 import requests_mock
 
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..api import get_resultaten
@@ -12,7 +13,9 @@ from . import mock_oas_get
 
 
 @requests_mock.Mocker()
-class SelectieLijstResultatenTests(ClearCachesMixin, TestCase):
+class SelectieLijstResultatenTests(
+    ReferentieLijstServiceMixin, ClearCachesMixin, TestCase
+):
     def test_single_page(self, m):
         ReferentieLijstConfig.get_solo()
         mock_oas_get(m)

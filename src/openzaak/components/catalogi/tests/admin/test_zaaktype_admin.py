@@ -9,6 +9,7 @@ from freezegun import freeze_time
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
+from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.utils.tests import ClearCachesMixin
 
 from ...models import ZaakType
@@ -26,7 +27,7 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(ClearCachesMixin, WebTest):
+class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

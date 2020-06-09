@@ -536,3 +536,5 @@ NLX_DIRECTORY_URLS = {
     NLXDirectories.preprod: "https://directory.preprod.nlx.io/",
     NLXDirectories.prod: "https://directory.prod.nlx.io/",
 }
+
+CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
