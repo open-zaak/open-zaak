@@ -1,5 +1,6 @@
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 
 from ...constants import FormaatChoices
@@ -34,4 +35,10 @@ class EigenschapSerializer(
             "naam": {"source": "eigenschapnaam"},
             "zaaktype": {"lookup_field": "uuid"},
         }
-        validators = [ZaakTypeConceptValidator()]
+        validators = [
+            ZaakTypeConceptValidator(),
+            UniqueTogetherValidator(
+                queryset=Eigenschap.objects.all(),
+                fields=["zaaktype", "eigenschapnaam"],
+            ),
+        ]

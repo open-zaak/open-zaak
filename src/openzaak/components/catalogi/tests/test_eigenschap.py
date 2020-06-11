@@ -177,6 +177,24 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
+    def test_create_eigenschap_duplicate(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        EigenschapFactory.create(zaaktype=zaaktype, eigenschapnaam="eigenschap1")
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "eigenschap1",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Eigenschap.objects.count(), 1)
+
     def test_create_eigenschap_nested_specifcatie(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
@@ -192,6 +210,39 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "lengte": "8",
                 "kardinaliteit": "1",
                 "waardenverzameling": [],
+            },
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+        spec = eigenschap.specificatie_van_eigenschap
+        self.assertEqual(spec.groep, "een_groep")
+        self.assertEqual(spec.formaat, FormaatChoices.datum)
+        self.assertEqual(spec.lengte, "8")
+        self.assertEqual(spec.kardinaliteit, "1")
+        self.assertEqual(spec.waardenverzameling, [])
+
+    def test_create_eigenschap_no_waardenverzameling(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "specificatie": {
+                "groep": "een_groep",
+                "formaat": "datum",
+                "lengte": "8",
+                "kardinaliteit": "1",
             },
         }
 
