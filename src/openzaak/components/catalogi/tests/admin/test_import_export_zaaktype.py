@@ -755,6 +755,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertIsNone(import_button)
 
 
+@override_settings(CUSTOM_CLIENT_FETCHER=None)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()

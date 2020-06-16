@@ -5,7 +5,7 @@ from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
-from ...models import InformatieObjectType, ZaakType
+from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
     BesluitTypeFactory,
     CatalogusFactory,
@@ -143,3 +143,43 @@ class BesluitTypeAdminTests(WebTest):
             "a", {"id": "lookup_id_informatieobjecttypen"}
         )
         self.assertIsNone(popup_iotypen)
+
+    def test_create_besluittype(self):
+        query_params = urlencode(
+            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+        )
+        url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
+        response = self.app.get(url)
+
+        form = response.form
+        form["datum_begin_geldigheid"] = "2019-01-01"
+        form["zaaktypen"] = [self.zaaktype.id]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.location, reverse("admin:catalogi_besluittype_changelist")
+        )
+
+        self.assertEqual(BesluitType.objects.count(), 1)
+
+    def test_change_besluittype(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype.zaaktypen.all().delete()
+        response = self.app.get(
+            reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
+        )
+
+        form = response.form
+        form["datum_begin_geldigheid"] = "2019-01-01"
+        form["zaaktypen"] = [self.zaaktype.id]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.location, reverse("admin:catalogi_besluittype_changelist")
+        )
+
+        self.assertEqual(BesluitType.objects.count(), 1)

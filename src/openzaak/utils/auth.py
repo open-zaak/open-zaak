@@ -1,5 +1,7 @@
 import logging
+from typing import Optional
 
+from zgw_consumers.client import ZGWClient
 from zgw_consumers.models import Service
 
 logger = logging.getLogger(__name__)
@@ -14,3 +16,8 @@ def get_auth(url: str) -> dict:
 
     logger.warning("Could not authenticate for %s", url)
     return {}
+
+
+def get_client(url: str) -> Optional[ZGWClient]:
+    client = Service.get_client(url)
+    return client

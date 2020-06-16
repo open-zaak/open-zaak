@@ -10,6 +10,7 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 
 from ..models import FailedNotification
 from . import mock_notification_send, mock_oas_get
@@ -17,7 +18,7 @@ from .factories import FailedNotificationFactory
 
 
 @requests_mock.Mocker()
-class FailedNotificationAdminTests(WebTest):
+class FailedNotificationAdminTests(NotificationServiceMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

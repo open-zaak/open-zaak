@@ -11,6 +11,7 @@ from vng_api_common.utils import get_uuid_from_path
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.config.models import FeatureFlags
 
 from ..loaders import AuthorizedRequestsLoader
 
@@ -25,6 +26,12 @@ class PublishValidator(FKOrURLValidator):
             super().set_context(serializer_field)
 
     def __call__(self, value):
+        # check the feature flag to allow unpublished types. if that's enabled,
+        # there's no point in checking anything beyond this as "everything goes"
+        feature_flags = FeatureFlags.get_solo()
+        if feature_flags.allow_unpublished_typen:
+            return
+
         # loose-fk field
         if value and isinstance(value, str):
             # not to double FKOrURLValidator

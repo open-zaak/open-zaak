@@ -34,6 +34,7 @@ from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import (
     KlantContact,
+    RelevanteZaakRelatie,
     Resultaat,
     Rol,
     Status,
@@ -202,11 +203,15 @@ class ZaakViewSet(
         Zaak.objects.select_related("_zaaktype")
         .prefetch_related(
             "deelzaken",
-            "relevante_andere_zaken",
+            models.Prefetch(
+                "relevante_andere_zaken",
+                queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+            ),
             "zaakkenmerk_set",
             "resultaat",
+            "zaakeigenschap_set",
             models.Prefetch(
-                "status_set", Status.objects.order_by("-datum_status_gezet")
+                "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
             ),
         )
         .order_by("-pk")

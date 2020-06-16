@@ -21,6 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils import build_absolute_url
 
@@ -162,7 +163,7 @@ class ApplicatieInlinesAdminTests(WebTest):
 
 
 @tag("admin-autorisaties")
-class ManageAutorisatiesAdmin(TransactionTestCase):
+class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
     def setUp(self):
         super().setUp()
 

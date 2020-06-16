@@ -539,3 +539,5 @@ NLX_DIRECTORY_URLS = {
 
 CMIS_ENABLED = False
 CMIS_DELETE_IS_OBLITERATE = True
+CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
+

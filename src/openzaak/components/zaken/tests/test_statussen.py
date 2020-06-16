@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
+from openzaak.components.catalogi.tests.factories import StatusTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
 from .factories import ResultaatFactory, StatusFactory, ZaakFactory
@@ -40,6 +41,28 @@ class StatusTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://openzaak.nl{status1_url}")
         self.assertNotEqual(data[0]["url"], f"http://openzaak.nl{status2_url}")
+
+    def test_create_malformed_uuid(self):
+        """
+        Assert that providing a malformed ZAAK URL raises validation errors.
+
+        Regression test for https://github.com/open-zaak/open-zaak/issues/604
+        """
+        zaak = ZaakFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        zaak_url = f"http://testserver{reverse(zaak)}"
+        data = {
+            "zaak": f"{zaak_url} ",  # trailing space is deliberate!
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2020-05-28",
+        }
+
+        response = self.client.post(reverse("status-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "zaak")
+        self.assertIsNotNone(error)
+        self.assertEqual(error["code"], "invalid")
 
 
 @tag("external-urls")

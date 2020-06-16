@@ -55,6 +55,7 @@ class EigenschapSpecificatie(models.Model):
 
     waardenverzameling = ArrayField(
         models.CharField(_("waardenverzameling"), max_length=100),
+        default=list,
         blank=True,
         help_text=_("Waarden die deze EIGENSCHAP kan hebben."),
     )
