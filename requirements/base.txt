@@ -38,7 +38,7 @@ djangorestframework-camel-case==0.2.0  # via -r requirements/base.in, vng-api-co
 djangorestframework-gis==0.14  # via -r requirements/base.in
 djangorestframework==3.9.4  # via -r requirements/base.in, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
 # drc-cmis==0.4.0
-git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@non-intrusive_cmis-integration
+git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@6c66daa97515cb4fe7b72e0c8dbbb6de194485e7#egg=drc_cmis
 drf-flex-fields==0.5.0    # via -r requirements/base.in
 drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.in
@@ -68,6 +68,7 @@ pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0              # via -r requirements/base.in
 redis==3.3.8              # via django-redis
 requests==2.21.0          # via -r requirements/base.in, coreapi, django-auth-adfs, gemma-zds-client, vng-api-common
+requests-mock==1.6.0
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
 six==1.11.0               # via cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
