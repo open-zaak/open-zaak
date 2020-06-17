@@ -1,14 +1,21 @@
+import os
+from unittest.mock import patch
+
 from django.test import override_settings
 from django.utils.timezone import now
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
+from rest_framework.test import APITransactionTestCase
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
+from vng_api_common.models import JWTSecret
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
@@ -24,9 +31,11 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ...documenten.tests.utils import serialise_eio
+from ..models import Zaak
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -38,9 +47,98 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
+@freeze_time("2012-01-14")
+@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
+class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
+    heeft_alle_autorisaties = True
+
+    @patch("zds_client.Client.from_url")
+    def test_send_notif_create_zaak(self, mock_client):
+        """
+        Check if notifications will be send when zaak is created
+        """
+        client = mock_client.return_value
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        client.create.assert_called_once_with(
+            "notificaties",
+            {
+                "kanaal": "zaken",
+                "hoofdObject": data["url"],
+                "resource": "zaak",
+                "resourceUrl": data["url"],
+                "actie": "create",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": "517439943",
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+            },
+        )
+
+    @patch("zds_client.Client.from_url")
+    def test_send_notif_delete_resultaat(self, mock_client):
+        """
+        Check if notifications will be send when resultaat is deleted
+        """
+        client = mock_client.return_value
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaaktype_url = reverse(zaak.zaaktype)
+        resultaat = ResultaatFactory.create(zaak=zaak)
+        resultaat_url = get_operation_url("resultaat_update", uuid=resultaat.uuid)
+
+        response = self.client.delete(resultaat_url)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+        client.create.assert_called_once_with(
+            "notificaties",
+            {
+                "kanaal": "zaken",
+                "hoofdObject": f"http://testserver{zaak_url}",
+                "resource": "resultaat",
+                "resourceUrl": f"http://testserver{resultaat_url}",
+                "actie": "destroy",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+            },
+        )
+
+
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationCMISTests(JWTAuthMixin, APICMISTestCase):
+class FailedNotificationCMISTests(
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
+):
     heeft_alle_autorisaties = True
     maxDiff = None
 
@@ -539,3 +637,98 @@ class FailedNotificationCMISTests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
+
+
+@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
+class InvalidNotifConfigTests(
+    NotificationServiceMixin, JWTAuthMixin, APITransactionTestCase
+):
+
+    client_id = "test"
+    secret = "test"
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        JWTSecret.objects.get_or_create(
+            identifier=self.client_id, defaults={"secret": self.secret}
+        )
+
+        self.applicatie = Applicatie.objects.create(
+            client_ids=[self.client_id],
+            label="for test",
+            heeft_alle_autorisaties=self.heeft_alle_autorisaties,
+        )
+
+        super().setUp()
+
+        # In dev mode, the exception handler checks if it needs to transform the
+        # exception into a 500 response, or raise it so it can be debugged/is obvious
+        # there is a bug. This however breaks tests relying on the exception-catching.
+        # The behaviour is in :func:`vng_api_common.views.exception_handler` - and can
+        # be enabled/disabled with an envvar. Here, we enforce production-mode responses.
+        if "DEBUG" in os.environ:
+            prev_debug_value = os.environ["DEBUG"]
+
+            def _reset_debug():
+                os.environ["DEBUG"] = prev_debug_value
+
+            os.environ["DEBUG"] = "no"
+            self.addCleanup(_reset_debug)
+
+    def test_invalid_notification_config_create(self):
+        conf = NotificationsConfig.get_solo()
+        conf.api_root = "bla"
+        conf.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertFalse(Zaak.objects.exists())
+        self.assertFalse(StatusLog.objects.exists())
+
+    def test_notification_config_inaccessible_create(self):
+        conf = NotificationsConfig.get_solo()
+        conf.api_root = "http://localhost:8001/api/v1/"
+        conf.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertFalse(Zaak.objects.exists())
+        self.assertFalse(StatusLog.objects.exists())

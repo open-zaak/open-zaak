@@ -13,6 +13,7 @@ from vng_api_common.tests import reverse
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
@@ -22,7 +23,7 @@ from .utils import get_operation_url
 
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
-class SendNotifTestCase(JWTAuthMixin, APICMISTestCase):
+class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
@@ -75,7 +76,7 @@ class SendNotifTestCase(JWTAuthMixin, APICMISTestCase):
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationTests(JWTAuthMixin, APICMISTestCase):
+class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 

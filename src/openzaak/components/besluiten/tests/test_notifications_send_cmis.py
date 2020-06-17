@@ -12,6 +12,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
@@ -22,7 +23,7 @@ from .utils import get_operation_url, serialise_eio
 
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
-class SendNotifTestCase(JWTAuthMixin, APICMISTestCase):
+class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
@@ -111,7 +112,9 @@ class SendNotifTestCase(JWTAuthMixin, APICMISTestCase):
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationCMISTests(JWTAuthMixin, APICMISTestCase):
+class FailedNotificationCMISTests(
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
+):
     heeft_alle_autorisaties = True
     maxDiff = None
 
