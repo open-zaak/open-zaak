@@ -38,3 +38,4 @@ Open Zaak `is`_ and only uses :ref:`introduction_open-source`.
    manual/index
    support/index
    development/index
+   public_code
