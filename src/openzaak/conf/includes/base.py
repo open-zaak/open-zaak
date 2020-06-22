@@ -539,5 +539,8 @@ NLX_DIRECTORY_URLS = {
 
 CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
 
-CMIS_ENABLED = False
+CMIS_ENABLED = config("CMIS_ENABLED", default=False)
 CMIS_DELETE_IS_OBLITERATE = True
+CMIS_MAPPER_FILE = config(
+    "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
+)
