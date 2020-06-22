@@ -41,6 +41,7 @@ Guides
    deployment/single_server
    updating
    configuration
+   cmis
    logging
 
 Post-install checklist
