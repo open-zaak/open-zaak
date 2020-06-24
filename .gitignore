@@ -24,6 +24,7 @@ docs/_build
 /reports/
 /htmlcov/
 .coverage
+coverage.xml
 
 # Environment
 src/openzaak/conf/includes/local.py
@@ -42,4 +43,3 @@ deployment/single-server/vars/*
 
 deployment/kubernetes/vars/*
 !deployment/kubernetes/vars/*example*
-coverage.xml
