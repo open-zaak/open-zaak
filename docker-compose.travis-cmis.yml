@@ -39,18 +39,6 @@ services:
         ports:
             - 8082:8080 #Browser port
 
-    share:
-        image: alfresco/alfresco-share:6.1.0-RC3
-        mem_limit: 1g
-        environment:
-            - REPO_HOST=alfresco
-            - REPO_PORT=8080
-            - "CATALINA_OPTS= -Xms500m -Xmx500m"
-        volumes:
-            - ./volumes/logs/share:/usr/local/tomcat/logs
-        ports:
-            - 8080:8080
-
     postgres:
         image: postgres:10.1
         mem_limit: 1500m
