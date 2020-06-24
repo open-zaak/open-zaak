@@ -578,7 +578,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
-            ret["informatieobject"] = self.instance.get_informatieobject_url()
+            if hasattr(instance, "get_informatieobject_url"):
+                ret["informatieobject"] = instance.get_informatieobject_url()
+            else:
+                ret["informatieobject"] = self.instance.get_informatieobject_url()
         return ret
 
     def create(self, validated_data):

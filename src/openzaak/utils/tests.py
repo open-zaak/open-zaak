@@ -6,7 +6,6 @@ import sys
 from django.core.cache import caches
 from django.db.models import Model
 
-import requests_mock
 from drc_cmis.client import CMISDRCClient
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -148,6 +147,8 @@ def mock_client(responses: dict):
 
 class APICMISTestCase(APITestCase):
     def setUp(self) -> None:
+        import requests_mock
+
         self.adapter = requests_mock.Mocker(real_http=True)
         self.adapter.start()
         super().setUp()
