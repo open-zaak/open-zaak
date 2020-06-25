@@ -41,7 +41,7 @@ humanize
 drf-flex-fields
 drf-writable-nested
 # drc-cmis
-git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@6c66daa97515cb4fe7b72e0c8dbbb6de194485e7#egg=drc-cmis
+git+https://github.com/GemeenteUtrecht/gemma-drc-cmis.git@a079e1810afd277e599a72a7ea3c16517a8e1e42#egg=drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi
