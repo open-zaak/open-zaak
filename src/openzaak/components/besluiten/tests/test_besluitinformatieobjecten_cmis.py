@@ -1,4 +1,4 @@
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -13,6 +13,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import serialise_eio
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
@@ -27,7 +28,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         besluit_url = reverse(besluit)
@@ -59,7 +60,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         """
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         besluit_url = reverse(bio.besluit)
@@ -82,7 +83,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_read_besluit(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_detail_url = reverse(bio)
@@ -103,7 +104,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_filter_by_besluit(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         besluit_url = reverse(bio.besluit)
         bio_list_url = reverse("besluitinformatieobject-list")
@@ -123,7 +124,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_filter_by_informatieobject(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://openzaak.nl{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_list_url = reverse("besluitinformatieobject-list")
@@ -139,7 +140,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_put_besluit_not_allowed(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_detail_url = reverse(bio)
         besluit = BesluitFactory.create()
@@ -162,7 +163,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_patch_besluit_not_allowed(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_detail_url = reverse(bio)
         besluit = BesluitFactory.create()
@@ -185,7 +186,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_delete(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
         bio_url = reverse(bio)
 

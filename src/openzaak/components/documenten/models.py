@@ -30,7 +30,7 @@ from .managers import (
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
-from .query import InformatieobjectQuerySet
+from .query.django import InformatieobjectQuerySet
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
@@ -258,12 +258,12 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         else:
             pass
 
-    def lock_document(self, doc_uuid):
+    def lock_document(self, doc_uuid: str) -> None:
+        lock = _uuid.uuid4().hex
         if settings.CMIS_ENABLED:
             cmis_storage = CMISDRCStorageBackend()
-            self.lock = cmis_storage.lock_document(uuid=doc_uuid)
-        else:
-            self.lock = _uuid.uuid4().hex
+            cmis_storage.lock_document(doc_uuid, lock)
+        self.lock = lock
 
     def unlock_document(self, doc_uuid, lock, force_unlock=False):
         if settings.CMIS_ENABLED:
@@ -382,6 +382,8 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         db_index=True,
     )
 
+    # When dealing with remote EIO, there is no pk or canonical instance to derive
+    # the lock status from. The getters and setters then use this private attribute.
     _locked = False
     objects = AdapterManager()
 
@@ -396,20 +398,17 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
 
-    def _get_locked(self) -> bool:
-        if self.pk:
+    @property
+    def locked(self) -> bool:
+        if self.pk or self.canonical is not None:
             return bool(self.canonical.lock)
-
-        if settings.CMIS_ENABLED:
-            client = CMISDRCClient()
-            cmis_doc = client.get_cmis_document(
-                identification=self.uuid, via_identification=False, filters=None,
-            )
-            return bool(cmis_doc.versionSeriesCheckedOutId)
-
         return self._locked
 
-    def _set_locked(self, value: bool) -> None:
+    @locked.setter
+    def locked(self, value: bool) -> None:
+        # this should only be called for remote objects, as other objects derive the
+        # lock status from the canonical object
+        assert self.canonical is None, "Setter should only be called for remote objects"
         self._locked = value
 
     def full_clean(self, exclude=None, validate_unique=True):
@@ -431,7 +430,9 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             model_data = model_to_dict(self)
             # If the document doesn't exist, create it, otherwise update it
             try:
+                # sanity - check - assert the doc exists in CMIS backend
                 cmis_storage.get_document(uuid=self.uuid)
+                # update the instance state to the storage backend
                 EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(
                     **model_data
                 )
@@ -494,8 +495,6 @@ class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
             return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
         else:
             return self.canonical.gebruiksrechten_set.exists()
-
-    locked = property(_get_locked, _set_locked)
 
 
 class Gebruiksrechten(models.Model):

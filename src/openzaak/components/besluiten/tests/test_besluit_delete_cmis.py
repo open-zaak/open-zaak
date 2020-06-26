@@ -22,7 +22,7 @@ class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
         besluit_delete_url = get_operation_url("besluit_delete", uuid=besluit.uuid)
 

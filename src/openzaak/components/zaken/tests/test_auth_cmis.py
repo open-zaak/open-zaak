@@ -17,6 +17,7 @@ from ..models import ZaakInformatieObject
 from .factories import ZaakInformatieObjectFactory
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
@@ -32,7 +33,7 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         # must show up
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
 
         zio1 = ZaakInformatieObjectFactory.create(
             informatieobject=eio_url,
@@ -62,7 +63,7 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
 
 
-@tag("external-urls")
+@tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
@@ -73,7 +74,7 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     def test_zaakinformatieobject_list(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
 
         # must show up
         zio1 = ZaakInformatieObjectFactory.create(
@@ -100,7 +101,7 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     def test_zaakinformatieobject_retrieve(self):
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
-        self.adapter.register_uri("GET", eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
         zio1 = ZaakInformatieObjectFactory.create(
             informatieobject=eio1_url,
             zaak__zaaktype=self.zaaktype,
@@ -108,7 +109,7 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
-        self.adapter.register_uri("GET", eio2_url, json=serialise_eio(eio2, eio2_url))
+        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         zio2 = ZaakInformatieObjectFactory.create(
             informatieobject=eio2_url,
             zaak__zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",

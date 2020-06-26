@@ -1,4 +1,5 @@
 import io
+from typing import Tuple
 
 from django.conf import settings
 from django.core.files.base import File
@@ -6,7 +7,14 @@ from django.core.files.storage import Storage
 from django.utils.functional import LazyObject
 
 from drc_cmis.client import CMISDRCClient
+from drc_cmis.cmis.drc_document import Document
 from privates.storages import PrivateMediaFileSystemStorage
+
+
+def parse_uuid_version(uuid_version: str) -> Tuple[str, int]:
+    uuid, wanted_version = uuid_version.split(";")
+    wanted_version = int(wanted_version)
+    return uuid, wanted_version
 
 
 class CMISStorageFile(File):
@@ -52,54 +60,45 @@ class CMISStorage(Storage):
     def __init__(self, location=None, base_url=None, encoding=None):
         self._client = CMISDRCClient()
 
-    def _open(self, uuid_version, mode="rb"):
+    def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)
 
-    def _read(self, uuid_version):
-        uuid, wanted_version = self._get_uuid_and_version(uuid_version)
-        cmis_doc = self._client.get_cmis_document(
-            identification=uuid, via_identification=False, filters=None
-        )
-
-        cmis_doc = self._get_correct_doc_version(cmis_doc, wanted_version)
-
+    def _read(self, uuid_version: str) -> bytes:
+        uuid, wanted_version = parse_uuid_version(uuid_version)
+        cmis_doc = self._get_cmis_doc(uuid_version)
         content_bytes = cmis_doc.get_content_stream()
         return content_bytes
 
-    def size(self, uuid_version):
-        content_bytes = self._read(uuid_version)
-        return len(content_bytes.read())
+    def size(self, uuid_version: str) -> int:
+        uuid, wanted_version = parse_uuid_version(uuid_version)
+        cmis_doc = self._get_cmis_doc(uuid_version)
+        return cmis_doc.contentStreamLength
 
-    def url(self, uuid_version):
-        uuid, wanted_version = self._get_uuid_and_version(uuid_version)
+    def url(self, uuid_version: str) -> str:
+        uuid, wanted_version = parse_uuid_version(uuid_version)
 
-        cmis_doc = self._client.get_cmis_document(
-            identification=uuid, via_identification=False, filters=None
-        )
-
-        cmis_doc = self._get_correct_doc_version(cmis_doc, wanted_version)
+        cmis_doc = self._get_cmis_doc(uuid_version)
 
         # Example nodeRef: workspace://SpacesStore/b09fac1f-f295-4b44-a94b-97126edec2f3
         node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
         node_ref = node_ref.split("://")
         # TODO: configurable!
+        # FIXME: no hardcoded URLs
         host_url = "http://localhost:8082/"
         content_base_url = "alfresco/s/api/node/content/"
         node_ref_url = node_ref[0] + "/" + node_ref[1]
         url = f"{host_url}{content_base_url}{node_ref_url}"
         return url
 
-    def _get_uuid_and_version(self, uuid_version):
-        uuid = uuid_version.split(";")[0]
-        wanted_version = uuid_version.split(";")[1]
-        return uuid, wanted_version
-
-    def _get_correct_doc_version(self, cmis_doc, wanted_version):
+    def _get_cmis_doc(self, uuid_version: str) -> Document:
+        uuid, wanted_version = parse_uuid_version(uuid_version)
+        cmis_doc = self._client.get_cmis_document(uuid=uuid)
+        # only way to get a specific version
         if cmis_doc.versie != wanted_version:
-            all_versions = cmis_doc.get_all_versions()
-            for version_number, cmis_document_version in all_versions.items():
-                if version_number == wanted_version:
-                    cmis_doc = cmis_document_version
+            all_versions = Document.get_all_versions(cmis_doc)
+            for version in all_versions:
+                if version.versie == wanted_version:
+                    cmis_doc = version
                     break
         return cmis_doc
 

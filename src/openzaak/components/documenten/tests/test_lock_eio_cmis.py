@@ -1,9 +1,8 @@
 import uuid
 from base64 import b64encode
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
-from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
@@ -17,7 +16,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import get_operation_url
 
 
-@temp_private_root()
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
 
@@ -79,12 +78,10 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
             response_update.status_code, status.HTTP_200_OK, response_update.data
         )
 
-        unlock_url = reverse(
-            "enkelvoudiginformatieobject-unlock", kwargs={"uuid": eio.uuid}
-        )
-        self.client.post(unlock_url, {"lock": response_lock.data["lock"]})
-        eio = EnkelvoudigInformatieObject.objects.get()
+        eios = EnkelvoudigInformatieObject.objects.order_by("versie")
+        self.assertEqual(eios.count(), 2)  # version 1 and version 2
 
+        eio = eios[1]
         self.assertEqual(eio.titel, "changed")
 
     def test_update_fail_unlocked_doc(self):
@@ -150,6 +147,7 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertNotIn("lock", response.data)
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class EioUnlockAPITests(JWTAuthMixin, APICMISTestCase):
 

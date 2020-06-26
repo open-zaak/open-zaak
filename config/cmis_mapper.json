@@ -1,11 +1,12 @@
 {
   "DOCUMENT_MAP": {
+    "uuid": "cmis:versionSeriesId",
     "integriteit_waarde": "drc:document__integriteitwaarde",
     "titel": "drc:document__titel",
     "bestandsnaam": "drc:document__bestandsnaam",
     "formaat": "drc:document__formaat",
     "bestandsomvang": "cmis:contentStreamLength",
-    "versie": "cmis:versionLabel",
+    "versie": "drc:document__versie",
     "ondertekening_soort": "drc:document__ondertekeningsoort",
     "beschrijving": "drc:document__beschrijving",
     "identificatie": "drc:document__identificatie",
@@ -24,7 +25,8 @@
     "bronorganisatie": "drc:document__bronorganisatie",
     "integriteit_datum": "drc:document__integriteitdatum",
     "link": "drc:document__link",
-    "creatiedatum": "drc:document__creatiedatum"
+    "creatiedatum": "drc:document__creatiedatum",
+    "lock": "drc:document__lock"
   },
   "OBJECTINFORMATIEOBJECT_MAP": {
     "object_type": "drc:oio__object_type",

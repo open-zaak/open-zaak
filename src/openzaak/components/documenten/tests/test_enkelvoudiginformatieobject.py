@@ -482,12 +482,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.filter().exists())
-        self.assertFalse(EnkelvoudigInformatieObject.objects.filter().exists())
+        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
+        self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -497,8 +495,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
-
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -520,9 +516,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
         lock2 = self.client.post(f"{eio2_url}/lock").data["lock"]
         self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock2})
-
-        self.client.post(f"{eio1_url}/unlock", {"lock": lock1})
-        self.client.post(f"{eio2_url}/unlock", {"lock": lock2})
 
         response = self.client.get(reverse(EnkelvoudigInformatieObject))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -556,8 +549,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-
         response = self.client.get(eio_url, {"versie": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -573,8 +564,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         with freeze_time("2019-01-01 13:00:00"):
             self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
-
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,12 +1,15 @@
 from django.conf import settings
 from django.db import models
 
-from .query import InformatieobjectRelatedQuerySet, ObjectInformatieObjectQuerySet
-from .querysets import (
+from .query.cmis import (
     CMISQuerySet,
-    DjangoQuerySet,
     GebruiksrechtenQuerySet,
     ObjectInformatieObjectCMISQuerySet,
+)
+from .query.django import (
+    DjangoQuerySet,
+    InformatieobjectRelatedQuerySet,
+    ObjectInformatieObjectQuerySet,
 )
 
 

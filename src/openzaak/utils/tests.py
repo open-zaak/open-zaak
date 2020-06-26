@@ -3,6 +3,8 @@ import hashlib
 import json
 import sys
 
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.db.models import Model
 
@@ -145,17 +147,48 @@ def mock_client(responses: dict):
         pass
 
 
-class APICMISTestCase(APITestCase):
-    def setUp(self) -> None:
-        import requests_mock
+class MockSchemasMixin:
+    """
+    Mock fetching the schema's from Github.
+    """
 
-        self.adapter = requests_mock.Mocker(real_http=True)
-        self.adapter.start()
+    mocker_attr = "adapter"
+
+    def setUp(self):
+        from openzaak.tests.utils import mock_service_oas_get
+
         super().setUp()
 
-    def tearDown(self) -> None:
+        mocker = getattr(self, self.mocker_attr)
+
+        mock_service_oas_get(mocker, "brc", oas_url=settings.BRC_API_SPEC)
+        mock_service_oas_get(mocker, "drc", oas_url=settings.DRC_API_SPEC)
+        mock_service_oas_get(mocker, "zrc", oas_url=settings.ZRC_API_SPEC)
+        mock_service_oas_get(mocker, "ztc", oas_url=settings.ZTC_API_SPEC)
+
+
+class CMISMixin:
+    def setUp(self) -> None:
+        super().setUp()
+
+        import requests_mock
+
+        # real_http=True to let the other calls pass through and use a different mocker
+        # in specific tests cases to catch those requests
+        self.adapter = requests_mock.Mocker(real_http=True)
+        self.adapter.start()
+
+        self.addCleanup(self._cleanup_alfresco)
+
+        # testserver vs. example.com
+        Site.objects.clear_cache()
+
+    def _cleanup_alfresco(self) -> None:
         # Removes the created documents from alfresco
         client = CMISDRCClient()
         client.delete_cmis_folders_in_base()
         self.adapter.stop()
-        super().tearDown()
+
+
+class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
+    pass

@@ -2,7 +2,7 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -21,6 +21,7 @@ from ..models import (
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
+@tag("cmis")
 @freeze_time("2019-01-01")
 @override_settings(CMIS_ENABLED=True)
 class AuditTrailTests(JWTAuthMixin, APICMISTestCase):

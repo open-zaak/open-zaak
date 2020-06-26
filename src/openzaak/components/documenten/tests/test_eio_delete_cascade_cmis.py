@@ -1,7 +1,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
@@ -15,6 +15,7 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 from .utils import get_eio_response, get_operation_url
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class US349TestCase(JWTAuthMixin, APICMISTestCase):
 

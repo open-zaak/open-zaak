@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -23,6 +23,7 @@ from ..models import Zaak, ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
@@ -43,7 +44,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -87,25 +88,6 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(response.json(), expected_response)
 
-    def test_create_invalid_informatieobject(self):
-        zaak = ZaakFactory.create()
-        zaak_url = reverse(zaak)
-
-        content = {
-            "zaak": f"http://testserver{zaak_url}",
-            "informatieobject": "invalidurl",
-        }
-
-        # Send to the API
-        response = self.client.post(self.list_url, content)
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "informatieobject")
-        self.assertEqual(error["code"], "bad-url")
-
     @freeze_time("2018-09-20 12:00:00")
     def test_registratiedatum_ignored(self):
         zaak = ZaakFactory.create()
@@ -114,7 +96,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -141,7 +123,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
@@ -170,7 +152,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_read_zaak(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zio_detail_url = reverse(zio)
 
@@ -196,7 +178,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_filter_by_zaak(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zaak_url = reverse(zio.zaak)
         zio_list_url = reverse("zaakinformatieobject-list")
@@ -214,7 +196,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_filter_by_informatieobject(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         zio_list_url = reverse("zaakinformatieobject-list")
@@ -232,12 +214,12 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         zaak_url = reverse(zaak)
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = f"http://testserver{reverse(eio1)}"
-        self.adapter.register_uri("GET", eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url)
         zio_detail_url = reverse(zio)
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = f"http://testserver{reverse(eio2)}"
-        self.adapter.register_uri("GET", eio2_url, json=serialise_eio(eio2, eio2_url))
+        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
 
         response = self.client.put(
             zio_detail_url,
@@ -259,13 +241,13 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
-        self.adapter.register_uri("GET", eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url)
         zio_detail_url = reverse(zio)
 
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = f"http://testserver{reverse(eio2)}"
-        self.adapter.register_uri("GET", eio2_url, json=serialise_eio(eio2, eio2_url))
+        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
 
         response = self.client.patch(
             zio_detail_url,
@@ -286,7 +268,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
@@ -318,7 +300,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         zaak = ZaakFactory.create()
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
@@ -344,7 +326,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zio_url = reverse(zio)
 

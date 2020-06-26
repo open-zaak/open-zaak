@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -19,6 +19,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url, serialise_eio
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
@@ -35,7 +36,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        self.adapter.register_uri("GET", io_url, json=serialise_eio(io, io_url))
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         besluittype.informatieobjecttypen.add(io.informatieobjecttype)
 
         with self.subTest(part="besluit_create"):
@@ -110,6 +111,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             )
 
             self.assertEqual(besluit.besluitinformatieobject_set.count(), 1)
+
             self.assertEqual(
                 besluit.besluitinformatieobject_set.get().informatieobject.uuid, io.uuid
             )
@@ -123,7 +125,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
         for counter in range(3):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
             BesluitInformatieObjectFactory.create(
                 besluit=besluit1, informatieobject=eio_url
             )
@@ -131,7 +133,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
             BesluitInformatieObjectFactory.create(
                 besluit=besluit2, informatieobject=eio_url
             )
@@ -151,35 +153,3 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             HTTP_HOST="openzaak.nl",
         )
         self.assertEqual(len(response2.data), 2)
-
-    def test_besluit_create_fail_besluittype_max_length(self):
-        zaak = ZaakFactory.create(zaaktype__concept=False)
-        zaak_url = reverse(zaak)
-
-        url = get_operation_url("besluit_create")
-
-        response = self.client.post(
-            url,
-            {
-                "verantwoordelijke_organisatie": "517439943",  # RSIN
-                "identificatie": "123123",
-                "besluittype": f"http://testserver/{'x'*1000}",
-                "zaak": f"http://testserver{zaak_url}",
-                "datum": "2018-09-06",
-                "toelichting": "Vergunning verleend.",
-                "ingangsdatum": "2018-10-01",
-                "vervaldatum": "2018-11-01",
-                "vervalreden": VervalRedenen.tijdelijk,
-            },
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        max_length_errors = [
-            e
-            for e in response.data["invalid_params"]
-            if e["name"] == "besluittype" and e["code"] == "max_length"
-        ]
-        self.assertEqual(len(max_length_errors), 1)

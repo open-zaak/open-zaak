@@ -22,6 +22,7 @@ from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -257,28 +258,7 @@ class EnkelvoudigInformatieObjectViewSet(
                 "De binaire bestandsinhoud",
                 schema=openapi.Schema(type=openapi.TYPE_FILE),
             ),
-            status.HTTP_401_UNAUTHORIZED: openapi.Response(
-                "Unauthorized", schema=FoutSerializer
-            ),
-            status.HTTP_403_FORBIDDEN: openapi.Response(
-                "Forbidden", schema=FoutSerializer
-            ),
-            status.HTTP_404_NOT_FOUND: openapi.Response(
-                "Not found", schema=FoutSerializer
-            ),
-            status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
-                "Not acceptable", schema=FoutSerializer
-            ),
-            status.HTTP_410_GONE: openapi.Response("Gone", schema=FoutSerializer),
-            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: openapi.Response(
-                "Unsupported media type", schema=FoutSerializer
-            ),
-            status.HTTP_429_TOO_MANY_REQUESTS: openapi.Response(
-                "Throttled", schema=FoutSerializer
-            ),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-                "Internal server error", schema=FoutSerializer
-            ),
+            **COMMON_ERROR_RESPONSES,
         },
         manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
     )
@@ -302,28 +282,7 @@ class EnkelvoudigInformatieObjectViewSet(
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 "Bad request", schema=FoutSerializer
             ),
-            status.HTTP_401_UNAUTHORIZED: openapi.Response(
-                "Unauthorized", schema=FoutSerializer
-            ),
-            status.HTTP_403_FORBIDDEN: openapi.Response(
-                "Forbidden", schema=FoutSerializer
-            ),
-            status.HTTP_404_NOT_FOUND: openapi.Response(
-                "Not found", schema=FoutSerializer
-            ),
-            status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
-                "Not acceptable", schema=FoutSerializer
-            ),
-            status.HTTP_410_GONE: openapi.Response("Gone", schema=FoutSerializer),
-            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: openapi.Response(
-                "Unsupported media type", schema=FoutSerializer
-            ),
-            status.HTTP_429_TOO_MANY_REQUESTS: openapi.Response(
-                "Throttled", schema=FoutSerializer
-            ),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-                "Internal server error", schema=FoutSerializer
-            ),
+            **COMMON_ERROR_RESPONSES,
         },
     )
     @action(detail=True, methods=["post"])
@@ -346,28 +305,7 @@ class EnkelvoudigInformatieObjectViewSet(
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 "Bad request", schema=FoutSerializer
             ),
-            status.HTTP_401_UNAUTHORIZED: openapi.Response(
-                "Unauthorized", schema=FoutSerializer
-            ),
-            status.HTTP_403_FORBIDDEN: openapi.Response(
-                "Forbidden", schema=FoutSerializer
-            ),
-            status.HTTP_404_NOT_FOUND: openapi.Response(
-                "Not found", schema=FoutSerializer
-            ),
-            status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
-                "Not acceptable", schema=FoutSerializer
-            ),
-            status.HTTP_410_GONE: openapi.Response("Gone", schema=FoutSerializer),
-            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: openapi.Response(
-                "Unsupported media type", schema=FoutSerializer
-            ),
-            status.HTTP_429_TOO_MANY_REQUESTS: openapi.Response(
-                "Throttled", schema=FoutSerializer
-            ),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-                "Internal server error", schema=FoutSerializer
-            ),
+            **COMMON_ERROR_RESPONSES,
         },
     )
     @action(detail=True, methods=["post"])

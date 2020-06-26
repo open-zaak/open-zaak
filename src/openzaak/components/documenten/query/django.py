@@ -11,7 +11,7 @@ from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
 
-from .typing import IORelation
+from ..typing import IORelation
 
 
 class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
@@ -120,3 +120,7 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
             **relation_field,
         )
         return obj.delete()
+
+
+class DjangoQuerySet(InformatieobjectQuerySet):
+    pass

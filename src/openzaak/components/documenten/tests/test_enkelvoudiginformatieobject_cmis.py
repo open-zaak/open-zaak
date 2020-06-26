@@ -5,9 +5,7 @@ from datetime import date
 from django.test import override_settings, tag
 from django.utils import timezone
 
-import requests
 from freezegun import freeze_time
-from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
@@ -25,8 +23,8 @@ from .utils import (
 )
 
 
+@tag("cmis")
 @freeze_time("2018-06-27 12:12:12")
-@temp_private_root()
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
 
@@ -65,10 +63,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        # Test database
-        stored_object = EnkelvoudigInformatieObject.objects.filter().first()
+        # Test storage backend (Alfresco)
+        stored_object = EnkelvoudigInformatieObject.objects.first()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.filter().count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
@@ -76,7 +74,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(stored_object.auteur, "test_auteur")
         self.assertEqual(stored_object.formaat, "txt")
         self.assertEqual(stored_object.taal, "eng")
-        self.assertEqual(stored_object.versie, 200)
+        self.assertEqual(stored_object.versie, 1)
         self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())
         self.assertEqual(stored_object.bestandsnaam, "dummy.txt")
         self.assertEqual(stored_object.inhoud.read(), b"some file content")
@@ -86,14 +84,16 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
 
         expected_url = reverse(stored_object)
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": stored_object.uuid}
+        )
 
         expected_response = content.copy()
         expected_response.update(
             {
                 "url": f"http://testserver{expected_url}",
-                "inhoud": f"http://localhost:8082/"
-                f"alfresco/s/api/node/content/workspace/SpacesStore/{stored_object.uuid}",
-                "versie": 200,
+                "inhoud": f"http://testserver{download_url}?versie=1",
+                "versie": 1,
                 "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
                     "+00:00", "Z"
                 ),
@@ -157,6 +157,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": test_object.uuid}
+        )
+
         expected = {
             "url": f"http://testserver{detail_url}",
             "identificatie": str(test_object.identificatie),
@@ -170,9 +174,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "beginRegistratie": test_object.begin_registratie.isoformat().replace(
                 "+00:00", "Z"
             ),
-            "versie": 110,
+            "versie": 1,
             "bestandsnaam": "",
-            "inhoud": f"http://localhost:8082/alfresco/s/api/node/content/workspace/SpacesStore/{test_object.uuid}",
+            "inhoud": f"http://testserver{download_url}?versie=1",
             "bestandsomvang": test_object.inhoud.size,
             "link": "",
             "beschrijving": "",
@@ -393,14 +397,15 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "invalid")
 
 
-@override_settings(
-    SENDFILE_BACKEND="django_sendfile.backends.simple", CMIS_ENABLED=True
-)
+@tag("cmis")
+@override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
     def test_eio_update(self):
+        import os
+
         eio = EnkelvoudigInformatieObjectFactory.create(
             beschrijving="beschrijving1", informatieobjecttype__concept=False
         )
@@ -412,7 +417,9 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         eio_response = self.client.get(eio_url)
         eio_data = eio_response.data
 
-        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        lock_response = self.client.post(f"{eio_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data["lock"]
         eio_data.update(
             {
                 "beschrijving": "beschrijving2",
@@ -421,8 +428,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
             }
         )
 
-        for i in ["integriteit", "ondertekening"]:
-            eio_data.pop(i)
+        del eio_data["integriteit"]
+        del eio_data["ondertekening"]
 
         response = self.client.put(eio_url, eio_data)
 
@@ -432,10 +439,21 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(response_data["beschrijving"], "beschrijving2")
 
         # The private working copy and the original count as 2 documents in Alfresco
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        latest_version = EnkelvoudigInformatieObject.objects.get()
-        self.assertEqual(latest_version.versie, 200)
+        eios = EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid).order_by(
+            "-versie"
+        )
+
+        os.environ["foo"] = "bar"
+
+        self.assertEqual(len(eios), 2)
+
+        latest_version = eios[0]
+        self.assertEqual(latest_version.versie, 2)
         self.assertEqual(latest_version.beschrijving, "beschrijving2")
+
+        first_version = eios[1]
+        self.assertEqual(first_version.versie, 1)
+        self.assertEqual(first_version.beschrijving, "beschrijving1")
 
     def test_eio_partial_update(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -453,10 +471,18 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
 
         self.assertEqual(response_data["beschrijving"], "beschrijving2")
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        latest_version = EnkelvoudigInformatieObject.objects.get()
-        self.assertEqual(latest_version.versie, 200)
+        eios = EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid).order_by(
+            "-versie"
+        )
+        self.assertEqual(len(eios), 2)
+
+        latest_version = eios.first()
+        self.assertEqual(latest_version.versie, 2)
         self.assertEqual(latest_version.beschrijving, "beschrijving2")
+
+        first_version = eios[1]
+        self.assertEqual(first_version.versie, 1)
+        self.assertEqual(first_version.beschrijving, "beschrijving1")
 
     def test_eio_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -467,12 +493,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.filter().exists())
-        self.assertFalse(EnkelvoudigInformatieObject.objects.filter().exists())
+        self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
+        self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
@@ -482,8 +506,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
-
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -506,8 +528,9 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         lock2 = self.client.post(f"{eio2_url}/lock").data["lock"]
         self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock2})
 
-        self.client.post(f"{eio1_url}/unlock", {"lock": lock1})
-        self.client.post(f"{eio2_url}/unlock", {"lock": lock2})
+        import os
+
+        os.environ["foo"] = "bar"
 
         response = self.client.get(reverse(EnkelvoudigInformatieObject))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -527,8 +550,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        response = self.client.get(eio_url, {"versie": 1.1})
+        response = self.client.get(eio_url, {"versie": 1})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
@@ -541,8 +563,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
-
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url, {"versie": 100})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -559,8 +579,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         with freeze_time("2019-01-01 13:00:00"):
             self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
-
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -597,13 +615,11 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
             },
         )
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        response = self.client.get(eio_url, {"versie": "1.1"})
-        response_download = requests.get(
-            response.data["inhoud"], auth=requests.auth.HTTPBasicAuth("admin", "admin"),
-        )
+        response = self.client.get(eio_url, {"versie": "1"})
+        response_download = self.client.get(response.data["inhoud"])
 
-        self.assertEqual(response_download.content, b"inhoud1")
+        self.assertTrue(response_download.streaming)
+        self.assertEqual(response_download.getvalue(), b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
@@ -625,14 +641,12 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
                 },
             )
 
-        self.client.post(f"{eio_url}/unlock", {"lock": lock})
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
-        response_download = requests.get(
-            response.data["inhoud"], auth=requests.auth.HTTPBasicAuth("admin", "admin"),
-        )
-        self.assertEqual(response_download.content, b"inhoud1")
+        response_download = self.client.get(response.data["inhoud"])
+        self.assertEqual(response_download.getvalue(), b"inhoud1")
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
@@ -664,8 +678,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APICMISTestCas
         self.assertIsNone(response_data["next"])
 
 
-@tag("external-urls")
-@temp_private_root()
+@tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

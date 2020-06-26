@@ -7,6 +7,9 @@ MOCK_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "schem
 NRC_API_SPEC = os.path.join(MOCK_FILES_DIR, "nrc.yaml")
 
 
+_CACHE = {}
+
+
 def mock_nrc_oas_get(m: Mocker) -> None:
     oas_url = "https://notificaties-api.vng.cloud/api/v1/schema/openapi.yaml?v=3"
     with open(NRC_API_SPEC, "rb") as api_spec:
@@ -21,5 +24,8 @@ def mock_service_oas_get(
     if not oas_url:
         oas_url = f"{url}schema/openapi.yaml?v=3"
 
-    with open(file, "rb") as api_spec:
-        m.get(oas_url, content=api_spec.read())
+    if oas_url not in _CACHE:
+        with open(file, "rb") as api_spec:
+            _CACHE[oas_url] = api_spec.read()
+
+    m.get(oas_url, content=_CACHE[oas_url])

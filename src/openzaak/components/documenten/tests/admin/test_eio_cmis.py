@@ -1,6 +1,6 @@
 import uuid
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 
 from rest_framework import status
@@ -12,6 +12,7 @@ from openzaak.utils.tests import AdminTestMixin, APICMISTestCase
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

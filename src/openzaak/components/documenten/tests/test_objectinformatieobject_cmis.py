@@ -28,7 +28,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import serialise_eio
 
 
-@tag("oio")
+@tag("oio", "cmis")
 @override_settings(CMIS_ENABLED=True)
 class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -40,7 +40,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
 
         # get OIO created via signals
@@ -69,7 +69,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
 
         # get OIO created via signals
@@ -99,7 +99,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
 
         besluit_url = reverse(besluit)
@@ -125,7 +125,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
 
         # get OIO created via signals
@@ -152,7 +152,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
 
         # get OIO created via signals
@@ -284,6 +284,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -300,7 +301,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
@@ -316,7 +317,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
@@ -329,7 +330,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "inconsistent-relation")
 
 
-@tag("external-urls")
+@tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -343,7 +344,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
-        self.adapter.register_uri("GET", zaak, json=get_zaak_response(zaak, zaaktype))
+        self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
 
         response = self.client.post(
             self.list_url,
@@ -566,7 +567,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         )
         url = reverse(oio)
 
-        self.adapter.register_uri("GET", zaak, json=get_zaak_response(zaak, zaaktype))
+        self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
 
         response = self.client.delete(url)
 

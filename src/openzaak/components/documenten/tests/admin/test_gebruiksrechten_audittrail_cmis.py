@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, time
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 
 from rest_framework import status
@@ -13,6 +13,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISF
 from ..utils import get_operation_url
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

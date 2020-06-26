@@ -9,6 +9,7 @@ from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class UniqueRepresentationTestCase(APICMISTestCase):
     def test_eio(self):

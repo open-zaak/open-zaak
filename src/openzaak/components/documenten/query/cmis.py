@@ -1,7 +1,9 @@
 import copy
 import datetime
 import logging
-from decimal import Decimal, InvalidOperation
+import uuid
+from itertools import groupby
+from operator import attrgetter, itemgetter
 from typing import List, Optional, Tuple
 
 from django.conf import settings
@@ -21,27 +23,38 @@ from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from ..catalogi.models.informatieobjecttype import InformatieObjectType
-from .query import (
+from ...catalogi.models.informatieobjecttype import InformatieObjectType
+from ..utils import CMISStorageFile
+from .django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
-from .utils import CMISStorageFile
 
 logger = logging.getLogger(__name__)
 
-# ---------------------- Iterable classes -----------
 
-RHS_FILTER_MAP = {
-    "_informatieobjecttype__in": lambda val: [get_object_url(item) for item in val],
-    "identificatie": lambda val: f"drc:document__identificatie = '{val}'",
+# map query names from django models to properties on the CMIS models
+EIO_PROPERTY_MAP = {
+    "canonical": "uuid",  # UUID is the same for different versions
+    "versie": "versie",
 }
 
-LHS_FILTER_MAP = {
-    "_informatieobjecttype__in": "informatieobjecttype__in",
-}
 
+def sort_results(documents: List[Document], order_by: List[str]) -> List[Document]:
+    # mixing ASC/DESC is not possible in a single sorted(...) call with the `reverse`
+    # option, so we need to call sorted for every order key, and do this in reverse.
+    # if the order key starts with `-` to indicate DESC sorting, we need to reverse
+    for order_key in order_by[::-1]:
+        reverse = order_key.startswith("-")
+        _order_key = order_key if not reverse else order_key[1:]
+        documents = sorted(
+            documents, key=attrgetter(EIO_PROPERTY_MAP[_order_key]), reverse=reverse
+        )
+    return documents
+
+
+# ---------------------- Model iterables -----------
 
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable):
@@ -55,17 +68,115 @@ class CMISDocumentIterable(BaseIterable):
         filters = self._check_for_pk_filter(queryset._cmis_query)
 
         lhs, rhs = self._normalize_filters(filters)
-        documents = queryset.cmis_client.query(self.return_type, lhs, rhs)
 
-        if self._needs_older_version(filters):
-            documents = self._retrive_older_version(filters, documents)
-        elif self._needs_registratie_filter(filters):
-            documents = self._filter_by_registratie(filters, documents)
-        elif self._needs_vertrowelijkaanduiding_filter(filters):
+        documents = queryset.cmis_client.query(self.return_type, lhs, rhs)
+        documents = self._process_intermediate(queryset.query, documents)
+
+        version = dict(filters).get("versie")
+        begin_registratie = dict(filters).get("begin_registratie")
+
+        if self._needs_vertrowelijkaanduiding_filter(filters):
             documents = self._filter_by_va(filters, documents)
 
+        # a collection of (uuid, versie) which is considered unique together. Once such
+        # a tuple is seen, no extra results with the same version can be seen. This is
+        # required because alfresco tracks cmis:versionLabel for all updates, while they
+        # keep the same Documenten API versie (i.e.: there are multiple alfresco versions
+        # with the (uuid, versie) combo).
+        uuid_version_tuples_seen = set()
+
         for document in documents:
-            yield cmis_doc_to_django_model(document)
+            # distinct on canonical -> we want the latest version of each document, if
+            # a PWC exists, grab that. This means -> don't fetch additional versions
+            if "canonical" in queryset.query.distinct_fields:
+                assert (
+                    "-versie" in queryset.query.order_by
+                ), "Undefined behaviour w/r to version sorting"
+                eio = cmis_doc_to_django_model(
+                    document,
+                    skip_pwc=False,
+                    version=version,
+                    begin_registratie=begin_registratie,
+                )
+                yield eio
+
+            # general query, we want multiple versions of the same document -> get the entire
+            # version history
+            else:
+                versions = Document.get_all_versions(document)
+                versions = sort_results(versions, queryset.query.order_by)
+
+                seen = set()
+                for version in versions:
+                    if version.versie in seen:
+                        continue
+
+                    uuid_version_combination = (version.uuid, version.versie)
+                    if uuid_version_combination in uuid_version_tuples_seen:
+                        continue
+
+                    # mark version as seen in both scopes
+                    seen.add(version.versie)
+                    uuid_version_tuples_seen.add(uuid_version_combination)
+
+                    yield cmis_doc_to_django_model(version, skip_pwc=True)
+
+    def _process_intermediate(
+        self, django_query, documents: List[Document]
+    ) -> List[Document]:
+        """
+        Order the results of the CMIS query and throw out non-distinct results.
+        """
+        _order_keys = [
+            key if not key.startswith("-") else key[1:] for key in django_query.order_by
+        ]
+        if any(key not in EIO_PROPERTY_MAP for key in _order_keys):
+            raise NotImplementedError(
+                f"Not all order keys in {_order_keys} are implemented yet."
+            )
+
+        documents = sort_results(documents, django_query.order_by)
+
+        if django_query.distinct and not django_query.distinct_fields:
+            raise NotImplementedError("Blank distinct not implemented.")
+
+        # now that the ordering is okay, implement the distinct fields
+        for field in django_query.distinct_fields:
+            attr_name = EIO_PROPERTY_MAP[field]
+            to_keep = []
+            seen = set()
+            # loop over the sorted documents, and grab the first un-seen record for this
+            # particular distinct field
+            for document in documents:
+                value = getattr(document, attr_name)
+                # value already seen -> skip subsequent ones
+                if value in seen:
+                    continue
+
+                # first occurrence - keep the document and mark the value as seen
+                to_keep.append(document)
+                seen.add(value)
+
+            # re-assign the result set of documents to only those to keep, and repeat
+            # for remaining distinct fields
+            documents = to_keep
+
+        # do a final sort, because UUID sorting (canonical) does not mimic reality
+        if _order_keys and _order_keys[0] == "canonical":
+            grouped = []
+            # maintain any groups that may have been bundled by UUID! and then sort the
+            # groups
+            for canonical, group in groupby(documents, key=attrgetter("uuid")):
+                group = list(group)
+                min_creation = min([x.creationDate for x in group])
+                grouped.append((min_creation, group))
+
+            # now the groups are sorted by their logical canonical creation date
+            grouped = sorted(grouped, key=itemgetter(0))
+            # merge the documents together again (flattening the tuples of [int, list])
+            documents = sum([group for _, group in grouped], [])
+
+        return documents
 
     def _normalize_filters(self, filters: List[Tuple]) -> Tuple[List[str], List[str]]:
         """
@@ -85,14 +196,18 @@ class CMISDocumentIterable(BaseIterable):
         for key, value in filters:
             name = mapper(key, type="document")
 
+            # cmis:versionSeriesId is not queryable in Alfresco, nor is alfcmis:nodeRef
             if key == "uuid":
+                # The actual objectId is in the format {cmis:versionSeriesId};{cmis:versionLabel},
+                # but it seems that Alfresco _always_ returns the latest version (that's fine),
+                # and you don't actually need to include the ;{cmis:versionLabel} part.
+                # This effectively turns our query into "... WHERE cmis:objectId = '<some-uuid>'"
                 name = "cmis:objectId"
-                value = f"workspace://SpacesStore/{value};1.0"
-            elif key == "versie":
-                # The older versions can be accessed once the latest document is available
-                continue
             elif key == "begin_registratie":
-                # In order to retrieve all the versions from before a certain date, the latest document is needed
+                # begin_registratie is a LTE filter, so define it as such:
+                column = mapper("begin_registratie", type="document")
+                _lhs.append(f"{column} <= '%s'")
+                _rhs.append(value.isoformat().replace("+00:00", "Z"))
                 continue
             elif key == "_va_order":
                 continue
@@ -137,64 +252,11 @@ class CMISDocumentIterable(BaseIterable):
         else:
             return filters
 
-    def _needs_older_version(self, filters: List[Tuple]) -> bool:
-        for key, value in filters:
-            if key == "versie":
-                return True
-        return False
-
-    def _needs_registratie_filter(self, filters: List[Tuple]) -> bool:
-        for key, value in filters:
-            if key == "begin_registratie":
-                return True
-        return False
-
     def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
         for key, value in filters:
             if key == "_va_order":
                 return True
         return False
-
-    # FIXME
-    # This wont work if various versions of different documents have to be retrieved
-    def _retrive_older_version(self, filters: List[Tuple], documents: List) -> List:
-        """
-        Older versions of documents cannot be retrieved directly through the uuid. More info:
-        https://hub.alfresco.com/t5/alfresco-content-services-forum/how-to-generate-document-location-url-for-previous-verions-using/td-p/279115
-        """
-        older_versions_documents = []
-
-        for key, value in filters:
-            if key == "versie":
-                version_needed = str(value)
-
-        for cmis_doc in documents:
-            all_versions = cmis_doc.get_all_versions()
-            for version_number, cmis_document in all_versions.items():
-                if version_number == version_needed:
-                    older_versions_documents.append(cmis_document)
-        return older_versions_documents
-
-    def _filter_by_registratie(self, filters: List[Tuple], documents: List) -> List:
-
-        before_date_documents = []
-
-        for key, value in filters:
-            if key == "begin_registratie":
-                requested_date = value
-
-        for cmis_doc in documents:
-            all_versions = cmis_doc.get_all_versions()
-            for versie, cmis_document in all_versions.items():
-                if (
-                    convert_timestamp_to_django_datetime(
-                        cmis_document.begin_registratie
-                    )
-                    <= requested_date
-                ):
-                    before_date_documents.append(cmis_document)
-                    break
-        return before_date_documents
 
     def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
         if len(documents) == 0:
@@ -399,10 +461,6 @@ class CMISGebruiksrechtenIterable(BaseIterable):
 # --------------- Querysets --------------------------
 
 
-class DjangoQuerySet(InformatieobjectQuerySet):
-    pass
-
-
 class CMISQuerySet(InformatieobjectQuerySet):
     """
     Find more information about the drc-cmis adapter on github here.
@@ -477,6 +535,9 @@ class CMISQuerySet(InformatieobjectQuerySet):
         return unified_queryset
 
     def create(self, **kwargs):
+        # we don't use this structure
+        kwargs.pop("canonical")
+
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
         kwargs["informatieobjecttype"] = get_object_url(
@@ -495,6 +556,7 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 content=kwargs.get("inhoud"),
             )
         except exceptions.DocumentDoesNotExistError:
+            kwargs.setdefault("versie", 1)
             new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
                 data=kwargs,
@@ -553,91 +615,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return super().filter(*args, **kwargs)
 
-        # # TODO
-
-        # self._result_cache = []
-
-        # try:
-        #     if filters.get("identificatie") is not None:
-        #         client = self.cmis_client
-        #         cmis_doc = client.get_cmis_document(
-        #             identification=filters.get("identificatie"),
-        #             via_identification=True,
-        #             filters=None,
-        #         )
-        #         self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-        #     elif filters.get("versie") is not None and filters.get("uuid") is not None:
-        #         cmis_doc = self.cmis_client.get_cmis_document(
-        #             identification=filters.get("uuid"),
-        #             via_identification=False,
-        #             filters=None,
-        #         )
-        #         all_versions = cmis_doc.get_all_versions()
-        #         for version_number, cmis_document in all_versions.items():
-        #             if version_number == str(filters["versie"]):
-        #                 self._result_cache.append(
-        #                     cmis_doc_to_django_model(cmis_document)
-        #                 )
-        #     elif (
-        #         filters.get("registratie_op") is not None
-        #         and filters.get("uuid") is not None
-        #     ):
-        #         cmis_doc = self.cmis_client.get_cmis_document(
-        #             identification=filters.get("uuid"),
-        #             via_identification=False,
-        #             filters=None,
-        #         )
-        #         all_versions = cmis_doc.get_all_versions()
-        #         for versie, cmis_document in all_versions.items():
-        #             if (
-        #                 convert_timestamp_to_django_datetime(
-        #                     cmis_document.begin_registratie
-        #                 )
-        #                 <= filters["registratie_op"]
-        #             ):
-        #                 self._result_cache.append(
-        #                     cmis_doc_to_django_model(cmis_document)
-        #                 )
-        #                 break
-        #     elif filters.get("uuid") is not None:
-        #         cmis_doc = self.cmis_client.get_cmis_document(
-        #             identification=filters.get("uuid"),
-        #             via_identification=False,
-        #             filters=None,
-        #         )
-        #         self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-        #     else:
-        #         # Filter the alfresco database
-        #         cmis_documents = self.cmis_client.get_cmis_documents(
-        #             filters=filters
-        #         )
-        #         for cmis_doc in cmis_documents["results"]:
-        #             self._result_cache.append(cmis_doc_to_django_model(cmis_doc))
-        # except exceptions.DocumentDoesNotExistError:
-        #     pass
-
-        # self.documents = self._result_cache.copy()
-        # self.has_been_filtered = True
-
-        # return self
-
-    # def get(self, *args, **kwargs):
-    #
-    #     if self.has_been_filtered:
-    #         num = len(self._result_cache)
-    #         if num == 1:
-    #             return self._result_cache[0]
-    #         if not num:
-    #             raise self.model.DoesNotExist(
-    #                 "%s matching query does not exist." % self.model._meta.object_name
-    #             )
-    #         raise self.model.MultipleObjectsReturned(
-    #             "get() returned more than one %s -- it returned %s!"
-    #             % (self.model._meta.object_name, num)
-    #         )
-    #     else:
-    #         return super().get(*args, **kwargs)
-
     def delete(self):
 
         number_alfresco_updates = 0
@@ -660,13 +637,21 @@ class CMISQuerySet(InformatieobjectQuerySet):
     def update(self, **kwargs):
         cmis_storage = CMISDRCStorageBackend()
 
-        docs_to_update = list(super().iterator())
-        number_docs_to_update = len(docs_to_update)
+        docs_to_update = super().iterator()
+
+        updated = 0
+        seen = set()
 
         if kwargs.get("inhoud") == "":
             kwargs["inhoud"] = None
 
         for django_doc in docs_to_update:
+            # skip over duplicate canonicals!
+            if django_doc.uuid in seen:
+                continue
+            seen.add(django_doc.uuid)
+            updated += 1
+
             canonical_obj = django_doc.canonical
             canonical_obj.lock_document(doc_uuid=django_doc.uuid)
             cmis_storage.update_document(
@@ -679,8 +664,8 @@ class CMISQuerySet(InformatieobjectQuerySet):
                 doc_uuid=django_doc.uuid, lock=canonical_obj.lock
             )
 
-            # Should return the number of rows that have been modified
-            return number_docs_to_update
+        # Should return the number of rows that have been modified
+        return updated
 
     # FIXME This is a temporary fix to make date_hierarchy work for the admin,
     #  so that EIOs can be viewed
@@ -716,7 +701,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
         return clone
 
     def create(self, **kwargs):
-        from .models import EnkelvoudigInformatieObject
+        from ..models import EnkelvoudigInformatieObject
 
         cmis_gebruiksrechten = self.cmis_client.create_cmis_gebruiksrechten(data=kwargs)
 
@@ -904,50 +889,59 @@ def format_fields(obj, obj_fields):
     Ensuring the charfields are not null and dates are in the correct format
     """
     for field in obj_fields:
+        _value = getattr(obj, field.name, None)
         if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
-            if getattr(obj, field.name) is None:
+            if _value is None:
                 setattr(obj, field.name, "")
         elif isinstance(field, fields.DateTimeField):
-            date_value = getattr(obj, field.name)
-            if isinstance(date_value, int):
-                setattr(
-                    obj, field.name, convert_timestamp_to_django_datetime(date_value)
-                )
+            if isinstance(_value, int):
+                setattr(obj, field.name, convert_timestamp_to_django_datetime(_value))
         elif isinstance(field, fields.DateField):
-            date_value = getattr(obj, field.name)
-            if isinstance(date_value, int):
-                converted_datetime = convert_timestamp_to_django_datetime(date_value)
+            if isinstance(_value, int):
+                converted_datetime = convert_timestamp_to_django_datetime(_value)
                 setattr(obj, field.name, converted_datetime.date())
 
     return obj
 
 
-def cmis_doc_to_django_model(cmis_doc):
-    from .models import (
+def cmis_doc_to_django_model(
+    cmis_doc: Document,
+    skip_pwc: bool = False,
+    version: Optional[int] = None,
+    begin_registratie: Optional[datetime.datetime] = None,
+):
+    from ..models import (
         EnkelvoudigInformatieObject,
         EnkelvoudigInformatieObjectCanonical,
     )
 
+    # get the pwc and continue to operate on the PWC
+    if not skip_pwc and cmis_doc.isVersionSeriesCheckedOut:
+        pwc = cmis_doc.get_private_working_copy()
+        assert pwc.isPrivateWorkingCopy, "PWC must be the actual PWC object"
+        # check if the PWC does still match the detail filters, if provided
+        version_ok = version and version == pwc.versie
+        begin_registratie_ok = (
+            begin_registratie and pwc.begin_registratie <= begin_registratie.timestamp()
+        )
+        if (not version or version_ok) and (
+            not begin_registratie or begin_registratie_ok
+        ):
+            cmis_doc = pwc
+
     # The if the document is locked, the lock_id is stored in versionSeriesCheckedOutId
     canonical = EnkelvoudigInformatieObjectCanonical()
-    canonical.lock = cmis_doc.versionSeriesCheckedOutId or ""
-
-    versie = cmis_doc.versie
-    try:
-        int_versie = int(Decimal(versie) * 100)
-    except ValueError:
-        int_versie = 0
-    except InvalidOperation:
-        int_versie = 0
+    canonical.lock = cmis_doc.lock or ""
 
     # Ensuring the charfields are not null and dates are in the correct format
     cmis_doc = format_fields(cmis_doc, EnkelvoudigInformatieObject._meta.get_fields())
 
     # Setting up a local file with the content of the cmis document
-    uuid_with_version = cmis_doc.versionSeriesId + ";" + cmis_doc.versie
-    content_file = CMISStorageFile(uuid_version=uuid_with_version,)
+    uuid_with_version = f"{cmis_doc.versionSeriesId};{cmis_doc.versie}"
+    content_file = CMISStorageFile(uuid_version=uuid_with_version)
 
     document = EnkelvoudigInformatieObject(
+        uuid=uuid.UUID(cmis_doc.uuid),
         auteur=cmis_doc.auteur,
         begin_registratie=cmis_doc.begin_registratie,
         beschrijving=cmis_doc.beschrijving,
@@ -955,7 +949,6 @@ def cmis_doc_to_django_model(cmis_doc):
         bronorganisatie=cmis_doc.bronorganisatie,
         creatiedatum=cmis_doc.creatiedatum,
         formaat=cmis_doc.formaat,
-        # id=cmis_doc.versionSeriesId,
         canonical=canonical,
         identificatie=cmis_doc.identificatie,
         indicatie_gebruiksrecht=cmis_doc.indicatie_gebruiksrecht,
@@ -969,8 +962,7 @@ def cmis_doc_to_django_model(cmis_doc):
         status=cmis_doc.status,
         taal=cmis_doc.taal,
         titel=cmis_doc.titel,
-        uuid=cmis_doc.versionSeriesId,
-        versie=int_versie,
+        versie=cmis_doc.versie,
         vertrouwelijkheidaanduiding=cmis_doc.vertrouwelijkheidaanduiding,
         verzenddatum=cmis_doc.verzenddatum,
     )
@@ -980,7 +972,7 @@ def cmis_doc_to_django_model(cmis_doc):
 
 def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
 
-    from .models import EnkelvoudigInformatieObjectCanonical, Gebruiksrechten
+    from ..models import EnkelvoudigInformatieObjectCanonical, Gebruiksrechten
 
     canonical = EnkelvoudigInformatieObjectCanonical()
 
@@ -1001,7 +993,7 @@ def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
 
 def cmis_oio_to_django(cmis_oio):
 
-    from .models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
+    from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
 
     canonical = EnkelvoudigInformatieObjectCanonical()
 

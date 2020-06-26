@@ -2,7 +2,7 @@ import base64
 import uuid
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
@@ -21,6 +21,7 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 from .utils import get_operation_url
 
 
+@tag("cmis")
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
@@ -72,6 +73,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase)
         )
 
 
+@tag("cmis")
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )

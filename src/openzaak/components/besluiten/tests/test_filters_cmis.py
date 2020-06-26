@@ -1,4 +1,4 @@
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
@@ -11,6 +11,7 @@ from .factories import BesluitInformatieObjectFactory
 from .utils import serialise_eio
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -19,7 +20,7 @@ class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
             BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         url = reverse(BesluitInformatieObject)
 
@@ -30,18 +31,10 @@ class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
 
-    def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(BesluitInformatieObject), {"besluit": "bla"})
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "besluit")
-        self.assertEqual(error["code"], "invalid")
-
     def test_filter_by_valid_url_object_does_not_exist(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         response = self.client.get(
             reverse(BesluitInformatieObject), {"besluit": "https://google.com"}

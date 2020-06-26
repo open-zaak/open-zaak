@@ -1,4 +1,4 @@
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.audittrails.models import AuditTrail
@@ -14,6 +14,7 @@ from ..models import Besluit, BesluitInformatieObject
 from .utils import serialise_eio
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
 
@@ -45,7 +46,7 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             informatieobjecttype__concept=False
         )
         eio_url = f"http://testserver{reverse(eio)}"
-        self.adapter.register_uri("GET", eio_url, json=serialise_eio(eio, eio_url))
+        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         besluit.besluittype.informatieobjecttypen.add(eio.informatieobjecttype)
         url = reverse(BesluitInformatieObject)
 

@@ -54,9 +54,9 @@ def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
     return eio
 
 
-def serialise_eio(eio, eio_url):
+def serialise_eio(eio, eio_url, **overrides):
     serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
-    serialised_eio = get_eio_response(eio_url, **serialised_eio)
+    serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
     return serialised_eio
 
 
