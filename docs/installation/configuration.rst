@@ -27,13 +27,13 @@ There's 2 things to keep in mind:
 1. Open Zaak offers an Autorisaties API and thus the Open Zaak Autorisaties API
    must be consulted to check for **autorisations**.
 2. Each component handles **authentication** themselves and thus we need to store
-   the Client IDs and secrets in each component that wants to communicatie with
+   the Client IDs and secrets in each component that wants to communicate with
    eachother.
 
 Open Zaak
 ---------
 
-1. Configure the Notificaties API endpoint (so Open Zaak knows where to sent
+1. Configure the Notificaties API endpoint (so Open Zaak knows where to send
    notifications to):
 
    a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
@@ -65,7 +65,7 @@ Open Zaak
 
    d. Click **Opslaan**.
 
-3. Since Open Zaak also manages the autorisations via the Autorisaties API, we
+3. Since Open Zaak also manages the authorizations via the Autorisaties API, we
    need to give Open Notificaties access to this API (so Open Notificaties can
    see who's authorised to sent notifications):
 
@@ -83,7 +83,7 @@ Open Zaak
    f. Select component **Autorisaties API** and scope **autorisaties.lezen**.
    g. Click **Opslaan**
 
-4. Finally, Open Notificaties will check if Open Zaak is allowed to sent
+4. Finally, Open Notificaties will check if Open Zaak is allowed to send
    notifications (so we need to authorise Open Zaak for this):
 
    a. Navigate to **API Autorisaties > Applicaties**
