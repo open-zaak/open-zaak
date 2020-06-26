@@ -1,0 +1,41 @@
+{
+  "DOCUMENT_MAP": {
+    "integriteit_waarde": "drc:document__integriteitwaarde",
+    "titel": "drc:document__titel",
+    "bestandsnaam": "drc:document__bestandsnaam",
+    "formaat": "drc:document__formaat",
+    "bestandsomvang": "cmis:contentStreamLength",
+    "versie": "cmis:versionLabel",
+    "ondertekening_soort": "drc:document__ondertekeningsoort",
+    "beschrijving": "drc:document__beschrijving",
+    "identificatie": "drc:document__identificatie",
+    "verzenddatum": "drc:document__verzenddatum",
+    "taal": "drc:document__taal",
+    "indicatie_gebruiksrecht": "drc:document__indicatiegebruiksrecht",
+    "verwijderd": "drc:document__verwijderd",
+    "status": "drc:document__status",
+    "ontvangstdatum": "drc:document__ontvangstdatum",
+    "informatieobjecttype": "drc:document__informatieobjecttype",
+    "auteur": "drc:document__auteur",
+    "vertrouwelijkheidaanduiding": "drc:document__vertrouwelijkaanduiding",
+    "integriteit_algoritme": "drc:document__integriteitalgoritme",
+    "begin_registratie": "drc:document__begin_registratie",
+    "ondertekening_datum": "drc:document__ondertekeningdatum",
+    "bronorganisatie": "drc:document__bronorganisatie",
+    "integriteit_datum": "drc:document__integriteitdatum",
+    "link": "drc:document__link",
+    "creatiedatum": "drc:document__creatiedatum"
+  },
+  "OBJECTINFORMATIEOBJECT_MAP": {
+    "object_type": "drc:oio__object_type",
+    "besluit": "drc:oio__besluit",
+    "zaak": "drc:oio__zaak",
+    "informatieobject": "drc:oio__informatieobject"
+  },
+  "GEBRUIKSRECHTEN_MAP": {
+    "einddatum": "drc:gebruiksrechten__einddatum",
+    "omschrijving_voorwaarden": "drc:gebruiksrechten__omschrijving_voorwaarden",
+    "informatieobject": "drc:gebruiksrechten__informatieobject",
+    "startdatum": "drc:gebruiksrechten__startdatum"
+  }
+}
