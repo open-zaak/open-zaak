@@ -39,6 +39,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from ..utils import PrivateMediaStorageWithCMIS
 from .validators import InformatieObjectUniqueValidator, StatusValidator
 
 
@@ -75,8 +76,9 @@ class AnyBase64File(Base64FileField):
 
     def to_representation(self, file):
         is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
+        is_cmis_storage = isinstance(file.storage, PrivateMediaStorageWithCMIS)
 
-        if not is_private_storage or self.represent_in_base64:
+        if not (is_private_storage or is_cmis_storage) or self.represent_in_base64:
             return super().to_representation(file)
 
         assert (
