@@ -88,9 +88,10 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.data["results"]
-        download_url = urlparse(data[0]["inhoud"])
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": eio.uuid}
+        )
 
         self.assertEqual(
-            download_url.path,
-            f"/alfresco/s/api/node/content/workspace/SpacesStore/{eio.uuid}",
+            data[0]["inhoud"], f"http://testserver{download_url}?versie={eio.versie}",
         )

@@ -86,13 +86,15 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
 
         expected_url = reverse(stored_object)
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": stored_object.uuid}
+        )
 
         expected_response = content.copy()
         expected_response.update(
             {
                 "url": f"http://testserver{expected_url}",
-                "inhoud": f"http://localhost:8082/"
-                f"alfresco/s/api/node/content/workspace/SpacesStore/{stored_object.uuid}",
+                "inhoud": f"http://testserver{download_url}?versie=200",
                 "versie": 200,
                 "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
                     "+00:00", "Z"
@@ -157,6 +159,10 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": test_object.uuid}
+        )
+
         expected = {
             "url": f"http://testserver{detail_url}",
             "identificatie": str(test_object.identificatie),
@@ -172,7 +178,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             ),
             "versie": 110,
             "bestandsnaam": "",
-            "inhoud": f"http://localhost:8082/alfresco/s/api/node/content/workspace/SpacesStore/{test_object.uuid}",
+            "inhoud": f"http://testserver{download_url}?versie=110",
             "bestandsomvang": test_object.inhoud.size,
             "link": "",
             "beschrijving": "",
