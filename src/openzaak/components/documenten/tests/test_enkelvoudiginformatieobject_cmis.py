@@ -5,7 +5,6 @@ from datetime import date
 from django.test import override_settings, tag
 from django.utils import timezone
 
-import requests
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
@@ -534,7 +533,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
 
         self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        response = self.client.get(eio_url, {"versie": 1.1})
+        response = self.client.get(eio_url, {"versie": 110})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["beschrijving"], "beschrijving1")
@@ -604,12 +603,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         )
 
         self.client.post(f"{eio_url}/unlock", {"lock": lock})
-        response = self.client.get(eio_url, {"versie": "1.1"})
-        response_download = requests.get(
-            response.data["inhoud"], auth=requests.auth.HTTPBasicAuth("admin", "admin"),
-        )
+        response = self.client.get(eio_url, {"versie": 110})
+        response_download = self.client.get(response.data["inhoud"])
 
-        self.assertEqual(response_download.content, b"inhoud1")
+        self.assertEqual(response_download.getvalue(), b"inhoud1")
 
     def test_eio_download_content_filter_by_registratie(self):
         with freeze_time("2019-01-01 12:00:00"):
@@ -633,10 +630,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
 
         self.client.post(f"{eio_url}/unlock", {"lock": lock})
         response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
-        response_download = requests.get(
-            response.data["inhoud"], auth=requests.auth.HTTPBasicAuth("admin", "admin"),
-        )
-        self.assertEqual(response_download.content, b"inhoud1")
+        response_download = self.client.get(response.data["inhoud"])
+        self.assertEqual(response_download.getvalue(), b"inhoud1")
 
 
 @override_settings(CMIS_ENABLED=True)
