@@ -1,4 +1,5 @@
 import io
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.files.base import File
@@ -113,3 +114,11 @@ class PrivateMediaStorageWithCMIS(LazyObject):
 
 
 private_media_storage_cmis = PrivateMediaStorageWithCMIS()
+
+
+def eio_version_to_cmis(version):
+    """
+    Convert an Open Zaak EnkelvoudigInformatieObject `versie` number to its
+    corresponding version number for CMIS
+    """
+    return Decimal(version) / 100

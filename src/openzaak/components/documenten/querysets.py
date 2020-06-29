@@ -27,7 +27,7 @@ from .query import (
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
-from .utils import CMISStorageFile
+from .utils import CMISStorageFile, eio_version_to_cmis
 
 logger = logging.getLogger(__name__)
 
@@ -545,6 +545,8 @@ class CMISQuerySet(InformatieobjectQuerySet):
                     )
             elif key == "creatiedatum__isnull":
                 filters["creatiedatum"] = ""
+            elif key_bits[0] == "versie":
+                filters[key_bits[0]] = eio_version_to_cmis(value)
             else:
                 filters[key_bits[0]] = value
 
