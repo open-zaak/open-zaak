@@ -22,6 +22,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - SUBPATH=${SUBPATH:-/}
+      - EMAIL_HOST=${EMAIL_HOST}
     ports:
       - 8000:8000
     depends_on:

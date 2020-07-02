@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.settings.name }}-php
+  name: {{ .Values.settings.name }}-web
   labels:
-    app.kubernetes.io/name: {{ .Values.settings.name }}-php
+    app.kubernetes.io/name: {{ .Values.settings.name }}-web
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
     helm.sh/chart: {{ include "chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -11,7 +11,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Values.settings.name }}-php
+      app.kubernetes.io/name: {{ .Values.settings.name }}-web
   replicas: {{ .Values.web.replicaCount }}
   template:
     metadata:
@@ -33,219 +33,71 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ template "fullname" . }}
-                  key: trusted-hosts
-            - name: TRUSTED_PROXIES
+                  key: allowed-hosts
+            - name: DJANGO_SETTINGS_MODULE
               valueFrom:
                 configMapKeyRef:
                   name: {{ template "fullname" . }}
-                  key: trusted-proxies
-            - name: APP_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-name
-            - name: APP_TITLE
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-title
-            - name: APP_DESCRIPTION
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-description
-            - name: APP_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-version
-            - name: APP_ENV
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: env
-            - name: APP_DEBUG
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: debug
-            - name: APP_TYPE
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-type
-            {{ if .Values.settings.id }}
-            - name: APP_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-id
-            {{ end }}
-            - name: APP_DEMO
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-demo
-            - name: APP_DOMAINS
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-domains-json
+                  key: module
 
-            - name: APP_REPRO
+            - name: SECRET_KEY
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: app-repro
-            - name: APP_CONTAINER
+                  key: secret-key
+            - name: CACHE_DEFAULT
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: app-container
-            - name: APP_DOMAIN
+                  key: cache-default
+            - name: CACHE_AXES
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: app-domain
-            - name: APP_CASH
+                  key: cache-axes
+            - name: EMAIL_HOST
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: cache
-            # organization
-            - name: ORGANIZATION_NAME
+                  key: email-host
+            - name: EMAIL_PORT
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: organization-name
-            - name: ORGANIZATION_EMAIL_ADDRESS
+                  key: email-port
+            - name: EMAIL_HOST_USER
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: organization-email
-            - name: ORGANIZATION_COUNTRY_NAME
+                  key: email-host-user
+            - name: EMAIL_HOST_PASSWORD
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: organization-country
-            - name: ORGANIZATION_STATE
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: organization-state
-            - name: ORGANIZATION_LOCALITY
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: organization-locality
-            - name: ORGANIZATION_UNIT_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: organization-unit
-            # config
-            - name: AUTH_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-auth
-            - name: AUDITTRAIL_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-audittrail
-            - name: NOTIFICATION_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-notification
-            - name: HEALTH_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-health
-            - name: ARCHIVE_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app-archive
+                  key: email-host-password
 
-            # bla bla
-            - name: CORS_ALLOW_ORIGIN
+            - name: DB_HOST
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: cors-allow-origin
-            - name: VARNISH_URL
-              value: {{ .Values.settings.name }}-varnish
-            - name: APP_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "fullname" . }}
-                key: secret
-            - name: DATABASE_URL
+                  key: db-host
+            - name: DB_PORT
               valueFrom:
-                secretKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: database-url
-            - name: MERCURE_PUBLISH_URL
+                  key: db-port
+            - name: DB_USER
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: mercure-publish-url
-            - name: MERCURE_SUBSCRIBE_URL
+                  key: db-user
+            - name: DB_NAME
               valueFrom:
-                configMapKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: mercure-subscribe-url
-            - name: MERCURE_JWT_SECRET
+                  key: db-name
+            - name: DB_PASSWORD
               valueFrom:
-                secretKeyRef:
+                SecretKeyRef:
                   name: {{ template "fullname" . }}
-                  key: mercure-jwt-secret
-            - name: APP_COMMONGROUND_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_commonground_id
-            - name: APP_COMMONGROUND_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_commonground_key
-            - name: APP_APPLICATION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_application_key
-            - name: APP_USER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_user_key
-            - name: APP_DIGITALOCEAN_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_digitalocean_key
-            - name: APP_GITHUB_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: app_github_key
-            - name: AUTH_PROVIDER_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: auth_provider_user
-            - name: AUTH_PROVIDER_APPLICATION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: auth_provider_application
-          resources:
-  {{ toYaml .Values.resources | indent 12 }}
-  {{- if .Values.nodeSelector }}
-nodeSelector:
-  {{ toYaml .Values.nodeSelector | indent 8 }}
-  {{- end }}
+                  key: db-password

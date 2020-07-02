@@ -1,15 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "open-zaak.fullname" . }}
+  name: {{ .Values.settings.name }}
   labels:
-    {{- include "open-zaak.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ .Values.settings.name }}
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    helm.sh/chart: {{ include "chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
+  type: NodePort
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: 80
+      targetPort: 80
       protocol: TCP
-      name: http
   selector:
-    {{- include "open-zaak.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
+    app.kubernetes.io/instance: {{ .Release.Name }}
