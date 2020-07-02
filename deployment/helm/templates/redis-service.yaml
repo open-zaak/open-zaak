@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.settings.name }}-redis
+  labels:
+    app.kubernetes.io/name: {{ .Values.settings.name }}-cache
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: "5.0"
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Values.settings.name }}-cache
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    ports:
+      - protocol: TCP
+        port: {{ .Values.redis.port }}
+        targetPort: {{ .Values.redis.port }}

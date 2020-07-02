@@ -47,14 +47,15 @@ spec:
                   key: secret-key
             - name: CACHE_DEFAULT
               valueFrom:
-                SecretKeyRef:
+                ConfigMapKeyRef:
                   name: {{ template "fullname" . }}
                   key: cache-default
             - name: CACHE_AXES
               valueFrom:
-                SecretKeyRef:
+                ConfigMapKeyRef:
                   name: {{ template "fullname" . }}
                   key: cache-axes
+
             - name: EMAIL_HOST
               valueFrom:
                 SecretKeyRef:

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.settings.name }}-cache
+  labels:
+    app.kubernetes.io/name: {{ .Values.settings.name }}-cache
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    app.kubernetes.io/version: "5.0"
+    helm.sh/chart: {{ include "chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.settings.name }}-cache
+      app.kubernetes.io/part-of: {{ .Values.settings.name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.settings.name }}-cache
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: "5.0"
+        app.kubernetes.io/component: cache
+        helm.sh/chart: {{ include "chart" . }}
+        app.kubernetes.io/part-of: {{ .Values.settings.name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: {{ .Values.settings.name }}-cache
+          image: redis:5.0
+
+          resources:
+            requests:
+              memory: {{ .Values.redis.memory }}
+              cpu: {{ .Values.redis.memory }}
+            limits: {{ .Values.redis.limits }}
+
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.redis.port }}
+            initialDelaySeconds: {{ .Values.redis.readinessDelay }}
+            periodSeconds: {{ Values.redis.readinessPeriod }}
+
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.redis.port }}
+            initialDelaySeconds: {{ .Values.redis.livenessDelay }}
+            periodSeconds: {{ Values.redis.livenessPeriod }}
+
+nodeSelector:
+  {{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

@@ -1,61 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "open-zaak.fullname" . }}
+  name: {{ .Values.settings.name }}-nginx
   labels:
-    {{- include "open-zaak.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
+    app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Values.nginx.version }}
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
 spec:
-{{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-{{- end }}
   selector:
     matchLabels:
-      {{- include "open-zaak.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
+  replicas: 1
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
       labels:
-        {{- include "open-zaak.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Values.nginx.version }}
+        app.kubernetes.io/part-of: {{ .Values.settings.name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        helm.sh/chart: {{ include "chart" . }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "open-zaak.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: private-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.volume.claim.name }}
+        - name: {{ .Values.settings.name }}-nginx-config
+          configMap:
+            name: {{ .Values.settings.name }}-nginx-config
+
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ .Values.settings.name }}-nginx
+          image: nginx:{{ .Values.nginx.version }}
+          imagePullPolicy: {{ .Values.settings.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            - containerPort: 80
+
+          volumeMounts:
+            - name: {{ .Values.volume.name }}
+              mountPath: /app/private-media
+              subPath: openzaak/{{ .Release.Name }}/private-media
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+  {{ toYaml .Values.resources | indent 12 }}
+  {{- if .Values.nodeSelector }}
+nodeSelector:
+  {{ toYaml .Values.nodeSelector | indent 8 }}
+  {{- end }}
