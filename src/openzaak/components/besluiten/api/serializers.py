@@ -14,11 +14,11 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.documenten.api.utils import create_remote_oio
 from openzaak.components.zaken.api.utils import (
     create_remote_zaakbesluit,
     delete_remote_zaakbesluit,
 )
+from openzaak.utils.api import create_remote_oio
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -220,3 +220,13 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             bio._objectinformatieobject_url = response["url"]
             bio.save()
         return bio
+
+    def run_validators(self, value):
+        """
+        Add read_only fields with defaults to value before running validators.
+        """
+        # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
+        if value.get("informatieobject") is not None and settings.CMIS_ENABLED:
+            value["informatieobject"] = self.initial_data.get("informatieobject")
+
+        return super().run_validators(value)

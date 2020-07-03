@@ -39,6 +39,7 @@ class ZaaktypeAdminTests(WebTest):
 
         self.assertIn("http://bla.com/404", response.text)
 
+    # TODO: This fails. But looking at the code. An error should be catched.
     def test_zaaktype_detail_external_besluit_not_available(self):
         zaak = ZaakFactory.create()
         ZaakBesluit.objects.create(zaak=zaak, _besluit_url="http://bla.com/404")

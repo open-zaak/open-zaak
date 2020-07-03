@@ -244,7 +244,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-
             posts = [req for req in m.request_history if req.method == "POST"]
             self.assertEqual(len(posts), 1)
             request = posts[0]

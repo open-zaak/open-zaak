@@ -2,12 +2,37 @@ import logging
 
 from django.conf import settings
 
+from drf_yasg import openapi
+from rest_framework import status
 from vng_api_common.inspectors.view import AutoSchema as _AutoSchema
 from vng_api_common.permissions import get_required_scopes
+from vng_api_common.serializers import FoutSerializer
 
 from .permissions import AuthRequired
 
 logger = logging.getLogger(__name__)
+
+
+COMMON_ERROR_RESPONSES = {
+    status.HTTP_401_UNAUTHORIZED: openapi.Response(
+        "Unauthorized", schema=FoutSerializer
+    ),
+    status.HTTP_403_FORBIDDEN: openapi.Response("Forbidden", schema=FoutSerializer),
+    status.HTTP_404_NOT_FOUND: openapi.Response("Not found", schema=FoutSerializer),
+    status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
+        "Not acceptable", schema=FoutSerializer
+    ),
+    status.HTTP_410_GONE: openapi.Response("Gone", schema=FoutSerializer),
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: openapi.Response(
+        "Unsupported media type", schema=FoutSerializer
+    ),
+    status.HTTP_429_TOO_MANY_REQUESTS: openapi.Response(
+        "Throttled", schema=FoutSerializer
+    ),
+    status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+        "Internal server error", schema=FoutSerializer
+    ),
+}
 
 
 class AutoSchema(_AutoSchema):

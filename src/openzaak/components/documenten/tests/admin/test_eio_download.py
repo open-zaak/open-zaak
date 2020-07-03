@@ -8,7 +8,9 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
+@override_settings(
+    SENDFILE_BACKEND="django_sendfile.backends.simple", CMIS_ENABLED=False
+)
 class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

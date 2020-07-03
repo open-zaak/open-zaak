@@ -1,6 +1,8 @@
 from django.db import IntegrityError
 from django.test import TestCase, tag
 
+from rest_framework.test import APITestCase
+
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
@@ -52,11 +54,11 @@ class OIOTests(TestCase):
         self.assertEqual(oio.object, bio.besluit)
 
     def test_zio_delete_oio(self):
-        bio = BesluitInformatieObjectFactory.create()
+        zio = ZaakInformatieObjectFactory.create()
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
 
-        bio.delete()
+        zio.delete()
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
@@ -70,7 +72,7 @@ class OIOTests(TestCase):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
 
-class BlockChangeTestCase(TestCase):
+class BlockChangeTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()

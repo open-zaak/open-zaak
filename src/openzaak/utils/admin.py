@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.urls import reverse
@@ -399,3 +400,23 @@ class UUIDAdminMixin:
         fieldsets[0][1]["fields"] = tuple(fields_general)
 
         return fieldsets
+
+
+class CMISAdminMixin:
+    def has_delete_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_delete_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if settings.CMIS_ENABLED:
+            return False
+        else:
+            return super().has_change_permission(request, obj)

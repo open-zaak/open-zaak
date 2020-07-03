@@ -19,11 +19,13 @@ src/openzaak/static/css/screen.css
 src/openzaak/static/css/admin/
 src/openzaak/static/js/
 docs/_build
+/volumes/
 
 # Coverage reports
 /reports/
 /htmlcov/
 .coverage
+coverage.xml
 
 # Environment
 src/openzaak/conf/includes/local.py

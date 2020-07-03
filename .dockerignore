@@ -10,3 +10,4 @@ media/
 log/
 .env
 includes/local.py
+volumes/

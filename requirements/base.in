@@ -40,6 +40,7 @@ vng-api-common<1.1
 humanize
 drf-flex-fields
 drf-writable-nested
+drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi

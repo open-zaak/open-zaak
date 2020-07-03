@@ -25,13 +25,13 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         """
         Deleting a EnkelvoudigInformatieObject causes all related objects to be deleted as well.
         """
-        informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create()
 
+        informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create()
         GebruiksrechtenFactory.create(informatieobject=informatieobject)
+        eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=informatieobject.latest_version.uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -46,11 +46,11 @@ class US349TestCase(JWTAuthMixin, APITestCase):
 
     def test_delete_document_fail_exising_relations_besluit(self):
         informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        eio_uuid = informatieobject.latest_version.uuid
         BesluitInformatieObjectFactory.create(informatieobject=informatieobject)
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=informatieobject.latest_version.uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -65,10 +65,10 @@ class US349TestCase(JWTAuthMixin, APITestCase):
     def test_delete_document_fail_exising_relations_zaak(self):
         informatieobject = EnkelvoudigInformatieObjectCanonicalFactory.create()
         ZaakInformatieObjectFactory.create(informatieobject=informatieobject)
+        eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete",
-            uuid=informatieobject.latest_version.uuid,
+            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)

@@ -46,6 +46,7 @@ from ..models import (
     ZaakInformatieObject,
     ZaakObject,
 )
+from .assertions import CRUDAssertions
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -159,7 +160,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
 
 @tag("closed-zaak")
-class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
+class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCase):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is
     closed.
@@ -181,38 +182,6 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
         m.start()
         m.get("https://example.com", status_code=200)
         self.addCleanup(m.stop)
-
-    def assertCreateBlocked(self, url: str, data: dict):
-        with self.subTest(action="create"):
-            response = self.client.post(url, data)
-
-            self.assertEqual(
-                response.status_code, status.HTTP_403_FORBIDDEN, response.data
-            )
-
-    def assertUpdateBlocked(self, url: str):
-        with self.subTest(action="update"):
-            detail = self.client.get(url).data
-
-            response = self.client.put(url, detail)
-
-            self.assertEqual(
-                response.status_code, status.HTTP_403_FORBIDDEN, response.data
-            )
-
-    def assertPartialUpdateBlocked(self, url: str):
-        with self.subTest(action="partial_update"):
-            response = self.client.patch(url)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-
-    def assertDestroyBlocked(self, url: str):
-        with self.subTest(action="destroy"):
-            response = self.client.delete(url)
-
-            self.assertEqual(
-                response.status_code, status.HTTP_403_FORBIDDEN, response.data
-            )
 
     def test_zaakinformatieobjecten(self):
         io = EnkelvoudigInformatieObjectFactory.create(
@@ -355,7 +324,7 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, APITestCase):
 
 
 @tag("closed-zaak")
-class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, APITestCase):
+class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCase):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is
     closed.
@@ -377,36 +346,6 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, APITestCase):
         m.start()
         m.get("https://example.com", status_code=200)
         self.addCleanup(m.stop)
-
-    def assertCreateAllowed(self, url: str, data: dict):
-        with self.subTest(action="create"):
-            response = self.client.post(url, data)
-
-            self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, response.data
-            )
-
-    def assertUpdateAllowed(self, url: str):
-        with self.subTest(action="update"):
-            detail = self.client.get(url).data
-
-            response = self.client.put(url, detail)
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def assertPartialUpdateAllowed(self, url: str):
-        with self.subTest(action="partial_update"):
-            response = self.client.patch(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def assertDestroyAllowed(self, url: str):
-        with self.subTest(action="destroy"):
-            response = self.client.delete(url)
-
-            self.assertEqual(
-                response.status_code, status.HTTP_204_NO_CONTENT, response.data
-            )
 
     def test_zaakinformatieobjecten(self):
         io = EnkelvoudigInformatieObjectFactory.create(

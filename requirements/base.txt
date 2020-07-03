@@ -7,6 +7,7 @@
 certifi==2018.4.16        # via requests
 cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
+cmislib-maykin==0.7.4     # via drc-cmis
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 cryptography==2.8         # via django-auth-adfs
@@ -16,14 +17,14 @@ django-appconf==1.0.2     # via django-axes
 django-auth-adfs-db==0.2.0  # via -r requirements/base.in
 django-auth-adfs==1.3.1   # via django-auth-adfs-db
 django-axes==4.4.0        # via -r requirements/base.in
-django-choices==1.7.0     # via -r requirements/base.in, vng-api-common, zgw-consumers
+django-choices==1.7.0     # via -r requirements/base.in, drc-cmis, vng-api-common, zgw-consumers
 django-cors-middleware==1.3.1  # via -r requirements/base.in
 django-db-logger==0.1.7   # via -r requirements/base.in
 django-extra-fields==1.2.4  # via -r requirements/base.in
 django-extra-views==0.13.0  # via -r requirements/base.in
 django-filter==2.0        # via -r requirements/base.in, django-loose-fk, vng-api-common
 django-ipware==2.1.0      # via django-axes
-django-loose-fk==0.7.0    # via -r requirements/base.in
+django-loose-fk==0.7.1    # via -r requirements/base.in
 django-markup==1.3        # via -r requirements/base.in
 django-ordered-model==2.1.0  # via django-admin-index
 django-privates==1.2.1    # via -r requirements/base.in
@@ -31,20 +32,23 @@ django-redis==4.10.0      # via -r requirements/base.in
 django-relativedelta==1.0.5  # via -r requirements/base.in
 django-sendfile2==0.5.1   # via django-privates
 django-sniplates==0.7.0   # via -r requirements/base.in
-django-solo==1.1.3        # via django-auth-adfs-db, vng-api-common, zgw-consumers
-django==2.2.10            # via -r requirements/base.in, django-auth-adfs, django-auth-adfs-db, django-choices, django-db-logger, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-sniplates, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
+django-solo==1.1.3        # via django-auth-adfs-db, drc-cmis, vng-api-common, zgw-consumers
+django==2.2.10            # via -r requirements/base.in, django-auth-adfs, django-auth-adfs-db, django-choices, django-db-logger, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-sniplates, drc-cmis, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
 djangorestframework-camel-case==0.2.0  # via -r requirements/base.in, vng-api-common
 djangorestframework-gis==0.14  # via -r requirements/base.in
 djangorestframework==3.9.4  # via -r requirements/base.in, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
+drc-cmis==0.5.0           # via -r requirements/base.in
 drf-flex-fields==0.5.0    # via -r requirements/base.in
 drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.in
 drf-yasg==1.16.0          # via -r requirements/base.in, vng-api-common
 gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
+httplib2==0.17.0          # via cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.in
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
 iso-639==0.4.5            # via vng-api-common
+iso8601==0.1.12           # via cmislib-maykin, drc-cmis
 isodate==0.6.0            # via vng-api-common
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
@@ -66,11 +70,11 @@ redis==3.3.8              # via django-redis
 requests==2.21.0          # via -r requirements/base.in, coreapi, django-auth-adfs, gemma-zds-client, vng-api-common
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
-six==1.11.0               # via cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
+six==1.11.0               # via cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
 sqlparse==0.3.0           # via django
 unidecode==1.0.22         # via vng-api-common
 uritemplate==3.0.0        # via coreapi, drf-yasg
 urllib3==1.24.3           # via requests
 uwsgi==2.0.18             # via -r requirements/base.in
-vng-api-common==1.0.47    # via -r requirements/base.in
+vng-api-common==1.0.47    # via -r requirements/base.in, drc-cmis
 zgw-consumers==0.8.1      # via -r requirements/base.in

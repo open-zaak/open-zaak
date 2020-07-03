@@ -55,6 +55,10 @@
                 "nlxconfig"
             ],
             [
+                "drc_cmis",
+                "cmisconfig"
+            ],
+            [
                 "django_auth_adfs_db",
                 "adfsconfig"
             ],

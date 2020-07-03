@@ -18,9 +18,9 @@ from vng_api_common.notifications.viewsets import (
 )
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.components.documenten.api.utils import delete_remote_oio
 from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
+from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
 from ..models import Besluit, BesluitInformatieObject

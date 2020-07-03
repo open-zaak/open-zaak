@@ -97,6 +97,12 @@ on Docker, since `localhost` is contained within the container:
 * `PROFILE`: whether to enable profiling-tooling or not. Applies to the development
   settings only. Defaults to `False`.
 
+* `CMIS_ENABLED`: whether to enable the CMIS adapter. Defaults to `False`.
+
+* `CMIS_MAPPER_FILE`: name of the file containing the mapping between the Django and Document Management System names
+    for document properties. See the installation section for more details.
+    Defaults to the absolute path of `open-zaak/config/cmis_mapper.json`.
+
 ## Specifying the environment variables
 
 There are two strategies to specify the environment variables:

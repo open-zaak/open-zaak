@@ -47,7 +47,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 @freeze_time("2012-01-14")
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -133,7 +133,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -631,7 +631,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
 
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
 class InvalidNotifConfigTests(
     NotificationServiceMixin, JWTAuthMixin, APITransactionTestCase
 ):

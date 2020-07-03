@@ -1,8 +1,10 @@
+import json
 import uuid
 from datetime import date
 from typing import Dict, Union
 
 from django.conf import settings
+from django.core import serializers
 from django.utils import timezone
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
@@ -47,7 +49,15 @@ def get_eio_response(url: str, **overrides) -> Dict[str, JsonValue]:
         "locked": False,
     }
     eio.update(**overrides)
+    if overrides.get("_informatieobjecttype_url") is not None:
+        eio["informatieobjecttype"] = overrides.get("_informatieobjecttype_url")
     return eio
+
+
+def serialise_eio(eio, eio_url, **overrides):
+    serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
+    serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
+    return serialised_eio
 
 
 def get_oio_response(
