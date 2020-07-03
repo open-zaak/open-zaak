@@ -3,6 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ .Values.volume.claimName }}
 spec:
+  storageClassName: nfs
   accessModes:
     - ReadWriteMany
   resources:

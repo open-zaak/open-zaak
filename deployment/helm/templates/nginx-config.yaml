@@ -20,7 +20,7 @@ data:
     proxy_redirect off;
     proxy_pass_request_headers on;
 
-    proxy_pass {{ .Values.settings.name }}-web
+    proxy_pass http://{{ .Values.settings.name }}-web:8000;
   default.conf: >
     server {
       listen        80;
@@ -50,7 +50,7 @@ data:
         application/vnd.ms-fontobject
         image/svg+xml;
 
-      gzip static       on;
+      gzip_static       on;
 
       gzip_proxied      expired no-cache no-store private auth;
       gzip_disable      "MSIE [1-6]\.";
@@ -63,7 +63,7 @@ data:
         include conf.d/proxy;
 
         location /documenten/api/v1/enkelvoudiginformatieobjecten {
-          client_max_body_size  {{ .Values.nginx.maxUpload }};
+          client_max_body_size  4G;
           include               conf.d/proxy;
         }
       }
@@ -76,11 +76,11 @@ data:
 
       location  /private-media  {
         internal;
-        alias       /app/private-media
+        alias       /app/private-media;
       }
 
-      error_page    404               /404.html
-      error_page    413               /413.json
-      error_page    500 502 503 504   /500.json
+      error_page    404               /404.html;
+      error_page    413               /413.json;
+      error_page    500 502 503 504   /500.json;
     }
 
