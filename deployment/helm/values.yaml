@@ -15,13 +15,13 @@ settings:
   debug: 1
 
 security:
-  allowedHosts: *
+  allowedHosts: '*'
 
 email:
-  host: localhost
+  url: localhost
   port: 867
   user: email
-  password: !changeMe!
+  password: '!changeMe!'
 
 nginx:
   version: stable
@@ -36,7 +36,7 @@ postgres:
   url: localhost
   port: 5432
   user: openzaak
-  password: !changeMe!
+  password: '!changeMe!'
   database: openzaak
 
 redis:

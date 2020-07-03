@@ -5,9 +5,9 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-web
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
-    helm.sh/chart: {{ include "chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
 spec:
   selector:
     matchLabels:
@@ -22,6 +22,11 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
+      volumes:
+        - name: {{ .Values.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.volume.claimName }}
+
       containers:
         - name: {{ .Values.settings.name }}-web
           image: "openzaak/open-zaak:{{ .Values.settings.version }}"
@@ -35,15 +40,15 @@ spec:
               memory: {{ .Values.web.limits.memory }}
               cpu: {{ .Values.web.limits.cpu }}
 
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 8000
-            httpHeaders:
-              - name: Host
-                value: localhost
-          initialDelaySeconds: 30
-          periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 30
+            periodSeconds: 30
 
           livenessProbe:
             httpGet:
@@ -79,71 +84,75 @@ spec:
 
             - name: SECRET_KEY
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: secret-key
             - name: CACHE_DEFAULT
               valueFrom:
-                ConfigMapKeyRef:
+                configMapKeyRef:
                   name: {{ template "fullname" . }}
                   key: cache-default
             - name: CACHE_AXES
               valueFrom:
-                ConfigMapKeyRef:
+                configMapKeyRef:
                   name: {{ template "fullname" . }}
                   key: cache-axes
 
             - name: EMAIL_HOST
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: email-host
             - name: EMAIL_PORT
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: email-port
             - name: EMAIL_HOST_USER
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: email-host-user
             - name: EMAIL_HOST_PASSWORD
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: email-host-password
 
             - name: DB_HOST
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-host
             - name: DB_PORT
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-port
             - name: DB_USER
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-user
             - name: DB_NAME
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-name
             - name: DB_PASSWORD
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-password
 
             {{- if $.Values.settings.dsn }}
             - name: SENTRY_DSN
               valueFrom:
-                SecretKeyRef:
+                secretKeyRef:
                   name: {{ template "fullname" .}}
                   key: sentry-dsn
             {{- end }}
+  {{- if .Values.nodeSelector }}
+      nodeSelector:
+  {{ toYaml .Values.nodeSelector | indent 8 }}
+  {{- end }}

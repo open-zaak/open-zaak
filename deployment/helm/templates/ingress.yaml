@@ -24,26 +24,26 @@ spec:
       http:
         paths:
             - backend:
-              serviceName: {{ $.Values.settings.name }}
-              servicePort: 80
+                serviceName: {{ $.Values.settings.name }}
+                servicePort: 80
     {{- else if eq $.Values.settings.env "prod" }}
     - host {{ $.Values.settings.domain }}
       http:
         paths:
             - backend:
-              serviceName: {{ $.Values.settings.name }}
-              servicePort: 80
+                serviceName: {{ $.Values.settings.name }}
+                servicePort: 80
     - host www.{{ $.Values.settings.domain }}
       http:
         paths:
             - backend:
-              serviceName: {{ $.Values.settings.name }}
-              servicePort: 80
+                serviceName: {{ $.Values.settings.name }}
+                servicePort: 80
     {{- else }}
     - host: {{ $.Values.settings.subdomain }}.{{ $.Values.settings.env }}.{{ $.Values.settings.domain }}
       http:
         paths:
             - backend:
-              serviceName: {{ $.Values.settings.name }}
-              servicePort: 80
+                serviceName: {{ $.Values.settings.name }}
+                servicePort: 80
     {{- end }}

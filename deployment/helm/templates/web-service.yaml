@@ -5,9 +5,9 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-web
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
-    helm.sh/chart: {{ include "chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "chart" . }}
 spec:
   type: ClusterIP
   ports:

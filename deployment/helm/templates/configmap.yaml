@@ -10,8 +10,8 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  allowed-hosts: {{ .Values.security.allowedHosts }}
+  allowed-hosts: {{ .Values.security.allowedHosts | quote }}
   module: {{ .Values.settings.module }}
   cache-default: {{ .Values.settings.name }}-cache:{{ .Values.redis.port }}/{{ .Values.redis.database }}
   cache-axes: {{ .Values.settings.name }}-cache:{{ .Values.redis.port }}/{{ .Values.redis.database }}
-  debug: {{ .Values.settings.debug }}
+  debug: {{ .Values.settings.debug | quote }}

@@ -24,7 +24,7 @@ data:
   default.conf: >
     server {
       listen        80;
-      server_name   {{ .Values.settings.subdomain }}{{ if neq .Values.settings.env "prod" }}{{ .Values.settings.env }}{{ end }}.{{ .Values.settings.domain }};
+      server_name   {{ .Values.settings.subdomain }}{{ if ne .Values.settings.env "prod" }}{{ .Values.settings.env }}{{ end }}.{{ .Values.settings.domain }};
       server_tokens off;
 
       gzip                on;

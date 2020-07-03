@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
     app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/version: {{ .Values.nginx.version }}
+    app.kubernetes.io/version: {{ .Values.nginx.version }}
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     helm.sh/chart: {{ include "chart" . }}
@@ -51,7 +51,7 @@ spec:
             - name: {{ .Values.volume.name }}
               mountPath: /app/private-media
               subPath: openzaak/{{ .Release.Name }}/private-media
-            - name: nginx-config
+            - name: {{ .Values.settings.name }}-nginx-config
               mountPath: /etc/nginx/conf.d
 
   {{- if .Values.nodeSelector }}

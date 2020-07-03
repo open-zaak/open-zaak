@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-cache
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
-    app.kubernetes.io/version: {{ .Values.redis.version }}
+    app.kubernetes.io/version: {{ .Values.redis.version | quote }}
     helm.sh/chart: {{ include "chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -21,7 +21,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.settings.name }}-cache
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/version: {{ .Values.redis.version }}
+        app.kubernetes.io/version: {{ .Values.redis.version | quote }}
         app.kubernetes.io/component: cache
         helm.sh/chart: {{ include "chart" . }}
         app.kubernetes.io/part-of: {{ .Values.settings.name }}
@@ -43,14 +43,15 @@ spec:
             tcpSocket:
               port: {{ .Values.redis.port }}
             initialDelaySeconds: {{ .Values.redis.readinessDelay }}
-            periodSeconds: {{ Values.redis.readinessPeriod }}
+            periodSeconds: {{ .Values.redis.readinessPeriod }}
 
           livenessProbe:
             tcpSocket:
               port: {{ .Values.redis.port }}
             initialDelaySeconds: {{ .Values.redis.livenessDelay }}
-            periodSeconds: {{ Values.redis.livenessPeriod }}
+            periodSeconds: {{ .Values.redis.livenessPeriod }}
 
-nodeSelector:
+  {{- if .Values.nodeSelector }}
+      nodeSelector:
   {{ toYaml .Values.nodeSelector | indent 8 }}
-    {{- end }}
+  {{- end }}
