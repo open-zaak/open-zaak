@@ -78,3 +78,16 @@ class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
 
         response = self.client.post(delete_url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("pickme")
+    def test_eio_detail(self):
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving="old")
+
+        change_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(informatieobject.uuid,),
+        )
+
+        response = self.client.get(change_url)
+
+        self.assertEqual(response.status_code, 200)

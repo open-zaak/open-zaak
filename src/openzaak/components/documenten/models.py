@@ -234,6 +234,8 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
     )
 
     def __str__(self):
+        if settings.CMIS_ENABLED:
+            return "(virtual canonical instance)"
         return str(self.latest_version)
 
     @property

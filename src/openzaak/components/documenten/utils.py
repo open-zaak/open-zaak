@@ -1,5 +1,4 @@
 import io
-from typing import Tuple
 
 from django.conf import settings
 from django.core.files.base import File
@@ -9,12 +8,6 @@ from django.utils.functional import LazyObject
 from drc_cmis.client import CMISDRCClient
 from drc_cmis.cmis.drc_document import Document
 from privates.storages import PrivateMediaFileSystemStorage
-
-
-def parse_uuid_version(uuid_version: str) -> Tuple[str, int]:
-    uuid, wanted_version = uuid_version.split(";")
-    wanted_version = int(wanted_version)
-    return uuid, wanted_version
 
 
 class CMISStorageFile(File):
@@ -64,34 +57,38 @@ class CMISStorage(Storage):
         return CMISStorageFile(uuid_version)
 
     def _read(self, uuid_version: str) -> bytes:
-        uuid, wanted_version = parse_uuid_version(uuid_version)
         cmis_doc = self._get_cmis_doc(uuid_version)
         content_bytes = cmis_doc.get_content_stream()
         return content_bytes
 
     def size(self, uuid_version: str) -> int:
-        uuid, wanted_version = parse_uuid_version(uuid_version)
         cmis_doc = self._get_cmis_doc(uuid_version)
         return cmis_doc.contentStreamLength
 
     def url(self, uuid_version: str) -> str:
-        uuid, wanted_version = parse_uuid_version(uuid_version)
-
         cmis_doc = self._get_cmis_doc(uuid_version)
 
-        # Example nodeRef: workspace://SpacesStore/b09fac1f-f295-4b44-a94b-97126edec2f3
-        node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
-        node_ref = node_ref.split("://")
-        # TODO: configurable!
-        # FIXME: no hardcoded URLs
-        host_url = "http://localhost:8082/"
-        content_base_url = "alfresco/s/api/node/content/"
-        node_ref_url = node_ref[0] + "/" + node_ref[1]
-        url = f"{host_url}{content_base_url}{node_ref_url}"
-        return url
+        # introspect repos
+        repositories = self._client.get_request(self._client.base_url)
+        for repo_id, repo_config in repositories.items():
+            if repo_config["repositoryUrl"] == self._client.base_url:
+                break
+        else:
+            raise RuntimeError("Repository config not found for this client config!")
+
+        vendor = repo_config["vendorName"]
+        if vendor == "Alfresco":
+            # we know Alfresco URLs, we need the part before /api/
+            base_url = self._client.base_url[: self._client.base_url.index("/api/")]
+            node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
+            part = node_ref.replace("://", "/", 1)
+            return f"{base_url}/s/api/node/content/{part}"
+        else:
+            raise NotImplementedError(f"CMIS vendor {vendor} is not implemented yet.")
 
     def _get_cmis_doc(self, uuid_version: str) -> Document:
-        uuid, wanted_version = parse_uuid_version(uuid_version)
+        uuid, wanted_version = uuid_version.split(";")
+        wanted_version = int(wanted_version)
         cmis_doc = self._client.get_cmis_document(uuid=uuid)
         # only way to get a specific version
         if cmis_doc.versie != wanted_version:

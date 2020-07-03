@@ -265,6 +265,11 @@ class EnkelvoudigInformatieObjectAdmin(
         ),
     )
 
+    def get_object(self, request, object_id, from_field=None):
+        if from_field is None and settings.CMIS_ENABLED:
+            from_field = "uuid"
+        return super().get_object(request, object_id, from_field=from_field)
+
     def _locked(self, obj) -> bool:
         return obj.locked
 
