@@ -10,7 +10,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISF
 
 
 @tag("cmis")
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
 class UniqueRepresentationTestCase(APICMISTestCase):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(

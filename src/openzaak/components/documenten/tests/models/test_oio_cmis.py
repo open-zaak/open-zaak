@@ -45,6 +45,7 @@ class OIOCMISTests(CMISMixin, TestCase):
         with self.assertRaises(IntegrityError):
             ObjectInformatieObject.objects.create(informatieobject=self.eio_url)
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_zio_creates_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
         zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
@@ -55,6 +56,7 @@ class OIOCMISTests(CMISMixin, TestCase):
         )
         self.assertEqual(oio.object, zio.zaak)
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_bio_creates_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
         bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
