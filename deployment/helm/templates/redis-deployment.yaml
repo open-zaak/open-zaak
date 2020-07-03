@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-cache
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
-    app.kubernetes.io/version: "5.0"
+    app.kubernetes.io/version: {{ .Values.redis.version }}
     helm.sh/chart: {{ include "chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -21,7 +21,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.settings.name }}-cache
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/version: "5.0"
+        app.kubernetes.io/version: {{ .Values.redis.version }}
         app.kubernetes.io/component: cache
         helm.sh/chart: {{ include "chart" . }}
         app.kubernetes.io/part-of: {{ .Values.settings.name }}
@@ -29,13 +29,15 @@ spec:
     spec:
       containers:
         - name: {{ .Values.settings.name }}-cache
-          image: redis:5.0
+          image: redis:{{ .Values.redis.version }}
 
           resources:
             requests:
               memory: {{ .Values.redis.memory }}
-              cpu: {{ .Values.redis.memory }}
-            limits: {{ .Values.redis.limits }}
+              cpu: {{ .Values.redis.cpu }}
+            limits:
+              memory: {{ .Values.redis.limits.memory }}
+              cpu: {{ .Values.redis.limits.cpu }}
 
           readinessProbe:
             tcpSocket:

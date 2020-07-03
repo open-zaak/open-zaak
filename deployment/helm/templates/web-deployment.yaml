@@ -12,7 +12,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.settings.name }}-web
-  replicas: {{ .Values.web.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -26,8 +26,40 @@ spec:
         - name: {{ .Values.settings.name }}-web
           image: "openzaak/open-zaak:{{ .Values.settings.version }}"
           imagePullPolicy: {{ .Values.settings.pullPolicy }}
-          ports:
-            - containerPort: 8000
+
+          resources:
+            requests:
+              memory: {{ .Values.web.memory }}
+              cpu: {{ .Values.web.cpu }}
+            limits:
+              memory: {{ .Values.web.limits.memory }}
+              cpu: {{ .Values.web.limits.cpu }}
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+            httpHeaders:
+              - name: Host
+                value: localhost
+          initialDelaySeconds: 30
+          periodSeconds: 30
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+          volumeMounts:
+            - name: {{ .Values.volume.name }}
+              mountPath: /app/private-media
+              subPath: openzaak/{{ .Release.Name }}/private-media
+
           env:
             - name: ALLOWED_HOSTS
               valueFrom:
@@ -39,6 +71,11 @@ spec:
                 configMapKeyRef:
                   name: {{ template "fullname" . }}
                   key: module
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "fullname" . }}
+                  key: debug
 
             - name: SECRET_KEY
               valueFrom:
@@ -102,3 +139,11 @@ spec:
                 SecretKeyRef:
                   name: {{ template "fullname" . }}
                   key: db-password
+
+            {{- if $.Values.settings.dsn }}
+            - name: SENTRY_DSN
+              valueFrom:
+                SecretKeyRef:
+                  name: {{ template "fullname" .}}
+                  key: sentry-dsn
+            {{- end }}

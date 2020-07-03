@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.settings.name }}-nginx-config
+  #namespace: {{ .Values.settings.env }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.settings.name }}-nginx-config
+    app.kubernetes.io/part-of: {{ .Values.settings.name }}
+    helm.sh/chart: {{ include "chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  proxy: >
+    proxy_pass_header Server;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_connect_timeout 300s;
+    proxy_read_timeout 300s;
+
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass_request_headers on;
+
+    proxy_pass {{ .Values.settings.name }}-web
+  default.conf: >
+    server {
+      listen        80;
+      server_name   {{ .Values.settings.subdomain }}{{ if neq .Values.settings.env "prod" }}{{ .Values.settings.env }}{{ end }}.{{ .Values.settings.domain }};
+      server_tokens off;
+
+      gzip                on;
+      gzip_http_version   1.0;
+      gzip_comp_level     2;
+      gzip_min_length     1100;
+      gzip_buffers        4 8k;
+      gzip_proxied        any;
+      gzip_types
+
+        # text/html is always compressed by HttpGzipModule
+        text/css
+        text/javascript
+        text/xml
+        text/plain
+        text/x-component
+        application/javascript
+        application/json
+        application/xml
+        application/rss+xml
+        font/truetype
+        font/opentype
+        application/vnd.ms-fontobject
+        image/svg+xml;
+
+      gzip static       on;
+
+      gzip_proxied      expired no-cache no-store private auth;
+      gzip_disable      "MSIE [1-6]\.";
+      gzip_vary         on;
+
+      add_header        X-XSS-Protection "1; mode=block";
+      add_header        X-Content-Type-Options nosniff;
+
+      location / {
+        include conf.d/proxy;
+
+        location /documenten/api/v1/enkelvoudiginformatieobjecten {
+          client_max_body_size  {{ .Values.nginx.maxUpload }};
+          include               conf.d/proxy;
+        }
+      }
+
+      location  /_health/ {
+        access_log  off;
+        error_log   /var/log/nginx/error.log error;
+        return      200 'OK';
+      }
+
+      location  /private-media  {
+        internal;
+        alias       /app/private-media
+      }
+
+      error_page    404               /404.html
+      error_page    413               /413.json
+      error_page    500 502 503 504   /500.json
+    }
+

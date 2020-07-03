@@ -2,6 +2,65 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+settings:
+  name: openzaak
+  subdomain: openzaak
+  domain: zuid-drecht.nl
+  env: dev
+  module: openzaak.conf.docker
+  secret: 7y82z1%ef)k@f=u-_%ri71lk4=7jy^z5#@6d4*92=t@p0-yk5k
+  dsn:
+  version: latest
+  pullPolicy: Always
+  debug: 1
+
+security:
+  allowedHosts: *
+
+email:
+  host: localhost
+  port: 867
+  user: email
+  password: !changeMe!
+
+nginx:
+  version: stable
+  maxUpload: 4Gi
+  memory: 100Mi
+  cpu: 250m
+  limits:
+    memory: 500Mi
+    cpu: 500m
+
+postgres:
+  url: localhost
+  port: 5432
+  user: openzaak
+  password: !changeMe!
+  database: openzaak
+
+redis:
+  port: 6379
+  version: 5.0
+  databae: openzaak
+  memory: 100Mi
+  cpu: 100m
+  limits:
+    memory: 200Mi
+    cpu: 250m
+
+volume:
+  name: private-storage
+  claimName: openzaak-volume
+  size: 10Gi
+
+web:
+  memory: 500Mi
+  cpu: 200m
+  limits:
+    memory: 1Gi
+    cpu: 1000m
+
 replicaCount: 1
 
 image:

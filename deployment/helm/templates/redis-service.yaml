@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.settings.name }}-redis
+  name: {{ .Values.settings.name }}-cache
   labels:
     app.kubernetes.io/name: {{ .Values.settings.name }}-cache
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/version: "5.0"
+    app.kubernetes.io/version: {{ .Values.redis.version }}
     app.kubernetes.io/component: cache
     app.kubernetes.io/part-of: {{ .Values.settings.name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}

@@ -13,7 +13,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Values.settings.name }}-nginx
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -25,9 +25,9 @@ spec:
         helm.sh/chart: {{ include "chart" . }}
     spec:
       volumes:
-        - name: private-storage
+        - name: {{ .Values.volume.name }}
           persistentVolumeClaim:
-            claimName: {{ .Values.volume.claim.name }}
+            claimName: {{ .Values.volume.claimName }}
         - name: {{ .Values.settings.name }}-nginx-config
           configMap:
             name: {{ .Values.settings.name }}-nginx-config
@@ -39,6 +39,14 @@ spec:
           ports:
             - containerPort: 80
 
+          resources:
+            requests:
+              memory: {{ .Values.nginx.memory }}
+              cpu: {{ .Values.nginx.cpu }}
+            limits:
+              memory: {{ .Values.nginx.limits.memory }}
+              cpu: {{ .Values.nginx.limits.cpu }}
+
           volumeMounts:
             - name: {{ .Values.volume.name }}
               mountPath: /app/private-media
@@ -46,8 +54,6 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d
 
-          resources:
-  {{ toYaml .Values.resources | indent 12 }}
   {{- if .Values.nodeSelector }}
 nodeSelector:
   {{ toYaml .Values.nodeSelector | indent 8 }}

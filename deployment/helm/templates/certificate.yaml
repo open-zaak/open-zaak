@@ -1,4 +1,3 @@
-{{ if or (eq .Values.settings.type "application") .Values.settings.web }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
@@ -27,4 +26,3 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  {{ end }}
