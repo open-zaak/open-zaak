@@ -3,6 +3,7 @@
 import uuid
 from base64 import b64encode
 from datetime import date
+from io import BytesIO
 
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -499,6 +500,43 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
         self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
+
+    def test_eio_update_content(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            inhoud=BytesIO(b"Content before update"),
+            informatieobjecttype__concept=False,
+        )
+
+        eio_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock_response = self.client.post(f"{eio_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"Content after update"), "lock": lock,}
+        )
+
+        del eio_data["integriteit"]
+        del eio_data["ondertekening"]
+
+        update_response = self.client.put(eio_url, eio_data)
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+
+        unlock_url = get_operation_url(
+            "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
+        )
+
+        unlock_content = {"lock": lock}
+        unlock_response = self.client.post(unlock_url, unlock_content)
+        self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        updated_eio = EnkelvoudigInformatieObject.objects.first()
+        self.assertEqual(updated_eio.inhoud.read(), b"Content after update")
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")

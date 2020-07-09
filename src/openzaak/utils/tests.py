@@ -10,7 +10,8 @@ from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.db.models import Model
 
-from drc_cmis.client import CMISDRCClient
+from drc_cmis.client.soap_client import SOAPCMISClient
+from drc_cmis.client_builder import get_client_class
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -187,7 +188,8 @@ class CMISMixin:
 
     def _cleanup_alfresco(self) -> None:
         # Removes the created documents from alfresco
-        client = CMISDRCClient()
+        client_class = get_client_class()
+        client = client_class()
         client.delete_cmis_folders_in_base()
         self.adapter.stop()
 
