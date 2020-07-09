@@ -42,7 +42,7 @@ postgres:
 redis:
   port: 6379
   version: 5.0
-  databae: openzaak
+  database: openzaak
   memory: 100Mi
   cpu: 100m
   limits:
