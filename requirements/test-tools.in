@@ -5,3 +5,8 @@ factory_boy
 freezegun
 requests-mock
 tblib
+
+# Code formatting
+isort
+black
+flake8

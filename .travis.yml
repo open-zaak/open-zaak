@@ -57,22 +57,19 @@ jobs:
 
     - name: "Code imports"
       before_install: skip
-      install:
-        - pip install isort
+      install: pip install -r requirements/ci.txt
       before_script: skip
-      script: isort --recursive --check-only --diff .
+      script: isort --check-only --diff .
 
     - name: "Code format"
       before_install: skip
-      install:
-        - pip install black
+      install: pip install -r requirements/ci.txt
       before_script: skip
       script: black --check src --diff
 
     - name: "Code style"
       before_install: skip
-      install:
-        - pip install flake8
+      install: pip install -r requirements/ci.txt
       before_script: skip
       script: flake8 src
 

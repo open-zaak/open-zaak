@@ -4,10 +4,14 @@
 #
 #    pip-compile --no-index --output-file=requirements/ci.txt requirements/base.txt requirements/test-tools.in
 #
+appdirs==1.4.4            # via black
+attrs==19.3.0             # via black
 beautifulsoup4==4.8.1     # via webtest
+black==19.10b0            # via -r requirements/test-tools.in
 certifi==2018.4.16        # via -r requirements/base.txt, requests
 cffi==1.13.2              # via -r requirements/base.txt, cryptography
 chardet==3.0.4            # via -r requirements/base.txt, requests
+click==7.1.2              # via black
 cmislib-maykin==0.7.4     # via -r requirements/base.txt, drc-cmis
 coreapi==2.3.3            # via -r requirements/base.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/base.txt, coreapi, drf-yasg
@@ -47,24 +51,31 @@ drf-writable-nested==0.4.3  # via -r requirements/base.txt
 drf-yasg==1.16.0          # via -r requirements/base.txt, vng-api-common
 factory-boy==2.12.0       # via -r requirements/test-tools.in
 faker==2.0.1              # via factory-boy
+flake8==3.8.3             # via -r requirements/test-tools.in
 freezegun==0.3.12         # via -r requirements/test-tools.in
 gemma-zds-client==0.13.0  # via -r requirements/base.txt, vng-api-common, zgw-consumers
 httplib2==0.17.0          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
+importlib-metadata==1.7.0  # via flake8
 inflection==0.3.1         # via -r requirements/base.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/base.txt, vng-api-common
 iso8601==0.1.12           # via -r requirements/base.txt, cmislib-maykin, drc-cmis
 isodate==0.6.0            # via -r requirements/base.txt, vng-api-common
+isort==5.0.7              # via -r requirements/test-tools.in
 itypes==1.1.0             # via -r requirements/base.txt, coreapi
 jinja2==2.10.1            # via -r requirements/base.txt, coreschema
 markdown==3.0.1           # via -r requirements/base.txt
 markupsafe==1.1.1         # via -r requirements/base.txt, jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/base.txt
+mccabe==0.6.1             # via flake8
 nlx-url-rewriter==0.1.2   # via -r requirements/base.txt
 oyaml==0.7                # via -r requirements/base.txt, vng-api-common
+pathspec==0.8.0           # via black
 psycopg2==2.8.4           # via -r requirements/base.txt
+pycodestyle==2.6.0        # via flake8
 pycparser==2.19           # via -r requirements/base.txt, cffi
+pyflakes==2.2.0           # via flake8
 pyjwt==1.6.4              # via -r requirements/base.txt, django-auth-adfs, gemma-zds-client, vng-api-common
 python-dateutil==2.7.3    # via -r requirements/base.txt, django-relativedelta, faker, freezegun
 python-decouple==3.1      # via -r requirements/base.txt
@@ -73,6 +84,7 @@ pytz==2019.1              # via -r requirements/base.txt, django, django-axes
 pyyaml==5.1               # via -r requirements/base.txt, gemma-zds-client, oyaml, vng-api-common
 raven==6.9.0              # via -r requirements/base.txt
 redis==3.3.8              # via -r requirements/base.txt, django-redis
+regex==2020.6.8           # via black
 requests-mock==1.6.0      # via -r requirements/test-tools.in
 requests==2.21.0          # via -r requirements/base.txt, coreapi, django-auth-adfs, gemma-zds-client, requests-mock, vng-api-common
 ruamel.yaml.clib==0.2.0   # via -r requirements/base.txt, ruamel.yaml
@@ -82,6 +94,8 @@ soupsieve==1.9.5          # via beautifulsoup4
 sqlparse==0.3.0           # via -r requirements/base.txt, django
 tblib==1.4.0              # via -r requirements/test-tools.in
 text-unidecode==1.2       # via faker
+toml==0.10.1              # via black
+typed-ast==1.4.1          # via black
 unidecode==1.0.22         # via -r requirements/base.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/base.txt, coreapi, drf-yasg
 urllib3==1.24.3           # via -r requirements/base.txt, requests
@@ -91,3 +105,4 @@ waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
 zgw-consumers==0.8.1      # via -r requirements/base.txt
+zipp==3.1.0               # via importlib-metadata
