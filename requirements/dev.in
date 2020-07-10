@@ -2,11 +2,6 @@
 bumpversion
 pip-tools
 
-# Code formatting
-isort
-black
-flake8
-
 # Debug tooling
 django-debug-toolbar
 django-extensions
