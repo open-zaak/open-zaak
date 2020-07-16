@@ -43,7 +43,7 @@ drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.in
 drf-yasg==1.16.0          # via -r requirements/base.in, vng-api-common
 gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
-httplib2==0.17.0          # via cmislib-maykin
+httplib2==0.18.1          # via cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.in
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg

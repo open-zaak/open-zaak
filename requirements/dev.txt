@@ -64,7 +64,7 @@ flake8==3.8.3             # via -r requirements/ci.txt
 freezegun==0.3.12         # via -r requirements/ci.txt
 gemma-zds-client==0.13.0  # via -r requirements/ci.txt, vng-api-common, zgw-consumers
 gprof2dot==2019.11.30     # via django-silk
-httplib2==0.17.0          # via -r requirements/ci.txt, cmislib-maykin
+httplib2==0.18.1          # via -r requirements/ci.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
