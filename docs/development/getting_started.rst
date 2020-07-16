@@ -23,6 +23,7 @@ You need the following libraries and/or programs:
 * `PostgreSQL`_ 10.0 or above, with the `PostGIS-extension`_
 * `Node.js`_ 10.0 or above
 * `npm`_ 6.0 or above
+* `Docker`_ 19.03 or above (and `docker-compose`_)
 
 .. _Python: https://www.python.org/
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
@@ -31,10 +32,12 @@ You need the following libraries and/or programs:
 .. _PostGIS-extension: https://postgis.net/
 .. _Node.js: http://nodejs.org/
 .. _npm: https://www.npmjs.com/
+.. _Docker: https://www.docker.com/
+.. _docker-compose: https://docs.docker.com/compose/install/
 
 
-Getting started
----------------
+Step by step
+------------
 
 Developers can follow the following steps to set up the project on their local
 development machine.
@@ -48,7 +51,20 @@ development machine.
        $ git clone git@github.com:open-zaak/open-zaak.git
        $ cd open-zaak
 
-3. Install all required libraries:
+3. At this point you can already built the Docker image and run Open Zaak. You
+   can skip this if you don't want that.
+
+   .. code-block:: bash
+
+       $ docker-compose up
+
+   **Note:** If you are using Git on Windows, line-endings might change in 
+   checked out files depending on your `core.autocrlf` setting in `.gitconfig`.
+   This is problematic because files are copied into a Docker image, which runs
+   on Linux. Specifically, the `bin/docker_start.sh` file is affected by this 
+   which causes the Docker container fail to start up.
+
+4. Install all required libraries:
 
    .. code-block:: bash
 
@@ -56,7 +72,7 @@ development machine.
        $ source env/bin/activate
        $ pip install -r requirements/dev.txt
 
-4. Install the front-end CLI tool `gulp`_ if you've never installed them
+5. Install the front-end CLI tool `gulp`_ if you've never installed them
    before and install the frontend libraries:
 
    .. code-block:: bash
@@ -64,20 +80,20 @@ development machine.
        $ npm install
        $ npm run build
 
-5. Activate your virtual environment and create the statics and database:
+6. Activate your virtual environment and create the statics and database:
 
    .. code-block:: bash
 
        $ source env/bin/activate
        $ python src/manage.py migrate
 
-6. Create a superuser to access the management interface:
+7. Create a superuser to access the management interface:
 
    .. code-block:: bash
 
        $ python src/manage.py createsuperuser
 
-7. You can now run your installation and point your browser to the address
+8. You can now run your installation and point your browser to the address
    given by this command:
 
    .. code-block:: bash
