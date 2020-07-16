@@ -22,12 +22,13 @@ Community support
 The maintainer, other users, developers and service providers can be found on
 these channels:
 
-* `Open Zaak channel`_ on the Samen Organiseren `Slack`_
+* `Open Zaak channel`_ on the Samen Organiseren `Slack`_ (`join here`_)
 * `Open Zaak group`_ on the Common Ground website
 
 .. _`Open Zaak group`: https://commonground.nl/groups/view/54477302/open-zaak
 .. _`Slack`: https://slack.com/
 .. _`Open Zaak channel`: https://samenorganiseren.slack.com/
+.. _`join here`: https://join.slack.com/t/samenorganiseren/shared_invite/zt-dex1d7sk-wy11sKYWCF0qQYjJHSMW5Q
 
 Service providers
 -----------------
