@@ -128,7 +128,7 @@ description:
 
       The [Notificaties
       API](https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index) is
-      required for **Open Zaak** to work but is available as a seperate 
+      required for **Open Zaak** to work but is available as a separate 
       package, [Open 
       Notificaties](https://github.com/open-zaak/open-notificaties).
       

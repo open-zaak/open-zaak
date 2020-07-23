@@ -21,7 +21,7 @@ Open Zaak exposes several :ref:`API's<api_index>` to store and retrieve data:
 * Autorisaties API (authorizations)
 
 The `Notificaties API`_ is required for Open Zaak to work but is available as
-a seperate package, `Open Notificaties`_.
+a separate package, `Open Notificaties`_.
 
 .. _`Notificaties API`: https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties

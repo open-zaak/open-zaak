@@ -81,7 +81,7 @@ several instances.
 General recommendations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-* Use a seperate database server with roughly a third of the CPUs and memory as the
+* Use a separate database server with roughly a third of the CPUs and memory as the
   main server. The database is usually the limiting factor.
 
 Kubernetes recommendations

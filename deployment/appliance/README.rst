@@ -56,7 +56,7 @@ Create the base container
 -------------------------
 
 1. Allow the Debian installer to download our configuration details from the host
-   system. In a seperate terminal, in the root folder of the project, do::
+   system. In a separate terminal, in the root folder of the project, do::
 
         $ npm install
 
