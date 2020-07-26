@@ -3,6 +3,8 @@ from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
+
 from ..models import (
     KlantContact,
     Resultaat,
@@ -15,6 +17,23 @@ from ..models import (
 
 
 class ZaakFilter(FilterSet):
+    maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
+        field_name="vertrouwelijkheidaanduiding",
+        help_text=(
+            "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de "
+            "aangegeven aanduiding worden uit de resultaten gefiltered."
+        ),
+    )
+
+    rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
+        field_name="rol__natuurlijkpersoon__inp_bsn",
+        help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
+    )
+    rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
+        field_name="rol__medewerker__identificatie",
+        help_text=get_help_text("zaken.Medewerker", "identificatie"),
+    )
+
     class Meta:
         model = Zaak
         fields = {
@@ -25,6 +44,10 @@ class ZaakFilter(FilterSet):
             "archiefactiedatum": ["exact", "lt", "gt"],
             "archiefstatus": ["exact", "in"],
             "startdatum": ["exact", "gt", "gte", "lt", "lte"],
+            # filters for werkvoorraad
+            "rol__betrokkene_type": ["exact"],
+            "rol__betrokkene": ["exact"],
+            "rol__omschrijving_generiek": ["exact"],
         }
 
 

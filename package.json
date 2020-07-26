@@ -1,6 +1,6 @@
 {
   "name": "openzaak",
-  "version": "1.2.0",
+  "version": "1.2.1-2-alpha",
   "description": "Open Zaak",
   "main": "src/index.js",
   "directories": {
@@ -17,7 +17,7 @@
     "url": "git+ssh://git@github.com/open-zaak/open-zaak.git"
   },
   "author": "Maykin Media",
-  "license": "EUPL 1.2",
+  "license": "EUPL-1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {
     "autoprefixer": "^9.6.1",

@@ -5050,6 +5050,76 @@
                         "type": "string"
                     },
                     {
+                        "name": "rol__betrokkeneType",
+                        "in": "query",
+                        "description": "Type van de `betrokkene`.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "natuurlijk_persoon",
+                            "niet_natuurlijk_persoon",
+                            "vestiging",
+                            "organisatorische_eenheid",
+                            "medewerker"
+                        ]
+                    },
+                    {
+                        "name": "rol__betrokkene",
+                        "in": "query",
+                        "description": "URL-referentie naar een betrokkene gerelateerd aan de ZAAK.",
+                        "required": false,
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    {
+                        "name": "rol__omschrijvingGeneriek",
+                        "in": "query",
+                        "description": "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "adviseur",
+                            "behandelaar",
+                            "belanghebbende",
+                            "beslisser",
+                            "initiator",
+                            "klantcontacter",
+                            "zaakcoordinator",
+                            "mede_initiator"
+                        ]
+                    },
+                    {
+                        "name": "maximaleVertrouwelijkheidaanduiding",
+                        "in": "query",
+                        "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "beperkt_openbaar",
+                            "intern",
+                            "zaakvertrouwelijk",
+                            "vertrouwelijk",
+                            "confidentieel",
+                            "geheim",
+                            "zeer_geheim"
+                        ]
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn",
+                        "in": "query",
+                        "description": "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__medewerker__identificatie",
+                        "in": "query",
+                        "description": "Een korte unieke aanduiding van de MEDEWERKER.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "description": "Which field to use when ordering the results.",
@@ -11105,9 +11175,12 @@
                 },
                 "archiefnominatie": {
                     "title": "Archiefnominatie",
-                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
+                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.\n\nUitleg bij mogelijke waarden:\n\n* `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.\n* `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "blijvend_bewaren",
+                        "vernietigen"
+                    ]
                 },
                 "archiefnominatie__in": {
                     "title": "Archiefnominatie  in",
@@ -11135,9 +11208,14 @@
                 },
                 "archiefstatus": {
                     "title": "Archiefstatus",
-                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.",
+                    "description": "Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.\n\nUitleg bij mogelijke waarden:\n\n* `nog_te_archiveren` - De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd.\n* `gearchiveerd` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt.\n* `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum kan nog niet bepaald worden.\n* `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats.",
                     "type": "string",
-                    "minLength": 1
+                    "enum": [
+                        "nog_te_archiveren",
+                        "gearchiveerd",
+                        "gearchiveerd_procestermijn_onbekend",
+                        "overgedragen"
+                    ]
                 },
                 "archiefstatus__in": {
                     "title": "Archiefstatus  in",
@@ -11172,6 +11250,66 @@
                 "startdatum__lte": {
                     "title": "Startdatum  lte",
                     "description": "De datum waarop met de uitvoering van de zaak is gestart",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneType": {
+                    "title": "Rol  betrokkenetype",
+                    "description": "Type van de `betrokkene`.\n\nUitleg bij mogelijke waarden:\n\n* `natuurlijk_persoon` - Natuurlijk persoon\n* `niet_natuurlijk_persoon` - Niet-natuurlijk persoon\n* `vestiging` - Vestiging\n* `organisatorische_eenheid` - Organisatorische eenheid\n* `medewerker` - Medewerker",
+                    "type": "string",
+                    "enum": [
+                        "natuurlijk_persoon",
+                        "niet_natuurlijk_persoon",
+                        "vestiging",
+                        "organisatorische_eenheid",
+                        "medewerker"
+                    ]
+                },
+                "rol__betrokkene": {
+                    "title": "Rol  betrokkene",
+                    "description": "URL-referentie naar een betrokkene gerelateerd aan de ZAAK.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__omschrijvingGeneriek": {
+                    "title": "Rol  omschrijvinggeneriek",
+                    "description": "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` - Adviseur\n* `behandelaar` - Behandelaar\n* `belanghebbende` - Belanghebbende\n* `beslisser` - Beslisser\n* `initiator` - Initiator\n* `klantcontacter` - Klantcontacter\n* `zaakcoordinator` - Zaakco\u00f6rdinator\n* `mede_initiator` - Mede-initiator",
+                    "type": "string",
+                    "enum": [
+                        "adviseur",
+                        "behandelaar",
+                        "belanghebbende",
+                        "beslisser",
+                        "initiator",
+                        "klantcontacter",
+                        "zaakcoordinator",
+                        "mede_initiator"
+                    ]
+                },
+                "maximaleVertrouwelijkheidaanduiding": {
+                    "title": "Maximalevertrouwelijkheidaanduiding",
+                    "description": "Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.\n\nUitleg bij mogelijke waarden:\n\n* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim",
+                    "type": "string",
+                    "enum": [
+                        "openbaar",
+                        "beperkt_openbaar",
+                        "intern",
+                        "zaakvertrouwelijk",
+                        "vertrouwelijk",
+                        "confidentieel",
+                        "geheim",
+                        "zeer_geheim"
+                    ]
+                },
+                "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": {
+                    "title": "Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn",
+                    "description": "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__medewerker__identificatie": {
+                    "title": "Rol  betrokkeneidentificatie  medewerker  identificatie",
+                    "description": "Een korte unieke aanduiding van de MEDEWERKER.",
                     "type": "string",
                     "minLength": 1
                 },
