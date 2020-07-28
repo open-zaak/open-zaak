@@ -22,7 +22,7 @@ def resend_notification(notification: FailedNotification) -> None:
     fail, they are logged again with the same original logger, making them
     available for future retries.
     """
-    assert notification.retried_at is None, "Can only resent not-retried notifications"
+    assert notification.retried_at is None, "Can only resend not-retried notifications"
     config = NotificationsConfig.get_solo()
     client = config.get_client()
 

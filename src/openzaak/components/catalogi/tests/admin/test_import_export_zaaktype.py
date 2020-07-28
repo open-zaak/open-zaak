@@ -52,11 +52,13 @@ class MockSelectielijst:
         super().setUpTestData()
 
         cls.base = ReferentieLijstConfig.get_solo().api_root
-        Service.objects.create(
-            api_type=APITypes.orc,
+        Service.objects.get_or_create(
             api_root=cls.base,
-            label="external selectielijst",
-            auth_type=AuthTypes.no_auth,
+            defaults=dict(
+                api_type=APITypes.orc,
+                label="external selectielijst",
+                auth_type=AuthTypes.no_auth,
+            ),
         )
 
     def setUp(self):
