@@ -220,7 +220,8 @@ class ResultaatTypeForm(forms.ModelForm):
 
         # mapping ZTC -> selectielijst!
         backward_not_ok = (
-            afleidingswijze in REVERSE_MAPPING
+            procestermijn
+            and afleidingswijze in REVERSE_MAPPING
             and REVERSE_MAPPING[afleidingswijze] != procestermijn
         )
         if backward_not_ok:
