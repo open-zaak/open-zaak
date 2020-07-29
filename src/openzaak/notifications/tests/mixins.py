@@ -8,11 +8,13 @@ class NotificationServiceMixin:
         super().setUp()
 
         config = NotificationsConfig.get_solo()
-        Service.objects.create(
-            api_type=APITypes.nrc,
+        Service.objects.update_or_create(
             api_root=config.api_root,
-            client_id="test",
-            secret="test",
-            user_id="test",
-            user_representation="Test",
+            defaults=dict(
+                api_type=APITypes.nrc,
+                client_id="test",
+                secret="test",
+                user_id="test",
+                user_representation="Test",
+            ),
         )
