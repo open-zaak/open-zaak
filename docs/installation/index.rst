@@ -41,6 +41,7 @@ Guides
    deployment/single_server
    updating
    configuration
+   cli
    cmis
    logging
 
