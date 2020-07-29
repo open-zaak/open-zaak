@@ -14,6 +14,11 @@ documents are stored in the DMS.
 
 .. _`Documenten API`: https://documenten-api.vng.cloud/api/v1/schema/
 
+.. warning::
+   The CMIS adapter is currently an experimental feature. While we have extensive unit
+   test coverage with Alfresco, we require more "real world" testing before we can
+   label the feature as stable.
+
 Using the CMIS adapter
 ----------------------
 
@@ -34,6 +39,8 @@ configuration could be:
     3. Client Password: ``SomeSecretPassw0rd``
     4. Main folder name: ``DRC``
 
+.. note:: Currently only the CMIS 1.1 browser binding is supported. The CMIS 1.0 SOAP
+   binding is under active development and will follow in a later release.
 
 The CMIS mapper
 ---------------
