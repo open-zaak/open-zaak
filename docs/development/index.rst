@@ -3,7 +3,8 @@
 Development
 ===========
 
-Open Zaak is open-source software. We'd love to have you contribute!
+Open Zaak is :ref:`introduction_open-source` software. We'd love to have you 
+contribute!
 
 .. toctree::
    :maxdepth: 2

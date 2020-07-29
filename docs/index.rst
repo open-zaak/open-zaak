@@ -26,7 +26,6 @@ To get you started, you might find some of these links relevant:
 Open Zaak `is`_ and only uses :ref:`introduction_open-source`.
 
 .. _`is`: https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md
-.. _`open-source`: introduction/open-source
 
 .. toctree::
    :maxdepth: 3
@@ -38,4 +37,3 @@ Open Zaak `is`_ and only uses :ref:`introduction_open-source`.
    manual/index
    support/index
    development/index
-   public_code
