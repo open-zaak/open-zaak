@@ -1,6 +1,58 @@
 Changelog
 =========
 
+1.3.0 (2020-07-29)
+------------------
+
+Version 1.3.0 of Open Zaak introduces some new features, quality of life changes and
+fixes bugs discovered in 1.2.0.
+
+There is no 1.2.1 bugfix release. Upgrading from 1.2.0 to 1.3.0 requires no manual
+intervention.
+
+**What's new?**
+
+* Added *experimental* support for CMIS backends for the Documenten API, as an
+  alternative to Open Zaak database + filesystem. See the documentation for more details.
+* Added a feature flag to allow unpublished ``*Typen`` to be used. This should only be
+  used in Proof-of-concept environments, as it violates the VNG standard.
+* Added a number of CLI commands for initial Open Zaak setup following installation. See
+  the documentation for more details.
+* Implemented extra ``zaak_list`` filters, added in 1.0.2 of the Zaken API standard
+    - ``maxVertrouwelijkheidaanduiding``
+    - ``betrokkene``
+    - ``betrokkeneType``
+    - ``omschrijvingGeneriek``
+    - ``natuurlijk persoon BSN``
+    - ``medewerker identificatie``
+
+**Bugfixes and general QOL changes**
+
+* Positioned the Foundation for Public Code and checked Open Zaak against their
+  standard/guidelines
+* The documentation now includes a Public Code checklist
+* Added Code of Conduct
+* Added Governance documentation
+* Fixed running tests with ``--keepdb`` option
+* Fixed the admin form for ``Zaaktype-Informatieobjecttype`` relation
+* Fixed importing a ``Zaaktype-Informatieobjecttype`` with a ``Statustype`` relation
+* Improved documentation for deploying on Kubernetes
+* Added English version of README
+* Fixed configuration form for external services when the NLX directory has not been
+  configured (yet)
+* Fixed ``BesluitType`` create in the admin (#594)
+* Added and documented performance-profiling tooling for Open Zaak developers
+* Fixed performance regression in ``zaak_list`` endpoint operation :zap:
+* Fixed a crash on malformed UUIDs in endpoint URLs that expect a valid UUID 4 pattern
+* Added the environment configuration reference to the published documentation
+* Refactored notifications/selectielijst configuration to use the external services
+  configuration
+* Fixed ``EigenschapSpecificatie.waardenverzameling`` default value (empty list) (#611)
+* Fixed missing validation on (zaaktype, eigenschapnaam) uniqueness
+* Added Slack invite link
+* Relaxed Resultaat.afleidingswijze validation in the admin too (see also ``6e38b865c``)
+* Improved "Contributing" section
+
 1.2.0 (2020-04-20)
 ------------------
 
