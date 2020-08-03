@@ -13,7 +13,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField
-from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage

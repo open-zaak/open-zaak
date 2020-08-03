@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+
+import os
 import uuid
+from unittest import skipIf
 
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -82,6 +85,10 @@ class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @tag("pickme")
+    @skipIf(
+        os.getenv("CMIS_BINDING") == "WEBSERVICE",
+        "Webservice CMIS binding does not support file content URLs",
+    )
     def test_eio_detail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create(beschrijving="old")
 

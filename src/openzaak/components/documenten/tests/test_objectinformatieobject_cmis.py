@@ -3,7 +3,7 @@
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
-from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import (

@@ -3,6 +3,7 @@
 import io
 from decimal import Decimal
 from io import BytesIO
+from typing import TypeVar
 
 from django.conf import settings
 from django.core.files.base import File
@@ -11,6 +12,10 @@ from django.utils.functional import LazyObject
 
 from drc_cmis import client_builder
 from privates.storages import PrivateMediaFileSystemStorage
+
+# In the CMIS adapter, the Document object can be from either the Browser or Webservice binding module.
+# So, this is to simplify the type hint
+Cmisdoc = TypeVar("Cmisdoc")
 
 
 class CMISStorageFile(File):
@@ -73,7 +78,7 @@ class CMISStorage(Storage):
         # TODO create a custom link to support content URLs with SOAP
         if "cmisws" in self._client.base_url:
             raise RuntimeError(
-                "Web-service binding with SOAP does not support content URLs"
+                "Webservice CMIS binding does not support file content URLs"
             )
 
         cmis_doc = self._get_cmis_doc(uuid_version)
@@ -96,7 +101,7 @@ class CMISStorage(Storage):
         else:
             raise NotImplementedError(f"CMIS vendor {vendor} is not implemented yet.")
 
-    def _get_cmis_doc(self, uuid_version: str) -> "Document":
+    def _get_cmis_doc(self, uuid_version: str) -> Cmisdoc:
         uuid, wanted_version = uuid_version.split(";")
         wanted_version = int(Decimal(wanted_version))
         cmis_doc = self._client.get_document(uuid=uuid)

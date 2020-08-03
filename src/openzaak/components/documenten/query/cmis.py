@@ -8,7 +8,6 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import List, Optional, Tuple
 
-from django.conf import settings
 from django.db import IntegrityError, models
 from django.db.models import fields
 from django.db.models.query import BaseIterable
@@ -17,15 +16,15 @@ from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis import client_builder
-from drc_cmis.client import exceptions
-from drc_cmis.client.convert import make_absolute_uri
-from drc_cmis.client.mapper import mapper
+from drc_cmis.utils import exceptions
+from drc_cmis.utils.convert import make_absolute_uri
+from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
-from ..utils import CMISStorageFile
+from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -132,8 +131,8 @@ class CMISDocumentIterable(BaseIterable):
         return self._client
 
     def _process_intermediate(
-        self, django_query, documents: List["Document"]
-    ) -> List["Document"]:
+        self, django_query, documents: List[Cmisdoc]
+    ) -> List[Cmisdoc]:
         """
         Order the results of the CMIS query and throw out non-distinct results.
         """
@@ -631,25 +630,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return super().filter(*args, **kwargs)
 
-    def delete(self):
-
-        number_alfresco_updates = 0
-        for django_doc in self._result_cache:
-            try:
-                if settings.CMIS_DELETE_IS_OBLITERATE:
-                    # Actually removing the files from Alfresco
-                    self.cmis_client.obliterate_document(django_doc.uuid)
-                else:
-                    # Updating all the documents from Alfresco to have 'verwijderd=True'
-                    self.cmis_client.delete_cmis_document(django_doc.uuid)
-                number_alfresco_updates += 1
-            except exceptions.DocumentConflictException:
-                logger.log(
-                    f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
-                )
-
-        return number_alfresco_updates, {"cmis_document": number_alfresco_updates}
-
     def update(self, **kwargs):
         docs_to_update = super().iterator()
 
@@ -949,7 +929,7 @@ def format_fields(obj, obj_fields):
 
 
 def cmis_doc_to_django_model(
-    cmis_doc: "Document",
+    cmis_doc: Cmisdoc,
     skip_pwc: bool = False,
     version: Optional[int] = None,
     begin_registratie: Optional[datetime.datetime] = None,
@@ -966,7 +946,7 @@ def cmis_doc_to_django_model(
         # check if the PWC does still match the detail filters, if provided
         version_ok = version and version == pwc.versie
         begin_registratie_ok = (
-            begin_registratie and pwc.begin_registratie <= begin_registratie.timestamp()
+            begin_registratie and pwc.begin_registratie <= begin_registratie
         )
         if (not version or version_ok) and (
             not begin_registratie or begin_registratie_ok

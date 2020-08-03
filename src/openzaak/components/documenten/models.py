@@ -11,8 +11,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
 from drc_cmis import client_builder
-from drc_cmis.client import exceptions
-from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.utils import exceptions
+from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.constants import ObjectTypes
