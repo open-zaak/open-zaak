@@ -8,7 +8,6 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import List, Optional, Tuple
 
-from django.conf import settings
 from django.db import IntegrityError, models
 from django.db.models import fields
 from django.db.models.query import BaseIterable
@@ -25,7 +24,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
-from ..utils import CMISStorageFile
+from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -132,8 +131,8 @@ class CMISDocumentIterable(BaseIterable):
         return self._client
 
     def _process_intermediate(
-        self, django_query, documents: List["Document"]
-    ) -> List["Document"]:
+        self, django_query, documents: List[Cmisdoc]
+    ) -> List[Cmisdoc]:
         """
         Order the results of the CMIS query and throw out non-distinct results.
         """
@@ -930,7 +929,7 @@ def format_fields(obj, obj_fields):
 
 
 def cmis_doc_to_django_model(
-    cmis_doc: "Document",
+    cmis_doc: Cmisdoc,
     skip_pwc: bool = False,
     version: Optional[int] = None,
     begin_registratie: Optional[datetime.datetime] = None,
