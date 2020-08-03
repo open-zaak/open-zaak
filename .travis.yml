@@ -66,6 +66,9 @@ jobs:
         - coverage run src/manage.py test src --tag=cmis
       after_script:
         - docker-compose -f docker-compose.travis-cmis.yml down -v --rmi all --remove-orphans
+      after_failure:
+        - docker ps
+        - docker-compose logs
 
     - name: "Code imports"
       before_install: skip
