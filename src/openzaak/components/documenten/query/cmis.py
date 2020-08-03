@@ -631,25 +631,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
         return super().filter(*args, **kwargs)
 
-    def delete(self):
-
-        number_alfresco_updates = 0
-        for django_doc in self._result_cache:
-            try:
-                if settings.CMIS_DELETE_IS_OBLITERATE:
-                    # Actually removing the files from Alfresco
-                    self.cmis_client.obliterate_document(django_doc.uuid)
-                else:
-                    # Updating all the documents from Alfresco to have 'verwijderd=True'
-                    self.cmis_client.delete_cmis_document(django_doc.uuid)
-                number_alfresco_updates += 1
-            except exceptions.DocumentConflictException:
-                logger.log(
-                    f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
-                )
-
-        return number_alfresco_updates, {"cmis_document": number_alfresco_updates}
-
     def update(self, **kwargs):
         docs_to_update = super().iterator()
 
