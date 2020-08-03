@@ -51,7 +51,19 @@ jobs:
       script:
         - docker-compose -f docker-compose.travis-cmis.yml up -d
         - python src/manage.py collectstatic --noinput --link
+        - export CMIS_BINDING=BROWSER
         - coverage run src/manage.py test src
+      after_script:
+        - docker-compose -f docker-compose.travis-cmis.yml down -v --rmi all --remove-orphans
+
+    - name: "Unit tests CMIS web service (SOAP)"
+      services:
+        - docker
+      script:
+        - docker-compose -f docker-compose.travis-cmis.yml up -d
+        - python src/manage.py collectstatic --noinput --link
+        - export CMIS_BINDING=WEBSERVICE
+        - coverage run src/manage.py test src --tag=cmis
       after_script:
         - docker-compose -f docker-compose.travis-cmis.yml down -v --rmi all --remove-orphans
 
