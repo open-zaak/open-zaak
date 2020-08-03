@@ -12,6 +12,11 @@ Instead of storing the documents, the CMIS adapter converts API calls to CMIS re
 which are sent to the DMS to create, update and delete documents. This way, the
 documents are stored in the DMS.
 
+There are currently two supported CMIS bindings:
+
+    1. The browser binding: which uses CMIS version 1.1. This is a JSON-based binding.
+    2. The web service binding: which uses CMIS version 1.0. This binding is based on the SOAP protocol.
+
 .. _`Documenten API`: https://documenten-api.vng.cloud/api/v1/schema/
 
 .. warning::
@@ -27,20 +32,26 @@ This can be done in the ``.env`` file.
 Then, the following details need to be configured through the Admin interface of Open Zaak:
 
     1. The client URL
-    2. The client username and password
-    3. The name of the main folder in the Document Management System (DMS) where
+    2. The binding
+    3. In case the browser binding is used, the time zone. By default this is set to UTC.
+    4. The client username and password
+    5. The name of the main folder in the Document Management System (DMS) where
        documents are going to be created
 
 These can be configured under **Configuratie > CMIS configuration**. An example
 configuration could be:
 
     1. Client URL: ``http://example.com:8888/alfresco/api/-default-/public/cmis/versions/1.1/browser``
-    2. Client Username: ``Admin``
-    3. Client Password: ``SomeSecretPassw0rd``
-    4. Main folder name: ``DRC``
+    2. Binding: ``Browser binding (CMIS 1.1)``
+    3. Time zone: ``UTC``
+    4. Client Username: ``Admin``
+    5. Client Password: ``SomeSecretPassw0rd``
+    6. Main folder name: ``DRC``
 
-.. note:: Currently only the CMIS 1.1 browser binding is supported. The CMIS 1.0 SOAP
-   binding is under active development and will follow in a later release.
+    .. note::
+
+        If documents are stored in one DMS and later a different DMS is used, the documents will *not* be automatically
+        accessible in the new DMS. They will have to be transferred to the new DMS.
 
 The CMIS mapper
 ---------------
@@ -88,11 +99,11 @@ functionining of the adapter.
 .. todo:: More properties are marked as 'index' in the shipped content model, but it's
    unclear if they're actually used at the moment.
 
-Example CMIS request
---------------------
+Example CMIS request with browser binding
+-----------------------------------------
 
 The example data below shows what data is sent by Open Zaak when a CMIS request is
-performed to create different objects.
+performed to create different objects with the browser binding.
 
 The objects are created with a ``POST`` request to the url of the root folder.
 The url of the root folder is obtained by appending ``/root/`` to the client url configured in the
@@ -203,3 +214,124 @@ The data passed in the body is also shown below in a more readable format:
 
 .. _Object-Type: http://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-270003
 .. _Document Object: http://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-380004
+
+
+Example CMIS request with web service binding
+---------------------------------------------
+
+The example data below shows what data is sent by Open Zaak when a CMIS request is
+performed to create different objects with the web service binding.
+
+The objects are created with a ``POST`` request to the url of the 'object service', whose URL
+is obtained by appending ``/ObjectService/`` to the client url configured in the
+Admin interface of Open Zaak.
+For example, if the client url has been set to
+``http://example.com/alfresco/cmisws/``,
+then the object service url is
+``http://example.com/alfresco/cmisws/ObjectService/``.
+
+Within the root folder, all content created by Open Zaak will be in a folder whose name
+is specified in the configuration (by default ``DRC``).
+
+The username and passwords used are those specified in the CMIS configuration section
+of the Admin interface. These are embedded in the SOAP envelope that is sent from Open Zaak.
+They are alse included in the requests header in base64 encoding (see below example request).
+
+**Document objects (EnkelvoudigInformatieObject)**
+
+The data below is an example of a SOAP request sent from Open Zaak to create a document object according to the
+document model with a short file content.
+
+    .. code-block::
+
+        POST /alfresco/cmisws/ObjectService HTTP/1.1
+        Host: example.com
+        Content-Type: multipart/related; type="application/xop+xml";  start-info="application/soap+xml"; boundary="----=_Part_52_1132425564.1594208078802"
+        MIME-Version: 1.0
+        SOAPAction:
+        Authorization: Basic QWRtaW46U29tZVNlY3JldFBhc3N3MHJk
+
+        ------=_Part_52_1132425564.1594208078802
+        Content-Type: application/xop+xml; charset=UTF-8; type="application/soap+xml"
+        Content-Transfer-Encoding: 8bit
+        Content-ID: <rootpart@soapui.org>
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://docs.oasis-open.org/ns/cmis/messaging/200908/" xmlns:ns1="http://docs.oasis-open.org/ns/cmis/core/200908/">
+           <soapenv:Header>
+              <Security xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+                 <Timestamp>
+                    <Created>2020-07-27T12:00:00Z</Created>
+                    <Expires>2020-07-28T12:00:00Z</Expires>
+                 </Timestamp>
+                 <UsernameToken>
+                    <Username>Admin</Username>
+                    <Password>SomeSecretPassw0rd</Password>
+                 </UsernameToken>
+              </Security>
+           </soapenv:Header>
+           <soapenv:Body>
+              <ns:createDocument>
+                 <ns:repositoryId>d6a10501-ef36-41e1-9aae-547154f57838</ns:repositoryId>
+                 <ns:properties>
+                    <ns1:propertyString propertyDefinitionId="drc:document__bronorganisatie">
+                       <ns1:value>159351741</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyDateTime propertyDefinitionId="drc:document__creatiedatum">
+                       <ns1:value>2020-07-27T12:00:00.000Z</ns1:value>
+                    </ns1:propertyDateTime>
+                    <ns1:propertyString propertyDefinitionId="drc:document__titel">
+                       <ns1:value>detailed summary</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__auteur">
+                       <ns1:value>test_auteur</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__formaat">
+                       <ns1:value>txt</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__taal">
+                       <ns1:value>eng</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__bestandsnaam">
+                       <ns1:value>dummy.txt</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__link">
+                       <ns1:value>http://een.link</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__beschrijving">
+                       <ns1:value>test_beschrijving</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__vertrouwelijkaanduiding">
+                       <ns1:value>openbaar</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyDecimal propertyDefinitionId="drc:document__versie">
+                       <ns1:value>1</ns1:value>
+                    </ns1:propertyDecimal>
+                    <ns1:propertyId propertyDefinitionId="cmis:objectTypeId">
+                       <ns1:value>D:drc:document</ns1:value>
+                    </ns1:propertyId>
+                    <ns1:propertyString propertyDefinitionId="cmis:name">
+                       <ns1:value>detailed summary-5GHHQQ</ns1:value>
+                    </ns1:propertyString>
+                    <ns1:propertyString propertyDefinitionId="drc:document__identificatie">
+                       <ns1:value>b0e06020-4b4f-44c1-8465-e28b849dcb40</ns1:value>
+                    </ns1:propertyString>
+                 </ns:properties>
+                 <ns:folderId>workspace://SpacesStore/75cfa1ac-c417-48b4-ab65-6c42441315fb</ns:folderId>
+                 <ns:contentStream>
+                    <ns:mimeType>application/octet-stream</ns:mimeType>
+                    <ns:stream>
+                       <inc:Include xmlns:inc="http://www.w3.org/2004/08/xop/include" href="cid:d3ed3127-061e-4bcb-b38b-db46f041eb30" />
+                    </ns:stream>
+                 </ns:contentStream>
+              </ns:createDocument>
+           </soapenv:Body>
+        </soapenv:Envelope>
+
+        ------=_Part_52_1132425564.1594208078802
+        Content-Type: application/octet-stream
+        Content-Transfer-Encoding: binary
+        Content-ID: <d3ed3127-061e-4bcb-b38b-db46f041eb30>
+
+        some file content
+        ------=_Part_52_1132425564.1594208078802--
