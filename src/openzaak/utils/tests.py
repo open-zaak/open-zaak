@@ -3,6 +3,7 @@
 import contextlib
 import hashlib
 import json
+import os
 import sys
 
 from django.conf import settings
@@ -10,8 +11,8 @@ from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.db.models import Model
 
-from drc_cmis.client.soap_client import SOAPCMISClient
 from drc_cmis.client_builder import get_client_class
+from drc_cmis.models import CMISConfig
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -195,4 +196,18 @@ class CMISMixin:
 
 
 class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
-    pass
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        binding = os.getenv("CMIS_BINDING")
+        if binding == "WEBSERVICE":
+            config = CMISConfig.objects.get()
+            config.client_url = "http://localhost:8082/alfresco/cmisws"
+            config.binding = "WEBSERVICE"
+            config.save()
+        elif binding == "BROWSER":
+            config = CMISConfig.objects.get()
+            config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
+            config.binding = "BROWSER"
+            config.save()

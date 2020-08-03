@@ -17,9 +17,9 @@ from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis import client_builder
-from drc_cmis.client import exceptions
-from drc_cmis.client.convert import make_absolute_uri
-from drc_cmis.client.mapper import mapper
+from drc_cmis.utils import exceptions
+from drc_cmis.utils.convert import make_absolute_uri
+from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -966,7 +966,7 @@ def cmis_doc_to_django_model(
         # check if the PWC does still match the detail filters, if provided
         version_ok = version and version == pwc.versie
         begin_registratie_ok = (
-            begin_registratie and pwc.begin_registratie <= begin_registratie.timestamp()
+            begin_registratie and pwc.begin_registratie <= begin_registratie
         )
         if (not version or version_ok) and (
             not begin_registratie or begin_registratie_ok

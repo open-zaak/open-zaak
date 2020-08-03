@@ -73,7 +73,7 @@ class CMISStorage(Storage):
         # TODO create a custom link to support content URLs with SOAP
         if "cmisws" in self._client.base_url:
             raise RuntimeError(
-                "Web-service binding with SOAP does not support content URLs"
+                "Webservice CMIS binding does not support file content URLs"
             )
 
         cmis_doc = self._get_cmis_doc(uuid_version)
