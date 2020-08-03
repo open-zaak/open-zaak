@@ -114,7 +114,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
         # Verify that the audittrail for the Gebruiksrechten deletion
         # contains the correct information
-        gebruiksrechten_delete_audittrail = audittrails[1]
+        gebruiksrechten_delete_audittrail = audittrails.get(actie="destroy")
         self.assertEqual(gebruiksrechten_delete_audittrail.bron, "DRC")
         self.assertEqual(gebruiksrechten_delete_audittrail.actie, "destroy")
         self.assertEqual(gebruiksrechten_delete_audittrail.resultaat, 204)
