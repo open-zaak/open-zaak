@@ -68,6 +68,7 @@ jobs:
         - docker-compose -f docker-compose.travis-cmis.yml down -v --rmi all --remove-orphans
       after_failure:
         - docker ps
+        - docker-compose logs --tail=20
 
     - name: "Code imports"
       before_install: skip
