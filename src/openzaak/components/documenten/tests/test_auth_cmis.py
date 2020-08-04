@@ -19,12 +19,11 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
-from .utils import get_eio_response
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 

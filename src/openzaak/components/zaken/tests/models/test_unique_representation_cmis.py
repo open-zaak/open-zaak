@@ -5,8 +5,7 @@ from django.test import override_settings, tag
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import serialise_eio
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.utils.tests import APICMISTestCase, serialise_eio
 
 from ..factories import ZaakInformatieObjectFactory
 

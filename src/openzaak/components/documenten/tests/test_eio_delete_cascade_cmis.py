@@ -10,11 +10,11 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
-from .utils import get_eio_response, get_operation_url
+from .utils import get_operation_url
 
 
 @tag("cmis")

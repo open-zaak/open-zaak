@@ -10,9 +10,8 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
-from ...documenten.tests.utils import serialise_eio
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_BIJWERKEN,

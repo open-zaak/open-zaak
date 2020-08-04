@@ -31,8 +31,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.utils.tests import JWTAuthMixin, mock_client
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject

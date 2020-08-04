@@ -5,10 +5,9 @@ from django.test import override_settings, tag
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.utils.tests import APICMISTestCase, serialise_eio
 
 from ...tests.factories import BesluitInformatieObjectFactory
-from ..utils import serialise_eio
 
 
 @tag("cmis")

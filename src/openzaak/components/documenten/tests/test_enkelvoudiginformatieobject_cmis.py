@@ -14,13 +14,12 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
-    get_eio_response,
     get_informatieobjecttype_response,
     get_operation_url,
 )

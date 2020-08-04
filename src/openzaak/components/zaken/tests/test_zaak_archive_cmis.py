@@ -14,8 +14,7 @@ from vng_api_common.tests import reverse
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import serialise_eio
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url

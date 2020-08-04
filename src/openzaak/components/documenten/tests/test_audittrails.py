@@ -145,7 +145,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "beschrijving": "test_beschrijving",
             "informatieobjecttype": informatieobjecttype_url,
             "vertrouwelijkheidaanduiding": "openbaar",
-            "lock": eio_canonical.lock,
+            "lock": "0f60f6d2d2714c809ed762372f5a363a",
         }
 
         informatieobject_response = self.client.put(informatieobject_url, content).data
@@ -180,7 +180,8 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         eio_canonical.save()
 
         informatieobject_response = self.client.patch(
-            informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
+            informatieobject_url,
+            {"titel": "changed", "lock": "0f60f6d2d2714c809ed762372f5a363a"},
         ).data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
@@ -263,6 +264,11 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         response_audittrails = self.client.get(audittrails_url)
 
         self.assertEqual(response_audittrails.status_code, status.HTTP_200_OK)
+        audittrail_data = response_audittrails.data
+        self.assertEqual(audittrail_data["uuid"], str(audittrails.uuid))
+        self.assertEqual(audittrail_data["resource"], "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail_data["gebruikers_id"], self.user_id)
+        self.assertEqual(audittrail_data["actie"], "create")
 
     def test_audittrail_resource_weergave(self):
         eio_response = self._create_enkelvoudiginformatieobject()

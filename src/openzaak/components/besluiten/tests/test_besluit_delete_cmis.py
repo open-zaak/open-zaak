@@ -4,12 +4,12 @@ from django.test import override_settings
 
 from rest_framework import status
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url, serialise_eio
+from .utils import get_operation_url
 
 
 @override_settings(CMIS_ENABLED=True)

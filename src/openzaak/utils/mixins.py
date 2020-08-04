@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from dictdiffer import diff
+from drc_cmis import client_builder
 from vng_api_common.audittrails.models import AuditTrail
 
 
@@ -29,3 +30,14 @@ class AuditTrailMixin:
             changes = format_dict_diff(list(diff(oud, nieuw)))
             res.append((audit, changes))
         return res
+
+
+class CMISClientMixin:
+    _cmis_client = None
+
+    @property
+    def cmis_client(self):
+        if self._cmis_client is None:
+            client_class = client_builder.get_client_class()
+            self._cmis_client = client_class()
+        return self._cmis_client

@@ -265,6 +265,11 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
         response_audittrails = self.client.get(audittrails_url)
 
         self.assertEqual(response_audittrails.status_code, status.HTTP_200_OK)
+        audittrail_data = response_audittrails.data
+        self.assertEqual(audittrail_data["uuid"], str(audittrails.uuid))
+        self.assertEqual(audittrail_data["resource"], "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail_data["gebruikers_id"], self.user_id)
+        self.assertEqual(audittrail_data["actie"], "create")
 
     def test_audittrail_resource_weergave(self):
         eio_response = self._create_enkelvoudiginformatieobject()

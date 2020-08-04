@@ -13,12 +13,12 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ..constants import VervalRedenen
 from ..models import Besluit
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url, serialise_eio
+from .utils import get_operation_url
 
 
 @tag("cmis")

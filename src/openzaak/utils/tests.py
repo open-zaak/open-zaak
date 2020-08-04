@@ -5,11 +5,15 @@ import hashlib
 import json
 import os
 import sys
+import uuid
+from datetime import date
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core import serializers
 from django.core.cache import caches
 from django.db.models import Model
+from django.utils import timezone
 
 from drc_cmis.client_builder import get_client_class
 from drc_cmis.models import CMISConfig
@@ -211,3 +215,47 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
             config.binding = "BROWSER"
             config.save()
+
+
+def get_eio_response(url, **overrides):
+    eio_type = (
+        f"https://external.catalogus.nl/api/v1/informatieobjecttypen/{uuid.uuid4()}"
+    )
+    eio = {
+        "url": url,
+        "identificatie": "DOCUMENT-00001",
+        "bronorganisatie": "272618196",
+        "creatiedatum": date.today().isoformat(),
+        "titel": "some titel",
+        "auteur": "some auteur",
+        "status": "",
+        "formaat": "some formaat",
+        "taal": "nld",
+        "beginRegistratie": timezone.now().isoformat().replace("+00:00", "Z"),
+        "versie": 1,
+        "bestandsnaam": "",
+        "inhoud": f"{url}/download?versie=1",
+        "bestandsomvang": 100,
+        "link": "",
+        "beschrijving": "",
+        "ontvangstdatum": None,
+        "verzenddatum": None,
+        "ondertekening": {"soort": "", "datum": None},
+        "indicatieGebruiksrecht": None,
+        "vertrouwelijkheidaanduiding": "openbaar",
+        "integriteit": {"algoritme": "", "waarde": "", "datum": None},
+        "informatieobjecttype": eio_type,
+        "locked": False,
+    }
+    eio.update(**overrides)
+
+    if overrides.get("_informatieobjecttype_url") is not None:
+        eio["informatieobjecttype"] = overrides.get("_informatieobjecttype_url")
+
+    return eio
+
+
+def serialise_eio(eio, eio_url, **overrides):
+    serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
+    serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
+    return serialised_eio

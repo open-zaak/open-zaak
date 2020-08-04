@@ -10,10 +10,9 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ..models import Besluit, BesluitInformatieObject
-from .utils import serialise_eio
 
 
 @tag("cmis")

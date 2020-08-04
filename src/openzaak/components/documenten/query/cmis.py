@@ -276,18 +276,18 @@ class CMISDocumentIterable(BaseIterable):
             if filter_name == "_va_order":
                 # In case there are multiple different vertrouwelijk aanduiding,
                 # it chooses the lowest one
-                all_vertrowelijkaanduiding = []
+                all_vertrouwelijkaanduiding = []
                 if isinstance(filter_value, list):
                     for order in filter_value:
                         for case in order.cases:
-                            all_vertrowelijkaanduiding.append(
+                            all_vertrouwelijkaanduiding.append(
                                 case.result.identity[1][1]
                             )
 
                 else:
                     for case in filter_value.cases:
-                        all_vertrowelijkaanduiding.append(case.result.identity[1][1])
-                va_order = min(all_vertrowelijkaanduiding)
+                        all_vertrouwelijkaanduiding.append(case.result.identity[1][1])
+                va_order = min(all_vertrouwelijkaanduiding)
                 break
 
         filtered_docs = []

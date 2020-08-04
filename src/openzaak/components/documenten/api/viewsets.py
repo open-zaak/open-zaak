@@ -221,10 +221,8 @@ class EnkelvoudigInformatieObjectViewSet(
                 },
                 code="pending-relations",
             )
-        if settings.CMIS_ENABLED:
-            instance.delete()
-        else:
-            super().perform_destroy(instance.canonical)
+
+        instance.destroy()
 
     @property
     def filterset_class(self):
