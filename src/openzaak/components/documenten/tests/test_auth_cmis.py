@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 """
-Guarantee that the proper authorization amchinery is in place.
+Guarantee that the proper authorization machinery is in place.
 """
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
@@ -19,12 +19,11 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
-from .utils import get_eio_response
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
@@ -502,11 +501,12 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-        return super().setUp()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(

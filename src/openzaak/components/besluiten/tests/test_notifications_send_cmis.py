@@ -15,10 +15,10 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url, serialise_eio
+from .utils import get_operation_url
 
 
 @tag("cmis")

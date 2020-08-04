@@ -23,11 +23,10 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import get_zaak_response
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.utils.tests import APICMISTestCase, serialise_eio
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
-from .utils import serialise_eio
 
 
 @tag("oio", "cmis")

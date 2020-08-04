@@ -3,8 +3,6 @@
 from django.db import IntegrityError
 from django.test import TestCase, tag
 
-from rest_framework.test import APITestCase
-
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
@@ -74,7 +72,7 @@ class OIOTests(TestCase):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
 
-class BlockChangeTestCase(APITestCase):
+class BlockChangeTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()

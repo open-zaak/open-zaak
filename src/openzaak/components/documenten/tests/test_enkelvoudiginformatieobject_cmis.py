@@ -14,13 +14,12 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
-    get_eio_response,
     get_informatieobjecttype_response,
     get_operation_url,
 )
@@ -67,7 +66,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test storage backend (Alfresco)
-        stored_object = EnkelvoudigInformatieObject.objects.first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])

@@ -2,12 +2,11 @@
 # Copyright (C) 2020 Dimpact
 from django.test import override_settings, tag
 
-from openzaak.components.besluiten.tests.utils import serialise_eio
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.utils.tests import APICMISTestCase, serialise_eio
 
 from ...models import ZaakInformatieObject
 from ..factories import ZaakInformatieObjectFactory

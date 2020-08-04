@@ -256,16 +256,10 @@ class CMISDocumentIterable(BaseIterable):
                 new_filters = value._cmis_query
                 break
 
-        if new_filters:
-            return new_filters
-        else:
-            return filters
+        return new_filters or filters
 
     def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
-        for key, value in filters:
-            if key == "_va_order":
-                return True
-        return False
+        return "_va_order" in dict(filters)
 
     def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
         if len(documents) == 0:
@@ -276,18 +270,18 @@ class CMISDocumentIterable(BaseIterable):
             if filter_name == "_va_order":
                 # In case there are multiple different vertrouwelijk aanduiding,
                 # it chooses the lowest one
-                all_vertrowelijkaanduiding = []
+                all_vertrouwelijkaanduiding = []
                 if isinstance(filter_value, list):
                     for order in filter_value:
                         for case in order.cases:
-                            all_vertrowelijkaanduiding.append(
+                            all_vertrouwelijkaanduiding.append(
                                 case.result.identity[1][1]
                             )
 
                 else:
                     for case in filter_value.cases:
-                        all_vertrowelijkaanduiding.append(case.result.identity[1][1])
-                va_order = min(all_vertrowelijkaanduiding)
+                        all_vertrouwelijkaanduiding.append(case.result.identity[1][1])
+                va_order = min(all_vertrouwelijkaanduiding)
                 break
 
         filtered_docs = []

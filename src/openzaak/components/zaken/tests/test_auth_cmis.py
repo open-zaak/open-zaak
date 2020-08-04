@@ -10,10 +10,9 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
-from ...documenten.tests.utils import serialise_eio
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN
 from ..models import ZaakInformatieObject
 from .factories import ZaakInformatieObjectFactory

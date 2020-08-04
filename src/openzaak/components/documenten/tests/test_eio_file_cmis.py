@@ -61,7 +61,7 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
 
         download_url = urlparse(response.data["inhoud"])
 
-        self.assertTrue(
+        self.assertEqual(
             download_url.path,
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )

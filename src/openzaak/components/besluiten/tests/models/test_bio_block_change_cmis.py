@@ -8,11 +8,10 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.utils.tests import APICMISTestCase, serialise_eio
 
 from ...models import BesluitInformatieObject
 from ..factories import BesluitFactory, BesluitInformatieObjectFactory
-from ..utils import serialise_eio
 
 
 @tag("cmis")

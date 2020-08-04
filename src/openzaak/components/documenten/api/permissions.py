@@ -15,5 +15,4 @@ class InformationObjectAuthRequired(AuthRequired):
     )
 
     def get_main_object(self, obj, permission_main_object):
-        # assert False, type(obj)
         return obj.get_informatieobject(permission_main_object)

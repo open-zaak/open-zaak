@@ -19,6 +19,7 @@ from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
@@ -41,6 +42,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
 from .validators import InformatieObjectUniqueValidator, StatusValidator
 
@@ -145,10 +147,21 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     """
 
     def get_url(self, obj, view_name, request, format):
-        obj_latest_version = obj.get_latest_version(self.parent)
-        if obj_latest_version is None:
-            return None
-        return super().get_url(obj_latest_version, view_name, request, format)
+        # obj is a EIOCanonical. If CMIS is enabled, it can't be used to retrieve the EIO latest version.
+        if settings.CMIS_ENABLED:
+            # self.parent is a serialiser, with instance Oio/Gebruiksrechten. These can be used to retrieve the EIO
+            if isinstance(self.parent.instance, Gebruiksrechten) or isinstance(
+                self.parent.instance, ObjectInformatieObject
+            ):
+                eio_latest_version = self.parent.instance.get_informatieobject()
+            # When .to_representation() is called from a list comprehension in ListSerializer
+            # self.parent.instance is a queryset.
+            elif isinstance(self.parent.instance, InformatieobjectRelatedQuerySet):
+                eio_latest_version = self.parent.instance.get().get_informatieobject()
+        else:
+            eio_latest_version = obj.latest_version
+
+        return super().get_url(eio_latest_version, view_name, request, format)
 
     def get_object(self, view_name, view_args, view_kwargs):
         lookup_value = view_kwargs[self.lookup_url_kwarg]
@@ -329,7 +342,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if settings.CMIS_ENABLED:
             path = reverse(
                 "enkelvoudiginformatieobject-detail",
-                kwargs={"version": "1", "uuid": instance.uuid},
+                kwargs={"version": api_settings.DEFAULT_VERSION, "uuid": instance.uuid},
             )
             # Following what is done in drc_cmis/client/convert.py
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
@@ -424,6 +437,8 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
+        # The lock method of the EnkelvoudigInformatieObjectViewSet creates a LockEnkelvoudigInformatieObjectSerializer
+        # with a context containing the request and the url parameter uuid.
         self.instance.lock_document(doc_uuid=self.context["uuid"])
         self.instance.save()
 
@@ -576,16 +591,14 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         self.set_object_properties(object_type)
         ret = super().to_representation(instance)
         if settings.CMIS_ENABLED:
-            # Objects without a public key will have 'None' as the URL, so it is added manually
+            # Objects without a primary key will have 'None' as the URL, so it is added manually
             path = reverse(
                 "objectinformatieobject-detail",
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
-            if hasattr(instance, "get_informatieobject_url"):
-                ret["informatieobject"] = instance.get_informatieobject_url()
-            else:
-                ret["informatieobject"] = self.instance.get_informatieobject_url()
+            ret["informatieobject"] = instance.get_informatieobject_url()
+
         return ret
 
     def create(self, validated_data):

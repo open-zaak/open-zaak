@@ -14,14 +14,13 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import CMISMixin
+from openzaak.utils.tests import CMISMixin, serialise_eio
 
 from ...models import ObjectInformatieObject
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from ..utils import serialise_eio
 
 
 @tag("oio", "cmis")

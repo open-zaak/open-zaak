@@ -5,12 +5,11 @@ from django.test import override_settings, tag
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import BesluitInformatieObject
 from .factories import BesluitInformatieObjectFactory
-from .utils import serialise_eio
 
 
 @tag("cmis")
