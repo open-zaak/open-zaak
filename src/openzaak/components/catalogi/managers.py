@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.db import models, transaction
 
 from openzaak.components.autorisaties.models import AutorisatieSpec

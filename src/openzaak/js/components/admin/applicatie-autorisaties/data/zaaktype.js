@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2019 - 2020 Dimpact
 class ZaakType {
     constructor({id, uuid, identificatie, omschrijving, concept, versiedatum}) {
         Object.assign(

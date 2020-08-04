@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import sys
 
 from openzaak.setup import setup_env

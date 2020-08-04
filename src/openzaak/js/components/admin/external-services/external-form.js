@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2020 Dimpact
 import React from "react";
 import {CheckBoxInputLabel, TextInput} from "../../../forms/inputs";
 import {API_TYPES} from "../../../forms/constants";

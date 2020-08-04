@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from rest_framework.test import APITestCase
 
 from openzaak.components.documenten.tests.factories import (

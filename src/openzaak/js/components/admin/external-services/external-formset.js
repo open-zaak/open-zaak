@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2020 Dimpact
 import React, {useState} from "react";
 import {ExternalForm} from "./external-form";
 import {ManagementForm} from "../../../forms/management-form";

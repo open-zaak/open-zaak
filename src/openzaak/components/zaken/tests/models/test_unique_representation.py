@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.test import override_settings, tag
 
 from openzaak.components.documenten.tests.factories import (

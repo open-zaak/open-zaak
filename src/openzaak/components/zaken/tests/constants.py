@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 # Bron Polygon: https://maps.amsterdam.nl/open_geodata/,
 # https://maps.amsterdam.nl/open_geodata/geojson.php?KAARTLAAG=GEBIED_STADSDELEN&THEMA=gebiedsindeling
 POLYGON_AMSTERDAM_CENTRUM = [

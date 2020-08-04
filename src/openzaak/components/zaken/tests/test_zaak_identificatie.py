@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Als straatartiest wil ik dat mijn aanvraag een uniek volgnummer krijgt zodat
 ik in mijn communicatie snel kan verwijzen naar mijn aanvraag.

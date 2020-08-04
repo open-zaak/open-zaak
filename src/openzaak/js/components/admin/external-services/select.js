@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2020 Dimpact
 import React, { useContext, useState, useEffect } from 'react';
 import {ErrorList} from "../../../forms/error-list";
 

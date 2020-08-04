@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from vng_api_common.notifications.models import NotificationsConfig
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service

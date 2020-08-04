@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import factory
 import factory.fuzzy
 from vng_api_common.constants import RolOmschrijving
