@@ -162,7 +162,7 @@ Requirement | meets | links and notes
 All code and documentation MUST be licensed such that it may be freely reusable, changeable and redistributable. | yes | [copyright marks in the footer?](https://open-zaak.readthedocs.io/en/latest/index.html) -> check if we can add license to footer ([sphinx conf](https://github.com/open-zaak/open-zaak/blob/master/docs/conf.py#L30)), but explicit open license
 Software source code MUST be licensed under an OSI-approved open source license. | yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 All code MUST be published with a license file. |yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
-All source code files in the codebase SHOULD include a copyright notice and a license header. | no | 2020-05-07 review by @Ainali
+All source code files in the codebase SHOULD include a copyright notice and a license header. | yes | 2020-08-03 review by @ericherman
 Codebases MAY have multiple licenses for different types of code and documentation. | | N/A
 Documentation MAY be published under Creative Commons licenses that are NOT ‘no derivatives’ or ‘non-commercial’. |  | N/A
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Als burger wil ik alle meldingen kunnen inzien in mijn omgeving, binnen mijn
 gemeente zodat ik weet wat er speelt of dat een melding al gedaan is.

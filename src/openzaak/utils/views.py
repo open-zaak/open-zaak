@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django import http
 from django.apps import apps
 from django.template import TemplateDoesNotExist, loader

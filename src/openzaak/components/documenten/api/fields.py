@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django_loose_fk.drf import FKOrURLField
 from rest_framework.fields import empty
 from rest_framework.reverse import reverse

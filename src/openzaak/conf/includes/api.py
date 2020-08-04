@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
 # Remove the reference - we don't have a single API version.

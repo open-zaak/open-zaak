@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Als burger wil ik een melding openbare ruimte kunnen doen zodat de gemeente
 deze kan behandelen.

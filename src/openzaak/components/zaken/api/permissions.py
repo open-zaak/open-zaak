@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 

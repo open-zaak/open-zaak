@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes

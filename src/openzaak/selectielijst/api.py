@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from typing import Dict, List, Optional, Union
 from urllib.parse import parse_qs, urlparse
 

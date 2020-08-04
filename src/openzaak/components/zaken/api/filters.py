@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from dictdiffer import diff
 from vng_api_common.audittrails.models import AuditTrail
 

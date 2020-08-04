@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Als gemeente wil ik dat de aanvraag tbh een straatoptreden als zaak wordt
 gecreëerd zodat mijn dossiervorming op orde is en de voortgang transparant is.

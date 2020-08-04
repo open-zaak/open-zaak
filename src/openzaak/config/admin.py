@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.contrib import admin
 
 from solo.admin import SingletonModelAdmin

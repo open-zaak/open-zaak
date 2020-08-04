@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail

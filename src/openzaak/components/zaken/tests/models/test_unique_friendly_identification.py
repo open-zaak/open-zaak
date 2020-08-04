@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from freezegun import freeze_time
 from rest_framework.test import APITestCase
 

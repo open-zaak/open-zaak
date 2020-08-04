@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.decorators import field_default

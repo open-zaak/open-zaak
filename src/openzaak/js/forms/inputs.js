@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2020 Dimpact
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {ErrorList} from "./error-list";

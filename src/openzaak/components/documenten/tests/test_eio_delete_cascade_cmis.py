@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """

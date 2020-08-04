@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2020 Dimpact
 // See vng_api_common.constants.ComponentTypes
 const COMPONENT_CHOICES = [
     ["ac", "Autorisaties API"],

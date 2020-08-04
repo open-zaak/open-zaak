@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.contrib.auth.models import Permission
 from django.test import tag
 from django.urls import reverse

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.contrib.admin.templatetags.admin_list import _boolean_icon
 from django.template import Library
 
