@@ -256,16 +256,10 @@ class CMISDocumentIterable(BaseIterable):
                 new_filters = value._cmis_query
                 break
 
-        if new_filters:
-            return new_filters
-        else:
-            return filters
+        return new_filters or filters
 
     def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
-        for key, value in filters:
-            if key == "_va_order":
-                return True
-        return False
+        return "_va_order" in dict(filters)
 
     def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
         if len(documents) == 0:
