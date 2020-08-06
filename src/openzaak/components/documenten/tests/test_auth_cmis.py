@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 """
-Guarantee that the proper authorization amchinery is in place.
+Guarantee that the proper authorization machinery is in place.
 """
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
@@ -501,11 +501,12 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-        return super().setUp()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(

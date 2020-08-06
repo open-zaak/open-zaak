@@ -66,7 +66,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test storage backend (Alfresco)
-        stored_object = EnkelvoudigInformatieObject.objects.first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])

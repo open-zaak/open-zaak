@@ -67,9 +67,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test database
-        stored_object = EnkelvoudigInformatieObject.objects.filter().first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.filter().count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
@@ -244,9 +244,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get(
-            identificatie=content["identificatie"]
-        )
+        stored_object = EnkelvoudigInformatieObject.objects.get()
         self.assertEqual(
             stored_object.integriteit, {"algoritme": "", "waarde": "", "datum": None}
         )
@@ -280,9 +278,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get(
-            identificatie=content["identificatie"]
-        )
+        stored_object = EnkelvoudigInformatieObject.objects.get()
         self.assertEqual(
             stored_object.integriteit,
             {
@@ -309,18 +305,13 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that destroying is possible when there are no relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        uuid_eio = eio.uuid
         url = reverse(eio)
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertRaises(
-            EnkelvoudigInformatieObject.DoesNotExist,
-            EnkelvoudigInformatieObject.objects.get,
-            uuid=uuid_eio,
-        )
+        self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
 
     def test_destroy_with_relations_not_allowed(self):
         """
@@ -511,7 +502,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock1 = self.client.post(f"{eio1_url}/lock").data["lock"]
         self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
 
-        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2",)
+        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2")
 
         eio2_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
@@ -630,10 +621,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
                 },
             )
 
-            response = self.client.get(
-                eio_url, {"registratieOp": "2019-01-01T12:00:00"}
-            )
-            response_download = self.client.get(response.data["inhoud"])
+        response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+        response_download = self.client.get(response.data["inhoud"])
 
         try:
             self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
@@ -650,6 +639,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         Deleting a Besluit causes all related objects to be deleted as well.
         """
         EnkelvoudigInformatieObjectFactory.create_batch(2)
+
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -661,6 +651,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 
     def test_pagination_page_param(self):
         EnkelvoudigInformatieObjectFactory.create_batch(2)
+
         response = self.client.get(self.list_url, {"page": 1})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
