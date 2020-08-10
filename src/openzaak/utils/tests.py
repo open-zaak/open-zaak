@@ -15,7 +15,7 @@ from django.core.cache import caches
 from django.db.models import Model
 from django.utils import timezone
 
-from drc_cmis.client_builder import get_client_class
+from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -193,8 +193,7 @@ class CMISMixin:
 
     def _cleanup_alfresco(self) -> None:
         # Removes the created documents from alfresco
-        client_class = get_client_class()
-        client = client_class()
+        client = get_cmis_client()
         client.delete_cmis_folders_in_base()
         self.adapter.stop()
 

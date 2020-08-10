@@ -59,8 +59,7 @@ class CMISStorageFile(File):
 
 class CMISStorage(Storage):
     def __init__(self, location=None, base_url=None, encoding=None):
-        client_class = client_builder.get_client_class()
-        self._client = client_class()
+        self._client = client_builder.get_cmis_client()
 
     def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)

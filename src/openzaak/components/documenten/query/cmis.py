@@ -15,13 +15,14 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
-from drc_cmis import client_builder
 from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+
+from openzaak.utils.mixins import CMISClientMixin
 
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
 from ..utils import Cmisdoc, CMISStorageFile
@@ -57,11 +58,10 @@ def sort_results(documents: List, order_by: List[str]) -> List:
 # ---------------------- Model iterables -----------
 
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
-class CMISDocumentIterable(BaseIterable):
+class CMISDocumentIterable(BaseIterable, CMISClientMixin):
 
     table = "drc:document"
     return_type = "Document"
-    _client = None
 
     def __iter__(self):
         queryset = self.queryset
@@ -121,14 +121,6 @@ class CMISDocumentIterable(BaseIterable):
                     uuid_version_tuples_seen.add(uuid_version_combination)
 
                     yield cmis_doc_to_django_model(version, skip_pwc=True)
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            client_class = client_builder.get_client_class()
-            self._client = client_class()
-
-        return self._client
 
     def _process_intermediate(
         self, django_query, documents: List[Cmisdoc]
@@ -464,13 +456,12 @@ class CMISGebruiksrechtenIterable(BaseIterable):
 # --------------- Querysets --------------------------
 
 
-class CMISQuerySet(InformatieobjectQuerySet):
+class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
     """
     Find more information about the drc-cmis adapter on github here.
     https://github.com/GemeenteUtrecht/gemma-drc-cmis
     """
 
-    _client = None
     documents = []
     has_been_filtered = False
 
@@ -480,14 +471,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
         self._iterable_class = CMISDocumentIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            client_class = client_builder.get_client_class()
-            self._client = client_class()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -665,24 +648,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
             yield date
 
 
-class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
-
-    _client = None
-
+class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._iterable_class = CMISGebruiksrechtenIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            client_class = client_builder.get_client_class()
-            self._client = client_class()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -750,9 +722,10 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
         return converted_data
 
 
-class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
+class ObjectInformatieObjectCMISQuerySet(
+    ObjectInformatieObjectQuerySet, CMISClientMixin
+):
 
-    _client = None
     has_been_filtered = False
 
     def __init__(self, *args, **kwargs):
@@ -761,14 +734,6 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         self._iterable_class = CMISOioIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            client_class = client_builder.get_client_class()
-            self._client = client_class()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -833,7 +798,7 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
                 "ObjectInformatie object needs to have either a Zaak or Besluit relation"
             )
 
-        cmis_oio = self.cmis_client.create_content_object(data=data, object_type="oio")
+        cmis_oio = self.cmis_client.create_oio(data=data)
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
 

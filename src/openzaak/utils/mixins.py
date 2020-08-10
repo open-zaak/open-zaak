@@ -38,6 +38,5 @@ class CMISClientMixin:
     @property
     def cmis_client(self):
         if self._cmis_client is None:
-            client_class = client_builder.get_client_class()
-            self._cmis_client = client_class()
+            self._cmis_client = client_builder.get_cmis_client()
         return self._cmis_client
