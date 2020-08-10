@@ -59,8 +59,7 @@ class CMISStorageFile(File):
 
 class CMISStorage(Storage):
     def __init__(self, location=None, base_url=None, encoding=None):
-        client_class = client_builder.get_client_class()
-        self._client = client_class()
+        self._client = client_builder.get_cmis_client()
 
     def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)
@@ -104,7 +103,7 @@ class CMISStorage(Storage):
     def _get_cmis_doc(self, uuid_version: str) -> Cmisdoc:
         uuid, wanted_version = uuid_version.split(";")
         wanted_version = int(Decimal(wanted_version))
-        cmis_doc = self._client.get_document(uuid=uuid)
+        cmis_doc = self._client.get_document(drc_uuid=uuid)
         # only way to get a specific version
         if cmis_doc.versie != wanted_version:
             all_versions = self._client.get_all_versions(cmis_doc)

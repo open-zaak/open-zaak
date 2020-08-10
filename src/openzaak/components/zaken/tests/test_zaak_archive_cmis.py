@@ -14,9 +14,9 @@ from vng_api_common.tests import reverse
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
-from .factories import ZaakFactory, ZaakInformatieObjectFactory
+from .factories import ZaakInformatieObjectFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
@@ -24,12 +24,13 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
+class US345CMISTestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     heeft_alle_autorisaties = True
 
     def test_can_set_archiefstatus_when_all_documents_are_gearchiveerd(self):
-        zaak = ZaakFactory.create(
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak(
             archiefnominatie=Archiefnominatie.vernietigen,
             archiefactiedatum=date.today(),
         )
@@ -45,7 +46,8 @@ class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_cannot_set_archiefstatus_when_not_all_documents_are_gearchiveerd(self):
-        zaak = ZaakFactory.create(
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak(
             archiefnominatie=Archiefnominatie.vernietigen,
             archiefactiedatum=date.today(),
         )

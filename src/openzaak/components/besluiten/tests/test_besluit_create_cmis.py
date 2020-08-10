@@ -1,35 +1,46 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import re
 from datetime import date
 
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import TypeCheckMixin, reverse
+from zgw_consumers.constants import APITypes
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.tests.utils import mock_service_oas_get
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ..constants import VervalRedenen
 from ..models import Besluit
-from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from .factories import BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
+class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioMixin):
 
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
     @freeze_time("2018-09-06T12:08+0200")
     def test_us162_voeg_besluit_toe_aan_zaak(self):
-        zaak = ZaakFactory.create(zaaktype__concept=False)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
@@ -41,23 +52,26 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
         besluittype.informatieobjecttypen.add(io.informatieobjecttype)
 
+        # Mocking the besluit
+        besluit_data = {
+            "verantwoordelijke_organisatie": "517439943",  # RSIN
+            "identificatie": "123123",
+            "besluittype": f"http://testserver{besluittype_url}",
+            "zaak": f"http://testserver{zaak_url}",
+            "datum": "2018-09-06",
+            "toelichting": "Vergunning verleend.",
+            "ingangsdatum": "2018-10-01",
+            "vervaldatum": "2018-11-01",
+            "vervalreden": VervalRedenen.tijdelijk,
+        }
+        mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
+        matcher = re.compile("besluiten/api/v1/.+?-.+?-.+?-.+?-.+?")
+        self.adapter.register_uri("GET", matcher, json=besluit_data)
+
         with self.subTest(part="besluit_create"):
             url = get_operation_url("besluit_create")
 
-            response = self.client.post(
-                url,
-                {
-                    "verantwoordelijke_organisatie": "517439943",  # RSIN
-                    "identificatie": "123123",
-                    "besluittype": f"http://testserver{besluittype_url}",
-                    "zaak": f"http://testserver{zaak_url}",
-                    "datum": "2018-09-06",
-                    "toelichting": "Vergunning verleend.",
-                    "ingangsdatum": "2018-10-01",
-                    "vervaldatum": "2018-11-01",
-                    "vervalreden": VervalRedenen.tijdelijk,
-                },
-            )
+            response = self.client.post(url, besluit_data,)
 
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
@@ -100,7 +114,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluit": reverse(besluit),
+                    "besluit": f"http://testserver{reverse(besluit)}",
                     "informatieobject": f"http://testserver{io_url}",
                 },
             )
@@ -120,7 +134,9 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             )
 
     def test_opvragen_informatieobjecten_besluit(self):
-        besluit1, besluit2 = BesluitFactory.create_batch(2)
+        self.create_zaak_besluit_services()
+        besluit1 = self.create_besluit()
+        besluit2 = self.create_besluit()
 
         besluit1_uri = reverse(besluit1)
         besluit2_uri = reverse(besluit2)

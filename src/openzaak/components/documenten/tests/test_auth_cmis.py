@@ -15,11 +15,13 @@ from vng_api_common.constants import (
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.components.zaken.tests.factories import (
-    ZaakFactory,
-    ZaakInformatieObjectFactory,
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.utils.tests import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    OioMixin,
+    get_eio_response,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
@@ -30,7 +32,7 @@ IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
+class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase, OioMixin):
     def test_cannot_create_io_without_correct_scope(self):
         url = reverse("enkelvoudiginformatieobject-list")
         self.assertForbidden(url, method="post")
@@ -41,7 +43,9 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
         gebruiksrechten = GebruiksrechtenCMISFactory.create(informatieobject=eio_url)
 
         self.adapter.get(eio_url, json=get_eio_response(reverse(eio)))
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
         oio = ObjectInformatieObject.objects.get()
         urls = [
             reverse("enkelvoudiginformatieobject-list"),
@@ -261,7 +265,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class OioReadTests(JWTAuthMixin, APICMISTestCase):
+class OioReadTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -278,7 +282,8 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
     def test_detail_oio_limited_to_authorized_zaken_cmis(self):
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -332,7 +337,8 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
     def test_list_oio_limited_to_authorized_zaken_cmis(self):
         url = reverse("objectinformatieobject-list")
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -374,7 +380,7 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
+class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -429,7 +435,8 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
     def test_oio_list(self):
         url = reverse("objectinformatieobject-list")
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -461,7 +468,8 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
 
     def test_oio_retrieve(self):
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -495,7 +503,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
+class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
@@ -547,7 +555,8 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
     def test_oio_list(self):
         url = reverse("objectinformatieobject-list")
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -579,7 +588,8 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
 
     def test_oio_retrieve(self):
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,

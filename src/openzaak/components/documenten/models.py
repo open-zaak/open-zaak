@@ -269,7 +269,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
     def unlock_document(self, doc_uuid, lock, force_unlock=False):
         if settings.CMIS_ENABLED:
             self.cmis_client.unlock_document(
-                uuid=doc_uuid, lock=lock, force=force_unlock
+                drc_uuid=doc_uuid, lock=lock, force=force_unlock
             )
         self.lock = ""
 
@@ -414,7 +414,7 @@ class EnkelvoudigInformatieObject(
             # If the document doesn't exist, create it, otherwise update it
             try:
                 # sanity - check - assert the doc exists in CMIS backend
-                self.cmis_client.get_document(uuid=self.uuid)
+                self.cmis_client.get_document(drc_uuid=self.uuid)
                 # update the instance state to the storage backend
                 EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(
                     **model_data

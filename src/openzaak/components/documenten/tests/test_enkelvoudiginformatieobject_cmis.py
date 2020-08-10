@@ -14,7 +14,12 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, get_eio_response
+from openzaak.utils.tests import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    OioMixin,
+    get_eio_response,
+)
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -28,7 +33,7 @@ from .utils import (
 @tag("cmis")
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(CMIS_ENABLED=True)
-class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
+class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
@@ -334,7 +339,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "GET", eio_url, json=get_eio_response(eio_path),
         )
 
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
 
         response = self.client.delete(eio_path)
 

@@ -15,14 +15,17 @@ from django.core.cache import caches
 from django.db.models import Model
 from django.utils import timezone
 
-from drc_cmis.client_builder import get_client_class
+from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import generate_jwt_auth, reverse
 from zds_client.tests.mocks import MockClient
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.accounts.models import User
 
@@ -193,10 +196,114 @@ class CMISMixin:
 
     def _cleanup_alfresco(self) -> None:
         # Removes the created documents from alfresco
-        client_class = get_client_class()
-        client = client_class()
+        client = get_cmis_client()
         client.delete_cmis_folders_in_base()
         self.adapter.stop()
+
+
+class OioMixin:
+    base_zaak = None
+    base_zaaktype = None
+    base_besluit = None
+
+    def create_zaak_besluit_services(
+        self, base_besluit: str = None, base_zaak: str = None, base_zaaktype: str = None
+    ):
+        site = Site.objects.get_current()
+        self.base_besluit = base_besluit or f"http://{site.domain}/besluiten/api/v1/"
+        self.base_zaak = base_zaak or f"http://{site.domain}/zaken/api/v1/"
+        self.base_zaaktype = base_zaaktype or f"http://{site.domain}/catalogi/api/v1/"
+
+        Service.objects.create(
+            api_type=APITypes.zrc,
+            api_root=self.base_zaak,
+            label="external zaken",
+            auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc,
+            api_root=self.base_zaaktype,
+            label="external zaaktypen",
+            auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.brc,
+            api_root=self.base_besluit,
+            label="external besluiten",
+            auth_type=AuthTypes.no_auth,
+        )
+
+    def create_besluit_without_zaak(self, **kwargs):
+        from openzaak.components.besluiten.tests.factories import BesluitFactory
+        from openzaak.tests.utils import mock_service_oas_get
+
+        besluit = BesluitFactory.create(**kwargs)
+        mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
+        self.adapter.get(
+            make_absolute_uri(reverse(besluit)),
+            json={
+                "verantwoordelijke_organisatie": "517439943",
+                "identificatie": "123123",
+                "besluittype": "http://testserver/besluittype/some-random-id",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+            },
+        )
+
+        return besluit
+
+    def create_besluit(self, **kwargs):
+        from openzaak.components.besluiten.tests.factories import BesluitFactory
+        from openzaak.tests.utils import mock_service_oas_get
+
+        zaak = self.create_zaak()
+        besluit = BesluitFactory.create(zaak=zaak, **kwargs)
+        mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
+        self.adapter.get(
+            make_absolute_uri(reverse(besluit)),
+            json={"zaak": make_absolute_uri(reverse(zaak))},
+        )
+
+        return besluit
+
+    def create_zaak(self, **kwargs):
+        from openzaak.components.zaken.tests.factories import ZaakFactory
+        from openzaak.tests.utils import mock_service_oas_get
+
+        zaak = ZaakFactory.create(**kwargs)
+
+        mock_service_oas_get(self.adapter, APITypes.zrc, self.base_zaak)
+        mock_service_oas_get(self.adapter, APITypes.ztc, self.base_zaaktype)
+
+        if kwargs.get("zaaktype") is not None and isinstance(
+            kwargs.get("zaaktype"), str
+        ):
+            zaaktype_url = kwargs.get("zaaktype")
+            zaaktype_identificatie = zaaktype_url.split("/")[-1]
+        else:
+            zaaktype_url = make_absolute_uri(reverse(zaak.zaaktype))
+            zaaktype_identificatie = zaak.zaaktype.identificatie
+
+        self.adapter.get(
+            make_absolute_uri(reverse(zaak)),
+            json={
+                "url": make_absolute_uri(reverse(zaak)),
+                "identificatie": zaak.identificatie,
+                "zaaktype": zaaktype_url,
+            },
+        )
+
+        self.adapter.get(
+            zaaktype_url,
+            json={
+                "url": zaaktype_url,
+                "identificatie": zaaktype_identificatie,
+                "omschrijving": "Melding Openbare Ruimte",
+            },
+        )
+        return zaak
 
 
 class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
@@ -209,12 +316,16 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config = CMISConfig.objects.get()
             config.client_url = "http://localhost:8082/alfresco/cmisws"
             config.binding = "WEBSERVICE"
+            config.base_folder_name = "Zaken"
             config.save()
         elif binding == "BROWSER":
             config = CMISConfig.objects.get()
             config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
             config.binding = "BROWSER"
+            config.base_folder_name = "Zaken"
             config.save()
+        else:
+            raise Exception("No CMIS binding specified")
 
 
 def get_eio_response(url, **overrides):

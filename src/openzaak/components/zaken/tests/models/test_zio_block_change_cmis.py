@@ -6,7 +6,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, OioMixin, serialise_eio
 
 from ...models import ZaakInformatieObject
 from ..factories import ZaakInformatieObjectFactory
@@ -14,13 +14,17 @@ from ..factories import ZaakInformatieObjectFactory
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BlockChangeCMISTestCase(APICMISTestCase):
+class BlockChangeCMISTestCase(APICMISTestCase, OioMixin):
     def setUp(self) -> None:
         super().setUp()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        self.zio = ZaakInformatieObjectFactory.create(
+            informatieobject=eio_url, zaak=zaak
+        )
 
     def test_update(self):
         self.assertRaises(
