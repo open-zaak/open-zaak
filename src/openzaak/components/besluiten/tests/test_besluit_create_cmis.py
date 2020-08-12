@@ -13,17 +13,17 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ..constants import VervalRedenen
 from ..models import Besluit
-from .factories import BesluitFactory, BesluitInformatieObjectFactory
+from .factories import BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
+class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioMixin):
 
     heeft_alle_autorisaties = True
 
@@ -120,7 +120,9 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
             )
 
     def test_opvragen_informatieobjecten_besluit(self):
-        besluit1, besluit2 = BesluitFactory.create_batch(2)
+        self.create_zaak_besluit_services()
+        besluit1 = self.create_besluit()
+        besluit2 = self.create_besluit()
 
         besluit1_uri = reverse(besluit1)
         besluit2_uri = reverse(besluit2)

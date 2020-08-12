@@ -10,7 +10,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN
@@ -20,7 +20,7 @@ from .factories import ZaakInformatieObjectFactory
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
+class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
     component = ComponentTypes.zrc
@@ -31,26 +31,35 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
     def test_list_zaakinformatieobject_limited_to_authorized_zaken(self):
+        self.create_zaak_besluit_services()
+        zaak1 = self.create_zaak(
+            **{
+                "zaaktype": self.zaaktype,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            }
+        )
+        zaak2 = self.create_zaak(
+            **{"vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar}
+        )
+        zaak3 = self.create_zaak(
+            **{
+                "zaaktype": self.zaaktype,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.vertrouwelijk,
+            }
+        )
         # must show up
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
 
-        zio1 = ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url,
-            zaak__zaaktype=self.zaaktype,
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak1,)
+        # must not show up
+        ZaakInformatieObjectFactory.create(
+            informatieobject=eio_url, zaak=zaak2,
         )
         # must not show up
         ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url,
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        # must not show up
-        ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url,
-            zaak__zaaktype=self.zaaktype,
-            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+            informatieobject=eio_url, zaak=zaak3,
         )
 
         url = reverse(ZaakInformatieObject)

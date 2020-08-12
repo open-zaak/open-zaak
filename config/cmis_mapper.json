@@ -54,6 +54,7 @@
         "einddatum": "drc:gebruiksrechten__einddatum",
         "omschrijving_voorwaarden": "drc:gebruiksrechten__omschrijving_voorwaarden",
         "informatieobject": "drc:gebruiksrechten__informatieobject",
-        "startdatum": "drc:gebruiksrechten__startdatum"
+        "startdatum": "drc:gebruiksrechten__startdatum",
+        "kopie_van": "drc:gebruiksrechten__kopie_van"
     }
 }

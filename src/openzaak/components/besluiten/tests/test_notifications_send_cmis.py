@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from unittest.mock import patch
 
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
@@ -15,7 +16,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
@@ -24,7 +25,9 @@ from .utils import get_operation_url
 @tag("cmis")
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
-class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
+class SendNotifTestCase(
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
+):
 
     heeft_alle_autorisaties = True
 
@@ -74,17 +77,26 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase)
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 class FailedNotificationCMISTests(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self,
     ):
         url = get_operation_url("besluitinformatieobject_create")
 
-        besluit = BesluitFactory.create()
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
@@ -129,7 +141,11 @@ class FailedNotificationCMISTests(
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=eio_url, besluit=besluit
+        )
         url = reverse(bio)
 
         response = self.client.delete(url)

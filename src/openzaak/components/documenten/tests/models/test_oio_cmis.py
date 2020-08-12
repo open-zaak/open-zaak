@@ -14,7 +14,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import CMISMixin, serialise_eio
+from openzaak.utils.tests import CMISMixin, OioMixin, serialise_eio
 
 from ...models import ObjectInformatieObject
 from ..factories import (
@@ -25,13 +25,16 @@ from ..factories import (
 
 @tag("oio", "cmis")
 @override_settings(CMIS_ENABLED=True)
-class OIOCMISTests(CMISMixin, TestCase):
+class OIOCMISTests(CMISMixin, TestCase, OioMixin):
     def setUp(self) -> None:
         super().setUp()
 
         self.eio = EnkelvoudigInformatieObjectFactory.create()
         self.eio_url = f"http://openzaak.nl{reverse(self.eio)}"
         self.eio_response = serialise_eio(self.eio, self.eio_url)
+
+        # Needed to mock the calls to get the zaak when the CMIS adapter creates an oio
+        self.create_zaak_besluit_services()
 
     def test_not_both_zaak_besluit(self):
         zaak = ZaakFactory.create()
@@ -49,7 +52,10 @@ class OIOCMISTests(CMISMixin, TestCase):
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_zio_creates_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
-        zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
+        zaak = self.create_zaak()
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject=self.eio_url, zaak=zaak
+        )
         oio = ObjectInformatieObject.objects.get()
 
         self.assertEqual(
@@ -60,7 +66,10 @@ class OIOCMISTests(CMISMixin, TestCase):
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_bio_creates_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
-        bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=self.eio_url, besluit=besluit
+        )
 
         oio = ObjectInformatieObject.objects.get()
 
@@ -71,7 +80,10 @@ class OIOCMISTests(CMISMixin, TestCase):
 
     def test_zio_delete_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
-        zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
+        zaak = self.create_zaak()
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject=self.eio_url, zaak=zaak
+        )
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
 
@@ -81,7 +93,10 @@ class OIOCMISTests(CMISMixin, TestCase):
 
     def test_bio_delete_oio(self):
         self.adapter.get(self.eio_url, json=self.eio_response)
-        bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=self.eio_url, besluit=besluit
+        )
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
 
@@ -92,7 +107,7 @@ class OIOCMISTests(CMISMixin, TestCase):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BlockChangeTestCase(CMISMixin, TestCase):
+class BlockChangeTestCase(CMISMixin, TestCase, OioMixin):
     def setUp(self) -> None:
         super().setUp()
 
@@ -101,7 +116,9 @@ class BlockChangeTestCase(CMISMixin, TestCase):
         eio_response = serialise_eio(eio, eio_url)
 
         self.adapter.get(eio_url, json=eio_response)
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
         self.oio = ObjectInformatieObject.objects.get()
 
     def test_update(self):

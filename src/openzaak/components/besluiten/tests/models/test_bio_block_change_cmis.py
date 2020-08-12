@@ -8,7 +8,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, OioMixin, serialise_eio
 
 from ...models import BesluitInformatieObject
 from ..factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -16,13 +16,16 @@ from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BlockChangeCMISTestCase(APICMISTestCase):
+class BlockChangeCMISTestCase(APICMISTestCase, OioMixin):
     def setUp(self) -> None:
         super().setUp()
         eio = EnkelvoudigInformatieObjectFactory.create(identificatie="12345")
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        self.bio = BesluitInformatieObjectFactory.create(
+            informatieobject=eio_url, besluit=self.create_besluit()
+        )
 
     def test_update(self):
         self.assertRaises(
