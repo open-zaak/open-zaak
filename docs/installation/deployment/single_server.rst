@@ -43,6 +43,11 @@ ssh to the machine as ``root`` user. If that's not the case, a user with
 are officially supported operating systems, though it is likely the
 installation also works on Ubuntu. CentOS/RedHat *might* work.
 
+.. note:: Make sure there is enough space in ``/var/lib/docker``. You need at 
+   least 8 GB to download all Docker containers. We recommend placing the Docker
+   folder wherever you also want to store your documents that are uploaded via
+   the Documenten API.
+
 .. _deployment_containers_tooling:
 
 A copy of the deployment configuration
