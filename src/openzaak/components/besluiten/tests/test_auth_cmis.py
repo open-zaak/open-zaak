@@ -5,8 +5,8 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from django.test import override_settings, tag
 
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
-from utils.convert import make_absolute_uri
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
 

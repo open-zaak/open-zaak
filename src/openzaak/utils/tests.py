@@ -17,8 +17,8 @@ from django.utils import timezone
 
 from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework.test import APITestCase
-from utils.convert import make_absolute_uri
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret

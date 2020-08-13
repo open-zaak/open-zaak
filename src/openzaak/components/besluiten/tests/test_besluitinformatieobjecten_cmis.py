@@ -3,8 +3,8 @@
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
-from utils.convert import make_absolute_uri
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.documenten.tests.factories import (
