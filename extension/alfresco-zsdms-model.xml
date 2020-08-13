@@ -343,6 +343,14 @@
             <description>Gebruiksrechten van de documenten</description>
             <parent>cm:content</parent>
             <properties>
+                <property name="drc:gebruiksrechten__kopie_van">
+                    <title>DRC - Kopie van</title>
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                    <index enabled="false">
+                        <tokenised>TRUE</tokenised>
+                    </index>
+                </property>
                 <property name="drc:gebruiksrechten__informatieobject">
                     <title>DRC - Informatieobject</title>
                     <type>d:text</type>
