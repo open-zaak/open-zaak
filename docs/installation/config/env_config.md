@@ -1,4 +1,4 @@
-# Configuration reference
+# Environment configuration reference
 
 Open Zaak can be ran both as a Docker container or directly on a VPS or
 dedicated server. It relies on other services, such as database and cache

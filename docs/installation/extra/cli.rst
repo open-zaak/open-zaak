@@ -1,4 +1,4 @@
-.. _installation_cli:
+.. _installation_extra_cli:
 
 Command Line Interface (CLI)
 ============================
