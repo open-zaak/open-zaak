@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def set_selectieklasse_procestype_default_year(apps, _):
     ZaakType = apps.get_model("catalogi.ZaakType")
 
@@ -13,9 +14,11 @@ def set_selectieklasse_procestype_default_year(apps, _):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalogi', '0005_zaaktype_selectielijst_procestype_jaar'),
+        ("catalogi", "0005_zaaktype_selectielijst_procestype_jaar"),
     ]
 
     operations = [
-        migrations.RunPython(set_selectieklasse_procestype_default_year, migrations.RunPython.noop)
+        migrations.RunPython(
+            set_selectieklasse_procestype_default_year, migrations.RunPython.noop
+        )
     ]

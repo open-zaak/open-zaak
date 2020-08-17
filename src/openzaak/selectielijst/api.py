@@ -19,14 +19,16 @@ def get_procestypen(procestype_jaar=None) -> ResultList:
 
     Results are cached for 24 hours.
     """
-    key = f"selectielijst:procestypen"
+    key = "selectielijst:procestypen"
     if procestype_jaar:
         key = f"{key}-{procestype_jaar}"
 
     @cache(key, timeout=60 * 60 * 24)
     def inner():
         client = ReferentieLijstConfig.get_client()
-        query_params = query_params = {"jaar": procestype_jaar} if procestype_jaar else {}
+        query_params = query_params = (
+            {"jaar": procestype_jaar} if procestype_jaar else {}
+        )
         return client.list("procestype", query_params=query_params)
 
     return inner()
