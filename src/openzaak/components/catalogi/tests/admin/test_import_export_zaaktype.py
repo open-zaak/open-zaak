@@ -768,6 +768,11 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         site.save()
         self.app.set_user(SuperUserFactory.create())
 
+        conf = ReferentieLijstConfig.get_solo()
+        conf.default_year = 2020
+        conf.allowed_years = [2020]
+        conf.save()
+
     def test_import_zaaktype_already_exists(self):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(

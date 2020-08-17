@@ -16,10 +16,12 @@ class ReferentieLijstConfig(ClientConfig):
     allowed_years = ArrayField(
         base_field=models.PositiveIntegerField(),
         help_text=_("De jaartallen waarvan er procestypen gebruikt mogen worden."),
+        default=list,
     )
     default_year = models.PositiveIntegerField(
         help_text=_(
             "Het jaartal dat standaard geselecteerd is bij het kiezen van "
             "een procestype bij een zaaktype."
-        )
+        ),
+        null=True,
     )
