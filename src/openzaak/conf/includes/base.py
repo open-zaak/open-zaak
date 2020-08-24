@@ -5,7 +5,9 @@ import os
 
 from django.urls import reverse_lazy
 
-import raven
+import git
+import sentry_sdk
+from sentry_sdk.integrations import django, redis
 
 # NLX directory urls
 from openzaak.config.constants import NLXDirectories
@@ -421,7 +423,8 @@ if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
 # in docker (build) context, there is no .git directory
 elif os.path.exists(os.path.join(BASE_DIR, ".git")):
-    GIT_SHA = raven.fetch_git_sha(BASE_DIR)
+    repo = git.Repo(search_parent_directories=True)
+    GIT_SHA = repo.head.object.hexsha
 else:
     GIT_SHA = None
 
@@ -502,18 +505,19 @@ DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
 #
 SENTRY_DSN = config("SENTRY_DSN", None)
 
-if SENTRY_DSN:
-    INSTALLED_APPS = INSTALLED_APPS + ["raven.contrib.django.raven_compat"]
+SENTRY_SDK_INTEGRATIONS = [
+    django.DjangoIntegration(),
+    redis.RedisIntegration(),
+]
 
-    RAVEN_CONFIG = {"dsn": SENTRY_DSN, "release": GIT_SHA}
-    LOGGING["handlers"].update(
-        {
-            "sentry": {
-                "level": "WARNING",
-                "class": "raven.handlers.logging.SentryHandler",
-                "dsn": RAVEN_CONFIG["dsn"],
-            }
-        }
+if SENTRY_DSN:
+    SENTRY_CONFIG = {
+        "dsn": SENTRY_DSN,
+        "release": RELEASE or "RELEASE not set",
+    }
+
+    sentry_sdk.init(
+        **SENTRY_CONFIG, integrations=SENTRY_SDK_INTEGRATIONS, send_default_pii=True,
     )
 
 #

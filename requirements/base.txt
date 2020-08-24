@@ -4,7 +4,7 @@
 #
 #    pip-compile --no-index requirements/base.in
 #
-certifi==2018.4.16        # via requests
+certifi==2018.4.16        # via requests, sentry-sdk
 cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
 cmislib-maykin==0.7.4     # via drc-cmis
@@ -43,6 +43,8 @@ drf-nested-routers==0.90.2  # via vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.in
 drf-yasg==1.16.0          # via -r requirements/base.in, vng-api-common
 gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
+gitdb==4.0.5              # via gitpython
+gitpython==3.1.7          # via -r requirements/base.in
 httplib2==0.18.1          # via cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.in
 idna==2.6                 # via requests
@@ -65,16 +67,17 @@ python-decouple==3.1      # via -r requirements/base.in
 python-dotenv==0.8.2      # via -r requirements/base.in
 pytz==2019.1              # via django, django-axes
 pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
-raven==6.9.0              # via -r requirements/base.in
 redis==3.3.8              # via django-redis
 requests==2.21.0          # via -r requirements/base.in, coreapi, django-auth-adfs, gemma-zds-client, vng-api-common
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
+sentry-sdk==0.16.5        # via -r requirements/base.in
 six==1.11.0               # via cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
+smmap==3.0.4              # via gitdb
 sqlparse==0.3.0           # via django
 unidecode==1.0.22         # via vng-api-common
 uritemplate==3.0.0        # via coreapi, drf-yasg
-urllib3==1.24.3           # via requests
+urllib3==1.24.3           # via requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/base.in
 vng-api-common==1.0.47    # via -r requirements/base.in, drc-cmis
 zgw-consumers==0.8.1      # via -r requirements/base.in
