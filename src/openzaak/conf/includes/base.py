@@ -12,6 +12,7 @@ from sentry_sdk.integrations import django, redis
 # NLX directory urls
 from openzaak.config.constants import NLXDirectories
 
+from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
 from .environ import config
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -517,7 +518,10 @@ if SENTRY_DSN:
     }
 
     sentry_sdk.init(
-        **SENTRY_CONFIG, integrations=SENTRY_SDK_INTEGRATIONS, send_default_pii=True,
+        **SENTRY_CONFIG,
+        integrations=SENTRY_SDK_INTEGRATIONS,
+        send_default_pii=True,
+        before_send=filter_sensitive_data,
     )
 
 #
