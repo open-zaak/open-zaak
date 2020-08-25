@@ -53,7 +53,7 @@ GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
 # TODO: deduplicate
 repo = "vng-Realisatie/vng-referentielijsten"
-commit = "da1b2cfdaadb2d19a7d3fc14530923913a2560f2"
+commit = "8c930546c6ace2a054998284a987780b7fb28adb"
 REFERENTIELIJSTEN_API_SPEC = (
     f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
 )

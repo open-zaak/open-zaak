@@ -235,6 +235,11 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "kenmerken (PROCESTYPE in de Selectielijst API)."
         ),
     )
+    selectielijst_procestype_jaar = models.PositiveIntegerField(
+        help_text=_("Het jaartal waartoe het procestype behoort."),
+        blank=True,
+        null=True,
+    )
     referentieproces_naam = models.CharField(
         _("referentieprocesnaam"),
         max_length=80,
