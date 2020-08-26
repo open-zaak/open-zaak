@@ -316,13 +316,19 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config = CMISConfig.objects.get()
             config.client_url = "http://localhost:8082/alfresco/cmisws"
             config.binding = "WEBSERVICE"
-            config.base_folder_name = "Zaken"
+            config.other_folder_path = (
+                "/DRC/{{ zaaktype }}/{{ year }}/{{ month }}/{{ day }}/{{ zaak }}/"
+            )
+            config.zaak_folder_path = "/DRC/{{ year }}/{{ month }}/{{ day }}/"
             config.save()
         elif binding == "BROWSER":
             config = CMISConfig.objects.get()
             config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
             config.binding = "BROWSER"
-            config.base_folder_name = "Zaken"
+            config.other_folder_path = (
+                "/DRC/{{ zaaktype }}/{{ year }}/{{ month }}/{{ day }}/{{ zaak }}/"
+            )
+            config.zaak_folder_path = "/DRC/{{ year }}/{{ month }}/{{ day }}/"
             config.save()
         else:
             raise Exception("No CMIS binding specified")
