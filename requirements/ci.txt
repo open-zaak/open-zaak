@@ -11,7 +11,7 @@ black==19.10b0            # via -r requirements/test-tools.in
 certifi==2018.4.16        # via -r requirements/base.txt, requests, sentry-sdk
 cffi==1.13.2              # via -r requirements/base.txt, cryptography
 chardet==3.0.4            # via -r requirements/base.txt, requests
-click==7.1.2              # via black
+click==7.1.2              # via -r requirements/test-tools.in, black
 cmislib-maykin==0.7.4     # via -r requirements/base.txt, drc-cmis
 coreapi==2.3.3            # via -r requirements/base.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/base.txt, coreapi, drf-yasg
@@ -59,7 +59,6 @@ gitpython==3.1.7          # via -r requirements/base.txt
 httplib2==0.18.1          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
-importlib-metadata==1.7.0  # via flake8
 inflection==0.3.1         # via -r requirements/base.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/base.txt, vng-api-common
 iso8601==0.1.12           # via -r requirements/base.txt, cmislib-maykin, drc-cmis
@@ -88,7 +87,6 @@ redis==3.3.8              # via -r requirements/base.txt, django-redis
 regex==2020.6.8           # via black
 requests-mock==1.6.0      # via -r requirements/test-tools.in
 requests==2.21.0          # via -r requirements/base.txt, coreapi, django-auth-adfs, gemma-zds-client, requests-mock, vng-api-common
-ruamel.yaml.clib==0.2.0   # via -r requirements/base.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/base.txt, drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/base.txt
 six==1.11.0               # via -r requirements/base.txt, cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, python-dateutil, requests-mock, webtest
@@ -108,4 +106,3 @@ waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
 zgw-consumers==0.8.1      # via -r requirements/base.txt
-zipp==3.1.0               # via importlib-metadata
