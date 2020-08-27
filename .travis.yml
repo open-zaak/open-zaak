@@ -95,6 +95,12 @@ jobs:
       before_script: skip
       script: cd docs && pytest check_sphinx.py -v --tb=auto
 
+    - name: "SPDX header check"
+      before_install: skip
+      install: pip install -r requirements/ci.txt
+      before_script: skip
+      script: ./bin/check_spdx.py src
+
     - name: "Docker image build"
       before_install: skip
       install: skip
