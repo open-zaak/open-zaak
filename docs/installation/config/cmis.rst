@@ -88,13 +88,13 @@ Using the CMIS adapter
 6. Navigate to **Configuratie > CMIS configuration** and fill in all relevant
    fields.
 
-   The folder structure that is used by Open Zaak is as follows:
+.. image:: ../assets/cmis_config.png
+    :width: 100%
+    :alt: CMIS Configuration
 
-7. Save the configuration.
+7. Save the configuration with **Opslaan en opnieuw bewerken**.
 
-Test the CMIS-configuration
----------------------------
-
-.. todo:: There should be an easy way to test the CMIS configuration.
+8. You will see the **CMIS connection** status shows **OK** if everything went
+   well.
 
 .. _`CMIS adapter library`: https://github.com/open-zaak/cmis-adapter
