@@ -8,7 +8,7 @@ appdirs==1.4.4            # via black
 attrs==19.3.0             # via black
 beautifulsoup4==4.8.1     # via webtest
 black==19.10b0            # via -r requirements/test-tools.in
-certifi==2018.4.16        # via -r requirements/base.txt, requests
+certifi==2018.4.16        # via -r requirements/base.txt, requests, sentry-sdk
 cffi==1.13.2              # via -r requirements/base.txt, cryptography
 chardet==3.0.4            # via -r requirements/base.txt, requests
 click==7.1.2              # via black
@@ -54,6 +54,8 @@ faker==2.0.1              # via factory-boy
 flake8==3.8.3             # via -r requirements/test-tools.in
 freezegun==0.3.12         # via -r requirements/test-tools.in
 gemma-zds-client==0.13.0  # via -r requirements/base.txt, vng-api-common, zgw-consumers
+gitdb==4.0.5              # via -r requirements/base.txt, gitpython
+gitpython==3.1.7          # via -r requirements/base.txt
 httplib2==0.18.1          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
@@ -82,14 +84,15 @@ python-decouple==3.1      # via -r requirements/base.txt
 python-dotenv==0.8.2      # via -r requirements/base.txt
 pytz==2019.1              # via -r requirements/base.txt, django, django-axes
 pyyaml==5.1               # via -r requirements/base.txt, gemma-zds-client, oyaml, vng-api-common
-raven==6.9.0              # via -r requirements/base.txt
 redis==3.3.8              # via -r requirements/base.txt, django-redis
 regex==2020.6.8           # via black
 requests-mock==1.6.0      # via -r requirements/test-tools.in
 requests==2.21.0          # via -r requirements/base.txt, coreapi, django-auth-adfs, gemma-zds-client, requests-mock, vng-api-common
 ruamel.yaml.clib==0.2.0   # via -r requirements/base.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/base.txt, drf-yasg
+sentry-sdk==0.16.5        # via -r requirements/base.txt
 six==1.11.0               # via -r requirements/base.txt, cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, python-dateutil, requests-mock, webtest
+smmap==3.0.4              # via -r requirements/base.txt, gitdb
 soupsieve==1.9.5          # via beautifulsoup4
 sqlparse==0.3.0           # via -r requirements/base.txt, django
 tblib==1.4.0              # via -r requirements/test-tools.in
@@ -98,7 +101,7 @@ toml==0.10.1              # via black
 typed-ast==1.4.1          # via black
 unidecode==1.0.22         # via -r requirements/base.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/base.txt, coreapi, drf-yasg
-urllib3==1.24.3           # via -r requirements/base.txt, requests
+urllib3==1.24.3           # via -r requirements/base.txt, requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/base.txt
 vng-api-common==1.0.47    # via -r requirements/base.txt, drc-cmis
 waitress==1.4.3           # via webtest

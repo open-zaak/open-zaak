@@ -12,7 +12,7 @@ babel==2.7.0              # via sphinx
 beautifulsoup4==4.8.1     # via -r requirements/ci.txt, webtest
 black==19.10b0            # via -r requirements/ci.txt
 bumpversion==0.5.3        # via -r requirements/dev.in
-certifi==2018.4.16        # via -r requirements/ci.txt, requests
+certifi==2018.4.16        # via -r requirements/ci.txt, requests, sentry-sdk
 cffi==1.13.2              # via -r requirements/ci.txt, cryptography
 chardet==3.0.4            # via -r requirements/ci.txt, requests
 click==7.1.2              # via -r requirements/ci.txt, black, pip-tools
@@ -63,6 +63,8 @@ faker==2.0.1              # via -r requirements/ci.txt, factory-boy
 flake8==3.8.3             # via -r requirements/ci.txt
 freezegun==0.3.12         # via -r requirements/ci.txt
 gemma-zds-client==0.13.0  # via -r requirements/ci.txt, vng-api-common, zgw-consumers
+gitdb==4.0.5              # via -r requirements/ci.txt, gitpython
+gitpython==3.1.7          # via -r requirements/ci.txt
 gprof2dot==2019.11.30     # via django-silk
 httplib2==0.18.1          # via -r requirements/ci.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/ci.txt
@@ -97,7 +99,6 @@ python-decouple==3.1      # via -r requirements/ci.txt
 python-dotenv==0.8.2      # via -r requirements/ci.txt
 pytz==2019.1              # via -r requirements/ci.txt, babel, django, django-axes, django-silk
 pyyaml==5.1               # via -r requirements/ci.txt, gemma-zds-client, oyaml, vng-api-common
-raven==6.9.0              # via -r requirements/ci.txt
 recommonmark==0.6.0       # via -r requirements/dev.in
 redis==3.3.8              # via -r requirements/ci.txt, django-redis
 regex==2020.6.8           # via -r requirements/ci.txt, black
@@ -105,7 +106,9 @@ requests-mock==1.6.0      # via -r requirements/ci.txt
 requests==2.21.0          # via -r requirements/ci.txt, coreapi, django-auth-adfs, django-silk, gemma-zds-client, requests-mock, sphinx, vng-api-common
 ruamel.yaml.clib==0.2.0   # via -r requirements/ci.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg
+sentry-sdk==0.16.5        # via -r requirements/ci.txt
 six==1.11.0               # via -r requirements/ci.txt, cmislib-maykin, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, packaging, pip-tools, python-dateutil, requests-mock, webtest
+smmap==3.0.4              # via -r requirements/ci.txt, gitdb
 snowballstemmer==2.0.0    # via sphinx
 soupsieve==1.9.5          # via -r requirements/ci.txt, beautifulsoup4
 sphinx-markdown-tables==0.0.14  # via -r requirements/dev.in
@@ -124,7 +127,7 @@ toml==0.10.1              # via -r requirements/ci.txt, black
 typed-ast==1.4.1          # via -r requirements/ci.txt, black
 unidecode==1.0.22         # via -r requirements/ci.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/ci.txt, coreapi, drf-yasg
-urllib3==1.24.3           # via -r requirements/ci.txt, requests
+urllib3==1.24.3           # via -r requirements/ci.txt, requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/ci.txt
 vng-api-common==1.0.47    # via -r requirements/ci.txt, drc-cmis
 waitress==1.4.3           # via -r requirements/ci.txt, webtest
