@@ -1,4 +1,9 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import collections.abc
+import re
+
+from inflection import camelize
 
 
 def nested_update(mapping, keys, value="(filtered)"):
@@ -26,4 +31,17 @@ def filter_sensitive_data(event, hint):
             event,
             ["exception", "values", "stacktrace", "frames", "vars", "group_data", key],
         )
+
+        prefix = "betrokkeneIdentificatie__natuurlijkPersoon"
+
+        camelized = camelize(key, False)
+        if key == "inp_a_nummer":
+            camelized = "inpA_nummer"
+
+        pattern = f"({prefix}__{camelized}=)([^&]*)(&|$)"
+
+        if "querystring" in event.get("request", {}):
+            event["request"]["querystring"] = re.sub(
+                pattern, r"\g<1>(filtered)\g<3>", event["request"]["querystring"]
+            )
     return event
