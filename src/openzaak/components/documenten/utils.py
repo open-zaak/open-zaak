@@ -11,6 +11,7 @@ from django.core.files.storage import Storage
 from django.utils.functional import LazyObject
 
 from drc_cmis import client_builder
+from drc_cmis.models import Vendor
 from privates.storages import PrivateMediaFileSystemStorage
 
 # In the CMIS adapter, the Document object can be from either the Browser or Webservice binding module.
@@ -91,7 +92,8 @@ class CMISStorage(Storage):
             raise RuntimeError("Repository config not found for this client config!")
 
         vendor = repo_config["vendorName"]
-        if vendor == "Alfresco":
+
+        if vendor.lower() == Vendor.alfresco:
             # we know Alfresco URLs, we need the part before /api/
             base_url = self._client.base_url[: self._client.base_url.index("/api/")]
             node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]

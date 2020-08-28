@@ -15,6 +15,7 @@ from django.core.cache import caches
 from django.db.models import Model
 from django.utils import timezone
 
+from djangorestframework_camel_case.util import camelize
 from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig
 from drc_cmis.utils.convert import make_absolute_uri
@@ -375,4 +376,4 @@ def get_eio_response(url, **overrides):
 def serialise_eio(eio, eio_url, **overrides):
     serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
     serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
-    return serialised_eio
+    return camelize(serialised_eio)

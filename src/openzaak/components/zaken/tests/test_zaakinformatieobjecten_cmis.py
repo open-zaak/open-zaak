@@ -154,7 +154,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "unique")
 
     @freeze_time("2018-09-20 12:00:00")
-    def test_read_zaak(self):
+    def test_read_zaakinformatieobject(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
