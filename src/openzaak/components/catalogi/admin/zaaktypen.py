@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import logging
+
 from django.apps import apps
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Field
 from django.forms import ChoiceField
 from django.http import HttpRequest
@@ -41,6 +43,8 @@ from .mixins import (
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(ZaakTypenRelatie)
@@ -289,7 +293,24 @@ class ZaakTypeAdmin(
             else:
                 referentielijst_config = ReferentieLijstConfig.get_solo()
                 procestype_jaar = referentielijst_config.default_year
-            return get_procestype_field(db_field, request, procestype_jaar, **kwargs)
+            try:
+                return get_procestype_field(
+                    db_field, request, procestype_jaar, **kwargs
+                )
+            except AttributeError as e:
+                logger.exception(e)
+
+                msg = _(
+                    "Something went wrong while fetching procestypen, "
+                    "this could be due to an incorrect Selectielijst configuration."
+                )
+                messages.add_message(
+                    request, messages.ERROR, msg, extra_tags="procestypen"
+                )
+
+                kwargs["initial"] = _("Selectielijst configuration must be fixed first")
+                kwargs["disabled"] = True
+
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
