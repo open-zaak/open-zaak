@@ -70,7 +70,6 @@ httplib2==0.18.1          # via -r requirements/ci.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==1.7.0  # via -r requirements/ci.txt, flake8
 inflection==0.3.1         # via -r requirements/ci.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/ci.txt, vng-api-common
 iso8601==0.1.12           # via -r requirements/ci.txt, cmislib-maykin, drc-cmis
@@ -104,7 +103,6 @@ redis==3.3.8              # via -r requirements/ci.txt, django-redis
 regex==2020.6.8           # via -r requirements/ci.txt, black
 requests-mock==1.6.0      # via -r requirements/ci.txt
 requests==2.21.0          # via -r requirements/ci.txt, coreapi, django-auth-adfs, django-silk, gemma-zds-client, requests-mock, sphinx, vng-api-common
-ruamel.yaml.clib==0.2.0   # via -r requirements/ci.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/ci.txt
 six==1.11.0               # via -r requirements/ci.txt, cmislib-maykin, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, packaging, pip-tools, python-dateutil, requests-mock, webtest
@@ -135,7 +133,6 @@ webob==1.8.5              # via -r requirements/ci.txt, webtest
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
 whitenoise==5.1.0         # via -r requirements/dev.in
 zgw-consumers==0.8.1      # via -r requirements/ci.txt
-zipp==3.1.0               # via -r requirements/ci.txt, importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

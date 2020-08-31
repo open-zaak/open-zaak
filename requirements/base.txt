@@ -69,7 +69,6 @@ pytz==2019.1              # via django, django-axes
 pyyaml==5.1               # via gemma-zds-client, oyaml, vng-api-common
 redis==3.3.8              # via django-redis
 requests==2.21.0          # via -r requirements/base.in, coreapi, django-auth-adfs, gemma-zds-client, vng-api-common
-ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/base.in
 six==1.11.0               # via cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
