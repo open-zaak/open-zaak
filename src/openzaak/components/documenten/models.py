@@ -14,7 +14,6 @@ from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
-from rest_framework.settings import api_settings
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
@@ -473,7 +472,7 @@ class EnkelvoudigInformatieObject(
     def get_url(self):
         eio_path = reverse(
             "enkelvoudiginformatieobject-detail",
-            kwargs={"version": api_settings.DEFAULT_VERSION, "uuid": self.uuid},
+            kwargs={"version": "1", "uuid": self.uuid},
         )
         return make_absolute_uri(eio_path)
 
