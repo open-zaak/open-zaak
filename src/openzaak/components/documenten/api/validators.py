@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import OrderedDict
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -42,13 +41,13 @@ class InformatieObjectUniqueValidator:
     code = "unique"
 
     def __call__(self, context: OrderedDict):
-        informatieobject = context["informatieobject"]
-        if settings.CMIS_ENABLED:
-            oios = ObjectInformatieObject.objects.filter(**context).exists()
-        else:
-            oios = informatieobject.objectinformatieobject_set.filter(
-                **{context["object_type"]: context["object"]}
-            )
+        # The context contains the keys: informatieobject (eio), object_type (whether it is a relation with zaak or
+        # besluit) and 'object' (the actual zaak or besluit). The 'object' key needs to be replaced with 'zaak'
+        # or 'besluit' as there is no 'object' attribute in the objectinformatieobject model.
+        zaak_or_besluit_object = context.pop("object")
+        context.update({context["object_type"]: zaak_or_besluit_object})
+
+        oios = ObjectInformatieObject.objects.filter(**context).exists()
 
         if oios:
             raise serializers.ValidationError(detail=self.message, code=self.code)

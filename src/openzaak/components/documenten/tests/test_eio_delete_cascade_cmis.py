@@ -10,16 +10,21 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    OioMixin,
+    get_eio_response,
+)
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
-from .utils import get_eio_response, get_operation_url
+from .utils import get_operation_url
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class US349TestCase(JWTAuthMixin, APICMISTestCase):
+class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     heeft_alle_autorisaties = True
 
@@ -55,7 +60,9 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
             "GET", eio_url, json=get_eio_response(eio_path),
         )
 
-        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url, besluit=besluit)
 
         informatieobject_delete_url = get_operation_url(
             "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
@@ -81,7 +88,9 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
             "GET", eio_url, json=get_eio_response(eio_path),
         )
 
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
 
         informatieobject_delete_url = get_operation_url(
             "enkelvoudiginformatieobject_delete", uuid=eio_uuid,

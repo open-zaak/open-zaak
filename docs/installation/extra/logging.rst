@@ -1,4 +1,4 @@
-.. _installation_logging:
+.. _installation_extra_logging:
 
 =======
 Logging
@@ -23,8 +23,8 @@ those. For example, the following types of events are logged in some form or ano
 
 This guide walks you through the various options on how to access and configure the logs.
 
-Sentry
-======
+Monitoring
+==========
 
 `Sentry`_ focuses on tracking down errors in software, i.e. the Open Zaak application.
 We strongly recommend setting up this integration.
@@ -47,7 +47,7 @@ exceptions will be sent (e.g. https://e95a42137e6042c59d19376e566f027a@sentry.op
 The created Sentry project can be linked to Open Zaak by setting the environment
 variable ``SENTRY_DSN`` equal to this DSN.
 
-.. _`sentry`: https://sentry.io/
+.. _`Sentry`: https://sentry.io/
 .. _`documentation`: https://docs.sentry.io/guides/getting-started/
 
 

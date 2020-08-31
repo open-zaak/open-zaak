@@ -5,25 +5,30 @@ from django.test import override_settings, tag
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import BesluitInformatieObject
 from .factories import BesluitInformatieObjectFactory
-from .utils import serialise_eio
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
+class BesluitInformatieObjectCMISAPIFilterTests(
+    JWTAuthMixin, APICMISTestCase, OioMixin
+):
     heeft_alle_autorisaties = True
 
     def test_validate_unknown_query_params(self):
+        self.create_zaak_besluit_services()
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
             self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-            BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+            besluit = self.create_besluit()
+            BesluitInformatieObjectFactory.create(
+                informatieobject=eio_url, besluit=besluit
+            )
         url = reverse(BesluitInformatieObject)
 
         response = self.client.get(url, {"someparam": "somevalue"})
@@ -37,7 +42,9 @@ class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url, besluit=besluit)
         response = self.client.get(
             reverse(BesluitInformatieObject), {"besluit": "https://google.com"}
         )

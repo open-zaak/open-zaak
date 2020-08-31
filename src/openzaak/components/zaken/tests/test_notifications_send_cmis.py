@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
@@ -15,10 +16,9 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
-from ...documenten.tests.utils import serialise_eio
-from .factories import ZaakFactory, ZaakInformatieObjectFactory
+from .factories import ZaakInformatieObjectFactory
 from .utils import get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
@@ -28,15 +28,17 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationCMISTests(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
+        site = Site.objects.get_current()
         url = get_operation_url("zaakinformatieobject_create")
 
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
@@ -48,7 +50,7 @@ class FailedNotificationCMISTests(
         zaak_url = reverse(zaak)
         data = {
             "informatieobject": io_url,
-            "zaak": f"http://testserver{zaak_url}",
+            "zaak": f"http://{site.domain}{zaak_url}",
         }
 
         response = self.client.post(url, data)
@@ -83,7 +85,10 @@ class FailedNotificationCMISTests(
         io_url = f"http://testserver{reverse(io)}"
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
-        zio = ZaakInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject=io_url, zaak=self.create_zaak()
+        )
         url = reverse(zio)
 
         response = self.client.delete(url)

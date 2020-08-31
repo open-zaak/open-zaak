@@ -1,30 +1,40 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import serialise_eio
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
+class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     list_url = reverse_lazy("besluitinformatieobject-list", kwargs={"version": "1"})
 
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
     def test_create(self):
-        besluit = BesluitFactory.create()
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
 
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
@@ -33,10 +43,10 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = reverse(besluit)
+        besluit_url = make_absolute_uri(reverse(besluit))
         content = {
             "informatieobject": io_url,
-            "besluit": f"http://testserver{besluit_url}",
+            "besluit": besluit_url,
         }
 
         # Send to the API
@@ -64,12 +74,14 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://testserver{reverse(io)}"
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
-        besluit_url = reverse(bio.besluit)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        BesluitInformatieObjectFactory.create(informatieobject=io_url, besluit=besluit)
+        besluit_url = make_absolute_uri(reverse(besluit))
 
         content = {
             "informatieobject": io_url,
-            "besluit": f"http://testserver{besluit_url}",
+            "besluit": besluit_url,
         }
 
         # Send to the API
@@ -87,7 +99,11 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://testserver{reverse(io)}"
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=io_url, besluit=besluit
+        )
         bio_detail_url = reverse(bio)
 
         response = self.client.get(bio_detail_url)
@@ -107,7 +123,11 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=io_url, besluit=besluit
+        )
         besluit_url = reverse(bio.besluit)
         bio_list_url = reverse("besluitinformatieobject-list")
 
@@ -128,7 +148,9 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://openzaak.nl{reverse(io)}"
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
-        BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        BesluitInformatieObjectFactory.create(informatieobject=io_url, besluit=besluit)
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
@@ -143,7 +165,11 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=io_url, besluit=besluit
+        )
         bio_detail_url = reverse(bio)
         besluit = BesluitFactory.create()
         besluit_url = reverse(besluit)
@@ -166,7 +192,11 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=io_url, besluit=besluit
+        )
         bio_detail_url = reverse(bio)
         besluit = BesluitFactory.create()
         besluit_url = reverse(besluit)
@@ -189,7 +219,11 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
-        bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(
+            informatieobject=io_url, besluit=besluit
+        )
         bio_url = reverse(bio)
 
         response = self.client.delete(bio_url)

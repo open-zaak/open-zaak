@@ -3,6 +3,7 @@
 import uuid
 from base64 import b64encode
 from datetime import date
+from io import BytesIO
 
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -13,13 +14,17 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    OioMixin,
+    get_eio_response,
+)
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
-    get_eio_response,
     get_informatieobjecttype_response,
     get_operation_url,
 )
@@ -28,7 +33,7 @@ from .utils import (
 @tag("cmis")
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(CMIS_ENABLED=True)
-class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
+class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
@@ -66,7 +71,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test storage backend (Alfresco)
-        stored_object = EnkelvoudigInformatieObject.objects.first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
@@ -334,7 +339,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "GET", eio_url, json=get_eio_response(eio_path),
         )
 
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
 
         response = self.client.delete(eio_path)
 
@@ -499,6 +506,43 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
         self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
+
+    def test_eio_update_content(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            inhoud=BytesIO(b"Content before update"),
+            informatieobjecttype__concept=False,
+        )
+
+        eio_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock_response = self.client.post(f"{eio_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"Content after update"), "lock": lock,}
+        )
+
+        del eio_data["integriteit"]
+        del eio_data["ondertekening"]
+
+        update_response = self.client.put(eio_url, eio_data)
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+
+        unlock_url = get_operation_url(
+            "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
+        )
+
+        unlock_content = {"lock": lock}
+        unlock_response = self.client.post(unlock_url, unlock_content)
+        self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        updated_eio = EnkelvoudigInformatieObject.objects.first()
+        self.assertEqual(updated_eio.inhoud.read(), b"Content after update")
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")

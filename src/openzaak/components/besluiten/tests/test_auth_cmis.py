@@ -5,6 +5,7 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from django.test import override_settings, tag
 
+from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
@@ -13,12 +14,11 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 from ..models import BesluitInformatieObject
-from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import serialise_eio
+from .factories import BesluitInformatieObjectFactory
 
 BESLUITTYPE_EXTERNAL = (
     "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -27,9 +27,10 @@ BESLUITTYPE_EXTERNAL = (
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
+class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase, OioMixin):
     def test_cannot_read_without_correct_scope(self):
-        besluit = BesluitFactory.create()
+        self.create_zaak_besluit_services()
+        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
@@ -48,7 +49,7 @@ class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
+class BioReadCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
     component = ComponentTypes.brc
@@ -59,8 +60,9 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
     def test_list_bio_limited_to_authorized_zaken(self):
-        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
-        besluit2 = BesluitFactory.create()
+        self.create_zaak_besluit_services()
+        besluit1 = self.create_besluit(**{"besluittype": self.besluittype})
+        besluit2 = self.create_besluit()
 
         url = reverse(BesluitInformatieObject)
 
@@ -100,8 +102,9 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
             json=serialise_eio(informatieobject, informatieobject_url),
         )
 
-        besluit1 = BesluitFactory.create(besluittype=self.besluittype)
-        besluit2 = BesluitFactory.create()
+        self.create_zaak_besluit_services()
+        besluit1 = self.create_besluit(**{"besluittype": self.besluittype})
+        besluit2 = self.create_besluit()
 
         self.besluittype.informatieobjecttypen.add(
             informatieobject.informatieobjecttype
@@ -110,11 +113,8 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
             informatieobject.informatieobjecttype
         )
 
-        besluit_uri1 = reverse(besluit1)
-        besluit_url1 = f"http://testserver{besluit_uri1}"
-
-        besluit_uri2 = reverse(besluit2)
-        besluit_url2 = f"http://testserver{besluit_uri2}"
+        besluit_url1 = make_absolute_uri(reverse(besluit1))
+        besluit_url2 = make_absolute_uri(reverse(besluit2))
 
         url1 = reverse("besluitinformatieobject-list")
         url2 = reverse("besluitinformatieobject-list")
@@ -133,7 +133,7 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
+class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     component = ComponentTypes.brc
 
@@ -148,15 +148,18 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
         self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.create_zaak_besluit_services()
         bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype, informatieobject=eio1_url,
+            informatieobject=eio1_url,
+            besluit=self.create_besluit(**{"besluittype": self.besluittype}),
         )
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
         self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         BesluitInformatieObjectFactory.create(
-            besluit__besluittype=BESLUITTYPE_EXTERNAL, informatieobject=eio2_url,
+            informatieobject=eio2_url,
+            besluit=self.create_besluit(**{"besluittype": BESLUITTYPE_EXTERNAL}),
         )
 
         response = self.client.get(url)
@@ -174,14 +177,17 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
         self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.create_zaak_besluit_services()
         bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype, informatieobject=eio1_url,
+            informatieobject=eio1_url,
+            besluit=self.create_besluit(**{"besluittype": self.besluittype}),
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
         self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         bio2 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=BESLUITTYPE_EXTERNAL, informatieobject=eio2_url,
+            informatieobject=eio2_url,
+            besluit=self.create_besluit(**{"besluittype": BESLUITTYPE_EXTERNAL}),
         )
 
         url1 = reverse(bio1)
@@ -198,7 +204,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
+class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
@@ -209,16 +215,20 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
         self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.create_zaak_besluit_services()
         bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype, informatieobject=eio1_url
+            informatieobject=eio1_url,
+            besluit=self.create_besluit(**{"besluittype": self.besluittype}),
         )
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
         self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         BesluitInformatieObjectFactory.create(
-            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1",
             informatieobject=eio2_url,
+            besluit=self.create_besluit(
+                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluiten/1"}
+            ),
         )
 
         response = self.client.get(url)
@@ -236,15 +246,19 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
         self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
+        self.create_zaak_besluit_services()
         bio1 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype=self.besluittype, informatieobject=eio1_url
+            informatieobject=eio1_url,
+            besluit=self.create_besluit(**{"besluittype": self.besluittype}),
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
         self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         bio2 = BesluitInformatieObjectFactory.create(
-            besluit__besluittype="https://externe.catalogus.nl/api/v1/besluiten/1",
             informatieobject=eio2_url,
+            besluit=self.create_besluit(
+                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluiten/1"}
+            ),
         )
 
         url1 = reverse(bio1)

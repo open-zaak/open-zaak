@@ -269,10 +269,10 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_destroy_oio_remote_gone(self):
-        EnkelvoudigInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
 
         # relate the two
-        zio = ZaakInformatieObjectFactory.create()
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
 
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
@@ -283,10 +283,10 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_oio_remote_still_present(self):
-        EnkelvoudigInformatieObjectFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
 
         # relate the two
-        BesluitInformatieObjectFactory.create()
+        BesluitInformatieObjectFactory.create(informatieobject=eio.canonical)
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
 

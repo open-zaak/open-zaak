@@ -193,7 +193,7 @@ endpoint is accessible at ``{{base_url}}/catalogi/api/v1/zaaktypen`` (where
 ``{{base_url}}`` is set to the domain configured in
 :ref:`installation_configuration_sites`).
 
-.. figure:: assets/api_request.png
+.. figure:: ../assets/api_request.png
     :width: 100%
     :alt: GET request to Catalogi API
 
