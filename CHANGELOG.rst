@@ -1,6 +1,27 @@
 Changelog
 =========
 
+1.3.1 (2020-08-31)
+------------------
+
+**Changes**
+
+* Updated CMIS-adapter to 1.1 featuring support CMIS 1.0 Webservice binding and
+  various new configuration options.
+* Added support for configurable Selectielijst years to retrieve specific years
+  from the Selectielijst API (#689)
+* Prevent error monitoring from logging special personal data (#696)
+
+**Bugfixes**
+
+* Accept comma separated in ``EigenschapSpecificatie.waardenverzameling`` (#686)
+
+**Documentation**
+
+* Added SPDX license headers and check.
+* Added Docker storage hint to make sure users run the Docker containers on
+  volumes with enough disk space.
+
 1.3.0 (2020-07-29)
 ------------------
 
