@@ -553,5 +553,3 @@ CMIS_ENABLED = config("CMIS_ENABLED", default=False)
 CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
-
-REST_FRAMEWORK["DEFAULT_VERSION"] = 1

@@ -19,7 +19,6 @@ from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from rest_framework.settings import api_settings
 from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
@@ -342,7 +341,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if settings.CMIS_ENABLED:
             path = reverse(
                 "enkelvoudiginformatieobject-detail",
-                kwargs={"version": api_settings.DEFAULT_VERSION, "uuid": instance.uuid},
+                kwargs={"version": "1", "uuid": instance.uuid},
             )
             # Following what is done in drc_cmis/client/convert.py
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
