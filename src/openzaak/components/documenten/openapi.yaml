@@ -1815,6 +1815,7 @@ paths:
         required: false
         schema:
           type: string
+          format: uri
       - name: startdatum__lt
         in: query
         description: Begindatum van de periode waarin de gebruiksrechtvoorwaarden
@@ -2802,6 +2803,7 @@ paths:
         required: false
         schema:
           type: string
+          format: uri
       responses:
         '200':
           description: OK
