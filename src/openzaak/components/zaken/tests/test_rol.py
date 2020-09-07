@@ -392,6 +392,42 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["betrokkeneIdentificatie"]["inpBsn"], "183068142")
 
+    def test_create_rol_omschrijving_length_100(self):
+        url = get_operation_url("rol_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype, omschrijving="a" * 100)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene_type": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "betrokkeneIdentificatie": {
+                "anpIdentificatie": "12345",
+                "verblijfsadres": {
+                    "aoaIdentificatie": "123",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test",
+                    "aoaPostcode": "1111",
+                    "aoaHuisnummer": 1,
+                },
+                "subVerblijfBuitenland": {
+                    "lndLandcode": "UK",
+                    "lndLandnaam": "United Kingdom",
+                    "subAdresBuitenland_1": "some uk adres",
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Rol.objects.count(), 1)
+
+        rol = Rol.objects.get()
+        self.assertEqual(rol.omschrijving, "a" * 100)
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
