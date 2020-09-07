@@ -553,7 +553,7 @@ class Rol(models.Model):
 
     omschrijving = models.CharField(
         _("omschrijving"),
-        max_length=20,
+        max_length=100,
         editable=False,
         db_index=True,
         help_text=_(
