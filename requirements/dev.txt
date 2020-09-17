@@ -148,7 +148,7 @@ webob==1.8.5              # via -r requirements/ci.txt, webtest
 websocket-client==0.57.0  # via kubernetes
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
 whitenoise==5.1.0         # via -r requirements/dev.in
-zgw-consumers==0.8.1      # via -r requirements/ci.txt
+zgw-consumers==0.12.2     # via -r requirements/ci.txt
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
