@@ -13,3 +13,7 @@ sphinx
 sphinx_rtd_theme
 recommonmark
 sphinx-markdown-tables
+
+# Deployment
+
+-r ../deployment/requirements.in
