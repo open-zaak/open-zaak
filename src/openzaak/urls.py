@@ -17,6 +17,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", TemplateView.as_view(template_name="main.html"), name="home"),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
+    # batch requests
+    path("api/v1/", include("openzaak.batch_requests.urls")),
     # separate apps
     re_path(
         r"^(?P<component>zaken|besluiten|documenten|autorisaties|catalogi)/$",
