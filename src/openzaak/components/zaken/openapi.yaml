@@ -4301,6 +4301,12 @@ paths:
         required: false
         schema:
           type: string
+      - name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
+        in: query
+        description: Een korte identificatie van de organisatorische eenheid.
+        required: false
+        schema:
+          type: string
       - name: ordering
         in: query
         description: Which field to use when ordering the results.
@@ -9663,6 +9669,11 @@ components:
         rol__betrokkeneIdentificatie__medewerker__identificatie:
           title: Rol  betrokkeneidentificatie  medewerker  identificatie
           description: Een korte unieke aanduiding van de MEDEWERKER.
+          type: string
+          minLength: 1
+        rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
+          title: Rol  betrokkeneidentificatie  organisatorischeeenheid  identificatie
+          description: Een korte identificatie van de organisatorische eenheid.
           type: string
           minLength: 1
         ordering:

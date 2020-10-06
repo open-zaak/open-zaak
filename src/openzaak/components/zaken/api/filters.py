@@ -35,6 +35,10 @@ class ZaakFilter(FilterSet):
         field_name="rol__medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
     )
+    rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
+        field_name="rol__organisatorischeeenheid__identificatie",
+        help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
+    )
 
     class Meta:
         model = Zaak
