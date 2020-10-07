@@ -18,11 +18,11 @@ class BatchRequest:
 
 
 def batch_requests(parent: Request, requests: List[BatchRequest]) -> List[Response]:
-    responses = []
-    for request in requests:
-        response = handle_batch_request(parent, request)
-        responses.append(response)
-    return responses
+    with parallel() as executor:
+        responses = executor.map(
+            lambda req: handle_batch_request(parent, req), requests
+        )
+    return list(responses)
 
 
 def handle_batch_request(parent: Request, request: BatchRequest) -> Response:
