@@ -115,9 +115,9 @@ Open Notificaties
    a. Navigate to **Configuratie > Autorisatiecomponentconfiguratie**
    b. Fill out the form:
 
-      - **API root**: *The URL to the Notificaties API. For example:*
+      - **API root**: *The URL to the Autorisaties API. For example:*
         ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
-      - **Component**: ``Notificatierouteringcomponent``
+      - **Component**: ``Autorisatiecomponent``
 
    c. Click **Opslaan**.
 
