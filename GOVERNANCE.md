@@ -1,4 +1,3 @@
-
 # DRAFT: OpenZaak codebase goverance
 
 ## Introduction
@@ -35,6 +34,8 @@ Any active member of the community can request to become a technical steering te
 The current team members are:
 
 * Anton Boerma, Exxellence
+* Joeri Bekker, Maykin Media
+* Sergei Maertens, Maykin Media
 
 The technical steering team has the joint responsibility to:
 
@@ -65,12 +66,13 @@ Responsibilities of the product steering team:
 
 Members are appointed by the current product steering team members.
 
-Changes in codebase governance can only be done by the product steering team and requires super majority. 
+Changes in codebase governance can only be done by the product steering team and requires super majority.
 
 The current team members are:
 
-* Peter Moen, Exxellence
+* Joeri Bekker, Maykin Media
 * Jolanda van de Kooij, Exxellence
+* Peter Moen, Exxellence
 
 ## Decision making process
 
@@ -82,7 +84,7 @@ Many of the day-to-day project maintenance tasks can be done by a lazy consensus
 
 * Adding a team member (simple majority)
 * Removing a team member (super majority)
-* Changing the governance rules (this document) (super majority) 
+* Changing the governance rules (this document) (super majority)
 * Licensing and intellectual property changes (including new logos, wordmarks) (simple majority)
 * Adding, archiving, or removing subprojects (simple majority)
 
