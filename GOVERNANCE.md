@@ -34,7 +34,7 @@ Any active member of the community can request to become a technical steering te
 
 The current team members are:
 
-* 
+* Anton Boerma, Exxellence
 
 The technical steering team has the joint responsibility to:
 
@@ -69,7 +69,8 @@ Changes in codebase governance can only be done by the product steering team and
 
 The current team members are:
 
-* 
+* Peter Moen, Exxellence
+* Jolanda van de Kooij, Exxellence
 
 ## Decision making process
 
