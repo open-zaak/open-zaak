@@ -21,35 +21,46 @@ Through codebase stewardship the Foundation for Public Code supports the governa
 
 ## Technical steering team
 
-The OpenZaak technical steering team members are active contributors who are on a day-to-day basis responsible for:
+The OpenZaak technical steering team members are active contributors. As a team, they
+have the join responsibility to:
 
-* Merging pull requests
-* Handling code of conduct violations
-* Overseeing the resolution and disclosure of security issues
-
-If technical steering team members cannot reach consensus informally, the question at hand should be forwarded to the technical steering team meeting.
-
-Any active member of the community can request to become a technical steering team member by asking the technical steering team. The technical steering team will vote on it (simple majority).
+* Provide technical direction for the codebase
+* Maintain a technical roadmap, an architecture and coding principles
+* Resolve issues in development or conflicts between contributors
+* Managing and planning releases
+* Controlling rights to Open Zaak assets such as source repositories
 
 The current team members are:
 
 * Anton Boerma, Exxellence
 * Joeri Bekker, Maykin Media
 * Sergei Maertens, Maykin Media
+* Tahir Malik, Contezza
+* Tjerk Vaags, Contezza
 
-The technical steering team has the joint responsibility to:
+Any active member of the community can request to become a technical steering team
+member by asking the technical steering team. The technical steering team will vote on
+it (simple majority).
 
-* Provide technical direction for the codebase
-* Maintain a technical roadmap, an architecure and coding principles
-* Resolve issues in development or conflicts between contributors
-* Managing and planning releases
-* Controlling rights to Open Zaak assets such as source repositories
+On a day to day basis, these members are responsible for:
 
-The technical steering team meets regularly. Their agenda includes reivew of the technical roadmap and issues that are at an impasse. The intention of the agenda is not to review or approve all patches. This is mainly being done through the process described in [the contributing guide](CONTRIBUTING.md#Reviews).
+* Merging pull requests
+* Overseeing the resolution and disclosure of security issues
 
-If more than one technical steering team member disagrees with a decision of the technical steering team they may appeal to the product steering team who will make the ultimate ruling.
+If technical steering team members cannot reach consensus informally, the question at
+hand should be forwarded to the technical steering team meeting.
 
-Ideally, no one company or organization will employ a simple majority of the technical steering team.
+The technical steering team meets regularly. Their agenda includes reivew of the
+technical roadmap and issues that are at an impasse. The intention of the agenda is not
+to review or approve all patches. This is mainly being done through the process
+described in [the contributing guide](CONTRIBUTING.md#Reviews).
+
+If more than one technical steering team member disagrees with a decision of the
+technical steering team they may appeal to the product steering team who will make the
+ultimate ruling.
+
+Ideally, no one company or organization will employ a simple majority of the technical
+steering team.
 
 ## Product steering team
 
@@ -92,4 +103,8 @@ Many of the day-to-day project maintenance tasks can be done by a lazy consensus
 
 OpenZaak's Code of Conduct is explained in [this project's code of conduct](CODE_OF_CONDUCT.md).
 
-If the possible violation involves a team member that member will be recused from voting on the issue. Such issues must be escalated to the product steering team contact, and the product steering team may choose to intervene.
+Currently, the Technical Steering Group handles Code of Conduct violations.
+
+If the possible violation involves a team member that member will be recused from voting
+on the issue. Such issues must be escalated to the product steering team contact, and
+the product steering team may choose to intervene.
