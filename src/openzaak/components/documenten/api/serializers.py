@@ -66,7 +66,8 @@ class AnyBase64File(Base64FileField):
             return super().to_internal_value(base64_data)
         except Exception:
             try:
-                b64decode(base64_data)
+                # If validate is False, no check is done to see if the data contains non base-64 alphabet characters
+                b64decode(base64_data, validate=True)
             except binascii.Error as e:
                 if str(e) == "Incorrect padding":
                     raise ValidationError(
