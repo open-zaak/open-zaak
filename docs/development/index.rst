@@ -12,5 +12,6 @@ contribute!
    roadmap
    changelog
    getting_started
+   principles
    releasing
    performance/index
