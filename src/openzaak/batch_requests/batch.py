@@ -26,13 +26,14 @@ def batch_requests(parent: Request, requests: List[BatchRequest]) -> List[Respon
 
 
 def handle_batch_request(parent: Request, request: BatchRequest) -> Response:
-    request_path = urlparse(request.url).path
+    parsed = urlparse(request.url)
 
     # copy the underlying environ to clone the request, and change the method + path
     new_environ = {
         **parent.environ,
         "REQUEST_METHOD": request.method,
-        "PATH_INFO": request_path,
+        "PATH_INFO": parsed.path,
+        "QUERY_STRING": parsed.query,
     }
     cloned_request = WSGIRequest(new_environ)
     cloned_request.jwt_auth = parent.jwt_auth
