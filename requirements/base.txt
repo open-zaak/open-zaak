@@ -79,4 +79,4 @@ uritemplate==3.0.0        # via coreapi, drf-yasg
 urllib3==1.24.3           # via requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/base.in
 vng-api-common==1.0.47    # via -r requirements/base.in, drc-cmis
-zgw-consumers==0.8.1      # via -r requirements/base.in
+zgw-consumers==0.12.2     # via -r requirements/base.in

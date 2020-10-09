@@ -105,4 +105,4 @@ vng-api-common==1.0.47    # via -r requirements/base.txt, drc-cmis
 waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
-zgw-consumers==0.8.1      # via -r requirements/base.txt
+zgw-consumers==0.12.2     # via -r requirements/base.txt
