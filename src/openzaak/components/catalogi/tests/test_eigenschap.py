@@ -231,6 +231,62 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(spec.kardinaliteit, "1")
         self.assertEqual(spec.waardenverzameling, [])
 
+    def test_eigenschap_specifcatie_with_formaat_getal_with_comma(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "specificatie": {
+                "groep": "een_groep",
+                "formaat": "getal",
+                "lengte": "5,3",  # Comma separated
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+        spec = eigenschap.specificatie_van_eigenschap
+        self.assertEqual(spec.groep, "een_groep")
+        self.assertEqual(spec.formaat, FormaatChoices.getal)
+        self.assertEqual(spec.lengte, "5,3")
+        self.assertEqual(spec.kardinaliteit, "1")
+        self.assertEqual(spec.waardenverzameling, [])
+
+    def test_eigenschap_specifcatie_with_formaat_getal_invalid_length(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "specificatie": {
+                "groep": "een_groep",
+                "formaat": "getal",
+                "lengte": "5.3,Hello",  # Completely invalid
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_eigenschap_no_waardenverzameling(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
