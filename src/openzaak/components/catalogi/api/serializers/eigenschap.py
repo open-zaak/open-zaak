@@ -21,6 +21,11 @@ class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
         value_display_mapping = add_choice_values_help_text(FormaatChoices)
         self.fields["formaat"].help_text += f"\n\n{value_display_mapping}"
 
+    def validate(self, attrs):
+        instance = EigenschapSpecificatie(**attrs)
+        instance.clean()
+        return attrs
+
 
 class EigenschapSerializer(
     NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
