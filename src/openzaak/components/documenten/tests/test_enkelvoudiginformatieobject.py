@@ -411,6 +411,23 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_download_deleted_eio(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", inhoud__data=b"inhoud1"
+        )
+
+        eio_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        response = self.client.delete(reverse(eio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
