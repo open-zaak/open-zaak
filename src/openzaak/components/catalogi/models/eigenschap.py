@@ -93,9 +93,8 @@ class EigenschapSpecificatie(models.Model):
                 )
 
         elif self.formaat == FormaatChoices.getal:
-            # specificatie spreekt over kommagescheiden decimaal, wij nemen echter aan dat het punt gescheiden is
             try:
-                Decimal(self.lengte)
+                Decimal(self.lengte.replace(",", "."))
             except (InvalidOperation, TypeError):
                 raise ValidationError(
                     _(
