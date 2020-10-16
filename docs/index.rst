@@ -35,5 +35,6 @@ Open Zaak `is`_ and only uses :ref:`introduction_open-source`.
    api/index
    installation/index
    manual/index
+   client-development/index
    support/index
    development/index
