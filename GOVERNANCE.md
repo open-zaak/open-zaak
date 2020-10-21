@@ -64,15 +64,23 @@ Responsibilities of the product steering team:
 * Licensing and intellectual property changes
 * Controlling access to OpenZaak assets such as hosting and project calendars
 
-Members are appointed by the current product steering team members.
-
 Changes in codebase governance can only be done by the product steering team and requires super majority.
+
+Anyone with an interest in Open Zaak can request to become a product steering team member by asking the product steering team. The product steering team will vote on this request (simple majority). However, no more than 1 person per organization can have a vote. Typical members are:
+
+1) Representatives of a municipality that uses Open Zaak in some form as part of their current or future architecture.
+2) Representatives of an organization that manages or delivers Open Zaak installation(s) at one or more public organizations.
+3) Representatives of an organization that incorporates or uses Open Zaak in combination with their own product(s).
 
 The current team members are:
 
 * Joeri Bekker, Maykin Media
 * Jolanda van de Kooij, Exxellence
 * Peter Moen, Exxellence
+* Hugo ter Doest, Dimpact
+* Niels Lindeboom, Dimpact
+* Tahir Malik, Contezza
+* Silvion Moesan, Open.Satisfaction
 
 ## Decision making process
 
