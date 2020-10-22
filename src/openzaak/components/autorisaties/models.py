@@ -126,7 +126,9 @@ class AutorisatieSpec(models.Model):
                 )
                 to_add.append(autorisatie)
 
-        Autorisatie.objects.filter(pk__in=[autorisatie.pk for autorisatie in to_delete])
+        Autorisatie.objects.filter(
+            pk__in=[autorisatie.pk for autorisatie in to_delete]
+        ).delete()
 
         # de-duplicate - whatever is in to_keep should not be added again
         existing_urls = defaultdict(list)
