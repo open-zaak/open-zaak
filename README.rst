@@ -33,7 +33,6 @@ In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. D
 * Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
 * Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
 * Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
-* Klantinteracties - deze API ondersteunt de registratie van Contactmomenten en Verzoeken. Verzoeken hebben een relatie met producten en diensten uit de Producten Diensten Catalogus (PDC) en kunnen leiden tot zaken. Deze API wordt op een later moment toegevoegd aan Open Zaak.
 
 Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
 
