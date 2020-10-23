@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from openzaak.utils.tests import APICMISTestCase
 
@@ -9,6 +9,7 @@ from ..models import EnkelvoudigInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
+@tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class QueryTests(APICMISTestCase):
     """
