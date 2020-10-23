@@ -22,15 +22,15 @@
   "dependencies": {
     "autoprefixer": "^9.6.1",
     "babel-plugin-prismjs": "^2.0.1",
-    "prismjs": "^1.21.0",
+    "prismjs": "^1.22.0",
     "prop-types": "^15.7.2",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "@babel/preset-react": "^7.7.4",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-react": "^7.12.1",
     "babel-loader": "^8.0.6",
     "cssnano": "^4.1.10",
     "gulp": "^4.0.2",
@@ -45,7 +45,7 @@
     "postcss-selector-lint": "^1.0.0",
     "sass-loader": "^7.2.0",
     "swagger2openapi": "^7.0.3",
-    "webpack": "^4.41.2",
+    "webpack": "^4.44.2",
     "webpack-dev-server": "^3.9.0",
     "webpack-stream": "^5.2.1",
     "yargs": "^14.0.0"
