@@ -12,153 +12,151 @@ submit a pull request!
 Creating a Zaak, a Document and relating them
 ---------------------------------------------
 
-Python/Django
-+++++++++++++
+.. tabs::
 
-Using Django with `zgw-consumers`_
+    .. group-tab:: Python (Django)
 
-.. code-block:: python
+        Using Django with `zgw-consumers`_
 
-    import base64
-    from datetime import date
+        .. code-block:: python
 
-    from zgw_consumers.constants import APITypes
-    from zgw_consumers.models import Service
+            import base64
+            from datetime import date
 
-    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
-    drc_client = Service.objects.filter(api_type=APITypes.drc).get()
+            from zgw_consumers.constants import APITypes
+            from zgw_consumers.models import Service
 
-    # zaak creation
-    today = date.today().strftime("%Y-%m-%d")
-    zaak_body = {
-        "zaaktype": "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
-        "bronorganisatie": "123456782",
-        "verantwoordelijkeOrganisatie": "123456782",
-        "registratiedatum": today,
-        "startdatum": today,
-    }
-    zaak: dict = zrc_client.create("zaak", zaak_body)
+            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
+            drc_client = Service.objects.filter(api_type=APITypes.drc).get()
 
-    # document creation
-    with open("/tmp/some_file.txt", "rb") as some_file:
-        document_body = {
-            "bronorganisatie": "123456782",
-            "creatiedatum": today,
-            "titel": "Example document",
-            "auteur": "Open Zaak",
-            "inhoud": base64.b64encode(some_file.read()).decode("utf-8"),
-            "bestandsomvang": some_file.size,
-            "bestandsnaam": some_file.name,
-            "taal": "nld",
-            "informatieobjecttype": (
-                "https://test.openzaak.nl/catalogi/api/v1/"
-                "informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9"
-            )
-        }
-    document: dict = drc_client.create("enkelvoudiginformatieobject", document_body)
+            # zaak creation
+            today = date.today().strftime("%Y-%m-%d")
+            zaak_body = {
+                "zaaktype": "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
+                "bronorganisatie": "123456782",
+                "verantwoordelijkeOrganisatie": "123456782",
+                "registratiedatum": today,
+                "startdatum": today,
+            }
+            zaak: dict = zrc_client.create("zaak", zaak_body)
 
-    # relate them
-    zio_body = {
-        "zaak": zaak["url"],
-        "informatieobject": document["url"],
-    }
-    zio: dict = zrc_client.create("zaakinformatieobject", zio_body)
+            # document creation
+            with open("/tmp/some_file.txt", "rb") as some_file:
+                document_body = {
+                    "bronorganisatie": "123456782",
+                    "creatiedatum": today,
+                    "titel": "Example document",
+                    "auteur": "Open Zaak",
+                    "inhoud": base64.b64encode(some_file.read()).decode("utf-8"),
+                    "bestandsomvang": some_file.size,
+                    "bestandsnaam": some_file.name,
+                    "taal": "nld",
+                    "informatieobjecttype": (
+                        "https://test.openzaak.nl/catalogi/api/v1/"
+                        "informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9"
+                    )
+                }
+            document: dict = drc_client.create("enkelvoudiginformatieobject", document_body)
 
-Javascript
-++++++++++
+            # relate them
+            zio_body = {
+                "zaak": zaak["url"],
+                "informatieobject": document["url"],
+            }
+            zio: dict = zrc_client.create("zaakinformatieobject", zio_body)
 
-.. code-block:: javascript
+    .. group-tab:: Javascript
 
-    import jwt from 'jsonwebtoken';
+        .. code-block:: javascript
 
-    const CLIENT_ID = 'example';
-    const SECRET = 'secret';
+            import jwt from 'jsonwebtoken';
 
-    // helpers
-    const getJWT = () => {
-      return jwt.sign(
-        {client_id: CLIENT_ID},
-        SECRET,
-        {
-          algorithm: 'HS256',
-          issuer: CLIENT_ID,
-        }
-      );
-    };
+            const CLIENT_ID = 'example';
+            const SECRET = 'secret';
 
-    const apiCall = (url, method='get', body) => {
-      const fetchBody = body ? JSON.stringify(body) : null;
-      const token = getJWT();
-      const response = await fetch(
-        url,
-        {
-          method: method,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-          },
-          body: _body
-        }
-      );
-      const responseData = await response.json();
-      return responseData;
-    };
+            // helpers
+            const getJWT = () => {
+              return jwt.sign(
+                {client_id: CLIENT_ID},
+                SECRET,
+                {
+                  algorithm: 'HS256',
+                  issuer: CLIENT_ID,
+                }
+              );
+            };
 
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
+            const apiCall = (url, method='get', body) => {
+              const fetchBody = body ? JSON.stringify(body) : null;
+              const token = getJWT();
+              const response = await fetch(
+                url,
+                {
+                  method: method,
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                  },
+                  body: _body
+                }
+              );
+              const responseData = await response.json();
+              return responseData;
+            };
 
-    // zaak creation
-    const today = '2020-10-16';
-    const zaakBody = {
-        'zaaktype': 'https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff',
-        'bronorganisatie': '123456782',
-        'verantwoordelijkeOrganisatie': '123456782',
-        'registratiedatum': today,
-        'startdatum': today,
-    }
-    const zaak = await apiCall(
-      'https://test.openzaak.nl/zaken/api/v1/zaken',
-      'POST',
-      zaakBody
-    );
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
 
-    // document creation
-    const someFile = document.querySelector('#myfile').files[0];
-    const documentBody = {
-      'bronorganisatie': '123456782',
-      'creatiedatum': today,
-      'titel': 'Example document',
-      'auteur': 'Open Zaak',
-      'inhoud': toBase64(someFile),
-      'bestandsomvang': someFile.size,
-      'bestandsnaam': someFile.name,
-      'taal': 'nld',
-      'informatieobjecttype': `https://test.openzaak.nl/catalogi/api/v1/
-    informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9`
-    };
+            // zaak creation
+            const today = '2020-10-16';
+            const zaakBody = {
+                'zaaktype': 'https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff',
+                'bronorganisatie': '123456782',
+                'verantwoordelijkeOrganisatie': '123456782',
+                'registratiedatum': today,
+                'startdatum': today,
+            }
+            const zaak = await apiCall(
+              'https://test.openzaak.nl/zaken/api/v1/zaken',
+              'POST',
+              zaakBody
+            );
 
-    const doc = await apiCall(
-      'https://test.openzaak.nl/documenten/api/v1/enkelvoudiginformatieobjecten',
-      'POST',
-      documentBody
-    );
+            // document creation
+            const someFile = document.querySelector('#myfile').files[0];
+            const documentBody = {
+              'bronorganisatie': '123456782',
+              'creatiedatum': today,
+              'titel': 'Example document',
+              'auteur': 'Open Zaak',
+              'inhoud': toBase64(someFile),
+              'bestandsomvang': someFile.size,
+              'bestandsnaam': someFile.name,
+              'taal': 'nld',
+              'informatieobjecttype': `https://test.openzaak.nl/catalogi/api/v1/
+            informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9`
+            };
 
-    // relate them
-    const zioBody = {
-      'zaak': zaak.url,
-      'informatieobject': doc.url
-    };
-    const zio = await apiCall(
-      'https://test.openzaak.nl/zaken/api/v1/zaakinformatieobjecten',
-      'POST',
-      zioBody,
-    );
+            const doc = await apiCall(
+              'https://test.openzaak.nl/documenten/api/v1/enkelvoudiginformatieobjecten',
+              'POST',
+              documentBody
+            );
 
-
+            // relate them
+            const zioBody = {
+              'zaak': zaak.url,
+              'informatieobject': doc.url
+            };
+            const zio = await apiCall(
+              'https://test.openzaak.nl/zaken/api/v1/zaakinformatieobjecten',
+              'POST',
+              zioBody,
+            );
 
 
 Retrieving the documents related to a Zaak
@@ -170,85 +168,85 @@ of documents.
 
 The solution is to use some form of threading/concurrency offered by your language.
 
-Python/Django
-+++++++++++++
+.. tabs::
 
-Using Django with `zgw-consumers`_, we can use the
-``concurrent.fututures.ThreadPoolExecutor``, where each job will run in its own thread.
-This gets close to retrieving all the documents in parallel instead of sequentially,
-resulting in a constant-time determined by the slowest API call.
+    .. group-tab:: Python (Django)
 
-.. code-block:: python
+        Using Django with `zgw-consumers`_, we can use the
+        ``concurrent.fututures.ThreadPoolExecutor``, where each job will run in its own thread.
+        This gets close to retrieving all the documents in parallel instead of sequentially,
+        resulting in a constant-time determined by the slowest API call.
 
-    from typing import List
+        .. code-block:: python
 
-    from zgw_consumers.constants import APITypes
-    from zgw_consumers.models import Service
-    from zgw_consumers.concurrent import parallel
+            from typing import List
 
-    zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
-    drc_client = Service.objects.filter(api_type=APITypes.drc).get()
+            from zgw_consumers.constants import APITypes
+            from zgw_consumers.models import Service
+            from zgw_consumers.concurrent import parallel
 
-    zaak_url = "https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc"
-    zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": zaak_url})
-    document_urls = [zio["informatieobject"] for zio in zios]
-    with parallel() as executor:
-        _documents = executor.map(
-            lambda url: drc_client.retrieve("enkelvoudiginformatieobject", url=url),
-            document_urls
-        )
-    documents: List[dict] = list(_documents)
+            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
+            drc_client = Service.objects.filter(api_type=APITypes.drc).get()
 
-
-
-Javascript
-++++++++++
-
-Similarly to the Python case, we leverage the Javacsript async/await event loop. Once
-we've collected all the URLs of documents to retrieve, we create promises and by using
-``Promise.all``, all API calls are being performed in parallel (at least for the network
-IO part).
-
-.. code-block:: javascript
-
-    import jwt from 'jsonwebtoken';
-
-    const CLIENT_ID = 'example';
-    const SECRET = 'secret';
-
-    // helpers
-    const getJWT = () => {
-      return jwt.sign(
-        {client_id: CLIENT_ID},
-        SECRET,
-        {
-          algorithm: 'HS256',
-          issuer: CLIENT_ID,
-        }
-      );
-    };
-
-    const get = (url) => {
-      const token = getJWT();
-      const response = await fetch(
-        url,
-        {
-          method: 'get',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-          },
-        }
-      );
-      const responseData = await response.json();
-      return responseData;
-    };
+            zaak_url = "https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc"
+            zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": zaak_url})
+            document_urls = [zio["informatieobject"] for zio in zios]
+            with parallel() as executor:
+                _documents = executor.map(
+                    lambda url: drc_client.retrieve("enkelvoudiginformatieobject", url=url),
+                    document_urls
+                )
+            documents: List[dict] = list(_documents)
 
 
-    const zaakUrl = 'https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc';
-    const zios = await get(`https://test.openzaak.nl/zaken/api/v1/zaakinformatieobjecten?zaak=${zaakUrl}`);
-    const promises = zios.map(zio => get(zio.informatieobject));
-    const documents = await Promise.all(promises);
+
+    .. group-tab:: Javascript
+
+        Similarly to the Python case, we leverage the Javacsript async/await event loop. Once
+        we've collected all the URLs of documents to retrieve, we create promises and by using
+        ``Promise.all``, all API calls are being performed in parallel (at least for the network
+        IO part).
+
+        .. code-block:: javascript
+
+            import jwt from 'jsonwebtoken';
+
+            const CLIENT_ID = 'example';
+            const SECRET = 'secret';
+
+            // helpers
+            const getJWT = () => {
+              return jwt.sign(
+                {client_id: CLIENT_ID},
+                SECRET,
+                {
+                  algorithm: 'HS256',
+                  issuer: CLIENT_ID,
+                }
+              );
+            };
+
+            const get = (url) => {
+              const token = getJWT();
+              const response = await fetch(
+                url,
+                {
+                  method: 'get',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                  },
+                }
+              );
+              const responseData = await response.json();
+              return responseData;
+            };
+
+
+            const zaakUrl = 'https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc';
+            const zios = await get(`https://test.openzaak.nl/zaken/api/v1/zaakinformatieobjecten?zaak=${zaakUrl}`);
+            const promises = zios.map(zio => get(zio.informatieobject));
+            const documents = await Promise.all(promises);
 
 
 .. _zgw-consumers: https://pypi.org/project/zgw-consumers/
