@@ -8,7 +8,7 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import List, Optional, Tuple
 
-from django.db import IntegrityError, models
+from django.db import IntegrityError
 from django.db.models import fields
 from django.db.models.query import BaseIterable
 from django.forms.models import model_to_dict
@@ -217,10 +217,6 @@ class CMISDocumentIterable(BaseIterable, CMISClientMixin):
                     _lhs.append(lhs)
                     _rhs += rhs
                     continue
-            elif key == "identificatie" and "%" in value:
-                _lhs.append(f"{name} LIKE '%s'")
-                _rhs.append(f"{value}")
-                continue
             elif key == "creatiedatum" and value == "":
                 _lhs.append(f"{name} LIKE '%s'")
                 _rhs.append("%-%-%")
@@ -542,13 +538,9 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
 
         django_document = cmis_doc_to_django_model(new_cmis_document)
 
-        # If no identificatie field is present, it generates a unique, human readable one
+        # If no identificatie field is present, use the same as the document uuid (issue #762)
         if not django_document.identificatie:
-            # FIXME when aggregation operations will work in alfresco, should use
-            # vng_api_common.utils.generate_unique_identification rather than the one defined below
-            django_document.identificatie = generate_unique_identification(
-                django_document, "creatiedatum"
-            )
+            django_document.identificatie = django_document.uuid
             model_data = model_to_dict(django_document)
             self.filter(uuid=django_document.uuid).update(**model_data)
 
@@ -1035,22 +1027,3 @@ def modify_value_in_dictionary(existing_value, new_value):
         existing_value = [existing_value, new_value]
 
     return existing_value
-
-
-def generate_unique_identification(instance: models.Model, date_field_name: str):
-    model = type(instance)
-    model_name = getattr(model, "IDENTIFICATIE_PREFIX", model._meta.model_name.upper())
-
-    year = getattr(instance, date_field_name).year
-    pattern = f"{model_name}-{year}-%"
-
-    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
-
-    max_identificatie = 0
-    if issued_ids_for_year.exists():
-        for document in issued_ids_for_year:
-            number = int(document.identificatie.split("-")[-1])
-            max_identificatie = max(max_identificatie, number)
-
-    padded_number = str(max_identificatie + 1).zfill(10)
-    return f"{model_name}-{year}-{padded_number}"
