@@ -119,6 +119,38 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
+    def test_create_without_identificatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Test database
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+
+        # Test generation of human readable identificatie
+        self.assertEqual(stored_object.identificatie, "DOCUMENT-2018-0000000001")
+
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(informatieobjecttype)
