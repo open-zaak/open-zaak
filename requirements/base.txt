@@ -10,7 +10,7 @@ chardet==3.0.4            # via requests
 cmislib-maykin==0.7.4     # via drc-cmis
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
-cryptography==2.8         # via django-auth-adfs
+cryptography==3.2.1       # via django-auth-adfs
 dictdiffer==0.8.0         # via -r requirements/base.in
 django-admin-index==1.2.2  # via -r requirements/base.in
 django-appconf==1.0.2     # via django-axes
