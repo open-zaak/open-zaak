@@ -4,7 +4,7 @@ Changelog
 1.3.2 (2020-11-06)
 ------------------
 
-.. warn::
+.. warning::
 
     Manual intervention required!
 
