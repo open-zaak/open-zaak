@@ -1,6 +1,28 @@
 Changelog
 =========
 
+1.3.2 (2020-11-06)
+------------------
+
+.. warning::
+
+    Manual intervention required!
+
+    Some cleanup is required because of a synchronization bug. You need to run
+    the following ``sync_autorisaties`` management command.
+
+    Plain Docker:
+
+    .. code-block:: bash
+
+        docker exec openzaak-0 src/manage.py sync_autorisaties
+
+    Kubernetes:
+
+    .. code-block:: bash
+
+        kubectl exec <pod> -- src/manage.py sync_autorisaties
+
 1.3.1 (2020-08-31)
 ------------------
 

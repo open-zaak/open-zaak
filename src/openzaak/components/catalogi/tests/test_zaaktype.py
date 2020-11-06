@@ -3,15 +3,18 @@
 import uuid
 from datetime import date
 
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse as django_reverse
 
 from rest_framework import status
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
+from openzaak.utils import build_absolute_url
 from openzaak.utils.tests import mock_client
 
+from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
     ConceptUpdateValidator,
@@ -1410,3 +1413,19 @@ class ZaaktypeValidationTests(APITestCase):
 
         error = get_validation_errors(response, "selectielijstProcestype")
         self.assertEqual(error["code"], "invalid-resource")
+
+
+class ZaaktypeDeleteAutorisatieTests(TestCase):
+    def test_delete_zaaktype_deletes_autorisatie(self):
+        applicatie = ApplicatieFactory.create()
+        zaaktype = ZaakTypeFactory.create()
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            zaaktype=build_absolute_url(zaaktype.get_absolute_api_url()),
+        )
+
+        self.assertEqual(Autorisatie.objects.all().count(), 1)
+
+        zaaktype.delete()
+
+        self.assertEqual(Autorisatie.objects.all().count(), 0)
