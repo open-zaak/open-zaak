@@ -123,6 +123,42 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
+    def test_create_document_with_binary_content(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(
+                b"%PDF-1.4\n%\xc3\xa4\xc3\xbc\xc3\xb6\n2 0 obj\n<</Length 3 0 R/Filter/FlateDecode>>\nstream\nx\x9c"
+            ).decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Test storage backend (Alfresco)
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(
+            stored_object.inhoud.read(),
+            b"%PDF-1.4\n%\xc3\xa4\xc3\xbc\xc3\xb6\n2 0 obj\n<</Length 3 0 R/Filter/FlateDecode>>\nstream\nx\x9c",
+        )
+
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(informatieobjecttype)
