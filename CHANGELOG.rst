@@ -1,27 +1,94 @@
 Changelog
 =========
 
-1.3.2 (2020-11-06)
+1.3.2 (2020-11-09)
 ------------------
+
+Open Zaak 1.3.2 fixes a number of issues discovered in 1.3.1. Note that there are two
+manual interventions listed below these patch notes. Please read them before updating.
+
+**Changes**
+
+* Added messages in the admin if the selectielijst configuration is invalid (#698)
+* Applied a unique constraint on user e-mail address (if provided) (#589) - see manual
+  intervention warning below.
+* Upgraded to a newer version of ``zgw-consumers``, dropping the extra configuration
+  field for services (#710)
+* Implemented the upstream API bugfix, adding some zaken list query filters
+  (https://github.com/VNG-Realisatie/gemma-zaken/issues/1686, #732)
+* Added Github's code-scanning to detect vulnerable code patterns
+* Updated frontend dependencies to secure versions
+* Updated backend and deployment dependencies to secure versions (notably
+  ``cryptography``) (#755, #756)
+* [CMIS-adapter] Changed ``EnkelvoudigInformatieobject.identificatie`` generation. CMIS
+  query does not (always) support ``LIKE`` queries, nor does it support aggregation
+  queries (#762)
+
+**Bugfixes**
+
+* Fixed #711 -- changed ``Rol.omschrijving`` max_length from 20 -> 100
+* Fixed input validation of binary document content (when the client forgets to base64
+  encode it) (#608)
+* Fixed primary keys being localized in admin URLs (#587)
+* Fixed a crash when trying to download non-existant informatieobjecten (#584)
+* Corrected validation of ``Eigenschap.lengte``. API and admin are now consistent, and
+  decimals are now correctly interpreted (comma instead of dot) (#685)
+* Fixed the ``register_kanaal`` management command auth-issue (#738)
+* Fixed a bug where deleted zaaktypen had dangling ``Autorisatie`` records (#713) - see
+  manual intervention warning below.
+* Updated to `CMIS adapter 1.1.1`_ to fix some bugs (#760)
+
+**Documentation**
+
+* Update ``Governance.md`` after a number of steering group meetings
+* Clarified that Ansible Galaxy roles and collections need to be installed separately
+* Added a (technical) roadmap draft
+* Drafted code style/code architecture principles
+* Fixed a mix-up between authorizations/authentications API (#722)
+* Docker image badge now points to Docker Hub
+* Removed mention of Klantinteractie-API's - it's unclear what's being done with these
+  API's
+* Started documentation entries for developers of client/consumer applications
 
 .. warning::
 
-    Manual intervention required!
+  Manual intervention required.
+
+  E-mail addresses are used for logging in to the admin environment, which had no
+  unique constraint. This is corrected in a database migration, which will crash if
+  there are users with duplicate e-mail addresses. You should fix the duplicate
+  addresses **BEFORE** updating.
+
+.. warning::
+
+    Manual intervention required.
 
     Some cleanup is required because of a synchronization bug. You need to run
     the following ``sync_autorisaties`` management command.
 
-    Plain Docker:
+    .. tabs::
 
-    .. code-block:: bash
+      .. group-tab:: single-server
 
-        docker exec openzaak-0 src/manage.py sync_autorisaties
+        .. code-block:: bash
 
-    Kubernetes:
+            docker exec openzaak-0 src/manage.py sync_autorisaties
 
-    .. code-block:: bash
+      .. group-tab:: Kubernetes
 
-        kubectl exec <pod> -- src/manage.py sync_autorisaties
+        .. code-block:: bash
+
+            $ kubectl get pods
+            NAME                        READY   STATUS    RESTARTS   AGE
+            cache-79455b996-jxk9r       1/1     Running   0          2d9h
+            nginx-8579d9dfbd-gdtbf      1/1     Running   0          2d9h
+            nginx-8579d9dfbd-wz6wn      1/1     Running   0          2d9h
+            openzaak-7b696c8fd5-hchbq   1/1     Running   0          2d9h
+            openzaak-7b696c8fd5-kz2pb   1/1     Running   0          2d9h
+
+            $ kubectl exec openzaak-7b696c8fd5-hchbq -- src/manage.py sync_autorisaties
+
+.. _CMIS adapter 1.1.1: https://github.com/open-zaak/cmis-adapter/blob/master/CHANGELOG.rst
 
 1.3.1 (2020-08-31)
 ------------------
