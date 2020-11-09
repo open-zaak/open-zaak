@@ -4,23 +4,23 @@ CMIS adapter
 ============
 
 In a default installation of Open Zaak, any document created through the
-`Documenten API`_ are stored on disk and their metadata is stored in the 
-database. However, it is also possible to store these documents in a Document 
+`Documenten API`_ are stored on disk and their metadata is stored in the
+database. However, it is also possible to store these documents in a Document
 Management System (DMS) using the CMIS standard.
 
 .. _`Documenten API`: https://documenten-api.vng.cloud/api/v1/schema/
 
-The CMIS adapter converts API calls to the Documenten API in Open Zaak, to CMIS 
-calls which are sent to the DMS to retrieve, create, update and delete 
-documents. This way, the documents are stored in, or retrieved from, the DMS 
+The CMIS adapter converts API calls to the Documenten API in Open Zaak, to CMIS
+calls which are sent to the DMS to retrieve, create, update and delete
+documents. This way, the documents are stored in, or retrieved from, the DMS
 and not in or from Open Zaak.
 
 CMIS support
 ------------
 
-`CMIS 1.0`_ and `CMIS 1.1`_ have various CMIS protocol bindings that can be 
-used. Although according to the CMIS specification repositories must implement 
-Web Services and AtomPub bindings, some DMS implementation only support one 
+`CMIS 1.0`_ and `CMIS 1.1`_ have various CMIS protocol bindings that can be
+used. Although according to the CMIS specification repositories must implement
+Web Services and AtomPub bindings, some DMS implementation only support one
 and/or recommend the newer Browser bindings.
 
 .. _`CMIS 1.0`: https://docs.oasis-open.org/cmis/CMIS/v1.0/cmis-spec-v1.0.html
@@ -36,13 +36,13 @@ and/or recommend the newer Browser bindings.
 | Browser binding      |    N/A    | Supported |
 +----------------------+-----------+-----------+
 
-CMIS support is built in Open Zaak using the `CMIS adapter library`_. For an 
-up-to-date list of supported CMIS versions and libraries, please see this 
+CMIS support is built in Open Zaak using the `CMIS adapter library`_. For an
+up-to-date list of supported CMIS versions and libraries, please see this
 project's documentation.
 
 .. warning::
-   The CMIS adapter is currently an experimental feature. While we have 
-   extensive unit test coverage with `Alfresco`_ , we require more "real world" 
+   The CMIS adapter is currently an experimental feature. While we have
+   extensive unit test coverage with `Alfresco`_ , we require more "real world"
    testing before we can label the feature as stable.
 
 .. _`Alfresco`: https://www.alfresco.com/ecm-software/alfresco-community-editions
@@ -50,34 +50,34 @@ project's documentation.
 Using the CMIS adapter
 ----------------------
 
-1. Create a mapping file to match Documenten API attributes to custom 
-   properties in your DMS model. The format is explained in the 
+1. Create a mapping file to match Documenten API attributes to custom
+   properties in your DMS model. The format is explained in the
    `CMIS adapter library`_ *Mapping configuration* documentation.
 
-   You can use our `default CMIS mapping`_  for inspiration or just use these 
+   You can use our `default CMIS mapping`_  for inspiration or just use these
    as defaults.
 
    .. _`default CMIS mapping`: https://github.com/open-zaak/open-zaak/blob/master/config/cmis_mapper.json
    .. _`Alfresco model`: https://github.com/open-zaak/open-zaak/blob/master/extension/alfresco-zsdms-model.xml
 
-2. Make sure the content model is loaded in your DMS and matches the CMIS 
+2. Make sure the content model is loaded in your DMS and matches the CMIS
    mapping described in step 1. It's important that all attributes are present.
    Some need to be indexed to allow the proper CMIS queries to be executed.
 
-   You can use our `Alfresco model`_ that matches the default mapping. The 
-   detailed explanation is described in the `CMIS adapter library`_ 
+   You can use our `Alfresco model`_ that matches the default mapping. The
+   detailed explanation is described in the `CMIS adapter library`_
    *DMS Content model configuration* documentation.
 
-3. Enable the CMIS adapter. In the environment (or ``.env`` file), add or 
+3. Enable the CMIS adapter. In the environment (or ``.env`` file), add or
    update the variable ``CMIS_ENABLED`` and ``CMIS_MAPPER_FILE``:
 
     .. code-block:: bash
 
-        # Enables the CMIS-backend and the Open Zaak admin interface for configuring 
+        # Enables the CMIS-backend and the Open Zaak admin interface for configuring
         # the DMS settings.
         CMIS_ENABLED = True
 
-        # Absolute path to the mapping of Documenten API attributes to (custom) 
+        # Absolute path to the mapping of Documenten API attributes to (custom)
         # properties in your DMS model.
         CMIS_MAPPER_FILE = /path/to/cmis_mapper.json
 
@@ -98,3 +98,17 @@ Using the CMIS adapter
    well.
 
 .. _`CMIS adapter library`: https://github.com/open-zaak/cmis-adapter
+
+
+Additional notes on creating documents
+--------------------------------------
+
+Depending on whether the CMIS adapter is enabled, there is a difference in behaviour for creating documents with an empty identification field.
+
+If the CMIS adapter is disabled, the procedure to automatically generate the identification is as follows:
+
+1. The prefix ``DOCUMENT`` is combined with the year of creation of the document. For example: ``DOCUMENT-2020-``
+2. All existing documents are searched to find all those with an identification field that starts with the generated prefix. These would for example be ``DOCUMENT-2020-0000000001``, ``DOCUMENT-2020-0000000002``, ``DOCUMENT-2020-0000000003``.
+3. The new document is given an identification field with a unique number that is different from those of all the other documents. This would for example be ``DOCUMENT-2020-0000000004``.
+
+The search done in point 2. requires an SQL LIKE clause, which is not supported by all DMSs. For this reason, if the CMIS adapter is in use, the automatically generated identification field will be equal to the document UUID.
