@@ -33,6 +33,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 LOGGING["loggers"].update(
     {
         "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
+        "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
         "django": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
         "django.utils.autoreload": {
             "handlers": ["console"],
