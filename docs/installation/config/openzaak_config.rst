@@ -22,7 +22,7 @@ Configure Notificaties API
 Next, the notifications for Open Zaak must be configured. We assume you're also
 using Open Notificaties to make a complete setup.
 
-There's 2 things to keep in mind:
+There are 2 things to keep in mind:
 
 1. Open Zaak offers an Autorisaties API and thus the Open Zaak Autorisaties API
    must be consulted to check for **autorisations**.
@@ -67,7 +67,7 @@ Open Zaak
 
 3. Since Open Zaak also manages the authorizations via the Autorisaties API, we
    need to give Open Notificaties access to this API (so Open Notificaties can
-   see who's authorised to sent notifications):
+   see who's authorised to send notifications):
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
@@ -139,7 +139,7 @@ Open Notificaties
    d. Click **Opslaan**.
 
 3. Finally, we need to allow Open Zaak to access Open Notificaties (for
-   authentication purposes, so we can then check it's authorisations):
+   authentication purposes, so we can then check its authorisations):
 
    a. Navigate to **API Autorisaties > Client credentials**
    b. Click **Client credential toevoegen**.

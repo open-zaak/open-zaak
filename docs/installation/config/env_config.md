@@ -82,7 +82,7 @@ on Docker, since `localhost` is contained within the container:
 
 * `SENDFILE_BACKEND`: which backend to use for authorization-secured upload
   downloads. Defaults to `sendfile.backends.nginx`. See
-  (django-sendfile2)[https://pypi.org/project/django-sendfile2/] for available
+  [django-sendfile2](https://pypi.org/project/django-sendfile2/) for available
   backends.
 
 * `SENTRY_DSN`: URL of the sentry project to send error reports to. Default

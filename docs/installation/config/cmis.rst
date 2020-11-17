@@ -3,7 +3,7 @@
 CMIS adapter
 ============
 
-In a default installation of Open Zaak, any document created through the
+In a default installation of Open Zaak, any documents created through the
 `Documenten API`_ are stored on disk and their metadata is stored in the
 database. However, it is also possible to store these documents in a Document
 Management System (DMS) using the CMIS standard.
@@ -42,7 +42,7 @@ project's documentation.
 
 .. warning::
    The CMIS adapter is currently an experimental feature. While we have
-   extensive unit test coverage with `Alfresco`_ , we require more "real world"
+   extensive unit test coverage with `Alfresco`_, we require more "real world"
    testing before we can label the feature as stable.
 
 .. _`Alfresco`: https://www.alfresco.com/ecm-software/alfresco-community-editions
