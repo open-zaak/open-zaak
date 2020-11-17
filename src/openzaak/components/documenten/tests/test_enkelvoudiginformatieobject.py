@@ -151,6 +151,38 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         # Test generation of human readable identificatie
         self.assertEqual(stored_object.identificatie, "DOCUMENT-2018-0000000001")
 
+    def test_create_two_docs_with_same_identificatie_and_bronorganisatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": "12345",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "identificatie-niet-uniek"
+        )
+
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(informatieobjecttype)
