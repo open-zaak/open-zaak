@@ -34,7 +34,7 @@
     nginx_http_template_enable: true
 
   roles:
-    - role: debian_setup
+    - role: os_setup
 
     - role: geerlingguy.postgresql
       tags:

@@ -30,7 +30,7 @@
 
   roles:
 
-    - role: debian_setup
+    - role: os_setup
 
     - role: geerlingguy.postgresql
       tags:
