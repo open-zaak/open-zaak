@@ -99,6 +99,53 @@ Using the CMIS adapter
 
 .. _`CMIS adapter library`: https://github.com/open-zaak/cmis-adapter
 
+When using the CMIS-adapter, sometimes a Zaak, a Zaaktype or a Besluit need to be retrieved from the APIs.
+This happens for example when a Zaak folder is created, since the description of the Zaak is used as part of the folder name.
+
+For this reason, the CMIS-adapter needs to be given access to the various APIs.
+These are the steps to configure it:
+
+1. Go to **API Autorisaties > Applicaties** and click on **Applicatie toevoegen**.
+
+2. Fill out the form:
+
+    a. **Client ID**: *For example:* ``cmis-adapter``
+
+    b. **Secret**: *Some random string, for example:* ``Tl8@04&O4gXTtB``. You will need this later on!
+
+3. Click **Opslaan en opnieuw bewerken**.
+
+4. Click **Beheer Autorisaties**.
+
+5. Under **Component** check ``Zaken API``, under **Selecteer scopes** check ``zaken.lezen``, under **Voor welke typen geldt dit?** check ``Alle huidige en toekomsitge ZAAKTYPEN`` and  under **Tot en met welke vertrouwelijkheidaanduiding?** check ``Zeer geheim``.
+
+6. Click on **Nog Autorisaties toevoegen** and under **Component** check ``Catalogi API`` and under **Selecteer scopes** check ``catalogi.lezen``.
+
+7. Click on **Nog Autorisaties toevoegen** and check under **Component** ``Besluiten API``, under **Selecteer scopes** check ``besluiten.lezen`` and under **Voor welke typen geldt dit?** check ``Alle huidige en toekomsitge BESLUITTYPEN``.
+
+8. Click on **Nog Autorisaties toevoegen** and under **Component** check ``Documenten API``,  under **Selecteer scopes** check ``documenten.lezen``,  under **Voor welke typen geldt dit?** check ``Alle huidige en toekomsitge INFORMATIEOBJECTTYPEN`` and under **Tot en met welke vertrouwelijkheidaanduiding?** check ``Zeer geheim``.
+
+9. Click on **Opslaan** to save.
+
+Then, the services need to be configured.
+First, configure the Zaken API as follows:
+
+1. Go to **API Autorisaties > Services** and click on **Service Toevoegen**.
+
+2. Fill out the form:
+
+    a. The **API type** should be ``ZRC (Zaken)``.
+
+    b. The **API root** could be ``http://example.com/zaken/api/v1/``.
+
+    c. The **client ID** and the **secret** should be those configured in the **API Autorisaties > Applicaties**. Following the previous example, they would be ``cmis-adapter`` and ``Tl8@04&O4gXTtB`` respectively.
+
+3. Click **Opslaan** to save.
+
+Repeat the procedure above for the Zaaktypen API, Besluiten API and Documenten API.
+Make sure to use the proper **Type** and **API root**. The credentials should all be the same.
+
+
 
 Additional notes on creating documents
 --------------------------------------
