@@ -194,8 +194,8 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             bio = super().create(validated_data)
 
-        # local FK - nothing to do -> our signals create the OIO
-        if bio.informatieobject.pk:
+        # local FK or CMIS - nothing to do -> our signals create the OIO
+        if bio.informatieobject.pk or settings.CMIS_ENABLED:
             return bio
 
         # we know that we got valid URLs in the initial data
