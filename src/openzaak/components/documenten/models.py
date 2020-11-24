@@ -382,7 +382,9 @@ class EnkelvoudigInformatieObject(
     objects = AdapterManager()
 
     class Meta:
-        unique_together = ("uuid", "versie")
+        # No bronorganisatie/identificatie unique-together constraint, otherwise new versions of a document cannot be
+        # saved to the database.
+        unique_together = [("uuid", "versie")]
         verbose_name = _("Document")
         verbose_name_plural = _("Documenten")
         indexes = [models.Index(fields=["canonical", "-versie"])]

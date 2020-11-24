@@ -43,7 +43,11 @@ from ..models import (
 )
 from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
-from .validators import InformatieObjectUniqueValidator, StatusValidator
+from .validators import (
+    InformatieObjectUniqueValidator,
+    StatusValidator,
+    UniekeIdentificatieValidator,
+)
 
 
 class AnyFileType:
@@ -271,7 +275,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             },
         }
         read_only_fields = ["versie", "begin_registratie"]
-        validators = [StatusValidator()]
+        validators = [
+            StatusValidator(),
+            UniekeIdentificatieValidator(),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -393,6 +400,10 @@ class EnkelvoudigInformatieObjectWithLockSerializer(
     class Meta(EnkelvoudigInformatieObjectSerializer.Meta):
         # Use the same fields as the parent class and add the lock to it
         fields = EnkelvoudigInformatieObjectSerializer.Meta.fields + ("lock",)
+
+        # Removing the validator that checks for identificatie/bronorganisatie being unique together, because for a
+        # PATCH request to update a document all the data from the previous document version is used.
+        validators = [StatusValidator()]
 
     def validate(self, attrs):
         valid_attrs = super().validate(attrs)
