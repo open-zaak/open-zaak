@@ -187,6 +187,14 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     Serializer for the EnkelvoudigInformatieObject model
     """
 
+    identificatie = serializers.CharField(
+        max_length=40,
+        default="",
+        help_text=_(
+            "Een binnen een gegeven context ondubbelzinnige referentie "
+            "naar het INFORMATIEOBJECT."
+        ),
+    )
     url = serializers.HyperlinkedIdentityField(
         view_name="enkelvoudiginformatieobject-detail", lookup_field="uuid"
     )
