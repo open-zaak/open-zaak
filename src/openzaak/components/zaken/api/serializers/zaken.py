@@ -553,8 +553,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             zio = super().create(validated_data)
 
-        # local FK - nothing to do -> our signals create the OIO
-        if zio.informatieobject.pk:
+        # local FK or CMIS - nothing to do -> our signals create the OIO
+        if zio.informatieobject.pk or settings.CMIS_ENABLED:
             return zio
 
         # we know that we got valid URLs in the initial data

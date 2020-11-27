@@ -20,6 +20,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
+from ...documenten.models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from ..models import Zaak, ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
@@ -89,6 +90,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         )
 
         self.assertEqual(response.json(), expected_response)
+
+        self.assertEqual(ObjectInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 
     @freeze_time("2018-09-20 12:00:00")
     def test_registratiedatum_ignored(self):
