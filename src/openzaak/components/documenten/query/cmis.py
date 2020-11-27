@@ -547,6 +547,17 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         return django_document
 
     def filter(self, *args, **kwargs):
+
+        clone = super().filter(*args, **kwargs)
+
+        filters = self._construct_filters(**kwargs)
+
+        # keep track of all the filters when chaining
+        clone._cmis_query += [tuple(x) for x in filters.items()]
+
+        return clone
+
+    def _construct_filters(self, **kwargs) -> dict:
         filters = {}
 
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
@@ -579,10 +590,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
             else:
                 filters[key_bits[0]] = value
 
-        # keep track of all the filters when chaining
-        self._cmis_query += [tuple(x) for x in filters.items()]
-
-        return super().filter(*args, **kwargs)
+        return filters
 
     def update(self, **kwargs):
         docs_to_update = super().iterator()

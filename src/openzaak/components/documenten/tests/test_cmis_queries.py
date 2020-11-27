@@ -63,3 +63,21 @@ class QueryTests(APICMISTestCase):
             {eio.identificatie for eio in eios},
             {eio1.identificatie, eio2.identificatie},
         )
+
+    def test_multiple_filters(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(identificatie="001")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(identificatie="002")
+
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        first_filter = eios.filter(identificatie="001")
+
+        self.assertEqual(
+            [eio.identificatie for eio in first_filter], [eio1.identificatie],
+        )
+
+        second_filter = eios.filter(identificatie="002")
+
+        self.assertEqual(
+            [eio.identificatie for eio in second_filter], [eio2.identificatie],
+        )
