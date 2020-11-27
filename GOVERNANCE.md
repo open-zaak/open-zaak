@@ -22,7 +22,7 @@ Through codebase stewardship the Foundation for Public Code supports the governa
 ## Technical steering team
 
 The OpenZaak technical steering team members are active contributors. As a team, they
-have the join responsibility to:
+have the joint responsibility to:
 
 * Provide technical direction for the codebase
 * Maintain a technical roadmap, an architecture and coding principles
