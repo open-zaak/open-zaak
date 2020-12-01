@@ -5,7 +5,7 @@
 # https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
 from unittest.mock import patch
 
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.urls import path
 
 from rest_framework import views
@@ -52,8 +52,7 @@ class DefaultCORSConfigurationTests(CorsMixin, APITestCase):
             HTTP_ORIGIN="https://evil.com",
         )
 
-        self.assertNotEqual(response["Access-Control-Allow-Origin"], "https://evil.com")
-        self.assertNotEqual(response["Access-Control-Allow-Origin"], "*")
+        self.assertNotIn("Access-Control-Allow-Origin", response)
         self.assertNotIn("Access-Control-Allow-Credentials", response)
 
     def test_credentialed_request(self):
@@ -62,12 +61,15 @@ class DefaultCORSConfigurationTests(CorsMixin, APITestCase):
 
         response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
 
-        self.assertNotEqual(response["Access-Control-Allow-Origin"], "https://evil.com")
-        self.assertNotEqual(response["Access-Control-Allow-Origin"], "*")
+        self.assertNotIn("Access-Control-Allow-Origin", response)
         self.assertNotIn("Access-Control-Allow-Credentials", response)
 
 
-@override_settings(CORS_ORIGIN_ALLOW_ALL=True, CORS_ALLOW_CREDENTIALS=False)
+@override_settings(
+    ROOT_URLCONF="openzaak.tests.test_cors_configuration",
+    CORS_ALLOW_ALL_ORIGINS=True,
+    CORS_ALLOW_CREDENTIALS=False,
+)
 class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
     """
     Test the default CORS settings.
@@ -109,7 +111,11 @@ class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
         self.assertNotIn("Access-Control-Allow-Credentials", response)
 
 
-@override_settings(CORS_ORIGIN_ALLOW_ALL=True, CORS_ALLOW_CREDENTIALS=False)
+@override_settings(
+    ROOT_URLCONF="openzaak.tests.test_cors_configuration",
+    CORS_ALLOW_ALL_ORIGINS=True,
+    CORS_ALLOW_CREDENTIALS=False,
+)
 class CORSEnabledWithAuthHeaderTests(CorsMixin, APITestCase):
     def test_preflight_request(self):
         """
