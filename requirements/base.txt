@@ -18,7 +18,7 @@ django-auth-adfs-db==0.2.0  # via -r requirements/base.in
 django-auth-adfs==1.3.1   # via django-auth-adfs-db
 django-axes==4.4.0        # via -r requirements/base.in
 django-choices==1.7.0     # via -r requirements/base.in, drc-cmis, vng-api-common, zgw-consumers
-django-cors-middleware==1.3.1  # via -r requirements/base.in
+django-cors-headers==3.5.0  # via -r requirements/base.in
 django-db-logger==0.1.7   # via -r requirements/base.in
 django-extra-fields==1.2.4  # via -r requirements/base.in
 django-extra-views==0.13.0  # via -r requirements/base.in
@@ -33,7 +33,7 @@ django-relativedelta==1.0.5  # via -r requirements/base.in, zgw-consumers
 django-sendfile2==0.6.0   # via django-privates
 django-sniplates==0.7.0   # via -r requirements/base.in
 django-solo==1.1.3        # via django-auth-adfs-db, drc-cmis, vng-api-common, zgw-consumers
-django==2.2.10            # via -r requirements/base.in, django-auth-adfs, django-auth-adfs-db, django-choices, django-db-logger, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-sniplates, drc-cmis, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
+django==2.2.10            # via -r requirements/base.in, django-auth-adfs, django-auth-adfs-db, django-choices, django-cors-headers, django-db-logger, django-extra-fields, django-extra-views, django-filter, django-loose-fk, django-markup, django-privates, django-redis, django-relativedelta, django-sendfile2, django-sniplates, drc-cmis, drf-nested-routers, drf-yasg, nlx-url-rewriter, vng-api-common, zgw-consumers
 djangorestframework-camel-case==0.2.0  # via -r requirements/base.in, vng-api-common
 djangorestframework-gis==0.14  # via -r requirements/base.in
 djangorestframework==3.9.4  # via -r requirements/base.in, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
