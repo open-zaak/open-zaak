@@ -108,6 +108,22 @@ on Docker, since `localhost` is contained within the container:
     Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
     variable should be used with care to prevent unwanted side-effects.
 
+### Cross-Origin-Resource-Sharing
+
+The following parameters control the CORS policy.
+
+* `CORS_ALLOW_ALL_ORIGINS`: allow cross-domain access from any client. Defaults to `False`.
+
+* `CORS_ALLOWED_ORIGINS`: explicitly list the allowed origins for cross-domain requests.
+  Defaults to an empty list. Example: `http://localhost:3000,https://some-app.gemeente.nl`.
+
+* `CORS_ALLOWED_ORIGIN_REGEXES`: same as `CORS_ALLOWED_ORIGINS`, but supports regular
+  expressions.
+
+* `CORS_EXTRA_ALLOW_HEADERS`: headers that are allowed to be sent as part of the cross-domain
+  request. By default, `Authorization`, `Accept-Crs` and `Content-Crs` are already
+  included. The value of this variable is added to these already included headers.
+  Defaults to an empty list.
 
 ## Specifying the environment variables
 
