@@ -791,3 +791,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "pending-relations")
+
+    def test_representation(self):
+        zio = ZaakInformatieObjectFactory.create()
+        zio_representation = str(zio)
+        expected_representation = f"{zio.zaak.identificatie} - {zio.informatieobject.latest_version.identificatie}"
+        self.assertEqual(expected_representation, zio_representation)
