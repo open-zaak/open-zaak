@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
@@ -26,6 +25,7 @@ from openzaak.utils.validators import (
     LooseFkResourceValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
+    UniqueTogetherValidator,
 )
 
 from ..constants import VervalRedenen
