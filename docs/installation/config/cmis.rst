@@ -159,3 +159,4 @@ If the CMIS adapter is disabled, the procedure to automatically generate the ide
 3. The new document is given an identification field with a unique number that is different from those of all the other documents. This would for example be ``DOCUMENT-2020-0000000004``.
 
 The search done in point 2. requires an SQL LIKE clause, which is not supported by all DMSs. For this reason, if the CMIS adapter is in use, the automatically generated identification field will be equal to the document UUID.
+
