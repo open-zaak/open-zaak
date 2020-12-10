@@ -29,7 +29,9 @@ class Command(BaseCommand):
             self.stdout.write(_("This command does not run with CMIS enabled."))
             return
 
-        msg = _(f"Checking {EnkelvoudigInformatieObject.objects.count()} records ...")
+        msg = _("Checking {count} records ...").format(
+            count=EnkelvoudigInformatieObject.objects.count()
+        )
         self.stdout.write(msg)
 
         duplicates = find_duplicate_eios()
@@ -38,7 +40,7 @@ class Command(BaseCommand):
             self.stdout.write(_("Found no duplicate records."))
             return
 
-        msg = _(f"Found {len(duplicates)} duplicate records.")
+        msg = _("Found {count} duplicate records.").format(count=len(duplicates))
         self.stdout.write(msg)
 
         if not options["interactive"]:
@@ -57,7 +59,9 @@ class Command(BaseCommand):
                     delete_duplicates(duplicates)
                     self.stdout.write(
                         self.style.SUCCESS(
-                            _(f"Deleted {len(duplicates)} duplicate document(s).")
+                            _("Deleted {count} duplicate document(s).").format(
+                                count=len(duplicates)
+                            )
                         )
                     )
                     return
