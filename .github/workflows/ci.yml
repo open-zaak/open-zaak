@@ -1,0 +1,172 @@
+name: Run CI
+
+# Run this workflow every time a new commit pushed to your repository
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: openzaak/open-zaak
+  DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+  DB_PASSWORD: ''
+  DB_USER: postgres
+  ALLOWED_HOSTS: openzaak.nl
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        postgres: ['10', '11', '12']
+        postgis: ['2.5']
+        binding: ['BROWSER', 'WEBSERVICE']
+
+    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}, ${{ matrix.binding }} binding)
+
+    services:
+      postgres:
+        image: postgis/postgis:${{ matrix.postgres }}-${{ matrix.postgis }}
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Install system packages
+        run: sudo apt-get install libgdal-dev gdal-bin
+
+      - name: Bring up Alfresco
+        run: |
+          docker-compose -f docker-compose.travis-cmis.yml up -d
+          docker ps -q | xargs  docker stats --no-stream
+
+      - name: Install dependencies
+        run: pip install -r requirements/ci.txt codecov
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build --production
+
+      - name: Run tests
+        run: |
+          python src/manage.py collectstatic --noinput --link
+          coverage run src/manage.py test src
+        env:
+          CMIS_BINDING: ${{ matrix.binding }}
+
+      - name: Publish coverage report
+        uses: codecov/codecov-action@v1
+
+  docs:
+    runs-on: ubuntu-latest
+    name: Documentation build
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Install dependencies
+        run: pip install -r requirements/dev.txt pytest
+      - name: Build and test docs
+        run: cd docs && pytest check_sphinx.py -v --tb=auto
+
+  docker:
+    runs-on: ubuntu-latest
+    name: Docker image build
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker build . -t $IMAGE_NAME
+      - run: docker image save -o image.tar $IMAGE_NAME
+      - name: Store image artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image
+          path: image.tar
+          retention-days: 1
+
+  # TODO: only run if src files changed (i.e. -> exclude for docs)
+  api_testplatform:
+    runs-on: ubuntu-latest
+    name: ZGW API tests
+    needs:
+      - tests
+      - docs
+      - docker
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+      - name: Download built image
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+      - name: Load image
+        run: docker image load -i image.tar
+      - name: Bring up services
+        run: docker-compose -f docker-compose.travis.yml up -d
+      - name: Install dependencies
+        run: npm install newman
+      - name: Run postman tests
+        run: bin/postman_tests.sh
+
+  publish:
+    needs:
+      - tests
+      - docker
+      - api_testplatform
+
+    name: Push Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set tag
+        id: vars
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name (if present at all)
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "develop" ] && VERSION=latest
+
+          echo ::set-output name=tag::${VERSION}
+          echo ::set-output name=git_hash::${GITHUB_SHA}
+
+      - name: Build the Docker image
+        run: |
+          docker build \
+            --tag $IMAGE_NAME:${{ steps.vars.outputs.tag }} \
+            --build-arg COMMIT_HASH=${{ steps.vars.outputs.git_hash }} \
+            --build-arg RELEASE=${{ steps.vars.outputs.tag }} \
+            .
+
+      - name: Log into registry
+        if: github.event_name == 'push'  # exclude PRs/forks
+        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Push the Docker image
+        if: github.event_name == 'push'  # exclude PRs/forks
+        run: docker push $IMAGE_NAME:${{ steps.vars.outputs.tag }}
