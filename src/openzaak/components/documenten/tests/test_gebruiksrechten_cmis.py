@@ -115,3 +115,26 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_retrieve_multiple_gebruiksrechten(self):
+        eio_1 = EnkelvoudigInformatieObjectFactory.create()
+        eio_1_url = f"http://example.com{reverse(eio_1)}"
+
+        eio_2 = EnkelvoudigInformatieObjectFactory.create()
+        eio_2_url = f"http://example.com{reverse(eio_2)}"
+
+        GebruiksrechtenCMISFactory(informatieobject=eio_1_url)
+        GebruiksrechtenCMISFactory(informatieobject=eio_2_url)
+
+        response = self.client.get(reverse("gebruiksrechten-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertTrue(
+            eio_1_url == response.data[0]["informatieobject"]
+            or eio_1_url == response.data[1]["informatieobject"]
+        )
+        self.assertTrue(
+            eio_2_url == response.data[0]["informatieobject"]
+            or eio_2_url == response.data[1]["informatieobject"]
+        )
