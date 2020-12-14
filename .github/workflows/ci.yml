@@ -48,7 +48,11 @@ jobs:
           node-version: '12'
 
       - name: Install system packages
-        run: sudo apt-get install libgdal-dev gdal-bin
+        run: |
+          sudo apt-get update \
+          && sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            gdal-bin
 
       - name: Bring up Alfresco
         run: |
