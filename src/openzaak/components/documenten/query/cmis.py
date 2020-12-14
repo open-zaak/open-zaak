@@ -653,9 +653,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
             if isinstance(value, datetime.datetime) or isinstance(value, datetime.date):
                 kwargs[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
-        cmis_gebruiksrechten = self.cmis_client.create_content_object(
-            data=kwargs, object_type="gebruiksrechten"
-        )
+        cmis_gebruiksrechten = self.cmis_client.create_gebruiksrechten(data=kwargs)
 
         # Get EnkelvoudigInformatieObject uuid from URL
         uuid = kwargs.get("informatieobject").split("/")[-1]

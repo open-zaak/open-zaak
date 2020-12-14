@@ -154,10 +154,10 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
                 self.parent.instance, ObjectInformatieObject
             ):
                 eio_latest_version = self.parent.instance.get_informatieobject()
-            # When .to_representation() is called from a list comprehension in ListSerializer
-            # self.parent.instance is a queryset.
+            # If self.parent.parent is a ListSerializer, self.parent.instance is a queryset rather than a
+            # gebruiksrechten/oio. The informatieobject URL cannot be retrieved. See issue #791
             elif isinstance(self.parent.instance, InformatieobjectRelatedQuerySet):
-                eio_latest_version = self.parent.instance.get().get_informatieobject()
+                return ""
         else:
             eio_latest_version = obj.latest_version
 
