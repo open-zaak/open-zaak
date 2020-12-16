@@ -184,13 +184,21 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             {"titel": "changed", "lock": "0f60f6d2d2714c809ed762372f5a363a"},
         ).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject
         # partial update contains the correct information
         informatieobject_partial_update_audittrail = audittrails[1]
         self.assertEqual(informatieobject_partial_update_audittrail.bron, "DRC")
+
+        # XXX: tracking down the Heisenbug
+        if informatieobject_partial_update_audittrail.actie != "partial_update":
+            print(audittrails[0].__dict__)
+            print(audittrails[1].__dict__)
+
         self.assertEqual(
             informatieobject_partial_update_audittrail.actie, "partial_update"
         )
