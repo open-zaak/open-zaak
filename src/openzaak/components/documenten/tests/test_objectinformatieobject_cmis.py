@@ -32,6 +32,39 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
+    def test_retrieve_multiple_oios(self):
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+
+        # This creates 2 OIOs
+        eio_1 = EnkelvoudigInformatieObjectFactory.create()
+        eio_1_path = reverse(eio_1)
+        eio_1_url = f"http://testserver{eio_1_path}"
+        # relate the two
+        self.adapter.get(eio_1_url, json=serialise_eio(eio_1, eio_1_url))
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_1_url)
+
+        eio_2 = EnkelvoudigInformatieObjectFactory.create()
+        eio_2_path = reverse(eio_2)
+        eio_2_url = f"http://testserver{eio_2_path}"
+        # relate the two
+        self.adapter.get(eio_2_url, json=serialise_eio(eio_2, eio_2_url))
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_2_url)
+
+        # Retrieve oios from API
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertTrue(
+            eio_1_url == response.data[0]["informatieobject"]
+            or eio_1_url == response.data[1]["informatieobject"]
+        )
+        self.assertTrue(
+            eio_2_url == response.data[0]["informatieobject"]
+            or eio_2_url == response.data[1]["informatieobject"]
+        )
+
     def test_create_with_objecttype_zaak(self):
         self.create_zaak_besluit_services()
         zaak = self.create_zaak()
