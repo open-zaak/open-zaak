@@ -8,6 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
+from rest_framework.compat import unicode_to_repr
+from rest_framework.utils.representation import smart_repr
+from rest_framework.validators import (
+    UniqueTogetherValidator as _UniqueTogetherValidator,
+)
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.utils import get_uuid_from_path
 from vng_api_common.validators import IsImmutableValidator
@@ -202,3 +207,16 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
             )
             if iotype_url not in objecttype_data.get("informatieobjecttypen", []):
                 raise serializers.ValidationError(message, code=code)
+
+
+class UniqueTogetherValidator(_UniqueTogetherValidator):
+    def __repr__(self):
+        """
+        The parent representation function iterates through the queryset and
+        generates a representation for every object in the queryset. This is particularly
+        problematic when CMIS is enabled and for each object a query to the DMS
+        has to be done.
+        """
+        return unicode_to_repr(
+            "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))
+        )

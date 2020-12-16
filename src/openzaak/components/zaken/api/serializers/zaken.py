@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
@@ -43,6 +42,7 @@ from openzaak.utils.validators import (
     LooseFkResourceValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
+    UniqueTogetherValidator,
 )
 
 from ...brondatum import BrondatumCalculator

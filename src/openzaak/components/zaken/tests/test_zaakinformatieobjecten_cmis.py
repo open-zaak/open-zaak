@@ -362,3 +362,20 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         # Relation is gone, zaak still exists.
         self.assertFalse(ZaakInformatieObject.objects.exists())
         self.assertTrue(Zaak.objects.exists())
+
+    def test_representation(self):
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = f"http://testserver{reverse(io)}"
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+        zio = ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io_url,)
+        zio_representation = str(zio)
+        expected_representation = f"{zaak.identificatie} - {io_url}"
+        self.assertEqual(expected_representation, zio_representation)

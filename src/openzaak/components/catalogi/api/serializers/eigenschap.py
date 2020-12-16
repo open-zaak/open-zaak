@@ -2,8 +2,9 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
+
+from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import FormaatChoices
 from ...models import Eigenschap, EigenschapSpecificatie
