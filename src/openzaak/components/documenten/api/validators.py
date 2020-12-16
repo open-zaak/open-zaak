@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
+from vng_api_common.validators import (
+    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
+)
 
 from ..models import ObjectInformatieObject
 from ..validators import validate_status
@@ -51,3 +54,15 @@ class InformatieObjectUniqueValidator:
 
         if oios:
             raise serializers.ValidationError(detail=self.message, code=self.code)
+
+
+class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
+    """
+    Valideer dat de combinatie van bronorganisatie en
+    identificatie uniek is.
+    """
+
+    message = _("Deze identificatie bestaat al voor deze bronorganisatie")
+
+    def __init__(self):
+        super().__init__("bronorganisatie", "identificatie")

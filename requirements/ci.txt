@@ -44,7 +44,7 @@ django==2.2.10            # via -r requirements/base.txt, django-auth-adfs, djan
 djangorestframework-camel-case==0.2.0  # via -r requirements/base.txt, vng-api-common
 djangorestframework-gis==0.14  # via -r requirements/base.txt
 djangorestframework==3.9.4  # via -r requirements/base.txt, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
-drc-cmis==1.1.1           # via -r requirements/base.txt
+drc-cmis==1.1.2           # via -r requirements/base.txt
 drf-flex-fields==0.5.0    # via -r requirements/base.txt
 drf-nested-routers==0.90.2  # via -r requirements/base.txt, vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.txt
@@ -59,6 +59,7 @@ gitpython==3.1.7          # via -r requirements/base.txt
 httplib2==0.18.1          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
+importlib-metadata==3.1.1  # via flake8
 inflection==0.3.1         # via -r requirements/base.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/base.txt, vng-api-common
 iso8601==0.1.12           # via -r requirements/base.txt, cmislib-maykin, drc-cmis
@@ -87,6 +88,7 @@ redis==3.3.8              # via -r requirements/base.txt, django-redis
 regex==2020.6.8           # via black
 requests-mock==1.6.0      # via -r requirements/test-tools.in
 requests==2.21.0          # via -r requirements/base.txt, coreapi, django-auth-adfs, gemma-zds-client, requests-mock, vng-api-common, zgw-consumers
+ruamel.yaml.clib==0.2.2   # via -r requirements/base.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/base.txt, drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/base.txt
 six==1.11.0               # via -r requirements/base.txt, cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, python-dateutil, requests-mock, webtest
@@ -106,3 +108,4 @@ waitress==1.4.3           # via webtest
 webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
 zgw-consumers==0.12.2     # via -r requirements/base.txt
+zipp==3.4.0               # via importlib-metadata

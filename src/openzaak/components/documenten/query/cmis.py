@@ -532,6 +532,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
             kwargs.setdefault("versie", "1")
             new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
+                bronorganisatie=kwargs.get("bronorganisatie"),
                 data=kwargs,
                 content=content,
             )

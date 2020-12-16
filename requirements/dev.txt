@@ -55,7 +55,7 @@ djangorestframework-camel-case==0.2.0  # via -r requirements/ci.txt, vng-api-com
 djangorestframework-gis==0.14  # via -r requirements/ci.txt
 djangorestframework==3.9.4  # via -r requirements/ci.txt, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
 docutils==0.15.2          # via recommonmark, sphinx
-drc-cmis==1.1.1           # via -r requirements/ci.txt
+drc-cmis==1.1.2           # via -r requirements/ci.txt
 drf-flex-fields==0.5.0    # via -r requirements/ci.txt
 drf-nested-routers==0.90.2  # via -r requirements/ci.txt, vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/ci.txt
@@ -73,6 +73,7 @@ httplib2==0.18.1          # via -r requirements/ci.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
+importlib-metadata==3.1.1  # via -r requirements/ci.txt, flake8, jsonschema
 inflection==0.3.1         # via -r requirements/ci.txt, drf-yasg
 iso-639==0.4.5            # via -r requirements/ci.txt, vng-api-common
 iso8601==0.1.12           # via -r requirements/ci.txt, cmislib-maykin, drc-cmis
@@ -118,6 +119,7 @@ requests-mock==1.6.0      # via -r requirements/ci.txt
 requests-oauthlib==1.3.0  # via kubernetes
 requests==2.21.0          # via -r requirements/ci.txt, coreapi, django-auth-adfs, django-silk, gemma-zds-client, kubernetes, requests-mock, requests-oauthlib, sphinx, vng-api-common, zgw-consumers
 rsa==4.6                  # via google-auth
+ruamel.yaml.clib==0.2.2   # via -r requirements/ci.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg, openshift
 sentry-sdk==0.16.5        # via -r requirements/ci.txt
 six==1.11.0               # via -r requirements/ci.txt, cmislib-maykin, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, google-auth, isodate, jsonschema, kubernetes, openshift, packaging, pip-tools, python-dateutil, requests-mock, websocket-client, webtest
@@ -150,6 +152,7 @@ websocket-client==0.57.0  # via kubernetes
 webtest==2.0.33           # via -r requirements/ci.txt, django-webtest
 whitenoise==5.1.0         # via -r requirements/dev.in
 zgw-consumers==0.12.2     # via -r requirements/ci.txt
+zipp==3.4.0               # via -r requirements/ci.txt, importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
