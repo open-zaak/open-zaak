@@ -103,6 +103,12 @@ on Docker, since `localhost` is contained within the container:
     for document properties. See the installation section for more details.
     Defaults to the absolute path of `open-zaak/config/cmis_mapper.json`.
 
+* `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate verification.
+    More information about why can be found [here](https://stackoverflow.com/a/48391751/7146757). Even calls from Open
+    Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
+    variable should be used with care to prevent unwanted side-effects.
+
+
 ## Specifying the environment variables
 
 There are two strategies to specify the environment variables:
