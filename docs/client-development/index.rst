@@ -12,4 +12,5 @@ Please select your relevant topic
    :maxdepth: 2
 
    authentication
+   cors
    recipes
