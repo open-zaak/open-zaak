@@ -39,14 +39,29 @@ A server
 
 Ensure you have a server with ``root`` privileges. We assume you can directly
 ssh to the machine as ``root`` user. If that's not the case, a user with
-``sudo`` will also work. Python 3 must be available on the server. Debian 9/10
-are officially supported operating systems, though it is likely the
-installation also works on Ubuntu. CentOS/RedHat *might* work.
+``sudo`` will also work. Python 3 must be available on the server.
 
-.. note:: Make sure there is enough space in ``/var/lib/docker``. You need at 
+.. note:: Make sure there is enough space in ``/var/lib/docker``. You need at
    least 8 GB to download all Docker containers. We recommend placing the Docker
    folder wherever you also want to store your documents that are uploaded via
    the Documenten API.
+
+**Supported operating systems**
+
+Support for different Linux flavours is maintained in the `Ansible collection`_ used
+for deployment.
+
+Currently the following OS flavours are supported:
+
+- Debian: buster (10, actively supported), stretch (9, actively supported), jessie (8)
+- Ubuntu: eoan (EOL), disco (EOL), cosmic (EOL), bionic (18.04 LTS). focal (20.04 LTS)
+  is not tested yet
+- SUSE Enterprise Linux: 15 (actively supported)
+- OpenSUSE: 15.1
+- Red Hat: 7, 8
+- CentOS: 7, 8 (actively supported)
+
+.. _Ansible collection: https://github.com/open-zaak/ansible-collection
 
 .. _deployment_containers_tooling:
 
@@ -117,8 +132,8 @@ Configure the host by creating the ``hosts`` file from the example:
 
     (env) [user@laptop]$ cp hosts.example hosts
 
-In the `hosts` file, edit the ``open-zaak.gemeente.nl`` to point to your actual 
-domain name. You must make sure that the DNS entry for this domain points to the 
+In the `hosts` file, edit the ``open-zaak.gemeente.nl`` to point to your actual
+domain name. You must make sure that the DNS entry for this domain points to the
 IP address of your server.
 
 .. warning:: It's important to use the correct domain name, as the SSL certificate
