@@ -565,26 +565,6 @@
                 "contenttype"
             ],
             [
-                "add_corsmodel",
-                "corsheaders",
-                "corsmodel"
-            ],
-            [
-                "change_corsmodel",
-                "corsheaders",
-                "corsmodel"
-            ],
-            [
-                "delete_corsmodel",
-                "corsheaders",
-                "corsmodel"
-            ],
-            [
-                "view_corsmodel",
-                "corsheaders",
-                "corsmodel"
-            ],
-            [
                 "add_statuslog",
                 "django_db_logger",
                 "statuslog"
