@@ -11,9 +11,7 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 
 class Command(BaseCommand):
-    help = _(
-        "Check for any duplicate documents (with same identificatie, bronorganisatie and versie)."
-    )
+    help = "Check for any duplicate documents (with same identificatie, bronorganisatie and versie)."
 
     def add_arguments(self, parser):
         parser.add_argument(

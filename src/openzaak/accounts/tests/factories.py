@@ -5,7 +5,7 @@ import factory
 
 class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f"user-{n}")
-    password = factory.PostGenerationMethodCall("set_password")
+    password = factory.PostGenerationMethodCall("set_password", "secret")
 
     class Meta:
         model = "accounts.User"

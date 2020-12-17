@@ -1,6 +1,92 @@
 Changelog
 =========
 
+1.3.3 (2020-12-17)
+------------------
+
+Security and bugfix release
+
+.. warning:: this release includes a security fix for `CVE-2020-26251`_, where Open Zaak
+   had a possible vulnerable CORS configuration. It is advised to update as soon as
+   possible. The severity is considered low, since we haven't been able to actually
+   exploit this due to mitigating additional security configuration in other aspects.
+
+.. _CVE-2020-26251: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-chhr-gxrg-64x7
+
+The bugfixes are mostly CMIS-adapter related.
+
+**Bugfixes**
+
+* The Cross-Origin Resource Sharing configuration is now safe by default - no CORS is
+  allowed. Environment configuration options are made available to make CORS possible
+  to varying degrees, which are all opt-in. This fixes CVE-2020-26251.
+* Fixed duplicate ``ObjectInformatieObject`` instances being created with CMIS enabled
+  (#778)
+* Fixed stale CMIS queryset cache preventing correct chained filtering (#782)
+* Fixed some links being opened in new window/tab without ``norel`` or ``noreferrer``
+  set in the ``rel`` attribute
+* Fixed multiple ``EnkelvoudigInformatieobject`` instances having the same
+  ``bronorganisatie`` and ``identificatie`` (#768). If you're not using the CMIS-adapter,
+  see the manual intervention required below.
+* Fixed a bug retrieving ``ObjectInformatieObject`` collection in the Documenten API
+  when CMIS is enabled. This may also have affected the ``Gebruiksrechten`` resource. (#791)
+
+**Documentation**
+
+* Improved documentation for CMIS services configuration
+* Fixed a typo in the Governance document
+* Documented environment variable to disable TLS certificate validation. This should
+  never be used in production, instead the certificate setup should be fixed.
+
+**Other changes**
+
+* Enabled CMIS-adapter logging in DEBUG mode
+* Migrated CI from Travis CI to Github Actions
+* Explicitly test PostgreSQL versions 10, 11 and 12 (#716)
+* Optimized CI build to re-use Docker image artifacts from previous jobs
+* Replaced postman.io mocks subscription with nginx container (#790)
+* Avoid some unnecessary queries when CMIS is enabled
+* Implemented a (likely) fix to non-deterministic behaviour in the test suite (#798)
+
+.. warning::
+
+    Manual intervention required.
+
+    There is a chance that documents have been created in the Documents API with
+    duplicate ``(bronorganisatie, identificatie)`` combinations.
+
+    We've provided a management command to check and fix these occurrences.
+
+    Run ``python src/manage.py detect_duplicate_eio --help`` in an Open Zaak container
+    to get the command line options. By default, the command is interactive:
+
+    .. tabs::
+
+      .. group-tab:: single-server
+
+        .. code-block:: bash
+
+            $ docker exec openzaak-0 src/manage.py detect_duplicate_eio
+            Checking 30 records ...
+            Found no duplicate records.
+
+      .. group-tab:: Kubernetes
+
+        .. code-block:: bash
+
+            $ kubectl get pods
+            NAME                        READY   STATUS    RESTARTS   AGE
+            cache-79455b996-jxk9r       1/1     Running   0          2d9h
+            nginx-8579d9dfbd-gdtbf      1/1     Running   0          2d9h
+            nginx-8579d9dfbd-wz6wn      1/1     Running   0          2d9h
+            openzaak-7b696c8fd5-hchbq   1/1     Running   0          2d9h
+            openzaak-7b696c8fd5-kz2pb   1/1     Running   0          2d9h
+
+            $ kubectl exec openzaak-7b696c8fd5-hchbq -- src/manage.py detect_duplicate_eio
+            Checking 30 records ...
+            Found no duplicate records.
+
+
 1.3.2 (2020-11-09)
 ------------------
 
