@@ -585,7 +585,6 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
 
-    @tag("this")
     @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
     @requests_mock.Mocker()
     def test_notification_body_current_and_future(self, m):
