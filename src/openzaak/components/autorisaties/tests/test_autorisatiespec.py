@@ -5,13 +5,10 @@ from django.test import TestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
-from openzaak.components.autorisaties.tests.factories import (
-    ApplicatieFactory,
-    AutorisatieFactory,
-    AutorisatieSpecFactory,
-)
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils import build_absolute_url
+
+from .factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
 
 
 class DeleteAutorisatieTest(TestCase):

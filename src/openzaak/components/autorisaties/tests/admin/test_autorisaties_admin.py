@@ -585,6 +585,40 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
 
+    @tag("this")
+    @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
+    @requests_mock.Mocker()
+    def test_notification_body_current_and_future(self, m):
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
+        applicatie = ApplicatieFactory.create()
+        AutorisatieSpecFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        InformatieObjectTypeFactory.create()
+
+        self.assertTrue(m.called)
+        body = m.last_request.json()
+        del body["aanmaakdatum"]
+
+        path = reverse(
+            "applicatie-detail", kwargs={"version": 1, "uuid": applicatie.uuid}
+        )
+        expected = {
+            "kanaal": "autorisaties",
+            "hoofdObject": f"https://testserver{path}",
+            "resource": "applicatie",
+            "resourceUrl": f"https://testserver{path}",
+            "actie": "update",
+            "kenmerken": {},
+        }
+        self.assertEqual(body, expected)
+
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
