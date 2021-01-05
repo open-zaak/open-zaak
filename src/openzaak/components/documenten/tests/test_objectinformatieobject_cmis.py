@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from drc_cmis.models import CMISConfig, UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.constants import ObjectTypes
@@ -242,7 +244,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_filter_eio(self):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
-        eio_detail_url = f"http://openzaak.nl{reverse(eio_1)}"
+        eio_detail_url = f"http://example.com{reverse(eio_1)}"
         self.adapter.register_uri(
             "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
         )
@@ -254,14 +256,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
             informatieobject=eio_detail_url, besluit=besluit
         )
         ZaakInformatieObjectFactory.create(
-            informatieobject=f"http://openzaak.nl{reverse(eio_2)}", zaak=zaak
+            informatieobject=f"http://example.com{reverse(eio_2)}", zaak=zaak
         )  # may not show up
 
-        response = self.client.get(
-            self.list_url,
-            {"informatieobject": eio_detail_url},
-            HTTP_HOST="openzaak.nl",
-        )
+        response = self.client.get(self.list_url, {"informatieobject": eio_detail_url},)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -269,7 +267,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     def test_filter_zaak(self):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
-        eio_detail_url = f"http://openzaak.nl{reverse(eio_1)}"
+        eio_detail_url = f"http://example.com{reverse(eio_1)}"
         self.adapter.register_uri(
             "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
         )
@@ -287,9 +285,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         zaak_url = reverse(zio.zaak)
 
         response = self.client.get(
-            self.list_url,
-            {"object": f"http://openzaak.nl{zaak_url}"},
-            HTTP_HOST="openzaak.nl",
+            self.list_url, {"object": f"http://example.com{zaak_url}"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -298,7 +294,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     def test_filter_besluit(self):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
-        eio_detail_url = f"http://openzaak.nl{reverse(eio_1)}"
+        eio_detail_url = f"http://example.com{reverse(eio_1)}"
         self.adapter.register_uri(
             "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
         )
@@ -316,9 +312,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         besluit_url = reverse(bio.besluit)
 
         response = self.client.get(
-            self.list_url,
-            {"object": f"http://openzaak.nl{besluit_url}"},
-            HTTP_HOST="openzaak.nl",
+            self.list_url, {"object": f"http://example.com{besluit_url}"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -410,6 +404,15 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             label="external zaken",
             auth_type=AuthTypes.no_auth,
         )
+
+        config = CMISConfig.objects.get()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
 
     def test_create_external_zaak(self):
         mock_service_oas_get(

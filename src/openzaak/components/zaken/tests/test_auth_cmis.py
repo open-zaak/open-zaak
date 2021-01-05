@@ -3,8 +3,10 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
+from django.conf import settings
 from django.test import override_settings, tag
 
+from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -80,6 +82,19 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
     component = ComponentTypes.zrc
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            config = CMISConfig.objects.get()
+
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
 
     def test_zaakinformatieobject_list(self):
         self.create_zaak_besluit_services(

@@ -3,8 +3,10 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
+from django.conf import settings
 from django.test import override_settings, tag
 
+from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
 
@@ -20,6 +22,18 @@ from .utils import get_operation_url
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
 class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            config = CMISConfig.objects.get()
+
+            UrlMapping.objects.create(
+                long_pattern="https://external.documenten.nl/documenten",
+                short_pattern="https://xdoc.nl",
+                config=config,
+            )
 
     heeft_alle_autorisaties = True
 

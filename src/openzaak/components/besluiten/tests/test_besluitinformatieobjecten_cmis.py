@@ -119,6 +119,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
 
         self.assertEqual(response.json(), expected)
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_besluit(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
@@ -133,19 +134,20 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
 
         response = self.client.get(
             bio_list_url,
-            {"besluit": f"http://openzaak.nl{besluit_url}"},
-            HTTP_HOST="openzaak.nl",
+            {"besluit": f"http://example.com{besluit_url}"},
+            HTTP_HOST="example.com",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["besluit"], f"http://openzaak.nl{besluit_url}"
+            response.data[0]["besluit"], f"http://example.com{besluit_url}"
         )
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_informatieobject(self):
         io = EnkelvoudigInformatieObjectFactory.create()
-        io_url = f"http://openzaak.nl{reverse(io)}"
+        io_url = f"http://example.com{reverse(io)}"
         self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         self.create_zaak_besluit_services()
@@ -154,7 +156,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
-            bio_list_url, {"informatieobject": io_url}, HTTP_HOST="openzaak.nl",
+            bio_list_url, {"informatieobject": io_url}, HTTP_HOST="example.com",
         )
 
         self.assertEqual(response.status_code, 200)

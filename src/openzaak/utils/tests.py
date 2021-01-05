@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from djangorestframework_camel_case.util import camelize
 from drc_cmis.client_builder import get_cmis_client
-from drc_cmis.models import CMISConfig
+from drc_cmis.models import CMISConfig, UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -330,6 +330,23 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config.save()
         else:
             raise Exception("No CMIS binding specified")
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            UrlMapping.objects.create(
+                long_pattern="http://testserver",
+                short_pattern="http://ts",
+                config=config,
+            )
+            UrlMapping.objects.create(
+                long_pattern="http://example.com",
+                short_pattern="http://ex.com",
+                config=config,
+            )
+            UrlMapping.objects.create(
+                long_pattern="http://openzaak.nl",
+                short_pattern="http://oz.nl",
+                config=config,
+            )
 
 
 def get_eio_response(url, **overrides):

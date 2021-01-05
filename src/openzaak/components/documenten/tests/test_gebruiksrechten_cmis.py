@@ -34,7 +34,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
         response = self.client.post(
             url,
             {
-                "informatieobject": eio_url,
+                "informatieobject": f"http://testserver{eio_url}",
                 "startdatum": "2018-12-24T00:00:00Z",
                 "omschrijvingVoorwaarden": "Een hele set onredelijke voorwaarden",
             },
@@ -84,7 +84,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
 
     def test_delete_gebruiksrechten(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = reverse(eio)
+        eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         url = reverse(gebruiksrechten)
@@ -104,7 +104,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
     def test_validate_unknown_query_params(self):
         for i in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
-            eio_url = reverse(eio)
+            eio_url = f"http://testserver{reverse(eio)}"
             GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         url = reverse(Gebruiksrechten)

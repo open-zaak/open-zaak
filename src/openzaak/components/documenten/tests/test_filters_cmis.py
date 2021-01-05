@@ -28,7 +28,7 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APICMISTestCase):
 
     def test_filter_by_valid_url_object_does_not_exist(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = reverse(eio)
+        eio_url = f"http://testserver{reverse(eio)}"
         GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         response = self.client.get(
@@ -60,7 +60,8 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APICMISTestCase):
         for query_param in ["informatieobject", "object"]:
             with self.subTest(query_param=query_param):
                 response = self.client.get(
-                    reverse(ObjectInformatieObject), {query_param: "https://google.com"}
+                    reverse(ObjectInformatieObject),
+                    {query_param: "http://example.com/12345"},
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
