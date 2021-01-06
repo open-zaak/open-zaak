@@ -25,8 +25,12 @@ jobs:
         postgres: ['10', '11', '12']
         postgis: ['2.5']
         binding: ['BROWSER', 'WEBSERVICE']
+        cmisurlmapping: ['False', 'True']
+        exclude:
+          - binding: 'BROWSER'
+            cmisurlmapping: 'True'
 
-    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}, ${{ matrix.binding }} binding)
+    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}, ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }} )
 
     services:
       postgres:
@@ -68,11 +72,13 @@ jobs:
           npm run build --production
 
       - name: Run tests
+        if: ${{ !(matrix.cmisurlmapping == 'True' && matrix.binding == 'BROWSER') }}
         run: |
           python src/manage.py collectstatic --noinput --link
           coverage run src/manage.py test src
         env:
           CMIS_BINDING: ${{ matrix.binding }}
+          CMIS_URL_MAPPING_ENABLED: ${{ matrix.cmisurlmapping }}
 
       - name: Publish coverage report
         uses: codecov/codecov-action@v1
