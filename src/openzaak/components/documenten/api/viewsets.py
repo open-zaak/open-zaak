@@ -24,6 +24,7 @@ from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.mixins import ConvertCMISAdapterExceptions
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
 from ..models import (
@@ -75,6 +76,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 
 class EnkelvoudigInformatieObjectViewSet(
+    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -339,6 +341,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 
 class GebruiksrechtenViewSet(
+    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -429,6 +432,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ObjectInformatieObjectViewSet(
+    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,

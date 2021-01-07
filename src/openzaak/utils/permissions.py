@@ -20,6 +20,8 @@ from rest_framework.serializers import ValidationError, as_serializer_error
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.utils import get_resource_for_path
 
+from openzaak.utils.decorators import convert_cmis_adapter_exceptions
+
 
 class AuthRequired(permissions.BasePermission):
     """
@@ -77,6 +79,7 @@ class AuthRequired(permissions.BasePermission):
                 _("The JWT used for this request is expired"), code="jwt-expired"
             )
 
+    @convert_cmis_adapter_exceptions
     def has_permission(self, request: Request, view) -> bool:
         # permission checks run before the handler is determined. if there is no handler,
         # a "method is not allowed" must be raised, not an HTTP 403 (see #385)
