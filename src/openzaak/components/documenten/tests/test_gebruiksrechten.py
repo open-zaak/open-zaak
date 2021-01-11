@@ -105,3 +105,69 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_complete_edit(self):
+        gebruiksrechten = GebruiksrechtenFactory.create(
+            omschrijving_voorwaarden="Test omschrijving voorwaarden"
+        )
+
+        url = reverse(gebruiksrechten)
+
+        gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Test omschrijving voorwaarden",
+            gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+        response = self.client.put(
+            url,
+            {
+                "informatieobject": reverse(gebruiksrechten.get_informatieobject()),
+                "startdatum": "2018-12-24T00:00:00Z",
+                "omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            response.data["omschrijving_voorwaarden"],
+        )
+
+        updated_gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+    def test_partial_edit(self):
+        gebruiksrechten = GebruiksrechtenFactory.create(
+            omschrijving_voorwaarden="Test omschrijving voorwaarden"
+        )
+
+        url = reverse(gebruiksrechten)
+
+        gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Test omschrijving voorwaarden",
+            gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+        response = self.client.put(
+            url,
+            {
+                "informatieobject": reverse(gebruiksrechten.get_informatieobject()),
+                "startdatum": "2018-12-24T00:00:00Z",
+                "omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            response.data["omschrijving_voorwaarden"],
+        )
+
+        updated_gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )

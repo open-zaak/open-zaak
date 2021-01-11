@@ -138,3 +138,70 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
             eio_2_url == response.data[0]["informatieobject"]
             or eio_2_url == response.data[1]["informatieobject"]
         )
+
+    def test_complete_edit(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
+        gebruiksrechten = GebruiksrechtenCMISFactory(
+            informatieobject=eio_url,
+            omschrijving_voorwaarden="Test omschrijving voorwaarden",
+        )
+
+        url = reverse(gebruiksrechten)
+
+        gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Test omschrijving voorwaarden",
+            gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+        response = self.client.put(
+            url,
+            {
+                "informatieobject": reverse(gebruiksrechten.get_informatieobject()),
+                "startdatum": "2018-12-24T00:00:00Z",
+                "omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            response.data["omschrijving_voorwaarden"],
+        )
+
+        updated_gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+    def test_partial_edit(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
+        gebruiksrechten = GebruiksrechtenCMISFactory(
+            informatieobject=eio_url,
+            omschrijving_voorwaarden="Test omschrijving voorwaarden",
+        )
+
+        url = reverse(gebruiksrechten)
+
+        gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Test omschrijving voorwaarden",
+            gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
+
+        response = self.client.patch(
+            url, {"omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            response.data["omschrijving_voorwaarden"],
+        )
+
+        updated_gebruiksrechten_data = self.client.get(url).json()
+        self.assertEqual(
+            "Aangepaste omschrijving voorwaarden",
+            updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
+        )
