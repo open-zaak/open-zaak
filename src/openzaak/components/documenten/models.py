@@ -532,6 +532,18 @@ class Gebruiksrechten(models.Model, CMISClientMixin):
     @transaction.atomic
     def save(self, *args, **kwargs):
         if settings.CMIS_ENABLED:
+            model_data = model_to_dict(self)
+            # If the gebruiksrechten doesn't exist, create it, otherwise update it
+            try:
+                # Check if the gebruiksrechten exists already in the CMIS backend
+                self.cmis_client.get_content_object(
+                    drc_uuid=self.uuid, object_type="gebruiksrechten"
+                )
+                # Update the instance in the storage backend
+                Gebruiksrechten.objects.filter(uuid=self.uuid).update(**model_data)
+            except exceptions.DocumentDoesNotExistError:
+                Gebruiksrechten.objects.create(**model_data)
+
             return
 
         informatieobject_versie = self.informatieobject.latest_version
