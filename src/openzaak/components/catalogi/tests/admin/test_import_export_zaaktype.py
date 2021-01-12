@@ -739,7 +739,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response2 = response2.form.submit("_select")
 
         self.assertEqual(ZaakType.objects.count(), 2)
-        zaaktype1, zaaktype2 = ZaakType.objects.all()
+        zaaktype1, zaaktype2 = ZaakType.objects.all().order_by("zaaktype_omschrijving")
 
         self.assertEqual(zaaktype1.zaaktype_omschrijving, "zaaktype1")
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "zaaktype2")
