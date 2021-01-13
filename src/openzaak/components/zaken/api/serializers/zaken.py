@@ -573,7 +573,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 {
                     "informatieobject": _(
                         "Could not create remote relation: {exception}"
-                    ).format(exception)
+                    ).format(exception=exception)
                 },
                 code="pending-relations",
             )
