@@ -26,8 +26,8 @@ Creating a Zaak, a Document and relating them
             from zgw_consumers.constants import APITypes
             from zgw_consumers.models import Service
 
-            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
-            drc_client = Service.objects.filter(api_type=APITypes.drc).get()
+            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+            drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
             # zaak creation
             today = date.today().strftime("%Y-%m-%d")
@@ -185,8 +185,8 @@ The solution is to use some form of threading/concurrency offered by your langua
             from zgw_consumers.models import Service
             from zgw_consumers.concurrent import parallel
 
-            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get()
-            drc_client = Service.objects.filter(api_type=APITypes.drc).get()
+            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
+            drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
 
             zaak_url = "https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc"
             zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": zaak_url})
