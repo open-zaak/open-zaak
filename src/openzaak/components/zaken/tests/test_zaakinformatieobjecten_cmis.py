@@ -209,22 +209,32 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_informatieobject(self):
-        eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = f"http://example.com{reverse(eio)}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
         self.create_zaak_besluit_services()
         zaak = self.create_zaak()
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+
+        # Create two ZIOs
+        eio1 = EnkelvoudigInformatieObjectFactory.create()
+        eio1_url = f"http://example.com{reverse(eio1)}"
+        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
+
+        ZaakInformatieObjectFactory.create(informatieobject=eio1_url, zaak=zaak)
+
+        eio2 = EnkelvoudigInformatieObjectFactory.create()
+        eio2_url = f"http://example.com{reverse(eio2)}"
+        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
+
+        ZaakInformatieObjectFactory.create(informatieobject=eio2_url, zaak=zaak)
 
         zio_list_url = reverse("zaakinformatieobject-list")
 
+        # Test that only 1 of the 2 ZIOs is returned
         response = self.client.get(
-            zio_list_url, {"informatieobject": eio_url}, HTTP_HOST="example.com",
+            zio_list_url, {"informatieobject": eio1_url}, HTTP_HOST="example.com",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["informatieobject"], eio_url)
+        self.assertEqual(response.data[0]["informatieobject"], eio1_url)
 
     def test_update_zaak_and_informatieobject_fails(self):
         zaak = ZaakFactory.create()
