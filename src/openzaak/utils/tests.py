@@ -62,7 +62,8 @@ class JWTAuthMixin:
 
     @classmethod
     def setUpTestData(cls):
-        super().setUpTestData()
+        if hasattr(super(), "setUpTestData"):
+            super().setUpTestData()
 
         JWTSecret.objects.get_or_create(
             identifier=cls.client_id, defaults={"secret": cls.secret}

@@ -1,15 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import concurrent.futures
 import uuid
 from datetime import datetime
+from unittest.mock import patch
 
+from django.conf import settings
+from django.db import close_old_connections
 from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
@@ -533,6 +537,81 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "invalid-resource")
+
+
+class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):
+    heeft_alle_autorisaties = True
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.update_or_create(
+            api_root=cls.base,
+            defaults=dict(
+                api_type=APITypes.drc,
+                label="external documents",
+                auth_type=AuthTypes.no_auth,
+            ),
+        )
+
+        cls.setUpTestData()
+
+    @tag("gh-819")
+    def test_zio_visibility_outside_transaction(self):
+        """
+        Test that the ZIO being created is visible to an external DRC.
+
+        This is a regression test for #819 - because of the DB transaction wrapping,
+        API calls requesting ZIO don't actually see the object yet, leading to
+        validation errors. We simulate this by using threading to get a different
+        DB connection, outside of the possible current transaction.
+        """
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
+
+        def worker(zaak_id: int):
+            """
+            Worker to run in a thread.
+
+            When this worker runs, there should be one ZIO visible in the database - it
+            must have been committed so that the remote DRC can view this record too.
+            """
+            zios = ZaakInformatieObject.objects.filter(zaak__id=zaak_id)
+            self.assertEqual(zios.count(), 1)
+            close_old_connections()
+
+        def mock_create_remote_oio(*args, **kwargs):
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(worker, zaak.id)
+                future.result()  # raises any exceptions, such as assertionerrors
+            return {"url": f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"}
+
+        with patch(
+            "openzaak.components.zaken.api.serializers.zaken.create_remote_oio",
+            side_effect=mock_create_remote_oio,
+        ):
+            with requests_mock.Mocker() as m:
+                mock_service_oas_get(
+                    m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC
+                )
+                m.get(document, json=eio_response)
+
+                response = self.client.post(
+                    reverse(ZaakInformatieObject),
+                    {"zaak": zaak_url, "informatieobject": document},
+                )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 @tag("external-urls")
