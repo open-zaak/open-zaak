@@ -53,7 +53,13 @@ class MockSelectielijst:
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.base = ReferentieLijstConfig.get_solo().api_root
+        # there are TransactionTestCases that truncate the DB, so we need to ensure
+        # there are available years
+        config = ReferentieLijstConfig.get_solo()
+        config.allowed_years = [2017, 2020]
+        config.save()
+        cls.base = config.api_root
+
         Service.objects.get_or_create(
             api_root=cls.base,
             defaults=dict(

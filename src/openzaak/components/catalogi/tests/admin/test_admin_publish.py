@@ -9,6 +9,7 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
     mock_oas_get,
     mock_resource_get,
@@ -29,6 +30,14 @@ from ..factories import (
 class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
+        # there are TransactionTestCases that truncate the DB, so we need to ensure
+        # there are available years
+        config = ReferentieLijstConfig.get_solo()
+        config.allowed_years = [2017, 2020]
+        config.save()
+
         cls.user = SuperUserFactory.create()
 
     def setUp(self):
