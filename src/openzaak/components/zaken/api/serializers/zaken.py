@@ -553,6 +553,18 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             zio = super().create(validated_data)
 
+        # we now expect to be in autocommit mode, i.e. - the transaction before has been
+        # committed to the database as well. This makes it so that the remote DRC can
+        # actually retrieve this ZIO we just created, to validate that we did indeed
+        # create the relation information on our end.
+        # XXX: would be nice to change the standard to rely on notifications for this
+        # sync-machinery
+
+        # Can't actually make the assertion because tests run in atomic transactions
+        # assert (
+        #     transaction.get_autocommit()
+        # ), "Expected to be in autocommit mode at this point"
+
         # local FK or CMIS - nothing to do -> our signals create the OIO
         if zio.informatieobject.pk or settings.CMIS_ENABLED:
             return zio

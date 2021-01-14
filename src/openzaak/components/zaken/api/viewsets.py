@@ -537,6 +537,18 @@ class ZaakInformatieObjectViewSet(
     }
     audit = AUDIT_ZRC
 
+    @property
+    def notifications_wrap_in_atomic_block(self):
+        # do not wrap the outermost create/destroy in atomic transaction blocks to send
+        # notifications. The serializer wraps the actual object creation into a single
+        # transaction, and after that, we're in autocommit mode.
+        # Once the response has been properly obtained (success), then the notification
+        # gets scheduled, and because of the transaction being in autocommit mode at that
+        # point, the notification sending will fire immediately.
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().notifications_wrap_in_atomic_block
+
     @transaction.atomic
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
