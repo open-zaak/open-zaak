@@ -549,9 +549,9 @@ class ZaakInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
-    @transaction.atomic
     def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+        with transaction.atomic():
+            super().perform_destroy(instance)
 
         if (
             isinstance(instance.informatieobject, ProxyMixin)
