@@ -442,7 +442,7 @@ class ZaakObjectViewSet(
 
 
 class ZaakInformatieObjectViewSet(
-    NotificationViewSetMixin,
+    NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
