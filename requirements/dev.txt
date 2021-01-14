@@ -146,7 +146,7 @@ unidecode==1.0.22         # via -r requirements/ci.txt, vng-api-common
 uritemplate==3.0.0        # via -r requirements/ci.txt, coreapi, drf-yasg
 urllib3==1.24.3           # via -r requirements/ci.txt, kubernetes, requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/ci.txt
-vng-api-common==1.0.52    # via -r requirements/ci.txt, drc-cmis
+vng-api-common==1.0.57    # via -r requirements/ci.txt, drc-cmis
 waitress==1.4.3           # via -r requirements/ci.txt, webtest
 webob==1.8.5              # via -r requirements/ci.txt, webtest
 websocket-client==0.57.0  # via kubernetes
