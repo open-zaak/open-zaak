@@ -187,7 +187,9 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
             informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject
