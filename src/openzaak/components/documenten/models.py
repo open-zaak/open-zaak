@@ -453,10 +453,10 @@ class EnkelvoudigInformatieObject(
         if settings.CMIS_ENABLED:
             if (
                 BesluitInformatieObject.objects.filter(
-                    _informatieobject=self.canonical
+                    _informatieobject_url=self.get_url()
                 ).exists()
                 or ZaakInformatieObject.objects.filter(
-                    _informatieobject=self.canonical
+                    _informatieobject_url=self.get_url()
                 ).exists()
             ):
                 return True

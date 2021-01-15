@@ -379,3 +379,24 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         zio_representation = str(zio)
         expected_representation = f"{zaak.identificatie} - {io_url}"
         self.assertEqual(expected_representation, zio_representation)
+
+    def test_delete_document_unrelated_to_zaak(self):
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+
+        # Create a document related to a zaak
+        eio_related = EnkelvoudigInformatieObjectFactory.create()
+        eio_related_url = f"http://openzaak.nl{reverse(eio_related)}"
+        self.adapter.get(
+            eio_related_url, json=serialise_eio(eio_related, eio_related_url)
+        )
+
+        ZaakInformatieObjectFactory.create(informatieobject=eio_related_url, zaak=zaak)
+
+        # Create a document unrelated to a zaak
+        eio_unrelated = EnkelvoudigInformatieObjectFactory.create()
+        eio_unrelated_url = f"http://openzaak.nl{reverse(eio_unrelated)}"
+
+        response = self.client.delete(eio_unrelated_url)
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
