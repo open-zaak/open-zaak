@@ -10,12 +10,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import (
-    APICMISTestCase,
-    JWTAuthMixin,
-    OioMixin,
-    get_eio_response,
-)
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
@@ -53,12 +48,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_delete_document_fail_exising_relations_besluit(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_uuid = eio.uuid
-        eio_path = reverse(eio)
-        eio_url = f"https://external.documenten.nl/{eio_path}"
-
-        self.adapter.register_uri(
-            "GET", eio_url, json=get_eio_response(eio_path),
-        )
+        eio_url = eio.get_url()
 
         self.create_zaak_besluit_services()
         besluit = self.create_besluit()
@@ -81,12 +71,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
 
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_uuid = eio.uuid
-        eio_path = reverse(eio)
-        eio_url = f"https://external.documenten.nl/{eio_path}"
-
-        self.adapter.register_uri(
-            "GET", eio_url, json=get_eio_response(eio_path),
-        )
+        eio_url = eio.get_url()
 
         self.create_zaak_besluit_services()
         zaak = self.create_zaak()

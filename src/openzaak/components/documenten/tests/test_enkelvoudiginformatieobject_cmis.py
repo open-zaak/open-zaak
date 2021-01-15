@@ -14,12 +14,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import (
-    APICMISTestCase,
-    JWTAuthMixin,
-    OioMixin,
-    get_eio_response,
-)
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -431,11 +426,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
-        eio_url = f"https://external.documenten.nl/{eio_path}"
-
-        self.adapter.register_uri(
-            "GET", eio_url, json=get_eio_response(eio_path),
-        )
+        eio_url = eio.get_url()
 
         self.create_zaak_besluit_services()
         zaak = self.create_zaak()

@@ -235,3 +235,26 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixi
         # Relation is gone, besluit still exists.
         self.assertFalse(BesluitInformatieObject.objects.exists())
         self.assertTrue(Besluit.objects.exists())
+
+    def test_delete_document_unrelated_to_besluit(self):
+        self.create_zaak_besluit_services()
+
+        # Create a document related to a besluit
+        eio_related = EnkelvoudigInformatieObjectFactory.create()
+        eio_related_url = eio_related.get_url()
+        self.adapter.get(
+            eio_related_url, json=serialise_eio(eio_related, eio_related_url)
+        )
+
+        besluit = self.create_besluit()
+        BesluitInformatieObjectFactory.create(
+            informatieobject=eio_related_url, besluit=besluit
+        )
+
+        # Create a document unrelated to a besluit
+        eio_unrelated = EnkelvoudigInformatieObjectFactory.create()
+        eio_unrelated_url = eio_unrelated.get_url()
+
+        response = self.client.delete(eio_unrelated_url)
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
