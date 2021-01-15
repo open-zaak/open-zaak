@@ -5,15 +5,15 @@ Open-source
 
 Open Zaak is open-source and available under the `EUPL license`_.
 
-In addition, this project makes use of various open-source `Python libraries`_ 
+In addition, this project makes use of various open-source `Python libraries`_
 and `npm packages`_ under the hood.
 
 Public Code
 -----------
 
-The Open Zaak project benefits from the expertise of the `Foundation for Public 
+The Open Zaak project benefits from the expertise of the `Foundation for Public
 Code`_ who helps to scale our codebase, community and development proces. With
-their codebase stewardship program, we are working on becomming fully 
+their codebase stewardship program, we are working on becomming fully
 compliant.
 
 
@@ -26,3 +26,4 @@ compliant.
    :maxdepth: 1
 
    public_code
+   dependencies
