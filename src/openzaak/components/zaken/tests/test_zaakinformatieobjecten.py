@@ -538,7 +538,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "invalid-resource")
 
-    @tag("this")
     @requests_mock.Mocker()
     def test_update_zio_metadata(self, m):
         mock_service_oas_get(m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC)
