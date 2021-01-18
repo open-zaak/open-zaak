@@ -30,6 +30,7 @@ from vng_api_common.notifications.viewsets import (
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
+from zgw_consumers.models import Service
 
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
@@ -294,6 +295,22 @@ class ZaakViewSet(
                 },
                 code="pending-besluit-relation",
             )
+
+        # check if we need to delete any remote OIOs
+        autocommit = transaction.get_autocommit()
+        assert autocommit is False, "Expected to be in a transaction.atomic block"
+        # evaluate the queryset, because the transaction will delete the records with
+        # a cascade
+        oio_urls = instance.zaakinformatieobject_set.filter(
+            _informatieobject__isnull=True
+        ).values_list("_objectinformatieobject_url", flat=True)
+        delete_params = [(url, Service.get_client(url)) for url in oio_urls]
+
+        def _delete_oios():
+            for url, client in delete_params:
+                client.delete("objectinformatieobject", url=url)
+
+        transaction.on_commit(_delete_oios)
 
         super().perform_destroy(instance)
 
