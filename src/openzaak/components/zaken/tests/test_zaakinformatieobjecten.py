@@ -539,6 +539,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
 
+@tag("external-urls")
 class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
     base = "https://external.documenten.nl/api/v1/"

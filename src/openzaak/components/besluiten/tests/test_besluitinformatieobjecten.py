@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import concurrent.futures
 import uuid
+from unittest.mock import patch
 
+from django.conf import settings
+from django.db import close_old_connections
 from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
@@ -334,6 +338,75 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "invalid-resource")
+
+
+@tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):
+    heeft_alle_autorisaties = True
+    list_url = reverse_lazy(BesluitInformatieObject)
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
+
+    @tag("gh-819")
+    def test_bio_visibility_outside_transaction(self):
+        self.setUpTestData()
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=besluit.besluittype.catalogus, concept=False
+        )
+        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype.besluittypen.add(besluit.besluittype)
+        eio_response = get_eio_response(
+            document, informatieobjecttype=informatieobjecttype_url
+        )
+
+        def worker(besluit_id: int):
+            """
+            Worker to run in a thread.
+
+            When this worker runs, there should be one ZIO visible in the database - it
+            must have been committed so that the remote DRC can view this record too.
+            """
+            bios = BesluitInformatieObject.objects.filter(besluit__id=besluit_id)
+            self.assertEqual(bios.count(), 1)
+            close_old_connections()
+
+        def mock_create_remote_oio(*args, **kwargs):
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(worker, besluit.id)
+                future.result()  # raises any exceptions, such as assertionerrors
+            return {"url": f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"}
+
+        with patch(
+            "openzaak.components.besluiten.api.serializers.create_remote_oio",
+            side_effect=mock_create_remote_oio,
+        ):
+            with requests_mock.Mocker() as m:
+                mock_service_oas_get(
+                    m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC
+                )
+                m.get(document, json=eio_response)
+
+                response = self.client.post(
+                    self.list_url,
+                    {"besluit": besluit_url, "informatieobject": document},
+                )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 @tag("external-urls")
