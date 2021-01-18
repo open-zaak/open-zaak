@@ -12,7 +12,7 @@ from .zaaktype import ZaakTypeFactory
 
 class ResultaatTypeFactory(factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
-    omschrijving = factory.Faker("word", locale="nl")
+    omschrijving = factory.Sequence(lambda n: f"resultaattype {n}")
     resultaattypeomschrijving = no_fetch
     omschrijving_generiek = factory.Faker("word")
     selectielijstklasse = factory.Faker("url")
