@@ -182,7 +182,7 @@ Contributions SHOULD pass automated tests on style. | yes |
 Your codebase SHOULD include inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
 You MAY include sections in your style guide on understandable English. |  |
 
-## [Pay attention to codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
+## [Document codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
 - [ ]
 
