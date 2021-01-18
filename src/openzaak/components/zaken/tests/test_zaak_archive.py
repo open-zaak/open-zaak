@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
@@ -28,8 +30,7 @@ from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.utils.tests import JWTAuthMixin, mock_client
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
 
 from .factories import (
     RelevanteZaakRelatieFactory,

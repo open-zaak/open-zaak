@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import logging
 
 from django.conf import settings
@@ -8,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
@@ -41,6 +42,7 @@ from openzaak.utils.validators import (
     LooseFkResourceValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
+    UniqueTogetherValidator,
 )
 
 from ...brondatum import BrondatumCalculator
@@ -551,8 +553,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             zio = super().create(validated_data)
 
-        # local FK - nothing to do -> our signals create the OIO
-        if zio.informatieobject.pk:
+        # local FK or CMIS - nothing to do -> our signals create the OIO
+        if zio.informatieobject.pk or settings.CMIS_ENABLED:
             return zio
 
         # we know that we got valid URLs in the initial data

@@ -58,10 +58,10 @@ development machine.
 
        $ docker-compose up
 
-   **Note:** If you are using Git on Windows, line-endings might change in 
+   **Note:** If you are using Git on Windows, line-endings might change in
    checked out files depending on your `core.autocrlf` setting in `.gitconfig`.
    This is problematic because files are copied into a Docker image, which runs
-   on Linux. Specifically, the `bin/docker_start.sh` file is affected by this 
+   on Linux. Specifically, the `bin/docker_start.sh` file is affected by this
    which causes the Docker container fail to start up.
 
 4. Install all required libraries:
@@ -192,6 +192,9 @@ You can run **only the CMIS tests** with:
 .. code-block:: bash
 
     $ python src/manage.py test src --tag cmis
+
+In order to choose whether to test with the browser binding or the web service binding, the environment variable ``CMIS_BINDING``
+can be set either to ``BROWSER`` or ``WEBSERVICE``.
 
 Or run the test-suite **without CMIS** tests:
 

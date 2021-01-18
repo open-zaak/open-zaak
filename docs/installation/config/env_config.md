@@ -1,4 +1,4 @@
-# Configuration reference
+# Environment configuration reference
 
 Open Zaak can be ran both as a Docker container or directly on a VPS or
 dedicated server. It relies on other services, such as database and cache
@@ -82,7 +82,7 @@ on Docker, since `localhost` is contained within the container:
 
 * `SENDFILE_BACKEND`: which backend to use for authorization-secured upload
   downloads. Defaults to `sendfile.backends.nginx`. See
-  (django-sendfile2)[https://pypi.org/project/django-sendfile2/] for available
+  [django-sendfile2](https://pypi.org/project/django-sendfile2/) for available
   backends.
 
 * `SENTRY_DSN`: URL of the sentry project to send error reports to. Default
@@ -102,6 +102,28 @@ on Docker, since `localhost` is contained within the container:
 * `CMIS_MAPPER_FILE`: name of the file containing the mapping between the Django and Document Management System names
     for document properties. See the installation section for more details.
     Defaults to the absolute path of `open-zaak/config/cmis_mapper.json`.
+
+* `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate verification.
+    More information about why can be found [here](https://stackoverflow.com/a/48391751/7146757). Even calls from Open
+    Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
+    variable should be used with care to prevent unwanted side-effects.
+
+### Cross-Origin-Resource-Sharing
+
+The following parameters control the CORS policy.
+
+* `CORS_ALLOW_ALL_ORIGINS`: allow cross-domain access from any client. Defaults to `False`.
+
+* `CORS_ALLOWED_ORIGINS`: explicitly list the allowed origins for cross-domain requests.
+  Defaults to an empty list. Example: `http://localhost:3000,https://some-app.gemeente.nl`.
+
+* `CORS_ALLOWED_ORIGIN_REGEXES`: same as `CORS_ALLOWED_ORIGINS`, but supports regular
+  expressions.
+
+* `CORS_EXTRA_ALLOW_HEADERS`: headers that are allowed to be sent as part of the cross-domain
+  request. By default, `Authorization`, `Accept-Crs` and `Content-Crs` are already
+  included. The value of this variable is added to these already included headers.
+  Defaults to an empty list.
 
 ## Specifying the environment variables
 

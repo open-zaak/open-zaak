@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Guarantee that the proper authorization machinery is in place.
 """
@@ -921,6 +923,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
+    @override_settings(JWT_EXPIRY=60 * 60)
     @freeze_time("2019-01-01T13:00:00")
     def test_jwt_expired(self):
         zaak = ZaakFactory.create()

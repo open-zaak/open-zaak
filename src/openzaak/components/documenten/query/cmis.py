@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import copy
 import datetime
 import logging
@@ -6,25 +8,24 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 from typing import List, Optional, Tuple
 
-from django.conf import settings
-from django.db import models
+from django.db import IntegrityError
 from django.db.models import fields
 from django.db.models.query import BaseIterable
 from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
-from drc_cmis.backend import CMISDRCStorageBackend
-from drc_cmis.client import CMISDRCClient, exceptions
-from drc_cmis.client.convert import make_absolute_uri
-from drc_cmis.client.mapper import mapper
-from drc_cmis.cmis.drc_document import Document, Gebruiksrechten, ObjectInformatieObject
+from drc_cmis.utils import exceptions
+from drc_cmis.utils.convert import make_absolute_uri
+from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.utils.mixins import CMISClientMixin
+
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
-from ..utils import CMISStorageFile
+from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
@@ -41,7 +42,7 @@ EIO_PROPERTY_MAP = {
 }
 
 
-def sort_results(documents: List[Document], order_by: List[str]) -> List[Document]:
+def sort_results(documents: List, order_by: List[str]) -> List:
     # mixing ASC/DESC is not possible in a single sorted(...) call with the `reverse`
     # option, so we need to call sorted for every order key, and do this in reverse.
     # if the order key starts with `-` to indicate DESC sorting, we need to reverse
@@ -57,10 +58,10 @@ def sort_results(documents: List[Document], order_by: List[str]) -> List[Documen
 # ---------------------- Model iterables -----------
 
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
-class CMISDocumentIterable(BaseIterable):
+class CMISDocumentIterable(BaseIterable, CMISClientMixin):
 
     table = "drc:document"
-    return_type = Document
+    return_type = "Document"
 
     def __iter__(self):
         queryset = self.queryset
@@ -103,7 +104,7 @@ class CMISDocumentIterable(BaseIterable):
             # general query, we want multiple versions of the same document -> get the entire
             # version history
             else:
-                versions = Document.get_all_versions(document)
+                versions = self.cmis_client.get_all_versions(document)
                 versions = sort_results(versions, queryset.query.order_by)
 
                 seen = set()
@@ -122,8 +123,8 @@ class CMISDocumentIterable(BaseIterable):
                     yield cmis_doc_to_django_model(version, skip_pwc=True)
 
     def _process_intermediate(
-        self, django_query, documents: List[Document]
-    ) -> List[Document]:
+        self, django_query, documents: List[Cmisdoc]
+    ) -> List[Cmisdoc]:
         """
         Order the results of the CMIS query and throw out non-distinct results.
         """
@@ -196,14 +197,7 @@ class CMISDocumentIterable(BaseIterable):
         for key, value in filters:
             name = mapper(key, type="document")
 
-            # cmis:versionSeriesId is not queryable in Alfresco, nor is alfcmis:nodeRef
-            if key == "uuid":
-                # The actual objectId is in the format {cmis:versionSeriesId};{cmis:versionLabel},
-                # but it seems that Alfresco _always_ returns the latest version (that's fine),
-                # and you don't actually need to include the ;{cmis:versionLabel} part.
-                # This effectively turns our query into "... WHERE cmis:objectId = '<some-uuid>'"
-                name = "cmis:objectId"
-            elif key == "begin_registratie":
+            if key == "begin_registratie":
                 # begin_registratie is a LTE filter, so define it as such:
                 column = mapper("begin_registratie", type="document")
                 _lhs.append(f"{column} <= '%s'")
@@ -223,10 +217,6 @@ class CMISDocumentIterable(BaseIterable):
                     _lhs.append(lhs)
                     _rhs += rhs
                     continue
-            elif key == "identificatie" and "%" in value:
-                _lhs.append(f"{name} LIKE '%s'")
-                _rhs.append(f"{value}")
-                continue
             elif key == "creatiedatum" and value == "":
                 _lhs.append(f"{name} LIKE '%s'")
                 _rhs.append("%-%-%")
@@ -247,16 +237,10 @@ class CMISDocumentIterable(BaseIterable):
                 new_filters = value._cmis_query
                 break
 
-        if new_filters:
-            return new_filters
-        else:
-            return filters
+        return new_filters or filters
 
     def _needs_vertrowelijkaanduiding_filter(self, filters: List[Tuple]) -> bool:
-        for key, value in filters:
-            if key == "_va_order":
-                return True
-        return False
+        return "_va_order" in dict(filters)
 
     def _filter_by_va(self, filters: List[Tuple], documents: List) -> List:
         if len(documents) == 0:
@@ -267,18 +251,18 @@ class CMISDocumentIterable(BaseIterable):
             if filter_name == "_va_order":
                 # In case there are multiple different vertrouwelijk aanduiding,
                 # it chooses the lowest one
-                all_vertrowelijkaanduiding = []
+                all_vertrouwelijkaanduiding = []
                 if isinstance(filter_value, list):
                     for order in filter_value:
                         for case in order.cases:
-                            all_vertrowelijkaanduiding.append(
+                            all_vertrouwelijkaanduiding.append(
                                 case.result.identity[1][1]
                             )
 
                 else:
                     for case in filter_value.cases:
-                        all_vertrowelijkaanduiding.append(case.result.identity[1][1])
-                va_order = min(all_vertrowelijkaanduiding)
+                        all_vertrouwelijkaanduiding.append(case.result.identity[1][1])
+                va_order = min(all_vertrouwelijkaanduiding)
                 break
 
         filtered_docs = []
@@ -310,7 +294,7 @@ class CMISDocumentIterable(BaseIterable):
 class CMISOioIterable(BaseIterable):
 
     table = "drc:oio"
-    return_type = ObjectInformatieObject
+    return_type = "Oio"
 
     def __iter__(self):
         queryset = self.queryset
@@ -340,11 +324,7 @@ class CMISOioIterable(BaseIterable):
         _rhs = []
 
         for key, value in filters:
-            name = mapper(key, type="objectinformatieobject")
-
-            if key == "uuid":
-                name = "cmis:objectId"
-                value = f"workspace://SpacesStore/{value};1.0"
+            name = mapper(key, type="oio")
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -385,7 +365,7 @@ class CMISOioIterable(BaseIterable):
 
 class CMISGebruiksrechtenIterable(BaseIterable):
     table = "drc:gebruiksrechten"
-    return_type = Gebruiksrechten
+    return_type = "Gebruiksrechten"
 
     def __iter__(self):
         queryset = self.queryset
@@ -416,10 +396,6 @@ class CMISGebruiksrechtenIterable(BaseIterable):
 
         for key, value in filters:
             name = mapper(key, type="gebruiksrechten")
-
-            if key == "uuid":
-                name = "cmis:objectId"
-                value = f"workspace://SpacesStore/{value};1.0"
 
             if name is None:
                 raise NotImplementedError(f"Filter on '{key}' is not implemented yet")
@@ -461,13 +437,12 @@ class CMISGebruiksrechtenIterable(BaseIterable):
 # --------------- Querysets --------------------------
 
 
-class CMISQuerySet(InformatieobjectQuerySet):
+class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
     """
     Find more information about the drc-cmis adapter on github here.
     https://github.com/GemeenteUtrecht/gemma-drc-cmis
     """
 
-    _client = None
     documents = []
     has_been_filtered = False
 
@@ -477,13 +452,6 @@ class CMISQuerySet(InformatieobjectQuerySet):
         self._iterable_class = CMISDocumentIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            self._client = CMISDRCClient()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -545,39 +513,52 @@ class CMISQuerySet(InformatieobjectQuerySet):
         )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
-        kwargs["begin_registratie"] = timezone.now()
+        kwargs["begin_registratie"] = timezone.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+        for key, value in kwargs.items():
+            if isinstance(value, datetime.datetime) or isinstance(value, datetime.date):
+                kwargs[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        content = kwargs.pop("inhoud", None)
 
         try:
             # Needed because the API calls the create function for an update request
-            new_cmis_document = self.cmis_client.update_cmis_document(
-                uuid=kwargs.get("uuid"),
+            new_cmis_document = self.cmis_client.update_document(
+                drc_uuid=kwargs.get("uuid"),
                 lock=kwargs.get("lock"),
                 data=kwargs,
-                content=kwargs.get("inhoud"),
+                content=content,
             )
         except exceptions.DocumentDoesNotExistError:
-            kwargs.setdefault("versie", 1)
+            kwargs.setdefault("versie", "1")
             new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
+                bronorganisatie=kwargs.get("bronorganisatie"),
                 data=kwargs,
-                content=kwargs.get("inhoud"),
+                content=content,
             )
 
         django_document = cmis_doc_to_django_model(new_cmis_document)
 
-        # If no identificatie field is present, it generates a unique, human readable one
+        # If no identificatie field is present, use the same as the document uuid (issue #762)
         if not django_document.identificatie:
-            # FIXME when aggregation operations will work in alfresco, should use
-            # vng_api_common.utils.generate_unique_identification rather than the one defined below
-            django_document.identificatie = generate_unique_identification(
-                django_document, "creatiedatum"
-            )
+            django_document.identificatie = django_document.uuid
             model_data = model_to_dict(django_document)
             self.filter(uuid=django_document.uuid).update(**model_data)
 
         return django_document
 
     def filter(self, *args, **kwargs):
+
+        clone = super().filter(*args, **kwargs)
+
+        filters = self._construct_filters(**kwargs)
+
+        # keep track of all the filters when chaining
+        clone._cmis_query += [tuple(x) for x in filters.items()]
+
+        return clone
+
+    def _construct_filters(self, **kwargs) -> dict:
         filters = {}
 
         # Limit filter to just exact lookup for now (until implemented in drc_cmis)
@@ -610,33 +591,9 @@ class CMISQuerySet(InformatieobjectQuerySet):
             else:
                 filters[key_bits[0]] = value
 
-        # keep track of all the filters when chaining
-        self._cmis_query += [tuple(x) for x in filters.items()]
-
-        return super().filter(*args, **kwargs)
-
-    def delete(self):
-
-        number_alfresco_updates = 0
-        for django_doc in self._result_cache:
-            try:
-                if settings.CMIS_DELETE_IS_OBLITERATE:
-                    # Actually removing the files from Alfresco
-                    self.cmis_client.obliterate_document(django_doc.uuid)
-                else:
-                    # Updating all the documents from Alfresco to have 'verwijderd=True'
-                    self.cmis_client.delete_cmis_document(django_doc.uuid)
-                number_alfresco_updates += 1
-            except exceptions.DocumentConflictException:
-                logger.log(
-                    f"Document met identificatie {django_doc.identificatie} kan niet worden gemarkeerd als verwijderd"
-                )
-
-        return number_alfresco_updates, {"cmis_document": number_alfresco_updates}
+        return filters
 
     def update(self, **kwargs):
-        cmis_storage = CMISDRCStorageBackend()
-
         docs_to_update = super().iterator()
 
         updated = 0
@@ -654,8 +611,8 @@ class CMISQuerySet(InformatieobjectQuerySet):
 
             canonical_obj = django_doc.canonical
             canonical_obj.lock_document(doc_uuid=django_doc.uuid)
-            cmis_storage.update_document(
-                uuid=django_doc.uuid,
+            self.cmis_client.update_document(
+                drc_uuid=django_doc.uuid,
                 lock=canonical_obj.lock,
                 data=kwargs,
                 content=kwargs.get("inhoud"),
@@ -677,23 +634,13 @@ class CMISQuerySet(InformatieobjectQuerySet):
             yield date
 
 
-class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
-
-    _client = None
-
+class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._iterable_class = CMISGebruiksrechtenIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            self._client = CMISDRCClient()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -703,7 +650,11 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
     def create(self, **kwargs):
         from ..models import EnkelvoudigInformatieObject
 
-        cmis_gebruiksrechten = self.cmis_client.create_cmis_gebruiksrechten(data=kwargs)
+        for key, value in kwargs.items():
+            if isinstance(value, datetime.datetime) or isinstance(value, datetime.date):
+                kwargs[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        cmis_gebruiksrechten = self.cmis_client.create_gebruiksrechten(data=kwargs)
 
         # Get EnkelvoudigInformatieObject uuid from URL
         uuid = kwargs.get("informatieobject").split("/")[-1]
@@ -755,9 +706,10 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet):
         return converted_data
 
 
-class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
+class ObjectInformatieObjectCMISQuerySet(
+    ObjectInformatieObjectQuerySet, CMISClientMixin
+):
 
-    _client = None
     has_been_filtered = False
 
     def __init__(self, *args, **kwargs):
@@ -766,13 +718,6 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
         self._iterable_class = CMISOioIterable
 
         self._cmis_query = []
-
-    @property
-    def cmis_client(self):
-        if not self._client:
-            self._client = CMISDRCClient()
-
-        return self._client
 
     def _clone(self):
         clone = super()._clone()
@@ -827,7 +772,17 @@ class ObjectInformatieObjectCMISQuerySet(ObjectInformatieObjectQuerySet):
 
     def create(self, **kwargs):
         data = self.process_filters(kwargs)
-        cmis_oio = self.cmis_client.create_cmis_oio(data=data)
+
+        if data.get("zaak") is not None and data.get("besluit") is not None:
+            raise IntegrityError(
+                "ObjectInformatie object cannot have both Zaak and Besluit relation"
+            )
+        elif data.get("zaak") is None and data.get("besluit") is None:
+            raise IntegrityError(
+                "ObjectInformatie object needs to have either a Zaak or Besluit relation"
+            )
+
+        cmis_oio = self.cmis_client.create_oio(data=data)
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
 
@@ -896,16 +851,28 @@ def format_fields(obj, obj_fields):
         elif isinstance(field, fields.DateTimeField):
             if isinstance(_value, int):
                 setattr(obj, field.name, convert_timestamp_to_django_datetime(_value))
+            elif isinstance(_value, str):
+                setattr(
+                    obj,
+                    field.name,
+                    datetime.datetime.strptime(_value, "%Y-%m-%dT%H:%M:%S.%f%z"),
+                )
         elif isinstance(field, fields.DateField):
             if isinstance(_value, int):
                 converted_datetime = convert_timestamp_to_django_datetime(_value)
                 setattr(obj, field.name, converted_datetime.date())
-
+            elif isinstance(_value, str):
+                converted_datetime = datetime.datetime.strptime(
+                    _value, "%Y-%m-%dT%H:%M:%S.%f%z"
+                )
+                setattr(obj, field.name, converted_datetime.date())
+            elif isinstance(_value, datetime.datetime):
+                setattr(obj, field.name, _value.date())
     return obj
 
 
 def cmis_doc_to_django_model(
-    cmis_doc: Document,
+    cmis_doc: Cmisdoc,
     skip_pwc: bool = False,
     version: Optional[int] = None,
     begin_registratie: Optional[datetime.datetime] = None,
@@ -917,12 +884,11 @@ def cmis_doc_to_django_model(
 
     # get the pwc and continue to operate on the PWC
     if not skip_pwc and cmis_doc.isVersionSeriesCheckedOut:
-        pwc = cmis_doc.get_private_working_copy()
-        assert pwc.isPrivateWorkingCopy, "PWC must be the actual PWC object"
+        pwc = cmis_doc.get_latest_version()
         # check if the PWC does still match the detail filters, if provided
         version_ok = version and version == pwc.versie
         begin_registratie_ok = (
-            begin_registratie and pwc.begin_registratie <= begin_registratie.timestamp()
+            begin_registratie and pwc.begin_registratie <= begin_registratie
         )
         if (not version or version_ok) and (
             not begin_registratie or begin_registratie_ok
@@ -937,7 +903,8 @@ def cmis_doc_to_django_model(
     cmis_doc = format_fields(cmis_doc, EnkelvoudigInformatieObject._meta.get_fields())
 
     # Setting up a local file with the content of the cmis document
-    uuid_with_version = f"{cmis_doc.versionSeriesId};{cmis_doc.versie}"
+    # Replacing the alfresco version (decimal) with the custom version label
+    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}"
     content_file = CMISStorageFile(uuid_version=uuid_with_version)
 
     document = EnkelvoudigInformatieObject(
@@ -981,7 +948,7 @@ def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
     )
 
     django_gebruiksrechten = Gebruiksrechten(
-        uuid=cmis_gebruiksrechten.versionSeriesId,
+        uuid=uuid.UUID(cmis_gebruiksrechten.uuid),
         informatieobject=canonical,
         omschrijving_voorwaarden=cmis_gebruiksrechten.omschrijving_voorwaarden,
         startdatum=cmis_gebruiksrechten.startdatum,
@@ -998,7 +965,7 @@ def cmis_oio_to_django(cmis_oio):
     canonical = EnkelvoudigInformatieObjectCanonical()
 
     django_oio = ObjectInformatieObject(
-        uuid=cmis_oio.versionSeriesId,
+        uuid=uuid.UUID(cmis_oio.uuid),
         informatieobject=canonical,
         zaak=cmis_oio.zaak,
         besluit=cmis_oio.besluit,
@@ -1067,22 +1034,3 @@ def modify_value_in_dictionary(existing_value, new_value):
         existing_value = [existing_value, new_value]
 
     return existing_value
-
-
-def generate_unique_identification(instance: models.Model, date_field_name: str):
-    model = type(instance)
-    model_name = getattr(model, "IDENTIFICATIE_PREFIX", model._meta.model_name.upper())
-
-    year = getattr(instance, date_field_name).year
-    pattern = f"{model_name}-{year}-%"
-
-    issued_ids_for_year = model._default_manager.filter(identificatie__regex=pattern)
-
-    max_identificatie = 0
-    if issued_ids_for_year.exists():
-        for document in issued_ids_for_year:
-            number = int(document.identificatie.split("-")[-1])
-            max_identificatie = max(max_identificatie, number)
-
-    padded_number = str(max_identificatie + 1).zfill(10)
-    return f"{model_name}-{year}-{padded_number}"

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from datetime import date, timedelta
 
 import factory
@@ -48,6 +50,7 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
 
     datum_begin_geldigheid = date(2018, 1, 1)
     versiedatum = date(2018, 1, 1)
+    selectielijst_procestype_jaar = 2017
 
     # this one is optional, if its added as below, it will keep adding related
     # ZaakTypes (and reach max recursion depth)

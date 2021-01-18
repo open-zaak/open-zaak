@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2019 - 2020 Dimpact
 import { ZaakType } from './zaaktype';
 import { InformatieObjectType } from './informatieobjecttype';
 import { BesluitType } from './besluittype';

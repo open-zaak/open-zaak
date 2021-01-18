@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
 # Remove the reference - we don't have a single API version.
@@ -7,7 +9,7 @@ AUTORISATIES_API_VERSION = "1.0.0"
 BESLUITEN_API_VERSION = "1.0.1"
 CATALOGI_API_VERSION = "1.0.0"
 DOCUMENTEN_API_VERSION = "1.0.1"
-ZAKEN_API_VERSION = "1.0.1"
+ZAKEN_API_VERSION = "1.0.2"
 
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 REST_FRAMEWORK["PAGE_SIZE"] = 100
@@ -51,7 +53,7 @@ GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
 # TODO: deduplicate
 repo = "vng-Realisatie/vng-referentielijsten"
-commit = "da1b2cfdaadb2d19a7d3fc14530923913a2560f2"
+commit = "4533cc71dcd17e997fce9e31445db852b7540321"
 REFERENTIELIJSTEN_API_SPEC = (
     f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
 )

@@ -1,4 +1,6 @@
 {% extends "admin/base_site.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2020 Dimpact {% endcomment %}
 {% load i18n config static %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
@@ -97,7 +99,10 @@
                         <td>{{ service.api_type|show_api_type }}</td>
                         <td>{{ service.api_root|urlize }}</td>
                         <td>{{ service.nlx|urlize }}</td>
-                        <td><a href="{{ service.oas }}" target="_blank">{% trans "Externe link" %}</a></td>
+                        <td>
+                            <a href="{{ service.oas }}" target="_blank" rel="noreferrer noopener">
+                            {% trans "Externe link" %}</a>
+                        </td>
                         <td>
                             <strong>{{ service.get_auth_type_display}}</strong>
                             {% if service.auth_type == 'zgw' %}

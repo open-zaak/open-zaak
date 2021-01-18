@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from relativedeltafield import RelativeDeltaField
 
 from ..forms.fields import RelativeDeltaField as RelativeDeltaFormField

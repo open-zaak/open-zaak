@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 class ListFilterByAuthorizationsMixin:
     """
     Filter list-action data by the authorizations configured.

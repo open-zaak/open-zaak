@@ -14,7 +14,7 @@ django
 django-auth-adfs-db
 django-axes
 django-choices
-django-cors-middleware
+django-cors-headers
 django-db-logger
 django-extra-views
 django-loose-fk
@@ -40,8 +40,9 @@ vng-api-common<1.1
 humanize
 drf-flex-fields
 drf-writable-nested
-drc-cmis
+drc-cmis>=1.1.0
 
 # WSGI servers & monitoring - production oriented
 uwsgi
-raven  # error monitoring sentry
+sentry_sdk # error monitoring sentry
+gitpython

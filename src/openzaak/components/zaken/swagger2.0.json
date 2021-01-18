@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.1"
+        "version": "1.0.2"
     },
     "basePath": "/zaken/api/v1",
     "consumes": [
@@ -5116,6 +5116,13 @@
                         "name": "rol__betrokkeneIdentificatie__medewerker__identificatie",
                         "in": "query",
                         "description": "Een korte unieke aanduiding van de MEDEWERKER.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie",
+                        "in": "query",
+                        "description": "Een korte identificatie van de organisatorische eenheid.",
                         "required": false,
                         "type": "string"
                     },
@@ -11310,6 +11317,12 @@
                 "rol__betrokkeneIdentificatie__medewerker__identificatie": {
                     "title": "Rol  betrokkeneidentificatie  medewerker  identificatie",
                     "description": "Een korte unieke aanduiding van de MEDEWERKER.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie": {
+                    "title": "Rol  betrokkeneidentificatie  organisatorischeeenheid  identificatie",
+                    "description": "Een korte identificatie van de organisatorische eenheid.",
                     "type": "string",
                     "minLength": 1
                 },

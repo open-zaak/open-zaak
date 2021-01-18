@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from openzaak.utils.permissions import AuthRequired
 
 
@@ -13,5 +15,4 @@ class InformationObjectAuthRequired(AuthRequired):
     )
 
     def get_main_object(self, obj, permission_main_object):
-        # assert False, type(obj)
         return obj.get_informatieobject(permission_main_object)

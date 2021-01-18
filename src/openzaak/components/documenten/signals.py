@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import logging
 
 from django.core.signals import setting_changed
 from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete, post_save
-from django.dispatch.dispatcher import receiver
+from django.dispatch import receiver
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject

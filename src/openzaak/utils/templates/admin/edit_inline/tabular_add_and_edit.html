@@ -1,4 +1,6 @@
-{% load i18n admin_urls static admin_modify %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
+{% load i18n admin_urls static admin_modify l10n %}
 <div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group"
      data-inline-type="tabular"
      data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
@@ -88,7 +90,7 @@
         <tr class="add-row"><td colspan="{{ inline_admin_formset.readonly_fields|length|add:"1" }}">
         {% if original %}
           {% url inline_admin_formset.opts.opts|admin_urlname:'add' as inline_add_url %}
-            <a href="{{ inline_add_url }}?{{ inline_admin_formset.opts.fk_name }}={{ original.pk }}" target="_blank" rel="noopener noreferrer">
+            <a href="{{ inline_add_url }}?{{ inline_admin_formset.opts.fk_name }}={{ original.pk|unlocalize }}" target="_blank" rel="noopener noreferrer">
               {% blocktrans with model_name=inline_admin_formset.opts.verbose_name|capfirst trimmed %}
                 Voeg een {{ model_name }} toe
               {% endblocktrans %}

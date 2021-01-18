@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Serializers of the Document Registratie Component REST API
 """
@@ -11,7 +13,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField
-from drc_cmis.client.convert import make_absolute_uri
+from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -39,8 +41,13 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
-from .validators import InformatieObjectUniqueValidator, StatusValidator
+from .validators import (
+    InformatieObjectUniqueValidator,
+    StatusValidator,
+    UniekeIdentificatieValidator,
+)
 
 
 class AnyFileType:
@@ -63,7 +70,8 @@ class AnyBase64File(Base64FileField):
             return super().to_internal_value(base64_data)
         except Exception:
             try:
-                b64decode(base64_data)
+                # If validate is False, no check is done to see if the data contains non base-64 alphabet characters
+                b64decode(base64_data, validate=True)
             except binascii.Error as e:
                 if str(e) == "Incorrect padding":
                     raise ValidationError(
@@ -143,10 +151,21 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     """
 
     def get_url(self, obj, view_name, request, format):
-        obj_latest_version = obj.get_latest_version(self.parent)
-        if obj_latest_version is None:
-            return None
-        return super().get_url(obj_latest_version, view_name, request, format)
+        # obj is a EIOCanonical. If CMIS is enabled, it can't be used to retrieve the EIO latest version.
+        if settings.CMIS_ENABLED:
+            # self.parent is a serialiser, with instance Oio/Gebruiksrechten. These can be used to retrieve the EIO
+            if isinstance(self.parent.instance, Gebruiksrechten) or isinstance(
+                self.parent.instance, ObjectInformatieObject
+            ):
+                eio_latest_version = self.parent.instance.get_informatieobject()
+            # If self.parent.parent is a ListSerializer, self.parent.instance is a queryset rather than a
+            # gebruiksrechten/oio. The informatieobject URL cannot be retrieved. See issue #791
+            elif isinstance(self.parent.instance, InformatieobjectRelatedQuerySet):
+                return ""
+        else:
+            eio_latest_version = obj.latest_version
+
+        return super().get_url(eio_latest_version, view_name, request, format)
 
     def get_object(self, view_name, view_args, view_kwargs):
         lookup_value = view_kwargs[self.lookup_url_kwarg]
@@ -256,7 +275,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             },
         }
         read_only_fields = ["versie", "begin_registratie"]
-        validators = [StatusValidator()]
+        validators = [
+            StatusValidator(),
+            UniekeIdentificatieValidator(),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -379,6 +401,10 @@ class EnkelvoudigInformatieObjectWithLockSerializer(
         # Use the same fields as the parent class and add the lock to it
         fields = EnkelvoudigInformatieObjectSerializer.Meta.fields + ("lock",)
 
+        # Removing the validator that checks for identificatie/bronorganisatie being unique together, because for a
+        # PATCH request to update a document all the data from the previous document version is used.
+        validators = [StatusValidator()]
+
     def validate(self, attrs):
         valid_attrs = super().validate(attrs)
 
@@ -422,6 +448,8 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
+        # The lock method of the EnkelvoudigInformatieObjectViewSet creates a LockEnkelvoudigInformatieObjectSerializer
+        # with a context containing the request and the url parameter uuid.
         self.instance.lock_document(doc_uuid=self.context["uuid"])
         self.instance.save()
 
@@ -574,16 +602,14 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         self.set_object_properties(object_type)
         ret = super().to_representation(instance)
         if settings.CMIS_ENABLED:
-            # Objects without a public key will have 'None' as the URL, so it is added manually
+            # Objects without a primary key will have 'None' as the URL, so it is added manually
             path = reverse(
                 "objectinformatieobject-detail",
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
             ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
-            if hasattr(instance, "get_informatieobject_url"):
-                ret["informatieobject"] = instance.get_informatieobject_url()
-            else:
-                ret["informatieobject"] = self.instance.get_informatieobject_url()
+            ret["informatieobject"] = instance.get_informatieobject_url()
+
         return ret
 
     def create(self, validated_data):

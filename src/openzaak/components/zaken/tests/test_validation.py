@@ -1,6 +1,9 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import uuid
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -29,8 +32,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.documenten.tests.utils import get_eio_response
-from openzaak.utils.tests import JWTAuthMixin, mock_client
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject
@@ -160,13 +162,23 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         good_casing = get_validation_errors(response, "verantwoordelijkeOrganisatie")
         self.assertIsNotNone(good_casing)
 
-    def test_validate_communicatiekanaal_invalid_resource(self):
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
+    def test_validate_communicatiekanaal_invalid_resource(self, *mocks):
         url = reverse("zaak-list")
-        body = {
-            "communicatiekanaal": "https://ref.tst.vng.cloud/referentielijsten/api/v1/"
-        }
+        communicatiekanaal_url = (
+            "https://referentielijsten-api.cloud/api/v1/communicatiekanalen/123"
+        )
+        body = {"communicatiekanaal": communicatiekanaal_url}
 
-        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+        with requests_mock.Mocker() as m:
+            m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
+            m.get(
+                settings.REFERENTIELIJSTEN_API_SPEC,
+                json={},
+                headers={"X-OAS-Version": "3.0"},
+            )
+            response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "communicatiekanaal")

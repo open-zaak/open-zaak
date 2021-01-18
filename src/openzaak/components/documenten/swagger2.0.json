@@ -2117,7 +2117,8 @@
                         "in": "query",
                         "description": "URL-referentie naar het INFORMATIEOBJECT.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     },
                     {
                         "name": "startdatum__lt",
@@ -3299,7 +3300,8 @@
                         "in": "query",
                         "description": "URL-referentie naar het INFORMATIEOBJECT.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     }
                 ],
                 "responses": {

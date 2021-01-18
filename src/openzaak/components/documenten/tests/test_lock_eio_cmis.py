@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import uuid
 from base64 import b64encode
 
@@ -206,7 +208,10 @@ class EioUnlockAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_unlock_force(self):
-        self.autorisatie.scopes.append(SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK)
+        self.autorisatie.scopes = [
+            SCOPE_DOCUMENTEN_LOCK,
+            SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+        ]
         self.autorisatie.save()
 
         eio = EnkelvoudigInformatieObjectFactory.create(

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filtersets import FilterSet
@@ -32,6 +34,10 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
+    )
+    rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
+        field_name="rol__organisatorischeeenheid__identificatie",
+        help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
     )
 
     class Meta:

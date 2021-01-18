@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 """
 Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/39
 """
@@ -59,7 +61,7 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
 
         download_url = urlparse(response.data["inhoud"])
 
-        self.assertTrue(
+        self.assertEqual(
             download_url.path,
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )

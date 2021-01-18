@@ -26,9 +26,15 @@ You can use `vars/secrets.yml.example` as an example of the content.
 [user@host]$ ansible-vault create vars/secrets.yml
 ```
 
+Install Ansible requirements:
+
+```shell
+[user@host]$ ansible-galaxy role install -r requirements.yml
+[user@host]$ ansible-galaxy collection install -r requirements.yml
+```
+
 Run the Ansible playbook:
 
 ```shell
-[user@host]$ ansible-galaxy install -r requirements.yml
 [user@host]$ ansible-playbook open-zaak.yml --ask-vault-pass
 ```

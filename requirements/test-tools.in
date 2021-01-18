@@ -10,3 +10,6 @@ tblib
 isort
 black
 flake8
+
+# SPDX header checks
+click

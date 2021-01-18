@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import os
 import sys
 import warnings
@@ -31,6 +33,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 LOGGING["loggers"].update(
     {
         "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
+        "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
         "django": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
         "django.utils.autoreload": {
             "handlers": ["console"],

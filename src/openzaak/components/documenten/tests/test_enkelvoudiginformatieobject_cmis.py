@@ -1,6 +1,9 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import uuid
 from base64 import b64encode
 from datetime import date
+from io import BytesIO
 
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -11,13 +14,12 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
-    get_eio_response,
     get_informatieobjecttype_response,
     get_operation_url,
 )
@@ -26,7 +28,7 @@ from .utils import (
 @tag("cmis")
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(CMIS_ENABLED=True)
-class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
+class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
@@ -64,7 +66,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test storage backend (Alfresco)
-        stored_object = EnkelvoudigInformatieObject.objects.first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
@@ -115,6 +117,104 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         for key in response_data.keys():
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
+
+    def test_create_document_with_binary_content(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(
+                b"%PDF-1.4\n%\xc3\xa4\xc3\xbc\xc3\xb6\n2 0 obj\n<</Length 3 0 R/Filter/FlateDecode>>\nstream\nx\x9c"
+            ).decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        # Test storage backend (Alfresco)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(
+            stored_object.inhoud.read(),
+            b"%PDF-1.4\n%\xc3\xa4\xc3\xbc\xc3\xb6\n2 0 obj\n<</Length 3 0 R/Filter/FlateDecode>>\nstream\nx\x9c",
+        )
+
+    def test_create_without_identificatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Test database
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        # Test that identificatie is set to the same as the uuid
+        self.assertEqual(stored_object.identificatie, str(stored_object.uuid))
+
+    def test_create_two_docs_with_same_identificatie_and_bronorganisatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": "12345",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "identificatie-niet-uniek"
+        )
 
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
@@ -326,13 +426,11 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
-        eio_url = f"https://external.documenten.nl/{eio_path}"
+        eio_url = eio.get_url()
 
-        self.adapter.register_uri(
-            "GET", eio_url, json=get_eio_response(eio_path),
-        )
-
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
 
         response = self.client.delete(eio_path)
 
@@ -395,6 +493,23 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         error = get_validation_errors(response, "inhoud")
 
         self.assertEqual(error["code"], "invalid")
+
+    def test_download_deleted_eio(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", inhoud__data=b"inhoud1"
+        )
+
+        eio_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        response = self.client.delete(reverse(eio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 @tag("cmis")
@@ -497,6 +612,43 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(EnkelvoudigInformatieObjectCanonical.objects.exists())
         self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
+
+    def test_eio_update_content(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            inhoud=BytesIO(b"Content before update"),
+            informatieobjecttype__concept=False,
+        )
+
+        eio_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock_response = self.client.post(f"{eio_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"Content after update"), "lock": lock,}
+        )
+
+        del eio_data["integriteit"]
+        del eio_data["ondertekening"]
+
+        update_response = self.client.put(eio_url, eio_data)
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+
+        unlock_url = get_operation_url(
+            "enkelvoudiginformatieobject_unlock", uuid=eio.uuid
+        )
+
+        unlock_content = {"lock": lock}
+        unlock_response = self.client.post(unlock_url, unlock_content)
+        self.assertEqual(unlock_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        updated_eio = EnkelvoudigInformatieObject.objects.first()
+        self.assertEqual(updated_eio.inhoud.read(), b"Content after update")
 
     def test_eio_detail_retrieves_latest_version(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Als behandelaar wil ik locatie- en/of objectinformatie bij de melding
 ontvangen, zodat ik voldoende details weet om de melding op te volgen.

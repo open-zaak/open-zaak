@@ -1,7 +1,9 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import UUIDAdminMixin
+from openzaak.utils.admin import DynamicArrayMixin, UUIDAdminMixin
 
 from ..models import Eigenschap, EigenschapSpecificatie
 from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
@@ -35,7 +37,9 @@ class EigenschapAdmin(
 
 
 @admin.register(EigenschapSpecificatie)
-class EigenschapSpecificatieAdmin(CatalogusContextAdminMixin, admin.ModelAdmin):
+class EigenschapSpecificatieAdmin(
+    DynamicArrayMixin, CatalogusContextAdminMixin, admin.ModelAdmin
+):
     # List
     list_display = ("groep", "formaat", "lengte", "kardinaliteit")  # Add is_van
     # list_filter = ('rsin', )  # Add is_van

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from drf_writable_nested import NestedCreateMixin
 from rest_framework import serializers
 from vng_api_common.constants import RolOmschrijving

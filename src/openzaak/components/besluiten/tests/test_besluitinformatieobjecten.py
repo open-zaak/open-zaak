@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
 from django.test import override_settings, tag
@@ -16,12 +18,11 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.documenten.tests.utils import (
     get_catalogus_response,
-    get_eio_response,
     get_informatieobjecttype_response,
     get_oio_response,
 )
 from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import uuid
 from base64 import b64encode
 from datetime import date
@@ -65,9 +67,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # Test database
-        stored_object = EnkelvoudigInformatieObject.objects.filter().first()
+        stored_object = EnkelvoudigInformatieObject.objects.get()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.filter().count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(stored_object.identificatie, content["identificatie"])
         self.assertEqual(stored_object.bronorganisatie, "159351741")
         self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
@@ -116,6 +118,70 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         for key in response_data.keys():
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
+
+    def test_create_without_identificatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Test database
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+
+        # Test generation of human readable identificatie
+        self.assertEqual(stored_object.identificatie, "DOCUMENT-2018-0000000001")
+
+    def test_create_two_docs_with_same_identificatie_and_bronorganisatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": "12345",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "identificatie-niet-uniek"
+        )
 
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
@@ -242,9 +308,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get(
-            identificatie=content["identificatie"]
-        )
+        stored_object = EnkelvoudigInformatieObject.objects.get()
         self.assertEqual(
             stored_object.integriteit, {"algoritme": "", "waarde": "", "datum": None}
         )
@@ -278,9 +342,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.list_url, content)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        stored_object = EnkelvoudigInformatieObject.objects.get(
-            identificatie=content["identificatie"]
-        )
+        stored_object = EnkelvoudigInformatieObject.objects.get()
         self.assertEqual(
             stored_object.integriteit,
             {
@@ -307,18 +369,13 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that destroying is possible when there are no relations.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        uuid_eio = eio.uuid
         url = reverse(eio)
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertRaises(
-            EnkelvoudigInformatieObject.DoesNotExist,
-            EnkelvoudigInformatieObject.objects.get,
-            uuid=uuid_eio,
-        )
+        self.assertFalse(EnkelvoudigInformatieObject.objects.exists())
 
     def test_destroy_with_relations_not_allowed(self):
         """
@@ -392,6 +449,48 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "inhoud")
 
         self.assertEqual(error["code"], "invalid")
+
+    def test_inhoud_invalid_utf8_char_not_b64_encoded(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": "<",
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_download_deleted_eio(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", inhoud__data=b"inhoud1"
+        )
+
+        eio_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        response = self.client.delete(reverse(eio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
@@ -509,7 +608,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         lock1 = self.client.post(f"{eio1_url}/lock").data["lock"]
         self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
 
-        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2",)
+        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2")
 
         eio2_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
@@ -628,10 +727,8 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
                 },
             )
 
-            response = self.client.get(
-                eio_url, {"registratieOp": "2019-01-01T12:00:00"}
-            )
-            response_download = self.client.get(response.data["inhoud"])
+        response = self.client.get(eio_url, {"registratieOp": "2019-01-01T12:00:00"})
+        response_download = self.client.get(response.data["inhoud"])
 
         try:
             self.assertEqual(list(response_download.streaming_content)[0], b"inhoud1")
@@ -648,6 +745,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         Deleting a Besluit causes all related objects to be deleted as well.
         """
         EnkelvoudigInformatieObjectFactory.create_batch(2)
+
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -659,6 +757,7 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 
     def test_pagination_page_param(self):
         EnkelvoudigInformatieObjectFactory.create_batch(2)
+
         response = self.client.get(self.list_url, {"page": 1})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

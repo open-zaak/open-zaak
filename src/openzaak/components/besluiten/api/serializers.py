@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Serializers of the Besluit Registratie Component REST API
 """
@@ -8,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
@@ -24,6 +25,7 @@ from openzaak.utils.validators import (
     LooseFkResourceValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
+    UniqueTogetherValidator,
 )
 
 from ..constants import VervalRedenen
@@ -192,8 +194,8 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             bio = super().create(validated_data)
 
-        # local FK - nothing to do -> our signals create the OIO
-        if bio.informatieobject.pk:
+        # local FK or CMIS - nothing to do -> our signals create the OIO
+        if bio.informatieobject.pk or settings.CMIS_ENABLED:
             return bio
 
         # we know that we got valid URLs in the initial data

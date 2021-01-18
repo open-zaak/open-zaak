@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
+from unittest.mock import patch
 
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -243,4 +247,22 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
                 "'Servicenorm behandeling' periode mag niet langer zijn dan "
                 "de periode van 'Doorlooptijd behandeling'."
             ],
+        )
+
+    @patch("vng_api_common.models.ClientConfig.get_client", return_value=None)
+    def test_add_zaaktype_page_without_selectielijst_client(self, *mocks):
+        url = reverse("admin:catalogi_zaaktype_add")
+
+        response = self.app.get(url)
+
+        # Check that no 500 error is thrown
+        self.assertEqual(response.status_code, 200)
+
+        procestype_field = response.html.find(
+            "input", {"id": "id_selectielijst_procestype"}
+        )
+        self.assertTrue(procestype_field.has_attr("disabled"))
+        self.assertEqual(
+            procestype_field.attrs["value"],
+            _("Selectielijst configuration must be fixed first"),
         )

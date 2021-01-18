@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -45,20 +47,17 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     def has_delete_permission(self, request, obj=None):
         if settings.CMIS_ENABLED:
             return False
-        else:
-            return super().has_delete_permission(request, obj)
+        return super().has_delete_permission(request, obj)
 
     def has_add_permission(self, request):
         if settings.CMIS_ENABLED:
             return False
-        else:
-            return super().has_add_permission(request)
+        return super().has_add_permission(request)
 
     def has_change_permission(self, request, obj=None):
         if settings.CMIS_ENABLED:
             return False
-        else:
-            return super().has_change_permission(request, obj)
+        return super().has_change_permission(request, obj)
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):

@@ -1,12 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.tests import reverse
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
-from ...documenten.tests.utils import serialise_eio
 from ..models import (
     KlantContact,
     Resultaat,
@@ -32,7 +33,7 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class US349TestCase(JWTAuthMixin, APICMISTestCase):
+class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     heeft_alle_autorisaties = True
 
@@ -40,7 +41,8 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
         """
         Deleting a zaak causes all related objects to be deleted as well.
         """
-        zaak = ZaakFactory.create()
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
 
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False

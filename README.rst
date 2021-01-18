@@ -7,12 +7,12 @@ Open Zaak
 
 .. _`Read this in English`: README.en.md
 
-:Version: 1.2.1.dev2
+:Version: 1.3.3
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
 
-|atp| |build-status| |docs| |coverage| |black| |docker|
+|atp| |build-status| |docs| |coverage| |code-quality| |black| |docker|
 
 Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
@@ -33,7 +33,6 @@ In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. D
 * Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
 * Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
 * Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
-* Klantinteracties - deze API ondersteunt de registratie van Contactmomenten en Verzoeken. Verzoeken hebben een relatie met producten en diensten uit de Producten Diensten Catalogus (PDC) en kunnen leiden tot zaken. Deze API wordt op een later moment toegevoegd aan Open Zaak.
 
 Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
 
@@ -96,9 +95,13 @@ Licensed under the EUPL_
 
 .. _EUPL: LICENSE.md
 
-.. |build-status| image:: https://travis-ci.org/open-zaak/open-zaak.svg?branch=master
+.. |build-status| image:: https://github.com/open-zaak/open-zaak/workflows/Run%20CI/badge.svg
     :alt: Build status
-    :target: https://travis-ci.org/open-zaak/open-zaak
+    :target: https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Run+CI%22
+
+.. |code-quality| image:: https://github.com/open-zaak/open-zaak/workflows/Code%20quality%20checks/badge.svg
+     :alt: Code quality checks
+     :target: https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Code+quality+checks%22
 
 .. |docs| image:: https://readthedocs.org/projects/open-zaak/badge/?version=latest
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
@@ -112,7 +115,7 @@ Licensed under the EUPL_
     :target: https://github.com/psf/black
 
 .. |docker| image:: https://images.microbadger.com/badges/image/openzaak/open-zaak.svg
-    :target: https://microbadger.com/images/openzaak/open-zaak
+    :target: https://hub.docker.com/r/openzaak/open-zaak
 
 .. |atp| image:: https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/
     :target: https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/

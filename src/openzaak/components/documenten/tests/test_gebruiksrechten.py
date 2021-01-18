@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import datetime
 
 from rest_framework import status
@@ -53,11 +55,8 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
             kwargs={"uuid": gebruiksrechten.get_informatieobject().uuid},
         )
 
-        # Locking the EnkelvoudigInformatieObject before attempting to change it
-        lock = self.client.post(f"{url}/lock").data["lock"]
-
         for invalid_value in (None, False):
-            data = {"indicatieGebruiksrecht": invalid_value, "lock": lock}
+            data = {"indicatieGebruiksrecht": invalid_value}
             response = self.client.patch(url, data)
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

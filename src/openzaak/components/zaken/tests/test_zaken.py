@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import unittest
 from datetime import date
 
@@ -34,7 +36,7 @@ from ..api.scopes import (
     SCOPEN_ZAKEN_HEROPENEN,
 )
 from ..constants import BetalingsIndicatie
-from ..models import Medewerker, NatuurlijkPersoon, Zaak
+from ..models import Medewerker, NatuurlijkPersoon, OrganisatorischeEenheid, Zaak
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import RolFactory, StatusFactory, ZaakFactory
 from .utils import (
@@ -886,6 +888,41 @@ class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):
                 url,
                 {
                     "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "129117729"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 1)
+
+    def test_rol_organisatorische_eenheid_identificatie(self):
+        """
+        Test filter zaken on betrokkeneIdentificatie for Organisatorische Eenheid.
+        """
+        url = reverse(Zaak)
+        rol = RolFactory.create(
+            betrokkene_type=RolTypes.organisatorische_eenheid,
+            omschrijving_generiek=RolOmschrijving.behandelaar,
+        )
+        OrganisatorischeEenheid.objects.create(identificatie="OE1", rol=rol)
+
+        with self.subTest(expected="no-match"):
+            response = self.client.get(
+                url,
+                {
+                    "rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie": "123"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest(expected="match"):
+            response = self.client.get(
+                url,
+                {
+                    "rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie": "OE1"
                 },
                 **ZAAK_READ_KWARGS,
             )

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 """
 Integrations of selectielijst API into Django admin.
 """
@@ -19,11 +21,11 @@ from .api import (
 
 
 def get_procestype_field(
-    db_field: Field, request: HttpRequest, **kwargs
+    db_field: Field, request: HttpRequest, procestype_jaar: int, **kwargs
 ) -> forms.ChoiceField:
     choices = (
         (procestype["url"], f"{procestype['nummer']} - {procestype['naam']}",)
-        for procestype in get_procestypen()
+        for procestype in get_procestypen(procestype_jaar=procestype_jaar)
     )
 
     return forms.ChoiceField(

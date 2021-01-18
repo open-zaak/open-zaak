@@ -1,6 +1,11 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
+import logging
+
 from django.apps import apps
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Field
+from django.forms import ChoiceField
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
@@ -8,6 +13,7 @@ from openzaak.selectielijst.admin_fields import (
     get_processtype_readonly_field,
     get_procestype_field,
 )
+from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils.admin import (
     DynamicArrayMixin,
     EditInlineAdminMixin,
@@ -37,6 +43,8 @@ from .mixins import (
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(ZaakTypenRelatie)
@@ -176,7 +184,10 @@ class ZaakTypeAdmin(
                 )
             },
         ),
-        (_("Gemeentelijke selectielijst"), {"fields": ("selectielijst_procestype",)}),
+        (
+            _("Gemeentelijke selectielijst"),
+            {"fields": ("selectielijst_procestype_jaar", "selectielijst_procestype",)},
+        ),
         (
             _("Referentieproces"),
             {"fields": ("referentieproces_naam", "referentieproces_link")},
@@ -260,8 +271,46 @@ class ZaakTypeAdmin(
         )
 
     def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):
+        if db_field.name == "selectielijst_procestype_jaar":
+            referentielijst_config = ReferentieLijstConfig.get_solo()
+            choices = [
+                (year, str(year)) for year in referentielijst_config.allowed_years
+            ]
+            return ChoiceField(
+                label=db_field.verbose_name.capitalize(),
+                choices=choices,
+                initial=referentielijst_config.default_year,
+                required=False,
+                help_text=db_field.help_text,
+                localize=False,
+            )
         if db_field.name == "selectielijst_procestype":
-            return get_procestype_field(db_field, request, **kwargs)
+            if "object_id" in request.resolver_match.kwargs:
+                obj = ZaakType.objects.get(
+                    id=str(request.resolver_match.kwargs["object_id"])
+                )
+                procestype_jaar = obj.selectielijst_procestype_jaar
+            else:
+                referentielijst_config = ReferentieLijstConfig.get_solo()
+                procestype_jaar = referentielijst_config.default_year
+            try:
+                return get_procestype_field(
+                    db_field, request, procestype_jaar, **kwargs
+                )
+            except AttributeError as e:
+                logger.exception(e)
+
+                msg = _(
+                    "Something went wrong while fetching procestypen, "
+                    "this could be due to an incorrect Selectielijst configuration."
+                )
+                messages.add_message(
+                    request, messages.ERROR, msg, extra_tags="procestypen"
+                )
+
+                kwargs["initial"] = _("Selectielijst configuration must be fixed first")
+                kwargs["disabled"] = True
+
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):

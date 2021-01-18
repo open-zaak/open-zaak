@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import uuid
 from base64 import b64encode
 from datetime import datetime
@@ -112,7 +114,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
         # Verify that the audittrail for the Gebruiksrechten deletion
         # contains the correct information
-        gebruiksrechten_delete_audittrail = audittrails[1]
+        gebruiksrechten_delete_audittrail = audittrails.get(actie="destroy")
         self.assertEqual(gebruiksrechten_delete_audittrail.bron, "DRC")
         self.assertEqual(gebruiksrechten_delete_audittrail.actie, "destroy")
         self.assertEqual(gebruiksrechten_delete_audittrail.resultaat, 204)
@@ -150,7 +152,9 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
         informatieobject_response = self.client.put(informatieobject_url, content).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject update
@@ -183,7 +187,9 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
             informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject
@@ -263,6 +269,11 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
         response_audittrails = self.client.get(audittrails_url)
 
         self.assertEqual(response_audittrails.status_code, status.HTTP_200_OK)
+        audittrail_data = response_audittrails.data
+        self.assertEqual(audittrail_data["uuid"], str(audittrails.uuid))
+        self.assertEqual(audittrail_data["resource"], "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail_data["gebruikers_id"], self.user_id)
+        self.assertEqual(audittrail_data["actie"], "create")
 
     def test_audittrail_resource_weergave(self):
         eio_response = self._create_enkelvoudiginformatieobject()

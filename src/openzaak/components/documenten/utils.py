@@ -1,13 +1,22 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import io
+from decimal import Decimal
+from io import BytesIO
+from typing import TypeVar
 
 from django.conf import settings
 from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.utils.functional import LazyObject
 
-from drc_cmis.client import CMISDRCClient
-from drc_cmis.cmis.drc_document import Document
+from drc_cmis import client_builder
+from drc_cmis.models import Vendor
 from privates.storages import PrivateMediaFileSystemStorage
+
+# In the CMIS adapter, the Document object can be from either the Browser or Webservice binding module.
+# So, this is to simplify the type hint
+Cmisdoc = TypeVar("Cmisdoc")
 
 
 class CMISStorageFile(File):
@@ -51,12 +60,12 @@ class CMISStorageFile(File):
 
 class CMISStorage(Storage):
     def __init__(self, location=None, base_url=None, encoding=None):
-        self._client = CMISDRCClient()
+        self._client = client_builder.get_cmis_client()
 
     def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)
 
-    def _read(self, uuid_version: str) -> bytes:
+    def _read(self, uuid_version: str) -> BytesIO:
         cmis_doc = self._get_cmis_doc(uuid_version)
         content_bytes = cmis_doc.get_content_stream()
         return content_bytes
@@ -66,6 +75,12 @@ class CMISStorage(Storage):
         return cmis_doc.contentStreamLength
 
     def url(self, uuid_version: str) -> str:
+        # TODO create a custom link to support content URLs with SOAP
+        if "cmisws" in self._client.base_url:
+            raise RuntimeError(
+                "Webservice CMIS binding does not support file content URLs"
+            )
+
         cmis_doc = self._get_cmis_doc(uuid_version)
 
         # introspect repos
@@ -77,7 +92,8 @@ class CMISStorage(Storage):
             raise RuntimeError("Repository config not found for this client config!")
 
         vendor = repo_config["vendorName"]
-        if vendor == "Alfresco":
+
+        if vendor.lower() == Vendor.alfresco:
             # we know Alfresco URLs, we need the part before /api/
             base_url = self._client.base_url[: self._client.base_url.index("/api/")]
             node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
@@ -86,13 +102,13 @@ class CMISStorage(Storage):
         else:
             raise NotImplementedError(f"CMIS vendor {vendor} is not implemented yet.")
 
-    def _get_cmis_doc(self, uuid_version: str) -> Document:
+    def _get_cmis_doc(self, uuid_version: str) -> Cmisdoc:
         uuid, wanted_version = uuid_version.split(";")
-        wanted_version = int(wanted_version)
-        cmis_doc = self._client.get_cmis_document(uuid=uuid)
+        wanted_version = int(Decimal(wanted_version))
+        cmis_doc = self._client.get_document(drc_uuid=uuid)
         # only way to get a specific version
         if cmis_doc.versie != wanted_version:
-            all_versions = Document.get_all_versions(cmis_doc)
+            all_versions = self._client.get_all_versions(cmis_doc)
             for version in all_versions:
                 if version.versie == wanted_version:
                     cmis_doc = version

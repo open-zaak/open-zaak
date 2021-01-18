@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from typing import Any, Dict, Optional, Union
 
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models.base import ModelBase
 from django.http import HttpRequest
@@ -89,13 +92,18 @@ def versions_equivalent(version1: Dict[str, Any], version2: Dict[str, Any]) -> b
     return not any(dictdiffer.diff(version1, version2))
 
 
+class MockRequest(HttpRequest):
+    def _get_scheme(self):
+        return "https" if settings.IS_HTTPS else "http"
+
+
 def send_applicatie_changed_notification(
     applicatie: Applicatie, new_version: Optional[Dict[str, Any]] = None
 ):
     viewset = ApplicatieViewSet()
     viewset.action = "update"
     if new_version is None:
-        request = HttpRequest()
+        request = MockRequest()
         request.META["HTTP_HOST"] = Site.objects.get_current().domain
         new_version = get_applicatie_serializer(applicatie, request).data
     viewset.notify(status_code=200, data=new_version, instance=applicatie)

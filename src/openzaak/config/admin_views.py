@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, UpdateView

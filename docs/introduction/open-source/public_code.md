@@ -50,7 +50,7 @@ The codebase MUST allow anyone to submit suggestions for changes to the codebase
 The documentation MUST link to both the public issue tracker and submitted codebase changes, for example in a README file. | yes | [Documentation](https://open-zaak.readthedocs.io/en/latest/support/index.html), [CONTRIBUTING.md](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md)
 The codebase MUST include an email address for security issues and responsible disclosure. | no |
 The codebase MUST include contribution guidelines explaining how contributors can get involved, for example in a CONTRIBUTING file. | yes | [CONTRIBUTING](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md), [Documentation](https://open-zaak.readthedocs.io/en/latest/development/index.html)
-The project MUST have communication channels for users and developers, for example email lists. | | github [issues](https://github.com/open-zaak/open-zaak/issues), [VNG slack channel](https://samenorganiseren.slack.com/archives/CT6UH711Q) (requires an invite)
+The project MUST have communication channels for users and developers, for example email lists. | yes | [Mailing list](https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/), github [issues](https://github.com/open-zaak/open-zaak/issues), [VNG slack channel](https://samenorganiseren.slack.com/archives/CT6UH711Q) (requires an invite)
 The codebase SHOULD have a publicly available roadmap. | no | Issues are not yet collected into a roadmap view; tech-debt and tech-wishlist not yet collected into a technical roadmap
 The codebase SHOULD advertise the committed engagement of involved organizations in the development and maintenance. | yes | [Readme](https://github.com/open-zaak/open-zaak/blob/master/README.en.md#Construction)
 The documentation SHOULD include instructions for how to report potentially security sensitive issues on a closed channel. | no |
@@ -162,7 +162,7 @@ Requirement | meets | links and notes
 All code and documentation MUST be licensed such that it may be freely reusable, changeable and redistributable. | yes | [copyright marks in the footer?](https://open-zaak.readthedocs.io/en/latest/index.html) -> check if we can add license to footer ([sphinx conf](https://github.com/open-zaak/open-zaak/blob/master/docs/conf.py#L30)), but explicit open license
 Software source code MUST be licensed under an OSI-approved open source license. | yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 All code MUST be published with a license file. |yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
-All source code files in the codebase SHOULD include a copyright notice and a license header. | no | 2020-05-07 review by @Ainali
+All source code files in the codebase SHOULD include a copyright notice and a license header. | yes | 2020-08-03 review by @ericherman
 Codebases MAY have multiple licenses for different types of code and documentation. | | N/A
 Documentation MAY be published under Creative Commons licenses that are NOT ‘no derivatives’ or ‘non-commercial’. |  | N/A
 
@@ -177,7 +177,7 @@ Contributions SHOULD pass automated tests on style. | yes |
 Your codebase SHOULD include inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
 You MAY include sections in your style guide on understandable English. |  |
 
-## [Pay attention to codebase maturity](https://standard.publiccode.net/criteria/advertise-maturity.html)
+## [Pay attention to codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
 - [ ]
 

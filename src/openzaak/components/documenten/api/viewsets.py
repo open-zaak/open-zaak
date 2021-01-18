@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
@@ -219,10 +221,8 @@ class EnkelvoudigInformatieObjectViewSet(
                 },
                 code="pending-relations",
             )
-        if settings.CMIS_ENABLED:
-            instance.delete()
-        else:
-            super().perform_destroy(instance.canonical)
+
+        instance.destroy()
 
     @property
     def filterset_class(self):

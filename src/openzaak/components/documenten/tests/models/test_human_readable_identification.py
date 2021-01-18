@@ -1,11 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-class EIOTests(APITestCase):
+class EIOTests(TestCase):
     def test_default_human_readable(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             identificatie="", creatiedatum=date(2019, 7, 1)

@@ -1,17 +1,18 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Tests for the business logic w/r to statussen, from RGBZ.
 """
 from datetime import date
 
 from django.core.exceptions import ValidationError
-
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from ...constants import Statussen
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-class StatusTests(APITestCase):
+class StatusTests(TestCase):
     def test_empty_status_empty_ontvangstdatum(self):
         try:
             eio = EnkelvoudigInformatieObjectFactory.create(

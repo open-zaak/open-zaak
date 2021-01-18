@@ -33,7 +33,7 @@ these channels:
 Service providers
 -----------------
 
-Service providers offer Open Zaak as a service or can manage an on-premise 
+Service providers offer Open Zaak as a service or can manage an on-premise
 installation for you.
 
 Below is a list of service providers.
@@ -49,6 +49,6 @@ The maintainer is responsible for bug fixes, security fixes, code reviews
 and new releases.
 
 `Maykin Media`_ is the current maintainer of Open Zaak. For **security
-issues**, please sent an email to: security@maykinmedia.nl
+issues**, please send an email to: security@maykinmedia.nl
 
 .. _`Maykin Media`: https://www.maykinmedia.nl/

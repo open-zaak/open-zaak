@@ -22,7 +22,7 @@ Configure Notificaties API
 Next, the notifications for Open Zaak must be configured. We assume you're also
 using Open Notificaties to make a complete setup.
 
-There's 2 things to keep in mind:
+There are 2 things to keep in mind:
 
 1. Open Zaak offers an Autorisaties API and thus the Open Zaak Autorisaties API
    must be consulted to check for **autorisations**.
@@ -67,7 +67,7 @@ Open Zaak
 
 3. Since Open Zaak also manages the authorizations via the Autorisaties API, we
    need to give Open Notificaties access to this API (so Open Notificaties can
-   see who's authorised to sent notifications):
+   see who's authorised to send notifications):
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
@@ -115,9 +115,9 @@ Open Notificaties
    a. Navigate to **Configuratie > Autorisatiecomponentconfiguratie**
    b. Fill out the form:
 
-      - **API root**: *The URL to the Notificaties API. For example:*
+      - **API root**: *The URL to the Autorisaties API. For example:*
         ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
-      - **Component**: ``Notificatierouteringcomponent``
+      - **Component**: ``Autorisatiecomponent``
 
    c. Click **Opslaan**.
 
@@ -139,7 +139,7 @@ Open Notificaties
    d. Click **Opslaan**.
 
 3. Finally, we need to allow Open Zaak to access Open Notificaties (for
-   authentication purposes, so we can then check it's authorisations):
+   authentication purposes, so we can then check its authorisations):
 
    a. Navigate to **API Autorisaties > Client credentials**
    b. Click **Client credential toevoegen**.
@@ -193,7 +193,7 @@ endpoint is accessible at ``{{base_url}}/catalogi/api/v1/zaaktypen`` (where
 ``{{base_url}}`` is set to the domain configured in
 :ref:`installation_configuration_sites`).
 
-.. figure:: assets/api_request.png
+.. figure:: ../assets/api_request.png
     :width: 100%
     :alt: GET request to Catalogi API
 

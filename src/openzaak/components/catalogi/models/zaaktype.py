@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
 from django.core.exceptions import ValidationError
@@ -232,6 +234,11 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
             "URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde "
             "kenmerken (PROCESTYPE in de Selectielijst API)."
         ),
+    )
+    selectielijst_procestype_jaar = models.PositiveIntegerField(
+        help_text=_("Het jaartal waartoe het procestype behoort."),
+        blank=True,
+        null=True,
     )
     referentieproces_naam = models.CharField(
         _("referentieprocesnaam"),

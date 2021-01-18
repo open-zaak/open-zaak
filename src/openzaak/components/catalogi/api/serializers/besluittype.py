@@ -1,6 +1,9 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.utils import get_help_text
+
+from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..validators import (

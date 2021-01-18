@@ -1,13 +1,19 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import datetime
 import os
 
 from django.urls import reverse_lazy
 
-import raven
+import git
+import sentry_sdk
+from corsheaders.defaults import default_headers as default_cors_headers
+from sentry_sdk.integrations import django, redis
 
 # NLX directory urls
 from openzaak.config.constants import NLXDirectories
 
+from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
 from .environ import config
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -147,13 +153,13 @@ MIDDLEWARE = [
     "openzaak.utils.middleware.LogHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # 'django.middleware.locale.LocaleMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "openzaak.components.autorisaties.middleware.AuthMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
 ]
@@ -419,7 +425,8 @@ if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
 # in docker (build) context, there is no .git directory
 elif os.path.exists(os.path.join(BASE_DIR, ".git")):
-    GIT_SHA = raven.fetch_git_sha(BASE_DIR)
+    repo = git.Repo(search_parent_directories=True)
+    GIT_SHA = repo.head.object.hexsha
 else:
     GIT_SHA = None
 
@@ -465,19 +472,23 @@ HIJACK_ALLOW_GET_REQUESTS = True
 #
 # DJANGO-CORS-MIDDLEWARE
 #
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = (
-    "x-requested-with",
-    "content-type",
-    "accept",
-    "origin",
-    "authorization",
-    "x-csrftoken",
-    "user-agent",
-    "accept-encoding",
-    "accept-crs",
-    "content-crs",
+CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", default=False)
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", split=True, default=[])
+CORS_ALLOWED_ORIGIN_REGEXES = config(
+    "CORS_ALLOWED_ORIGIN_REGEXES", split=True, default=[]
 )
+# Authorization is included in default_cors_headers
+CORS_ALLOW_HEADERS = (
+    list(default_cors_headers)
+    + ["accept-crs", "content-crs",]
+    + config("CORS_EXTRA_ALLOW_HEADERS", split=True, default=[])
+)
+CORS_EXPOSE_HEADERS = [
+    "content-crs",
+]
+# Django's SESSION_COOKIE_SAMESITE = "Lax" prevents session cookies from being sent
+# cross-domain. There is no need for these cookies to be sent, since the API itself
+# uses Bearer Authentication.
 
 #
 # DJANGO-PRIVATES -- safely serve files after authorization
@@ -500,18 +511,22 @@ DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
 #
 SENTRY_DSN = config("SENTRY_DSN", None)
 
-if SENTRY_DSN:
-    INSTALLED_APPS = INSTALLED_APPS + ["raven.contrib.django.raven_compat"]
+SENTRY_SDK_INTEGRATIONS = [
+    django.DjangoIntegration(),
+    redis.RedisIntegration(),
+]
 
-    RAVEN_CONFIG = {"dsn": SENTRY_DSN, "release": GIT_SHA}
-    LOGGING["handlers"].update(
-        {
-            "sentry": {
-                "level": "WARNING",
-                "class": "raven.handlers.logging.SentryHandler",
-                "dsn": RAVEN_CONFIG["dsn"],
-            }
-        }
+if SENTRY_DSN:
+    SENTRY_CONFIG = {
+        "dsn": SENTRY_DSN,
+        "release": RELEASE or "RELEASE not set",
+    }
+
+    sentry_sdk.init(
+        **SENTRY_CONFIG,
+        integrations=SENTRY_SDK_INTEGRATIONS,
+        send_default_pii=True,
+        before_send=filter_sensitive_data,
     )
 
 #
@@ -540,7 +555,6 @@ NLX_DIRECTORY_URLS = {
 CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
 
 CMIS_ENABLED = config("CMIS_ENABLED", default=False)
-CMIS_DELETE_IS_OBLITERATE = True
 CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )

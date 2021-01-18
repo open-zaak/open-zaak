@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from typing import Dict, List, Optional, Union
 from urllib.parse import parse_qs, urlparse
 
@@ -11,15 +13,25 @@ JsonPrimitive = Union[str, int, float, bool]
 ResultList = List[Dict[str, JsonPrimitive]]
 
 
-@cache("selectielijst:procestypen", timeout=60 * 60 * 24)
-def get_procestypen() -> ResultList:
+def get_procestypen(procestype_jaar=None) -> ResultList:
     """
     Fetch a list of Procestypen.
 
     Results are cached for 24 hours.
     """
-    client = ReferentieLijstConfig.get_client()
-    return client.list("procestype")
+    key = "selectielijst:procestypen"
+    if procestype_jaar:
+        key = f"{key}-{procestype_jaar}"
+
+    @cache(key, timeout=60 * 60 * 24)
+    def inner():
+        client = ReferentieLijstConfig.get_client()
+        query_params = query_params = (
+            {"jaar": procestype_jaar} if procestype_jaar else {}
+        )
+        return client.list("procestype", query_params=query_params)
+
+    return inner()
 
 
 def get_resultaten(proces_type: Optional[str] = None) -> ResultList:

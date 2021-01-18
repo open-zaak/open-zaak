@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.db import migrations
 from ..middleware import COMPONENT_MAPPING
 from zgw_consumers.constants import APITypes, AuthTypes

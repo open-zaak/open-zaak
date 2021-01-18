@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import io
 import zipfile
 from unittest.mock import patch
@@ -737,7 +739,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response2 = response2.form.submit("_select")
 
         self.assertEqual(ZaakType.objects.count(), 2)
-        zaaktype1, zaaktype2 = ZaakType.objects.all()
+        zaaktype1, zaaktype2 = ZaakType.objects.all().order_by("zaaktype_omschrijving")
 
         self.assertEqual(zaaktype1.zaaktype_omschrijving, "zaaktype1")
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "zaaktype2")
@@ -765,6 +767,11 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         site.domain = "testserver"
         site.save()
         self.app.set_user(SuperUserFactory.create())
+
+        conf = ReferentieLijstConfig.get_solo()
+        conf.default_year = 2020
+        conf.allowed_years = [2020]
+        conf.save()
 
     def test_import_zaaktype_already_exists(self):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")

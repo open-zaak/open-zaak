@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import uuid
 from base64 import b64encode
 from datetime import datetime
@@ -143,12 +145,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "beschrijving": "test_beschrijving",
             "informatieobjecttype": informatieobjecttype_url,
             "vertrouwelijkheidaanduiding": "openbaar",
-            "lock": eio_canonical.lock,
+            "lock": "0f60f6d2d2714c809ed762372f5a363a",
         }
 
         informatieobject_response = self.client.put(informatieobject_url, content).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject update
@@ -178,16 +182,25 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         eio_canonical.save()
 
         informatieobject_response = self.client.patch(
-            informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
+            informatieobject_url,
+            {"titel": "changed", "lock": "0f60f6d2d2714c809ed762372f5a363a"},
         ).data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=informatieobject_url)
+        audittrails = AuditTrail.objects.filter(
+            hoofd_object=informatieobject_url
+        ).order_by("pk")
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the EnkelvoudigInformatieObject
         # partial update contains the correct information
         informatieobject_partial_update_audittrail = audittrails[1]
         self.assertEqual(informatieobject_partial_update_audittrail.bron, "DRC")
+
+        # XXX: tracking down the Heisenbug
+        if informatieobject_partial_update_audittrail.actie != "partial_update":
+            print(audittrails[0].__dict__)
+            print(audittrails[1].__dict__)
+
         self.assertEqual(
             informatieobject_partial_update_audittrail.actie, "partial_update"
         )
@@ -261,6 +274,11 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         response_audittrails = self.client.get(audittrails_url)
 
         self.assertEqual(response_audittrails.status_code, status.HTTP_200_OK)
+        audittrail_data = response_audittrails.data
+        self.assertEqual(audittrail_data["uuid"], str(audittrails.uuid))
+        self.assertEqual(audittrail_data["resource"], "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail_data["gebruikers_id"], self.user_id)
+        self.assertEqual(audittrail_data["actie"], "create")
 
     def test_audittrail_resource_weergave(self):
         eio_response = self._create_enkelvoudiginformatieobject()

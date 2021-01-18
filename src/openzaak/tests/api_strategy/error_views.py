@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import authentication, exceptions, permissions
 from rest_framework.views import APIView
 from vng_api_common.exceptions import Conflict, Gone, PreconditionFailed

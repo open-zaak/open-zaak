@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 import datetime
 
 from django.test import override_settings, tag
@@ -58,11 +60,8 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
             kwargs={"uuid": gebruiksrechten.get_informatieobject().uuid},
         )
 
-        # Locking the EnkelvoudigInformatieObject before attempting to change it
-        lock = self.client.post(f"{url}/lock").data["lock"]
-
         for invalid_value in (None, False):
-            data = {"indicatieGebruiksrecht": invalid_value, "lock": lock}
+            data = {"indicatieGebruiksrecht": invalid_value}
             response = self.client.patch(url, data)
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -116,3 +115,26 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_retrieve_multiple_gebruiksrechten(self):
+        eio_1 = EnkelvoudigInformatieObjectFactory.create()
+        eio_1_url = f"http://example.com{reverse(eio_1)}"
+
+        eio_2 = EnkelvoudigInformatieObjectFactory.create()
+        eio_2_url = f"http://example.com{reverse(eio_2)}"
+
+        GebruiksrechtenCMISFactory(informatieobject=eio_1_url)
+        GebruiksrechtenCMISFactory(informatieobject=eio_2_url)
+
+        response = self.client.get(reverse("gebruiksrechten-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertTrue(
+            eio_1_url == response.data[0]["informatieobject"]
+            or eio_1_url == response.data[1]["informatieobject"]
+        )
+        self.assertTrue(
+            eio_2_url == response.data[0]["informatieobject"]
+            or eio_2_url == response.data[1]["informatieobject"]
+        )

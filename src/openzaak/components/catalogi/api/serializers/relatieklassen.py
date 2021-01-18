@@ -1,8 +1,11 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from vng_api_common.serializers import add_choice_values_help_text
+
+from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import RichtingChoices
 from ...models import ZaakTypeInformatieObjectType

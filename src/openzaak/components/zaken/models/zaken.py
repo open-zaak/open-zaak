@@ -1,7 +1,10 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 import logging
 import uuid
 from datetime import date
 
+from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
@@ -551,7 +554,7 @@ class Rol(models.Model):
 
     omschrijving = models.CharField(
         _("omschrijving"),
-        max_length=20,
+        max_length=100,
         editable=False,
         db_index=True,
         help_text=_(
@@ -842,6 +845,10 @@ class ZaakInformatieObject(models.Model):
         ]
 
     def __str__(self) -> str:
+        # Avoid making a query to the DMS for the representation
+        if settings.CMIS_ENABLED:
+            return f"{self.zaak} - {self._informatieobject_url}"
+
         # In case of an external informatieobject, use the URL as fallback
         try:
             return f"{self.zaak} - {self.informatieobject}"
@@ -973,14 +980,14 @@ class ZaakBesluit(models.Model):
         ]
 
     def __str__(self):
-        if self._besluit_url is None:
-            besluit = self.besluit
-        else:
-            besluit = self._besluit_url
-
-        return _("Relation between {zaak} and {besluit}").format(
-            zaak=self.zaak, besluit=besluit
-        )
+        try:
+            return _("Relation between {zaak} and {besluit}").format(
+                zaak=self.zaak, besluit=self.besluit
+            )
+        except FetchError:
+            return _("Relation between {zaak} and {besluit}").format(
+                zaak=self.zaak, besluit=self._besluit_url
+            )
 
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()

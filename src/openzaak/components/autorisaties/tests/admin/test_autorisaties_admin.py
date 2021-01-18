@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 """
 Test the custom admin view to manage autorisaties for an application.
 """
@@ -582,6 +584,39 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
         ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
+
+    @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
+    @requests_mock.Mocker()
+    def test_notification_body_current_and_future(self, m):
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
+        applicatie = ApplicatieFactory.create()
+        AutorisatieSpecFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        InformatieObjectTypeFactory.create()
+
+        self.assertTrue(m.called)
+        body = m.last_request.json()
+        del body["aanmaakdatum"]
+
+        path = reverse(
+            "applicatie-detail", kwargs={"version": 1, "uuid": applicatie.uuid}
+        )
+        expected = {
+            "kanaal": "autorisaties",
+            "hoofdObject": f"https://testserver{path}",
+            "resource": "applicatie",
+            "resourceUrl": f"https://testserver{path}",
+            "actie": "update",
+            "kenmerken": {},
+        }
+        self.assertEqual(body, expected)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.fetcher")
