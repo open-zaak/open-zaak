@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from unittest import skip
+
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
@@ -53,7 +56,8 @@ class FailedNotificationCMISTests(
             "zaak": f"http://{site.domain}{zaak_url}",
         }
 
-        response = self.client.post(url, data)
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -80,6 +84,7 @@ class FailedNotificationCMISTests(
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
+    @skip(reason="Standard does not prescribe ZIO destroy notifications.")
     def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
@@ -91,7 +96,8 @@ class FailedNotificationCMISTests(
         )
         url = reverse(zio)
 
-        response = self.client.delete(url)
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(StatusLog.objects.count(), 1)

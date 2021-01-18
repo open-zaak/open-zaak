@@ -232,9 +232,21 @@ class BesluitInformatieObjectViewSet(
     notifications_main_resource_key = "besluit"
     audit = AUDIT_BRC
 
-    @transaction.atomic
+    @property
+    def notifications_wrap_in_atomic_block(self):
+        # do not wrap the outermost create/destroy in atomic transaction blocks to send
+        # notifications. The serializer wraps the actual object creation into a single
+        # transaction, and after that, we're in autocommit mode.
+        # Once the response has been properly obtained (success), then the notification
+        # gets scheduled, and because of the transaction being in autocommit mode at that
+        # point, the notification sending will fire immediately.
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().notifications_wrap_in_atomic_block
+
     def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+        with transaction.atomic():
+            super().perform_destroy(instance)
 
         if (
             isinstance(instance.informatieobject, ProxyMixin)
@@ -243,6 +255,8 @@ class BesluitInformatieObjectViewSet(
             try:
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception as exception:
+                # bring back the instance
+                instance.save()
                 raise ValidationError(
                     {
                         "informatieobject": _(

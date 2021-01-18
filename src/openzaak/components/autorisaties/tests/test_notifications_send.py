@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
@@ -41,7 +42,8 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
             "heeftAlleAutorisaties": True,
         }
 
-        response = self.client.post(url, data)
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -75,7 +77,8 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
 
         url = get_operation_url("applicatie_partial_update", uuid=applicatie.uuid)
 
-        response = self.client.patch(url, {"client_ids": ["id1"]})
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.patch(url, {"client_ids": ["id1"]})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -109,7 +112,8 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "heeftAlleAutorisaties": True,
         }
 
-        response = self.client.post(url, data)
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -136,7 +140,8 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         applicatie = ApplicatieFactory.create()
         url = reverse(applicatie)
 
-        response = self.client.delete(url)
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 

@@ -12,6 +12,7 @@ from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.utils.tests import ClearCachesMixin
@@ -35,6 +36,12 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
+
+        # there are TransactionTestCases that truncate the DB, so we need to ensure
+        # there are available years
+        selectielijst_config = ReferentieLijstConfig.get_solo()
+        selectielijst_config.allowed_years = [2017, 2020]
+        selectielijst_config.save()
 
     def setUp(self):
         super().setUp()
