@@ -560,6 +560,8 @@ class ZaakInformatieObjectViewSet(
             try:
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception as exception:
+                # bring back the instance
+                instance.save()
                 raise ValidationError(
                     {
                         "informatieobject": _(
