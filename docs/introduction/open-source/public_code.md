@@ -41,7 +41,7 @@ Code and its documentation SHOULD NOT contain situation-specific information.  |
 
 ## [Welcome contributors](https://standard.publiccode.net/criteria/open-to-contributions.html)
 
-- [ ]
+- [ ] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
@@ -120,7 +120,7 @@ You MAY use the examples in your documentation to test the code. |
 
 ## [Use plain English](https://standard.publiccode.net/criteria/understandable-english-first.html)
 
-- [ ]
+- [ ] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
@@ -133,7 +133,7 @@ Any code, documentation and tests MAY have a translation. |
 
 ## [Use open standards](https://standard.publiccode.net/criteria/open-standards.html)
 
-- [ ]
+- [ ] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
@@ -146,7 +146,7 @@ The codebase SHOULD contain a list of all the standards used with links to where
 
 ## [Use continuous integration](https://standard.publiccode.net/criteria/continuous-integration.html)
 
-- [ ]
+- [ ] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
@@ -173,7 +173,7 @@ Codebases MAY have multiple licenses for different types of code and documentati
 
 ## [Use a coherent style](https://standard.publiccode.net/criteria/style.html)
 
-- [x]
+- [x] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
@@ -184,7 +184,7 @@ You MAY include sections in your style guide on understandable English. |  |
 
 ## [Document codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
-- [ ]
+- [ ] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
