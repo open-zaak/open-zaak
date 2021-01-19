@@ -72,7 +72,12 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
                 ],
             },
             # per BRC API spec!
-            "zaak": {"lookup_field": "uuid", "max_length": 200, "allow_null": False,},
+            "zaak": {
+                "lookup_field": "uuid",
+                "max_length": 200,
+                "allow_null": False,
+                "allow_blank": True,
+            },
             "identificatie": {"validators": [IsImmutableValidator()]},
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]

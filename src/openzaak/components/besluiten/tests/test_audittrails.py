@@ -61,6 +61,8 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         modified_data["toelichting"] = "aangepast"
 
         response = self.client.put(url, modified_data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         besluit_response = response.data
 
         audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response["url"])
