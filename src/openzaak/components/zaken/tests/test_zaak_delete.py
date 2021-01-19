@@ -1,11 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
+from django.test import tag
+
+import requests_mock
+from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import mock_service_oas_get
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response
 
 from ..models import (
     KlantContact,
@@ -109,3 +118,48 @@ class US349TestCase(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "pending-besluit-relation")
+
+
+@tag("external-urls")
+class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root=cls.base,
+            label="external documents",
+            auth_type=AuthTypes.no_auth,
+        )
+
+    @requests_mock.Mocker()
+    def test_zaak_delete_oio_removed(self, m):
+        mock_service_oas_get(m, APITypes.drc, self.base)
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype="http://testserver/catalogi/api/v1/iot/dummy",
+        )
+        m.get(document, json=eio_response)
+        zaak = ZaakFactory.create()
+        zio = ZaakInformatieObjectFactory.create(
+            zaak=zaak,
+            informatieobject=document,
+            _objectinformatieobject_url=f"{self.base}_objectinformatieobjecten/{uuid.uuid4()}",
+        )
+        m.delete(zio._objectinformatieobject_url, status_code=204)
+        zaak_delete_url = get_operation_url("zaak_delete", uuid=zaak.uuid)
+
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.delete(zaak_delete_url, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+        delete_call = next((req for req in m.request_history if req.method == "DELETE"))
+        self.assertEqual(delete_call.url, zio._objectinformatieobject_url)

@@ -89,20 +89,22 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
 
             new_value = self.resolver.resolve(self.host, new_value)
 
-        if settings.CMIS_ENABLED:
-            if (
-                isinstance(current_value, ProxyMixin)
-                and isinstance(current_value, EnkelvoudigInformatieObject)
-                and isinstance(new_value, EnkelvoudigInformatieObject)
-            ):
-                current_value_url = current_value._initial_data["url"]
+        if (
+            isinstance(current_value, ProxyMixin)
+            and isinstance(current_value, EnkelvoudigInformatieObject)
+            and isinstance(new_value, EnkelvoudigInformatieObject)
+        ):
+            current_value_url = current_value._initial_data["url"]
+            if settings.CMIS_ENABLED:
                 new_value_url = new_value.get_url()
+            else:
+                new_value_url = new_value._initial_data["url"]
 
-                if new_value_url != current_value_url:
-                    raise serializers.ValidationError(
-                        IsImmutableValidator.message, code=IsImmutableValidator.code
-                    )
-                return
+            if new_value_url != current_value_url:
+                raise serializers.ValidationError(
+                    IsImmutableValidator.message, code=IsImmutableValidator.code
+                )
+            return
 
         if self.instance_path:
             for bit in self.instance_path.split("."):

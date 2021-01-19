@@ -538,6 +538,42 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "invalid-resource")
 
+    @requests_mock.Mocker()
+    def test_update_zio_metadata(self, m):
+        mock_service_oas_get(m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC)
+        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://openzaak.nl{reverse(zaak)}"
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://testserver{reverse(zio_type.informatieobjecttype)}",
+        )
+        m.get(document, json=eio_response)
+        zio = ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=document)
+        zio_detail_url = reverse(zio)
+
+        response = self.client.put(
+            zio_detail_url,
+            {
+                "zaak": zaak_url,
+                "informatieobject": document,
+                "titel": "updated title",
+                "beschrijving": "same",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(response.data["titel"], "updated title")
+        self.assertEqual(response.data["beschrijving"], "same")
+
+        zio.refresh_from_db()
+        self.assertEqual(zio.titel, "updated title")
+        self.assertEqual(zio.beschrijving, "same")
+
 
 @tag("external-urls")
 class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):

@@ -20,6 +20,7 @@ from openzaak.components.zaken.api.utils import (
     delete_remote_zaakbesluit,
 )
 from openzaak.utils.api import create_remote_oio
+from openzaak.utils.serializers import ConvertNoneMixin
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -33,7 +34,7 @@ from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
 
 
-class BesluitSerializer(serializers.HyperlinkedModelSerializer):
+class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer):
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -71,7 +72,12 @@ class BesluitSerializer(serializers.HyperlinkedModelSerializer):
                 ],
             },
             # per BRC API spec!
-            "zaak": {"lookup_field": "uuid", "max_length": 200},
+            "zaak": {
+                "lookup_field": "uuid",
+                "max_length": 200,
+                "allow_null": False,
+                "allow_blank": True,
+            },
             "identificatie": {"validators": [IsImmutableValidator()]},
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]
