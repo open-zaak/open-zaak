@@ -48,7 +48,12 @@ Maintainer
 The maintainer is responsible for bug fixes, security fixes, code reviews
 and new releases.
 
-`Maykin Media`_ is the current maintainer of Open Zaak. For **security
-issues**, please send an email to: security@maykinmedia.nl
+Reporting security issues
+-------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   security
 
 .. _`Maykin Media`: https://www.maykinmedia.nl/
