@@ -25,7 +25,7 @@ these channels:
 * `Open Zaak channel`_ on the Samen Organiseren `Slack`_ (`join here`_)
 * `Open Zaak group`_ on the Common Ground website
 
-.. _`Open Zaak group`: https://commonground.nl/groups/view/54477302/open-zaak
+.. _`Open Zaak group`: https://commonground.nl/groups/view/d9c2f667-2f3e-4153-a79b-57dde7f56cc2/team-open-zaak
 .. _`Slack`: https://slack.com/
 .. _`Open Zaak channel`: https://samenorganiseren.slack.com/
 .. _`join here`: https://join.slack.com/t/samenorganiseren/shared_invite/zt-dex1d7sk-wy11sKYWCF0qQYjJHSMW5Q
