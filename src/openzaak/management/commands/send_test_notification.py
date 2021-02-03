@@ -12,6 +12,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         nrc_client = NotificationsConfig.get_client()
 
+        if not nrc_client:
+            raise CommandError(
+                "Notifications are not properly configured. Please configure "
+                "them via the admin interface"
+            )
+
         kanaal_name = "test"
         Kanaal(kanaal_name, "test")
 
