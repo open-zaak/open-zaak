@@ -52,7 +52,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Sets X-Content-Type-Options: nosniff
 SECURE_BROWSER_XSS_FILTER = True  # Sets X-XSS-Protection: 1; mode=block
 
 # Deal with being hosted on a subpath
-if subpath:
+if subpath and subpath != "/":
     STATIC_URL = f"{subpath}{STATIC_URL}"
     MEDIA_URL = f"{subpath}{MEDIA_URL}"
 
