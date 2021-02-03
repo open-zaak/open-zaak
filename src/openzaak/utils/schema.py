@@ -4,11 +4,9 @@ import logging
 
 from django.conf import settings
 
-from drf_yasg import openapi
 from rest_framework import status
-from vng_api_common.inspectors.view import AutoSchema as _AutoSchema
+from vng_api_common.inspectors.view import AutoSchema as _AutoSchema, ResponseRef
 from vng_api_common.permissions import get_required_scopes
-from vng_api_common.serializers import FoutSerializer
 from vng_api_common.views import ERROR_CONTENT_TYPE
 
 from .permissions import AuthRequired
@@ -16,29 +14,33 @@ from .permissions import AuthRequired
 logger = logging.getLogger(__name__)
 
 
+class use_ref:
+    pass
+
+
 COMMON_ERROR_RESPONSES = {
-    status.HTTP_401_UNAUTHORIZED: openapi.Response(
-        "Unauthorized", schema=FoutSerializer
-    ),
-    status.HTTP_403_FORBIDDEN: openapi.Response("Forbidden", schema=FoutSerializer),
-    status.HTTP_404_NOT_FOUND: openapi.Response("Not found", schema=FoutSerializer),
-    status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
-        "Not acceptable", schema=FoutSerializer
-    ),
-    status.HTTP_410_GONE: openapi.Response("Gone", schema=FoutSerializer),
-    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: openapi.Response(
-        "Unsupported media type", schema=FoutSerializer
-    ),
-    status.HTTP_429_TOO_MANY_REQUESTS: openapi.Response(
-        "Throttled", schema=FoutSerializer
-    ),
-    status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-        "Internal server error", schema=FoutSerializer
-    ),
+    status.HTTP_401_UNAUTHORIZED: use_ref,
+    status.HTTP_403_FORBIDDEN: use_ref,
+    status.HTTP_404_NOT_FOUND: use_ref,
+    status.HTTP_406_NOT_ACCEPTABLE: use_ref,
+    status.HTTP_410_GONE: use_ref,
+    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: use_ref,
+    status.HTTP_429_TOO_MANY_REQUESTS: use_ref,
+    status.HTTP_500_INTERNAL_SERVER_ERROR: use_ref,
 }
 
 
 class AutoSchema(_AutoSchema):
+    def get_response_schemas(self, response_serializers):
+        # parent class doesn't support the `use_ref` singleton - we convert them to
+        # ResponseRef instances
+        for status_code, serializer in response_serializers.items():
+            if serializer is use_ref:
+                response_serializers[status_code] = ResponseRef(
+                    self.components, str(status_code)
+                )
+        return super().get_response_schemas(response_serializers)
+
     def get_security(self):
         """Return a list of security requirements for this operation.
 
