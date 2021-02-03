@@ -2,17 +2,20 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
+from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
+from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
 from ...models import ZaakType
 from ..filters import ZaakTypeFilter
@@ -23,11 +26,17 @@ from ..scopes import (
     SCOPE_CATALOGI_WRITE,
 )
 from ..serializers import ZaakTypeSerializer
-from .mixins import ConceptDestroyMixin, ConceptFilterMixin, M2MConceptDestroyMixin
+from .mixins import (
+    ConceptDestroyMixin,
+    ConceptFilterMixin,
+    ConceptPublishMixin,
+    M2MConceptDestroyMixin,
+)
 
 
 class ZaakTypeViewSet(
     CheckQueryParamsMixin,
+    ConceptPublishMixin,
     ConceptDestroyMixin,
     ConceptFilterMixin,
     M2MConceptDestroyMixin,
@@ -116,7 +125,16 @@ class ZaakTypeViewSet(
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
-    @swagger_auto_schema(request_body=no_body)
+    @swagger_auto_schema(
+        request_body=no_body,
+        responses={
+            status.HTTP_200_OK: openapi.Response("OK", schema=serializer_class),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                "Bad request", schema=FoutSerializer
+            ),
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
     @action(detail=True, methods=["post"])
     def publish(self, request, *args, **kwargs):
         instance = self.get_object()
