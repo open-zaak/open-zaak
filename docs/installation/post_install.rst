@@ -15,14 +15,7 @@ This page will indicate whether certain settings are properly configured:
 
 **Run check management commands**
 
-If Sentry was set up for Open Zaak, make sure to run the following command to
-ensure that logging to Sentry will work as expected:
-
-.. code-block:: shell
-
-    python src/manage.py raven test
-
-Furthermore, to verify that notifications can be received by the URL as defined
+To verify that notifications can be received by the URL as defined
 in the configuration, send a test notification using the following command:
 
 .. code-block:: shell
