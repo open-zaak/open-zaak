@@ -9,6 +9,7 @@ from rest_framework import status
 from vng_api_common.inspectors.view import AutoSchema as _AutoSchema
 from vng_api_common.permissions import get_required_scopes
 from vng_api_common.serializers import FoutSerializer
+from vng_api_common.views import ERROR_CONTENT_TYPE
 
 from .permissions import AuthRequired
 
@@ -86,6 +87,7 @@ class AutoSchema(_AutoSchema):
         produces = super().get_produces()
 
         # patched in after the conversion of OAS 2.0 -> OAS 3.0
-        produces.remove("application/problem+json")
+        if ERROR_CONTENT_TYPE in produces:
+            produces.remove(ERROR_CONTENT_TYPE)
 
         return produces
