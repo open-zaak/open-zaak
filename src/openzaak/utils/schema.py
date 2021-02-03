@@ -75,3 +75,17 @@ class AutoSchema(_AutoSchema):
 
         # operation level security
         return [{settings.SECURITY_DEFINITION_NAME: scopes}]
+
+    def get_produces(self):
+        """
+        Remove the application/problem+json content type.
+
+        Workaround - these are patched in afterwards. The produce values depends on the
+        context, which is not supported in OpenAPI 2.0.x.
+        """
+        produces = super().get_produces()
+
+        # patched in after the conversion of OAS 2.0 -> OAS 3.0
+        produces.remove("application/problem+json")
+
+        return produces
