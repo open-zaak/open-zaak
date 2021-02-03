@@ -5,8 +5,6 @@ from typing import Union
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from drf_yasg.utils import no_body, swagger_auto_schema
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
@@ -14,9 +12,7 @@ from ..scopes import SCOPE_CATALOGI_FORCED_DELETE
 
 
 class ConceptPublishMixin:
-    @swagger_auto_schema(request_body=no_body)
-    @action(detail=True, methods=["post"])
-    def publish(self, request, *args, **kwargs):
+    def _publish(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.concept = False
         instance.save()
