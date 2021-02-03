@@ -82,6 +82,8 @@ linkcheck_ignore = [
     r"https?://.*\.gemeente.nl",
     r"http://localhost:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
+    # TODO temporary workaround for issue #6218 with Pleio
+    r"https://commonground.nl/groups/view/d9c2f667-2f3e-4153-a79b-57dde7f56cc2/team-open-zaak",
 ]
 
 sphinx_tabs_valid_builders = ["linkcheck"]
