@@ -437,6 +437,16 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-object")
 
+    def test_delete_zaaktype_accept_header_problem_json(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
+
+        response = self.client.delete(
+            zaaktype_url, HTTP_ACCEPT="application/problem+json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
     def test_ophalen_servicenorm_doorlooptijd(self):
         zaaktype = ZaakTypeFactory.create()
         url = get_operation_url(
