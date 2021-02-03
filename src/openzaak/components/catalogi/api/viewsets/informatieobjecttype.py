@@ -1,11 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from rest_framework import viewsets
+from drf_yasg import openapi
+from drf_yasg.utils import no_body, swagger_auto_schema
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
+from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
 from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
@@ -86,3 +91,17 @@ class InformatieObjectTypeViewSet(
     }
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
+
+    @swagger_auto_schema(
+        request_body=no_body,
+        responses={
+            status.HTTP_200_OK: openapi.Response("OK", schema=serializer_class),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                "Bad request", schema=FoutSerializer
+            ),
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
+    @action(detail=True, methods=["post"])
+    def publish(self, request, *args, **kwargs):
+        return super().publish(request, *args, **kwargs)
