@@ -235,7 +235,7 @@ Uitleg bij mogelijke waarden:
 | publicatieIndicatie | Aanduiding of (het starten van) een ZAAK dit ZAAKTYPE gepubliceerd moet worden. | boolean | ja | C​R​U​D |
 | publicatietekst | De generieke tekst van de publicatie van ZAAKen van dit ZAAKTYPE. | string | nee | C​R​U​D |
 | verantwoordingsrelatie | De relatie tussen ZAAKen van dit ZAAKTYPE en de beleidsmatige en/of financiële verantwoording. | array | nee | C​R​U​D |
-| productenOfDiensten | Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht. | array | ja | C​R​U​D |
+| productenOfDiensten | Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht. | array | nee | C​R​U​D |
 | selectielijstProcestype | URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst API). | string | nee | C​R​U​D |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | ja | C​R​U​D |
 | statustypen | URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
