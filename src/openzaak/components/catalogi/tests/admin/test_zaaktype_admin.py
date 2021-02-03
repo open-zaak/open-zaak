@@ -273,3 +273,22 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
             procestype_field.attrs["value"],
             _("Selectielijst configuration must be fixed first"),
         )
+
+    def test_zaaktype_producten_of_diensten_empty_save(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        zaaktype = ZaakTypeFactory.create(producten_of_diensten=[])
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        form = response.form
+
+        response = form.submit("_save")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(
+            response.html.select_one(".field-producten_of_diensten .errorlist")
+        )

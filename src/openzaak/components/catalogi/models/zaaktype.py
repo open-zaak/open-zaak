@@ -224,6 +224,8 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         help_text=_(
             "Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht."
         ),
+        blank=True,
+        default=list,
     )
 
     # TODO: validate shape & populate?
