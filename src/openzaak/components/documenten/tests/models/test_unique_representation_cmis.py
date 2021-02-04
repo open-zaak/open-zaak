@@ -29,7 +29,7 @@ class UniqueRepresentationTestCase(APICMISTestCase, OioMixin):
             bronorganisatie=730924658,
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
-        eio_url = reverse(eio)
+        eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(
             informatieobject=eio_url, omschrijving_voorwaarden="some conditions"
         )

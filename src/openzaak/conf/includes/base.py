@@ -563,3 +563,4 @@ CMIS_ENABLED = config("CMIS_ENABLED", default=False)
 CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
+CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)

@@ -5,9 +5,11 @@ from base64 import b64encode
 from datetime import date
 from io import BytesIO
 
+from django.conf import settings
 from django.test import override_settings, tag
 from django.utils import timezone
 
+from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -837,6 +839,15 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
 
     def test_create_external_informatieobjecttype(self):
+        config = CMISConfig.objects.get()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
+
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         informatieobjecttype = (
             "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"

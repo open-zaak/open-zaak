@@ -77,12 +77,13 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
     def test_create_and_delete_gebruiksrechten_audittrail(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
+        io_url = reverse(
+            "enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": informatieobject.uuid},
+        )
 
         content = {
-            "informatieobject": reverse(
-                "enkelvoudiginformatieobject-detail",
-                kwargs={"uuid": informatieobject.uuid},
-            ),
+            "informatieobject": f"http://testserver{io_url}",
             "startdatum": datetime.now(),
             "omschrijvingVoorwaarden": "test",
         }

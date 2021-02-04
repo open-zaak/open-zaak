@@ -133,6 +133,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
                 io.uuid,
             )
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_opvragen_informatieobjecten_besluit(self):
         self.create_zaak_besluit_services()
         besluit1 = self.create_besluit()
@@ -161,14 +162,14 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
 
         response1 = self.client.get(
             base_uri,
-            {"besluit": f"http://openzaak.nl{besluit1_uri}"},
-            HTTP_HOST="openzaak.nl",
+            {"besluit": f"http://example.com{besluit1_uri}"},
+            HTTP_HOST="example.com",
         )
         self.assertEqual(len(response1.data), 3)
 
         response2 = self.client.get(
             base_uri,
-            {"besluit": f"http://openzaak.nl{besluit2_uri}"},
-            HTTP_HOST="openzaak.nl",
+            {"besluit": f"http://example.com{besluit2_uri}"},
+            HTTP_HOST="example.com",
         )
         self.assertEqual(len(response2.data), 2)

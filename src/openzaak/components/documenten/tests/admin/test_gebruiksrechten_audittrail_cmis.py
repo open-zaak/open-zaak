@@ -39,7 +39,7 @@ class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
 
     def test_change_gebruiksrechten_is_forbidden_when_cmis_enabled(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = tests.reverse(eio)
+        eio_url = f"http://testserver{tests.reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         change_url = reverse(
@@ -58,7 +58,7 @@ class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
 
     def test_delete_gebruiksrechten_is_forbidden_when_cmis_enabled(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = tests.reverse(eio)
+        eio_url = f"http://testserver{tests.reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         delete_url = reverse(

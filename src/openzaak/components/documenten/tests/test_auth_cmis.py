@@ -3,9 +3,11 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import (
     ComponentTypes,
@@ -279,6 +281,15 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         site.domain = "testserver"
         site.save()
 
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            config = CMISConfig.objects.get()
+
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
+
         super().setUpTestData()
 
     def test_detail_oio_limited_to_authorized_zaken_cmis(self):
@@ -388,9 +399,20 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            config = CMISConfig.objects.get()
+
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
+
         super().setUpTestData()
 
     def test_eio_list(self):
@@ -515,6 +537,15 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase, OioM
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+
+        if settings.CMIS_URL_MAPPING_ENABLED:
+            config = CMISConfig.objects.get()
+
+            UrlMapping.objects.create(
+                long_pattern="https://externe.catalogus.nl",
+                short_pattern="https://xcat.nl",
+                config=config,
+            )
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(

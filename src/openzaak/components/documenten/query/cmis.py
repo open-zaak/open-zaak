@@ -22,6 +22,7 @@ from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.mixins import CMISClientMixin
 
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
@@ -871,6 +872,7 @@ def format_fields(obj, obj_fields):
     return obj
 
 
+@convert_cmis_adapter_exceptions
 def cmis_doc_to_django_model(
     cmis_doc: Cmisdoc,
     skip_pwc: bool = False,

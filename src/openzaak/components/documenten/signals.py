@@ -9,6 +9,7 @@ from django.dispatch import receiver
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
+from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
 from .api.viewsets import (
     EnkelvoudigInformatieObjectViewSet,
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 @receiver([post_save, post_delete], dispatch_uid="documenten.sync_oio")
+@convert_cmis_adapter_exceptions
 def sync_oio(
     sender: ModelBase, signal: ModelSignal, instance: IORelation, **kwargs
 ) -> None:

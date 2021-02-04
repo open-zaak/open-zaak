@@ -81,21 +81,46 @@ Using the CMIS adapter
         # properties in your DMS model.
         CMIS_MAPPER_FILE = /path/to/cmis_mapper.json
 
-4. You will need to restart Open Zaak for these changes to take effect.
 
-5. Login to the Open Zaak admin interface (``/admin/``) as superuser.
+4. *Optional*: enable URL mapping. In DMSs such as Corsa, queryable text fields can only be up to 100 characters long.
+   However, documents in the Document API have URLs associated with it that are longer.
+   The URL mapper feature shrinks the URLs so that they fit in queryable text fields.
 
-6. Navigate to **Configuratie > CMIS configuration** and fill in all relevant
+   In the environment (or ``.env`` file), add or update the variable ``CMIS_URL_MAPPING_ENABLED``:
+
+    .. code-block:: bash
+
+        # Enables URL mapping in the CMIS-backend so that the URLs saved in
+        # the DMS are shorter than 100 chars.
+        CMIS_URL_MAPPING_ENABLED = True
+
+5. You will need to restart Open Zaak for these changes to take effect.
+
+6. Login to the Open Zaak admin interface (``/admin/``) as superuser.
+
+7. Navigate to **Configuratie > CMIS configuration** and fill in all relevant
    fields.
 
 .. image:: ../assets/cmis_config.png
     :width: 100%
     :alt: CMIS Configuration
 
-7. Save the configuration with **Opslaan en opnieuw bewerken**.
+8. If the URL mapping feature was enabled (point 4. above), then the mappings between the original and short
+   version of a URL need to be defined. In the section **URL MAPPINGS**, fill in the field **LONG PATTERN**
+   with the original URL (in format ``https://<domain>[/subpath]``) and the **SHORT PATTERN** with the URL with
+   shortened domain and subpath (in format ``https://<short domain>``). The short pattern field can be at most 15
+   characters. The scheme (http or https) should be the same for both the long and short pattern.
 
-8. You will see the **CMIS connection** status shows **OK** if everything went
-   well.
+    .. warning::
+        Once a mapping has been defined, it **cannot** be updated or deleted.
+
+.. image:: ../assets/cmis_url_mapping_config.png
+    :width: 100%
+    :alt: CMIS URL Mapping configuration
+
+9. Save the configuration with **Opslaan en opnieuw bewerken**.
+
+10. You will see the **CMIS connection** status shows **OK** if everything went well.
 
 .. _`CMIS adapter library`: https://github.com/open-zaak/cmis-adapter
 
