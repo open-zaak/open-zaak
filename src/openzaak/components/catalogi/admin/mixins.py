@@ -13,7 +13,7 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
 from openzaak.utils.admin import ExtraContextAdminMixin
 
@@ -55,8 +55,7 @@ class PublishAdminMixin:
                 for error in errors:
                     self.message_user(request, error, level=messages.ERROR)
             else:
-                obj.concept = False
-                obj.save()
+                obj.publish()
                 msg = _("The resource has been published successfully!")
                 self.message_user(request, msg, level=messages.SUCCESS)
 
@@ -73,8 +72,54 @@ class PublishAdminMixin:
         """
         return not obj.concept
 
+    def publish_selected(self, request, queryset):
+        published = 0
+        already_published = queryset.filter(concept=False).count()
+
+        if already_published:
+            msg = (
+                ungettext_lazy(
+                    "%d object is already published",
+                    "%d objects are already published",
+                    already_published,
+                )
+                % already_published
+            )
+            self.message_user(request, msg, level=messages.WARNING)
+
+        for obj in queryset.filter(concept=True):
+            errors = self._publish_validation_errors(obj)
+            if errors:
+                for error in errors:
+                    msg = _("%(obj)s can't be published: %(error)s") % {
+                        "obj": obj,
+                        "error": error,
+                    }
+                    self.message_user(request, msg, level=messages.ERROR)
+            else:
+                obj.publish()
+                published += 1
+
+        if published:
+            msg = (
+                ungettext_lazy(
+                    "%d object has been published successfully",
+                    "%d objects have been published successfully",
+                    published,
+                )
+                % published
+            )
+            self.message_user(request, msg, level=messages.SUCCESS)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions["publish_selected"] = self.get_action("publish_selected")
+        return actions
+
     is_published.short_description = _("gepubliceerd")
     is_published.boolean = True
+
+    publish_selected.short_description = _("Publish selected objects")
 
 
 class NewVersionMixin(object):
