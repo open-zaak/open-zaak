@@ -45,8 +45,7 @@ django==2.2.17            # via -r requirements/base.txt, django-auth-adfs, djan
 djangorestframework-camel-case==0.2.0  # via -r requirements/base.txt, vng-api-common
 djangorestframework-gis==0.14  # via -r requirements/base.txt
 djangorestframework==3.9.4  # via -r requirements/base.txt, django-extra-fields, django-loose-fk, djangorestframework-gis, drf-nested-routers, drf-yasg, vng-api-common
-#drc-cmis==1.1.2           # via -r requirements/base.txt
-git+https://github.com/open-zaak/cmis-adapter.git@a571900ddba34837bbbacea9c09376b34aad3074#egg=drc_cmis
+drc-cmis==1.2.0           # via -r requirements/base.txt
 drf-flex-fields==0.5.0    # via -r requirements/base.txt
 drf-nested-routers==0.90.2  # via -r requirements/base.txt, vng-api-common
 drf-writable-nested==0.4.3  # via -r requirements/base.txt
@@ -82,7 +81,7 @@ pycparser==2.19           # via -r requirements/base.txt, cffi
 pyflakes==2.2.0           # via flake8
 pyjwt==1.6.4              # via -r requirements/base.txt, django-auth-adfs, gemma-zds-client, vng-api-common
 python-dateutil==2.7.3    # via -r requirements/base.txt, django-relativedelta, faker, freezegun
-python-decouple==3.1      # via -r requirements/base.txt
+python-decouple==3.1      # via -r requirements/base.txt, drc-cmis
 python-dotenv==0.8.2      # via -r requirements/base.txt
 pytz==2019.1              # via -r requirements/base.txt, django, django-axes
 pyyaml==5.1               # via -r requirements/base.txt, gemma-zds-client, oyaml, vng-api-common
