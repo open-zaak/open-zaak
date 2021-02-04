@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 
 from django_webtest import WebTest
@@ -142,3 +142,61 @@ class AddZiotAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakTypeInformatieObjectType.objects.count(), 1)
+
+
+class IoTypePublishAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+        self.catalogus = CatalogusFactory.create()
+        self.url = reverse_lazy("admin:catalogi_informatieobjecttype_changelist")
+        self.query_params = {"catalogus_id__exact": self.catalogus.pk}
+
+    def test_publish_selected_success(self):
+        iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(
+            2, catalogus=self.catalogus
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [iotype1.pk]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object has been published successfully"])
+
+        iotype1.refresh_from_db()
+        self.assertFalse(iotype1.concept)
+
+        iotype2.refresh_from_db()
+        self.assertTrue(iotype2.concept)
+
+    def test_publish_already_selected(self):
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus, concept=False
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [iotype.pk]
+
+        response = form.submit()
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object is already published"])
+
+        iotype.refresh_from_db()
+        self.assertFalse(iotype.concept)

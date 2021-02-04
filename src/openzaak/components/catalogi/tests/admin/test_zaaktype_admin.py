@@ -3,7 +3,7 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
@@ -292,3 +292,82 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         self.assertIsNone(
             response.html.select_one(".field-producten_of_diensten .errorlist")
         )
+
+
+class ZaakTypePublishAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+        self.catalogus = CatalogusFactory.create()
+        self.url = reverse_lazy("admin:catalogi_zaaktype_changelist")
+        self.query_params = {"catalogus_id__exact": self.catalogus.pk}
+
+    def test_publish_selected_success(self):
+        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=self.catalogus)
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [zaaktype1.pk]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object has been published successfully"])
+
+        zaaktype1.refresh_from_db()
+        self.assertFalse(zaaktype1.concept)
+
+        zaaktype2.refresh_from_db()
+        self.assertTrue(zaaktype2.concept)
+
+    def test_publish_already_selected(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [zaaktype.pk]
+
+        response = form.submit()
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object is already published"])
+
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+
+    def test_publish_related_to_not_published(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=True)
+        BesluitTypeFactory.create(
+            zaaktypen=[zaaktype], catalogus=self.catalogus, concept=True
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [zaaktype.pk]
+
+        response = form.submit()
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(
+            messages,
+            [
+                f"{zaaktype} can't be published: All related resources should be published"
+            ],
+        )
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
