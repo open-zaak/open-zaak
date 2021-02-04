@@ -1,6 +1,75 @@
 Changelog
 =========
 
+1.3.4 (2021-02-04)
+------------------
+
+A regular bugfix release.
+
+**Bugfixes**
+
+* Fixed incorrect protocol used in notification payloads (#802)
+* Improved test suite determinism (#813, #798)
+* Fixed deleting documents when CMIS is enabled (#822)
+* Fixed Open Zaak compatibility with an external Documenten API
+    * Fixed error logging interpolation (#817)
+    * Fixed transaction management (#819)
+    * Fixed some django-loose-fk bugs
+    * Fixed deleting the remote ObjectInformatieObject on cascading zaak-destroy
+      operations
+    * Fixed ``Besluit.zaak`` nullable behaviour - now an empty string is returned
+      correctly
+* CMIS adapter fixes:
+    * Implemented Documenten API URL shortening for use with select CMIS DMSs
+    * Fixed an oversight where ``Gebruiksrechten`` were not updated in the CMIS
+      repository
+* Removed notifications for ZIO (partial) update & destroy - the standard only
+  prescribes ``create`` notifications.
+* Fixed running the test suite with the ``--keepdb`` option
+* Bumped a number of (frontend) dependencies following Github security notices
+* Throw a command error when testing the notifications sending before correctly
+  configuring the Notifications API (#667)
+* Fixed Open-Zaak not accepting ``application/problem+json`` response media type in
+  content negotation (#577)
+* Fixed leaving "producten en diensten" blank in Zaaktype admin (#806)
+* Increased the ``DATA_UPLOAD_MAX_NUMBER_FIELDS`` Django setting (#807)
+* Fixed zaaktype/informatieobjecttype/besluittype publish action API documentation (#578)
+* Fixed the handling of the ``SUBPATH`` environment variable (#741)
+
+**Deployment tooling / infrastructure**
+
+* Bumped to version 0.11.1 of the deployment tooling, which added support for:
+    - flexibility in certificate configuration
+    - enabled http2 in load balancer
+    - improved support for additional environment variables
+    - Red Hat and CentOS
+* Fixed pushing the ``latest`` docker image tag to Docker Hub for builds on the master
+  branch
+* Open Zaak now provides Helm_ charts_ to deploy Open Zaak & Open Notificaties on
+  Haven_ compliant clusters (thanks to @bartjkdp)
+
+**Documentation**
+
+* Fixed CI badges in READMEs
+* Fixed example recipe for client application developers (#815)
+* Documented the security issue process (#831)
+* Added Contezza as service provider
+* Removed (outdated) documentation duplication in README (#717)
+* Removed ``raven test`` Sentry test command from documentation - we no longer use
+  Raven but have switched to ``sentry_sdk`` instead (#721)
+* Documented the need to register notification channels (#666)
+* Improved & updated the API schema documentation
+* Link to run-time behaviour documentation for each API component (#753)
+
+**New features**
+
+* Added bulk publishing options to the admin for zaaktype, informatieobjecttype and
+  besluittype (#838)
+
+.. _Helm: https://helm.sh/
+.. _charts: https://github.com/open-zaak/charts
+.. _Haven: https://haven.commonground.nl/
+
 1.3.3 (2020-12-17)
 ------------------
 
