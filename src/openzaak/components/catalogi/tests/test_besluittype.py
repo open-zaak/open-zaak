@@ -66,7 +66,7 @@ class BesluitTypeAPITests(APITestCase):
             "url": f"http://testserver{besluittype_detail_url}",
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "zaaktypen": [f"http://testserver{zaaktype_url}"],
-            "omschrijving": "Besluittype",
+            "omschrijving": besluittype.omschrijving,
             "omschrijvingGeneriek": "",
             "besluitcategorie": "",
             "reactietermijn": "P14D",
