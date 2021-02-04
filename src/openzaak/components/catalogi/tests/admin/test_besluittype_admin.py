@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 
 from django_webtest import WebTest
@@ -185,3 +185,59 @@ class BesluitTypeAdminTests(WebTest):
         )
 
         self.assertEqual(BesluitType.objects.count(), 1)
+
+
+class BesluitTypePublishAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+        self.catalogus = CatalogusFactory.create()
+        self.url = reverse_lazy("admin:catalogi_besluittype_changelist")
+        self.query_params = {"catalogus_id__exact": self.catalogus.pk}
+
+    def test_publish_selected_success(self):
+        besluittype1, besluittype2 = BesluitTypeFactory.create_batch(
+            2, catalogus=self.catalogus
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [besluittype1.pk]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object has been published successfully"])
+
+        besluittype1.refresh_from_db()
+        self.assertFalse(besluittype1.concept)
+
+        besluittype2.refresh_from_db()
+        self.assertTrue(besluittype2.concept)
+
+    def test_publish_already_selected(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus, concept=False)
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [besluittype.pk]
+
+        response = form.submit()
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(messages, ["1 object is already published"])
+
+        besluittype.refresh_from_db()
+        self.assertFalse(besluittype.concept)

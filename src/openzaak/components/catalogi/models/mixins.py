@@ -96,3 +96,7 @@ class ConceptMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def publish(self):
+        self.concept = False
+        self.save()

@@ -10,7 +10,7 @@ from .zaaktype import ZaakTypeFactory
 
 
 class BesluitTypeFactory(factory.django.DjangoModelFactory):
-    omschrijving = "Besluittype"
+    omschrijving = factory.Sequence(lambda n: "Besluittype {}".format(n))
     catalogus = factory.SubFactory(CatalogusFactory)
     reactietermijn = timedelta(days=14)
     publicatie_indicatie = False
