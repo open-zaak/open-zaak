@@ -706,6 +706,21 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
 
         return converted_data
 
+    def update(self, **kwargs):
+        gebruiksrechten_to_update = super().iterator()
+
+        updated = 0
+
+        for django_gebruiksrechten in gebruiksrechten_to_update:
+            self.cmis_client.update_gebruiksrechten(
+                drc_uuid=django_gebruiksrechten.uuid, data=kwargs,
+            )
+
+            updated += 1
+
+        # Should return the number of rows in the database table that have been modified
+        return updated
+
 
 class ObjectInformatieObjectCMISQuerySet(
     ObjectInformatieObjectQuerySet, CMISClientMixin
