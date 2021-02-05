@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
-from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -11,11 +10,10 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
-from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
-from openzaak.utils.schema import COMMON_ERROR_RESPONSES
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ...models import ZaakType
 from ..filters import ZaakTypeFilter
@@ -128,15 +126,22 @@ class ZaakTypeViewSet(
     @swagger_auto_schema(
         request_body=no_body,
         responses={
-            status.HTTP_200_OK: openapi.Response("OK", schema=serializer_class),
-            status.HTTP_400_BAD_REQUEST: openapi.Response(
-                "Bad request", schema=FoutSerializer
-            ),
+            status.HTTP_200_OK: serializer_class,
+            status.HTTP_400_BAD_REQUEST: use_ref,
             **COMMON_ERROR_RESPONSES,
         },
     )
     @action(detail=True, methods=["post"])
     def publish(self, request, *args, **kwargs):
+        """
+        Publiceer het concept ZAAKTYPE.
+
+        Publiceren van het zaaktype zorgt ervoor dat dit in een Zaken API kan gebruikt
+        worden. Na het publiceren van een zaaktype zijn geen inhoudelijke wijzigingen
+        meer mogelijk - ook niet de statustypen, eigenschappen... etc. Indien er na het
+        publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie
+        aanmaken.
+        """
         instance = self.get_object()
 
         # check related objects

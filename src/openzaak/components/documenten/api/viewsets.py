@@ -20,12 +20,11 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewsetMixin,
 )
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
-from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.mixins import ConvertCMISAdapterExceptions
-from openzaak.utils.schema import COMMON_ERROR_RESPONSES
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -281,9 +280,7 @@ class EnkelvoudigInformatieObjectViewSet(
         request_body=LockEnkelvoudigInformatieObjectSerializer,
         responses={
             status.HTTP_200_OK: LockEnkelvoudigInformatieObjectSerializer,
-            status.HTTP_400_BAD_REQUEST: openapi.Response(
-                "Bad request", schema=FoutSerializer
-            ),
+            status.HTTP_400_BAD_REQUEST: use_ref,
             **COMMON_ERROR_RESPONSES,
         },
     )
@@ -304,9 +301,7 @@ class EnkelvoudigInformatieObjectViewSet(
         request_body=UnlockEnkelvoudigInformatieObjectSerializer,
         responses={
             status.HTTP_204_NO_CONTENT: openapi.Response("No content"),
-            status.HTTP_400_BAD_REQUEST: openapi.Response(
-                "Bad request", schema=FoutSerializer
-            ),
+            status.HTTP_400_BAD_REQUEST: use_ref,
             **COMMON_ERROR_RESPONSES,
         },
     )

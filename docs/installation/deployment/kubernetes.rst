@@ -26,6 +26,13 @@ determine your hardware requirements.
 
 .. _machine types: https://cloud.google.com/compute/docs/machine-types#n2_standard_machine_types
 
+.. note::
+    Head's up! If you're familiar with Helm_, there are community-provided Helm charts_
+    for Open Zaak and Open Notificaties!
+
+.. _Helm: https://helm.sh
+.. _charts: https://github.com/open-zaak/charts
+
 Assumed/required knowledge level of Kubernetes
 ==============================================
 
@@ -429,9 +436,9 @@ Make sure your ``kubectl`` command can access the correct cluster:
 
     (env) [user@host]$ kubectl cluster-info
 
-.. note:: 
+.. note::
 
-    You need access to the cluster for ``kubectl`` to work. With Google Cloud 
+    You need access to the cluster for ``kubectl`` to work. With Google Cloud
     you can get the proper configuration using the Google Cloud SDK:
 
     .. code-block:: shell
@@ -439,7 +446,7 @@ Make sure your ``kubectl`` command can access the correct cluster:
         (env) [user@host]$ gcloud container clusters get-credentials <cluster name> --region <region>
 
     For the proper authentication setup, you might need a service account. See
-    the 
+    the
     [Getting Started with Authentication on Google Cloud](https://cloud.google.com/docs/authentication/getting-started#command-line).
 
 

@@ -1,16 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
-from vng_api_common.serializers import FoutSerializer
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
-from openzaak.utils.schema import COMMON_ERROR_RESPONSES
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
@@ -70,6 +68,14 @@ class InformatieObjectTypeViewSet(
 
     Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een concept
     betreft.
+
+    publish:
+    Publiceer het concept INFORMATIEOBJECTTYPE.
+
+    Publiceren van het informatieobjecttype zorgt ervoor dat dit in een Documenten API
+    kan gebruikt worden. Na het publiceren van een informatieobjecttype zijn geen
+    inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren nog wat
+    gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
     """
 
     queryset = (
@@ -95,13 +101,11 @@ class InformatieObjectTypeViewSet(
     @swagger_auto_schema(
         request_body=no_body,
         responses={
-            status.HTTP_200_OK: openapi.Response("OK", schema=serializer_class),
-            status.HTTP_400_BAD_REQUEST: openapi.Response(
-                "Bad request", schema=FoutSerializer
-            ),
+            status.HTTP_200_OK: serializer_class,
+            status.HTTP_400_BAD_REQUEST: use_ref,
             **COMMON_ERROR_RESPONSES,
         },
     )
     @action(detail=True, methods=["post"])
-    def publish(self, request, *args, **kwargs):
-        return super().publish(request, *args, **kwargs)
+    def publish(self, *args, **kwargs):
+        return super()._publish(*args, **kwargs)
