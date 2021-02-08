@@ -57,7 +57,7 @@ freezegun==0.3.12         # via -r requirements/test-tools.in
 gemma-zds-client==0.13.0  # via -r requirements/base.txt, vng-api-common, zgw-consumers
 gitdb==4.0.5              # via -r requirements/base.txt, gitpython
 gitpython==3.1.7          # via -r requirements/base.txt
-httplib2==0.18.1          # via -r requirements/base.txt, cmislib-maykin
+httplib2==0.19.0          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
 importlib-metadata==3.1.1  # via flake8
