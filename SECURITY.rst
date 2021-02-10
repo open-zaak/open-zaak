@@ -56,9 +56,10 @@ handling of security issues.
    update their managed instances.
 
 9. The release and security vulnerability are communicated to the community. This
-   includes a message to the mailing list and announcements on the Common Ground Slack
+   includes a message to the `mailing list`_ and announcements on the Common Ground Slack
    and on `commonground.nl`_.
 
 
 .. _CVE identifier: https://cve.mitre.org/cve/identifiers/
+.. _mailing list: https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/
 .. _commonground.nl: https://commonground.nl
