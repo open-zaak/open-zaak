@@ -58,7 +58,7 @@ gemma-zds-client==0.13.0  # via -r requirements/base.txt, vng-api-common, zgw-co
 gitdb==4.0.5              # via -r requirements/base.txt, gitpython
 gitpython==3.1.7          # via -r requirements/base.txt
 httplib2==0.19.0          # via -r requirements/base.txt, cmislib-maykin
-humanize==0.5.1           # via -r requirements/base.txt
+humanize==3.2.0           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
 importlib-metadata==3.1.1  # via flake8
 inflection==0.3.1         # via -r requirements/base.txt, drf-yasg
@@ -111,3 +111,6 @@ webob==1.8.5              # via webtest
 webtest==2.0.33           # via django-webtest
 zgw-consumers==0.12.2     # via -r requirements/base.txt
 zipp==3.4.0               # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
