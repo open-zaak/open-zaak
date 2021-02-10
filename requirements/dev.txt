@@ -23,7 +23,7 @@ commonmark==0.9.1         # via recommonmark
 coreapi==2.3.3            # via -r requirements/ci.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/ci.txt, coreapi, drf-yasg
 coverage==4.5.4           # via -r requirements/ci.txt
-cryptography==3.2.1       # via -r requirements/ci.txt, ansible, django-auth-adfs
+cryptography==3.4.4       # via -r requirements/ci.txt, ansible, django-auth-adfs
 dictdiffer==0.8.0         # via -r requirements/ci.txt
 django-admin-index==1.2.2  # via -r requirements/ci.txt
 django-appconf==1.0.2     # via -r requirements/ci.txt, django-axes
@@ -70,7 +70,7 @@ gitdb==4.0.5              # via -r requirements/ci.txt, gitpython
 gitpython==3.1.7          # via -r requirements/ci.txt
 google-auth==1.21.2       # via kubernetes
 gprof2dot==2019.11.30     # via django-silk
-httplib2==0.18.1          # via -r requirements/ci.txt, cmislib-maykin
+httplib2==0.19.0          # via -r requirements/ci.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
@@ -105,7 +105,7 @@ pycparser==2.19           # via -r requirements/ci.txt, cffi
 pyflakes==2.2.0           # via -r requirements/ci.txt, flake8
 pygments==2.4.2           # via django-silk, sphinx, sphinx-tabs
 pyjwt==1.6.4              # via -r requirements/ci.txt, django-auth-adfs, gemma-zds-client, vng-api-common
-pyparsing==2.4.2          # via packaging
+pyparsing==2.4.7          # via -r requirements/ci.txt, httplib2, packaging
 pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.7.3    # via -r requirements/ci.txt, django-relativedelta, django-silk, faker, freezegun, kubernetes
 python-decouple==3.1      # via -r requirements/ci.txt, drc-cmis
@@ -123,7 +123,7 @@ rsa==4.6                  # via google-auth
 ruamel.yaml.clib==0.2.2   # via -r requirements/ci.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/ci.txt, drf-yasg, openshift
 sentry-sdk==0.16.5        # via -r requirements/ci.txt
-six==1.11.0               # via -r requirements/ci.txt, cmislib-maykin, cryptography, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, google-auth, isodate, jsonschema, kubernetes, openshift, packaging, pip-tools, python-dateutil, requests-mock, websocket-client, webtest
+six==1.11.0               # via -r requirements/ci.txt, cmislib-maykin, django-extensions, django-extra-views, django-markup, drf-yasg, faker, freezegun, google-auth, isodate, jsonschema, kubernetes, openshift, packaging, pip-tools, python-dateutil, requests-mock, websocket-client, webtest
 smmap==3.0.4              # via -r requirements/ci.txt, gitdb
 snowballstemmer==2.0.0    # via sphinx
 soupsieve==1.9.5          # via -r requirements/ci.txt, beautifulsoup4

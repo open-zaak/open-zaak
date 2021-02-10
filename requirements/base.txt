@@ -10,7 +10,7 @@ chardet==3.0.4            # via requests
 cmislib-maykin==0.7.4     # via drc-cmis
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
-cryptography==3.2.1       # via django-auth-adfs
+cryptography==3.4.4       # via django-auth-adfs
 dictdiffer==0.8.0         # via -r requirements/base.in
 django-admin-index==1.2.2  # via -r requirements/base.in
 django-appconf==1.0.2     # via django-axes
@@ -45,7 +45,7 @@ drf-yasg==1.16.0          # via -r requirements/base.in, vng-api-common
 gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
 gitdb==4.0.5              # via gitpython
 gitpython==3.1.7          # via -r requirements/base.in
-httplib2==0.18.1          # via cmislib-maykin
+httplib2==0.19.0          # via cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.in
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
@@ -62,6 +62,7 @@ oyaml==0.7                # via vng-api-common
 psycopg2==2.8.4           # via -r requirements/base.in
 pycparser==2.19           # via cffi
 pyjwt==1.6.4              # via django-auth-adfs, gemma-zds-client, vng-api-common
+pyparsing==2.4.7          # via httplib2
 python-dateutil==2.7.3    # via -r requirements/base.in, django-relativedelta
 python-decouple==3.1      # via -r requirements/base.in, drc-cmis
 python-dotenv==0.8.2      # via -r requirements/base.in
@@ -72,7 +73,7 @@ requests==2.21.0          # via -r requirements/base.in, coreapi, django-auth-ad
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
 ruamel.yaml==0.16.7       # via drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/base.in
-six==1.11.0               # via cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
+six==1.11.0               # via cmislib-maykin, django-extra-views, django-markup, drf-yasg, isodate, python-dateutil
 smmap==3.0.4              # via gitdb
 sqlparse==0.3.0           # via django
 unidecode==1.0.22         # via vng-api-common

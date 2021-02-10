@@ -16,7 +16,7 @@ cmislib-maykin==0.7.4     # via -r requirements/base.txt, drc-cmis
 coreapi==2.3.3            # via -r requirements/base.txt, drf-yasg
 coreschema==0.0.4         # via -r requirements/base.txt, coreapi, drf-yasg
 coverage==4.5.4           # via -r requirements/test-tools.in
-cryptography==3.2.1       # via -r requirements/base.txt, django-auth-adfs
+cryptography==3.4.4       # via -r requirements/base.txt, django-auth-adfs
 dictdiffer==0.8.0         # via -r requirements/base.txt
 django-admin-index==1.2.2  # via -r requirements/base.txt
 django-appconf==1.0.2     # via -r requirements/base.txt, django-axes
@@ -57,7 +57,7 @@ freezegun==0.3.12         # via -r requirements/test-tools.in
 gemma-zds-client==0.13.0  # via -r requirements/base.txt, vng-api-common, zgw-consumers
 gitdb==4.0.5              # via -r requirements/base.txt, gitpython
 gitpython==3.1.7          # via -r requirements/base.txt
-httplib2==0.18.1          # via -r requirements/base.txt, cmislib-maykin
+httplib2==0.19.0          # via -r requirements/base.txt, cmislib-maykin
 humanize==0.5.1           # via -r requirements/base.txt
 idna==2.6                 # via -r requirements/base.txt, requests
 importlib-metadata==3.1.1  # via flake8
@@ -80,6 +80,7 @@ pycodestyle==2.6.0        # via flake8
 pycparser==2.19           # via -r requirements/base.txt, cffi
 pyflakes==2.2.0           # via flake8
 pyjwt==1.6.4              # via -r requirements/base.txt, django-auth-adfs, gemma-zds-client, vng-api-common
+pyparsing==2.4.7          # via -r requirements/base.txt, httplib2
 python-dateutil==2.7.3    # via -r requirements/base.txt, django-relativedelta, faker, freezegun
 python-decouple==3.1      # via -r requirements/base.txt, drc-cmis
 python-dotenv==0.8.2      # via -r requirements/base.txt
@@ -92,7 +93,7 @@ requests==2.21.0          # via -r requirements/base.txt, coreapi, django-auth-a
 ruamel.yaml.clib==0.2.2   # via -r requirements/base.txt, ruamel.yaml
 ruamel.yaml==0.16.7       # via -r requirements/base.txt, drf-yasg
 sentry-sdk==0.16.5        # via -r requirements/base.txt
-six==1.11.0               # via -r requirements/base.txt, cmislib-maykin, cryptography, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, python-dateutil, requests-mock, webtest
+six==1.11.0               # via -r requirements/base.txt, cmislib-maykin, django-extra-views, django-markup, drf-yasg, faker, freezegun, isodate, python-dateutil, requests-mock, webtest
 smmap==3.0.4              # via -r requirements/base.txt, gitdb
 soupsieve==1.9.5          # via beautifulsoup4
 sqlparse==0.3.0           # via -r requirements/base.txt, django
