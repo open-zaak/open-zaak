@@ -73,7 +73,7 @@ markupsafe==1.1.1         # via -r requirements/base.txt, jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/base.txt
 mccabe==0.6.1             # via flake8
 nlx-url-rewriter==0.1.2   # via -r requirements/base.txt
-oyaml==0.7                # via -r requirements/base.txt, vng-api-common
+oyaml==1.0                # via -r requirements/base.txt, vng-api-common
 pathspec==0.8.0           # via black
 psycopg2==2.8.4           # via -r requirements/base.txt
 pycodestyle==2.6.0        # via flake8

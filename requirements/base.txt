@@ -58,7 +58,7 @@ markdown==3.0.1           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/base.in
 nlx-url-rewriter==0.1.2   # via -r requirements/base.in
-oyaml==0.7                # via vng-api-common
+oyaml==1.0                # via vng-api-common
 psycopg2==2.8.4           # via -r requirements/base.in
 pycparser==2.19           # via cffi
 pyjwt==1.6.4              # via django-auth-adfs, gemma-zds-client, vng-api-common
