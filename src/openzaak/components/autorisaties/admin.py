@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import admin
 from django.db import transaction
+from django.db.models import Exists, OuterRef
 from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
 from django.urls import path, reverse
@@ -156,13 +157,25 @@ class CredentialsInline(admin.TabularInline):
 
 @admin.register(Applicatie)
 class ApplicatieAdmin(admin.ModelAdmin):
-    list_display = ("uuid", "client_ids", "label", "heeft_alle_autorisaties")
+    list_display = (
+        "uuid",
+        "client_ids",
+        "label",
+        "heeft_alle_autorisaties",
+        "ready",
+        "hints",
+    )
     readonly_fields = ("uuid",)
     form = ApplicatieForm
     inlines = (
         CredentialsInline,
         AutorisatieInline,
     )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        autorisaties = Autorisatie.objects.filter(applicatie=OuterRef("pk"))
+        return qs.annotate(has_authorizations=Exists(autorisaties))
 
     def get_urls(self) -> list:
         urls = super().get_urls()
@@ -191,6 +204,32 @@ class ApplicatieAdmin(admin.ModelAdmin):
         secrets = JWTSecret.objects.filter(identifier__in=obj.client_ids)
         secrets.delete()
         super().delete_model(request, obj)
+
+    def ready(self, obj) -> bool:
+        return obj.heeft_alle_autorisaties ^ obj.has_authorizations
+
+    ready.short_description = _("Ready?")
+    ready.boolean = True
+
+    def hints(self, obj) -> str:
+        if self.ready(obj):
+            return ""
+
+        if obj.heeft_alle_autorisaties and obj.has_authorizations:
+            return _(
+                "An application must either have 'all permissions' checked, or have "
+                "explicit authorizations, but not both."
+            )
+
+        if not obj.heeft_alle_autorisaties and not obj.has_authorizations:
+            return _(
+                "An application must either have 'all permissions' checked, or have "
+                "explicit authorizations assigned. Nothing is set now."
+            )
+
+        return ""
+
+    hints.short_description = _("Hints")
 
 
 @admin.register(AutorisatieSpec)
