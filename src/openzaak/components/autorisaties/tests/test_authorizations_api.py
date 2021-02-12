@@ -329,7 +329,9 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         Retrieve THE application object, using a client ID as lookup.
         """
         url = get_operation_url("applicatie_consumer")
-        app = ApplicatieFactory.create(client_ids=["client id"])
+        app = ApplicatieFactory.create(
+            client_ids=["client id"], heeft_alle_autorisaties=True
+        )
 
         response = self.client.get(url, {"clientId": "client id"})
 
