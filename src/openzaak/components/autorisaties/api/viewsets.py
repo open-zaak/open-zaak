@@ -95,7 +95,13 @@ class ApplicatieViewSet(
     Na het verwijderen wordt een notificatie verstuurd.
     """
 
-    queryset = Applicatie.objects.prefetch_related("autorisaties").order_by("-pk")
+    queryset = (
+        Applicatie.objects.exclude(
+            heeft_alle_autorisaties=False, autorisaties__isnull=True
+        )
+        .prefetch_related("autorisaties")
+        .order_by("-pk")
+    )
     serializer_class = ApplicatieSerializer
     _filterset_class = ApplicatieFilter
     pagination_class = PageNumberPagination
