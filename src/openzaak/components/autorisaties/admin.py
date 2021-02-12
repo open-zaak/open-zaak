@@ -19,6 +19,7 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth
 
+from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
 from .models import AutorisatieSpec
@@ -164,6 +165,10 @@ class ApplicatieAdmin(admin.ModelAdmin):
         "heeft_alle_autorisaties",
         "ready",
         "hints",
+    )
+    list_filter = (
+        "heeft_alle_autorisaties",
+        InvalidApplicationsFilter,
     )
     readonly_fields = ("uuid",)
     form = ApplicatieForm
