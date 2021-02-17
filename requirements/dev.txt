@@ -71,7 +71,7 @@ gitpython==3.1.7          # via -r requirements/ci.txt
 google-auth==1.21.2       # via kubernetes
 gprof2dot==2019.11.30     # via django-silk
 httplib2==0.19.0          # via -r requirements/ci.txt, cmislib-maykin
-humanize==0.5.1           # via -r requirements/ci.txt
+humanize==3.2.0           # via -r requirements/ci.txt
 idna==2.6                 # via -r requirements/ci.txt, requests
 imagesize==1.1.0          # via sphinx
 importlib-metadata==3.1.1  # via -r requirements/ci.txt, flake8, jsonschema
@@ -92,7 +92,7 @@ mccabe==0.6.1             # via -r requirements/ci.txt, flake8
 nlx-url-rewriter==0.1.2   # via -r requirements/ci.txt
 oauthlib==3.1.0           # via requests-oauthlib
 openshift==0.11.2         # via -r requirements/../deployment/requirements.in
-oyaml==0.7                # via -r requirements/ci.txt, vng-api-common
+oyaml==1.0                # via -r requirements/ci.txt, vng-api-common
 packaging==19.2           # via sphinx
 passlib==1.7.2            # via -r requirements/../deployment/requirements.in
 pathspec==0.8.0           # via -r requirements/ci.txt, black

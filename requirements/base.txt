@@ -46,7 +46,7 @@ gemma-zds-client==0.13.0  # via vng-api-common, zgw-consumers
 gitdb==4.0.5              # via gitpython
 gitpython==3.1.7          # via -r requirements/base.in
 httplib2==0.19.0          # via cmislib-maykin
-humanize==0.5.1           # via -r requirements/base.in
+humanize==3.2.0           # via -r requirements/base.in
 idna==2.6                 # via requests
 inflection==0.3.1         # via drf-yasg
 iso-639==0.4.5            # via vng-api-common
@@ -58,7 +58,7 @@ markdown==3.0.1           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 maykin-django-better-admin-arrayfield==1.0.5  # via -r requirements/base.in
 nlx-url-rewriter==0.1.2   # via -r requirements/base.in
-oyaml==0.7                # via vng-api-common
+oyaml==1.0                # via vng-api-common
 psycopg2==2.8.4           # via -r requirements/base.in
 pycparser==2.19           # via cffi
 pyjwt==1.6.4              # via django-auth-adfs, gemma-zds-client, vng-api-common
@@ -82,3 +82,6 @@ urllib3==1.24.3           # via requests, sentry-sdk
 uwsgi==2.0.18             # via -r requirements/base.in
 vng-api-common==1.0.57    # via -r requirements/base.in, drc-cmis
 zgw-consumers==0.12.2     # via -r requirements/base.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
