@@ -60,7 +60,6 @@ class InformatieObjectType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model
     objects = SyncAutorisatieManager()
 
     class Meta:
-        unique_together = ("catalogus", "omschrijving")
         verbose_name = _("Informatieobjecttype")
         verbose_name_plural = _("Informatieobjecttypen")
 
