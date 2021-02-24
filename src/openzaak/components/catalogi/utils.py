@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 
-from .models import Catalogus, ZaakType, InformatieObjectType
+from .models import Catalogus, InformatieObjectType, ZaakType
 
 
 def get_overlapping_zaaktypes(

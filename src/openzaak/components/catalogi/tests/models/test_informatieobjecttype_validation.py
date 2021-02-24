@@ -1,6 +1,7 @@
-from django.test import TestCase
-
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
 from ..factories import CatalogusFactory, InformatieObjectTypeFactory
 
