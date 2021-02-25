@@ -15,7 +15,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
-from ...models import ZaakType
+from ...models import ZaakType, ZaakTypenRelatie
 from ..filters import ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
@@ -122,6 +122,17 @@ class ZaakTypeViewSet(
     }
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
+
+    def perform_update(self, serializer):
+
+        for zaaktypenrelaties in serializer.validated_data["zaaktypenrelaties"]:
+            # Delete any ZaakTypenRelatie so they can be recreated
+            ZaakTypenRelatie.objects.filter(
+                zaaktype=serializer.instance,
+                gerelateerd_zaaktype=zaaktypenrelaties["gerelateerd_zaaktype"],
+            ).delete()
+
+        super().perform_update(serializer)
 
     @swagger_auto_schema(
         request_body=no_body,
