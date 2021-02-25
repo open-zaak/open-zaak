@@ -125,12 +125,13 @@ class ZaakTypeViewSet(
 
     def perform_update(self, serializer):
 
-        for zaaktypenrelaties in serializer.validated_data["zaaktypenrelaties"]:
-            # Delete any ZaakTypenRelatie so they can be recreated
-            ZaakTypenRelatie.objects.filter(
-                zaaktype=serializer.instance,
-                gerelateerd_zaaktype=zaaktypenrelaties["gerelateerd_zaaktype"],
-            ).delete()
+        if not serializer.partial:
+            for zaaktypenrelaties in serializer.validated_data["zaaktypenrelaties"]:
+                # Delete any ZaakTypenRelatie so they can be recreated
+                ZaakTypenRelatie.objects.filter(
+                    zaaktype=serializer.instance,
+                    gerelateerd_zaaktype=zaaktypenrelaties["gerelateerd_zaaktype"],
+                ).delete()
 
         super().perform_update(serializer)
 
