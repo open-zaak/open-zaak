@@ -46,6 +46,7 @@ COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 # Stage 3.2 - Copy source code
 WORKDIR /app
 COPY ./bin/docker_start.sh /start.sh
+COPY ./bin/create_superuser.sh /create_superuser.sh
 RUN mkdir /app/log /app/config
 
 COPY ./config /app/config
