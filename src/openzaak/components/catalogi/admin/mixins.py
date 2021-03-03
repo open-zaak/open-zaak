@@ -15,9 +15,16 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
+from rest_framework.settings import api_settings
+
 from openzaak.utils.admin import ExtraContextAdminMixin
 
-from ..models import Catalogus, InformatieObjectType, ZaakType
+from ..api.viewsets import (
+    BesluitTypeViewSet,
+    InformatieObjectTypeViewSet,
+    ZaakTypeViewSet,
+)
+from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
 
@@ -410,3 +417,25 @@ class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
         if not obj:
             return True
         return obj.zaaktype.concept
+
+
+class NotificationMixin:
+    def save_model(self, request, obj, form, change):
+        if isinstance(obj, ZaakType):
+            viewset = ZaakTypeViewSet()
+        elif isinstance(obj, InformatieObjectType):
+            viewset = InformatieObjectTypeViewSet()
+        elif isinstance(obj, BesluitType):
+            viewset = BesluitTypeViewSet()
+
+        scheme = api_settings.DEFAULT_VERSIONING_CLASS()
+        request.version, request.versioning_scheme = (
+            scheme.determine_version(request, version=api_settings.DEFAULT_VERSION),
+            scheme,
+        )
+
+        viewset.action = "update"
+        data = viewset.serializer_class(obj, context={"request": request}).data
+        viewset.notify(status_code=200, data=data, instance=obj)
+
+        super().save_model(request, obj, form, change)
