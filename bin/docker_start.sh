@@ -37,6 +37,9 @@ if [ -d $fixtures_dir ]; then
     done
 fi
 
+# Create superuser
+/create_superuser.sh admin admin@admin.org admin
+
 # Start server
 >&2 echo "Starting server"
 uwsgi \
