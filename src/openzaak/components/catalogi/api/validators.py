@@ -389,6 +389,15 @@ class ConceptUpdateValidator:
             raise ValidationError(self.message, code=self.code)
 
 
+class VerlengingsValidator:
+    message = _("Verlengingstermijn must be set if verlengingMogelijk is true")
+    code = "verlenging-mismatch"
+
+    def __call__(self, attrs):
+        if attrs.get("verlenging_mogelijk") and not attrs.get("verlengingstermijn"):
+            raise ValidationError(self.message, code=self.code)
+
+
 class ZaakTypeConceptValidator:
     """
     Validator that checks for related non-concept zaaktype when doing
