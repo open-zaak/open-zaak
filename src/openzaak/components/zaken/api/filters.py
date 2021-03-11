@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from urllib.parse import urlparse
+
+from django.conf import settings
+
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
+from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
@@ -123,8 +128,36 @@ class ResultaatFilter(FilterSet):
         fields = ("zaak", "resultaattype")
 
 
+class FkOrUrlOrCMISFieldFilter(FkOrUrlFieldFilter):
+    def filter(self, qs, value):
+        if not value:
+            return qs
+
+        parsed = urlparse(value)
+        host = self.parent.request.get_host()
+
+        local = parsed.netloc == host
+        if settings.CMIS_ENABLED:
+            local = False
+
+        # introspect field to build filter
+        model_field = self.model._meta.get_field(self.field_name)
+
+        if local:
+            local_object = get_resource_for_path(parsed.path)
+            if self.instance_path:
+                for bit in self.instance_path.split("."):
+                    local_object = getattr(local_object, bit)
+            filters = {f"{model_field.fk_field}__{self.lookup_expr}": local_object}
+        else:
+            filters = {f"{model_field.url_field}__{self.lookup_expr}": value}
+
+        qs = self.get_method(qs)(**filters)
+        return qs.distinct() if self.distinct else qs
+
+
 class ZaakInformatieObjectFilter(FilterSet):
-    informatieobject = FkOrUrlFieldFilter(
+    informatieobject = FkOrUrlOrCMISFieldFilter(
         queryset=ZaakInformatieObject.objects.all(),
         instance_path="canonical",
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
