@@ -15,6 +15,7 @@ contribute!
    principles
    releasing
    performance/index
+   security
 
 If you're looking for developer documentation as an Open Zaak *client*, head over to
 :ref:`client-development`!
