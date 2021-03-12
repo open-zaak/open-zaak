@@ -15,7 +15,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
-from ...models import ZaakType, ZaakTypenRelatie
+from ...models import ZaakType
 from ..filters import ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
