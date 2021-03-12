@@ -6,9 +6,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from djchoices import ChoiceItem, DjangoChoices
 
 from django_filters import rest_framework as filters
+from djchoices import ChoiceItem, DjangoChoices
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_resource_for_path
 
