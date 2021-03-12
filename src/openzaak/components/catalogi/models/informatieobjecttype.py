@@ -83,7 +83,7 @@ class InformatieObjectType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model
                 self,
             )
 
-            # regel voor zaaktype omschrijving
+            # regel voor informatieobjecttype omschrijving
             if query.exists():
                 raise ValidationError(
                     "Informatieobjecttype versies (dezelfde omschrijving) mogen geen "
