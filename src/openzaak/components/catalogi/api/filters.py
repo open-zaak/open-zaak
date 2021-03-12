@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from djchoices import ChoiceItem, DjangoChoices
 
 from django_filters import rest_framework as filters
 from vng_api_common.filtersets import FilterSet
@@ -30,23 +31,19 @@ STATUS_HELP_TEXT = """filter objects depending on their concept status:
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 """
 
-ALLES = "alles"
-DEFINITIEF = "definitief"
-CONCEPT = "concept"
 
-STATUS_CHOICES = (
-    (ALLES, "Alles"),
-    (DEFINITIEF, "Definitief"),
-    (CONCEPT, "Concept"),
-)
+class StatusChoices(DjangoChoices):
+    alles = ChoiceItem("alles", _("Alles"))
+    definitief = ChoiceItem("definitief", _("Definitief"))
+    concept = ChoiceItem("concept", _("Concept"))
 
 
 def status_filter(queryset, name, value):
-    if value == CONCEPT:
+    if value == StatusChoices.concept:
         return queryset.filter(**{name: True})
-    elif value == DEFINITIEF:
+    elif value == StatusChoices.definitief:
         return queryset.filter(**{name: False})
-    elif value == ALLES:
+    elif value == StatusChoices.alles:
         return queryset
 
 
@@ -69,7 +66,7 @@ class RolTypeFilter(FilterSet):
         field_name="zaaktype__concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -107,7 +104,7 @@ class ResultaatTypeFilter(FilterSet):
         field_name="zaaktype__concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -120,7 +117,7 @@ class StatusTypeFilter(FilterSet):
         field_name="zaaktype__concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -133,7 +130,7 @@ class EigenschapFilter(FilterSet):
         field_name="zaaktype__concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -146,7 +143,7 @@ class ZaakTypeFilter(FilterSet):
         field_name="concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
 
@@ -160,7 +157,7 @@ class InformatieObjectTypeFilter(FilterSet):
         field_name="concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -190,7 +187,7 @@ class BesluitTypeFilter(FilterSet):
         field_name="concept",
         method=status_filter,
         help_text=STATUS_HELP_TEXT,
-        choices=STATUS_CHOICES,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
