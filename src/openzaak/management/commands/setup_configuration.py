@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import string
 import random
+import string
 from argparse import RawTextHelpFormatter
 
 from django.contrib.sites.models import Site
@@ -16,9 +16,8 @@ from vng_api_common.notifications.constants import (
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
 from vng_api_common.notifications.models import NotificationsConfig
-
-from zgw_consumers.models import Service
 from zgw_consumers.constants import AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 
@@ -87,15 +86,17 @@ class Command(BaseCommand):
             # Step 2
             # This service should be created in migration
             #   0002_move_config_to_service_model
-            service = Service.objects.get(label='Notificaties API')
+            service = Service.objects.get(label="Notificaties API")
             service.api_root = notifications_api_root
             service.auth_type = AuthTypes.zgw
-            random_client_id = f'open-zaak-{"".join(random.choices(string.ascii_letters, k=10))}'
+            random_client_id = (
+                f'open-zaak-{"".join(random.choices(string.ascii_letters, k=10))}'
+            )
             random_secret = "".join(random.choices(string.ascii_letters, k=10))
             service.client_id = random_client_id
             service.secret = random_secret
-            service.user_id = 'open-zaak'
-            service.user_representation = 'Open Zaak'
+            service.user_id = "open-zaak"
+            service.user_representation = "Open Zaak"
             service.save()
 
             # Step 3
@@ -145,8 +146,10 @@ class Command(BaseCommand):
                 )
             )
 
-            self.stdout.write(f"Notificaties API Service configured with client_id {random_client_id} "
-                              f"and secret {random_secret}.  Use this to configure your Open Notifications instance.")
+            self.stdout.write(
+                f"Notificaties API Service configured with client_id {random_client_id} "
+                f"and secret {random_secret}.  Use this to configure your Open Notifications instance."
+            )
         except Exception as e:
             raise CommandError(
                 f"Something went wrong while setting up initial configuration: {e}"
