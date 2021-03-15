@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib.auth.models import Permission
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
+from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
@@ -16,6 +17,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_list,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils.tests import ClearCachesMixin
 
 from ..factories import (
@@ -45,6 +47,7 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         self.app.set_user(self.user)
 
+    @override_settings(NOTIFICATIONS_DISABLED=False)
     def test_publish_zaaktype(self, m):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -53,6 +56,10 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
 
         zaaktype = ZaakTypeFactory.create(
             concept=True,
@@ -76,7 +83,8 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         form = response.forms["zaaktype_form"]
 
-        response = form.submit("_publish").follow()
+        with capture_on_commit_callbacks(execute=True):
+            response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -86,6 +94,12 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
             "input", {"name": "_publish", "disabled": "disabled"}
         )
         self.assertIsNotNone(publish_button)
+
+        # Verify notification is sent
+        called_urls = [item.url for item in m.request_history]
+        self.assertIn(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        )
 
     def test_publish_besluittype(self, m):
         besluittype = BesluitTypeFactory.create(concept=True)

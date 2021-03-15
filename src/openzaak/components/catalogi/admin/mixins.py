@@ -431,10 +431,10 @@ class NotificationMixin:
         viewset = viewset_cls()
 
         send_notification = False
-        if not obj.pk:
+        if not obj.pk or "_addversion" in request.POST:
             send_notification = True
             viewset.action = "create"
-        elif form.has_changed():
+        elif form.has_changed() or "_publish" in request.POST:
             send_notification = True
             viewset.action = "update"
 
