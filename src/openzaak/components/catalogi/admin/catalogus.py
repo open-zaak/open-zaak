@@ -5,8 +5,6 @@ from django.contrib import admin
 from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework.settings import api_settings
-
 from openzaak.utils.admin import (
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
@@ -14,11 +12,6 @@ from openzaak.utils.admin import (
     link_to_related_objects,
 )
 
-from ..api.viewsets import (
-    BesluitTypeViewSet,
-    InformatieObjectTypeViewSet,
-    ZaakTypeViewSet,
-)
 from ..models import (
     BesluitType,
     Catalogus,
@@ -164,40 +157,3 @@ class CatalogusAdmin(
             link_to_related_objects(BesluitType, obj),
             link_to_related_objects(InformatieObjectType, obj),
         )
-
-    def save_model(self, request, obj, form, change):
-
-        besluittype_viewset = BesluitTypeViewSet()
-        besluittype_viewset.action = "update"
-        informatieobjecttype_viewset = InformatieObjectTypeViewSet()
-        informatieobjecttype_viewset.action = "update"
-        zaaktype_viewset = ZaakTypeViewSet()
-        zaaktype_viewset.action = "update"
-
-        scheme = api_settings.DEFAULT_VERSIONING_CLASS()
-        request.version, request.versioning_scheme = (
-            scheme.determine_version(request, version=api_settings.DEFAULT_VERSION),
-            scheme,
-        )
-
-        for besluittype in obj.besluittype_set.all():
-            data = besluittype_viewset.serializer_class(
-                besluittype, context={"request": request}
-            ).data
-            besluittype_viewset.notify(status_code=200, data=data, instance=besluittype)
-
-        for informatieobjecttype in obj.informatieobjecttype_set.all():
-            data = informatieobjecttype_viewset.serializer_class(
-                informatieobjecttype, context={"request": request}
-            ).data
-            informatieobjecttype_viewset.notify(
-                status_code=200, data=data, instance=informatieobjecttype
-            )
-
-        for zaaktype in obj.zaaktype_set.all():
-            data = zaaktype_viewset.serializer_class(
-                zaaktype, context={"request": request}
-            ).data
-            zaaktype_viewset.notify(status_code=200, data=data, instance=zaaktype)
-
-        return super().save_model(request, obj, form, change)

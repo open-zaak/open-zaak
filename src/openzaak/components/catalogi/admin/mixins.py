@@ -15,7 +15,7 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
-from rest_framework.settings import api_settings
+from rest_framework.request import Request
 
 from openzaak.utils.admin import ExtraContextAdminMixin
 
@@ -27,6 +27,12 @@ from ..api.viewsets import (
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
+
+VIEWSET_FOR_MODEL = {
+    ZaakType: ZaakTypeViewSet,
+    InformatieObjectType: InformatieObjectTypeViewSet,
+    BesluitType: BesluitTypeViewSet,
+}
 
 
 class GeldigheidAdminMixin(object):
@@ -421,21 +427,28 @@ class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
 
 class NotificationMixin:
     def save_model(self, request, obj, form, change):
-        if isinstance(obj, ZaakType):
-            viewset = ZaakTypeViewSet()
-        elif isinstance(obj, InformatieObjectType):
-            viewset = InformatieObjectTypeViewSet()
-        elif isinstance(obj, BesluitType):
-            viewset = BesluitTypeViewSet()
+        viewset_cls = VIEWSET_FOR_MODEL[type(obj)]
+        viewset = viewset_cls()
 
-        scheme = api_settings.DEFAULT_VERSIONING_CLASS()
-        request.version, request.versioning_scheme = (
-            scheme.determine_version(request, version=api_settings.DEFAULT_VERSION),
-            scheme,
-        )
+        send_notification = False
+        if not obj.pk:
+            send_notification = True
+            viewset.action = "create"
+        elif form.has_changed():
+            send_notification = True
+            viewset.action = "update"
 
-        viewset.action = "update"
-        data = viewset.serializer_class(obj, context={"request": request}).data
-        viewset.notify(status_code=200, data=data, instance=obj)
+        if send_notification:
+            context_request = Request(request)
+            (
+                context_request.version,
+                context_request.versioning_scheme,
+            ) = viewset.determine_version(context_request)
+
+            data = viewset.serializer_class(
+                obj, context={"request": context_request}
+            ).data
+
+            viewset.notify(status_code=200, data=data, instance=obj)
 
         super().save_model(request, obj, form, change)
