@@ -133,15 +133,15 @@ Any code, documentation and tests MAY have a translation. |
 
 ## [Use open standards](https://standard.publiccode.net/criteria/open-standards.html)
 
-- [ ] compliant with this criterion.
+- [x] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
-For features of a codebase that facilitate the exchange of data the codebase MUST use an open standard that meets the Open Source Initiative Open Standard Requirements. | | check with VNG
-If no existing open standard is available, effort SHOULD be put into developing one. |
+For features of a codebase that facilitate the exchange of data the codebase MUST use an open standard that meets the Open Source Initiative Open Standard Requirements. | yes | The [Zaakgericht Werken in het Gemeentelijk Gegevenslandschap](https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf) meets the 5 criteria of the [Open Standards Requirement for Software](https://opensource.org/osr)
+If no existing open standard is available, effort SHOULD be put into developing one. | n/a |
 Standards that are machine testable SHOULD be preferred over those that are not. | yes | see test suite
 Functionality using features from a non-open standard (one that doesn’t meet the Open Source  Initiative Open Standard Requirements) MAY be provided if necessary, but only in addition to compliant features. |
-All non-compliant standards used MUST be recorded clearly in the documentation. | | (Will update docs after VNG discussion.)
+All non-compliant standards used MUST be recorded clearly in the documentation. | n/a |
 The codebase SHOULD contain a list of all the standards used with links to where they are available. | yes |
 
 ## [Use continuous integration](https://standard.publiccode.net/criteria/continuous-integration.html)
