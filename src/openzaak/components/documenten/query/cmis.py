@@ -15,7 +15,6 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
-from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
@@ -524,15 +523,16 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
 
         content = kwargs.pop("inhoud", None)
 
-        try:
+        document_uuid = kwargs.get("uuid")
+        if document_uuid:
             # Needed because the API calls the create function for an update request
             new_cmis_document = self.cmis_client.update_document(
-                drc_uuid=kwargs.get("uuid"),
+                drc_uuid=document_uuid,
                 lock=kwargs.get("lock"),
                 data=kwargs,
                 content=content,
             )
-        except exceptions.DocumentDoesNotExistError:
+        else:
             kwargs.setdefault("versie", "1")
             new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
