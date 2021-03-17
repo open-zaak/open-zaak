@@ -1086,3 +1086,12 @@ def get_zaak_and_zaaktype_data(
         return model_to_dict(zaak), model_to_dict(zaaktype)
 
     return None, None
+
+
+def flatten_gegevens_groep(group_details: dict, group_name: str) -> dict:
+    unpacked_group = {}
+    for key, value in group_details.items():
+        new_property_name = f"{group_name}_{key}"
+        unpacked_group[new_property_name] = value
+
+    return unpacked_group
