@@ -100,6 +100,18 @@ jobs:
       - name: Build and test docs
         run: cd docs && pytest check_sphinx.py -v --tb=auto
 
+  check_requirements:
+    runs-on: ubuntu-latest
+    name: Check requirements files
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Check requirements
+        run: bin/check_requirements.sh
+
   docker:
     runs-on: ubuntu-latest
     name: Docker image build
