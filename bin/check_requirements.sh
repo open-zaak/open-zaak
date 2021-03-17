@@ -2,7 +2,11 @@
 
 echo "Checking requirements"
 
-/bin/bash ./bin/compile_dependencies.sh >/dev/null 2>&1
+/bin/bash ./bin/compile_dependencies.sh
+
+echo "---- Diff command ----"
+git diff --exit-code requirements/*.txt
+echo "---- Diff command ----"
 
 # Check if any requirements files have changed
 CHANGED=$(git diff --exit-code requirements/*.txt)
