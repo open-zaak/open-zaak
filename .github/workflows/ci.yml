@@ -111,6 +111,8 @@ jobs:
           python-version: '3.7'
       - name: Install dependencies
         run: pip install -r requirements/dev.txt
+      - name: Check dependencies
+        run: pip list
       - name: Check requirements
         run: bin/check_requirements.sh
 
