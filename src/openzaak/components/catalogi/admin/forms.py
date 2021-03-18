@@ -51,6 +51,35 @@ class ZaakTypeForm(forms.ModelForm):
             return
         self.fields[field].widget.required = True
 
+    def has_changed(self):
+        # Since Django thinks the below fields are always changed we
+        #   need to manually check them ourselves
+
+        for field in [
+            "initial-producten_of_diensten",
+            "initial-verantwoordingsrelatie",
+            "initial-trefwoorden",
+            "selectielijst_procestype_jaar",
+        ]:
+            if self.data[field] != str(
+                getattr(self.instance, field.replace("initial-", ""))
+            ):
+                return True
+
+        changed_data = [
+            data
+            for data in self.changed_data
+            if data
+            not in (
+                "trefwoorden",
+                "producten_of_diensten",
+                "verantwoordingsrelatie",
+                "selectielijst_procestype_jaar",
+            )
+        ]
+
+        return bool(changed_data)
+
     def clean(self):
         super().clean()
 

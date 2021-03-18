@@ -16,6 +16,7 @@ from .forms import ZaakTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
+    NotificationMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
     ReadOnlyPublishedParentMixin,
@@ -73,6 +74,7 @@ class InformatieObjectTypeAdmin(
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
     PublishAdminMixin,
+    NotificationMixin,
     admin.ModelAdmin,
 ):
     list_display = (
