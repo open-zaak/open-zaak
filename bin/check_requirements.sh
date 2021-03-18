@@ -4,9 +4,13 @@ echo "Checking requirements"
 
 /bin/bash ./bin/compile_dependencies.sh
 
-echo "---- Diff command ----"
+echo "------------------------------------"
+echo "----------- Diff command -----------"
+echo "------------------------------------"
 git diff --exit-code requirements/*.txt
-echo "---- Diff command ----"
+echo "------------------------------------"
+echo "----------- End Diff command -----------"
+echo "------------------------------------"
 
 # Check if any requirements files have changed
 CHANGED=$(git diff --exit-code requirements/*.txt)
