@@ -80,6 +80,17 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
+    def test_filter_with_invalid_status_query_param(self):
+        EigenschapFactory.create(zaaktype__concept=False)
+
+        url = f"{reverse(Eigenschap)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")
+
 
 class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -105,6 +116,18 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
+    def test_filter_with_invalid_status_query_param(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype.zaaktypen.clear()
+
+        url = f"{reverse(InformatieObjectType)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")
+
 
 class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -128,6 +151,17 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
 
+    def test_filter_with_invalid_status_query_param(self):
+        ResultaatTypeFactory.create(zaaktype__concept=False)
+
+        url = f"{reverse(ResultaatType)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")
+
 
 class RolTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -148,6 +182,17 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
+
+    def test_filter_with_invalid_status_query_param(self):
+        RolTypeFactory.create(zaaktype__concept=False)
+
+        url = f"{reverse(RolType)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")
 
 
 class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
@@ -171,6 +216,17 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
+
+    def test_filter_with_invalid_status_query_param(self):
+        StatusTypeFactory.create(zaaktype__concept=False)
+
+        url = f"{reverse(StatusType)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")
 
 
 class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
@@ -229,3 +285,15 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
+
+    def test_filter_with_invalid_status_query_param(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype.informatieobjecttypen.clear()
+
+        url = f"{reverse(ZaakType)}?status=alle"
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid_choice")

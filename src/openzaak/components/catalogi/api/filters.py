@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
+from djchoices import ChoiceItem, DjangoChoices
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_resource_for_path
 
@@ -31,12 +32,18 @@ STATUS_HELP_TEXT = """filter objects depending on their concept status:
 """
 
 
+class StatusChoices(DjangoChoices):
+    alles = ChoiceItem("alles", _("Alles"))
+    definitief = ChoiceItem("definitief", _("Definitief"))
+    concept = ChoiceItem("concept", _("Concept"))
+
+
 def status_filter(queryset, name, value):
-    if value == "concept":
+    if value == StatusChoices.concept:
         return queryset.filter(**{name: True})
-    elif value == "definitief":
+    elif value == StatusChoices.definitief:
         return queryset.filter(**{name: False})
-    elif value == "alles":
+    elif value == StatusChoices.alles:
         return queryset
 
 
@@ -55,8 +62,11 @@ class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
 
 
 class RolTypeFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="zaaktype__concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="zaaktype__concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -90,8 +100,11 @@ class ZaakTypeInformatieObjectTypeFilter(FilterSet):
 
 
 class ResultaatTypeFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="zaaktype__concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="zaaktype__concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -100,8 +113,11 @@ class ResultaatTypeFilter(FilterSet):
 
 
 class StatusTypeFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="zaaktype__concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="zaaktype__concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -110,8 +126,11 @@ class StatusTypeFilter(FilterSet):
 
 
 class EigenschapFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="zaaktype__concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="zaaktype__concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -120,8 +139,11 @@ class EigenschapFilter(FilterSet):
 
 
 class ZaakTypeFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
 
@@ -131,8 +153,11 @@ class ZaakTypeFilter(FilterSet):
 
 
 class InformatieObjectTypeFilter(FilterSet):
-    status = filters.CharFilter(
-        field_name="concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
@@ -158,8 +183,11 @@ class BesluitTypeFilter(FilterSet):
         ),
         validators=[URLValidator()],
     )
-    status = filters.CharFilter(
-        field_name="concept", method=status_filter, help_text=STATUS_HELP_TEXT
+    status = filters.ChoiceFilter(
+        field_name="concept",
+        method=status_filter,
+        help_text=STATUS_HELP_TEXT,
+        choices=StatusChoices.choices,
     )
 
     class Meta:
