@@ -528,7 +528,7 @@ urllib3==1.24.3
     #   kubernetes
     #   requests
     #   sentry-sdk
-uwsgi==2.0.18
+uwsgi==2.0.19.1
     # via -r requirements/ci.txt
 vng-api-common==1.0.57
     # via

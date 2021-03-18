@@ -236,7 +236,7 @@ urllib3==1.24.3
     # via
     #   requests
     #   sentry-sdk
-uwsgi==2.0.18
+uwsgi==2.0.19.1
     # via -r requirements/base.in
 vng-api-common==1.0.57
     # via
