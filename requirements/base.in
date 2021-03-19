@@ -8,6 +8,7 @@ python-decouple  # processing of envvar configs
 requests
 nlx-url-rewriter
 zgw-consumers
+self-certifi
 
 # Framework libraries
 django

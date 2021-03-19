@@ -16,6 +16,7 @@ certifi==2018.4.16
     # via
     #   -r requirements/base.txt
     #   requests
+    #   self-certifi
     #   sentry-sdk
 cffi==1.13.2
     # via
@@ -318,6 +319,8 @@ ruamel.yaml==0.16.7
     # via
     #   -r requirements/base.txt
     #   drf-yasg
+self-certifi==1.0.0
+    # via -r requirements/base.txt
 sentry-sdk==0.16.5
     # via -r requirements/base.txt
 six==1.11.0

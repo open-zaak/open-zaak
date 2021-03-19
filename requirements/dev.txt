@@ -36,6 +36,7 @@ certifi==2018.4.16
     #   -r requirements/ci.txt
     #   kubernetes
     #   requests
+    #   self-certifi
     #   sentry-sdk
 cffi==1.13.2
     # via
@@ -436,6 +437,8 @@ ruamel.yaml==0.16.7
     #   -r requirements/ci.txt
     #   drf-yasg
     #   openshift
+self-certifi==1.0.0
+    # via -r requirements/ci.txt
 sentry-sdk==0.16.5
     # via -r requirements/ci.txt
 six==1.11.0
