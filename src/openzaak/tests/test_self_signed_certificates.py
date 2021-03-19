@@ -18,6 +18,8 @@ from django.conf import settings
 
 import requests
 
+from openzaak.setup import EXTRA_CERTS_ENVVAR, load_self_signed_certs
+
 CERTS_DIR = os.path.join(settings.BASE_DIR, "certs")
 
 HOST = "localhost:9001"
@@ -44,13 +46,18 @@ class SelfSignedCertificateTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        # TODO: run initialization
+        cls._original_certs = os.environ.get(EXTRA_CERTS_ENVVAR)
+        os.environ[EXTRA_CERTS_ENVVAR] = cls.root_cert
+        load_self_signed_certs()
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
-        # TODO: undo initialization
+        if cls._original_certs is None:
+            del os.environ[EXTRA_CERTS_ENVVAR]
+        else:
+            os.environ[EXTRA_CERTS_ENVVAR] = cls._original_certs
 
     @skipIf(not can_connect(HOST), "Can't connect to host")
     def test_self_signed_ok(self):

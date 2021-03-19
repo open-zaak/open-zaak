@@ -12,8 +12,13 @@ they are available for Django settings initialization.
     before Django is initialized.
 """
 import os
+import shutil
+import tempfile
 
+import certifi
 from dotenv import load_dotenv
+
+EXTRA_CERTS_ENVVAR = "EXTRA_VERIFY_CERTS"
 
 
 def setup_env():
@@ -22,3 +27,37 @@ def setup_env():
     load_dotenv(dotenv_path)
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openzaak.conf.dev")
+
+    load_self_signed_certs()
+
+
+def load_self_signed_certs() -> None:
+    paths = os.environ.get(EXTRA_CERTS_ENVVAR, "")
+    if not paths:
+        return
+
+    if "REQUESTS_CA_BUNDLE" in os.environ:
+        raise ValueError(
+            f"'{EXTRA_CERTS_ENVVAR}' and 'REQUESTS_CA_BUNDLE' conflict with each other."
+        )
+
+    # create target directory for resulting combined certificate file
+    target_dir = tempfile.mkdtemp()
+
+    # collect all extra certificates
+    certs = []
+    for path in paths.split(","):
+        with open(path, "r") as certfile:
+            certs.append(certfile.read())
+
+    # copy certifi bundle to target_dir
+    source = certifi.where()
+    target = os.path.join(target_dir, os.path.basename(source))
+    shutil.copy(source, target)
+
+    with open(target, "a") as outfile:
+        outfile.write("\n# Extra (self-signed) trusted certificates\n")
+        outfile.write("\n\n".join(certs))
+
+    # finally, set the REQUESTS_CA_BUNDLE environment variable
+    os.environ["REQUESTS_CA_BUNDLE"] = target
