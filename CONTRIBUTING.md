@@ -29,7 +29,7 @@ On your local machine, create a new branch, and name it like:
 Once you have made changes or additions to the code, you can commit them (try to keep the commit message descriptive but short). If an issue exists in the [Open Zaak issue list](https://github.com/open-zaak/open-zaak/issues/) for the changes you made, be sure to format your commit message like `"Fixes #<issue_id> -- description of changes made`, where `<issue_id>"` corresponds to the number of the issue on GitHub. To demonstrate that the changes implement the new feature/fix the issue, make sure to also add tests to the existing Django testsuite.
 
 ### Making a pull request
-If all changes have been committed, you can push the branch to your fork of the repository and create a pull request to the `master` branch of the Open Zaak repository. Your pull request will be reviewed, if applicable feedback will be given and if everything is approved, it will be merged.
+If all changes have been committed, you can push the branch to your fork of the repository and create a pull request to the `main` branch of the Open Zaak repository. Your pull request will be reviewed, if applicable feedback will be given and if everything is approved, it will be merged.
 
 ### Reviews on releases
 

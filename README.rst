@@ -107,7 +107,7 @@ Licensed under the EUPL_
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/master/graphs/badge.svg?branch=master
+.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main
     :alt: Coverage
     :target: https://codecov.io/gh/open-zaak/open-zaak
 

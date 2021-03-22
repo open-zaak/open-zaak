@@ -4,7 +4,7 @@ name: Run CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
   pull_request:
@@ -113,7 +113,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
           echo ::set-output name=git_hash::${GITHUB_SHA}
@@ -160,7 +160,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
       - name: Load image
@@ -201,7 +201,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
 
