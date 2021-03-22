@@ -30,10 +30,26 @@ openssl x509 -req -sha256 -days 1095 -in openzaak.csr -signkey openzaak.key -out
 
 # server certificate
 openssl ecparam -out mocks.key -name prime256v1 -genkey
-openssl req -new -sha256 -key mocks.key -out mocks.csr
+openssl req \
+    -new \
+    -sha256 \
+    -key mocks.key \
+    -out mocks.csr \
+    -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nsubjectAltName=DNS:localhost")) \
+    -reqexts SAN
 
 # sign the certificate with the root CA
-openssl x509 -req -in mocks.csr -CA openzaak.crt -CAkey openzaak.key -CAcreateserial -out mocks.crt -days 1095 -sha256
+openssl x509 \
+    -req \
+    -in mocks.csr \
+    -CA openzaak.crt \
+    -CAkey openzaak.key \
+    -CAcreateserial \
+    -out mocks.crt \
+    -days 1095 \
+    -sha256 \
+    -extfile <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nsubjectAltName=DNS:localhost")) \
+    -extensions SAN
 ```
 
 Note that the certificate expires after about 3 years.
