@@ -2016,7 +2016,6 @@
     },
     "definitions": {
         "Ondertekening": {
-            "title": "ondertekening",
             "description": "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter vaststelling' heeft.",
             "required": [
                 "soort",
@@ -2044,7 +2043,6 @@
             "x-nullable": true
         },
         "Integriteit": {
-            "title": "integriteit",
             "description": "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand.",
             "required": [
                 "algoritme",
@@ -2577,7 +2575,6 @@
             }
         },
         "Wijzigingen": {
-            "title": "Wijzigingen",
             "type": "object",
             "properties": {
                 "oud": {

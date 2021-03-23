@@ -3529,7 +3529,6 @@ components:
       discriminator:
         propertyName: betrokkeneType
     VerblijfsAdres:
-      title: Verblijfsadres
       required:
       - aoaIdentificatie
       - wplWoonplaatsNaam
@@ -3576,8 +3575,8 @@ components:
           title: Inp locatiebeschrijving
           type: string
           maxLength: 1000
+      nullable: true
     SubVerblijfBuitenland:
-      title: Sub verblijf buitenland
       required:
       - lndLandcode
       - lndLandnaam
@@ -3597,20 +3596,20 @@ components:
           type: string
           maxLength: 40
           minLength: 1
-        subAdresBuitenland_1:
+        subAdresBuitenland1:
           title: Sub adres buitenland 1
           type: string
           maxLength: 35
-        subAdresBuitenland_2:
+        subAdresBuitenland2:
           title: Sub adres buitenland 2
           type: string
           maxLength: 35
-        subAdresBuitenland_3:
+        subAdresBuitenland3:
           title: Sub adres buitenland 3
           type: string
           maxLength: 35
+      nullable: true
     RolNatuurlijkPersoon:
-      title: betrokkene_identificatie
       type: object
       properties:
         inpBsn:
@@ -3625,7 +3624,7 @@ components:
             NATUURLIJK PERSOON
           type: string
           maxLength: 17
-        inpA_nummer:
+        inpANummer:
           title: Inp a nummer
           description: Het administratienummer van de persoon, bedoeld in de Wet BRP
           type: string
@@ -3689,7 +3688,6 @@ components:
       - $ref: '#/components/schemas/Rol'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolNatuurlijkPersoon'
     RolNietNatuurlijkPersoon:
-      title: betrokkene_identificatie
       type: object
       properties:
         innNnpId:
@@ -3753,7 +3751,6 @@ components:
       - $ref: '#/components/schemas/Rol'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolNietNatuurlijkPersoon'
     RolVestiging:
-      title: betrokkene_identificatie
       type: object
       properties:
         vestigingsNummer:
@@ -3783,7 +3780,6 @@ components:
       - $ref: '#/components/schemas/Rol'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolVestiging'
     RolOrganisatorischeEenheid:
-      title: betrokkene_identificatie
       type: object
       properties:
         identificatie:
@@ -3811,7 +3807,6 @@ components:
       - $ref: '#/components/schemas/Rol'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolOrganisatorischeEenheid'
     RolMedewerker:
-      title: betrokkene_identificatie
       type: object
       properties:
         identificatie:
@@ -4102,7 +4097,6 @@ components:
       discriminator:
         propertyName: objectType
     ObjectAdres:
-      title: object_identificatie
       required:
       - identificatie
       - wplWoonplaatsNaam
@@ -4160,7 +4154,6 @@ components:
       allOf:
       - $ref: '#/components/schemas/ZaakObject'
     ObjectBuurt:
-      title: object_identificatie
       required:
       - buurtCode
       - buurtNaam
@@ -4208,7 +4201,6 @@ components:
       allOf:
       - $ref: '#/components/schemas/ZaakObject'
     ObjectGemeente:
-      title: object_identificatie
       required:
       - gemeenteNaam
       - gemeenteCode
@@ -4238,7 +4230,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectGemeente'
     ObjectGemeentelijkeOpenbareRuimte:
-      title: object_identificatie
       required:
       - identificatie
       - openbareRuimteNaam
@@ -4268,7 +4259,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
     TerreinGebouwdObjectAdres:
-      title: Adres aanduiding grp
       required:
       - oaoIdentificatie
       - wplWoonplaatsNaam
@@ -4319,8 +4309,8 @@ components:
           title: Ogo locatie aanduiding
           type: string
           maxLength: 100
+      nullable: true
     ObjectTerreinGebouwdObject:
-      title: Is gehuisvest in
       required:
       - identificatie
       type: object
@@ -4333,8 +4323,8 @@ components:
           minLength: 1
         adresAanduidingGrp:
           $ref: '#/components/schemas/TerreinGebouwdObjectAdres'
+      nullable: true
     ObjectHuishouden:
-      title: object_identificatie
       required:
       - nummer
       type: object
@@ -4359,7 +4349,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectHuishouden'
     ObjectInrichtingselement:
-      title: object_identificatie
       required:
       - type
       - identificatie
@@ -4426,7 +4415,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselement'
     ObjectKadastraleOnroerendeZaak:
-      title: object_identificatie
       required:
       - kadastraleIdentificatie
       - kadastraleAanduiding
@@ -4456,7 +4444,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaak'
     ObjectKunstwerkdeel:
-      title: object_identificatie
       required:
       - type
       - identificatie
@@ -4543,7 +4530,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeel'
     ObjectMaatschappelijkeActiviteit:
-      title: object_identificatie
       required:
       - kvkNummer
       - handelsnaam
@@ -4589,7 +4575,6 @@ components:
         objectIdentificatie:
           $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
     ObjectOpenbareRuimte:
-      title: object_identificatie
       required:
       - identificatie
       - wplWoonplaatsNaam
@@ -4630,7 +4615,6 @@ components:
         objectIdentificatie:
           $ref: '#/components/schemas/RolOrganisatorischeEenheid'
     ObjectPand:
-      title: object_identificatie
       required:
       - identificatie
       type: object
@@ -4652,7 +4636,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectPand'
     ObjectSpoorbaandeel:
-      title: object_identificatie
       required:
       - type
       - identificatie
@@ -4705,7 +4688,6 @@ components:
       allOf:
       - $ref: '#/components/schemas/ZaakObject'
     ObjectTerreindeel:
-      title: object_identificatie
       required:
       - type
       - identificatie
@@ -4753,7 +4735,6 @@ components:
         objectIdentificatie:
           $ref: '#/components/schemas/RolVestiging'
     ObjectWaterdeel:
-      title: object_identificatie
       required:
       - typeWaterdeel
       - identificatie
@@ -4802,7 +4783,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeel'
     ObjectWegdeel:
-      title: object_identificatie
       required:
       - type
       - identificatie
@@ -4835,7 +4815,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWegdeel'
     ObjectWijk:
-      title: object_identificatie
       required:
       - wijkCode
       - wijkNaam
@@ -4872,7 +4851,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWijk'
     ObjectWoonplaats:
-      title: object_identificatie
       required:
       - identificatie
       - woonplaatsNaam
@@ -4902,7 +4880,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaats'
     WozObjectAdres:
-      title: Aanduiding woz object
       required:
       - aoaIdentificatie
       - wplWoonplaatsNaam
@@ -4949,8 +4926,8 @@ components:
           title: Locatie omschrijving
           type: string
           maxLength: 1000
+      nullable: true
     ObjectWozObject:
-      title: Is onderdeel van
       required:
       - wozObjectNummer
       type: object
@@ -4964,7 +4941,6 @@ components:
         aanduidingWozObject:
           $ref: '#/components/schemas/WozObjectAdres'
     ObjectWozDeelobject:
-      title: object_identificatie
       required:
       - nummerWozDeelObject
       type: object
@@ -4998,7 +4974,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWozObject'
     ObjectWozWaarde:
-      title: object_identificatie
       required:
       - waardepeildatum
       type: object
@@ -5022,7 +4997,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectWozWaarde'
     ZakelijkRechtHeeftAlsGerechtigde:
-      title: Heeft als gerechtigde
       type: object
       properties:
         natuurlijkPersoon:
@@ -5030,7 +5004,6 @@ components:
         nietNatuurlijkPersoon:
           $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
     ObjectZakelijkRecht:
-      title: object_identificatie
       required:
       - identificatie
       - avgAard
@@ -5063,7 +5036,6 @@ components:
       - $ref: '#/components/schemas/ZaakObject'
       - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRecht'
     ObjectOverige:
-      title: object_identificatie
       required:
       - overigeData
       type: object
@@ -5237,7 +5209,6 @@ components:
       - $ref: '#/components/schemas/MultiPolygon'
       - $ref: '#/components/schemas/GeometryCollection'
     Verlenging:
-      title: Verlenging
       description: Gegevens omtrent het verlengen van de doorlooptijd van de behandeling
         van de ZAAK
       required:
@@ -5261,7 +5232,6 @@ components:
           format: duration
       nullable: true
     Opschorting:
-      title: Opschorting
       description: Gegevens omtrent het tijdelijk opschorten van de behandeling van
         de ZAAK
       required:
@@ -5628,7 +5598,6 @@ components:
           readOnly: true
           nullable: true
     GeoWithin:
-      title: Zaakgeometrie
       type: object
       properties:
         within:
@@ -5676,7 +5645,7 @@ components:
           enum:
           - blijvend_bewaren
           - vernietigen
-        archiefnominatie__in:
+        archiefnominatie_In:
           title: Archiefnominatie  in
           description: Multiple values may be separated by commas.
           type: string
@@ -5689,7 +5658,7 @@ components:
             aan deze ZAAK indien nog leeg.
           type: string
           minLength: 1
-        archiefactiedatum__lt:
+        archiefactiedatum_Lt:
           title: Archiefactiedatum  lt
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -5697,7 +5666,7 @@ components:
             aan deze ZAAK indien nog leeg.
           type: string
           minLength: 1
-        archiefactiedatum__gt:
+        archiefactiedatum_Gt:
           title: Archiefactiedatum  gt
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -5732,7 +5701,7 @@ components:
           - gearchiveerd
           - gearchiveerd_procestermijn_onbekend
           - overgedragen
-        archiefstatus__in:
+        archiefstatus_In:
           title: Archiefstatus  in
           description: Multiple values may be separated by commas.
           type: string
@@ -5742,27 +5711,27 @@ components:
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum__gt:
+        startdatum_Gt:
           title: Startdatum  gt
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum__gte:
+        startdatum_Gte:
           title: Startdatum  gte
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum__lt:
+        startdatum_Lt:
           title: Startdatum  lt
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum__lte:
+        startdatum_Lte:
           title: Startdatum  lte
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        rol__betrokkeneType:
+        rol_BetrokkeneType:
           title: Rol  betrokkenetype
           description: 'Type van de `betrokkene`.
 
@@ -5786,12 +5755,12 @@ components:
           - vestiging
           - organisatorische_eenheid
           - medewerker
-        rol__betrokkene:
+        rol_Betrokkene:
           title: Rol  betrokkene
           description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
           type: string
           minLength: 1
-        rol__omschrijvingGeneriek:
+        rol_OmschrijvingGeneriek:
           title: Rol  omschrijvinggeneriek
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -5843,18 +5812,18 @@ components:
           - confidentieel
           - geheim
           - zeer_geheim
-        rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn:
+        rol_BetrokkeneIdentificatie_NatuurlijkPersoon_InpBsn:
           title: Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn
           description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
             algemene bepalingen burgerservicenummer.
           type: string
           minLength: 1
-        rol__betrokkeneIdentificatie__medewerker__identificatie:
+        rol_BetrokkeneIdentificatie_Medewerker_Identificatie:
           title: Rol  betrokkeneidentificatie  medewerker  identificatie
           description: Een korte unieke aanduiding van de MEDEWERKER.
           type: string
           minLength: 1
-        rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
+        rol_BetrokkeneIdentificatie_OrganisatorischeEenheid_Identificatie:
           title: Rol  betrokkeneidentificatie  organisatorischeeenheid  identificatie
           description: Een korte identificatie van de organisatorische eenheid.
           type: string
@@ -5865,7 +5834,6 @@ components:
           type: string
           minLength: 1
     Wijzigingen:
-      title: Wijzigingen
       type: object
       properties:
         oud:

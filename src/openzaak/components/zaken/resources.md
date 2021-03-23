@@ -81,9 +81,9 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | --- | --- | --- | --- | --- |
 | lndLandcode | De code, behorende bij de landnaam, zoals opgenomen in de Land/Gebied-tabel van de BRP. | string | ja | C​R​U​D |
 | lndLandnaam | De naam van het land, zoals opgenomen in de Land/Gebied-tabel van de BRP. | string | ja | C​R​U​D |
-| subAdresBuitenland_1 |  | string | nee | C​R​U​D |
-| subAdresBuitenland_2 |  | string | nee | C​R​U​D |
-| subAdresBuitenland_3 |  | string | nee | C​R​U​D |
+| subAdresBuitenland1 |  | string | nee | C​R​U​D |
+| subAdresBuitenland2 |  | string | nee | C​R​U​D |
+| subAdresBuitenland3 |  | string | nee | C​R​U​D |
 
 ## Status
 
