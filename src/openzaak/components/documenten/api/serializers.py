@@ -41,6 +41,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from ..query.cmis import flatten_gegevens_groep
 from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
 from .validators import (
@@ -320,8 +321,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         """
         Handle nested writes.
         """
-        integriteit = validated_data.pop("integriteit", None)
-        ondertekening = validated_data.pop("ondertekening", None)
         # add vertrouwelijkheidaanduiding
         if "vertrouwelijkheidaanduiding" not in validated_data:
             informatieobjecttype = validated_data["informatieobjecttype"]
@@ -336,10 +335,27 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # absolute URLs
         validated_data["_request"] = self.context.get("request")
 
+        integriteit = (
+            validated_data.pop("integriteit", {}) or {}
+        )  # integriteit and ondertekening can also be set to None
+        ondertekening = validated_data.pop("ondertekening", {}) or {}
+
+        if settings.CMIS_ENABLED:
+            # The fields integriteit and ondertekening are of "GegevensGroepType", so they need to be
+            # flattened before sending to the DMS
+            flat_integriteit = flatten_gegevens_groep(integriteit, "integriteit")
+            flat_ondertekening = flatten_gegevens_groep(ondertekening, "ondertekening")
+
+            validated_data.update(**flat_integriteit, **flat_ondertekening)
+
         eio = super().create(validated_data)
-        eio.integriteit = integriteit
-        eio.ondertekening = ondertekening
-        eio.save()
+
+        if not settings.CMIS_ENABLED:
+            # The serialiser .create() method does not support nested data, so these have to be added separately
+            eio.integriteit = integriteit
+            eio.ondertekening = ondertekening
+            eio.save()
+
         return eio
 
     def to_representation(self, instance):
