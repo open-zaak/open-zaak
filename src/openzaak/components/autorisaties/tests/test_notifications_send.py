@@ -137,7 +137,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_applicatie_delete_fail_send_notification_create_db_entry(self):
-        applicatie = ApplicatieFactory.create()
+        applicatie = ApplicatieFactory.create(heeft_alle_autorisaties=True)
         url = reverse(applicatie)
 
         with capture_on_commit_callbacks(execute=True):

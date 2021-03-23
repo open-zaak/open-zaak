@@ -329,7 +329,9 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         Retrieve THE application object, using a client ID as lookup.
         """
         url = get_operation_url("applicatie_consumer")
-        app = ApplicatieFactory.create(client_ids=["client id"])
+        app = ApplicatieFactory.create(
+            client_ids=["client id"], heeft_alle_autorisaties=True
+        )
 
         response = self.client.get(url, {"clientId": "client id"})
 
@@ -346,6 +348,32 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_non_compliant_applications_not_in_api(self):
+        """
+        Assert that applications that aren't superuser and have no authorizations don't
+        show up in the API.
+
+        Regression test for #835 -- it's possible to create an application without
+        ``heeft_alle_autorisaties`` set to True and without any authorizations via the
+        admin interface (since configuration authorizations is a multi-step process).
+        These applications may not show up in the API responses, because they break
+        expectations from what the standard allows.
+        """
+        app = ApplicatieFactory.create(heeft_alle_autorisaties=False)
+        url = reverse(Applicatie)
+        app_url = f"http://testserver{reverse(app)}"
+
+        with self.subTest(case="list"):
+            response = self.client.get(url)
+
+            app_urls = [app["url"] for app in response.json()["results"]]
+            self.assertNotIn(app_url, app_urls)
+
+        with self.subTest(case="detail"):
+            response = self.client.get(app_url)
+
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
