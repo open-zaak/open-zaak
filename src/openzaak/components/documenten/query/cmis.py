@@ -22,10 +22,13 @@ from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.mixins import CMISClientMixin
 
+from ...besluiten.models import Besluit
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
+from ...zaken.models import Zaak
 from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
@@ -789,16 +792,25 @@ class ObjectInformatieObjectCMISQuerySet(
     def create(self, **kwargs):
         data = self.process_filters(kwargs)
 
-        if data.get("zaak") is not None and data.get("besluit") is not None:
+        related_zaak_url = data.get("zaak")
+        related_besluit_url = data.get("besluit")
+
+        if related_zaak_url is not None and related_besluit_url is not None:
             raise IntegrityError(
                 "ObjectInformatie object cannot have both Zaak and Besluit relation"
             )
-        elif data.get("zaak") is None and data.get("besluit") is None:
+        elif related_zaak_url is None and related_besluit_url is None:
             raise IntegrityError(
                 "ObjectInformatie object needs to have either a Zaak or Besluit relation"
             )
 
-        cmis_oio = self.cmis_client.create_oio(data=data)
+        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(
+            related_zaak_url, related_besluit_url
+        )
+
+        cmis_oio = self.cmis_client.create_oio(
+            oio_data=data, zaak_data=zaak_data, zaaktype_data=zaaktype_data
+        )
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
 
@@ -1051,3 +1063,26 @@ def modify_value_in_dictionary(existing_value, new_value):
         existing_value = [existing_value, new_value]
 
     return existing_value
+
+
+def get_zaak_and_zaaktype_data(
+    zaak_url: str = None, besluit_url: str = None
+) -> Tuple[Optional[dict], Optional[dict]]:
+    loader = AuthorizedRequestsLoader()
+
+    # Retrieve zaak and zaaktype data
+    if besluit_url:
+        besluit = loader.load(url=besluit_url, model=Besluit)
+        zaak = besluit.zaak
+
+        if zaak:
+            zaaktype = zaak.zaaktype
+            return model_to_dict(zaak), model_to_dict(zaaktype)
+
+    else:
+        zaak = loader.load(url=zaak_url, model=Zaak)
+        zaaktype = zaak.zaaktype
+
+        return model_to_dict(zaak), model_to_dict(zaaktype)
+
+    return None, None

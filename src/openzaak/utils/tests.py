@@ -241,9 +241,11 @@ class OioMixin:
 
         besluit = BesluitFactory.create(**kwargs)
         mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
+        besluit_url = make_absolute_uri(reverse(besluit))
         self.adapter.get(
-            make_absolute_uri(reverse(besluit)),
+            besluit_url,
             json={
+                "url": besluit_url,
                 "verantwoordelijke_organisatie": "517439943",
                 "identificatie": "123123",
                 "besluittype": "http://testserver/besluittype/some-random-id",
@@ -265,7 +267,10 @@ class OioMixin:
         mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
         self.adapter.get(
             make_absolute_uri(reverse(besluit)),
-            json={"zaak": make_absolute_uri(reverse(zaak))},
+            json={
+                "zaak": make_absolute_uri(reverse(zaak)),
+                "url": make_absolute_uri(reverse(besluit)),
+            },
         )
 
         return besluit

@@ -17,4 +17,4 @@ class CMISEIOTests(CMISMixin, TestCase):
             identificatie="", creatiedatum=date(2019, 7, 1)
         )
 
-        self.assertEqual(eio.identificatie, eio.uuid)
+        self.assertEqual(eio.identificatie, str(eio.uuid))
