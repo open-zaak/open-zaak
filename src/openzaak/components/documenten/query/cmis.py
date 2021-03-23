@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple
 from django.db import IntegrityError
 from django.db.models import fields
 from django.db.models.query import BaseIterable
-from django.forms.models import model_to_dict
+from django.forms import model_to_dict
 from django.utils import timezone
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -541,15 +541,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
                 content=content,
             )
 
-        django_document = cmis_doc_to_django_model(new_cmis_document)
-
-        # If no identificatie field is present, use the same as the document uuid (issue #762)
-        if not django_document.identificatie:
-            django_document.identificatie = django_document.uuid
-            model_data = model_to_dict(django_document)
-            self.filter(uuid=django_document.uuid).update(**model_data)
-
-        return django_document
+        return cmis_doc_to_django_model(new_cmis_document)
 
     def filter(self, *args, **kwargs):
 
