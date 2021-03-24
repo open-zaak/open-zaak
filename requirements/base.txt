@@ -98,19 +98,20 @@ django==2.2.19
     #   django-relativedelta
     #   django-sendfile2
     #   django-sniplates
+    #   djangorestframework
     #   drc-cmis
     #   drf-nested-routers
     #   drf-yasg
     #   nlx-url-rewriter
     #   vng-api-common
     #   zgw-consumers
-djangorestframework-camel-case==0.2.0
+djangorestframework-camel-case==1.2.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
 djangorestframework-gis==0.14
     # via -r requirements/base.in
-djangorestframework==3.9.4
+djangorestframework==3.12.2
     # via
     #   -r requirements/base.in
     #   django-extra-fields
@@ -123,11 +124,11 @@ drc-cmis==1.2.3
     # via -r requirements/base.in
 drf-flex-fields==0.5.0
     # via -r requirements/base.in
-drf-nested-routers==0.90.2
+drf-nested-routers==0.93.3
     # via vng-api-common
 drf-writable-nested==0.4.3
     # via -r requirements/base.in
-drf-yasg==1.16.0
+drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
@@ -169,6 +170,8 @@ nlx-url-rewriter==0.1.2
     # via -r requirements/base.in
 oyaml==1.0
     # via vng-api-common
+packaging==20.9
+    # via drf-yasg
 psycopg2==2.8.4
     # via -r requirements/base.in
 pycparser==2.19
@@ -179,7 +182,9 @@ pyjwt==1.6.4
     #   gemma-zds-client
     #   vng-api-common
 pyparsing==2.4.7
-    # via httplib2
+    # via
+    #   httplib2
+    #   packaging
 python-dateutil==2.7.3
     # via
     #   -r requirements/base.in
@@ -222,7 +227,6 @@ six==1.11.0
     #   cmislib-maykin
     #   django-extra-views
     #   django-markup
-    #   drf-yasg
     #   isodate
     #   python-dateutil
 smmap==3.0.4
@@ -241,7 +245,7 @@ urllib3==1.24.3
     #   sentry-sdk
 uwsgi==2.0.19.1
     # via -r requirements/base.in
-vng-api-common==1.0.57
+vng-api-common==1.0.60
     # via
     #   -r requirements/base.in
     #   drc-cmis
