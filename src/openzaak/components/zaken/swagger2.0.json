@@ -6586,8 +6586,7 @@
                     "format": "duration"
                 }
             },
-            "x-nullable": true,
-            "title": "Verlenging"
+            "x-nullable": true
         },
         "Opschorting": {
             "description": "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK",
@@ -6609,8 +6608,7 @@
                     "maxLength": 200
                 }
             },
-            "x-nullable": true,
-            "title": "Opschorting"
+            "x-nullable": true
         },
         "RelevanteZaak": {
             "description": "Een lijst van relevante andere zaken.",
@@ -7133,8 +7131,7 @@
                     "description": "Volledige JSON body van het object na de actie.",
                     "type": "object"
                 }
-            },
-            "title": "Wijzigingen"
+            }
         },
         "AuditTrail": {
             "required": [

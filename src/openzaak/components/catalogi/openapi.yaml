@@ -3914,7 +3914,6 @@ components:
           type: string
           format: duration
           nullable: true
-      title: Brondatum archiefprocedure
       nullable: true
     ResultaatType:
       required:
@@ -4200,7 +4199,6 @@ components:
           type: string
           format: uri
           maxLength: 200
-      title: Referentieproces
     ZaakTypenRelatie:
       description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.
       required:
