@@ -30,7 +30,7 @@ def setup_env():
 
     load_self_signed_certs()
 
-    monkeypatch_camelize_re()
+    monkeypatch_drf_camel_case()
 
 
 def load_self_signed_certs() -> None:
@@ -39,7 +39,7 @@ def load_self_signed_certs() -> None:
     _load_self_signed_certs(target_dir)
 
 
-def monkeypatch_camelize_re() -> None:
+def monkeypatch_drf_camel_case() -> None:
     """
     Revert the camelize_re back to the old behaviour.
 
@@ -55,4 +55,9 @@ def monkeypatch_camelize_re() -> None:
     """
     from djangorestframework_camel_case import util
 
-    util.camelize_re = re.compile(r"[a-z]?_[a-z]")
+    util.camelize_re = re.compile(r"[a-z]_[a-z]")
+
+    def old_underscore_to_camel(match):
+        return match.group()[0] + match.group()[2].upper()
+
+    util.underscore_to_camel = old_underscore_to_camel

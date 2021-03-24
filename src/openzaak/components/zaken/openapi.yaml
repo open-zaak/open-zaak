@@ -3624,7 +3624,7 @@ components:
             NATUURLIJK PERSOON
           type: string
           maxLength: 17
-        inpANummer:
+        inpA_nummer:
           title: Inp a nummer
           description: Het administratienummer van de persoon, bedoeld in de Wet BRP
           type: string
@@ -5645,7 +5645,7 @@ components:
           enum:
           - blijvend_bewaren
           - vernietigen
-        archiefnominatie_In:
+        archiefnominatie__in:
           title: Archiefnominatie  in
           description: Multiple values may be separated by commas.
           type: string
@@ -5658,7 +5658,7 @@ components:
             aan deze ZAAK indien nog leeg.
           type: string
           minLength: 1
-        archiefactiedatum_Lt:
+        archiefactiedatum__lt:
           title: Archiefactiedatum  lt
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -5666,7 +5666,7 @@ components:
             aan deze ZAAK indien nog leeg.
           type: string
           minLength: 1
-        archiefactiedatum_Gt:
+        archiefactiedatum__gt:
           title: Archiefactiedatum  gt
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
             worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
@@ -5701,7 +5701,7 @@ components:
           - gearchiveerd
           - gearchiveerd_procestermijn_onbekend
           - overgedragen
-        archiefstatus_In:
+        archiefstatus__in:
           title: Archiefstatus  in
           description: Multiple values may be separated by commas.
           type: string
@@ -5711,27 +5711,27 @@ components:
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum_Gt:
+        startdatum__gt:
           title: Startdatum  gt
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum_Gte:
+        startdatum__gte:
           title: Startdatum  gte
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum_Lt:
+        startdatum__lt:
           title: Startdatum  lt
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        startdatum_Lte:
+        startdatum__lte:
           title: Startdatum  lte
           description: De datum waarop met de uitvoering van de zaak is gestart
           type: string
           minLength: 1
-        rol_BetrokkeneType:
+        rol__betrokkeneType:
           title: Rol  betrokkenetype
           description: 'Type van de `betrokkene`.
 
@@ -5755,12 +5755,12 @@ components:
           - vestiging
           - organisatorische_eenheid
           - medewerker
-        rol_Betrokkene:
+        rol__betrokkene:
           title: Rol  betrokkene
           description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
           type: string
           minLength: 1
-        rol_OmschrijvingGeneriek:
+        rol__omschrijvingGeneriek:
           title: Rol  omschrijvinggeneriek
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
@@ -5812,18 +5812,18 @@ components:
           - confidentieel
           - geheim
           - zeer_geheim
-        rol_BetrokkeneIdentificatie_NatuurlijkPersoon_InpBsn:
+        rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn:
           title: Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn
           description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
             algemene bepalingen burgerservicenummer.
           type: string
           minLength: 1
-        rol_BetrokkeneIdentificatie_Medewerker_Identificatie:
+        rol__betrokkeneIdentificatie__medewerker__identificatie:
           title: Rol  betrokkeneidentificatie  medewerker  identificatie
           description: Een korte unieke aanduiding van de MEDEWERKER.
           type: string
           minLength: 1
-        rol_BetrokkeneIdentificatie_OrganisatorischeEenheid_Identificatie:
+        rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
           title: Rol  betrokkeneidentificatie  organisatorischeeenheid  identificatie
           description: Een korte identificatie van de organisatorische eenheid.
           type: string
