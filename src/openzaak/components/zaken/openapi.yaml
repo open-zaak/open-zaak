@@ -3596,15 +3596,15 @@ components:
           type: string
           maxLength: 40
           minLength: 1
-        subAdresBuitenland1:
+        subAdresBuitenland_1:
           title: Sub adres buitenland 1
           type: string
           maxLength: 35
-        subAdresBuitenland2:
+        subAdresBuitenland_2:
           title: Sub adres buitenland 2
           type: string
           maxLength: 35
-        subAdresBuitenland3:
+        subAdresBuitenland_3:
           title: Sub adres buitenland 3
           type: string
           maxLength: 35
