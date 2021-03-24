@@ -5230,6 +5230,7 @@ components:
             doorlooptijd.
           type: string
           format: duration
+      title: Verlenging
       nullable: true
     Opschorting:
       description: Gegevens omtrent het tijdelijk opschorten van de behandeling van
@@ -5249,6 +5250,7 @@ components:
             van de zaak.
           type: string
           maxLength: 200
+      title: Opschorting
       nullable: true
     RelevanteZaak:
       description: Een lijst van relevante andere zaken.
@@ -5845,6 +5847,7 @@ components:
           title: Nieuw
           description: Volledige JSON body van het object na de actie.
           type: object
+      title: Wijzigingen
     AuditTrail:
       required:
       - bron

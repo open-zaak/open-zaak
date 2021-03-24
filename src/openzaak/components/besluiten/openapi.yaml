@@ -1147,6 +1147,7 @@ components:
           title: Nieuw
           description: Volledige JSON body van het object na de actie.
           type: object
+      title: Wijzigingen
     AuditTrail:
       required:
       - bron

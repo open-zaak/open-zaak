@@ -1316,7 +1316,8 @@
                     "description": "Volledige JSON body van het object na de actie.",
                     "type": "object"
                 }
-            }
+            },
+            "title": "Wijzigingen"
         },
         "AuditTrail": {
             "required": [

@@ -1668,6 +1668,7 @@ components:
             plaatsgevonden.
           type: string
           format: date
+      title: ondertekening
       nullable: true
     Integriteit:
       description: Uitdrukking van mate van volledigheid en onbeschadigd zijn van
@@ -1737,6 +1738,7 @@ components:
           description: Datum waarop de checksum is gemaakt.
           type: string
           format: date
+      title: integriteit
       nullable: true
     EnkelvoudigInformatieObject:
       required:
@@ -2293,6 +2295,7 @@ components:
           title: Nieuw
           description: Volledige JSON body van het object na de actie.
           type: object
+      title: Wijzigingen
     AuditTrail:
       required:
       - bron

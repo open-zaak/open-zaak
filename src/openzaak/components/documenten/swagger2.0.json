@@ -2040,7 +2040,8 @@
                     "format": "date"
                 }
             },
-            "x-nullable": true
+            "x-nullable": true,
+            "title": "ondertekening"
         },
         "Integriteit": {
             "description": "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand.",
@@ -2085,7 +2086,8 @@
                     "format": "date"
                 }
             },
-            "x-nullable": true
+            "x-nullable": true,
+            "title": "integriteit"
         },
         "EnkelvoudigInformatieObject": {
             "required": [
@@ -2587,7 +2589,8 @@
                     "description": "Volledige JSON body van het object na de actie.",
                     "type": "object"
                 }
-            }
+            },
+            "title": "Wijzigingen"
         },
         "AuditTrail": {
             "required": [

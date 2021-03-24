@@ -4989,7 +4989,8 @@
                     "x-nullable": true
                 }
             },
-            "x-nullable": true
+            "x-nullable": true,
+            "title": "Brondatum archiefprocedure"
         },
         "ResultaatType": {
             "required": [
@@ -5257,7 +5258,8 @@
                     "format": "uri",
                     "maxLength": 200
                 }
-            }
+            },
+            "title": "Referentieproces"
         },
         "ZaakTypenRelatie": {
             "description": "De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.",
