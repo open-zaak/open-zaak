@@ -94,6 +94,44 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 
+    def test_zaaktype_with_invalid_characters_in_omschrijving(self):
+        """
+        The CMIS-adapter uses the zaaktype omschrijving to give the name to the zaaktype
+        folder. Invalid filename characters in the omschrijving field need to be handled.
+        """
+        self.create_zaak_besluit_services()
+        zaak = self.create_zaak()
+
+        zaak.zaaktype.zaaktype_omschrijving = "Invalid/filename/characters/present"
+        zaak.zaaktype.save()
+
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = f"http://testserver{reverse(io)}"
+        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+
+        titel = "some titel"
+        beschrijving = "some beschrijving"
+        content = {
+            "informatieobject": io_url,
+            "zaak": f"http://testserver{zaak_url}",
+            "titel": titel,
+            "beschrijving": beschrijving,
+            "aardRelatieWeergave": "bla",  # Should be ignored by the API
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
     @freeze_time("2018-09-20 12:00:00")
     def test_registratiedatum_ignored(self):
         self.create_zaak_besluit_services()
