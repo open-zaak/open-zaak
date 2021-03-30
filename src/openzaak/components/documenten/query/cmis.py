@@ -11,8 +11,8 @@ from typing import List, Optional, Tuple
 from django.db import IntegrityError
 from django.db.models import fields
 from django.db.models.query import BaseIterable
-from django.forms import model_to_dict
 from django.utils import timezone
+from django.utils.text import slugify
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.utils.convert import make_absolute_uri
@@ -1062,20 +1062,47 @@ def get_zaak_and_zaaktype_data(
 ) -> Tuple[Optional[dict], Optional[dict]]:
     loader = AuthorizedRequestsLoader()
 
+    def format_zaak_and_zaaktype_data(
+        zaak: Zaak,
+    ) -> Tuple[Optional[dict], Optional[dict]]:
+        zaaktype = zaak.zaaktype
+
+        zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = make_absolute_uri(zaaktype_path)
+
+        zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = make_absolute_uri(zaak_path)
+
+        # Can't use the serializer, because we don't have access to the request
+        # which is needed for the Hyperlink fields
+        zaak_data = {
+            "url": zaak_url,
+            "identificatie": zaak.identificatie,
+            "omschrijving": zaak.omschrijving,
+            "bronorganisatie": zaak.bronorganisatie,
+            "zaaktype": zaaktype_url,
+        }
+
+        # The omschrijving is used by the CMIS-adapter only to give the zaaktype folder a name
+        zaaktype_data = {
+            "url": zaaktype_url,
+            "identificatie": zaaktype.identificatie,
+            "omschrijving": slugify(zaaktype.zaaktype_omschrijving),
+        }
+
+        return zaak_data, zaaktype_data
+
     # Retrieve zaak and zaaktype data
     if besluit_url:
         besluit = loader.load(url=besluit_url, model=Besluit)
         zaak = besluit.zaak
 
         if zaak:
-            zaaktype = zaak.zaaktype
-            return model_to_dict(zaak), model_to_dict(zaaktype)
+            return format_zaak_and_zaaktype_data(zaak)
 
     else:
         zaak = loader.load(url=zaak_url, model=Zaak)
-        zaaktype = zaak.zaaktype
-
-        return model_to_dict(zaak), model_to_dict(zaaktype)
+        return format_zaak_and_zaaktype_data(zaak)
 
     return None, None
 
