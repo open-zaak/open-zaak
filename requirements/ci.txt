@@ -57,9 +57,9 @@ django-appconf==1.0.2
     # via
     #   -r requirements/base.txt
     #   django-axes
-django-auth-adfs-db==0.2.0
+django-auth-adfs-db==0.3.0
     # via -r requirements/base.txt
-django-auth-adfs==1.3.1
+django-auth-adfs==1.6.1
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs-db
