@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.alfresco.org/model/dictionary/1.0" name="drc:drc-document">
-    <description>Hier komt een beschrijving te staan</description>
-    <author>Gemeente Utrecht</author>
+    <author>OPEN.satisfaction namens Openzaak</author>
+    <description>Alfresco drc model (openzaak)</description>
     <imports>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
