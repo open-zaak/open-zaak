@@ -45,7 +45,7 @@ Hiervoor zijn natuurlijk wel images nodig. Deze kunnen als volgt gebouwd worden:
 3. Pas de versie in `<version>` aan naar de huidige versie van Openzaak.
 3. Draai het commando `./run.sh build_production` of `./run.bat build_production`.
 
-Hierna zijn er images beschikbaar in een lokale repository met de naam `alfresco-content-services-openzaak-alfresco` en de project versie als tag. Deze resulterende images kunnen gebruikt worden in een docker of Helm deployment.
+Hierna zijn er images beschikbaar in een lokale repository met de naam `alfresco-content-services-openzaak-alfresco` en de project versie als tag. Deze resulterende images kunnen gebruikt worden in een docker of Helm deployment. Merk overigens op dat dit de alfresco-global.properties uit het Openzaak project mee packaged. Als dit niet gewenst is kan de `COPY` regel uitgecomment worden in `openzaak-alfresco-platform-docker/src/main/docker/Dockerfile-production`
 
 ### Deployment via Helm charts
 
