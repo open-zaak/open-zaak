@@ -28,17 +28,52 @@
     <config evaluator="string-compare" condition="AdvancedSearch" replace="false">
         <advanced-search>
             <forms>
+                <!-- Folder search types -->
+                <form labelId="form.advancedsearch.zaaktype.label"
+                      descriptionId="form.advancedsearch.zaaktype.description">drc:zaaktypefolder
+                </form>
                 <form labelId="form.advancedsearch.zaak.label"
                       descriptionId="form.advancedsearch.zaak.description">drc:zaakfolder
                 </form>
+
+                <!-- File search types -->
                 <form labelId="form.advancedsearch.document.label"
                       descriptionId="form.advancedsearch.document.description">drc:document
+                </form>
+                <form labelId="form.advancedsearch.oio.label"
+                      descriptionId="form.advancedsearch.oio.description">drc:oio
+                </form>
+                <form labelId="form.advancedsearch.gebruiksrechten.label"
+                      descriptionId="form.advancedsearch.gebruiksrechten.description">drc:gebruiksrechten
                 </form>
             </forms>
         </advanced-search>
     </config>
 
     <!-- Property edit and view form definitions -->
+    <config evaluator="node-type" condition="drc:zaaktypefolder">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:zaaktype__identificatie"/>
+                    <show id="drc:zaaktype__url"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="caseTypeInfo" appearance="bordered-panel" label-id="form.zaak.set.zaaktypeinformatie.label"/>
+                    <field id="drc:zaaktype__identificatie" label-id="form.zaak.set.zaaktypeinformatie.zaaktypeidentificatie.label" set="caseTypeInfo"/>
+                    <field id="drc:zaaktype__url" label-id="form.zaak.set.zaaktypeinformatie.zaaktypeurl.label" set="caseTypeInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
     <config evaluator="node-type" condition="drc:zaakfolder">
         <forms>
             <form>
@@ -154,8 +189,96 @@
             </form>
         </forms>
     </config>
+    <config evaluator="node-type" condition="drc:oio">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:oio__uuid" for-mode="view"/>
+                    <show id="drc:oio__informatieobject"/>
+                    <show id="drc:oio__object_type"/>
+                    <show id="drc:oio__zaak"/>
+                    <show id="drc:oio__besluit"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="oioInfo" appearance="bordered-panel" label-id="form.oio.set.informatie.label"/>
+                    <field id="drc:oio__uuid" label-id="form.oio.set.informatie.uuid.label" set="oioInfo"/>
+                    <field id="drc:oio__informatieobject" label-id="form.oio.set.informatie.informatieobject.label" set="oioInfo"/>
+                    <field id="drc:oio__object_type" label-id="form.oio.set.informatie.objecttype.label" set="oioInfo"/>
+
+                    <set id="externalInfo" appearance="bordered-panel" label-id="form.oio.set.externeinformatie.label"/>
+                    <field id="drc:oio__zaak" label-id="form.oio.set.externeinformatie.zaak.label" set="externalInfo"/>
+                    <field id="drc:oio__besluit" label-id="form.oio.set.externeinformatie.besluit.label" set="externalInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="node-type" condition="drc:gebruiksrechten">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:gebruiksrechten__uuid" for-mode="view"/>
+                    <show id="drc:gebruiksrechten__informatieobject"/>
+                    <show id="drc:gebruiksrechten__omschrijving_voorwaarden"/>
+                    <show id="drc:gebruiksrechten__kopie_van"/>
+
+                    <show id="drc:gebruiksrechten__startdatum"/>
+                    <show id="drc:gebruiksrechten__einddatum"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="usagerightsInfo" appearance="bordered-panel" label-id="form.gebruiksrechten.set.informatie.label"/>
+                    <field id="drc:gebruiksrechten__uuid" label-id="form.gebruiksrechten.set.informatie.uuid.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__informatieobject" label-id="form.gebruiksrechten.set.informatie.informatieobject.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__omschrijving_voorwaarden" label-id="form.gebruiksrechten.set.informatie.omschrijvingvoorwaarden.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__kopie_van" label-id="form.gebruiksrechten.set.informatie.kopievan.label" set="usagerightsInfo"/>
+
+                    <set id="dateInfo" appearance="bordered-panel" label-id="form.gebruiksrechten.set.datuminformatie.label"/>
+                    <field id="drc:gebruiksrechten__startdatum" label-id="form.gebruiksrechten.set.datuminformatie.startdatum.label" set="dateInfo"/>
+                    <field id="drc:gebruiksrechten__einddatum" label-id="form.gebruiksrechten.set.datuminformatie.einddatum.label" set="dateInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
 
     <!-- Search form definitions -->
+    <config evaluator="model-type" condition="drc:zaaktypefolder">
+        <forms>
+            <form id="search">
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:zaaktype__identificatie"/>
+                    <show id="drc:zaaktype__url"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="caseTypeInfo" appearance="bordered-panel" label-id="form.zaak.set.zaaktypeinformatie.label"/>
+                    <field id="drc:zaaktype__identificatie" label-id="form.zaak.set.zaaktypeinformatie.zaaktypeidentificatie.label" set="caseTypeInfo"/>
+                    <field id="drc:zaaktype__url" label-id="form.zaak.set.zaaktypeinformatie.zaaktypeurl.label" set="caseTypeInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
     <config evaluator="model-type" condition="drc:zaakfolder">
         <forms>
             <form id="search">
@@ -271,6 +394,71 @@
                     <set id="usageInfo" appearance="bordered-panel" label-id="form.document.set.gebruiksinformatie.label"/>
                     <field id="drc:document__vertrouwelijkaanduiding" label-id="form.document.set.gebruiksinformatie.vertrouwelijkaanduiding.label" set="usageInfo"/>
                     <field id="drc:document__indicatiegebruiksrecht" label-id="form.document.set.gebruiksinformatie.indicatiegebruiksrecht.label" set="usageInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="model-type" condition="drc:oio">
+        <forms>
+            <form id="search">
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:oio__uuid" for-mode="view"/>
+                    <show id="drc:oio__informatieobject"/>
+                    <show id="drc:oio__object_type"/>
+                    <show id="drc:oio__zaak"/>
+                    <show id="drc:oio__besluit"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="oioInfo" appearance="bordered-panel" label-id="form.oio.set.informatie.label"/>
+                    <field id="drc:oio__uuid" label-id="form.oio.set.informatie.uuid.label" set="oioInfo"/>
+                    <field id="drc:oio__informatieobject" label-id="form.oio.set.informatie.informatieobject.label" set="oioInfo"/>
+                    <field id="drc:oio__object_type" label-id="form.oio.set.informatie.objecttype.label" set="oioInfo"/>
+
+                    <set id="externalInfo" appearance="bordered-panel" label-id="form.oio.set.externeinformatie.label"/>
+                    <field id="drc:oio__zaak" label-id="form.oio.set.externeinformatie.zaak.label" set="externalInfo"/>
+                    <field id="drc:oio__besluit" label-id="form.oio.set.externeinformatie.besluit.label" set="externalInfo"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="model-type" condition="drc:gebruiksrechten">
+        <forms>
+            <form id="search">
+                <field-visibility>
+                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+
+                    <show id="drc:gebruiksrechten__uuid" for-mode="view"/>
+                    <show id="drc:gebruiksrechten__informatieobject"/>
+                    <show id="drc:gebruiksrechten__omschrijving_voorwaarden"/>
+                    <show id="drc:gebruiksrechten__kopie_van"/>
+
+                    <show id="drc:gebruiksrechten__startdatum"/>
+                    <show id="drc:gebruiksrechten__einddatum"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name"/>
+                    <field id="cm:title"/>
+                    <field id="cm:description"/>
+
+                    <set id="usagerightsInfo" appearance="bordered-panel" label-id="form.gebruiksrechten.set.informatie.label"/>
+                    <field id="drc:gebruiksrechten__uuid" label-id="form.gebruiksrechten.set.informatie.uuid.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__informatieobject" label-id="form.gebruiksrechten.set.informatie.informatieobject.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__omschrijving_voorwaarden" label-id="form.gebruiksrechten.set.informatie.omschrijvingvoorwaarden.label" set="usagerightsInfo"/>
+                    <field id="drc:gebruiksrechten__kopie_van" label-id="form.gebruiksrechten.set.informatie.kopievan.label" set="usagerightsInfo"/>
+
+                    <set id="dateInfo" appearance="bordered-panel" label-id="form.gebruiksrechten.set.datuminformatie.label"/>
+                    <field id="drc:gebruiksrechten__startdatum" label-id="form.gebruiksrechten.set.datuminformatie.startdatum.label" set="dateInfo"/>
+                    <field id="drc:gebruiksrechten__einddatum" label-id="form.gebruiksrechten.set.datuminformatie.einddatum.label" set="dateInfo"/>
                 </appearance>
             </form>
         </forms>
