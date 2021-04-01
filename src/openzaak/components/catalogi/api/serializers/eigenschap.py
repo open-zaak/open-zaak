@@ -46,7 +46,6 @@ class EigenschapSerializer(
         validators = [
             ZaakTypeConceptValidator(),
             UniqueTogetherValidator(
-                queryset=Eigenschap.objects.all(),
-                fields=["zaaktype", "eigenschapnaam"],
+                queryset=Eigenschap.objects.all(), fields=["zaaktype", "naam"],
             ),
         ]
