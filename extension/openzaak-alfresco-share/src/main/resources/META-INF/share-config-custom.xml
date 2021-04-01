@@ -1,10 +1,6 @@
-<!--
-Author: OPEN.satisfaction namens Openzaak
-Description: Alfresco drc share configuratie (openzaak)
--->
 <alfresco-config>
-    <author>OPEN.satisfaction namens Openzaak</author>
-    <description>Alfresco drc share configuratie (openzaak)</description>
+    <!--<author>OPEN.satisfaction namens Openzaak</author>
+    <description>Alfresco drc share configuratie (openzaak)</description>-->
 
     <config evaluator="string-compare" condition="DocumentLibrary">
         <types>
@@ -27,7 +23,7 @@ Description: Alfresco drc share configuratie (openzaak)
                 <subtype name="drc:gebruiksrechten"/>
             </type>
         </types>
-    </config> <!-- TODO subtype labels -->
+    </config>
 
     <config evaluator="string-compare" condition="AdvancedSearch" replace="false">
         <advanced-search>
@@ -117,43 +113,43 @@ Description: Alfresco drc share configuratie (openzaak)
                     <field id="cm:description"/>
 
                     <set id="baseInfo" appearance="bordered-panel" label-id="form.document.set.basisinformatie.label"/>
-                    <show id="drc:document__uuid" label-id="form.document.set.openzaak.uuid.label" set="baseInfo"/>
-                    <show id="drc:document__bestandsnaam" label-id="form.document.set.openzaak.bestandsnaam.label" set="baseInfo"/>
-                    <show id="drc:document__identificatie" label-id="form.document.set.openzaak.identificatie.label" set="baseInfo"/>
-                    <show id="drc:document__titel" label-id="form.document.set.openzaak.titel.label" set="baseInfo"/>
-                    <show id="drc:document__beschrijving" label-id="form.document.set.openzaak.beschrijving.label" set="baseInfo"/>
-                    <show id="drc:document__informatieobjecttype" label-id="form.document.set.openzaak.informatieobjecttype.label" set="baseInfo"/>
-                    <show id="drc:document__creatiedatum" label-id="form.document.set.openzaak.creatiedatum.label" set="baseInfo"/>
-                    <show id="drc:document__auteur" label-id="form.document.set.openzaak.auteur.label" set="baseInfo"/>
-                    <show id="drc:document__taal" label-id="form.document.set.openzaak.taal.label" set="baseInfo"/>
+                    <field id="drc:document__uuid" label-id="form.document.set.openzaak.uuid.label" set="baseInfo"/>
+                    <field id="drc:document__bestandsnaam" label-id="form.document.set.openzaak.bestandsnaam.label" set="baseInfo"/>
+                    <field id="drc:document__identificatie" label-id="form.document.set.openzaak.identificatie.label" set="baseInfo"/>
+                    <field id="drc:document__titel" label-id="form.document.set.openzaak.titel.label" set="baseInfo"/>
+                    <field id="drc:document__beschrijving" label-id="form.document.set.openzaak.beschrijving.label" set="baseInfo"/>
+                    <field id="drc:document__informatieobjecttype" label-id="form.document.set.openzaak.informatieobjecttype.label" set="baseInfo"/>
+                    <field id="drc:document__creatiedatum" label-id="form.document.set.openzaak.creatiedatum.label" set="baseInfo"/>
+                    <field id="drc:document__auteur" label-id="form.document.set.openzaak.auteur.label" set="baseInfo"/>
+                    <field id="drc:document__taal" label-id="form.document.set.openzaak.taal.label" set="baseInfo"/>
 
                     <set id="documentInfo" appearance="bordered-panel" label-id="form.document.set.documentinformatie.label"/>
-                    <show id="drc:document__bronorganisatie" label-id="form.document.set.openzaak.bronorganisatie.label" set="documentInfo"/>
-                    <show id="drc:document__link" label-id="form.document.set.openzaak.link.label" set="documentInfo"/>
-                    <show id="drc:document__verwijderd" label-id="form.document.set.openzaak.verwijderd.label" set="documentInfo"/>
-                    <show id="drc:document__formaat" label-id="form.document.set.openzaak.formaat.label" set="documentInfo"/>
-                    <show id="drc:document__versie" label-id="form.document.set.openzaak.versie.label" set="documentInfo"/>
-                    <show id="drc:document__lock" label-id="form.document.set.openzaak.lock.label" set="documentInfo"/>
-                    <show id="drc:kopie_van" label-id="form.document.set.openzaak.kopievan.label" set="documentInfo"/>
+                    <field id="drc:document__bronorganisatie" label-id="form.document.set.openzaak.bronorganisatie.label" set="documentInfo"/>
+                    <field id="drc:document__link" label-id="form.document.set.openzaak.link.label" set="documentInfo"/>
+                    <field id="drc:document__verwijderd" label-id="form.document.set.openzaak.verwijderd.label" set="documentInfo"/>
+                    <field id="drc:document__formaat" label-id="form.document.set.openzaak.formaat.label" set="documentInfo"/>
+                    <field id="drc:document__versie" label-id="form.document.set.openzaak.versie.label" set="documentInfo"/>
+                    <field id="drc:document__lock" label-id="form.document.set.openzaak.lock.label" set="documentInfo"/>
+                    <field id="drc:kopie_van" label-id="form.document.set.openzaak.kopievan.label" set="documentInfo"/>
 
                     <set id="progressionInfo" appearance="bordered-panel" label-id="form.document.set.progressieinformatie.label"/>
-                    <show id="drc:document__verzenddatum" label-id="form.document.set.openzaak.verzenddatum.label" set="progressionInfo"/>
-                    <show id="drc:document__ontvangstdatum" label-id="form.document.set.openzaak.ontvangstdatum.label" set="progressionInfo"/>
-                    <show id="drc:document__begin_registratie" label-id="form.document.set.openzaak.beginregistratie.label" set="progressionInfo"/>
-                    <show id="drc:document__status" label-id="form.document.set.openzaak.status.label" set="progressionInfo"/>
+                    <field id="drc:document__verzenddatum" label-id="form.document.set.openzaak.verzenddatum.label" set="progressionInfo"/>
+                    <field id="drc:document__ontvangstdatum" label-id="form.document.set.openzaak.ontvangstdatum.label" set="progressionInfo"/>
+                    <field id="drc:document__begin_registratie" label-id="form.document.set.openzaak.beginregistratie.label" set="progressionInfo"/>
+                    <field id="drc:document__status" label-id="form.document.set.openzaak.status.label" set="progressionInfo"/>
 
                     <set id="signingInfo" appearance="bordered-panel" label-id="form.document.set.ondertekeningsinformatie.label"/>
-                    <show id="drc:document__ondertekeningdatum" label-id="form.document.set.openzaak.ondertekeningdatum.label" set="signingInfo"/>
-                    <show id="drc:document__ondertekeningsoort" label-id="form.document.set.openzaak.ondertekeningsoort.label" set="signingInfo"/>
+                    <field id="drc:document__ondertekeningdatum" label-id="form.document.set.openzaak.ondertekeningdatum.label" set="signingInfo"/>
+                    <field id="drc:document__ondertekeningsoort" label-id="form.document.set.openzaak.ondertekeningsoort.label" set="signingInfo"/>
 
                     <set id="integrityInfo" appearance="bordered-panel" label-id="form.document.set.integriteitsinformatie.label"/>
-                    <show id="drc:document__integriteitwaarde" label-id="form.document.set.openzaak.integriteitwaarde.label" set="integrityInfo"/>
-                    <show id="drc:document__integriteitdatum" label-id="form.document.set.openzaak.integriteitdatum.label" set="integrityInfo"/>
-                    <show id="drc:document__integriteitalgoritme" label-id="form.document.set.openzaak.integriteitalgoritme.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitwaarde" label-id="form.document.set.openzaak.integriteitwaarde.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitdatum" label-id="form.document.set.openzaak.integriteitdatum.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitalgoritme" label-id="form.document.set.openzaak.integriteitalgoritme.label" set="integrityInfo"/>
 
                     <set id="usageInfo" appearance="bordered-panel" label-id="form.document.set.gebruiksinformatie.label"/>
-                    <show id="drc:document__vertrouwelijkaanduiding" label-id="form.document.set.openzaak.vertrouwelijkaanduiding.label" set="usageInfo"/>
-                    <show id="drc:document__indicatiegebruiksrecht" label-id="form.document.set.openzaak.indicatiegebruiksrecht.label" set="usageInfo"/>
+                    <field id="drc:document__vertrouwelijkaanduiding" label-id="form.document.set.openzaak.vertrouwelijkaanduiding.label" set="usageInfo"/>
+                    <field id="drc:document__indicatiegebruiksrecht" label-id="form.document.set.openzaak.indicatiegebruiksrecht.label" set="usageInfo"/>
                 </appearance>
             </form>
         </forms>
@@ -191,13 +187,13 @@ Description: Alfresco drc share configuratie (openzaak)
         <forms>
             <form id="search">
                 <field-visibility>
-                    <show id="cm:name" for-mode="view"/>
+                    <show id="cm:name"/>
                     <show id="cm:title" force="true"/>
                     <show id="cm:description" force="true"/>
 
-                    <show id="drc:document__uuid" for-mode="view"/>
-                    <show id="drc:document__bestandsnaam" for-mode="view"/>
-                    <show id="drc:document__identificatie" for-mode="view"/>
+                    <show id="drc:document__uuid"/>
+                    <show id="drc:document__bestandsnaam"/>
+                    <show id="drc:document__identificatie"/>
                     <show id="drc:document__titel"/>
                     <show id="drc:document__beschrijving"/>
                     <show id="drc:document__informatieobjecttype"/>
@@ -209,8 +205,8 @@ Description: Alfresco drc share configuratie (openzaak)
                     <show id="drc:document__link"/>
                     <show id="drc:document__verwijderd"/>
                     <show id="drc:document__formaat"/>
-                    <show id="drc:document__versie" for-mode="view"/>
-                    <show id="drc:document__lock" for-mode="view"/>
+                    <show id="drc:document__versie"/>
+                    <show id="drc:document__lock"/>
                     <show id="drc:kopie_van"/>
 
                     <show id="drc:document__verzenddatum"/>
@@ -221,9 +217,9 @@ Description: Alfresco drc share configuratie (openzaak)
                     <show id="drc:document__ondertekeningdatum"/>
                     <show id="drc:document__ondertekeningsoort"/>
 
-                    <show id="drc:document__integriteitwaarde" for-mode="view"/>
-                    <show id="drc:document__integriteitdatum" for-mode="view"/>
-                    <show id="drc:document__integriteitalgoritme" for-mode="view"/>
+                    <show id="drc:document__integriteitwaarde"/>
+                    <show id="drc:document__integriteitdatum"/>
+                    <show id="drc:document__integriteitalgoritme"/>
 
                     <show id="drc:document__vertrouwelijkaanduiding"/>
                     <show id="drc:document__indicatiegebruiksrecht"/>
@@ -234,43 +230,43 @@ Description: Alfresco drc share configuratie (openzaak)
                     <field id="cm:description"/>
 
                     <set id="baseInfo" appearance="bordered-panel" label-id="form.document.set.basisinformatie.label"/>
-                    <show id="drc:document__uuid" label-id="form.document.set.openzaak.uuid.label" set="baseInfo"/>
-                    <show id="drc:document__bestandsnaam" label-id="form.document.set.openzaak.bestandsnaam.label" set="baseInfo"/>
-                    <show id="drc:document__identificatie" label-id="form.document.set.openzaak.identificatie.label" set="baseInfo"/>
-                    <show id="drc:document__titel" label-id="form.document.set.openzaak.titel.label" set="baseInfo"/>
-                    <show id="drc:document__beschrijving" label-id="form.document.set.openzaak.beschrijving.label" set="baseInfo"/>
-                    <show id="drc:document__informatieobjecttype" label-id="form.document.set.openzaak.informatieobjecttype.label" set="baseInfo"/>
-                    <show id="drc:document__creatiedatum" label-id="form.document.set.openzaak.creatiedatum.label" set="baseInfo"/>
-                    <show id="drc:document__auteur" label-id="form.document.set.openzaak.auteur.label" set="baseInfo"/>
-                    <show id="drc:document__taal" label-id="form.document.set.openzaak.taal.label" set="baseInfo"/>
+                    <field id="drc:document__uuid" label-id="form.document.set.openzaak.uuid.label" set="baseInfo"/>
+                    <field id="drc:document__bestandsnaam" label-id="form.document.set.openzaak.bestandsnaam.label" set="baseInfo"/>
+                    <field id="drc:document__identificatie" label-id="form.document.set.openzaak.identificatie.label" set="baseInfo"/>
+                    <field id="drc:document__titel" label-id="form.document.set.openzaak.titel.label" set="baseInfo"/>
+                    <field id="drc:document__beschrijving" label-id="form.document.set.openzaak.beschrijving.label" set="baseInfo"/>
+                    <field id="drc:document__informatieobjecttype" label-id="form.document.set.openzaak.informatieobjecttype.label" set="baseInfo"/>
+                    <field id="drc:document__creatiedatum" label-id="form.document.set.openzaak.creatiedatum.label" set="baseInfo"/>
+                    <field id="drc:document__auteur" label-id="form.document.set.openzaak.auteur.label" set="baseInfo"/>
+                    <field id="drc:document__taal" label-id="form.document.set.openzaak.taal.label" set="baseInfo"/>
 
                     <set id="documentInfo" appearance="bordered-panel" label-id="form.document.set.documentinformatie.label"/>
-                    <show id="drc:document__bronorganisatie" label-id="form.document.set.openzaak.bronorganisatie.label" set="documentInfo"/>
-                    <show id="drc:document__link" label-id="form.document.set.openzaak.link.label" set="documentInfo"/>
-                    <show id="drc:document__verwijderd" label-id="form.document.set.openzaak.verwijderd.label" set="documentInfo"/>
-                    <show id="drc:document__formaat" label-id="form.document.set.openzaak.formaat.label" set="documentInfo"/>
-                    <show id="drc:document__versie" label-id="form.document.set.openzaak.versie.label" set="documentInfo"/>
-                    <show id="drc:document__lock" label-id="form.document.set.openzaak.lock.label" set="documentInfo"/>
-                    <show id="drc:kopie_van" label-id="form.document.set.openzaak.kopievan.label" set="documentInfo"/>
+                    <field id="drc:document__bronorganisatie" label-id="form.document.set.openzaak.bronorganisatie.label" set="documentInfo"/>
+                    <field id="drc:document__link" label-id="form.document.set.openzaak.link.label" set="documentInfo"/>
+                    <field id="drc:document__verwijderd" label-id="form.document.set.openzaak.verwijderd.label" set="documentInfo"/>
+                    <field id="drc:document__formaat" label-id="form.document.set.openzaak.formaat.label" set="documentInfo"/>
+                    <field id="drc:document__versie" label-id="form.document.set.openzaak.versie.label" set="documentInfo"/>
+                    <field id="drc:document__lock" label-id="form.document.set.openzaak.lock.label" set="documentInfo"/>
+                    <field id="drc:kopie_van" label-id="form.document.set.openzaak.kopievan.label" set="documentInfo"/>
 
                     <set id="progressionInfo" appearance="bordered-panel" label-id="form.document.set.progressieinformatie.label"/>
-                    <show id="drc:document__verzenddatum" label-id="form.document.set.openzaak.verzenddatum.label" set="progressionInfo"/>
-                    <show id="drc:document__ontvangstdatum" label-id="form.document.set.openzaak.ontvangstdatum.label" set="progressionInfo"/>
-                    <show id="drc:document__begin_registratie" label-id="form.document.set.openzaak.beginregistratie.label" set="progressionInfo"/>
-                    <show id="drc:document__status" label-id="form.document.set.openzaak.status.label" set="progressionInfo"/>
+                    <field id="drc:document__verzenddatum" label-id="form.document.set.openzaak.verzenddatum.label" set="progressionInfo"/>
+                    <field id="drc:document__ontvangstdatum" label-id="form.document.set.openzaak.ontvangstdatum.label" set="progressionInfo"/>
+                    <field id="drc:document__begin_registratie" label-id="form.document.set.openzaak.beginregistratie.label" set="progressionInfo"/>
+                    <field id="drc:document__status" label-id="form.document.set.openzaak.status.label" set="progressionInfo"/>
 
                     <set id="signingInfo" appearance="bordered-panel" label-id="form.document.set.ondertekeningsinformatie.label"/>
-                    <show id="drc:document__ondertekeningdatum" label-id="form.document.set.openzaak.ondertekeningdatum.label" set="signingInfo"/>
-                    <show id="drc:document__ondertekeningsoort" label-id="form.document.set.openzaak.ondertekeningsoort.label" set="signingInfo"/>
+                    <field id="drc:document__ondertekeningdatum" label-id="form.document.set.openzaak.ondertekeningdatum.label" set="signingInfo"/>
+                    <field id="drc:document__ondertekeningsoort" label-id="form.document.set.openzaak.ondertekeningsoort.label" set="signingInfo"/>
 
                     <set id="integrityInfo" appearance="bordered-panel" label-id="form.document.set.integriteitsinformatie.label"/>
-                    <show id="drc:document__integriteitwaarde" label-id="form.document.set.openzaak.integriteitwaarde.label" set="integrityInfo"/>
-                    <show id="drc:document__integriteitdatum" label-id="form.document.set.openzaak.integriteitdatum.label" set="integrityInfo"/>
-                    <show id="drc:document__integriteitalgoritme" label-id="form.document.set.openzaak.integriteitalgoritme.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitwaarde" label-id="form.document.set.openzaak.integriteitwaarde.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitdatum" label-id="form.document.set.openzaak.integriteitdatum.label" set="integrityInfo"/>
+                    <field id="drc:document__integriteitalgoritme" label-id="form.document.set.openzaak.integriteitalgoritme.label" set="integrityInfo"/>
 
                     <set id="usageInfo" appearance="bordered-panel" label-id="form.document.set.gebruiksinformatie.label"/>
-                    <show id="drc:document__vertrouwelijkaanduiding" label-id="form.document.set.openzaak.vertrouwelijkaanduiding.label" set="usageInfo"/>
-                    <show id="drc:document__indicatiegebruiksrecht" label-id="form.document.set.openzaak.indicatiegebruiksrecht.label" set="usageInfo"/>
+                    <field id="drc:document__vertrouwelijkaanduiding" label-id="form.document.set.openzaak.vertrouwelijkaanduiding.label" set="usageInfo"/>
+                    <field id="drc:document__indicatiegebruiksrecht" label-id="form.document.set.openzaak.indicatiegebruiksrecht.label" set="usageInfo"/>
                 </appearance>
             </form>
         </forms>

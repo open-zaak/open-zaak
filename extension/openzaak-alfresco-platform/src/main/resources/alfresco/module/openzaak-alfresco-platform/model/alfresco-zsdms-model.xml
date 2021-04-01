@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.alfresco.org/model/dictionary/1.0" name="drc:drc-document">
-    <author>OPEN.satisfaction namens Openzaak</author>
     <description>Alfresco drc model (openzaak)</description>
+    <author>OPEN.satisfaction namens Openzaak</author>
     <imports>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
@@ -23,7 +23,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -33,7 +33,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -42,7 +42,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -51,7 +51,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -70,7 +70,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__uuid">
@@ -78,7 +78,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__verzenddatum">
@@ -86,7 +86,7 @@
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__ontvangstdatum">
@@ -94,7 +94,7 @@
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__informatieobjecttype">
@@ -102,7 +102,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -111,7 +111,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__bestandsnaam">
@@ -119,7 +119,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -128,7 +128,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -137,7 +137,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__vertrouwelijkaanduiding">
@@ -145,7 +145,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__integriteitwaarde">
@@ -153,7 +153,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__taal">
@@ -161,7 +161,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__indicatiegebruiksrecht">
@@ -169,7 +169,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__titel">
@@ -177,7 +177,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>true</facetable>
                     </index>
                 </property>
@@ -186,7 +186,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>true</facetable>
                     </index>
                 </property>
@@ -196,7 +196,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -206,7 +206,7 @@
                     <mandatory>false</mandatory>
                     <default>false</default>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__formaat">
@@ -214,7 +214,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__versie">
@@ -222,7 +222,7 @@
                     <type>d:long</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>FALSE</tokenised>
+                        <tokenised>false</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -231,7 +231,7 @@
                     <type>d:date</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__integriteitdatum">
@@ -239,7 +239,7 @@
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__ondertekeningdatum">
@@ -247,7 +247,7 @@
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__integriteitalgoritme">
@@ -255,7 +255,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__ondertekeningsoort">
@@ -263,7 +263,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__auteur">
@@ -271,7 +271,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:document__begin_registratie">
@@ -279,7 +279,7 @@
                     <type>d:datetime</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>FALSE</tokenised>
+                        <tokenised>false</tokenised>
                         <facetable>false</facetable>
                     </index>
                 </property>
@@ -288,7 +288,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
             </properties>
@@ -306,7 +306,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:gebruiksrechten__uuid">
@@ -314,7 +314,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:gebruiksrechten__informatieobject">
@@ -322,7 +322,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:gebruiksrechten__omschrijving_voorwaarden">
@@ -330,7 +330,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:gebruiksrechten__startdatum">
@@ -338,7 +338,7 @@
                     <type>d:datetime</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:gebruiksrechten__einddatum">
@@ -346,7 +346,7 @@
                     <type>d:datetime</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
             </properties>
@@ -364,7 +364,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:oio__informatieobject">
@@ -372,7 +372,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:oio__object_type">
@@ -380,7 +380,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:oio__zaak">
@@ -388,7 +388,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:oio__besluit">
@@ -396,7 +396,7 @@
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                     <index enabled="true">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
             </properties>
@@ -414,7 +414,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
                 <property name="drc:zaaktype__url">
@@ -423,7 +423,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <index enabled="false">
-                        <tokenised>TRUE</tokenised>
+                        <tokenised>true</tokenised>
                     </index>
                 </property>
             </properties>

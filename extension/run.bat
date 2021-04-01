@@ -1,6 +1,7 @@
 @ECHO OFF
 
 SET COMPOSE_FILE_PATH=%CD%\target\classes\docker\docker-compose.yml
+SET COMPOSE_PRODUCTION_FILE_PATH=%CD%\target\classes\docker\docker-compose-production.yml
 
 IF [%M2_HOME%]==[] (
     SET MVN_EXEC=mvn
@@ -78,7 +79,11 @@ IF %1==test (
     CALL :test
     GOTO END
 )
-echo "Usage: %0 {build_start|start|stop|purge|tail|reload_share|reload_acs|build_test|test}"
+IF %1==build_production (
+    CALL :build_production
+    GOTO END
+)
+echo "Usage: %0 {build|build_start|start|stop|purge|tail|reload_share|reload_acs|build_test|test|build_production}"
 :END
 EXIT /B %ERRORLEVEL%
 
@@ -128,4 +133,9 @@ EXIT /B 0
     docker volume rm -f openzaak-alfresco-acs-volume
     docker volume rm -f openzaak-alfresco-db-volume
     docker volume rm -f openzaak-alfresco-ass-volume
+EXIT /B 0
+:build_production
+    COPY "..\config\alfresco-global.properties" ".\openzaak-alfresco-platform-docker\src\main\docker\alfresco-production-global.properties"
+    CALL :build
+    docker-compose -f "%COMPOSE_PRODUCTION_FILE_PATH%" build
 EXIT /B 0

@@ -36,3 +36,6 @@ tmp/
 
 # macOS
 *.DS_Store
+
+# Other
+openzaak-alfresco-platform-docker/src/main/docker/alfresco-production-global.properties

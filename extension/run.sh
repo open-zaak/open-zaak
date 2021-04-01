@@ -1,6 +1,8 @@
 #!/bin/sh
 
 export COMPOSE_FILE_PATH="${PWD}/target/classes/docker/docker-compose.yml"
+export COMPOSE_PRODUCTION_FILE_PATH="${PWD}/target/classes/docker/docker-compose-production.yml"
+
 
 if [ -z "${M2_HOME}" ]; then
   export MVN_EXEC="mvn"
@@ -67,6 +69,12 @@ test() {
     $MVN_EXEC verify -pl openzaak-alfresco-platform,openzaak-alfresco-integration-tests
 }
 
+build_production() {
+    yes | cp -f "../config/alfresco-global.properties" "./openzaak-alfresco-platform-docker/src/main/docker/alfresco-production-global.properties"
+    build
+    docker-compose -f "$COMPOSE_PRODUCTION_FILE_PATH" build
+}
+
 case "$1" in
   build)
     build
@@ -120,6 +128,9 @@ case "$1" in
   test)
     test
     ;;
+  build_production)
+    build_production
+    ;;
   *)
-    echo "Usage: $0 {build_start|build_start_it_supported|start|stop|purge|tail|reload_share|reload_acs|build_test|test}"
+    echo "Usage: $0 {build|build_start|start|stop|purge|tail|reload_share|reload_acs|build_test|test|build_production}"
 esac

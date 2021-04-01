@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  openzaak-alfresco-share:
+    image: alfresco-share-openzaak-alfresco:${project.version}
+    build:
+      dockerfile: ./Dockerfile-production
+      context: ../../../openzaak-alfresco-share-docker/target
+  openzaak-alfresco-acs:
+    image: alfresco-content-services-openzaak-alfresco:${project.version}
+    build:
+      dockerfile: ./Dockerfile-production
+      context: ../../../openzaak-alfresco-platform-docker/target

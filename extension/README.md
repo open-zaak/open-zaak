@@ -20,7 +20,7 @@ Het content model en de share configuratie worden gepackaged als .jar bestand. I
 Extra vereiste tools:
 - Docker
 
-1. Draai het commando  `./run.sh build_start` of `./run.bat build_start`
+1. Draai het commando `./run.sh build_start` of `./run.bat build_start`
 2. Ga naar http://localhost:8180/share en wacht op een login scherm
 3. Login met gebruiker: `admin` en wachtwoord: `admin`
 
@@ -30,7 +30,36 @@ Merk op dat deze test stack bestaat uit 4 containers. Alfresco, met de CMIS conn
 
 ## Deployment op productie
 
+Voor deployment op productie zijn er meerdere opties:
+- Als docker container
+- Als kubernetes cluster
+- Direct op Windows/linux
+
+### Deployment als docker container
+
+Gebruik voor container deployment de juiste docker compose file van [Alfresco docker-compose deployment](https://github.com/Alfresco/acs-deployment/tree/master/docker-compose)
+
+Hiervoor zijn natuurlijk wel images nodig. Deze kunnen als volgt gebouwd worden:
+1. Zorg dat de `./pom.xml` de juiste image versie bevat bij `<alfresco.platform.enterprise.version>`.
+2. Zorg dat de share image versie in `./pom.xml` vergelijkbaar is met de enterprise image versie. Bijvoorbeeld: share 6.0 levert mogelijk problemen op met alfresco 6.2.2.3 
+3. Pas de versie in `<version>` aan naar de huidige versie van Openzaak.
+3. Draai het commando `./run.sh build_production` of `./run.bat build_production`.
+
+Hierna zijn er images beschikbaar in een lokale repository met de naam `alfresco-content-services-openzaak-alfresco` en de project versie als tag. Deze resulterende images kunnen gebruikt worden in een docker of Helm deployment.
+
+### Deployment via Helm charts
+
+Gebruik voor helm deployment de juiste helm charts van [Alfresco docker-compose deployment](https://github.com/Alfresco/acs-deployment/tree/master/helm/alfresco-content-services)
+
+Ook hiervoor zijn images nodig. Bouw deze zoals beschreven bij [Deployment als docker-container](###Deployment als docker container). Maak daarna een eigen values file met de juiste images en memory settings. Start de Kubernetes cluster door middel van Helm commando's.
+
+### Deployment direct op Windows
 1. Draai het commando `./run.sh build` of `./run.bat build`
+2. Pak de `.jar` uit `openzaak-alfresco-platform/target` en plaats deze in de `${ALFRESCO_INSTALLATIE}/modules/platform` folder van Alfresco
+3. Pak de `.jar` uit `openzaak-alfresco-share/target` en plaats deze in de `${ALFRESCO_INSTALLATIE}/modules/share` folder van Alfresco
+4. Herstart alfresco
+
+
 
 Onderstaand de instructies vanuit Alfresco voor meer informatie
 
