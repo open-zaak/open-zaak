@@ -119,16 +119,19 @@ class ZaaktypeAdminTests(
         form["opschorting_en_aanhouding_mogelijk"].select(False)
         form["verlenging_mogelijk"].select(False)
         form["vertrouwelijkheidaanduiding"].select("openbaar")
-        form["producten_of_diensten"] = "https://example.com/foobarbaz"
         form["referentieproces_naam"] = "test"
         form["catalogus"] = catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
 
         response = form.submit()
 
-        # redirect on succesfull create, 200 on validation errors, 500 on db errors
+        # redirect on successful create, 200 on validation errors, 500 on db errors
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.count(), 1)
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.trefwoorden, [])
+        self.assertEqual(zaaktype.verantwoordingsrelatie, [])
+        self.assertEqual(zaaktype.producten_of_diensten, [])
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
