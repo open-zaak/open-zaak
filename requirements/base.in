@@ -43,4 +43,3 @@ drc-cmis>=1.1.0
 # WSGI servers & monitoring - production oriented
 uwsgi
 sentry_sdk # error monitoring sentry
-gitpython

@@ -5,7 +5,6 @@ import os
 
 from django.urls import reverse_lazy
 
-import git
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
 from sentry_sdk.integrations import django, redis
@@ -429,8 +428,13 @@ if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
 # in docker (build) context, there is no .git directory
 elif os.path.exists(os.path.join(BASE_DIR, ".git")):
-    repo = git.Repo(search_parent_directories=True)
-    GIT_SHA = repo.head.object.hexsha
+    try:
+        import git
+    except ImportError:
+        GIT_SHA = None
+    else:
+        repo = git.Repo(search_parent_directories=True)
+        GIT_SHA = repo.head.object.hexsha
 else:
     GIT_SHA = None
 

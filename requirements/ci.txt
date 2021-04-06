@@ -188,12 +188,6 @@ gemma-zds-client==0.13.0
     #   -r requirements/base.txt
     #   vng-api-common
     #   zgw-consumers
-gitdb==4.0.5
-    # via
-    #   -r requirements/base.txt
-    #   gitpython
-gitpython==3.1.7
-    # via -r requirements/base.txt
 httplib2==0.19.0
     # via
     #   -r requirements/base.txt
@@ -336,10 +330,6 @@ six==1.11.0
     #   python-dateutil
     #   requests-mock
     #   webtest
-smmap==3.0.4
-    # via
-    #   -r requirements/base.txt
-    #   gitdb
 soupsieve==1.9.5
     # via beautifulsoup4
 sqlparse==0.3.0

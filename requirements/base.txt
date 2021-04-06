@@ -135,10 +135,6 @@ gemma-zds-client==0.13.0
     # via
     #   vng-api-common
     #   zgw-consumers
-gitdb==4.0.5
-    # via gitpython
-gitpython==3.1.7
-    # via -r requirements/base.in
 httplib2==0.19.0
     # via cmislib-maykin
 humanize==3.2.0
@@ -224,8 +220,6 @@ six==1.11.0
     #   django-markup
     #   isodate
     #   python-dateutil
-smmap==3.0.4
-    # via gitdb
 sqlparse==0.3.0
     # via django
 unidecode==1.0.22

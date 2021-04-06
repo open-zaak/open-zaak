@@ -227,11 +227,9 @@ gemma-zds-client==0.13.0
     #   vng-api-common
     #   zgw-consumers
 gitdb==4.0.5
-    # via
-    #   -r requirements/ci.txt
-    #   gitpython
+    # via gitpython
 gitpython==3.1.7
-    # via -r requirements/ci.txt
+    # via -r requirements/dev.in
 google-auth==1.21.2
     # via kubernetes
 gprof2dot==2019.11.30
@@ -459,9 +457,7 @@ six==1.11.0
     #   websocket-client
     #   webtest
 smmap==3.0.4
-    # via
-    #   -r requirements/ci.txt
-    #   gitdb
+    # via gitdb
 snowballstemmer==2.0.0
     # via sphinx
 soupsieve==1.9.5
