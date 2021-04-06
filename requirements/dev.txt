@@ -81,7 +81,7 @@ django-appconf==1.0.2
     # via
     #   -r requirements/ci.txt
     #   django-axes
-django-auth-adfs-db==0.2.0
+django-auth-adfs-db==0.3.0
     # via -r requirements/ci.txt
 django-auth-adfs==1.3.1
     # via
@@ -178,7 +178,6 @@ django==2.2.19
     #   drc-cmis
     #   drf-nested-routers
     #   drf-yasg
-    #   nlx-url-rewriter
     #   vng-api-common
     #   zgw-consumers
 djangorestframework-camel-case==1.2.0
@@ -201,8 +200,6 @@ docutils==0.15.2
     #   recommonmark
     #   sphinx
 drc-cmis==1.2.3
-    # via -r requirements/ci.txt
-drf-flex-fields==0.5.0
     # via -r requirements/ci.txt
 drf-nested-routers==0.93.3
     # via
@@ -306,8 +303,6 @@ mccabe==0.6.1
     # via
     #   -r requirements/ci.txt
     #   flake8
-nlx-url-rewriter==0.1.2
-    # via -r requirements/ci.txt
 oauthlib==3.1.0
     # via requests-oauthlib
 openshift==0.11.2

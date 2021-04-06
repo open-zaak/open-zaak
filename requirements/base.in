@@ -6,7 +6,6 @@ python-dateutil
 python-dotenv  # environment variables for secrets
 python-decouple  # processing of envvar configs
 requests
-nlx-url-rewriter
 zgw-consumers
 self-certifi
 
@@ -39,7 +38,6 @@ drf-yasg
 drf-writable-nested
 vng-api-common<1.1
 humanize
-drf-flex-fields
 drc-cmis>=1.1.0
 
 # WSGI servers & monitoring - production oriented

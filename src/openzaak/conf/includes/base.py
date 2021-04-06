@@ -122,7 +122,6 @@ INSTALLED_APPS = [
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
     "vng_api_common.notifications",
-    "nlx_url_rewriter",
     "drf_yasg",
     "rest_framework",
     "rest_framework_gis",
