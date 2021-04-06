@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import logging
 from argparse import RawTextHelpFormatter
 
 from django.contrib.sites.models import Site
@@ -19,6 +20,8 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -147,6 +150,7 @@ class Command(BaseCommand):
                 f"and secret {random_secret}.  Use this to configure your Open Notifications instance."
             )
         except Exception as e:
+            logger.warning("Problem with services", exc_info=True)
             raise CommandError(
                 f"Something went wrong while setting up initial configuration: {e}"
             )
