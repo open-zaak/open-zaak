@@ -60,17 +60,13 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": [
-                        "zds.scopes.zaken.lezen",
-                        "zds.scopes.zaken.aanmaken",
-                        "zds.scopes.zaken.verwijderen",
-                    ],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
@@ -99,9 +95,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             auth1.zaaktype,
             "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
         )
-        self.assertEqual(
-            auth1.scopes, ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"]
-        )
+        self.assertEqual(auth1.scopes, ["zaken.lezen", "zaken.aanmaken"])
         self.assertEqual(
             auth1.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.beperkt_openbaar,
@@ -109,12 +103,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(auth2.applicatie, applicatie)
         self.assertEqual(auth2.component, ComponentTypes.zrc)
         self.assertEqual(
-            auth2.scopes,
-            [
-                "zds.scopes.zaken.lezen",
-                "zds.scopes.zaken.aanmaken",
-                "zds.scopes.zaken.verwijderen",
-            ],
+            auth2.scopes, ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
         )
         self.assertEqual(
             auth2.zaaktype,
@@ -140,7 +129,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
@@ -230,7 +219,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
@@ -409,17 +398,13 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": [
-                        "zds.scopes.zaken.lezen",
-                        "zds.scopes.zaken.aanmaken",
-                        "zds.scopes.zaken.verwijderen",
-                    ],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
