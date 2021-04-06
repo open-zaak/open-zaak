@@ -280,6 +280,35 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(credential.secret, "")
 
+    def test_create_with_empty_scopes(self):
+        """
+        Assert that an autorisatie with empty scopes can be created.
+
+        The API spec does not specify a minimum number of elements, which means that
+        an empty list is permitted.
+
+        This is regression found during upgrading the dependencies, which caused the
+        Postman collection to fail.
+        """
+        url = get_operation_url("applicatie_create")
+
+        data = {
+            "client_ids": ["id1"],
+            "label": "some-app",
+            "autorisaties": [
+                {
+                    "component": ComponentTypes.zrc,
+                    "scopes": [],
+                    "zaaktype": "https://catalogi-api.vng.cloud/api/v1/catalogus/1/zaaktypen/1",
+                    "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                }
+            ],
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
