@@ -65,6 +65,8 @@ django-auth-adfs==1.3.1
     #   django-auth-adfs-db
 django-axes==4.4.0
     # via -r requirements/base.txt
+django-better-admin-arrayfield==1.4.2
+    # via -r requirements/base.txt
 django-capture-on-commit-callbacks==1.3.0
     # via -r requirements/test-tools.in
 django-choices==1.7.0
@@ -240,8 +242,6 @@ markupsafe==1.1.1
     # via
     #   -r requirements/base.txt
     #   jinja2
-maykin-django-better-admin-arrayfield==1.0.5
-    # via -r requirements/base.txt
 mccabe==0.6.1
     # via flake8
 nlx-url-rewriter==0.1.2

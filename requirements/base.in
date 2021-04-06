@@ -27,7 +27,7 @@ django-relativedelta
 # Admin and UI libraries
 django-admin-index
 django-sniplates
-maykin-django-better-admin-arrayfield
+django-better-admin-arrayfield
 
 # API libraries
 djangorestframework~=3.12.0

@@ -2,9 +2,9 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import admin
 
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from solo.admin import SingletonModelAdmin
 
-from ..utils.admin import DynamicArrayMixin
 from .models import ReferentieLijstConfig
 
 

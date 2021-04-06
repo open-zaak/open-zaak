@@ -130,7 +130,7 @@ INSTALLED_APPS = [
     "solo",
     "sniplates",
     "privates",
-    "django_better_admin_arrayfield.apps.DjangoBetterAdminArrayfieldConfig",
+    "django_better_admin_arrayfield",
     "django_loose_fk",
     "zgw_consumers",
     "drc_cmis",
