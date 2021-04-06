@@ -14,6 +14,7 @@ from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
@@ -35,7 +36,9 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
+class ZaaktypeAdminTests(
+    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
@@ -45,6 +48,8 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         selectielijst_config = ReferentieLijstConfig.get_solo()
         selectielijst_config.allowed_years = [2017, 2020]
         selectielijst_config.save()
+
+        cls._configure_notifications()
 
     def setUp(self):
         super().setUp()
