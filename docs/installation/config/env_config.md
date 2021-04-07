@@ -56,6 +56,11 @@ on Docker, since `localhost` is contained within the container:
 
 * `DB_PORT`: port number of the database, defaults to `5432`.
 
+* `USE_X_FORWARDED_HOST`: whether to grab the domain/host from the `X-Forwarded-Host`
+  header or not. This header is typically set by reverse proxies (such as nginx,
+  traefik, Apache...). Default `False` - this is a header that can be spoofed and you
+  need to ensure you control it before enabling this.
+
 * `CACHE_DEFAULT`: redis cache address for the default cache. Defaults to
   `localhost:6379/0`.
 
