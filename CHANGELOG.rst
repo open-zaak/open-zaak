@@ -1,6 +1,27 @@
 Changelog
 =========
 
+1.4.0 (2021-03-??)
+------------------
+
+**External dependency cleanup**
+
+* Dropped nlx-url-rewriter, see manual intervention below
+* Dropped drf-flex-fields, it was not used
+* Upgraded Django, djangorestframework, djangorestframework-camel-case, drf-yasg & other
+  related packages (#935)
+
+.. warning::
+
+   Manual intervention required
+
+   If you're upgrading from an *older* version than 1.2.0 of Open Zaak and using NLX,
+   you need to update to 1.3.5 first, and then update to the 1.4.x series.
+
+   In 1.2.0, the configuration of external API's was reworked, migrating from the
+   nlx-url-rewriter package to zgw-consumers. In 1.4.0, the nlx-url-rewriter package
+   is dropped and no longer present.
+
 1.3.5 (2021-03-25)
 ------------------
 

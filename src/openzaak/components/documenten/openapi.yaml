@@ -1636,7 +1636,6 @@ components:
       bearerFormat: JWT
   schemas:
     Ondertekening:
-      title: ondertekening
       description: Aanduiding van de rechtskracht van een informatieobject. Mag niet
         van een waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter
         vaststelling' heeft.
@@ -1671,7 +1670,6 @@ components:
           format: date
       nullable: true
     Integriteit:
-      title: integriteit
       description: Uitdrukking van mate van volledigheid en onbeschadigd zijn van
         digitaal bestand.
       required:
@@ -2284,7 +2282,6 @@ components:
           type: boolean
           readOnly: true
     Wijzigingen:
-      title: Wijzigingen
       type: object
       properties:
         oud:

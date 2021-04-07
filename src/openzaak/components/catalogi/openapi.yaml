@@ -3556,7 +3556,6 @@ components:
           readOnly: true
           uniqueItems: true
     EigenschapSpecificatie:
-      title: Specificatie
       required:
       - formaat
       - lengte
@@ -3737,7 +3736,6 @@ components:
           type: boolean
           readOnly: true
     BrondatumArchiefprocedure:
-      title: Brondatum archiefprocedure
       description: Specificatie voor het bepalen van de brondatum voor de start van
         de Archiefactietermijn (=brondatum) van het zaakdossier.
       required:
@@ -4184,7 +4182,6 @@ components:
           format: uri
           nullable: true
     ReferentieProces:
-      title: Referentieproces
       description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
       required:
       - naam

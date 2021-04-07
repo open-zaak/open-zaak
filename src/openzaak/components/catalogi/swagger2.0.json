@@ -4738,7 +4738,6 @@
             }
         },
         "EigenschapSpecificatie": {
-            "title": "Specificatie",
             "required": [
                 "formaat",
                 "lengte",
@@ -4905,7 +4904,6 @@
             }
         },
         "BrondatumArchiefprocedure": {
-            "title": "Brondatum archiefprocedure",
             "description": "Specificatie voor het bepalen van de brondatum voor de start van de Archiefactietermijn (=brondatum) van het zaakdossier.",
             "required": [
                 "afleidingswijze"
@@ -5239,7 +5237,6 @@
             }
         },
         "ReferentieProces": {
-            "title": "Referentieproces",
             "description": "Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.",
             "required": [
                 "naam"

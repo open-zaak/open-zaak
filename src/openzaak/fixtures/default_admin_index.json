@@ -63,10 +63,6 @@
                 "adfsconfig"
             ],
             [
-                "nlx_url_rewriter",
-                "urlrewrite"
-            ],
-            [
                 "notifications",
                 "notificationsconfig"
             ],
