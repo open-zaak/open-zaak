@@ -386,7 +386,7 @@ pytz==2019.1
     #   django
     #   django-axes
     #   django-silk
-pyyaml==5.1
+pyyaml==5.4.1
     # via
     #   -r requirements/../deployment/requirements.in
     #   -r requirements/ci.txt
