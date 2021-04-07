@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.2"
+        "version": "1.0.3"
     },
     "basePath": "/zaken/api/v1",
     "consumes": [
@@ -915,7 +915,7 @@
                         "type": "string"
                     },
                     {
-                        "name": "betrokkeneIdentificatie__vestiging__identificatie",
+                        "name": "betrokkeneIdentificatie__organisatorischeeenheid__identificatie",
                         "in": "query",
                         "description": "Een korte identificatie van de organisatorische eenheid.",
                         "required": false,

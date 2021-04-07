@@ -1602,7 +1602,7 @@ paths:
         required: false
         schema:
           type: string
-      - name: betrokkeneIdentificatie__vestiging__identificatie
+      - name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         in: query
         description: Een korte identificatie van de organisatorische eenheid.
         required: false
