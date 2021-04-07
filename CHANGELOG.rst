@@ -4,6 +4,14 @@ Changelog
 1.4.0 (2021-03-??)
 ------------------
 
+**Bugfixes**
+
+* Updated to Zaken API 1.0.3 specification, see the upstream `1.0.3 changelog`_.
+
+    * ``rol_list`` operation querystring parameter fixed, from
+      ``betrokkeneIdentificatie__vestiging__identificatie`` to
+      ``betrokkeneIdentificatie__organisatorischeeenheid__identificatie``
+
 **External dependency cleanup**
 
 * Dropped nlx-url-rewriter, see manual intervention below
@@ -21,6 +29,8 @@ Changelog
    In 1.2.0, the configuration of external API's was reworked, migrating from the
    nlx-url-rewriter package to zgw-consumers. In 1.4.0, the nlx-url-rewriter package
    is dropped and no longer present.
+
+.. _1.0.3 changelog: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/CHANGELOG.rst#user-content-103-2021-03-29
 
 1.3.5 (2021-03-25)
 ------------------
