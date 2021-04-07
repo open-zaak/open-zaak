@@ -1,7 +1,7 @@
 @ECHO OFF
 
 SET COMPOSE_FILE_PATH=%CD%\target\classes\docker\docker-compose.yml
-SET COMPOSE_PRODUCTION_FILE_PATH=%CD%\target\classes\docker\docker-compose-production.yml
+SET USAGE="Usage: %0 {build|build_start|build_image|build_start_it_supported|start|stop|purge|tail|reload_share|reload_acs|build_test|test}"
 
 IF [%M2_HOME%]==[] (
     SET MVN_EXEC=mvn
@@ -12,7 +12,7 @@ IF NOT [%M2_HOME%]==[] (
 )
 
 IF [%1]==[] (
-    echo "Usage: %0 {build|build_start|build_start_it_supported|start|stop|purge|tail|reload_share|reload_acs|build_test|test}"
+    echo %USAGE%
     GOTO END
 )
 
@@ -25,6 +25,11 @@ IF %1==build_start (
     CALL :build
     CALL :start
     CALL :tail
+    GOTO END
+)
+IF %1==build_image (
+    CALL :build
+    CALL :build_image
     GOTO END
 )
 IF %1==build_start_it_supported (
@@ -79,11 +84,8 @@ IF %1==test (
     CALL :test
     GOTO END
 )
-IF %1==build_production (
-    CALL :build_production
-    GOTO END
-)
-echo "Usage: %0 {build|build_start|start|stop|purge|tail|reload_share|reload_acs|build_test|test|build_production}"
+
+echo %USAGE%
 :END
 EXIT /B %ERRORLEVEL%
 
@@ -105,17 +107,20 @@ EXIT /B 0
     )
 EXIT /B 0
 :build
-	call %MVN_EXEC% clean package
+    call %MVN_EXEC% clean package
+EXIT /B 0
+:build_image
+    docker-compose -f "%COMPOSE_FILE_PATH%" build
 EXIT /B 0
 :build_share
     docker-compose -f "%COMPOSE_FILE_PATH%" kill openzaak-alfresco-share
     docker-compose -f "%COMPOSE_FILE_PATH%" rm -f openzaak-alfresco-share
-	call %MVN_EXEC% clean package -pl openzaak-alfresco-share,openzaak-alfresco-share-docker
+    call %MVN_EXEC% clean package -pl openzaak-alfresco-share,openzaak-alfresco-share-docker
 EXIT /B 0
 :build_acs
     docker-compose -f "%COMPOSE_FILE_PATH%" kill openzaak-alfresco-acs
     docker-compose -f "%COMPOSE_FILE_PATH%" rm -f openzaak-alfresco-acs
-	call %MVN_EXEC% clean package -pl openzaak-alfresco-integration-tests,openzaak-alfresco-platform,openzaak-alfresco-platform-docker
+    call %MVN_EXEC% clean package -pl openzaak-alfresco-integration-tests,openzaak-alfresco-platform,openzaak-alfresco-platform-docker
 EXIT /B 0
 :tail
     docker-compose -f "%COMPOSE_FILE_PATH%" logs -f
@@ -133,9 +138,4 @@ EXIT /B 0
     docker volume rm -f openzaak-alfresco-acs-volume
     docker volume rm -f openzaak-alfresco-db-volume
     docker volume rm -f openzaak-alfresco-ass-volume
-EXIT /B 0
-:build_production
-    COPY "..\config\alfresco-global.properties" ".\openzaak-alfresco-platform-docker\src\main\docker\alfresco-production-global.properties"
-    CALL :build
-    docker-compose -f "%COMPOSE_PRODUCTION_FILE_PATH%" build
 EXIT /B 0
