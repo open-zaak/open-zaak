@@ -71,9 +71,7 @@ jobs:
           java-version: 11
 
       - name: Package Alfresco content model
-        run: |
-          cd extension
-          run.sh build_image
+        run: /extension/run.sh build_image
 
       - name: Bring up Alfresco
         run: |
