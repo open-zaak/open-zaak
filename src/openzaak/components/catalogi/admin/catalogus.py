@@ -67,7 +67,7 @@ class CatalogusAdmin(
     change_form_template = "admin/catalogi/change_form_catalogus.html"
 
     # List
-    list_display = ("_admin_name", "domein", "rsin")
+    list_display = ("get_admin_name", "domein", "rsin")
     list_filter = ("domein", "rsin")
     ordering = ("domein", "rsin")
     search_fields = (
@@ -97,6 +97,11 @@ class CatalogusAdmin(
 
     # For import/export mixins
     resource_name = "catalogus"
+
+    def get_admin_name(self, obj):
+        return obj._admin_name or "(onbekend)"
+
+    get_admin_name.short_description = _("Naam")
 
     def get_related_objects(self, obj):
         resources = {}
