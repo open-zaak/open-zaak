@@ -183,6 +183,33 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response.data["invalid_params"][0]["code"], "identificatie-niet-uniek"
         )
 
+    def test_create_eio_identificatie_not_alphanumeric(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": "foo 1 2",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        self.assertEqual(response.status_code, 400)
+
+        error = get_validation_errors(response, "identificatie")
+        self.assertEqual(error["code"], "invalid")
+
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(informatieobjecttype)

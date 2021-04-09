@@ -173,6 +173,43 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         ]
         self.assertEqual(len(max_length_errors), 1)
 
+    @freeze_time("2018-09-06T12:08+0200")
+    def test_create_besluit_identificatie_not_alphanumeric(self):
+        zaak = ZaakFactory.create(zaaktype__concept=False)
+        zaak_url = reverse(zaak)
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        besluittype.informatieobjecttypen.add(io.informatieobjecttype)
+
+        with self.subTest(part="besluit_create"):
+            url = get_operation_url("besluit_create")
+
+            response = self.client.post(
+                url,
+                {
+                    "verantwoordelijke_organisatie": "517439943",  # RSIN
+                    "identificatie": "foo 1 2",
+                    "besluittype": f"http://testserver{besluittype_url}",
+                    "zaak": f"http://testserver{zaak_url}",
+                    "datum": "2018-09-06",
+                    "toelichting": "Vergunning verleend.",
+                    "ingangsdatum": "2018-10-01",
+                    "vervaldatum": "2018-11-01",
+                    "vervalreden": VervalRedenen.tijdelijk,
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+            )
+
+            error = get_validation_errors(response, "identificatie")
+            self.assertEqual(error["code"], "invalid")
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])

@@ -330,6 +330,34 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(len(zaak.producten_of_diensten), 2)
 
+    def test_zaak_identificatie_not_alphanumeric(self):
+        url = reverse("zaak-list")
+        self.zaaktype.producten_of_diensten = [
+            "https://example.com/product/123",
+            "https://example.com/dienst/123",
+        ]
+        self.zaaktype.save()
+
+        response = self.client.post(
+            url,
+            {
+                "identificatie": "test 1 2",
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "productenOfDiensten": ["https://example.com/product/123"],
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        error = get_validation_errors(response, "identificatie")
+        self.assertEqual(error["code"], "invalid")
+
     def test_zaak_vertrouwelijkheidaanduiding_afgeleid(self):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
