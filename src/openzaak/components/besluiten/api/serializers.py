@@ -12,7 +12,11 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator, validate_rsin
+from vng_api_common.validators import (
+    AlphanumericExcludingDiacritic,
+    IsImmutableValidator,
+    validate_rsin,
+)
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.api.utils import (
@@ -78,7 +82,9 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
                 "allow_null": False,
                 "allow_blank": True,
             },
-            "identificatie": {"validators": [IsImmutableValidator()]},
+            "identificatie": {
+                "validators": [IsImmutableValidator(), AlphanumericExcludingDiacritic()]
+            },
             "verantwoordelijke_organisatie": {
                 "validators": [IsImmutableValidator(), validate_rsin]
             },

@@ -28,6 +28,7 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import (
+    AlphanumericExcludingDiacritic,
     IsImmutableValidator,
     ResourceValidator,
     UntilNowValidator,
@@ -261,7 +262,9 @@ class ZaakSerializer(
             "zaakgeometrie": {
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
             },
-            "identificatie": {"validators": [IsImmutableValidator()]},
+            "identificatie": {
+                "validators": [IsImmutableValidator(), AlphanumericExcludingDiacritic()]
+            },
             "einddatum": {"read_only": True, "allow_null": True},
             "communicatiekanaal": {
                 "validators": [
