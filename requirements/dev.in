@@ -1,6 +1,6 @@
 # Helpers
 bumpversion
-pip-tools
+pip-tools~=6.0.1
 
 # Debug tooling
 django-debug-toolbar

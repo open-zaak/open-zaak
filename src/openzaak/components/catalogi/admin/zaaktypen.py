@@ -36,6 +36,7 @@ from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
     NewVersionMixin,
+    NotificationMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
     ReadOnlyPublishedZaaktypeMixin,
@@ -108,6 +109,7 @@ class ZaakTypeAdmin(
     ExportMixin,
     DynamicArrayMixin,
     CatalogusContextAdminMixin,
+    NotificationMixin,
     admin.ModelAdmin,
 ):
     model = ZaakType

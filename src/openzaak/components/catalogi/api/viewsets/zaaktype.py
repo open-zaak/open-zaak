@@ -123,6 +123,13 @@ class ZaakTypeViewSet(
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
 
+    def perform_update(self, serializer):
+
+        if not serializer.partial:
+            serializer.instance.zaaktypenrelaties.all().delete()
+
+        super().perform_update(serializer)
+
     @swagger_auto_schema(
         request_body=no_body,
         responses={

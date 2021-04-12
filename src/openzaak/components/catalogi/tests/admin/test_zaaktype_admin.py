@@ -3,10 +3,12 @@
 from datetime import date
 from unittest.mock import patch
 
+from django.test import override_settings
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
+from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 from freezegun import freeze_time
 
@@ -15,6 +17,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils.tests import ClearCachesMixin
 
 from ...models import ZaakType
@@ -122,10 +125,15 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.count(), 1)
 
+    @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
     def test_create_new_version(self, m):
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
 
         zaaktype_old = ZaakTypeFactory.create(
             zaaktype_omschrijving="test",
@@ -157,7 +165,8 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         form = get_response.form
         form["datum_einde_geldigheid"] = "2019-01-01"
 
-        post_response = form.submit("_addversion")
+        with capture_on_commit_callbacks(execute=True):
+            post_response = form.submit("_addversion")
 
         zaaktype_old.refresh_from_db()
 
@@ -193,6 +202,12 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         )
         # assert new zaken are not created
         self.assertEqual(zaaktype_new.zaak_set.count(), 0)
+
+        # Verify notification is sent
+        called_urls = [item.url for item in m.request_history]
+        self.assertIn(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        )
 
     def test_create_new_version_fail_no_datum_einde_geldigheid(self, m):
         mock_oas_get(m)

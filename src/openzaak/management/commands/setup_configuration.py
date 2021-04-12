@@ -5,6 +5,7 @@ from argparse import RawTextHelpFormatter
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils.crypto import get_random_string
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
@@ -14,6 +15,8 @@ from vng_api_common.notifications.constants import (
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
 from vng_api_common.notifications.models import NotificationsConfig
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 
@@ -80,6 +83,19 @@ class Command(BaseCommand):
             notif_config.save()
 
             # Step 2
+            service = Service.objects.filter(api_type=APITypes.nrc).first()
+            assert service is not None, "Service should have been created by migrations"
+            service.api_root = notifications_api_root
+            service.auth_type = AuthTypes.zgw
+            random_client_id = f"open-zaak-{get_random_string()}"
+            random_secret = get_random_string()
+            service.client_id = random_client_id
+            service.secret = random_secret
+            service.user_id = "open-zaak"
+            service.user_representation = "Open Zaak"
+            service.save()
+
+            # Step 3
             if not APICredential.objects.filter(
                 api_root=notifications_api_root
             ).exists():
@@ -92,7 +108,6 @@ class Command(BaseCommand):
                     user_representation=f"Open Zaak {municipality}",
                 )
 
-            # Step 3
             notif_api_jwtsecret_ac = JWTSecret.objects.create(
                 identifier=f"open-notificaties-{municipality.lower()}",
                 secret=notif_to_openzaak_secret,
@@ -125,6 +140,11 @@ class Command(BaseCommand):
                 self.style.SUCCESS(
                     "Initial configuration for Open Zaak was setup successfully"
                 )
+            )
+
+            self.stdout.write(
+                f"Notificaties API Service configured with client_id {random_client_id} "
+                f"and secret {random_secret}.  Use this to configure your Open Notifications instance."
             )
         except Exception as e:
             raise CommandError(

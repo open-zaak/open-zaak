@@ -20,9 +20,10 @@ from ..api.validators import (
     ConceptUpdateValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
+    VerlengingsValidator,
 )
 from ..constants import AardRelatieChoices, InternExtern
-from ..models import ZaakType
+from ..models import ZaakType, ZaakTypenRelatie
 from .base import APITestCase
 from .factories import (
     BesluitTypeFactory,
@@ -241,6 +242,47 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "http://example.com/zaaktype/1",
         )
         self.assertEqual(zaaktype.concept, True)
+
+    def test_create_zaaktype_without_verlengingstermijn(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0"},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [f"http://testserver{besluittype_url}"],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], VerlengingsValidator.code)
 
     def test_create_zaaktype_generate_unique_identificatie(self):
         zaaktype1 = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -505,6 +547,106 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["aanleiding"], "aangepast")
 
         zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.aanleiding, "aangepast")
+
+    def test_update_zaaktype_with_existing_zaaktyperelatie(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype, gerelateerd_zaaktype="http://example.com/zaaktype/1"
+        )
+
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "aangepast",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+
+        response = self.client.put(zaaktype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["aanleiding"], "aangepast")
+
+        zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.aanleiding, "aangepast")
+
+    def test_update_zaaktype_with_two_existing_zaaktyperelatie(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse(zaaktype)
+
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype, gerelateerd_zaaktype="http://example.com/zaaktype/1"
+        )
+        ZaakTypenRelatieFactory.create(
+            zaaktype=zaaktype, gerelateerd_zaaktype="http://example.com/zaaktype/2"
+        )
+
+        data = {
+            "identificatie": 0,
+            "doel": "some test",
+            "aanleiding": "aangepast",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+        }
+
+        response = self.client.put(zaaktype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["aanleiding"], "aangepast")
+
+        zaaktype.refresh_from_db()
+        self.assertEqual(ZaakTypenRelatie.objects.filter(zaaktype=zaaktype).count(), 1)
         self.assertEqual(zaaktype.aanleiding, "aangepast")
 
     def test_update_zaaktype_fail_not_concept(self):

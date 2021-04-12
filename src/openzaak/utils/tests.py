@@ -321,6 +321,11 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config.other_folder_path = "/DRC/"
             config.zaak_folder_path = "/ZRC/{{ zaaktype }}/{{ zaak }}"
             config.save()
+
+            # Configure the main_repo_id
+            client = get_cmis_client()
+            config.main_repo_id = client.get_main_repo_id()
+            config.save()
         elif binding == "BROWSER":
             config = CMISConfig.objects.get()
             config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"

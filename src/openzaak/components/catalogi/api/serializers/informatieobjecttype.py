@@ -4,11 +4,10 @@ from rest_framework import serializers
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import add_choice_values_help_text
 
-from openzaak.utils.validators import UniqueTogetherValidator
-
 from ...models import InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
+    InformatieobjecttypeGeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
 )
@@ -34,13 +33,10 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
             "concept",
         )
         validators = [
+            InformatieobjecttypeGeldigheidValidator(),
             ConceptUpdateValidator(),
             M2MConceptCreateValidator(["besluittypen", "zaaktypen"]),
             M2MConceptUpdateValidator(["besluittypen", "zaaktypen"]),
-            UniqueTogetherValidator(
-                queryset=InformatieObjectType.objects.all(),
-                fields=["catalogus", "omschrijving"],
-            ),
         ]
 
     def __init__(self, *args, **kwargs):
