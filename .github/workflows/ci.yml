@@ -74,8 +74,7 @@ jobs:
         run: |
           cd extension
           mvn clean package
-          docker-compose -f docker/docker-compose.yml build
-          #./extension/run.sh build_image
+          docker-compose -f target/classes/docker/docker-compose.yml build
 
       - name: Bring up Alfresco
         run: |
