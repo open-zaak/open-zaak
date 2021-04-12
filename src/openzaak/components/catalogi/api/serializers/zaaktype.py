@@ -25,6 +25,7 @@ from ..validators import (
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
+    VerlengingsValidator,
     ZaaktypeGeldigheidValidator,
 )
 
@@ -194,6 +195,7 @@ class ZaakTypeSerializer(
             M2MConceptCreateValidator(["besluittypen", "informatieobjecttypen"]),
             M2MConceptUpdateValidator(["besluittypen", "informatieobjecttypen"]),
             DeelzaaktypeCatalogusValidator(),
+            VerlengingsValidator(),
         ]
 
     def __init__(self, *args, **kwargs):

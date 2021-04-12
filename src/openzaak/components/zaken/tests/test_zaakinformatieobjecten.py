@@ -211,25 +211,29 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data[0]["zaak"], f"http://openzaak.nl{zaak_url}")
 
     def test_filter_by_local_informatieobject(self):
-        zio = ZaakInformatieObjectFactory.create()
-        io_url = reverse(zio.informatieobject.latest_version)
         zio_list_url = reverse("zaakinformatieobject-list")
+
+        zio1 = ZaakInformatieObjectFactory.create()
+        io1_url = reverse(zio1.informatieobject.latest_version)
+
+        ZaakInformatieObjectFactory.create()
 
         response = self.client.get(
             zio_list_url,
-            {"informatieobject": f"http://openzaak.nl{io_url}"},
+            {"informatieobject": f"http://openzaak.nl{io1_url}"},
             HTTP_HOST="openzaak.nl",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(
-            response.data[0]["informatieobject"], f"http://openzaak.nl{io_url}"
+            response.data[0]["informatieobject"], f"http://openzaak.nl{io1_url}"
         )
 
     def test_filter_by_external_informatieobject(self):
         base = "https://external.documenten.nl/api/v1/"
-        document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        document1 = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        document2 = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
         Service.objects.create(
             api_type=APITypes.drc,
@@ -242,36 +246,54 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
-        eio_response = get_eio_response(
-            document,
+
+        eio1_response = get_eio_response(
+            document1,
+            informatieobjecttype=f"http://openzaak.nl{reverse(zio_type.informatieobjecttype)}",
+        )
+        eio2_response = get_eio_response(
+            document2,
             informatieobjecttype=f"http://openzaak.nl{reverse(zio_type.informatieobjecttype)}",
         )
 
         with requests_mock.Mocker(real_http=True) as m:
             mock_service_oas_get(m, APITypes.drc, base)
-            m.get(document, json=eio_response)
+            m.get(document1, json=eio1_response)
             m.post(
                 "https://external.documenten.nl/api/v1/objectinformatieobjecten",
-                json=get_oio_response(document, zaak_url),
+                json=get_oio_response(document1, zaak_url),
                 status_code=201,
             )
 
-            response = self.client.post(
+            m.get(document2, json=eio2_response)
+            m.post(
+                "https://external.documenten.nl/api/v1/objectinformatieobjecten",
+                json=get_oio_response(document2, zaak_url),
+                status_code=201,
+            )
+
+            response1 = self.client.post(
                 reverse(ZaakInformatieObject),
-                {"zaak": zaak_url, "informatieobject": document},
+                {"zaak": zaak_url, "informatieobject": document1},
+                HTTP_HOST="openzaak.nl",
+            )
+            self.client.post(
+                reverse(ZaakInformatieObject),
+                {"zaak": zaak_url, "informatieobject": document2},
                 HTTP_HOST="openzaak.nl",
             )
 
-        io_url = response.data["informatieobject"]
+        io1_url = response1.data["informatieobject"]
         zio_list_url = reverse("zaakinformatieobject-list")
 
+        # Test that only 1 of the 2 ZIOs in the database is returned.
         response = self.client.get(
-            zio_list_url, {"informatieobject": io_url}, HTTP_HOST="openzaak.nl"
+            zio_list_url, {"informatieobject": io1_url}, HTTP_HOST="openzaak.nl"
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["informatieobject"], io_url)
+        self.assertEqual(response.data[0]["informatieobject"], io1_url)
 
     def test_update_zaak_and_informatieobject_fails(self):
         zaak = ZaakFactory.create()

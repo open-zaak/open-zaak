@@ -140,22 +140,57 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
         self.assertEqual(informatieobjecttype.concept, True)
 
-    def test_create_informatieobjecttype_fail_not_unique(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
-        list_url = get_operation_url("informatieobjecttype_list")
-        data = {
-            "catalogus": f"http://testserver{reverse(informatieobjecttype.catalogus)}",
-            "omschrijving": informatieobjecttype.omschrijving,
-            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-            "beginGeldigheid": "2019-01-01",
-        }
+    def test_create_informatieobjecttype_with_same_omschrijving(self):
+        InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2019-01-01",
+        )
 
-        response = self.client.post(list_url, data)
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "beginGeldigheid": "2019-01-02",
+        }
+        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+
+        response = self.client.post(informatieobjecttype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        informatieobjecttype = InformatieObjectType.objects.get(
+            datum_begin_geldigheid="2019-01-02"
+        )
+
+        self.assertEqual(informatieobjecttype.omschrijving, "test")
+        self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
+        self.assertEqual(informatieobjecttype.concept, True)
+
+    def test_create_informatieobjecttype_fails_with_same_omschrijving_and_overlapping_dates(
+        self,
+    ):
+        InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2019-01-03",
+        )
+
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "beginGeldigheid": "2019-01-02",
+        }
+        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+
+        response = self.client.post(informatieobjecttype_list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "unique")
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")
 
     def test_publish_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
