@@ -1,0 +1,10 @@
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2021 Dimpact {% endcomment %}
+{% spaceless %}
+{% for subwidget in widget.subwidgets %}
+    {% include subwidget.template_name with widget=subwidget %}
+    {% if forloop.counter != widget.subwidgets|length %}
+        <strong> of </strong>
+    {% endif %}
+{% endfor %}
+{% endspaceless %}
