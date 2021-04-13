@@ -56,6 +56,11 @@ on Docker, since `localhost` is contained within the container:
 
 * `DB_PORT`: port number of the database, defaults to `5432`.
 
+* `USE_X_FORWARDED_HOST`: whether to grab the domain/host from the `X-Forwarded-Host`
+  header or not. This header is typically set by reverse proxies (such as nginx,
+  traefik, Apache...). Default `False` - this is a header that can be spoofed and you
+  need to ensure you control it before enabling this.
+
 * `CACHE_DEFAULT`: redis cache address for the default cache. Defaults to
   `localhost:6379/0`.
 
@@ -105,6 +110,12 @@ on Docker, since `localhost` is contained within the container:
 
 * `CMIS_URL_MAPPING_ENABLED`: enable the URL shortener when using the CMIS adapter.
   Defaults to `False`.
+
+* `EXTRA_VERIFY_CERTS`: a comma-separated list of paths to certificates to trust, empty
+  by default. If you're using self-signed certificates for the services that Open Zaak
+  communicates with, specify the path to those (root) certificates here, rather than
+  disabling SSL certificate verification. Example:
+  `EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt`.
 
 * `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate verification.
     More information about why can be found [here](https://stackoverflow.com/a/48391751/7146757). Even calls from Open

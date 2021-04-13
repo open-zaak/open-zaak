@@ -40,6 +40,7 @@ Guides
    deployment/kubernetes
    deployment/single_server
    config/index
+   self_signed
    post_install
    updating
    extra/index

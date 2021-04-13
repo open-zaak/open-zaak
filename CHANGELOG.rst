@@ -1,6 +1,108 @@
 Changelog
 =========
 
+1.4.0 (2021-03-??)
+------------------
+
+**Bugfixes**
+
+* Updated to Zaken API 1.0.3 specification, see the upstream `1.0.3 changelog`_.
+
+    * ``rol_list`` operation querystring parameter fixed, from
+      ``betrokkeneIdentificatie__vestiging__identificatie`` to
+      ``betrokkeneIdentificatie__organisatorischeeenheid__identificatie``
+
+**External dependency cleanup**
+
+* Dropped nlx-url-rewriter, see manual intervention below
+* Dropped drf-flex-fields, it was not used
+* Upgraded Django, djangorestframework, djangorestframework-camel-case, drf-yasg & other
+  related packages (#935)
+
+.. warning::
+
+   Manual intervention required
+
+   If you're upgrading from an *older* version than 1.2.0 of Open Zaak and using NLX,
+   you need to update to 1.3.5 first, and then update to the 1.4.x series.
+
+   In 1.2.0, the configuration of external API's was reworked, migrating from the
+   nlx-url-rewriter package to zgw-consumers. In 1.4.0, the nlx-url-rewriter package
+   is dropped and no longer present.
+
+.. _1.0.3 changelog: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/CHANGELOG.rst#user-content-103-2021-03-29
+
+1.3.5 (2021-03-25)
+------------------
+
+1.3.5 is another release focused on bugfixes, performance and quality of life.
+
+**Bugfixes**
+
+* Bumped ``cryptography`` and ``httplib2`` versions, which had some vulnerabilities
+  (#856, #858, #859)
+* Fixed an issue where documents were considered external when the CMIS-adapter is
+  enabled (#820)
+* Various fixes focused on improving the CMIS-adapter performance (#900, #881, #895)
+* Bumped a number of dependencies to stable versions
+* Dropped DB constraint preventing versioning of informatieobjecttypen to work as
+  intended (#863)
+* Fixed a crash when creating zaaktypen because of too-optimistic input validation (#850)
+* Fixed a crash when using invalid query parameters when filtering the list of zaaktypen/
+  informatieobjecttypen/besluittypen and related objects (#870)
+* Mutations in the catalogi admin environment now send notifications similarly to how
+  the same operations in the API would do (#805)
+* Fixed filtering ``ZaakInformatieObjecten`` with CMIS enabled (#820)
+* Fixed a crash when updating ``Zaaktype.gerelateerdeZaken`` (#851)
+* Fixed incorrect and unexpected Autorisaties API behaviour for applications that are
+  not "ready yet"
+
+    * applications must have either ``heeftAlleAutorisaties`` set or have ``autorisaties``
+      related to them (cfr. the standard)
+    * applications not satisfying this requirement are not visible in the API (for read,
+      write or delete)
+    * applications not satisfying this requirement are flagged in the admin interface and
+      can be filtered
+    * when (zaak)typen are deleted, they're related autorisaties are too. If this leads
+      to an application without autorisaties, the application is also deleted as it is
+      no longer valid
+
+* Fixed serving files for download when using CMIS-adapter and dealing with ``BytesIO``
+  streams in general (#902)
+
+**Deployment tooling / infrastructure**
+
+* Uses new version of deployment tooling with podman support (alternative to Docker
+  runtime)
+* Fixed and improved configuration of the Notifications service in the
+  ``setup_configuration`` management command. Generated credentials are now written
+  to ``stdout`` and need to be used to configure Open Notificaties (or alternatives).
+* Bumped to newer versions of Django and Jinja2, including bug- and security fixes
+  (#906, #907)
+
+**Documentation**
+
+* Link to the mailing list added to the security documentation
+* On the Github issue template you're now asked to specify which Open Zaak version
+  you're using
+* Updated Standard for Public Code checklist w/r to security procedures (#864)
+* Documented the project dependencies with versions < 1.0 (#681)
+* Updated the feature request template on Github
+* Documented which security-related headers are set by the application and which on
+  webserver level.
+* Updated Standard for Public Code checklist w/r to using Open Standards (#679)
+
+**New features**
+
+* Added support for self-signed certificates, especially where Open Zaak consumes
+  services hosted with self-signed (root) certificates. See the documentation on
+  readthedocs for full details and how to use this. (#809)
+
+**Cleanup**
+
+* Removed unused and undocumented newrelic application performance monitoring integration
+* Updated to pip-tools 6 to pin/freeze dependency trees
+
 1.3.4 (2021-02-04)
 ------------------
 
@@ -12,6 +114,7 @@ A regular bugfix release.
 * Improved test suite determinism (#813, #798)
 * Fixed deleting documents when CMIS is enabled (#822)
 * Fixed Open Zaak compatibility with an external Documenten API
+
     * Fixed error logging interpolation (#817)
     * Fixed transaction management (#819)
     * Fixed some django-loose-fk bugs
@@ -19,10 +122,13 @@ A regular bugfix release.
       operations
     * Fixed ``Besluit.zaak`` nullable behaviour - now an empty string is returned
       correctly
-* CMIS adapter fixes:
+
+* CMIS adapter fixes
+
     * Implemented Documenten API URL shortening for use with select CMIS DMSs
     * Fixed an oversight where ``Gebruiksrechten`` were not updated in the CMIS
       repository
+
 * Removed notifications for ZIO (partial) update & destroy - the standard only
   prescribes ``create`` notifications.
 * Fixed running the test suite with the ``--keepdb`` option
@@ -39,10 +145,12 @@ A regular bugfix release.
 **Deployment tooling / infrastructure**
 
 * Bumped to version 0.11.1 of the deployment tooling, which added support for:
+
     - flexibility in certificate configuration
     - enabled http2 in load balancer
     - improved support for additional environment variables
     - Red Hat and CentOS
+
 * Fixed pushing the ``latest`` docker image tag to Docker Hub for builds on the master
   branch
 * Open Zaak now provides Helm_ charts_ to deploy Open Zaak & Open Notificaties on
@@ -284,6 +392,7 @@ intervention.
 * Added a number of CLI commands for initial Open Zaak setup following installation. See
   the documentation for more details.
 * Implemented extra ``zaak_list`` filters, added in 1.0.2 of the Zaken API standard
+
     - ``maxVertrouwelijkheidaanduiding``
     - ``betrokkene``
     - ``betrokkeneType``

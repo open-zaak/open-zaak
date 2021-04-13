@@ -1247,11 +1247,7 @@ paths:
 
         - bestaan van `object` URL'
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ObjectInformatieObject'
-        required: true
+        $ref: '#/components/requestBodies/ObjectInformatieObject'
       responses:
         '201':
           description: Created
@@ -1335,6 +1331,100 @@ paths:
       security:
       - JWT-Claims:
         - documenten.lezen
+    put:
+      operationId: objectinformatieobject_update
+      summary: Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
+      description: 'Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld
+        een
+
+        ZAAK in de Zaken API, en een INFORMATIEOBJECT.'
+      requestBody:
+        $ref: '#/components/requestBodies/ObjectInformatieObject'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectInformatieObject'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - objectinformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
+    patch:
+      operationId: objectinformatieobject_partial_update
+      summary: Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
+      description: 'Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld
+        een
+
+        ZAAK in de Zaken API, en een INFORMATIEOBJECT.'
+      requestBody:
+        $ref: '#/components/requestBodies/ObjectInformatieObject'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectInformatieObject'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - objectinformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
     delete:
       operationId: objectinformatieobject_delete
       summary: Verwijder een OBJECT-INFORMATIEOBJECT relatie.
@@ -1521,6 +1611,12 @@ components:
           schema:
             $ref: '#/components/schemas/Fout'
   requestBodies:
+    ObjectInformatieObject:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ObjectInformatieObject'
+      required: true
     EnkelvoudigInformatieObjectWithLockData:
       content:
         application/json:
@@ -1540,7 +1636,6 @@ components:
       bearerFormat: JWT
   schemas:
     Ondertekening:
-      title: ondertekening
       description: Aanduiding van de rechtskracht van een informatieobject. Mag niet
         van een waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter
         vaststelling' heeft.
@@ -1575,7 +1670,6 @@ components:
           format: date
       nullable: true
     Integriteit:
-      title: integriteit
       description: Uitdrukking van mate van volledigheid en onbeschadigd zijn van
         digitaal bestand.
       required:
@@ -2188,7 +2282,6 @@ components:
           type: boolean
           readOnly: true
     Wijzigingen:
-      title: Wijzigingen
       type: object
       properties:
         oud:

@@ -94,3 +94,29 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(
             data[0]["inhoud"], f"http://testserver{download_url}?versie={eio.versie}",
         )
+
+    def test_create_enkelvoudiginformatieobject_without_identificatie(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        url = get_operation_url("enkelvoudiginformatieobject_create")
+        data = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-07-01",
+            "titel": "text_extra.txt",
+            "auteur": "ANONIEM",
+            "formaat": "text/plain",
+            "taal": "dut",
+            "inhoud": base64.b64encode(b"Extra tekst in bijlage").decode("utf-8"),
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        eio = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(eio.identificatie, str(eio.uuid))
+
+        self.assertEqual(b"Extra tekst in bijlage", eio.inhoud.read())

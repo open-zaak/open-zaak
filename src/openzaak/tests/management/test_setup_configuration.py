@@ -14,10 +14,12 @@ from vng_api_common.notifications.constants import (
 from vng_api_common.notifications.models import NotificationsConfig
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 
 
-class SetupConfigurationTests(TestCase):
+class SetupConfigurationTests(NotificationsConfigMixin, TestCase):
     def test_setup_configuration(self):
+        self._configure_notifications()
         openzaak_domain = "open-zaak.utrecht.nl"
         nrc_root = "https://open-notificaties.utrecht.nl/api/v1/"
         municipality = "Utrecht"

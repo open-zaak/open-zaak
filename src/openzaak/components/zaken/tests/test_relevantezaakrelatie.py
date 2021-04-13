@@ -188,7 +188,7 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
-            response.data["relevante_andere_zaken"],
+            response.json()["relevanteAndereZaken"],
             [{"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
         )
 
@@ -210,6 +210,6 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(
-            response.data["relevante_andere_zaken"],
+            response.json()["relevanteAndereZaken"],
             [{"url": relevante_zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
         )

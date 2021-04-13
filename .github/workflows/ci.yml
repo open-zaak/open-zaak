@@ -4,7 +4,7 @@ name: Run CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
   pull_request:
@@ -57,7 +57,10 @@ jobs:
           && sudo apt-get install -y --no-install-recommends \
             libgdal-dev \
             gdal-bin
-
+            
+      - name: Bring up mock endpoints for SSL verification
+        run: docker-compose -f docker-compose.travis.yml up -d mock-endpoints.local
+        
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -131,7 +134,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
           echo ::set-output name=git_hash::${GITHUB_SHA}
@@ -178,7 +181,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
       - name: Load image
@@ -219,7 +222,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
 

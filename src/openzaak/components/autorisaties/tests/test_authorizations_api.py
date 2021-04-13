@@ -60,17 +60,13 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": [
-                        "zds.scopes.zaken.lezen",
-                        "zds.scopes.zaken.aanmaken",
-                        "zds.scopes.zaken.verwijderen",
-                    ],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
@@ -99,9 +95,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             auth1.zaaktype,
             "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
         )
-        self.assertEqual(
-            auth1.scopes, ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"]
-        )
+        self.assertEqual(auth1.scopes, ["zaken.lezen", "zaken.aanmaken"])
         self.assertEqual(
             auth1.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.beperkt_openbaar,
@@ -109,12 +103,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(auth2.applicatie, applicatie)
         self.assertEqual(auth2.component, ComponentTypes.zrc)
         self.assertEqual(
-            auth2.scopes,
-            [
-                "zds.scopes.zaken.lezen",
-                "zds.scopes.zaken.aanmaken",
-                "zds.scopes.zaken.verwijderen",
-            ],
+            auth2.scopes, ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
         )
         self.assertEqual(
             auth2.zaaktype,
@@ -140,7 +129,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
@@ -230,7 +219,7 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                 }
@@ -291,6 +280,35 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(credential.secret, "")
 
+    def test_create_with_empty_scopes(self):
+        """
+        Assert that an autorisatie with empty scopes can be created.
+
+        The API spec does not specify a minimum number of elements, which means that
+        an empty list is permitted.
+
+        This is regression found during upgrading the dependencies, which caused the
+        Postman collection to fail.
+        """
+        url = get_operation_url("applicatie_create")
+
+        data = {
+            "client_ids": ["id1"],
+            "label": "some-app",
+            "autorisaties": [
+                {
+                    "component": ComponentTypes.zrc,
+                    "scopes": [],
+                    "zaaktype": "https://catalogi-api.vng.cloud/api/v1/catalogus/1/zaaktypen/1",
+                    "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                }
+            ],
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
@@ -329,7 +347,9 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         Retrieve THE application object, using a client ID as lookup.
         """
         url = get_operation_url("applicatie_consumer")
-        app = ApplicatieFactory.create(client_ids=["client id"])
+        app = ApplicatieFactory.create(
+            client_ids=["client id"], heeft_alle_autorisaties=True
+        )
 
         response = self.client.get(url, {"clientId": "client id"})
 
@@ -346,6 +366,32 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_non_compliant_applications_not_in_api(self):
+        """
+        Assert that applications that aren't superuser and have no authorizations don't
+        show up in the API.
+
+        Regression test for #835 -- it's possible to create an application without
+        ``heeft_alle_autorisaties`` set to True and without any authorizations via the
+        admin interface (since configuration authorizations is a multi-step process).
+        These applications may not show up in the API responses, because they break
+        expectations from what the standard allows.
+        """
+        app = ApplicatieFactory.create(heeft_alle_autorisaties=False)
+        url = reverse(Applicatie)
+        app_url = f"http://testserver{reverse(app)}"
+
+        with self.subTest(case="list"):
+            response = self.client.get(url)
+
+            app_urls = [app["url"] for app in response.json()["results"]]
+            self.assertNotIn(app_url, app_urls)
+
+        with self.subTest(case="detail"):
+            response = self.client.get(app_url)
+
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
@@ -381,17 +427,13 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
             "autorisaties": [
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zds.scopes.zaken.lezen", "zds.scopes.zaken.aanmaken"],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken"],
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": [
-                        "zds.scopes.zaken.lezen",
-                        "zds.scopes.zaken.aanmaken",
-                        "zds.scopes.zaken.verwijderen",
-                    ],
+                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },

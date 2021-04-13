@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.2"
+        "version": "1.0.3"
     },
     "basePath": "/zaken/api/v1",
     "consumes": [
@@ -915,7 +915,7 @@
                         "type": "string"
                     },
                     {
-                        "name": "betrokkeneIdentificatie__vestiging__identificatie",
+                        "name": "betrokkeneIdentificatie__organisatorischeeenheid__identificatie",
                         "in": "query",
                         "description": "Een korte identificatie van de organisatorische eenheid.",
                         "required": false,
@@ -4450,7 +4450,6 @@
             "discriminator": "betrokkeneType"
         },
         "VerblijfsAdres": {
-            "title": "Verblijfsadres",
             "required": [
                 "aoaIdentificatie",
                 "wplWoonplaatsNaam",
@@ -4505,10 +4504,10 @@
                     "type": "string",
                     "maxLength": 1000
                 }
-            }
+            },
+            "x-nullable": true
         },
         "SubVerblijfBuitenland": {
-            "title": "Sub verblijf buitenland",
             "required": [
                 "lndLandcode",
                 "lndLandnaam"
@@ -4544,10 +4543,10 @@
                     "type": "string",
                     "maxLength": 35
                 }
-            }
+            },
+            "x-nullable": true
         },
         "RolNatuurlijkPersoon": {
-            "title": "betrokkene_identificatie",
             "type": "object",
             "properties": {
                 "inpBsn": {
@@ -4635,7 +4634,6 @@
             ]
         },
         "RolNietNatuurlijkPersoon": {
-            "title": "betrokkene_identificatie",
             "type": "object",
             "properties": {
                 "innNnpId": {
@@ -4713,7 +4711,6 @@
             ]
         },
         "RolVestiging": {
-            "title": "betrokkene_identificatie",
             "type": "object",
             "properties": {
                 "vestigingsNummer": {
@@ -4759,7 +4756,6 @@
             ]
         },
         "RolOrganisatorischeEenheid": {
-            "title": "betrokkene_identificatie",
             "type": "object",
             "properties": {
                 "identificatie": {
@@ -4801,7 +4797,6 @@
             ]
         },
         "RolMedewerker": {
-            "title": "betrokkene_identificatie",
             "type": "object",
             "properties": {
                 "identificatie": {
@@ -5058,7 +5053,6 @@
             "discriminator": "objectType"
         },
         "ObjectAdres": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie",
                 "wplWoonplaatsNaam",
@@ -5138,7 +5132,6 @@
             ]
         },
         "ObjectBuurt": {
-            "title": "object_identificatie",
             "required": [
                 "buurtCode",
                 "buurtNaam",
@@ -5205,7 +5198,6 @@
             ]
         },
         "ObjectGemeente": {
-            "title": "object_identificatie",
             "required": [
                 "gemeenteNaam",
                 "gemeenteCode"
@@ -5248,7 +5240,6 @@
             ]
         },
         "ObjectGemeentelijkeOpenbareRuimte": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie",
                 "openbareRuimteNaam"
@@ -5291,7 +5282,6 @@
             ]
         },
         "TerreinGebouwdObjectAdres": {
-            "title": "Adres aanduiding grp",
             "required": [
                 "oaoIdentificatie",
                 "wplWoonplaatsNaam",
@@ -5351,10 +5341,10 @@
                     "type": "string",
                     "maxLength": 100
                 }
-            }
+            },
+            "x-nullable": true
         },
         "ObjectTerreinGebouwdObject": {
-            "title": "Is gehuisvest in",
             "required": [
                 "identificatie"
             ],
@@ -5370,10 +5360,10 @@
                 "adresAanduidingGrp": {
                     "$ref": "#/definitions/TerreinGebouwdObjectAdres"
                 }
-            }
+            },
+            "x-nullable": true
         },
         "ObjectHuishouden": {
-            "title": "object_identificatie",
             "required": [
                 "nummer"
             ],
@@ -5411,7 +5401,6 @@
             ]
         },
         "ObjectInrichtingselement": {
-            "title": "object_identificatie",
             "required": [
                 "type",
                 "identificatie"
@@ -5470,7 +5459,6 @@
             ]
         },
         "ObjectKadastraleOnroerendeZaak": {
-            "title": "object_identificatie",
             "required": [
                 "kadastraleIdentificatie",
                 "kadastraleAanduiding"
@@ -5513,7 +5501,6 @@
             ]
         },
         "ObjectKunstwerkdeel": {
-            "title": "object_identificatie",
             "required": [
                 "type",
                 "identificatie",
@@ -5579,7 +5566,6 @@
             ]
         },
         "ObjectMaatschappelijkeActiviteit": {
-            "title": "object_identificatie",
             "required": [
                 "kvkNummer",
                 "handelsnaam"
@@ -5646,7 +5632,6 @@
             }
         },
         "ObjectOpenbareRuimte": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie",
                 "wplWoonplaatsNaam",
@@ -5704,7 +5689,6 @@
             }
         },
         "ObjectPand": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie"
             ],
@@ -5739,7 +5723,6 @@
             ]
         },
         "ObjectSpoorbaandeel": {
-            "title": "object_identificatie",
             "required": [
                 "type",
                 "identificatie"
@@ -5800,7 +5783,6 @@
             ]
         },
         "ObjectTerreindeel": {
-            "title": "object_identificatie",
             "required": [
                 "type",
                 "identificatie"
@@ -5875,7 +5857,6 @@
             }
         },
         "ObjectWaterdeel": {
-            "title": "object_identificatie",
             "required": [
                 "typeWaterdeel",
                 "identificatie"
@@ -5928,7 +5909,6 @@
             ]
         },
         "ObjectWegdeel": {
-            "title": "object_identificatie",
             "required": [
                 "type",
                 "identificatie"
@@ -5976,7 +5956,6 @@
             ]
         },
         "ObjectWijk": {
-            "title": "object_identificatie",
             "required": [
                 "wijkCode",
                 "wijkNaam",
@@ -6027,7 +6006,6 @@
             ]
         },
         "ObjectWoonplaats": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie",
                 "woonplaatsNaam"
@@ -6070,7 +6048,6 @@
             ]
         },
         "WozObjectAdres": {
-            "title": "Aanduiding woz object",
             "required": [
                 "aoaIdentificatie",
                 "wplWoonplaatsNaam",
@@ -6125,10 +6102,10 @@
                     "type": "string",
                     "maxLength": 1000
                 }
-            }
+            },
+            "x-nullable": true
         },
         "ObjectWozObject": {
-            "title": "Is onderdeel van",
             "required": [
                 "wozObjectNummer"
             ],
@@ -6147,7 +6124,6 @@
             }
         },
         "ObjectWozDeelobject": {
-            "title": "object_identificatie",
             "required": [
                 "nummerWozDeelObject"
             ],
@@ -6204,7 +6180,6 @@
             ]
         },
         "ObjectWozWaarde": {
-            "title": "object_identificatie",
             "required": [
                 "waardepeildatum"
             ],
@@ -6242,7 +6217,6 @@
             ]
         },
         "ZakelijkRechtHeeftAlsGerechtigde": {
-            "title": "Heeft als gerechtigde",
             "type": "object",
             "properties": {
                 "natuurlijkPersoon": {
@@ -6254,7 +6228,6 @@
             }
         },
         "ObjectZakelijkRecht": {
-            "title": "object_identificatie",
             "required": [
                 "identificatie",
                 "avgAard"
@@ -6303,7 +6276,6 @@
             ]
         },
         "ObjectOverige": {
-            "title": "object_identificatie",
             "required": [
                 "overigeData"
             ],
@@ -6593,7 +6565,6 @@
             ]
         },
         "Verlenging": {
-            "title": "Verlenging",
             "description": "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de ZAAK",
             "required": [
                 "reden",
@@ -6618,7 +6589,6 @@
             "x-nullable": true
         },
         "Opschorting": {
-            "title": "Opschorting",
             "description": "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK",
             "required": [
                 "indicatie",
@@ -6960,7 +6930,6 @@
             }
         },
         "GeoWithin": {
-            "title": "Zaakgeometrie",
             "type": "object",
             "properties": {
                 "within": {
@@ -7150,7 +7119,6 @@
             }
         },
         "Wijzigingen": {
-            "title": "Wijzigingen",
             "type": "object",
             "properties": {
                 "oud": {

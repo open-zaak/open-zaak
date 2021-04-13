@@ -8,6 +8,7 @@ from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
     mock_oas_get,
@@ -28,7 +29,9 @@ from ..factories import (
 
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @requests_mock.Mocker()
-class NotificationAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
+class NotificationAdminTests(
+    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -38,6 +41,8 @@ class NotificationAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebT
         config = ReferentieLijstConfig.get_solo()
         config.allowed_years = [2017, 2020]
         config.save()
+
+        cls._configure_notifications()
 
         cls.user = SuperUserFactory.create()
 
