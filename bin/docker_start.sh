@@ -38,7 +38,16 @@ if [ -d $fixtures_dir ]; then
 fi
 
 # Create superuser
-/create_superuser.sh admin admin@admin.org admin
+# specify password by setting DJANGO_SUPERUSER_PASSWORD in the env
+# specify username by setting OPENZAAK_SUPERUSER_USERNAME in the env
+# specify email by setting OPENZAAK_SUPERUSER_EMAIL in the env
+if [ -z "${OPENZAAK_SUPERUSER_USERNAME}" ]; then
+    python src/manage.py create_initial_superuser \
+        --no-input \
+        --username "${OPENZAAK_SUPERUSER_USERNAME}" \
+        --email "${OPENZAAK_SUPERUSER_EMAIL:-admin\@admin.org}"
+    unset OPENZAAK_SUPERUSER_USERNAME OPENZAAK_SUPERUSER_EMAIL DJANGO_SUPERUSER_PASSWORD
+fi
 
 # Start server
 >&2 echo "Starting server"
