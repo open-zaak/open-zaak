@@ -1,23 +1,24 @@
 #!/bin/bash
+#
+# Usage:
+#   ./bin/check_requirements.sh "file1.txt file2.txt"
+echo "Checking requirements..."
 
-echo "Checking requirements"
+files=$1
 
-/bin/bash ./bin/compile_dependencies.sh
+# if requirements/base.txt is not in changed files, there's nothing to check.
+if [[ ! " ${files[@]} " =~ " requirements/base.txt " ]]; then
+    echo "Base requirements did not change"
+    exit 0
+fi
 
-echo "------------------------------------"
-echo "----------- Diff command -----------"
-echo "------------------------------------"
-git diff --exit-code requirements/*.txt
-echo "------------------------------------"
-echo "----------- End Diff command -----------"
-echo "------------------------------------"
-
-# Check if any requirements files have changed
-CHANGED=$(git diff --exit-code requirements/*.txt)
-
-if [ -n "$CHANGED" ]; then
-    echo "Requirements seem to have been changed.  Please update and re-commit requirements changes"
+# if ci.txt or dev.txt haven't changed, but base.txt has, the requirements were
+# not upgraded properly
+if [[ ! " ${files[@]} " =~ " requirements/ci.txt " ]] || [[ ! " ${files[@]} " =~ " requirements/dev.txt " ]]; then
+    echo "'requirements/base.txt' was changed, but 'requirements/ci.txt' or 'requirements/dev.txt' were not."
+    echo "Please update the requirements using ./bin/compile_dependencies.sh"
     exit 1
 fi
 
-echo "Done"
+echo "Seems all good"
+exit 0

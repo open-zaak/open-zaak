@@ -106,15 +106,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.7'
-      - name: Install dependencies
-        run: pip install -r requirements/dev.txt
-      - name: Check dependencies
-        run: pip list
+      - id: files
+        uses: jitterbit/get-changed-files@v1
       - name: Check requirements
-        run: bin/check_requirements.sh
+        run: bin/check_requirements.sh "${{ steps.files.outputs.modified }}"
 
   docker:
     runs-on: ubuntu-latest
