@@ -7,7 +7,7 @@ from django.contrib.auth.management.commands.createsuperuser import (
     Command as BaseCommand,
 )
 from django.core.mail import send_mail
-from django.urls import exceptions, reverse
+from django.urls import reverse
 
 
 class Command(BaseCommand):
