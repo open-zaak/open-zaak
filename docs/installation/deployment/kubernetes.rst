@@ -346,7 +346,8 @@ To deploy Open Zaak, some variables need to be set (in ``vars/open-zaak.yml``):
   Make sure to put the value between single quotes!
 
 See ``roles/openzaak/defaults/main.yml`` for other possible variables to
-override.
+override. You might want to tweak environment variables in order to
+:ref:`provision a superuser<installation_provision_superuser>`.
 
 Configuring Open Notificaties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
