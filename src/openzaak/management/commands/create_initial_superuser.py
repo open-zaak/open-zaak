@@ -29,7 +29,9 @@ class Command(BaseCommand):
         # perform user creation from core Django
         super().handle(**options)
 
-        password = options.get("password", os.environ.get("DJANGO_SUPERUSER_PASSWORD"))
+        password = options.get("password") or os.environ.get(
+            "DJANGO_SUPERUSER_PASSWORD"
+        )
         if password:
             self.stdout.write("Setting user password...")
             user = qs.get()
