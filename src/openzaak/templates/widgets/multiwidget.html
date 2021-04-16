@@ -3,7 +3,7 @@
 {% spaceless %}
 {% for subwidget in widget.subwidgets %}
     {% include subwidget.template_name with widget=subwidget %}
-    {% if forloop.counter != widget.subwidgets|length %}
+    {% if forloop.last %}
         <strong> of </strong>
     {% endif %}
 {% endfor %}
