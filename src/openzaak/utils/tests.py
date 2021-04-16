@@ -18,7 +18,7 @@ from django.utils import timezone
 from djangorestframework_camel_case.util import camelize
 from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig, UrlMapping
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
@@ -177,33 +177,11 @@ class MockSchemasMixin:
         mock_service_oas_get(mocker, "ztc", oas_url=settings.ZTC_API_SPEC)
 
 
-class CMISMixin:
-    def setUp(self) -> None:
-        super().setUp()
-
-        import requests_mock
-
-        # real_http=True to let the other calls pass through and use a different mocker
-        # in specific tests cases to catch those requests
-        self.adapter = requests_mock.Mocker(real_http=True)
-        self.adapter.start()
-
-        self.addCleanup(self._cleanup_alfresco)
-
-        # testserver vs. example.com
-        Site.objects.clear_cache()
-
-    def _cleanup_alfresco(self) -> None:
-        # Removes the created documents from alfresco
-        client = get_cmis_client()
-        client.delete_cmis_folders_in_base()
-        self.adapter.stop()
-
-
-class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
+class CMISMixin(MockSchemasMixin):
     @classmethod
     def setUpTestData(cls):
-        super().setUpTestData()
+        if hasattr(super(), "setUpTestData"):
+            super().setUpTestData()
 
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -248,6 +226,35 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
                 short_pattern="http://oz.nl",
                 config=config,
             )
+
+    def setUp(self) -> None:
+        import requests_mock
+
+        # real_http=True to let the other calls pass through and use a different mocker
+        # in specific tests cases to catch those requests
+        self.adapter = requests_mock.Mocker(real_http=True)
+        self.adapter.start()
+
+        self.addCleanup(self._cleanup_alfresco)
+
+        # testserver vs. example.com
+        Site.objects.clear_cache()
+
+        super().setUp()
+
+    def _cleanup_alfresco(self) -> None:
+        # Removes the created documents from alfresco
+        client = get_cmis_client()
+        client.delete_cmis_folders_in_base()
+        self.adapter.stop()
+
+
+class APICMISTestCase(CMISMixin, APITestCase):
+    pass
+
+
+class APICMISTransactionTestCase(CMISMixin, APITransactionTestCase):
+    pass
 
 
 def get_eio_response(url, **overrides):
