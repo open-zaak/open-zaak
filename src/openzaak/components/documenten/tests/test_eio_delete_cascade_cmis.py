@@ -12,7 +12,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
@@ -21,7 +21,7 @@ from .utils import get_operation_url
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
+class US349TestCase(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -42,7 +42,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
         Deleting a EnkelvoudigInformatieObject causes all related objects to be deleted as well.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = f"http://example.com{reverse(eio)}"
+        eio_url = f"http://testserver{reverse(eio)}"
         GebruiksrechtenCMISFactory(informatieobject=eio_url)
         eio_uuid = eio.uuid
 
@@ -64,9 +64,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
         eio_uuid = eio.uuid
         eio_url = eio.get_url()
 
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
-        BesluitInformatieObjectFactory.create(informatieobject=eio_url, besluit=besluit)
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         informatieobject_delete_url = get_operation_url(
             "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
@@ -87,9 +85,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
         eio_uuid = eio.uuid
         eio_url = eio.get_url()
 
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         informatieobject_delete_url = get_operation_url(
             "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
