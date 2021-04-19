@@ -12,6 +12,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -20,29 +21,28 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ..models import ZaakInformatieObject
-from .factories import ResultaatFactory, ZaakInformatieObjectFactory
+from .factories import ResultaatFactory, ZaakFactory, ZaakInformatieObjectFactory
 from .utils import isodatetime
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
     def test_informatieobject_create(self):
         site = Site.objects.get_current()
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
@@ -57,23 +57,25 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase, Oio
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_informatieobject_fails(self):
-        io = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__concept=False
-        )
-        io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+        iot = InformatieObjectTypeFactory.create()
 
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=io_url,
-            informatieobject__informatieobjecttype=io.informatieobjecttype,
-            zaak=zaak,
+        # Create 2 documents with the same IOT
+        io_1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False, informatieobjecttype=iot
         )
+        io_1_url = f"http://testserver{reverse(io_1)}"
+
+        io_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False, informatieobjecttype=iot
+        )
+        io_2_url = f"http://testserver{reverse(io_2)}"
+
+        # Relate a zaak to one of the documents
+        zio = ZaakInformatieObjectFactory.create(informatieobject=io_1_url,)
         zio_url = reverse(zio)
 
-        response = self.client.patch(zio_url, {"informatieobject": io_url})
+        # Attempt to replace the document related to the zaak with another document
+        response = self.client.patch(zio_url, {"informatieobject": io_2_url})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         validation_error = get_validation_errors(response, "informatieobject")
@@ -82,7 +84,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase, Oio
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     """
     Test that incorrect filter usage results in HTTP 400.
     """
@@ -90,13 +92,10 @@ class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     heeft_alle_autorisaties = True
 
     def test_validate_zaakinformatieobject_unknown_query_params(self):
-        self.create_zaak_besluit_services()
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-            zaak = self.create_zaak()
-            ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+            ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         url = reverse(ZaakInformatieObject)
 
@@ -110,7 +109,7 @@ class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -123,14 +122,13 @@ class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         cls.statustype_end_url = reverse(statustype_end)
 
     def test_status_with_informatieobject_lock(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak(zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io_url)
         io.canonical.lock_document(io.uuid)
-        self.adapter.get(io_url, json=serialise_eio(io, io_url, locked=True))
+
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
@@ -155,12 +153,11 @@ class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(validation_error["code"], "informatieobject-locked")
 
     def test_status_with_informatieobject_indicatie_gebruiksrecht_null(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak(**{"zaaktype": self.zaaktype})
+        zaak = ZaakFactory.create(**{"zaaktype": self.zaaktype})
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(indicatie_gebruiksrecht=None)
         io_url = io.get_url()
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io_url)
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",

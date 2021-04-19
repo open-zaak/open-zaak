@@ -26,7 +26,9 @@ class CRUDAssertions:
         with self.subTest(action="partial_update"):
             response = self.client.patch(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
 
     def assertDestroyBlocked(self, url: str):
         with self.subTest(action="destroy"):
@@ -56,7 +58,7 @@ class CRUDAssertions:
         with self.subTest(action="partial_update"):
             response = self.client.patch(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def assertDestroyAllowed(self, url: str):
         with self.subTest(action="destroy"):

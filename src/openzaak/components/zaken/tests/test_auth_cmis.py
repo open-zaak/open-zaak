@@ -10,19 +10,21 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN
 from ..models import ZaakInformatieObject
-from .factories import ZaakInformatieObjectFactory
+from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
     component = ComponentTypes.zrc
@@ -33,17 +35,16 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         super().setUpTestData()
 
     def test_list_zaakinformatieobject_limited_to_authorized_zaken(self):
-        self.create_zaak_besluit_services()
-        zaak1 = self.create_zaak(
+        zaak1 = ZaakFactory.create(
             **{
                 "zaaktype": self.zaaktype,
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             }
         )
-        zaak2 = self.create_zaak(
+        zaak2 = ZaakFactory.create(
             **{"vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar}
         )
-        zaak3 = self.create_zaak(
+        zaak3 = ZaakFactory.create(
             **{
                 "zaaktype": self.zaaktype,
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.vertrouwelijk,
@@ -52,7 +53,6 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         # must show up
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
 
         zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak1,)
         # must not show up
@@ -77,7 +77,7 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
 @tag("external-urls", "cmis")
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -86,6 +86,13 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+
+        Service.objects.create(
+            api_type=APITypes.ztc,
+            api_root="https://externe.catalogus.nl/api/v1/",
+            label="external zaaktypen",
+            auth_type=AuthTypes.no_auth,
+        )
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.objects.get()
@@ -97,26 +104,39 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
             )
 
     def test_zaakinformatieobject_list(self):
-        self.create_zaak_besluit_services(
-            base_zaaktype="https://externe.catalogus.nl/api/v1/"
+        self.another_zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
+
+        self.adapter.get(
+            self.zaaktype,
+            json={
+                "url": self.zaaktype,
+                "identificatie": "ZAAKTYPE-01",
+                "omschrijving": "Melding Openbare Ruimte",
+            },
         )
-        zaak1 = self.create_zaak(
-            zaaktype=self.zaaktype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        self.adapter.get(
+            self.another_zaaktype_url,
+            json={
+                "url": self.another_zaaktype_url,
+                "identificatie": "ZAAKTYPE-02",
+                "omschrijving": "Melding Openbare Ruimte",
+            },
         )
-        zaak2 = self.create_zaak(
-            zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
+
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
 
         # must show up
-        zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak1,)
+        zio1 = ZaakInformatieObjectFactory.create(
+            informatieobject=eio_url,
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
         # must not show up
         ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url, zaak=zaak2,
+            informatieobject=eio_url,
+            zaak__zaaktype=self.another_zaaktype_url,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url = reverse(ZaakInformatieObject)
 
@@ -129,29 +149,37 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
 
     def test_zaakinformatieobject_retrieve(self):
-        self.create_zaak_besluit_services(
-            base_zaaktype="https://externe.catalogus.nl/api/v1/"
-        )
-        zaak1 = self.create_zaak(
-            zaaktype=self.zaaktype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        zaak2 = self.create_zaak(
-            zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
+        self.another_zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
 
+        self.adapter.get(
+            self.zaaktype,
+            json={
+                "url": self.zaaktype,
+                "identificatie": "ZAAKTYPE-01",
+                "omschrijving": "Melding Openbare Ruimte",
+            },
+        )
+        self.adapter.get(
+            self.another_zaaktype_url,
+            json={
+                "url": self.another_zaaktype_url,
+                "identificatie": "ZAAKTYPE-02",
+                "omschrijving": "Melding Openbare Ruimte",
+            },
+        )
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
-        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
         zio1 = ZaakInformatieObjectFactory.create(
-            informatieobject=eio1_url, zaak=zaak1,
+            informatieobject=eio1_url,
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = eio2.get_url()
-        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
         zio2 = ZaakInformatieObjectFactory.create(
-            informatieobject=eio2_url, zaak=zaak2,
+            informatieobject=eio2_url,
+            zaak__zaaktype=self.another_zaaktype_url,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url1 = reverse(zio1)
         url2 = reverse(zio2)
