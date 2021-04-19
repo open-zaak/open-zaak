@@ -858,10 +858,11 @@ class ZaakInformatieObject(models.Model):
     def unique_representation(self):
         zaak_repr = self.zaak.unique_representation()
 
-        if hasattr(self.informatieobject, "identificatie"):
-            doc_identificatie = self.informatieobject.identificatie
+        informatieobject = self.informatieobject
+        if hasattr(informatieobject, "identificatie"):
+            doc_identificatie = informatieobject.identificatie
         else:
-            doc_identificatie = self.informatieobject.latest_version.identificatie
+            doc_identificatie = informatieobject.latest_version.identificatie
 
         return f"({zaak_repr}) - {doc_identificatie}"
 
