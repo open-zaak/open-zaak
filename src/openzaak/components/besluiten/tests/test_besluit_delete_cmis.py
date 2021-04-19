@@ -4,17 +4,17 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import Besluit, BesluitInformatieObject
-from .factories import BesluitInformatieObjectFactory
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
+class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
@@ -22,11 +22,10 @@ class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
         """
         Deleting a Besluit causes all related objects to be deleted as well.
         """
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit_without_zaak()
+        besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
         BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
         besluit_delete_url = get_operation_url("besluit_delete", uuid=besluit.uuid)
 
