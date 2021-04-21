@@ -248,6 +248,7 @@ LOGGING = {
         "timestamped": {"format": "%(asctime)s %(levelname)s %(name)s  %(message)s"},
         "simple": {"format": "%(levelname)s  %(message)s"},
         "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
+        "drc": {"format": "%(asctime)s %(name)s %(message)s"},
     },
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
@@ -304,6 +305,14 @@ LOGGING = {
             "filters": ["failed_notification"],
             "class": "openzaak.notifications.handlers.DatabaseLogHandler",
         },
+        "drc_cmis": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOGGING_DIR, "cmis.log"),
+            "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "formatter": "drc",
+            "backupCount": 10,
+        },
     },
     "loggers": {
         "openzaak": {
@@ -335,6 +344,7 @@ LOGGING = {
             "level": "WARNING",
             "propagate": True,
         },
+        "drc_cmis": {"handlers": ["drc_cmis"], "level": "DEBUG", "propagate": True},
     },
 }
 
