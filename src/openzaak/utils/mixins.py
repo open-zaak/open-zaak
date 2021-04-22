@@ -39,9 +39,10 @@ class CMISClientMixin:
 
     @property
     def cmis_client(self):
-        if self._cmis_client is None:
-            self._cmis_client = client_builder.get_cmis_client()
-        return self._cmis_client
+        cls = self.__class__
+        if cls._cmis_client is None:
+            cls._cmis_client = client_builder.get_cmis_client()
+        return cls._cmis_client
 
 
 class ConvertCMISAdapterExceptions:
