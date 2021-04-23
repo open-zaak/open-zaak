@@ -7,10 +7,13 @@ from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete, post_save
 from django.dispatch import receiver
 
+from drc_cmis.models import CMISConfig
+
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
+from ...utils.mixins import CMISClientMixin
 from .api.viewsets import (
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
@@ -86,3 +89,15 @@ def rerun_cmis_storage_setup(signal: ModelSignal, setting: str, **kwargs) -> Non
             .prefetch_related("informatieobject__enkelvoudiginformatieobject_set")
             .all()
         )
+
+
+@receiver([post_save], dispatch_uid="documenten.clear_cmis_client", sender=CMISConfig)
+@convert_cmis_adapter_exceptions
+def clear_cmis_client(
+    sender: ModelBase, signal: ModelSignal, instance: IORelation, **kwargs
+) -> None:
+    # For each child of CMISClientMixin, the client is instantiated during the first request to the DMS endpoint,
+    # and then it's kept so that the same session object gets reused. If the CMIS configuration is changed,
+    # the client should be rebuilt.
+    for cls in CMISClientMixin.__subclasses__():
+        cls._cmis_client = None
