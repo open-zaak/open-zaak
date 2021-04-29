@@ -23,7 +23,7 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.mixins import ConvertCMISAdapterExceptions
+from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ..models import (
@@ -75,6 +75,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 
 class EnkelvoudigInformatieObjectViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
@@ -336,6 +337,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 
 class GebruiksrechtenViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
@@ -408,7 +410,9 @@ class GebruiksrechtenViewSet(
     audittrail_main_resource_key = "informatieobject"
 
 
-class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
+class EnkelvoudigInformatieObjectAuditTrailViewSet(
+    CMISConnectionPoolMixin, AuditTrailViewSet
+):
     """
     Opvragen van de audit trail regels.
 
@@ -427,6 +431,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ObjectInformatieObjectViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
