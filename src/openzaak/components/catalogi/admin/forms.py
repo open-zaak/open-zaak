@@ -60,7 +60,7 @@ class ZaakTypeForm(forms.ModelForm):
             "initial-trefwoorden",
             "selectielijst_procestype_jaar",
         ]:
-            if self.data[field] != str(
+            if field in self.data and self.data[field] != str(
                 getattr(self.instance, field.replace("initial-", ""))
             ):
                 return True
