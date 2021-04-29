@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import re
 from datetime import date
 
 from django.contrib.sites.models import Site
@@ -9,24 +8,23 @@ from django.test import override_settings, tag
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import TypeCheckMixin, reverse
-from zgw_consumers.constants import APITypes
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
+from ...zaken.tests.factories import ZaakFactory
 from ..constants import VervalRedenen
 from ..models import Besluit
-from .factories import BesluitInformatieObjectFactory
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioMixin):
+class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
@@ -39,8 +37,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
 
     @freeze_time("2018-09-06T12:08+0200")
     def test_us162_voeg_besluit_toe_aan_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak(zaaktype__concept=False)
+        zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
@@ -49,7 +46,6 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
             informatieobjecttype__concept=False
         )
         io_url = reverse(io)
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         besluittype.informatieobjecttypen.add(io.informatieobjecttype)
 
         # Mocking the besluit
@@ -64,9 +60,6 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
             "vervaldatum": "2018-11-01",
             "vervalreden": VervalRedenen.tijdelijk,
         }
-        mock_service_oas_get(self.adapter, APITypes.brc, self.base_besluit)
-        matcher = re.compile("besluiten/api/v1/.+?-.+?-.+?-.+?-.+?")
-        self.adapter.register_uri("GET", matcher, json=besluit_data)
 
         with self.subTest(part="besluit_create"):
             url = get_operation_url("besluit_create")
@@ -135,9 +128,8 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_opvragen_informatieobjecten_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit1 = self.create_besluit()
-        besluit2 = self.create_besluit()
+        besluit1 = BesluitFactory.create()
+        besluit2 = BesluitFactory.create()
 
         besluit1_uri = reverse(besluit1)
         besluit2_uri = reverse(besluit2)
@@ -145,7 +137,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
         for counter in range(3):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
             BesluitInformatieObjectFactory.create(
                 besluit=besluit1, informatieobject=eio_url
             )
@@ -153,7 +145,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase, OioM
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
-            self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
             BesluitInformatieObjectFactory.create(
                 besluit=besluit2, informatieobject=eio_url
             )

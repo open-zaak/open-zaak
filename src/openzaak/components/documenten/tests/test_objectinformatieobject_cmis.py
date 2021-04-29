@@ -19,38 +19,38 @@ from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.components.zaken.tests.factories import (
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
 from openzaak.components.zaken.tests.utils import get_zaak_response
 from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio", "cmis")
-@override_settings(CMIS_ENABLED=True)
-class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+@override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
+class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
     def test_retrieve_multiple_oios(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
 
         # This creates 2 OIOs
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_1_path = reverse(eio_1)
         eio_1_url = f"http://testserver{eio_1_path}"
         # relate the two
-        self.adapter.get(eio_1_url, json=serialise_eio(eio_1, eio_1_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_1_url)
 
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
         eio_2_path = reverse(eio_2)
         eio_2_url = f"http://testserver{eio_2_path}"
         # relate the two
-        self.adapter.get(eio_2_url, json=serialise_eio(eio_2, eio_2_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_2_url)
 
         # Retrieve oios from API
@@ -68,19 +68,16 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         )
 
     def test_create_with_objecttype_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
-        zaak_url = reverse(zaak)
+        zaak_url = reverse(zio.zaak)
 
         response = self.client.post(
             self.list_url,
@@ -99,18 +96,15 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.post(
             self.list_url,
@@ -129,16 +123,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_other_fail(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.post(
             self.list_url,
@@ -156,20 +147,17 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "invalid_choice")
 
     def test_read_with_objecttype_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
-        zaak_url = reverse(zaak)
+        zaak_url = reverse(zio.zaak)
 
         response = self.client.get(oio_url)
 
@@ -184,20 +172,17 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data, expeceted_response_data)
 
     def test_read_with_objecttype_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.get(oio_url)
 
@@ -219,8 +204,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         It will however become relevant again when we're handling remote
         references.
         """
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
@@ -245,18 +229,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        besluit = self.create_besluit()
 
-        BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit
-        )
+        BesluitInformatieObjectFactory.create(informatieobject=eio_detail_url)
         ZaakInformatieObjectFactory.create(
-            informatieobject=f"http://example.com{reverse(eio_2)}", zaak=zaak
+            informatieobject=f"http://example.com{reverse(eio_2)}"
         )  # may not show up
 
         response = self.client.get(self.list_url, {"informatieobject": eio_detail_url},)
@@ -266,20 +242,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
     def test_filter_zaak(self):
+        # Needed because the zaak URL is used as a query parameter,
+        # and using "testserver" as domain name gives an invalid URL.
+        site = Site.objects.get_current()
+        site.domain = "example.com"
+        site.save()
+
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
 
-        self.create_zaak_besluit_services()
-        zaak1 = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, zaak=zaak1
-        )
-        zaak2 = self.create_zaak()
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_detail_url)
         ZaakInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, zaak=zaak2
+            informatieobject=eio_detail_url
         )  # may not show up
 
         zaak_url = reverse(zio.zaak)
@@ -293,20 +267,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
     def test_filter_besluit(self):
+        # Needed because the besluit URL is used as a query parameter,
+        # and using "testserver" as domain name gives an invalid URL.
+        site = Site.objects.get_current()
+        site.domain = "example.com"
+        site.save()
+
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
 
-        self.create_zaak_besluit_services()
-        besluit1 = self.create_besluit()
-        bio = BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit1
-        )
-        besluit2 = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_detail_url)
         BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit2
+            informatieobject=eio_detail_url
         )  # may not show up
 
         besluit_url = reverse(bio.besluit)
@@ -332,7 +304,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -346,11 +318,9 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
         # relate the two
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
@@ -364,11 +334,9 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
+
         # relate the two
-        BesluitInformatieObjectFactory.create(informatieobject=eio_url, besluit=besluit)
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)

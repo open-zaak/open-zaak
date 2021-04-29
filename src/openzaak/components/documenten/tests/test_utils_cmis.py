@@ -7,14 +7,16 @@ from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework.reverse import reverse_lazy
 from vng_api_common.tests import reverse
 
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.documenten.query.cmis import get_zaak_and_zaaktype_data
 from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin
+from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class CMISUtilsTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
@@ -26,8 +28,7 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         site.save()
 
     def test_get_zaak_and_zaaktype_data(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         zaak_url = make_absolute_uri(reverse(zaak))
 
         zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak_url)
@@ -44,9 +45,9 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase, OioMixin):
                 self.assertIn(field, zaaktype_data)
 
     def test_get_zaak_and_zaaktype_data_related_to_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
-        zaak_url = make_absolute_uri(reverse(besluit.zaak))
+        zaak = ZaakFactory.create()
+        BesluitFactory.create(zaak=zaak)
+        zaak_url = make_absolute_uri(reverse(zaak))
 
         zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak_url)
 

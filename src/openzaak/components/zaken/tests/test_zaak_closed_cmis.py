@@ -12,7 +12,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ...catalogi.tests.factories import ZaakTypeFactory
 from ..api.scopes import (
@@ -28,7 +28,7 @@ from .factories import ZaakFactory, ZaakInformatieObjectFactory
 @tag("closed-zaak", "cmis")
 @override_settings(CMIS_ENABLED=True)
 class ClosedZaakRelatedDataNotAllowedCMISTests(
-    JWTAuthMixin, CRUDAssertions, APICMISTestCase, OioMixin
+    JWTAuthMixin, CRUDAssertions, APICMISTestCase
 ):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is
@@ -42,12 +42,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
     def setUpTestData(cls):
         cls.zaaktype = ZaakTypeFactory.create()
         cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype, closed=True)
-
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def _mock_zaak(self):
         mock_service_oas_get(self.adapter, APITypes.zrc, self.base_zaak)
@@ -72,28 +67,20 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         )
 
     def test_zaakinformatieobjecten(self):
-        self.create_zaak_besluit_services()
-        self._mock_zaak()
         io1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
             informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
         )
         io1_url = f"http://testserver{reverse(io1)}"
-        self.adapter.get(io1_url, json=serialise_eio(io1, io1_url))
 
         io2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
             informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
         )
         io2_url = f"http://testserver{reverse(io2)}"
-        self.adapter.get(io2_url, json=serialise_eio(io2, io2_url))
-        zio = ZaakInformatieObjectFactory(
-            zaak=self.zaak,
-            informatieobject=io2_url,
-            informatieobject__informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobject__informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
-        )
-        zio_url = reverse(zio)
+
+        zio = ZaakInformatieObjectFactory(zaak=self.zaak, informatieobject=io2_url,)
+        zio_url = f"http://testserver{reverse(zio)}"
 
         self.assertCreateBlocked(
             reverse(ZaakInformatieObject),
@@ -110,7 +97,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
 @tag("closed-zaak", "cmis")
 @override_settings(CMIS_ENABLED=True)
 class ClosedZaakRelatedDataAllowedCMISTests(
-    JWTAuthMixin, CRUDAssertions, APICMISTestCase, OioMixin
+    JWTAuthMixin, CRUDAssertions, APICMISTestCase
 ):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is
@@ -131,44 +118,18 @@ class ClosedZaakRelatedDataAllowedCMISTests(
         site.domain = "testserver"
         site.save()
 
-    def _mock_zaak(self):
-        mock_service_oas_get(self.adapter, APITypes.zrc, self.base_zaak)
-        mock_service_oas_get(self.adapter, APITypes.ztc, self.base_zaaktype)
-
-        self.adapter.get(
-            make_absolute_uri(reverse(self.zaak)),
-            json={
-                "url": make_absolute_uri(reverse(self.zaak)),
-                "identificatie": self.zaak.identificatie,
-                "zaaktype": make_absolute_uri(reverse(self.zaak.zaaktype)),
-            },
-        )
-
-        self.adapter.get(
-            make_absolute_uri(reverse(self.zaak.zaaktype)),
-            json={
-                "url": make_absolute_uri(reverse(self.zaak.zaaktype)),
-                "identificatie": self.zaak.zaaktype.identificatie,
-                "omschrijving": "Melding Openbare Ruimte",
-            },
-        )
-
     def test_zaakinformatieobjecten(self):
-        self.create_zaak_besluit_services()
-        self._mock_zaak()
         io1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
             informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
         )
         io1_url = f"http://testserver{reverse(io1)}"
-        self.adapter.get(io1_url, json=serialise_eio(io1, io1_url))
 
         io2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
             informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
         )
         io2_url = f"http://testserver{reverse(io2)}"
-        self.adapter.get(io2_url, json=serialise_eio(io2, io2_url))
         zio = ZaakInformatieObjectFactory(
             zaak=self.zaak,
             informatieobject=io2_url,
