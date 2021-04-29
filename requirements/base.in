@@ -38,7 +38,7 @@ drf-yasg
 drf-writable-nested
 vng-api-common<1.1
 humanize
-drc-cmis>=1.1.0
+drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi

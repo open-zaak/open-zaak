@@ -121,7 +121,7 @@ djangorestframework==3.12.4
     #   drf-nested-routers
     #   drf-yasg
     #   vng-api-common
-drc-cmis==1.2.3
+drc-cmis==1.2.5
     # via -r requirements/base.in
 drf-nested-routers==0.93.3
     # via vng-api-common

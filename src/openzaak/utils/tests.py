@@ -211,7 +211,7 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
 
         binding = os.getenv("CMIS_BINDING")
         if binding == "WEBSERVICE":
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
             config.client_url = "http://localhost:8082/alfresco/cmisws"
             config.binding = "WEBSERVICE"
             config.other_folder_path = "/DRC/"
@@ -223,7 +223,7 @@ class APICMISTestCase(MockSchemasMixin, CMISMixin, APITestCase):
             config.main_repo_id = client.get_main_repo_id()
             config.save()
         elif binding == "BROWSER":
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
             config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
             config.binding = "BROWSER"
             config.other_folder_path = "/DRC/"

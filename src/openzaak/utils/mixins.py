@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from dictdiffer import diff
 from drc_cmis import client_builder
+from drc_cmis.connections import use_cmis_connection_pool
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -68,3 +69,9 @@ class ConvertCMISAdapterExceptions:
     @convert_cmis_adapter_exceptions
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class CMISConnectionPoolMixin:
+    def dispatch(self, request, *args, **kwargs):
+        with use_cmis_connection_pool():
+            return super().dispatch(request, *args, **kwargs)
