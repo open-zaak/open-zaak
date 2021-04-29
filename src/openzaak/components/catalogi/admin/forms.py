@@ -3,15 +3,20 @@
 from django import forms
 from django.conf import settings
 from django.contrib.admin.sites import site
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError as _ValidationError
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 import requests
+from django_loose_fk.loaders import BaseLoader
 from rest_framework.exceptions import ValidationError
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
+from vng_api_common.tests import reverse as _reverse
 from vng_api_common.validators import ResourceValidator
 
 from openzaak.forms.widgets import BooleanRadio
@@ -24,6 +29,7 @@ from ..models import (
     ResultaatType,
     ZaakType,
     ZaakTypeInformatieObjectType,
+    ZaakTypenRelatie,
 )
 from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
@@ -541,3 +547,89 @@ class ZaakTypeInformatieObjectTypeAdminForm(forms.ModelForm):
                 admin_site=site,
                 catalogus_pk=catalogus_pk,
             )
+
+
+class RelatedZaakTypeMultiWidget(forms.widgets.MultiWidget):
+    template_name = "widgets/multiwidget.html"
+
+    def decompress(self, value):
+        if value:
+            try:
+                loader = BaseLoader()
+                if loader.is_local_url(value):
+                    uuid = value.split("/")[-1]
+                    return [ZaakType.objects.get(uuid=uuid).pk, None]
+            except (ZaakType.DoesNotExist, _ValidationError):
+                return ["", value]
+            else:
+                return ["", value]
+        return [None, None]
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        gerelateerd_zaaktype_context = self.widgets[0].get_context(
+            "id_gerelateerd_zaaktype", None, {}
+        )
+        gerelateerd_zaaktype_context.pop("widget")
+        context.update(gerelateerd_zaaktype_context)
+
+        zaaktype_pk = None
+        if value:
+            try:
+                url = value[1] if isinstance(value, list) else value
+                loader = BaseLoader()
+                if loader.is_local_url(url):
+                    uuid = url.split("/")[-1]
+                    zaaktype_pk = ZaakType.objects.get(uuid=uuid).pk
+            except (ZaakType.DoesNotExist, _ValidationError):
+                zaaktype_pk = None
+
+        context["link_label"], context["link_url"] = self.widgets[
+            0
+        ].label_and_url_for_value(zaaktype_pk)
+        return context
+
+
+class RelatedZaakTypeMultiValueField(forms.MultiValueField):
+    def compress(self, data_list):
+        """
+        If an internal ZaakType was selected, determine its API url and use it
+        as `gerelateerd_zaaktype`. If a URL to an external ZaakType was supplied,
+        use that as `gerelateerd_zaaktype`.
+        """
+        if data_list[0] and data_list[1]:
+            raise _ValidationError(_("Kies óf een intern, óf een extern zaaktype"))
+
+        if data_list[0]:
+            protocol = "https" if settings.IS_HTTPS else "http"
+            domain = domain = Site.objects.get_current().domain
+            path = _reverse(ZaakType.objects.get(pk=data_list[0]))
+            return f"{protocol}://{domain}{path}"
+        elif data_list[1]:
+            return data_list[1]
+
+
+class ZaakTypenRelatieAdminForm(forms.ModelForm):
+    gerelateerd_zaaktype = RelatedZaakTypeMultiValueField(
+        fields=[forms.IntegerField(required=False), forms.URLField(required=False),],
+        widget=RelatedZaakTypeMultiWidget(
+            widgets=[
+                ForeignKeyRawIdWidget(
+                    rel=ZaakTypenRelatie._meta.get_field("zaaktype").remote_field,
+                    admin_site=site,
+                ),
+                forms.widgets.URLInput(attrs={"style": "width:300px;"}),
+            ]
+        ),
+        require_all_fields=False,
+        help_text=_(
+            "Het gerelateerde zaaktype: er kan een intern zaaktype uit de lokale "
+            "Catalogus gekozen worden met het vergrootglas; of er kan een URL "
+            "van een extern zaaktype in het tweede tekstvak geplaatst worden."
+        ),
+    )
+
+    class Meta:
+        fields = "__all__"
+        model = ZaakTypenRelatie
