@@ -3,6 +3,7 @@
 import logging
 
 from django.db import models, transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -301,8 +302,10 @@ class ZaakViewSet(
         assert autocommit is False, "Expected to be in a transaction.atomic block"
         # evaluate the queryset, because the transaction will delete the records with
         # a cascade
+        # In the CMIS case, _informatieobject is None, but the _objectinformatieobject_url is not set
+        # (internal document behaviour)
         oio_urls = instance.zaakinformatieobject_set.filter(
-            _informatieobject__isnull=True
+            Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)
         delete_params = [(url, Service.get_client(url)) for url in oio_urls]
 

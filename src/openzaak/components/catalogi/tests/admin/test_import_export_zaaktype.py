@@ -751,7 +751,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "zaaktype2")
 
         self.assertEqual(BesluitType.objects.count(), 2)
-        besluittype1, besluittype2 = BesluitType.objects.all()
+        besluittype1, besluittype2 = BesluitType.objects.all().order_by("pk")
 
         self.assertEqual(besluittype1.omschrijving, "1")
         self.assertEqual(besluittype2.omschrijving, "2")
