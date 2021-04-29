@@ -1,8 +1,22 @@
 Changelog
 =========
 
-1.4.0 (2021-03-??)
+1.4.0 (2021-04-30)
 ------------------
+
+**New features**
+
+* Updated ADFS-integration support, now Azure AD is properly supported
+* Allow selection of internal zaaktypen for related zaaktypen with user friendly
+  picker (#910)
+* Removed the need to register internal services as external services when using
+  CMIS adapter (#938)
+* More CMIS-adapter optimization
+
+    * caching of WSDLs
+    * use connection pooling for CMIS requests (#956)
+
+* Added support for initial superuser creation via environment variables (#952)
 
 **Bugfixes**
 
@@ -12,12 +26,41 @@ Changelog
       ``betrokkeneIdentificatie__vestiging__identificatie`` to
       ``betrokkeneIdentificatie__organisatorischeeenheid__identificatie``
 
+* Fixed missing metadata in CMIS-adapter interface (#925)
+* Improved test isolation, reducing Heisenbugs
+* Improved display of catalogi without explicit name so that they're clickable in the
+  admin (#891)
+* Fixed broken zaaktype export for published zaaktypen (#964)
+
+**Deployment tooling / infrastructure**
+
+* Added configuration parameter to opt-in to use ``X-Forwarded-Host`` headers to
+  determine the canonical domain of a request to Open Zaak. This is particularly useful
+  when using Istio sidecars for example. (#916)
+* Improved dependency management script
+* Added CI check to detect improper version bumping
+* Bumped version of Django Debug Toolbar to fix an SQL injection. Safe in production, as
+  this dependency is not included in the published Docker images.
+* Fixed deleting a Zaak with related documents with CMIS-adapter enabled (#951)
+
+**Documentation**
+
+* Documented advice to service providers to sign up to the OpenZaak Release Early Notice
+  List and mailing list (#915)
+* Updated maturity document (FFPC, #681)
+* Improved post-install configuration documentation (#947)
+* Documented RabbitMQ's need for minimum of 256MB RAM
+
 **External dependency cleanup**
 
 * Dropped nlx-url-rewriter, see manual intervention below
 * Dropped drf-flex-fields, it was not used
 * Upgraded Django, djangorestframework, djangorestframework-camel-case, drf-yasg & other
   related packages (#935)
+* Replaced django-better-admin-arrayfield fork with upstream again
+* Replaced deprecated node-sass (and libsass) with dart-sass (#962)
+* Bumped a number of dependencies to their latest release to get security fixes. None
+  of the vulnerabilities appeared to impact Open Zaak, but better safe than sorry.
 
 .. warning::
 
