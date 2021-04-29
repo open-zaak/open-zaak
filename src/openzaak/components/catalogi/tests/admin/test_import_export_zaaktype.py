@@ -764,6 +764,27 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         import_button = response.html.find("input", {"name": "_import_zaaktype"})
         self.assertIsNone(import_button)
 
+    def test_export_published_zaaktype(self):
+        """
+        Regression test for #964 - export published zaaktype.
+        """
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            concept=False,
+        )
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_export")
+
+        self.assertEqual(response.status_code, 200)
+
 
 @override_settings(CUSTOM_CLIENT_FETCHER=None)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
