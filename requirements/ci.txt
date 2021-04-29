@@ -163,8 +163,7 @@ djangorestframework==3.12.4
     #   drf-nested-routers
     #   drf-yasg
     #   vng-api-common
-#drc-cmis==1.2.3
-git+https://github.com/open-zaak/cmis-adapter.git@b2529e1f2d095ff8c7743347f6ea6cc461e2f219#egg=drc_cmis
+git+https://github.com/open-zaak/cmis-adapter.git@1bf25c2e94db67564f6019ae977b483be69a2f66#egg=drc_cmis
     # via -r requirements/base.txt
 drf-nested-routers==0.93.3
     # via
