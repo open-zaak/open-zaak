@@ -122,6 +122,22 @@ on Docker, since `localhost` is contained within the container:
     Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
     variable should be used with care to prevent unwanted side-effects.
 
+### Initial superuser creation
+
+A clean installation of Open Zaak comes without pre-installed or pre-configured admin
+user by default.
+
+Users of Open Zaak can opt-in to provision an initial superuser via environment
+variables. The user will only be created if it doesn't exist yet.
+
+* `OPENZAAK_SUPERUSER_USERNAME`: specify the username of the superuser to create. Setting
+  this to a non-empty value will enable the creation of the superuser. Default empty.
+* `OPENZAAK_SUPERUSER_EMAIL`: specify the e-mail address to configure for the superuser.
+  Defaults to `admin@admin.org`. Only has an effect if `OPENZAAK_SUPERUSER_USERNAME` is set.
+* `DJANGO_SUPERUSER_PASSWORD`: specify the password for the superuser. Default empty,
+  which means the superuser will be created _without_ password. Only has an effect
+  if `OPENZAAK_SUPERUSER_USERNAME` is set.
+
 ### Cross-Origin-Resource-Sharing
 
 The following parameters control the CORS policy.
