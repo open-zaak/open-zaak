@@ -41,7 +41,7 @@ fi
 # specify password by setting DJANGO_SUPERUSER_PASSWORD in the env
 # specify username by setting OPENZAAK_SUPERUSER_USERNAME in the env
 # specify email by setting OPENZAAK_SUPERUSER_EMAIL in the env
-if [ -z "${OPENZAAK_SUPERUSER_USERNAME}" ]; then
+if [ -n "${OPENZAAK_SUPERUSER_USERNAME}" ]; then
     python src/manage.py createinitialsuperuser \
         --no-input \
         --username "${OPENZAAK_SUPERUSER_USERNAME}" \
