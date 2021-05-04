@@ -423,7 +423,7 @@ requests==2.25.1
     #   sphinx
     #   vng-api-common
     #   zgw-consumers
-rsa==4.6
+rsa==4.7.2
     # via google-auth
 ruamel.yaml.clib==0.2.2
     # via
