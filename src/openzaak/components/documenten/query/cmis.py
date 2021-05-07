@@ -955,6 +955,8 @@ def cmis_doc_to_django_model(
         verzenddatum=cmis_doc.verzenddatum,
     )
 
+    document.bestandsomvang = cmis_doc.contentStreamLength
+
     return document
 
 
