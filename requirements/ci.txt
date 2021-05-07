@@ -297,7 +297,7 @@ regex==2020.6.8
     # via black
 requests-mock==1.6.0
     # via -r requirements/test-tools.in
-requests==2.21.0
+requests==2.25.1
     # via
     #   -r requirements/base.txt
     #   coreapi
@@ -353,7 +353,7 @@ uritemplate==3.0.0
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.24.3
+urllib3==1.26.4
     # via
     #   -r requirements/base.txt
     #   requests
