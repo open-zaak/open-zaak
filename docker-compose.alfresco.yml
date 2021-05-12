@@ -1,43 +1,6 @@
 version: '3.4'
 
 services:
-  db:
-    image: mdillon/postgis
-    # environment:
-    #   - POSTGRES_USER=${PG_USER:openzaak}
-    #   - POSTGRES_PASSWORD=${PG_PASSWORD:openzaak}
-
-  redis:
-    image: redis
-
-  web:
-    build: .
-    image: openzaak/open-zaak
-    environment:
-      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
-      - IS_HTTPS=no
-      - ALLOWED_HOSTS=*
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - SUBPATH=${SUBPATH:-/}
-      - CMIS_ENABLED=True
-      - CMIS_MAPPER_FILE=/app/config/cmis_mapper.json
-      - CMIS_BINDING=BROWSER
-    ports:
-      - 8001:8000
-    depends_on:
-      - db
-
-  nginx:
-    image: nginx
-    volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "9001:80"
-    depends_on:
-      - web
-
   openzaak-alfresco-share:
     image: openzaak/alfresco-share:1.0-SNAPSHOT
     environment:
