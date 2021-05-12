@@ -60,7 +60,7 @@ jobs:
 
       - name: Bring up mock endpoints for SSL verification
         run: docker-compose -f docker-compose.travis.yml up -d mock-endpoints.local
-       
+
       - name: Bring up Alfresco
         run: |
           docker-compose -f docker-compose.travis-cmis.yml up -d
