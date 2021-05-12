@@ -39,7 +39,7 @@ services:
       - web
 
   openzaak-alfresco-share:
-    image: alfresco-share-openzaak-alfresco:development
+    image: openzaak/alfresco-share:1.0-SNAPSHOT
     environment:
       CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
       REPO_HOST: openzaak-alfresco-acs
@@ -49,7 +49,7 @@ services:
       - "11231:8888"
 
   openzaak-alfresco-acs:
-    image: alfresco-content-services-openzaak-alfresco:development
+    image: openzaak/alfresco-content-services:1.0-SNAPSHOT
     environment:
       CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
     ports:

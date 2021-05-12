@@ -10,7 +10,7 @@ version: "2"
 
 services:
     alfresco:
-        image: alfresco-content-services-openzaak-alfresco:development
+        image: openzaak/alfresco-content-services:1.0-SNAPSHOT
         mem_limit: 4g
         environment:
             JAVA_OPTS : "
