@@ -539,6 +539,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
                 bronorganisatie=kwargs.get("bronorganisatie"),
                 data=kwargs,
                 content=content,
+                check_if_already_exists=False,  # The serializer has already checked this.
             )
 
         return cmis_doc_to_django_model(new_cmis_document)
@@ -954,6 +955,8 @@ def cmis_doc_to_django_model(
         vertrouwelijkheidaanduiding=cmis_doc.vertrouwelijkheidaanduiding,
         verzenddatum=cmis_doc.verzenddatum,
     )
+
+    document.bestandsomvang = cmis_doc.contentStreamLength
 
     return document
 

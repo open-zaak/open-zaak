@@ -199,7 +199,7 @@ docutils==0.15.2
     # via
     #   recommonmark
     #   sphinx
-drc-cmis==1.2.5
+drc-cmis==1.2.6
     # via -r requirements/ci.txt
 drf-nested-routers==0.93.3
     # via

@@ -199,7 +199,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ),
     )
     bestandsomvang = serializers.IntegerField(
-        source="inhoud.size",
+        # source="bestandsomvang",
         read_only=True,
         min_value=0,
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
