@@ -51,7 +51,7 @@ fi
 
 # Start server
 >&2 echo "Starting server"
-uwsgi \
+exec uwsgi \
     --http :$uwsgi_port \
     --http-keepalive \
     --manage-script-name \
