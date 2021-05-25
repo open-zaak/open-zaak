@@ -1,5 +1,9 @@
 version: '3.4'
 
+# This stack can be run separately or in combination with the Openzaak stack
+# Separately: docker-compose -f docker-compose.alfresco.yml up
+# With openzaak: docker-compose -f docker-compose.yml -f docker-compose.alfresco.yml up
+
 services:
   openzaak-alfresco-share:
     image: openzaak/alfresco-share:1.0-SNAPSHOT
