@@ -10,7 +10,7 @@ version: "2"
 
 services:
     alfresco:
-        image: alfresco/alfresco-content-repository-community:6.1.2-ga
+        image: openzaak/alfresco-content-services:1.0-SNAPSHOT
         mem_limit: 4g
         environment:
             JAVA_OPTS : "
@@ -34,7 +34,6 @@ services:
         volumes:
             - ./volumes/data/alf-repo-data:/usr/local/tomcat/alf_data
             - ./volumes/logs/alfresco:/usr/local/tomcat/logs
-            - ./extension:/usr/local/tomcat/shared/classes/alfresco/extension
             - ./config/alfresco-global.properties:/usr/local/tomcat/shared/classes/alfresco-global.properties
         ports:
             - 8082:8080 #Browser port
