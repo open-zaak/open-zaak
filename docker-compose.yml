@@ -1,27 +1,41 @@
-# Inspired by https://docs.docker.com/compose/django/
+# This is a compose file inteded for trying out the project locally and absolutely
+# not suitable for production usage. The configuration here contains non-safe defaults.
+#
+# If you want to try out CMIS with Alfresco, see docker-compose.alfresco.yml
+
 version: '3.4'
 
 services:
   db:
     image: mdillon/postgis
-    # environment:
-    #   - POSTGRES_USER=${PG_USER:openzaak}
-    #   - POSTGRES_PASSWORD=${PG_PASSWORD:openzaak}
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
+    volumes:
+      - ./docker/postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - db:/var/lib/postgresql/data
+    ports:
+      - "11234:5432"
 
   redis:
     image: redis
 
   web:
     build: .
-    image: openzaak/open-zaak
+    image: openzaak/open-zaak:latest
     environment:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+      - DB_NAME=openzaak
+      - DB_USER=openzaak
       - IS_HTTPS=no
       - ALLOWED_HOSTS=*
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - SUBPATH=${SUBPATH:-/}
+      - OPENZAAK_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
     ports:
       - 8000:8000
     depends_on:
@@ -35,3 +49,6 @@ services:
       - "9000:80"
     depends_on:
       - web
+
+volumes:
+  db:
