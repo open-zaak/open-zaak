@@ -32,9 +32,9 @@ services:
                 -Xms1g -Xmx1g
                 "
         volumes:
-            - ./volumes/data/alf-repo-data:/usr/local/tomcat/alf_data
-            - ./volumes/logs/alfresco:/usr/local/tomcat/logs
-            - ./config/alfresco-global.properties:/usr/local/tomcat/shared/classes/alfresco-global.properties
+            - ./docker/volumes/data/alf-repo-data:/usr/local/tomcat/alf_data
+            - ./docker/volumes/logs/alfresco:/usr/local/tomcat/logs
+            - ./docker/alfresco/alfresco-global.properties:/usr/local/tomcat/shared/classes/alfresco-global.properties
         ports:
             - 8082:8080 #Browser port
 
