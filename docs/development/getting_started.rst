@@ -175,7 +175,7 @@ Testing with CMIS adapter enabled
 
 The tests for Open Zaak with the CMIS adapter enabled use Alfresco as the Document
 Management System. This is run with docker compose, using the compose file
-``docker-compose.travis-cmis.yml``. In the folder ``extension/``, there are xml files
+``docker-compose.ci.cmis.yml``. In the folder ``extension/``, there are xml files
 defining the custom models used. The file ``config/alfresco-global.properties``
 contains the global properties that are required to run Alfresco.
 
@@ -183,7 +183,7 @@ The containers are launched with:
 
 .. code-block:: bash
 
-    $ docker-compose -f docker-compose.travis-cmis.yml up -d
+    $ docker-compose -f docker-compose.ci.cmis.yml up -d
 
 This creates a ``volumes/`` directory where all the logs and the data are stored.
 
