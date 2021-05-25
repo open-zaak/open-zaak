@@ -20,7 +20,7 @@ import requests
 
 from openzaak.setup import EXTRA_CERTS_ENVVAR, load_self_signed_certs
 
-CERTS_DIR = os.path.join(settings.BASE_DIR, "certs")
+CERTS_DIR = os.path.join(settings.BASE_DIR, "docker", "certs")
 
 HOST = "localhost:9001"
 PUBLIC_INTERNET_HOST = "github.com:443"
