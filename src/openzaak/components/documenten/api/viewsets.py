@@ -57,6 +57,7 @@ from .serializers import (
     ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
 )
+from .validators import RemoteRelationValidator
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = openapi.Parameter(
@@ -531,33 +532,13 @@ class ObjectInformatieObjectViewSet(
         The actual relation information must be updated in the signals,
         so this is just a check.
         """
-        # external object
+        validator = RemoteRelationValidator()
+        try:
+            validator(instance)
+        except ValidationError as exc:
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: exc}, code=exc.detail[0].code
+            ) from exc
+
         if isinstance(instance.object, ProxyMixin):
             super().perform_destroy(instance)
-            return
-
-        if (
-            instance.object_type == "zaak"
-            and instance.does_zaakinformatieobject_exist()
-        ):
-            raise ValidationError(
-                {
-                    api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between zaak and informatieobject still exists"
-                    )
-                },
-                code="inconsistent-relation",
-            )
-
-        if (
-            instance.object_type == "besluit"
-            and instance.does_besluitinformatieobject_exist()
-        ):
-            raise ValidationError(
-                {
-                    api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between besluit and informatieobject still exists"
-                    )
-                },
-                code="inconsistent-relation",
-            )
