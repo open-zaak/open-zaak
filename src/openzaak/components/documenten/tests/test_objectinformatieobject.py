@@ -318,6 +318,27 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(ObjectInformatieObject)
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.zrc_service = Service.objects.create(
+            label="Remote Zaken API",
+            api_type=APITypes.zrc,
+            api_root="https://extern.zrc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+        cls.brc_service = Service.objects.create(
+            label="Remote Besluiten API",
+            api_type=APITypes.brc,
+            api_root="https://extern.brc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+
     def test_create_external_zaak(self):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -534,36 +555,49 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["object"], besluit2)
 
-    def test_destroy_external_zaak(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+    @requests_mock.Mocker()
+    def test_destroy_external_zaak(self, m):
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
             informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
         )
         url = reverse(oio)
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        mock_service_oas_get(m, "zrc", url=self.zrc_service.api_root)
+        m.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        m.get(
+            f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
+            json=[],
+        )
 
-            response = self.client.delete(url)
+        response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
-    def test_destroy_external_besluit(self):
-        besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+    @requests_mock.Mocker()
+    def test_destroy_external_besluit(self, m):
+        besluit = "https://extern.brc.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
             informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
         )
         url = reverse(oio)
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.get(besluit, json=get_besluit_response(besluit, besluittype))
+        mock_service_oas_get(m, "brc", url=self.brc_service.api_root)
+        m.get(besluit, json=get_besluit_response(besluit, besluittype))
+        m.get(
+            "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
+            f"?besluit={besluit}&informatieobject={eio_url}",
+            json=[],
+        )
 
-            response = self.client.delete(url)
+        response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
@@ -571,15 +605,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     @requests_mock.Mocker()
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_destroy_oio_remote_still_present(self, m):
-        service = Service.objects.create(
-            label="Remote Zaken API",
-            api_type=APITypes.zrc,
-            api_root="https://externe.catalogus.nl/api/v1/",
-            auth_type=AuthTypes.zgw,
-            client_id="test",
-            secret="test",
-        )
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"
@@ -589,13 +615,13 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = reverse(oio)
 
         # set up mocks
-        mock_service_oas_get(m, "zrc", url=service.api_root)
+        mock_service_oas_get(m, "zrc", url=self.zrc_service.api_root)
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
-            f"https://externe.catalogus.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
+            f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
             json=[
                 {
-                    "url": f"https://externe.catalogus.nl/api/v1/zaakinformatieobjecten/{uuid.uuid4()}",
+                    "url": f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten/{uuid.uuid4()}",
                     "informatieobject": eio_url,
                     "zaak": zaak,
                     "aardRelatieWeergave": "not relevant",
