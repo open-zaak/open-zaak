@@ -532,7 +532,7 @@ class ObjectInformatieObjectViewSet(
         The actual relation information must be updated in the signals,
         so this is just a check.
         """
-        validator = RemoteRelationValidator()
+        validator = RemoteRelationValidator(request=self.request)
         try:
             validator(instance)
         except ValidationError as exc:

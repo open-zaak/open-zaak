@@ -3,6 +3,7 @@
 import logging
 from collections import OrderedDict
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,6 +13,10 @@ from vng_api_common.constants import ObjectTypes
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
+from zds_client import ClientError
+from zgw_consumers.models import Service
+
+from openzaak.utils import build_absolute_url
 
 from ..models import ObjectInformatieObject
 from ..validators import validate_status
@@ -79,19 +84,60 @@ class RemoteRelationValidator:
     )
     code = "remote-relation-exists"
 
+    def __init__(self, request=None):
+        self.request = request
+
     def __call__(self, oio: ObjectInformatieObject):
         # external object
         if isinstance(oio.object, ProxyMixin):
-            # TODO: validate that the source relation has been destroyed
-            return
+            invalid = self._check_remote(oio)
+        else:
+            invalid = self._check_local(oio)
 
+        if invalid:
+            logger.info(
+                "Relation between %s and informatieobject still exists", oio.object_type
+            )
+            raise serializers.ValidationError(self.message, self.code)
+
+    @staticmethod
+    def _check_local(oio: ObjectInformatieObject) -> bool:
         method_map = {
             ObjectTypes.zaak: "does_zaakinformatieobject_exist",
             ObjectTypes.besluit: "does_besluitinformatieobject_exist",
         }
         check_method = getattr(oio, method_map[oio.object_type])
-        if check_method():
-            logger.info(
-                "Relation between %s and informatieobject still exists", oio.object_type
+        return check_method()
+
+    def _check_remote(self, oio: ObjectInformatieObject) -> bool:
+        object_url = oio.object._loose_fk_data["url"]
+
+        default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+        document_url = build_absolute_url(
+            oio.informatieobject.latest_version.get_absolute_api_url(
+                version=default_version
+            ),
+            request=self.request,
+        )
+
+        # obtain a client for the remote API. this should exist, otherwise loose-fk
+        # would not have been able to load this resource :-)
+        client = Service.get_client(object_url)
+        assert client is not None, f"Could not retrieve client for object {object_url}"
+
+        try:
+            zios = client.list(
+                f"{oio.object_type}informatieobject",
+                query_params={
+                    "informatieobject": document_url,
+                    oio.object_type: object_url,
+                },
             )
-            raise serializers.ValidationError(self.message, self.code)
+        except ClientError as exc:
+            raise serializers.ValidationError(
+                exc.args[0], code="relation-lookup-error"
+            ) from exc
+
+        # if there are ZIOS returned, this means the source relation was not destroyed
+        # yet
+        return len(zios) > 0
