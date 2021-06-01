@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import uuid
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
@@ -345,7 +347,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "inconsistent-relation")
+        self.assertEqual(error["code"], "remote-relation-exists")
 
 
 @tag("external-urls", "cmis")
@@ -749,3 +751,44 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+    def test_destroy_oio_remote_still_present(self, m):
+        service = Service.objects.create(
+            label="Remote Zaken API",
+            api_type=APITypes.zrc,
+            api_root="https://extern.zrc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://extern.zrc.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://openzaak.nl{reverse(eio)}"
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=eio_url, zaak=zaak, object_type="zaak",
+        )
+        url = reverse(oio)
+
+        # set up mocks
+        mock_service_oas_get(self.adapter, "zrc", url=service.api_root)
+        self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        self.adapter.get(
+            f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
+            json=[
+                {
+                    "url": f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten/{uuid.uuid4()}",
+                    "informatieobject": eio_url,
+                    "zaak": zaak,
+                    "aardRelatieWeergave": "not relevant",
+                }
+            ],
+        )
+
+        response = self.client.delete(url, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "remote-relation-exists")
+        self.assertTrue(ObjectInformatieObject.objects.exists())

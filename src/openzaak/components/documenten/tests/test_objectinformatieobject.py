@@ -568,7 +568,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
-    @tag("test-this")
     @requests_mock.Mocker()
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_destroy_oio_remote_still_present(self, m):
