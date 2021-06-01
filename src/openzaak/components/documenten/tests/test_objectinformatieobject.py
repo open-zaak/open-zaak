@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
 from django.test import override_settings, tag
 
 import requests_mock
@@ -12,6 +14,8 @@ from vng_api_common.tests import (
     reverse,
     reverse_lazy,
 )
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -23,6 +27,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import get_zaak_response
+from openzaak.tests.utils import mock_service_oas_get
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -562,3 +567,46 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+    @tag("test-this")
+    @requests_mock.Mocker()
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+    def test_destroy_oio_remote_still_present(self, m):
+        service = Service.objects.create(
+            label="Remote Zaken API",
+            api_type=APITypes.zrc,
+            api_root="https://externe.catalogus.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://openzaak.nl{reverse(eio)}"
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
+        )
+        url = reverse(oio)
+
+        # set up mocks
+        mock_service_oas_get(m, "zrc", url=service.api_root)
+        m.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        m.get(
+            f"https://externe.catalogus.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
+            json=[
+                {
+                    "url": f"https://externe.catalogus.nl/api/v1/zaakinformatieobjecten/{uuid.uuid4()}",
+                    "informatieobject": eio_url,
+                    "zaak": zaak,
+                    "aardRelatieWeergave": "not relevant",
+                }
+            ],
+        )
+
+        response = self.client.delete(url, HTTP_HOST="openzaak.nl")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "remote-relation-exists")
+        self.assertTrue(ObjectInformatieObject.objects.exists())
