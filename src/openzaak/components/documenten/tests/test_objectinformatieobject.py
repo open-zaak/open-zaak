@@ -269,6 +269,16 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_destroy_oio_remote_gone(self):
+        """
+        Assert that the OIO is deleted when the primary relation side is deleted.
+
+        When the ZIO or BIO is deleted, Open Zaak must make the call to delete the OIO.
+        We verify this by deleting the ZIO and observing that the end result is the
+        same - the OIO no longer exists in the API. This deviates from the reference
+        implementation, since they are two different systems making the calls, but
+        here Open Zaak has full control about the database and doesn't even have to
+        make the DELETE call, so it's fine this 404's.
+        """
         eio = EnkelvoudigInformatieObjectFactory.create()
 
         # relate the two
@@ -294,7 +304,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "inconsistent-relation")
+        self.assertEqual(error["code"], "remote-relation-exists")
 
 
 @tag("external-urls")
