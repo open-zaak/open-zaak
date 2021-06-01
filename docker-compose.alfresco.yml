@@ -1,0 +1,60 @@
+# This compose file is intended to test out Open Zaak + CMIS adapter with Alfresco
+# in your local dev environment, rather than using Open Zaak with the file-system
+# Documenten API storage.
+#
+# Start the services by specifying both docker-compose files:
+#
+#   docker-compose -f docker-compose.yml -f docker-compose.alfresco.yml up
+
+version: '3.4'
+
+services:
+  openzaak-alfresco-share:  # access on http://localhost:11230/share/
+    image: openzaak/alfresco-share:1.0-SNAPSHOT
+    environment:
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
+      REPO_HOST: openzaak-alfresco-acs
+      REPO_PORT: 8080
+    ports:
+      - "11230:8080"
+      - "11231:8888"
+
+  openzaak-alfresco-acs:  # access on http://localhost:11232/
+    image: openzaak/alfresco-content-services:1.0-SNAPSHOT
+    environment:
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
+      JAVA_OPTS : "
+        -Ddb.driver=org.postgresql.Driver
+        -Ddb.username=alfresco
+        -Ddb.password=alfresco
+        -Ddb.url=jdbc:postgresql://db:5432/alfresco
+      "
+    ports:
+      - "11232:8080"
+      - "11233:8888"
+    volumes:
+      - openzaak-alfresco-acs-volume:/usr/local/tomcat/alf_data
+    depends_on:
+      - db  # from docker-compose.yml
+
+  openzaak-alfresco-ass:
+    image: alfresco/alfresco-search-services:1.2.0
+    environment:
+      SOLR_ALFRESCO_HOST: openzaak-alfresco-acs
+      SOLR_ALFRESCO_PORT: 8080
+      SOLR_SOLR_HOST: openzaak-alfresco-ass
+      SOLR_SOLR_PORT: 8983
+      SOLR_CREATE_ALFRESCO_DEFAULTS: alfresco,archive
+    ports:
+      - "8983:8983"
+    volumes:
+      - openzaak-alfresco-ass-volume:/opt/alfresco-search-services/contentstore
+      - openzaak-alfresco-ass-volume:/opt/alfresco-search-services/data
+
+  web:
+    environment:
+      - CMIS_ENABLED=yes
+
+volumes:
+  openzaak-alfresco-acs-volume:
+  openzaak-alfresco-ass-volume:

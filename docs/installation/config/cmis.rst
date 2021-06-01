@@ -58,7 +58,7 @@ Using the CMIS adapter
    as defaults.
 
    .. _`default CMIS mapping`: https://github.com/open-zaak/open-zaak/blob/master/config/cmis_mapper.json
-   .. _`Alfresco model`: https://github.com/open-zaak/open-zaak/blob/master/extension/alfresco-zsdms-model.xml
+   .. _`Alfresco model`: https://github.com/open-zaak/alfresco-content-model/blob/main/openzaak-alfresco-platform/src/main/resources/alfresco/module/openzaak-alfresco-platform/model/alfresco-zsdms-model.xml
 
 2. Make sure the content model is loaded in your DMS and matches the CMIS
    mapping described in step 1. It's important that all attributes are present.

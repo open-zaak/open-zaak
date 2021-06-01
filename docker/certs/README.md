@@ -12,7 +12,7 @@ are used to (automatically) test this.
 In the root of the repository, run:
 
 ```bash
-docker-compose -f docker-compose.travis.yml up mock-endpoints.local
+docker-compose -f docker-compose.ci.yml up mock-endpoints.local
 ```
 
 Now, navigate your browser (or any other HTTP client) to `https://localhost:9001` and

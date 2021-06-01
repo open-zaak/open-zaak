@@ -1,0 +1,3 @@
+CREATE USER alfresco;
+CREATE DATABASE alfresco;
+GRANT ALL PRIVILEGES ON DATABASE alfresco TO alfresco;
