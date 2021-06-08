@@ -556,7 +556,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data[0]["object"], besluit2)
 
     @requests_mock.Mocker()
-    def test_destroy_external_zaak(self, m):
+    def test_destroy_oio_with_external_zaak(self, m):
         zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -579,7 +579,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
     @requests_mock.Mocker()
-    def test_destroy_external_besluit(self, m):
+    def test_destroy_oio_with_external_besluit(self, m):
         besluit = "https://extern.brc.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eio = EnkelvoudigInformatieObjectFactory.create()

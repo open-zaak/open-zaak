@@ -89,7 +89,7 @@ class RemoteRelationValidator:
 
     def __call__(self, oio: ObjectInformatieObject):
         # external object
-        if isinstance(oio.object, ProxyMixin):
+        if isinstance(oio.object, ProxyMixin) and not settings.CMIS_ENABLED:
             invalid = self._check_remote(oio)
         else:
             invalid = self._check_local(oio)
@@ -112,16 +112,13 @@ class RemoteRelationValidator:
     def _check_remote(self, oio: ObjectInformatieObject) -> bool:
         object_url = oio.object._loose_fk_data["url"]
 
-        if settings.CMIS_ENABLED:
-            document_url = oio.get_informatieobject_url()
-        else:
-            default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
-            document_url = build_absolute_url(
-                oio.informatieobject.latest_version.get_absolute_api_url(
-                    version=default_version
-                ),
-                request=self.request,
-            )
+        default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+        document_url = build_absolute_url(
+            oio.informatieobject.latest_version.get_absolute_api_url(
+                version=default_version
+            ),
+            request=self.request,
+        )
 
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)

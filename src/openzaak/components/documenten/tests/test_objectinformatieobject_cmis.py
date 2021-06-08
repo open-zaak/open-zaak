@@ -715,7 +715,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["object"], besluit2)
 
-    def test_destroy_external_zaak(self):
+    def test_destroy_oio_with_external_zaak(self):
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
         self.adapter.get(
             self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
@@ -738,7 +738,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
-    def test_destroy_external_besluit(self):
+    def test_destroy_oio_with_external_besluit(self):
         self.adapter.get(
             self.besluit,
             json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
