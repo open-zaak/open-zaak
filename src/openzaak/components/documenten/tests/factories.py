@@ -11,7 +11,6 @@ Factory models for the documenten application.
     creation.
 """
 import datetime
-import uuid
 
 from django.test import RequestFactory
 from django.utils import timezone
@@ -37,7 +36,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     canonical = factory.SubFactory(
         EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None
     )
-    identificatie = factory.fuzzy.FuzzyAttribute(uuid.uuid4)
+    identificatie = factory.Sequence(lambda n: f"document-{n}")
     bronorganisatie = factory.Faker("ssn", locale="nl_NL")
     creatiedatum = datetime.date(2018, 6, 27)
     titel = "some titel"
