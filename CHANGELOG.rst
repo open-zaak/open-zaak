@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.5.0 (2021-??-??)
+------------------
+
+.. warning::
+
+   No longer run as root user, fixing issue: https://github.com/open-zaak/open-zaak/issues/869
+
 1.4.0 (2021-04-30)
 ------------------
 
