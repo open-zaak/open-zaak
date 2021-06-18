@@ -6,7 +6,11 @@ Changelog
 
 .. warning::
 
-   No longer run as root user, fixing issue: https://github.com/open-zaak/open-zaak/issues/869
+   Manual intervention required
+   
+  k8s the correct pod securityGroupContext needs to be specified and on plain Docker 
+  deploys the permissions of the volumes will probably have to be fixed. 
+
 
 1.4.0 (2021-04-30)
 ------------------
