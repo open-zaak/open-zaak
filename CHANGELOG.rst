@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.5.0 (2021-??-??)
+------------------
+
+.. warning::
+
+   Manual intervention required
+   
+  k8s the correct pod securityGroupContext needs to be specified and on plain Docker 
+  deploys the permissions of the volumes will probably have to be fixed. 
+
+
 1.4.0 (2021-04-30)
 ------------------
 
