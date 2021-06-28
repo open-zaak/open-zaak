@@ -5,56 +5,42 @@ from datetime import date
 from typing import Optional
 
 from django.core.exceptions import ValidationError
-from django.db.models import Q, QuerySet
+from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 
-from .models import Catalogus, InformatieObjectType, ZaakType
+from .models import Catalogus
 
 
-def get_overlapping_zaaktypes(
+def has_overlapping_objects(
+    model_manager: models.Manager,
     catalogus: Catalogus,
-    omschrijving: str,
+    omschrijving_query: dict,
     begin_geldigheid: date,
     einde_geldigheid: Optional[date] = None,
-    instance: Optional[ZaakType] = None,
-) -> QuerySet:
-    query = ZaakType.objects.filter(
-        Q(catalogus=catalogus),
-        Q(zaaktype_omschrijving=omschrijving),
-        Q(datum_einde_geldigheid=None)
-        | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
-    )
-    if einde_geldigheid is not None:
-        query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
+    instance: Optional[models.Model] = None,
+) -> bool:
 
-    if instance:
-        query = query.exclude(pk=instance.pk)
+    if catalogus and begin_geldigheid:
+        query = model_manager.filter(
+            Q(catalogus=catalogus),
+            Q(**omschrijving_query),
+            Q(datum_einde_geldigheid=None)
+            | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
+        )
 
-    return query
+        if einde_geldigheid is not None:
+            query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
 
+        if instance:
+            query = query.exclude(pk=instance.pk)
 
-def get_overlapping_informatieobjecttypes(
-    catalogus: Catalogus,
-    omschrijving: str,
-    begin_geldigheid: date,
-    einde_geldigheid: Optional[date] = None,
-    instance: Optional[InformatieObjectType] = None,
-) -> QuerySet:
-    query = InformatieObjectType.objects.filter(
-        Q(catalogus=catalogus),
-        Q(omschrijving=omschrijving),
-        Q(datum_einde_geldigheid=None)
-        | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
-    )
-    if einde_geldigheid is not None:
-        query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
+        if query.exists():
+            return True
 
-    if instance:
-        query = query.exclude(pk=instance.pk)
-
-    return query
+    return False
 
 
 def compare_relativedeltas(

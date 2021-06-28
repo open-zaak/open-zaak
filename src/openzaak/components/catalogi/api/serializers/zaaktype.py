@@ -22,11 +22,11 @@ from ...models import BesluitType, ZaakType, ZaakTypenRelatie
 from ..validators import (
     ConceptUpdateValidator,
     DeelzaaktypeCatalogusValidator,
+    GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
     VerlengingsValidator,
-    ZaaktypeGeldigheidValidator,
 )
 
 
@@ -189,7 +189,7 @@ class ZaakTypeSerializer(
         }
 
         validators = [
-            ZaaktypeGeldigheidValidator(),
+            GeldigheidValidator("zaaktype_omschrijving"),
             RelationCatalogValidator("besluittypen"),
             ConceptUpdateValidator(),
             M2MConceptCreateValidator(["besluittypen", "informatieobjecttypen"]),

@@ -280,6 +280,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
     objects = SyncAutorisatieManager()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
+    omschrijving_field = "zaaktype_omschrijving"
 
     class Meta:
         verbose_name = _("Zaaktype")
@@ -309,7 +310,7 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        from ..utils import compare_relativedeltas, get_overlapping_zaaktypes
+        from ..utils import compare_relativedeltas
 
         super().clean()
 
@@ -331,22 +332,6 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
                 "'Servicenorm behandeling' periode mag niet langer zijn dan "
                 "de periode van 'Doorlooptijd behandeling'."
             )
-
-        if self.catalogus_id and self.datum_begin_geldigheid:
-            query = get_overlapping_zaaktypes(
-                self.catalogus,
-                self.zaaktype_omschrijving,
-                self.datum_begin_geldigheid,
-                self.datum_einde_geldigheid,
-                self,
-            )
-
-            # regel voor zaaktype omschrijving
-            if query.exists():
-                raise ValidationError(
-                    "Zaaktype versies (dezelfde omschrijving) mogen geen "
-                    "overlappende geldigheid hebben."
-                )
 
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         kwargs["version"] = "1"

@@ -12,10 +12,10 @@ from vng_api_common.constants import (
 from openzaak.client import fetch_object
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
-from ..utils import get_overlapping_informatieobjecttypes, get_overlapping_zaaktypes
+from ..utils import has_overlapping_objects
 
 
-class ZaaktypeGeldigheidValidator:
+class GeldigheidValidator:
     """
     Validate that the (new) object is unique between a start and end date.
 
@@ -23,10 +23,13 @@ class ZaaktypeGeldigheidValidator:
     be created after the start date.
     """
 
-    message = _(
-        "Dit zaaktype komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
-    )
     code = "overlap"
+    message = _(
+        "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+    )
+
+    def __init__(self, omschrijving_field="omschrijving"):
+        self.omschrijving_field = omschrijving_field
 
     def set_context(self, serializer):
         """
@@ -35,80 +38,28 @@ class ZaaktypeGeldigheidValidator:
         """
         # Determine the existing instance, if this is an update operation.
         self.instance = getattr(serializer, "instance", None)
+        self.base_model = getattr(serializer.Meta, "model", None)
 
     def __call__(self, attrs):
-        catalogus = attrs.get("catalogus") or self.instance.catalogus
-        zaaktype_omschrijving = (
-            attrs.get("zaaktype_omschrijving") or self.instance.zaaktype_omschrijving
-        )
-        datum_begin_geldigheid = (
-            attrs.get("datum_begin_geldigheid") or self.instance.datum_begin_geldigheid
-        )
-        current_einde_geldigheid = (
-            self.instance.datum_einde_geldigheid if self.instance is not None else None
-        )
-        datum_einde_geldigheid = (
-            attrs.get("datum_einde_geldigheid") or current_einde_geldigheid
-        )
-
-        query = get_overlapping_zaaktypes(
-            catalogus,
-            zaaktype_omschrijving,
-            datum_begin_geldigheid,
-            datum_einde_geldigheid,
-            self.instance,
-        )
-
-        # regel voor zaaktype omschrijving
-        if query.exists():
-            raise ValidationError({"begin_geldigheid": self.message}, code=self.code)
-
-
-class InformatieobjecttypeGeldigheidValidator:
-    """
-    Validate that the (new) object is unique between a start and end date.
-
-    Empty end date is an open interval, which means that the object cannot
-    be created after the start date.
-    """
-
-    message = _(
-        "Dit informatieobjecttype komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
-    )
-    code = "overlap"
-
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs):
-        catalogus = attrs.get("catalogus") or self.instance.catalogus
-        omschrijving = attrs.get("omschrijving") or self.instance.omschrijving
-        datum_begin_geldigheid = (
-            attrs.get("datum_begin_geldigheid") or self.instance.datum_begin_geldigheid
-        )
-        current_einde_geldigheid = (
-            self.instance.datum_einde_geldigheid if self.instance is not None else None
-        )
-        datum_einde_geldigheid = (
-            attrs.get("datum_einde_geldigheid") or current_einde_geldigheid
-        )
-
-        query = get_overlapping_informatieobjecttypes(
-            catalogus,
-            omschrijving,
-            datum_begin_geldigheid,
-            datum_einde_geldigheid,
-            self.instance,
-        )
-
-        # regel voor informatieobjecttype omschrijving
-        if query.exists():
-            raise ValidationError({"begin_geldigheid": self.message}, code=self.code)
+        if has_overlapping_objects(
+            model_manager=self.base_model._default_manager,
+            catalogus=attrs.get("catalogus"),
+            omschrijving_query={
+                self.omschrijving_field: attrs.get(self.omschrijving_field)
+            },
+            begin_geldigheid=attrs.get("datum_begin_geldigheid"),
+            einde_geldigheid=attrs.get("datum_einde_geldigheid"),
+            instance=self.instance,
+        ):
+            # regel voor zaaktype omschrijving
+            raise ValidationError(
+                {
+                    "begin_geldigheid": self.message.format(
+                        self.base_model._meta.verbose_name
+                    )
+                },
+                code=self.code,
+            )
 
 
 class RelationCatalogValidator:

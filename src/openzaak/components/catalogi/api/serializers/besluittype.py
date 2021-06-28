@@ -8,6 +8,7 @@ from openzaak.utils.validators import UniqueTogetherValidator
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..validators import (
     ConceptUpdateValidator,
+    GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
@@ -58,6 +59,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "concept",
         )
         validators = [
+            GeldigheidValidator(),
             UniqueTogetherValidator(
                 queryset=BesluitType.objects.all(), fields=["catalogus", "omschrijving"]
             ),

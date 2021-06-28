@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
 
-from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -69,26 +68,6 @@ class InformatieObjectType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
-
-    def clean(self):
-        from ..utils import get_overlapping_informatieobjecttypes
-
-        super().clean()
-        if self.catalogus and self.omschrijving:
-            query = get_overlapping_informatieobjecttypes(
-                self.catalogus,
-                self.omschrijving,
-                self.datum_begin_geldigheid,
-                self.datum_einde_geldigheid,
-                self,
-            )
-
-            # regel voor informatieobjecttype omschrijving
-            if query.exists():
-                raise ValidationError(
-                    "Informatieobjecttype versies (dezelfde omschrijving) mogen geen "
-                    "overlappende geldigheid hebben."
-                )
 
     @transaction.atomic
     def save(self, *args, **kwargs):
