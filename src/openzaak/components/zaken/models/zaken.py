@@ -26,7 +26,6 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
-from vng_api_common.validators import alphanumeric_excluding_diacritic
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
@@ -97,7 +96,6 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
         blank=True,
         help_text="De unieke identificatie van de ZAAK binnen de organisatie "
         "die verantwoordelijk is voor de behandeling van de ZAAK.",
-        validators=[alphanumeric_excluding_diacritic],
         db_index=True,
     )
     bronorganisatie = RSINField(
