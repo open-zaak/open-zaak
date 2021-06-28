@@ -11,10 +11,7 @@ from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
-from vng_api_common.validators import (
-    UntilTodayValidator,
-    alphanumeric_excluding_diacritic,
-)
+from vng_api_common.validators import UntilTodayValidator
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
@@ -36,7 +33,6 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         "identificatie",
         max_length=50,
         blank=True,
-        validators=[alphanumeric_excluding_diacritic],
         help_text="Identificatie van het besluit binnen de organisatie die "
         "het besluit heeft vastgesteld. Indien deze niet opgegeven is, "
         "dan wordt die gegenereerd.",
