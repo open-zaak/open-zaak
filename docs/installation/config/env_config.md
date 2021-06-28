@@ -138,6 +138,18 @@ variables. The user will only be created if it doesn't exist yet.
   which means the superuser will be created _without_ password. Only has an effect
   if `OPENZAAK_SUPERUSER_USERNAME` is set.
 
+
+### Advanced application server options
+
+Open Zaak uses [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/Options.html) under
+the hood, which can be configured with a myriad of options. Most of these can be
+provided as environment variables as well. The following options below are a
+non-exhaustive list of options you may need with Open Zaak.
+
+* `UWSGI_HTTP_TIMEOUT` - defaults to 60s. If Open Zaak does not complete the request
+  within this timeout, then uWSGI will error out. This has been observed with certain
+  CMIS implementations causing slow requests where 60s is not sufficient.
+
 ### Cross-Origin-Resource-Sharing
 
 The following parameters control the CORS policy.

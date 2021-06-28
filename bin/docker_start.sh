@@ -62,5 +62,4 @@ exec uwsgi \
     --enable-threads \
     --processes $uwsgi_processes \
     --threads $uwsgi_threads \
-    --buffer-size=65535 \
-    --http-timeout=300
+    --buffer-size=65535
