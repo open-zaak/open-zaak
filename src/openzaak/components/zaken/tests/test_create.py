@@ -32,7 +32,7 @@ OBJECT_MET_ADRES = f"https://example.com/orc/api/v1/objecten/{uuid.uuid4().hex}"
 STADSDEEL = f"https://example.com/rsgb/api/v1/wijkobjecten/{uuid.uuid4().hex}"
 
 
-class US39TestCase(JWTAuthMixin, APITestCase):
+class CreateZaakTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
@@ -296,3 +296,26 @@ class US39TestCase(JWTAuthMixin, APITestCase):
                 "betrokkeneIdentificatie": None,
             },
         )
+
+    def test_identificatie_all_characters_allowed(self):
+        """
+        Test that there is no limitation on certain characters for the identificatie field.
+
+        Upstream standard issue: https://github.com/VNG-Realisatie/gemma-zaken/issues/1790
+        """
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "identificatie": "ZK bläh",
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2018-06-11",
+            "startdatum": "2018-06-11",
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
