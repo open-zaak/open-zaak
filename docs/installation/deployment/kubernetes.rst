@@ -24,7 +24,7 @@ This setup is tested against a Google Cloud Kubernetes cluster with 4vCPU and
 available `machine types`_. Please see :ref:`installation_hardware` to
 determine your hardware requirements.
 
-.. _machine types: https://cloud.google.com/compute/docs/machine-types#n2_standard_machine_types
+.. _machine types: https://cloud.google.com/compute/docs/machine-types
 
 .. note::
     Head's up! If you're familiar with Helm_, there are community-provided Helm charts_
