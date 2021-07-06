@@ -22,7 +22,11 @@ coreschema==0.0.4
     #   coreapi
     #   drf-yasg
 cryptography==3.4.4
-    # via django-auth-adfs
+    # via
+    #   django-auth-adfs
+    #   josepy
+    #   mozilla-django-oidc
+    #   pyopenssl
 dictdiffer==0.8.0
     # via -r requirements/base.in
 django-admin-index==1.2.2
@@ -36,7 +40,9 @@ django-auth-adfs==1.6.1
 django-axes==4.4.0
     # via -r requirements/base.in
 django-better-admin-arrayfield==1.4.2
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   mozilla-django-oidc-db
 django-choices==1.7.0
     # via
     #   -r requirements/base.in
@@ -80,6 +86,7 @@ django-solo==1.1.3
     # via
     #   django-auth-adfs-db
     #   drc-cmis
+    #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
 django==2.2.24
@@ -104,6 +111,8 @@ django==2.2.24
     #   drc-cmis
     #   drf-nested-routers
     #   drf-yasg
+    #   mozilla-django-oidc
+    #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
 djangorestframework-camel-case==1.2.0
@@ -155,16 +164,24 @@ itypes==1.1.0
     # via coreapi
 jinja2==2.11.3
     # via coreschema
+josepy==1.8.0
+    # via mozilla-django-oidc
 markdown==3.0.1
     # via -r requirements/base.in
 markupsafe==1.1.1
     # via jinja2
+mozilla-django-oidc-db==0.2.1
+    # via -r requirements/base.in
+mozilla-django-oidc==1.2.4
+    # via mozilla-django-oidc-db
 oyaml==1.0
     # via vng-api-common
 packaging==20.9
     # via drf-yasg
 psycopg2==2.8.4
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   mozilla-django-oidc-db
 pycparser==2.19
     # via cffi
 pyjwt==1.6.4
@@ -172,6 +189,8 @@ pyjwt==1.6.4
     #   django-auth-adfs
     #   gemma-zds-client
     #   vng-api-common
+pyopenssl==20.0.1
+    # via josepy
 pyparsing==2.4.7
     # via
     #   httplib2
@@ -203,6 +222,7 @@ requests==2.25.1
     #   coreapi
     #   django-auth-adfs
     #   gemma-zds-client
+    #   mozilla-django-oidc
     #   vng-api-common
     #   zgw-consumers
 ruamel.yaml.clib==0.2.2
@@ -219,6 +239,8 @@ six==1.11.0
     #   django-extra-views
     #   django-markup
     #   isodate
+    #   mozilla-django-oidc
+    #   pyopenssl
     #   python-dateutil
 sqlparse==0.3.0
     # via django

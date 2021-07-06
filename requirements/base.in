@@ -22,6 +22,7 @@ django-markup
 django-redis
 django-privates
 django-relativedelta
+mozilla-django-oidc-db
 
 # Admin and UI libraries
 django-admin-index
