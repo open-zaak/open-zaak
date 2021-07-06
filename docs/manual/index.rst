@@ -23,3 +23,4 @@ directly in the management interface.
    api-authorizations
    other_apis
    adfs
+   oidc
