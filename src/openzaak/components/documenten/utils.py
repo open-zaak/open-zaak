@@ -10,7 +10,7 @@ from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.utils.functional import LazyObject
 
-from drc_cmis import client_builder
+from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import Vendor
 from privates.storages import PrivateMediaFileSystemStorage
 
@@ -60,7 +60,7 @@ class CMISStorageFile(File):
 
 class CMISStorage(Storage):
     def __init__(self, location=None, base_url=None, encoding=None):
-        self._client = client_builder.get_cmis_client()
+        self._client = get_cmis_client()
 
     def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)

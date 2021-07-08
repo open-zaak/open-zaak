@@ -8,7 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
-from rest_framework.compat import unicode_to_repr
 from rest_framework.utils.representation import smart_repr
 from rest_framework.validators import (
     UniqueTogetherValidator as _UniqueTogetherValidator,
@@ -89,16 +88,15 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
 
             new_value = self.resolver.resolve(self.host, new_value)
 
-        if (
-            isinstance(current_value, ProxyMixin)
-            and isinstance(current_value, EnkelvoudigInformatieObject)
-            and isinstance(new_value, EnkelvoudigInformatieObject)
+        if isinstance(current_value, EnkelvoudigInformatieObject) and isinstance(
+            new_value, EnkelvoudigInformatieObject
         ):
-            current_value_url = current_value._initial_data["url"]
             if settings.CMIS_ENABLED:
                 new_value_url = new_value.get_url()
+                current_value_url = current_value.get_url()
             else:
                 new_value_url = new_value._initial_data["url"]
+                current_value_url = current_value._initial_data["url"]
 
             if new_value_url != current_value_url:
                 raise serializers.ValidationError(
@@ -219,6 +217,4 @@ class UniqueTogetherValidator(_UniqueTogetherValidator):
         problematic when CMIS is enabled and for each object a query to the DMS
         has to be done.
         """
-        return unicode_to_repr(
-            "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))
-        )
+        return "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))

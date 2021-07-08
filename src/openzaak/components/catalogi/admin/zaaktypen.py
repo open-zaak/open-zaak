@@ -9,13 +9,14 @@ from django.forms import ChoiceField
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+
 from openzaak.selectielijst.admin_fields import (
     get_processtype_readonly_field,
     get_procestype_field,
 )
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils.admin import (
-    DynamicArrayMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
@@ -31,7 +32,7 @@ from ..models import (
     ZaakTypenRelatie,
 )
 from .eigenschap import EigenschapAdmin
-from .forms import ZaakTypeForm
+from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
@@ -51,6 +52,7 @@ logger = logging.getLogger(__name__)
 @admin.register(ZaakTypenRelatie)
 class ZaakTypenRelatieAdmin(ReadOnlyPublishedZaaktypeMixin, admin.ModelAdmin):
     model = ZaakTypenRelatie
+    form = ZaakTypenRelatieAdminForm
 
     # List
     list_display = ("gerelateerd_zaaktype", "zaaktype")

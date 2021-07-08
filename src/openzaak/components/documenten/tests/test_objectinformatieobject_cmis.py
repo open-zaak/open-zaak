@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import uuid
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
@@ -19,38 +21,41 @@ from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.components.zaken.tests.utils import get_zaak_response
+from openzaak.components.zaken.tests.factories import (
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
+from openzaak.components.zaken.tests.utils import (
+    get_zaak_response,
+    get_zaaktype_response,
+)
 from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio", "cmis")
-@override_settings(CMIS_ENABLED=True)
-class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+@override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
+class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
     def test_retrieve_multiple_oios(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
 
         # This creates 2 OIOs
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_1_path = reverse(eio_1)
         eio_1_url = f"http://testserver{eio_1_path}"
         # relate the two
-        self.adapter.get(eio_1_url, json=serialise_eio(eio_1, eio_1_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_1_url)
 
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
         eio_2_path = reverse(eio_2)
         eio_2_url = f"http://testserver{eio_2_path}"
         # relate the two
-        self.adapter.get(eio_2_url, json=serialise_eio(eio_2, eio_2_url))
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_2_url)
 
         # Retrieve oios from API
@@ -68,19 +73,16 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         )
 
     def test_create_with_objecttype_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
-        zaak_url = reverse(zaak)
+        zaak_url = reverse(zio.zaak)
 
         response = self.client.post(
             self.list_url,
@@ -99,18 +101,15 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         ObjectInformatieObject.objects.get()
 
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.post(
             self.list_url,
@@ -129,16 +128,13 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "unique")
 
     def test_create_with_objecttype_other_fail(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.post(
             self.list_url,
@@ -156,20 +152,17 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(error["code"], "invalid_choice")
 
     def test_read_with_objecttype_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio_url)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
-        zaak_url = reverse(zaak)
+        zaak_url = reverse(zio.zaak)
 
         response = self.client.get(oio_url)
 
@@ -184,20 +177,17 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data, expeceted_response_data)
 
     def test_read_with_objecttype_besluit(self):
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
         # relate the two
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        BesluitInformatieObjectFactory.create(besluit=besluit, informatieobject=eio_url)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
         oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(bio.besluit)
 
         response = self.client.get(oio_url)
 
@@ -219,8 +209,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         It will however become relevant again when we're handling remote
         references.
         """
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         zaak_url = reverse(zaak)
         eio_url = reverse(eio)
@@ -245,18 +234,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        besluit = self.create_besluit()
 
-        BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit
-        )
+        BesluitInformatieObjectFactory.create(informatieobject=eio_detail_url)
         ZaakInformatieObjectFactory.create(
-            informatieobject=f"http://example.com{reverse(eio_2)}", zaak=zaak
+            informatieobject=f"http://example.com{reverse(eio_2)}"
         )  # may not show up
 
         response = self.client.get(self.list_url, {"informatieobject": eio_detail_url},)
@@ -266,20 +247,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
     def test_filter_zaak(self):
+        # Needed because the zaak URL is used as a query parameter,
+        # and using "testserver" as domain name gives an invalid URL.
+        site = Site.objects.get_current()
+        site.domain = "example.com"
+        site.save()
+
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
 
-        self.create_zaak_besluit_services()
-        zaak1 = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, zaak=zaak1
-        )
-        zaak2 = self.create_zaak()
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_detail_url)
         ZaakInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, zaak=zaak2
+            informatieobject=eio_detail_url
         )  # may not show up
 
         zaak_url = reverse(zio.zaak)
@@ -293,20 +272,18 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
     def test_filter_besluit(self):
+        # Needed because the besluit URL is used as a query parameter,
+        # and using "testserver" as domain name gives an invalid URL.
+        site = Site.objects.get_current()
+        site.domain = "example.com"
+        site.save()
+
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
-        self.adapter.register_uri(
-            "GET", eio_detail_url, json=serialise_eio(eio_1, eio_detail_url)
-        )
 
-        self.create_zaak_besluit_services()
-        besluit1 = self.create_besluit()
-        bio = BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit1
-        )
-        besluit2 = self.create_besluit()
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_detail_url)
         BesluitInformatieObjectFactory.create(
-            informatieobject=eio_detail_url, besluit=besluit2
+            informatieobject=eio_detail_url
         )  # may not show up
 
         besluit_url = reverse(bio.besluit)
@@ -332,7 +309,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -346,11 +323,9 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
         # relate the two
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
@@ -364,11 +339,9 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
+
         # relate the two
-        BesluitInformatieObjectFactory.create(informatieobject=eio_url, besluit=besluit)
+        BesluitInformatieObjectFactory.create(informatieobject=eio_url)
 
         oio = ObjectInformatieObject.objects.get()
         url = reverse(oio)
@@ -377,7 +350,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase, OioMixin
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "inconsistent-relation")
+        self.assertEqual(error["code"], "remote-relation-exists")
 
 
 @tag("external-urls", "cmis")
@@ -386,11 +359,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(ObjectInformatieObject)
 
-    besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-    besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-    zaak = (
-        "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+    besluit = (
+        "https://extern.brc.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
     )
+    besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+    zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
     zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
     catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
 
@@ -405,6 +378,23 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             auth_type=AuthTypes.no_auth,
         )
 
+        cls.zrc_service = Service.objects.create(
+            label="Remote Zaken API",
+            api_type=APITypes.zrc,
+            api_root="https://extern.zrc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+        cls.brc_service = Service.objects.create(
+            label="Remote Besluiten API",
+            api_type=APITypes.brc,
+            api_root="https://extern.brc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
+
         config = CMISConfig.objects.get()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
@@ -413,12 +403,31 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
                 short_pattern="https://xcat.nl",
                 config=config,
             )
+            UrlMapping.objects.create(
+                long_pattern="https://extern.zrc.nl",
+                short_pattern="https://xzrc.nl",
+                config=config,
+            )
+            UrlMapping.objects.create(
+                long_pattern="https://extern.brc.nl",
+                short_pattern="https://xbrc.nl",
+                config=config,
+            )
 
-    def test_create_external_zaak(self):
+    def setUp(self):
+        super().setUp()
+
         mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
+            self.adapter, APITypes.zrc, "https://extern.zrc.nl/api/v1/"
+        )
+        mock_service_oas_get(
+            self.adapter, APITypes.ztc, "https://externe.catalogus.nl/api/v1/"
+        )
+        mock_service_oas_get(
+            self.adapter, APITypes.brc, "https://extern.brc.nl/api/v1/"
         )
 
+    def test_create_external_zaak(self):
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
         self.adapter.get(
             self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
@@ -442,10 +451,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(oio.object, self.zaak)
 
     def test_create_external_besluit(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
         self.adapter.get(
             self.besluit,
             json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
@@ -477,7 +482,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(oio.object, self.besluit)
 
     def test_create_external_zaak_fail_invalid_schema(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -509,7 +514,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_external_besluit_fail_invalid_schema(self):
-        besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluit = "https://extern.brc.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -540,10 +545,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_fail_not_unique(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
         self.adapter.get(
             self.besluit,
             json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
@@ -576,10 +577,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "unique")
 
     def test_read_external_zaak(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
         self.adapter.get(
             self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
@@ -604,10 +601,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(data["informatieobject"], f"http://testserver{reverse(eio)}")
 
     def test_read_external_besluit(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
         self.adapter.get(
             self.besluit,
             json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
@@ -639,12 +632,12 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     def test_list_filter_by_external_zaak(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
+        zaak1 = (
+            "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         )
-
-        zaak1 = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaak2 = "https://externe.catalogus.nl/api/v1/zaken/b923543f-97aa-4a55-8c20-889b5906cf75"
+        zaak2 = (
+            "https://extern.zrc.nl/api/v1/zaken/b923543f-97aa-4a55-8c20-889b5906cf75"
+        )
         zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
         catalogus1 = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
@@ -676,19 +669,19 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
     def test_list_filter_by_external_besluit(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
         # Needed for the CMIS adapter
-        zaak1 = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaak2 = "https://externe.catalogus.nl/api/v1/zaken/b923543f-97aa-4a55-8c20-889b5906cf75"
+        zaak1 = (
+            "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        )
+        zaak2 = (
+            "https://extern.zrc.nl/api/v1/zaken/b923543f-97aa-4a55-8c20-889b5906cf75"
+        )
         zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
         catalogus1 = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
         catalogus2 = "https://externe.catalogus.nl/api/v1/catalogussen/a8e03e86-152d-4e8c-83fc-047645cfc585"
-        besluit1 = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluit2 = "https://externe.catalogus.nl/api/v1/besluiten/b923543f-97aa-4a55-8c20-889b5906cf75"
+        besluit1 = "https://extern.brc.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluit2 = "https://extern.brc.nl/api/v1/besluiten/b923543f-97aa-4a55-8c20-889b5906cf75"
         besluittype1 = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         besluittype2 = "https://externe.catalogus.nl/api/v1/besluittypen/3665b9be-6ac5-4075-8736-d79598e5325c"
 
@@ -722,36 +715,30 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["object"], besluit2)
 
-    def test_destroy_external_zaak(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
+    def test_destroy_oio_with_external_zaak(self):
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
         self.adapter.get(
             self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
         )
 
         eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=f"http://testserver{reverse(eio)}",
-            zaak=self.zaak,
-            object_type="zaak",
+            informatieobject=eio_url, zaak=self.zaak, object_type="zaak",
         )
         url = reverse(oio)
 
-        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={self.zaak}&informatieobject={eio_url}",
+            json=[],
+        )
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
-    def test_destroy_external_besluit(self):
-        mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
-        )
-
+    def test_destroy_oio_with_external_besluit(self):
         self.adapter.get(
             self.besluit,
             json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
@@ -761,23 +748,57 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
         )
 
-        eio = EnkelvoudigInformatieObjectFactory.create()
+        self.adapter.get(
+            self.besluit, json=get_besluit_response(self.besluit, self.besluittype),
+        )
 
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
             informatieobject=f"http://testserver{reverse(eio)}",
             besluit=self.besluit,
             object_type="besluit",
         )
-
         url = reverse(oio)
 
-        self.adapter.register_uri(
-            "GET",
-            self.besluit,
-            json=get_besluit_response(self.besluit, self.besluittype),
+        self.adapter.get(
+            "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
+            f"?besluit={self.besluit}&informatieobject={eio_url}",
+            json=[],
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+    def test_destroy_oio_remote_still_present(self):
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://extern.zrc.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
+        # set up mocks
+        self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        self.adapter.get(zaaktype, json=get_zaaktype_response(self.catalogus, zaaktype))
+        self.adapter.get(
+            f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
+            json=[
+                {
+                    "url": f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten/{uuid.uuid4()}",
+                    "informatieobject": eio_url,
+                    "zaak": zaak,
+                    "aardRelatieWeergave": "not relevant",
+                }
+            ],
+        )
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=eio_url, zaak=zaak, object_type="zaak",
+        )
+        url = reverse(oio)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "remote-relation-exists")
+        self.assertTrue(ObjectInformatieObject.objects.exists())

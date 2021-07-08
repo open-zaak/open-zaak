@@ -3,6 +3,7 @@
 import logging
 
 from django.db import models, transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -301,8 +302,10 @@ class ZaakViewSet(
         assert autocommit is False, "Expected to be in a transaction.atomic block"
         # evaluate the queryset, because the transaction will delete the records with
         # a cascade
+        # In the CMIS case, _informatieobject is None, but the _objectinformatieobject_url is not set
+        # (internal document behaviour)
         oio_urls = instance.zaakinformatieobject_set.filter(
-            _informatieobject__isnull=True
+            Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)
         delete_params = [(url, Service.get_client(url)) for url in oio_urls]
 
@@ -632,6 +635,11 @@ class ZaakEigenschapViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
+    def get_queryset(self):
+        if not self.kwargs:  # this happens during schema generation, and causes crashes
+            return self.queryset.none()
+        return super().get_queryset()
+
     def _get_zaak(self):
         if not hasattr(self, "_zaak"):
             filters = lookup_kwargs_to_filters(self.parent_retrieve_kwargs, self.kwargs)
@@ -896,6 +904,11 @@ class ZaakBesluitViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    def get_queryset(self):
+        if not self.kwargs:  # this happens during schema generation, and causes crashes
+            return self.queryset.none()
+        return super().get_queryset()
 
     def _get_zaak(self):
         if not hasattr(self, "_zaak"):

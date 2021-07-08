@@ -17,18 +17,16 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
-from .factories import BesluitInformatieObjectFactory
+from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
 @tag("cmis")
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
-class SendNotifTestCase(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
-):
+class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
@@ -36,22 +34,14 @@ class SendNotifTestCase(
         """
         Check if notifications will be send when besluitinformatieobject is deleted
         """
-        # client = mock_client.return_value
-        # besluit = BesluitFactory.create()
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
-        besluittype_url = reverse(besluit.besluittype)
+
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        bio = BesluitInformatieObjectFactory.create(
-            besluit=besluit, informatieobject=eio_url
-        )
-        bio_url = get_operation_url("besluitinformatieobject_delete", uuid=bio.uuid)
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
+        bio_path = reverse(bio)
 
         with capture_on_commit_callbacks(execute=True):
-            response = self.client.delete(bio_url)
+            response = self.client.delete(bio_path)
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -67,14 +57,14 @@ class SendNotifTestCase(
 
         expected_data = {
             "kanaal": "besluiten",
-            "hoofdObject": f"http://testserver{besluit_url}",
+            "hoofdObject": f"http://testserver{reverse(bio.besluit)}",
             "resource": "besluitinformatieobject",
-            "resourceUrl": f"http://testserver{bio_url}",
+            "resourceUrl": f"http://testserver{bio_path}",
             "actie": "destroy",
             "aanmaakdatum": "2018-09-07T00:00:00Z",
             "kenmerken": {
-                "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
-                "besluittype": f"http://testserver{besluittype_url}",
+                "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
+                "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
             },
         }
 
@@ -89,7 +79,7 @@ class SendNotifTestCase(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 class FailedNotificationCMISTests(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -107,13 +97,12 @@ class FailedNotificationCMISTests(
     ):
         url = get_operation_url("besluitinformatieobject_create")
 
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
+        besluit = BesluitFactory.create()
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
         besluit_url = reverse(besluit)
         data = {
@@ -153,12 +142,8 @@ class FailedNotificationCMISTests(
     ):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        besluit = self.create_besluit()
-        bio = BesluitInformatieObjectFactory.create(
-            informatieobject=eio_url, besluit=besluit
-        )
+
+        bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         url = reverse(bio)
 
         with capture_on_commit_callbacks(execute=True):

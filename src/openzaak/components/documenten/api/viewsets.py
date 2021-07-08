@@ -23,7 +23,7 @@ from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.mixins import ConvertCMISAdapterExceptions
+from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ..models import (
@@ -57,6 +57,7 @@ from .serializers import (
     ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
 )
+from .validators import RemoteRelationValidator
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = openapi.Parameter(
@@ -75,6 +76,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 
 
 class EnkelvoudigInformatieObjectViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
@@ -336,6 +338,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 
 class GebruiksrechtenViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
@@ -408,7 +411,9 @@ class GebruiksrechtenViewSet(
     audittrail_main_resource_key = "informatieobject"
 
 
-class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
+class EnkelvoudigInformatieObjectAuditTrailViewSet(
+    CMISConnectionPoolMixin, AuditTrailViewSet
+):
     """
     Opvragen van de audit trail regels.
 
@@ -427,6 +432,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
 
 
 class ObjectInformatieObjectViewSet(
+    CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
@@ -526,33 +532,13 @@ class ObjectInformatieObjectViewSet(
         The actual relation information must be updated in the signals,
         so this is just a check.
         """
-        # external object
+        validator = RemoteRelationValidator(request=self.request)
+        try:
+            validator(instance)
+        except ValidationError as exc:
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: exc}, code=exc.detail[0].code
+            ) from exc
+
         if isinstance(instance.object, ProxyMixin):
             super().perform_destroy(instance)
-            return
-
-        if (
-            instance.object_type == "zaak"
-            and instance.does_zaakinformatieobject_exist()
-        ):
-            raise ValidationError(
-                {
-                    api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between zaak and informatieobject still exists"
-                    )
-                },
-                code="inconsistent-relation",
-            )
-
-        if (
-            instance.object_type == "besluit"
-            and instance.does_besluitinformatieobject_exist()
-        ):
-            raise ValidationError(
-                {
-                    api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "The relation between besluit and informatieobject still exists"
-                    )
-                },
-                code="inconsistent-relation",
-            )

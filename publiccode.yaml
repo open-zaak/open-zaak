@@ -1,4 +1,4 @@
-# This repository adheres to the publiccode.yml standard by including this 
+# This repository adheres to the publiccode.yml standard by including this
 # metadata file that makes public software easily discoverable.
 # More info at https://github.com/italia/publiccode.yml
 
@@ -9,7 +9,7 @@ url: 'https://github.com/open-zaak/open-zaak.git'
 softwareType: standalone/backend
 softwareVersion: 1.0.0
 releaseDate: '2019-09-30'
-logo: 'https://raw.githubusercontent.com/open-zaak/open-zaak/master/docs/logo.svg'
+logo: 'https://raw.githubusercontent.com/open-zaak/open-zaak/main/docs/logo.svg'
 platforms:
   - web
   - linux
@@ -43,7 +43,7 @@ description:
     genericName: API component
     longDescription: >
       Binnen het Nederlandse gemeentelandschap wordt zaakgericht werken
-      nagestreefd. Om dit mogelijk te maken is er gegevensuitwisseling nodig. 
+      nagestreefd. Om dit mogelijk te maken is er gegevensuitwisseling nodig.
       De kerngegevens van zaken, documenten en besluiten moeten ergens
       geregistreerd worden en opvraagbaar zijn.
 
@@ -100,49 +100,49 @@ description:
       - Autorisatie beheer
     genericName: API component
     longDescription: >
-      **Open Zaak** is a modern, open-source data- and services-layer to 
-      enable [zaakgericht 
+      **Open Zaak** is a modern, open-source data- and services-layer to
+      enable [zaakgericht
       werken](https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken),
-      a Dutch alternative to case management. Open Zaak offers structured data 
-      storage and services that implement the VNG standards for “API’s voor 
+      a Dutch alternative to case management. Open Zaak offers structured data
+      storage and services that implement the VNG standards for “API’s voor
       Zaakgericht werken” in line with the Common Ground model.
 
 
       Open Zaak exposes several API’s to store and retrieve data:
-      
+
       - Zaken API (case instances) ([Zaken API-specifications
       1.0](https://zaakgerichtwerken.vng.cloud/standaard/zaken/index))
-      
+
       - Documenten API (documents) ([Documenten API-specifications
       1.0](https://zaakgerichtwerken.vng.cloud/standaard/documenten/index))
-      
+
       - Catalogi API (case types) ([Catalogi API-specifications
       1.0](https://zaakgerichtwerken.vng.cloud/standaard/catalogi/index))
-      
+
       - Besluiten API (decisions) ([Autorisaties API-specifications
       1.0](https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index))
-      
+
       - Autorisaties API (authorizations) ([Autorisaties API-specifications
       1.0](https://zaakgerichtwerken.vng.cloud/standaard/autorisaties/index))
-      
+
 
       The [Notificaties
       API](https://zaakgerichtwerken.vng.cloud/standaard/notificaties/index) is
-      required for **Open Zaak** to work but is available as a separate 
-      package, [Open 
+      required for **Open Zaak** to work but is available as a separate
+      package, [Open
       Notificaties](https://github.com/open-zaak/open-notificaties).
-      
 
-      **Open Zaak** is based on the API [reference 
-      implementations](https://github.com/VNG-Realisatie/gemma-zaken) by VNG 
-      Realisatie to create a production-grade product that can be used by 
+
+      **Open Zaak** is based on the API [reference
+      implementations](https://github.com/VNG-Realisatie/gemma-zaken) by VNG
+      Realisatie to create a production-grade product that can be used by
       municipalities.
 
 legal:
   license: EUPL-1.2
   mainCopyrightOwner: Dimpact
   repoOwner: Maykin Media
-  # authorsFile: 'https://raw.githubusercontent.com/open-zaak/open-zaak/master/AUTHORS.md'
+  # authorsFile: 'https://raw.githubusercontent.com/open-zaak/open-zaak/main/AUTHORS.md'
 
 dependsOn:
   open:

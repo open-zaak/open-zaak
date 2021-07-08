@@ -379,6 +379,7 @@ class EnkelvoudigInformatieObject(
     # When dealing with remote EIO, there is no pk or canonical instance to derive
     # the lock status from. The getters and setters then use this private attribute.
     _locked = False
+    _bestandsomvang = None
     objects = AdapterManager()
 
     class Meta:
@@ -393,6 +394,16 @@ class EnkelvoudigInformatieObject(
     def __init__(self, *args, **kwargs):
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
+
+    @property
+    def bestandsomvang(self):
+        if not self._bestandsomvang:
+            self._bestandsomvang = self.inhoud.size
+        return self._bestandsomvang
+
+    @bestandsomvang.setter
+    def bestandsomvang(self, value):
+        self._bestandsomvang = value
 
     @property
     def locked(self) -> bool:

@@ -14,7 +14,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase
 
 from ...models import ObjectInformatieObject
 from ..factories import (
@@ -25,16 +25,12 @@ from ..factories import (
 
 @tag("oio", "cmis")
 @override_settings(CMIS_ENABLED=True)
-class OIOCMISTests(APICMISTestCase, TestCase, OioMixin):
+class OIOCMISTests(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         self.eio = EnkelvoudigInformatieObjectFactory.create()
         self.eio_url = f"http://openzaak.nl{reverse(self.eio)}"
-        self.eio_response = serialise_eio(self.eio, self.eio_url)
-
-        # Needed to mock the calls to get the zaak when the CMIS adapter creates an oio
-        self.create_zaak_besluit_services()
 
     def test_not_both_zaak_besluit(self):
         zaak = ZaakFactory.create()
@@ -51,39 +47,27 @@ class OIOCMISTests(APICMISTestCase, TestCase, OioMixin):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_zio_creates_oio(self):
-        self.adapter.get(self.eio_url, json=self.eio_response)
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=self.eio_url, zaak=zaak
-        )
+        zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
         oio = ObjectInformatieObject.objects.get()
 
         self.assertEqual(
-            oio.get_informatieobject_url(), zio.informatieobject._initial_data["url"],
+            oio.get_informatieobject_url(), self.eio_url,
         )
         self.assertEqual(oio.object, zio.zaak)
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_bio_creates_oio(self):
-        self.adapter.get(self.eio_url, json=self.eio_response)
-        besluit = self.create_besluit()
-        bio = BesluitInformatieObjectFactory.create(
-            informatieobject=self.eio_url, besluit=besluit
-        )
+        bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
 
         oio = ObjectInformatieObject.objects.get()
 
         self.assertEqual(
-            oio.get_informatieobject_url(), bio.informatieobject._initial_data["url"],
+            oio.get_informatieobject_url(), self.eio_url,
         )
         self.assertEqual(oio.object, bio.besluit)
 
     def test_zio_delete_oio(self):
-        self.adapter.get(self.eio_url, json=self.eio_response)
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=self.eio_url, zaak=zaak
-        )
+        zio = ZaakInformatieObjectFactory.create(informatieobject=self.eio_url)
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
 
@@ -92,11 +76,7 @@ class OIOCMISTests(APICMISTestCase, TestCase, OioMixin):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
     def test_bio_delete_oio(self):
-        self.adapter.get(self.eio_url, json=self.eio_response)
-        besluit = self.create_besluit()
-        bio = BesluitInformatieObjectFactory.create(
-            informatieobject=self.eio_url, besluit=besluit
-        )
+        bio = BesluitInformatieObjectFactory.create(informatieobject=self.eio_url)
 
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
 
@@ -107,18 +87,14 @@ class OIOCMISTests(APICMISTestCase, TestCase, OioMixin):
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class BlockChangeTestCase(APICMISTestCase, TestCase, OioMixin):
+class BlockChangeTestCase(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"
-        eio_response = serialise_eio(eio, eio_url)
 
-        self.adapter.get(eio_url, json=eio_response)
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         self.oio = ObjectInformatieObject.objects.get()
 
     def test_update(self):

@@ -7,7 +7,7 @@ Open Zaak
 
 .. _`Read this in English`: README.en.md
 
-:Version: 1.3.4
+:Version: 1.4.0
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.7
@@ -107,7 +107,7 @@ Licensed under the EUPL_
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/master/graphs/badge.svg?branch=master
+.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main
     :alt: Coverage
     :target: https://codecov.io/gh/open-zaak/open-zaak
 

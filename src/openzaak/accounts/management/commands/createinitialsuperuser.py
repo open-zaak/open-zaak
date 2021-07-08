@@ -1,50 +1,74 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import os
+
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth.management.commands.createsuperuser import (
+    Command as BaseCommand,
+)
 from django.core.mail import send_mail
-from django.core.management.base import BaseCommand
-from django.urls import exceptions, reverse
+from django.urls import reverse
 
 
 class Command(BaseCommand):
-    help = "Creates an initial superuser account and mails the credentials to the specified email"
-
     def add_arguments(self, parser):
+        super().add_arguments(parser)
+
         parser.add_argument(
-            "username", help="Specifies the username for the superuser.",
+            "--password",
+            help="Set the password when the superuser is initially created.",
         )
         parser.add_argument(
-            "email", help="Specifies the email for the superuser.",
+            "--generate-password",
+            action="store_true",
+            help=(
+                "Generate and e-mail the password. The --password option and "
+                "environment variable overrule this flag."
+            ),
         )
 
-    def handle(self, *args, **options):
-        User = get_user_model()
-        username = options["username"]
-        email = options["email"]
-
-        if User.objects.filter(username=username).exists():
+    def handle(self, **options):
+        username = options[self.UserModel.USERNAME_FIELD]
+        database = options["database"]
+        qs = self.UserModel._default_manager.db_manager(database).filter(
+            **{self.UserModel.USERNAME_FIELD: username}
+        )
+        if qs.exists():
             self.stdout.write(
-                self.style.WARNING("Initial superuser already exists, doing nothing")
+                self.style.WARNING("Superuser account already exists, exiting")
             )
             return
 
-        password = User.objects.make_random_password(length=20)
-        User.objects.create_superuser(username=username, email=email, password=password)
-
-        try:
-            link = f'{settings.ALLOWED_HOSTS[0]}{reverse("admin:index")}'
-        except IndexError:
-            link = "unknown url"
-        except exceptions.NoReverseMatch:
-            link = settings.ALLOWED_HOSTS[0]
-
-        send_mail(
-            f"Credentials for {settings.PROJECT_NAME} ({link})",
-            f"Credentials for project: {settings.PROJECT_NAME}\n\nUsername: {username}\nPassword: {password}",
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
+        password = options.get("password") or os.environ.get(
+            "DJANGO_SUPERUSER_PASSWORD"
         )
 
-        self.stdout.write(self.style.SUCCESS("Initial superuser successfully created"))
+        if password or options["generate_password"]:
+            options["interactive"] = False
+
+        # perform user creation from core Django
+        super().handle(**options)
+
+        user = qs.get()
+
+        if not password and options["generate_password"]:
+            password = self.UserModel.objects.make_random_password(length=20)
+
+        if password:
+            self.stdout.write("Setting user password...")
+            user.set_password(password)
+            user.save()
+
+        if options["generate_password"]:
+            try:
+                link = f'{settings.ALLOWED_HOSTS[0]}{reverse("admin:index")}'
+            except IndexError:
+                link = "unknown url"
+
+            send_mail(
+                f"Credentials for {settings.PROJECT_NAME} ({link})",
+                f"Credentials for project: {settings.PROJECT_NAME}\n\nUsername: {username}\nPassword: {password}",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )

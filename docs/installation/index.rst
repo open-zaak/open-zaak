@@ -39,7 +39,9 @@ Guides
    hardware
    deployment/kubernetes
    deployment/single_server
+   provision_superuser
    config/index
+   self_signed
    post_install
    updating
    extra/index

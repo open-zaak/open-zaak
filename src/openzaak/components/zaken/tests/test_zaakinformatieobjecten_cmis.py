@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from datetime import datetime
 
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils import timezone
 
@@ -18,7 +17,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 from ...documenten.models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from ..models import Zaak, ZaakInformatieObject
@@ -27,27 +26,19 @@ from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
     @freeze_time("2018-09-19T12:25:19+0200")
     def test_create(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -94,16 +85,50 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(ObjectInformatieObject.objects.count(), 1)
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 
-    @freeze_time("2018-09-20 12:00:00")
-    def test_registratiedatum_ignored(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+    def test_zaaktype_with_invalid_characters_in_omschrijving(self):
+        """
+        The CMIS-adapter uses the zaaktype omschrijving to give the name to the zaaktype
+        folder. Invalid filename characters in the omschrijving field need to be handled.
+        """
+        zaak = ZaakFactory.create()
+
+        zaak.zaaktype.zaaktype_omschrijving = "Invalid/filename/characters/present"
+        zaak.zaaktype.save()
+
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+
+        titel = "some titel"
+        beschrijving = "some beschrijving"
+        content = {
+            "informatieobject": io_url,
+            "zaak": f"http://testserver{zaak_url}",
+            "titel": titel,
+            "beschrijving": beschrijving,
+            "aardRelatieWeergave": "bla",  # Should be ignored by the API
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @freeze_time("2018-09-20 12:00:00")
+    def test_registratiedatum_ignored(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = f"http://testserver{reverse(io)}"
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -130,15 +155,12 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
+
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
         zio = ZaakInformatieObjectFactory.create(
             informatieobject=eio_url,
-            zaak=zaak,
             informatieobject__latest_version__informatieobjecttype=zio_type.informatieobjecttype,
         )
         zaak_url = reverse(zio.zaak)
@@ -161,10 +183,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_read_zaakinformatieobject(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zio_detail_url = reverse(zio)
 
         response = self.client.get(zio_detail_url)
@@ -190,10 +209,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_filter_by_zaak(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zaak_url = reverse(zio.zaak)
         zio_list_url = reverse("zaakinformatieobject-list")
 
@@ -209,21 +225,16 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_informatieobject(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-
         # Create two ZIOs
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = f"http://example.com{reverse(eio1)}"
-        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
 
-        ZaakInformatieObjectFactory.create(informatieobject=eio1_url, zaak=zaak)
+        ZaakInformatieObjectFactory.create(informatieobject=eio1_url)
 
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = f"http://example.com{reverse(eio2)}"
-        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
 
-        ZaakInformatieObjectFactory.create(informatieobject=eio2_url, zaak=zaak)
+        ZaakInformatieObjectFactory.create(informatieobject=eio2_url)
 
         zio_list_url = reverse("zaakinformatieobject-list")
 
@@ -241,14 +252,10 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         zaak_url = reverse(zaak)
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = f"http://testserver{reverse(eio1)}"
-        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url)
         zio_detail_url = reverse(zio)
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = f"http://testserver{reverse(eio2)}"
-        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
 
         response = self.client.put(
             zio_detail_url,
@@ -265,24 +272,21 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
                 self.assertEqual(error["code"], IsImmutableValidator.code)
 
     def test_partial_update_zaak_and_informatieobject_fails(self):
-        self.create_zaak_besluit_services()
-        zaak1 = self.create_zaak()
-        zaak2 = self.create_zaak()
-        zaak1_url = reverse(zaak1)
-
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = eio1.get_url()
-        self.adapter.get(eio1_url, json=serialise_eio(eio1, eio1_url))
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url, zaak=zaak2)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio1_url)
         zio_detail_url = reverse(zio)
 
         eio2 = EnkelvoudigInformatieObjectFactory.create()
         eio2_url = f"http://testserver{reverse(eio2)}"
-        self.adapter.get(eio2_url, json=serialise_eio(eio2, eio2_url))
+        other_zaak = ZaakFactory.create()
 
         response = self.client.patch(
             zio_detail_url,
-            {"zaak": f"http://testserver{zaak1_url}", "informatieobject": eio2_url,},
+            {
+                "zaak": f"http://testserver{reverse(other_zaak)}",
+                "informatieobject": eio2_url,
+            },
         )
 
         self.assertEqual(
@@ -295,12 +299,10 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
                 self.assertEqual(error["code"], IsImmutableValidator.code)
 
     def test_update_zio_metadata(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
@@ -329,11 +331,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(zio.beschrijving, "same")
 
     def test_partial_update_zio_metadata(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
@@ -359,10 +359,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_delete(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zio_url = reverse(zio)
 
         response = self.client.delete(zio_url)
@@ -376,13 +373,11 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertTrue(Zaak.objects.exists())
 
     def test_representation(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -393,17 +388,10 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
         self.assertEqual(expected_representation, zio_representation)
 
     def test_delete_document_unrelated_to_zaak(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-
         # Create a document related to a zaak
         eio_related = EnkelvoudigInformatieObjectFactory.create()
         eio_related_url = f"http://openzaak.nl{reverse(eio_related)}"
-        self.adapter.get(
-            eio_related_url, json=serialise_eio(eio_related, eio_related_url)
-        )
-
-        ZaakInformatieObjectFactory.create(informatieobject=eio_related_url, zaak=zaak)
+        ZaakInformatieObjectFactory.create(informatieobject=eio_related_url)
 
         # Create a document unrelated to a zaak
         eio_unrelated = EnkelvoudigInformatieObjectFactory.create()

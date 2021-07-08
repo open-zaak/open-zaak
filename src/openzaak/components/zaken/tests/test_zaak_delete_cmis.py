@@ -4,8 +4,10 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTransactionTestCase, JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import (
@@ -33,22 +35,35 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True)
-class US349TestCase(JWTAuthMixin, APICMISTestCase, OioMixin):
-
+class US349TestCase(JWTAuthMixin, APICMISTransactionTestCase):
     heeft_alle_autorisaties = True
+    base = "https://external.documenten.nl/api/v1/"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        Service.objects.update_or_create(
+            api_root=cls.base,
+            defaults=dict(
+                api_type=APITypes.drc,
+                label="external documents",
+                auth_type=AuthTypes.no_auth,
+            ),
+        )
+
+        cls.setUpTestData()
 
     def test_delete_zaak_cascades_properly(self):
         """
         Deleting a zaak causes all related objects to be deleted as well.
         """
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
 
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakFactory.create(hoofdzaak=zaak)
 

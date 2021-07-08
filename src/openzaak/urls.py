@@ -28,7 +28,6 @@ urlpatterns = [
     path("documenten/api/", include("openzaak.components.documenten.api.urls")),
     path("autorisaties/api/", include("openzaak.components.autorisaties.api.urls")),
     path("catalogi/api/", include("openzaak.components.catalogi.api.urls")),
-    # Simply show the master template.
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("vng_api_common.notifications.urls")),
     # auth backends

@@ -55,7 +55,7 @@ Open Zaak
       - **Type**: Select the option: ``NRC (Notifications)``
       - **API root url**: *Same URL as used in step 1b.*
 
-      - **Client ID**: *For example:* ``open-zaak-backend``
+      - **Client ID**: *For example:* ``open-zaak``
       - **Secret**: *Some random string. You will need this later on!*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
       - **OAS**: URL that points to the OAS, same URL as used in step 1b with ``/schema/openapi.yaml`` added to it
@@ -80,8 +80,9 @@ Open Zaak
 
    d. Click **Opslaan en opnieuw bewerken**.
    e. Click **Beheer autorisaties**.
-   f. Select component **Autorisaties API** and scope **autorisaties.lezen**.
-   g. Click **Opslaan**
+   f. Select first Component **Autorisaties API** and scope **autorisaties.lezen**.
+   g. Select second Component **Notificaties API** and scope **notificaties.consumeren**.
+   h. Click **Opslaan**
 
 4. Finally, Open Notificaties will check if Open Zaak is allowed to send
    notifications (so we need to authorise Open Zaak for this):
@@ -92,8 +93,8 @@ Open Zaak
 
       - **Label**: *For example:* ``Open Zaak``
 
-      - **Client ID**: *For example:* ``open-zaak``
-      - **Secret**: *Some random string*
+      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
+      - **Secret**: *The same Secret as given in Open Zaak step 2c*
 
    d. Click **Opslaan en opnieuw bewerken**.
    e. Click **Beheer autorisaties**.
@@ -117,11 +118,29 @@ Open Notificaties
 
       - **API root**: *The URL to the Autorisaties API. For example:*
         ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
-      - **Component**: ``Autorisatiecomponent``
+      - **Component**: ``Notificatierouteringscomponent``
 
    c. Click **Opslaan**.
 
-2. Configure the credentials for the Open Zaak Autorisaties API (so Open
+2. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
+   receives changes made in the autorisation component of Open Zaak ):
+
+   a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
+   b. Fill out the form:
+
+      - **API root**: *The URL to the Notificaties API. For example:*
+        ``https://open-notificaties.gemeente.local/api/v1/``.
+
+   c. Click **Opslaan**.
+   d. Webhook subscription toevoegen:
+
+      -  **Callback Url**: *The Callback URL to the Notificaties Callback API. For example:*
+         ``https://open-notificaties.gemeente.local/api/v1/callbacks``.
+      -  **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      -  **Client Secret**: *The same Secret as given in Open Zaak step 3c*
+      -  **Channels**: ``autorisaties``
+
+3. Configure the credentials for the Open Zaak Autorisaties API (so Open
    Notificaties can access the Autorisaties API):
 
    a. Navigate to **API Autorisaties > Externe API credentials**
@@ -138,7 +157,25 @@ Open Notificaties
 
    d. Click **Opslaan**.
 
-3. Finally, we need to allow Open Zaak to access Open Notificaties (for
+4. Configure the credentials for the Open Notificaties API (so Open
+   Notificaties can access itself):
+
+   a. Navigate to **API Autorisaties > Externe API credentials**
+   b. Click **Externe API credential toevoegen**.
+   c. Fill out the form:
+
+      - **API root**: *The URL to the Notificaties API. For example:*
+        ``https://open-notificaties.gemeente.local/api/v1/``.
+      - **Label**: *For example:* ``Eigen API``
+
+      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      - **Secret**: *The same Secret as given in Open Zaak step 3c*
+      - **User ID**: *Same as the Client ID*
+      - **User representation**: *For example:* ``Open Notificaties``
+
+   d. Click **Opslaan**.
+
+5. We need to allow Open Zaak to access Open Notificaties (for
    authentication purposes, so we can then check its authorisations):
 
    a. Navigate to **API Autorisaties > Client credentials**
@@ -147,6 +184,18 @@ Open Notificaties
 
       - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
       - **Secret**: *The same Secret as given in Open Zaak step 2c*
+
+   d. Click **Opslaan**.
+
+6. Finally, we need to allow Open Notificaties to access Open Notificaties (for
+   notifications purposes, so we can receive notificaties):
+
+   a. Navigate to **API Autorisaties > Client credentials**
+   b. Click **Client credential toevoegen**.
+   c. Fill out the form:
+
+      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      - **Secret**: *The same Secret as given in Open Zaak step 3c*
 
    d. Click **Opslaan**.
 

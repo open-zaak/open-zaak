@@ -24,7 +24,7 @@ This setup is tested against a Google Cloud Kubernetes cluster with 4vCPU and
 available `machine types`_. Please see :ref:`installation_hardware` to
 determine your hardware requirements.
 
-.. _machine types: https://cloud.google.com/compute/docs/machine-types#n2_standard_machine_types
+.. _machine types: https://cloud.google.com/compute/docs/machine-types
 
 .. note::
     Head's up! If you're familiar with Helm_, there are community-provided Helm charts_
@@ -346,7 +346,8 @@ To deploy Open Zaak, some variables need to be set (in ``vars/open-zaak.yml``):
   Make sure to put the value between single quotes!
 
 See ``roles/openzaak/defaults/main.yml`` for other possible variables to
-override.
+override. You might want to tweak environment variables in order to
+:ref:`provision a superuser<installation_provision_superuser>`.
 
 Configuring Open Notificaties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

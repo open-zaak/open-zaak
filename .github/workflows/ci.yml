@@ -4,7 +4,7 @@ name: Run CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
   pull_request:
@@ -58,9 +58,12 @@ jobs:
             libgdal-dev \
             gdal-bin
 
+      - name: Bring up mock endpoints for SSL verification
+        run: docker-compose -f docker-compose.ci.yml up -d mock-endpoints.local
+
       - name: Bring up Alfresco
         run: |
-          docker-compose -f docker-compose.travis-cmis.yml up -d
+          docker-compose -f docker-compose.ci.cmis.yml up -d
           docker ps -q | xargs  docker stats --no-stream
 
       - name: Install dependencies
@@ -97,6 +100,18 @@ jobs:
       - name: Build and test docs
         run: cd docs && pytest check_sphinx.py -v --tb=auto
 
+  check_requirements:
+    runs-on: ubuntu-latest
+    name: Check requirements files
+    if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+      - name: Check requirements
+        run: bin/check_requirements.sh "${{ steps.files.outputs.modified }}"
+
   docker:
     runs-on: ubuntu-latest
     name: Docker image build
@@ -113,7 +128,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
           echo ::set-output name=git_hash::${GITHUB_SHA}
@@ -160,7 +175,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
       - name: Load image
@@ -168,7 +183,7 @@ jobs:
           docker image load -i image.tar
           docker tag $IMAGE_NAME:${{ steps.vars.outputs.tag }} open-zaak_web
       - name: Bring up services
-        run: docker-compose -f docker-compose.travis.yml up -d
+        run: docker-compose -f docker-compose.ci.yml up -d
       - name: Install dependencies
         run: npm install newman
       - name: Run postman tests
@@ -201,7 +216,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
 
           echo ::set-output name=tag::${VERSION}
 

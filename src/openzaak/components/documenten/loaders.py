@@ -28,6 +28,9 @@ class EIOLoader(AuthorizedRequestsLoader):
         if model is InformatieObjectType:
             return self.resolve_io_type(url)
 
+        if self.is_local_url(url):
+            return self.load_local_object(url, model)
+
         data = self.fetch_object(url)
         model_instance = get_model_instance(model, data, loader=self)
         self.add_missing_props(model, model_instance, data)

@@ -52,7 +52,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
         anymore.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        eio_url = f"http://example.com{reverse(eio)}"
+        eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)
 
         url = reverse(

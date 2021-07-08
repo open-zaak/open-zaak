@@ -53,6 +53,13 @@ COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static
 COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/js
 COPY bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./src /app/src
+
+RUN useradd -M -u 1000 openzaak
+RUN chown -R openzaak /app
+
+# drop privileges
+USER openzaak
+
 ARG COMMIT_HASH
 ARG RELEASE
 ENV GIT_SHA=${COMMIT_HASH}

@@ -17,6 +17,7 @@ from ..models import (
     Adres,
     NatuurlijkPersoon,
     NietNatuurlijkPersoon,
+    OrganisatorischeEenheid,
     Rol,
     SubVerblijfBuitenland,
     Vestiging,
@@ -427,6 +428,53 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         rol = Rol.objects.get()
         self.assertEqual(rol.omschrijving, "a" * 100)
+
+    def test_filter_rol_betrokkene_identificatie_organisatorische_eenheid(self):
+        zaak = ZaakFactory.create()
+        rol1 = RolFactory.create(
+            zaak=zaak,
+            betrokkene_type=RolTypes.organisatorische_eenheid,
+            betrokkene="",
+            omschrijving="Beslisser",
+            omschrijving_generiek="Beslisser",
+        )
+        OrganisatorischeEenheid.objects.create(
+            rol=rol1, identificatie="oor", naam="Ruimte"
+        )
+        rol2 = RolFactory.create(
+            zaak=zaak,
+            betrokkene_type=RolTypes.organisatorische_eenheid,
+            betrokkene="",
+            omschrijving="Beslisser",
+            omschrijving_generiek="Beslisser",
+        )
+        OrganisatorischeEenheid.objects.create(
+            rol=rol2, identificatie="pbz", naam="Publiekszaken"
+        )
+
+        url = get_operation_url("rol_list")
+
+        with self.subTest(case="new parameter"):
+            response = self.client.get(
+                url,
+                {
+                    "betrokkeneIdentificatie__organisatorischeeenheid__identificatie": "pbz"
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            data = response.json()["results"]
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["betrokkeneIdentificatie"]["identificatie"], "pbz")
+
+        with self.subTest(case="old parameter"):
+            response = self.client.get(
+                url, {"betrokkeneIdentificatie__vestiging__identificatie": "pbz"}
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            err = get_validation_errors(response, "nonFieldErrors")
+            self.assertEqual(err["code"], "unknown-parameters")
 
 
 @tag("external-urls")

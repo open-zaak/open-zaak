@@ -19,9 +19,9 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
-from .factories import ZaakInformatieObjectFactory
+from .factories import ZaakFactory, ZaakInformatieObjectFactory
 from .utils import get_operation_url
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
@@ -31,7 +31,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationCMISTests(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase, OioMixin
+    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -40,17 +40,16 @@ class FailedNotificationCMISTests(
         site = Site.objects.get_current()
         url = get_operation_url("zaakinformatieobject_create")
 
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=io.informatieobjecttype
         )
-        zaak_url = reverse(zaak)
+
         data = {
             "informatieobject": io_url,
             "zaak": f"http://{site.domain}{zaak_url}",
@@ -88,12 +87,8 @@ class FailedNotificationCMISTests(
     def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(self):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
-        self.create_zaak_besluit_services()
-        zio = ZaakInformatieObjectFactory.create(
-            informatieobject=io_url, zaak=self.create_zaak()
-        )
+        zio = ZaakInformatieObjectFactory.create(informatieobject=io_url)
         url = reverse(zio)
 
         with capture_on_commit_callbacks(execute=True):

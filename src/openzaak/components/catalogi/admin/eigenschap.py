@@ -3,7 +3,9 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from openzaak.utils.admin import DynamicArrayMixin, UUIDAdminMixin
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+
+from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import Eigenschap, EigenschapSpecificatie
 from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin

@@ -11,21 +11,23 @@ from typing import List, Optional, Tuple
 from django.db import IntegrityError
 from django.db.models import fields
 from django.db.models.query import BaseIterable
-from django.forms.models import model_to_dict
 from django.utils import timezone
+from django.utils.text import slugify
 
 from django_loose_fk.virtual_models import ProxyMixin
-from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.mixins import CMISClientMixin
 
+from ...besluiten.models import Besluit
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
+from ...zaken.models import Zaak
 from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
@@ -521,32 +523,26 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
 
         content = kwargs.pop("inhoud", None)
 
-        try:
+        document_uuid = kwargs.get("uuid")
+        if document_uuid:
             # Needed because the API calls the create function for an update request
             new_cmis_document = self.cmis_client.update_document(
-                drc_uuid=kwargs.get("uuid"),
+                drc_uuid=document_uuid,
                 lock=kwargs.get("lock"),
                 data=kwargs,
                 content=content,
             )
-        except exceptions.DocumentDoesNotExistError:
+        else:
             kwargs.setdefault("versie", "1")
             new_cmis_document = self.cmis_client.create_document(
                 identification=kwargs.get("identificatie"),
                 bronorganisatie=kwargs.get("bronorganisatie"),
                 data=kwargs,
                 content=content,
+                check_if_already_exists=False,  # The serializer has already checked this.
             )
 
-        django_document = cmis_doc_to_django_model(new_cmis_document)
-
-        # If no identificatie field is present, use the same as the document uuid (issue #762)
-        if not django_document.identificatie:
-            django_document.identificatie = django_document.uuid
-            model_data = model_to_dict(django_document)
-            self.filter(uuid=django_document.uuid).update(**model_data)
-
-        return django_document
+        return cmis_doc_to_django_model(new_cmis_document)
 
     def filter(self, *args, **kwargs):
 
@@ -789,16 +785,25 @@ class ObjectInformatieObjectCMISQuerySet(
     def create(self, **kwargs):
         data = self.process_filters(kwargs)
 
-        if data.get("zaak") is not None and data.get("besluit") is not None:
+        related_zaak_url = data.get("zaak")
+        related_besluit_url = data.get("besluit")
+
+        if related_zaak_url is not None and related_besluit_url is not None:
             raise IntegrityError(
                 "ObjectInformatie object cannot have both Zaak and Besluit relation"
             )
-        elif data.get("zaak") is None and data.get("besluit") is None:
+        elif related_zaak_url is None and related_besluit_url is None:
             raise IntegrityError(
                 "ObjectInformatie object needs to have either a Zaak or Besluit relation"
             )
 
-        cmis_oio = self.cmis_client.create_oio(data=data)
+        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(
+            related_zaak_url, related_besluit_url
+        )
+
+        cmis_oio = self.cmis_client.create_oio(
+            oio_data=data, zaak_data=zaak_data, zaaktype_data=zaaktype_data
+        )
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
 
@@ -951,6 +956,8 @@ def cmis_doc_to_django_model(
         verzenddatum=cmis_doc.verzenddatum,
     )
 
+    document.bestandsomvang = cmis_doc.contentStreamLength
+
     return document
 
 
@@ -1051,3 +1058,62 @@ def modify_value_in_dictionary(existing_value, new_value):
         existing_value = [existing_value, new_value]
 
     return existing_value
+
+
+def get_zaak_and_zaaktype_data(
+    zaak_url: str = None, besluit_url: str = None
+) -> Tuple[Optional[dict], Optional[dict]]:
+    loader = AuthorizedRequestsLoader()
+
+    def format_zaak_and_zaaktype_data(
+        zaak: Zaak,
+    ) -> Tuple[Optional[dict], Optional[dict]]:
+        zaaktype = zaak.zaaktype
+
+        zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = make_absolute_uri(zaaktype_path)
+
+        zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = make_absolute_uri(zaak_path)
+
+        # Can't use the serializer, because we don't have access to the request
+        # which is needed for the Hyperlink fields
+        zaak_data = {
+            "url": zaak_url,
+            "identificatie": zaak.identificatie,
+            "omschrijving": zaak.omschrijving,
+            "bronorganisatie": zaak.bronorganisatie,
+            "zaaktype": zaaktype_url,
+        }
+
+        # The omschrijving is used by the CMIS-adapter only to give the zaaktype folder a name
+        zaaktype_data = {
+            "url": zaaktype_url,
+            "identificatie": zaaktype.identificatie,
+            "omschrijving": slugify(zaaktype.zaaktype_omschrijving),
+        }
+
+        return zaak_data, zaaktype_data
+
+    # Retrieve zaak and zaaktype data
+    if besluit_url:
+        besluit = loader.load(url=besluit_url, model=Besluit)
+        zaak = besluit.zaak
+
+        if zaak:
+            return format_zaak_and_zaaktype_data(zaak)
+
+    else:
+        zaak = loader.load(url=zaak_url, model=Zaak)
+        return format_zaak_and_zaaktype_data(zaak)
+
+    return None, None
+
+
+def flatten_gegevens_groep(group_details: dict, group_name: str) -> dict:
+    unpacked_group = {}
+    for key, value in group_details.items():
+        new_property_name = f"{group_name}_{key}"
+        unpacked_group[new_property_name] = value
+
+    return unpacked_group

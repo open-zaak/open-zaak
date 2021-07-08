@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from typing import Dict, Tuple
 
+from django.conf import settings
 from django.db import models
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -49,7 +50,18 @@ class ZaakRelatedQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):
 
 
 class ZaakInformatieObjectQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
-    pass
+    def filter(self, *args, **kwargs):
+        if settings.CMIS_ENABLED and "informatieobject" in kwargs:
+            from openzaak.components.documenten.models import (
+                EnkelvoudigInformatieObject,
+            )
+
+            # If we leave the Document object, the filter will happen on pk, which is None
+            # in the CMIS case. This gives an error.
+            if isinstance(kwargs["informatieobject"], EnkelvoudigInformatieObject):
+                kwargs["informatieobject"] = kwargs["informatieobject"].get_url()
+
+        return super().filter(*args, **kwargs)
 
 
 class ZaakBesluitQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):

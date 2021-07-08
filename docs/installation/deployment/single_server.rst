@@ -227,6 +227,8 @@ A superuser allows you to perform all administrative tasks.
 2. Create the superuser (interactive on the shell). Note that the password you
    type in will not be visible - not even with asterisks. This is normal.
 
+   This can also be automated, see :ref:`installation_provision_superuser`.
+
    .. code-block:: shell
 
        [root@open-zaak.gemeente.nl]# docker exec -it openzaak-0 src/manage.py createsuperuser

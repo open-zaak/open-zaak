@@ -56,6 +56,11 @@ on Docker, since `localhost` is contained within the container:
 
 * `DB_PORT`: port number of the database, defaults to `5432`.
 
+* `USE_X_FORWARDED_HOST`: whether to grab the domain/host from the `X-Forwarded-Host`
+  header or not. This header is typically set by reverse proxies (such as nginx,
+  traefik, Apache...). Default `False` - this is a header that can be spoofed and you
+  need to ensure you control it before enabling this.
+
 * `CACHE_DEFAULT`: redis cache address for the default cache. Defaults to
   `localhost:6379/0`.
 
@@ -106,10 +111,44 @@ on Docker, since `localhost` is contained within the container:
 * `CMIS_URL_MAPPING_ENABLED`: enable the URL shortener when using the CMIS adapter.
   Defaults to `False`.
 
+* `EXTRA_VERIFY_CERTS`: a comma-separated list of paths to certificates to trust, empty
+  by default. If you're using self-signed certificates for the services that Open Zaak
+  communicates with, specify the path to those (root) certificates here, rather than
+  disabling SSL certificate verification. Example:
+  `EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt`.
+
 * `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate verification.
     More information about why can be found [here](https://stackoverflow.com/a/48391751/7146757). Even calls from Open
     Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
     variable should be used with care to prevent unwanted side-effects.
+
+### Initial superuser creation
+
+A clean installation of Open Zaak comes without pre-installed or pre-configured admin
+user by default.
+
+Users of Open Zaak can opt-in to provision an initial superuser via environment
+variables. The user will only be created if it doesn't exist yet.
+
+* `OPENZAAK_SUPERUSER_USERNAME`: specify the username of the superuser to create. Setting
+  this to a non-empty value will enable the creation of the superuser. Default empty.
+* `OPENZAAK_SUPERUSER_EMAIL`: specify the e-mail address to configure for the superuser.
+  Defaults to `admin@admin.org`. Only has an effect if `OPENZAAK_SUPERUSER_USERNAME` is set.
+* `DJANGO_SUPERUSER_PASSWORD`: specify the password for the superuser. Default empty,
+  which means the superuser will be created _without_ password. Only has an effect
+  if `OPENZAAK_SUPERUSER_USERNAME` is set.
+
+
+### Advanced application server options
+
+Open Zaak uses [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/Options.html) under
+the hood, which can be configured with a myriad of options. Most of these can be
+provided as environment variables as well. The following options below are a
+non-exhaustive list of options you may need with Open Zaak.
+
+* `UWSGI_HTTP_TIMEOUT` - defaults to 60s. If Open Zaak does not complete the request
+  within this timeout, then uWSGI will error out. This has been observed with certain
+  CMIS implementations causing slow requests where 60s is not sufficient.
 
 ### Cross-Origin-Resource-Sharing
 

@@ -16,8 +16,11 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serialise_eio
+from openzaak.components.zaken.tests.factories import (
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
+from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 
 @tag("cmis")
@@ -26,19 +29,17 @@ from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, OioMixin, serial
     CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,
 )
 @skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
-class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
+class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
     def test_create_no_url_mapping(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
+        zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype__concept=False
         )
         io_url = f"http://testserver{reverse(io)}"
-        self.adapter.get(io_url, json=serialise_eio(io, io_url))
 
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
@@ -74,10 +75,8 @@ class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase, OioMixin):
     def test_delete_no_url_mapping(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
-        self.adapter.get(eio_url, json=serialise_eio(eio, eio_url))
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak()
-        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak)
+
+        zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)
         zio_url = reverse(zio)
 
         # Remove all available mappings

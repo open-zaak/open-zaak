@@ -184,11 +184,11 @@ You MAY include sections in your style guide on understandable English. |  |
 
 ## [Document codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
-- [ ] compliant with this criterion.
+- [x] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
 A codebase MUST be versioned. | yes | [version list](https://open-zaak.readthedocs.io/en/latest/development/index.html)
-A codebase that is ready to use MUST only depend on other codebases that are also ready to use. | | [pinned dependencies](https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt), document mitigations for < 1.0.0 versions
+A codebase that is ready to use MUST only depend on other codebases that are also ready to use. | yes | [Open source dependencies](https://github.com/open-zaak/open-zaak/blob/master/docs/introduction/open-source/dependencies.rst)
 A codebase that is not yet ready to use MUST have one of these labels: prototype - to test the look and feel, and to internally prove the concept of the technical possibilities, alpha - to do guided tests with a limited set of users, beta - to open up testing to a larger section of the general public, for example to test if the codebase works at scale, pre-release version - code that is ready to be released but hasn’t received formal approval yet. | N/A | Is ready
  A codebase SHOULD contain a log of changes from version to version, for example in the CHANGELOG. | yes | [changelog](https://open-zaak.readthedocs.io/en/latest/development/changelog.html) |

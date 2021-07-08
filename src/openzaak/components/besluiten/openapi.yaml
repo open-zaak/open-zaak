@@ -1136,7 +1136,6 @@ components:
           items:
             $ref: '#/components/schemas/FieldValidationError'
     Wijzigingen:
-      title: Wijzigingen
       type: object
       properties:
         oud:

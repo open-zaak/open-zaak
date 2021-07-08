@@ -14,6 +14,7 @@ from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
@@ -35,7 +36,9 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
+class ZaaktypeAdminTests(
+    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
@@ -45,6 +48,8 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         selectielijst_config = ReferentieLijstConfig.get_solo()
         selectielijst_config.allowed_years = [2017, 2020]
         selectielijst_config.save()
+
+        cls._configure_notifications()
 
     def setUp(self):
         super().setUp()
@@ -114,16 +119,19 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         form["opschorting_en_aanhouding_mogelijk"].select(False)
         form["verlenging_mogelijk"].select(False)
         form["vertrouwelijkheidaanduiding"].select("openbaar")
-        form["producten_of_diensten"] = "https://example.com/foobarbaz"
         form["referentieproces_naam"] = "test"
         form["catalogus"] = catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
 
         response = form.submit()
 
-        # redirect on succesfull create, 200 on validation errors, 500 on db errors
+        # redirect on successful create, 200 on validation errors, 500 on db errors
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.count(), 1)
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.trefwoorden, [])
+        self.assertEqual(zaaktype.verantwoordingsrelatie, [])
+        self.assertEqual(zaaktype.producten_of_diensten, [])
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")

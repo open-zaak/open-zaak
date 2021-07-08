@@ -130,13 +130,6 @@ class EditInlineAdminMixin(object):
         return super().get_fields(request, obj)
 
 
-# Fix for https://github.com/gradam/django-better-admin-arrayfield/issues/13
-class DynamicArrayMixin:
-    class Media:
-        js = ("js/min/django_better_admin_arrayfield.min.js",)
-        css = {"all": ("css/min/django_better_admin_arrayfield.min.css",)}
-
-
 class AuditTrailAdminMixin(object):
     viewset = None
 

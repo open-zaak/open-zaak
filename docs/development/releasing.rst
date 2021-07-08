@@ -5,25 +5,25 @@ Release process
 Open Zaak makes use of quite a bit of Continuous Integration tooling to set up a full
 release process, all driven by the Git repository.
 
-Travis CI
----------
+Github Actions
+--------------
 
-Our pipeline is mostly implemented on Travis:
+Our pipeline is mostly implemented on Github Actions:
 
-Merges to the ``master`` branch are built on Travis, where:
+Merges to the ``main`` branch are built on Github, where:
 
 1. Tests are run
 2. Code quality checks are run
 3. Compatibility with the *API's voor zaakgericht werken* standard spec is tested
 4. The Docker image is built and published
 
-If the build is for a Git tag on the ``master`` branch, then the image is built and
+If the build is for a Git tag on the ``main`` branch, then the image is built and
 publish with that version tag to Docker Hub.
 
 Releasing a new version
 -----------------------
 
-Releasing a new version can only be done by people with merge permissions to the master
+Releasing a new version can only be done by people with merge permissions to the main
 branch belonging to the Open Zaak organisation on Github.
 
 Assuming a current version of ``0.9.0``:
@@ -55,11 +55,11 @@ Push the changes and make a pull request.
 
 **Tag the release**
 
-Once the PR is merged to master, check out the ``master`` branch and tag it:
+Once the PR is merged to main, check out the ``main`` branch and tag it:
 
 .. code-block:: bash
 
-    git checkout master
+    git checkout main
     git pull
     git tag 1.0.0
 

@@ -4,7 +4,8 @@ from django.test import override_settings, tag
 
 from vng_api_common.tests import reverse
 
-from openzaak.utils.tests import APICMISTestCase, OioMixin
+from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.utils.tests import APICMISTestCase
 
 from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
@@ -12,7 +13,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISF
 
 @tag("cmis")
 @override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
-class UniqueRepresentationTestCase(APICMISTestCase, OioMixin):
+class UniqueRepresentationTestCase(APICMISTestCase):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
             bronorganisatie=730924658,
@@ -41,8 +42,7 @@ class UniqueRepresentationTestCase(APICMISTestCase, OioMixin):
 
     @tag("oio")
     def test_oio(self):
-        self.create_zaak_besluit_services()
-        zaak = self.create_zaak(**{"identificatie": 12345})
+        zaak = ZaakFactory.create(**{"identificatie": 12345})
         eio = EnkelvoudigInformatieObjectFactory.create(
             bronorganisatie=730924658,
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",

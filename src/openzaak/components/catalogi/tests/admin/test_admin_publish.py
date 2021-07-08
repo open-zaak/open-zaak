@@ -10,6 +10,7 @@ from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
     mock_oas_get,
@@ -29,7 +30,9 @@ from ..factories import (
 
 
 @requests_mock.Mocker()
-class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
+class ZaaktypeAdminTests(
+    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -49,6 +52,7 @@ class ZaaktypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     def test_publish_zaaktype(self, m):
+        self._configure_notifications()
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"

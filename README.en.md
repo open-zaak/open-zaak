@@ -6,15 +6,15 @@
 
 | | | |
 |-|-|-|
-| **Version:** | 1.3.4 |
+| **Version:** | 1.4.0 |
 | **Source:** | https://github.com/open-zaak/open-zaak |
 | **Keywords:** | zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api |
 | **PythonVersion:** | 3.7 |
 
 [![API test platform](https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/)](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 [![Build status](https://github.com/open-zaak/open-zaak/workflows/Run%20CI/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Run+CI%22)
-[![Documentation status](https://travis-ci.org/open-zaak/open-zaak.svg?branch=master)](https://open-zaak.readthedocs.io/en/latest/?badge=latest)
-[![Code coverage](https://codecov.io/github/open-zaak/open-zaak/branch/master/graphs/badge.svg?branch=master)](https://codecov.io/gh/open-zaak/open-zaak)
+[![Documentation status](https://travis-ci.org/open-zaak/open-zaak.svg?branch=main)](https://open-zaak.readthedocs.io/en/latest/?badge=latest)
+[![Code coverage](https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main)](https://codecov.io/gh/open-zaak/open-zaak)
 [![Code quality checks](https://github.com/open-zaak/open-zaak/workflows/Code%20quality%20checks/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Code+quality+checks%22)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docker](https://images.microbadger.com/badges/image/openzaak/open-zaak.svg)](https://hub.docker.com/r/openzaak/open-zaak)
