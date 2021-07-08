@@ -95,57 +95,57 @@ CACHES = {
 # APPLICATIONS enabled for this project
 #
 INSTALLED_APPS = [
-    # Note: contenttypes should be first, see Django ticket #10827
-    "django.contrib.contenttypes",
-    "django.contrib.auth",
-    "django.contrib.sessions",
-    # Note: If enabled, at least one Site object is required
-    "django.contrib.sites",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    # Optional applications.
-    "ordered_model",
-    "django_admin_index",
-    "django.contrib.admin",
-    "django.contrib.gis",
-    # 'django.contrib.admindocs',
-    # 'django.contrib.humanize',
-    # External applications.
-    "axes",
-    "django_auth_adfs",
-    "django_auth_adfs_db",
-    "django_filters",
-    "django_db_logger",
-    "corsheaders",
-    "extra_views",
-    "vng_api_common",  # before drf_yasg to override the management command
-    "vng_api_common.authorizations",
-    "vng_api_common.audittrails",
-    "vng_api_common.notifications",
-    "drf_yasg",
-    "rest_framework",
-    "rest_framework_gis",
-    "django_markup",
-    "solo",
-    "sniplates",
-    "privates",
-    "django_better_admin_arrayfield",
-    "django_loose_fk",
-    "zgw_consumers",
-    "drc_cmis",
-    # Project applications.
-    "openzaak",
-    "openzaak.accounts",
-    "openzaak.utils",
-    "openzaak.components.autorisaties",
-    "openzaak.components.zaken",
-    "openzaak.components.besluiten",
-    "openzaak.components.documenten",
-    "openzaak.components.catalogi",
-    "openzaak.config",
-    "openzaak.selectielijst",
-    "openzaak.notifications",
-] + PLUGIN_INSTALLED_APPS
+                     # Note: contenttypes should be first, see Django ticket #10827
+                     "django.contrib.contenttypes",
+                     "django.contrib.auth",
+                     "django.contrib.sessions",
+                     # Note: If enabled, at least one Site object is required
+                     "django.contrib.sites",
+                     "django.contrib.messages",
+                     "django.contrib.staticfiles",
+                     # Optional applications.
+                     "ordered_model",
+                     "django_admin_index",
+                     "django.contrib.admin",
+                     "django.contrib.gis",
+                     # 'django.contrib.admindocs',
+                     # 'django.contrib.humanize',
+                     # External applications.
+                     "axes",
+                     "django_auth_adfs",
+                     "django_auth_adfs_db",
+                     "django_filters",
+                     "django_db_logger",
+                     "corsheaders",
+                     "extra_views",
+                     "vng_api_common",  # before drf_yasg to override the management command
+                     "vng_api_common.authorizations",
+                     "vng_api_common.audittrails",
+                     "vng_api_common.notifications",
+                     "drf_yasg",
+                     "rest_framework",
+                     "rest_framework_gis",
+                     "django_markup",
+                     "solo",
+                     "sniplates",
+                     "privates",
+                     "django_better_admin_arrayfield",
+                     "django_loose_fk",
+                     "zgw_consumers",
+                     "drc_cmis",
+                     # Project applications.
+                     "openzaak",
+                     "openzaak.accounts",
+                     "openzaak.utils",
+                     "openzaak.components.autorisaties",
+                     "openzaak.components.zaken",
+                     "openzaak.components.besluiten",
+                     "openzaak.components.documenten",
+                     "openzaak.components.catalogi",
+                     "openzaak.config",
+                     "openzaak.selectielijst",
+                     "openzaak.notifications",
+                 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -338,7 +338,6 @@ LOGGING = {
     },
 }
 
-
 #
 # AUTH settings - user accounts, passwords, backends...
 #
@@ -352,7 +351,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
 
 # Allow logging in with both username+password and email+password
 AUTHENTICATION_BACKENDS = [
@@ -489,7 +487,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = config(
 # Authorization is included in default_cors_headers
 CORS_ALLOW_HEADERS = (
     list(default_cors_headers)
-    + ["accept-crs", "content-crs",]
+    + ["accept-crs", "content-crs", ]
     + config("CORS_EXTRA_ALLOW_HEADERS", split=True, default=[])
 )
 CORS_EXPOSE_HEADERS = [
@@ -568,3 +566,7 @@ CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
+
+# Notificaties API settings
+NOTIFICATIONS_REPO = "VNG-Realisatie/notificaties-api"
+NOTIFICATIONS_BRANCH = "master"
