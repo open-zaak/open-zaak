@@ -12,8 +12,7 @@ def settings(request):
         "SITE_TITLE",
         "RELEASE",
         "GIT_SHA",
-        "NOTIFICATIONS_REPO",
-        "NOTIFICATIONS_BRANCH",
+        "VNG_COMPONENTS_BRANCH",
     )
 
     return {

@@ -570,6 +570,4 @@ CMIS_MAPPER_FILE = config(
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
 
-# Notificaties API settings
-NOTIFICATIONS_REPO = "VNG-Realisatie/notificaties-api"
-NOTIFICATIONS_BRANCH = "master"
+VNG_COMPONENTS_BRANCH = "stable/1.0.x"
