@@ -487,10 +487,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = config(
 # Authorization is included in default_cors_headers
 CORS_ALLOW_HEADERS = (
     list(default_cors_headers)
-    + [
-        "accept-crs",
-        "content-crs",
-    ]
+    + ["accept-crs", "content-crs",]
     + config("CORS_EXTRA_ALLOW_HEADERS", split=True, default=[])
 )
 CORS_EXPOSE_HEADERS = [
