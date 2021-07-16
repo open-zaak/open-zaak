@@ -11,7 +11,7 @@ certifi==2018.4.16
     #   sentry-sdk
 cffi==1.13.2
     # via cryptography
-chardet==3.0.4
+charset-normalizer==2.0.3
     # via requests
 cmislib-maykin==0.7.4
     # via drc-cmis
@@ -197,7 +197,7 @@ pyyaml==5.4.1
     #   vng-api-common
 redis==3.3.8
     # via django-redis
-requests==2.25.1
+requests==2.26.0
     # via
     #   -r requirements/base.in
     #   coreapi
@@ -228,7 +228,7 @@ uritemplate==3.0.0
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.5
+urllib3==1.26.6
     # via
     #   requests
     #   sentry-sdk
