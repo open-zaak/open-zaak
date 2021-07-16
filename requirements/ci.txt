@@ -22,7 +22,7 @@ cffi==1.13.2
     # via
     #   -r requirements/base.txt
     #   cryptography
-chardet==3.0.4
+charset-normalizer==2.0.3
     # via
     #   -r requirements/base.txt
     #   requests
@@ -321,7 +321,7 @@ regex==2020.6.8
     # via black
 requests-mock==1.6.0
     # via -r requirements/test-tools.in
-requests==2.25.1
+requests==2.26.0
     # via
     #   -r requirements/base.txt
     #   coreapi
@@ -380,7 +380,7 @@ uritemplate==3.0.0
     #   -r requirements/base.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.5
+urllib3==1.26.6
     # via
     #   -r requirements/base.txt
     #   requests
