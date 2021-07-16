@@ -338,7 +338,6 @@ LOGGING = {
     },
 }
 
-
 #
 # AUTH settings - user accounts, passwords, backends...
 #
@@ -352,7 +351,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
 
 # Allow logging in with both username+password and email+password
 AUTHENTICATION_BACKENDS = [
@@ -568,3 +566,5 @@ CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
+
+VNG_COMPONENTS_BRANCH = "stable/1.0.x"

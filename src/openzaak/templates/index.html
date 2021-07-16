@@ -46,7 +46,17 @@
         {% endblock %}
 
         {% block extra_docs %}
-          {% include "vng_api_common/includes/kanalen_card.html" %}
+            <div class="col-sm-4">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-bullhorn"></i> Notificaties</h5>
+                        <p class="card-text">Gebeurtenissen waarover dit component notificaties verstuurt.</p>
+                        <a href="https://github.com/VNG-Realisatie/{{ component }}-api/blob/{{ settings.VNG_COMPONENTS_BRANCH }}/src/notificaties.md" class="btn btn-primary">Notificaties</a>
+                    </div>
+                </div>
+
+            </div>
         {% endblock %}
 
      </div>

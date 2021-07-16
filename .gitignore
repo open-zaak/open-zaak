@@ -30,6 +30,7 @@ coverage.xml
 # Environment
 src/openzaak/conf/includes/local.py
 /env/
+/venv/
 /media/
 /static/
 /mail/

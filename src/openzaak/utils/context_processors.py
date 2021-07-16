@@ -12,6 +12,7 @@ def settings(request):
         "SITE_TITLE",
         "RELEASE",
         "GIT_SHA",
+        "VNG_COMPONENTS_BRANCH",
     )
 
     return {
