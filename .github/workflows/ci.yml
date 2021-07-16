@@ -107,10 +107,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - id: files
-        uses: jitterbit/get-changed-files@v1
+        uses: tj-actions/changed-files@v8.5
+        with:
+          files: ^requirements/.+\.txt$
+
       - name: Check requirements
-        run: bin/check_requirements.sh "${{ steps.files.outputs.modified }}"
+        run: bin/check_requirements.sh "${{ steps.files.outputs.modified_files }}"
 
   docker:
     runs-on: ubuntu-latest
