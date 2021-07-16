@@ -20,8 +20,6 @@
   "license": "EUPL-1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {
-    "babel-plugin-prismjs": "^2.0.1",
-    "prismjs": "^1.23.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
