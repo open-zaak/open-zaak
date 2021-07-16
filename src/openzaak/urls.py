@@ -32,6 +32,7 @@ urlpatterns = [
     path("ref/", include("vng_api_common.notifications.urls")),
     # auth backends
     path("adfs/", include("django_auth_adfs.urls")),
+    path("oidc/", include("mozilla_django_oidc.urls")),
 ]
 
 # NOTE: The staticfiles_urlpatterns also discovers static files (ie. no need to run collectstatic). Both the static
