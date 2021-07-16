@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -11,6 +11,9 @@ from openzaak.utils import build_absolute_url
 from .factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
 
 
+@override_settings(
+    ALLOWED_HOSTS=["example.com", "testserver"]
+)  # default value Site.objects.get_current()
 class DeleteAutorisatieTest(TestCase):
     def test_autorisaties_are_deleted(self):
         applicatie = ApplicatieFactory.create()

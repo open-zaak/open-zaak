@@ -398,11 +398,6 @@ X_FRAME_OPTIONS = "DENY"
 SILENCED_SYSTEM_CHECKS = ["rest_framework.W001"]
 
 #
-# Increase number of parameters for GET/POST requests
-#
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
-
-#
 # Custom settings
 #
 PROJECT_NAME = "Open Zaak"

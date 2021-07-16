@@ -5,17 +5,15 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
-from django.urls import path, reverse
+from django.urls import path
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.loaders import BaseLoader
 from vng_api_common.authorizations.models import (
     Applicatie,
     AuthorizationsConfig,
     Autorisatie,
 )
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth
 
@@ -23,104 +21,9 @@ from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
 from .models import AutorisatieSpec
-from .utils import get_related_object
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
-
-
-class AutorisatieInline(admin.TabularInline):
-    model = Autorisatie
-    extra = 0
-    fields = ["component", "scopes", "_get_extra"]
-    readonly_fields = fields
-
-    def has_add_permission(self, request, obj=None) -> bool:
-        return False
-
-    def _get_extra(self, obj) -> str:
-        """
-        Show the context-dependent extra fields.
-
-        An :class:`Autorisatie` requires extra attributes depending on the
-        component that it's relevant for.
-
-        .. note:: using get_resource_for_path spawns too many queries, since
-            the viewsets have prefetch_related calls.
-        """
-        loader = BaseLoader()
-        if obj.component == ComponentTypes.zrc:
-            template = (
-                "<strong>Zaaktype</strong>: "
-                '<a href="{admin_url}" target="_blank" rel="noopener">{zt_repr}</a>'
-                "<br>"
-                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
-                "{va}"
-            )
-            if loader.is_local_url(obj.zaaktype):
-                zaaktype = get_related_object(obj)
-                admin_url = reverse(
-                    "admin:catalogi_zaaktype_change", kwargs={"object_id": zaaktype.pk}
-                )
-                zt_repr = str(zaaktype)
-            else:
-                admin_url = obj.zaaktype
-                zt_repr = f"{obj.zaaktype} (EXTERN)"
-
-            return format_html(
-                template,
-                admin_url=admin_url,
-                zt_repr=zt_repr,
-                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
-            )
-
-        if obj.component == ComponentTypes.drc:
-            template = (
-                "<strong>Informatieobjecttype</strong>: "
-                '<a href="{admin_url}" target="_blank" rel="noopener">{iot_repr}</a>'
-                "<br>"
-                "<strong>Maximale vertrouwelijkheidaanduiding</strong>: "
-                "{va}"
-            )
-            if loader.is_local_url(obj.informatieobjecttype):
-                informatieobjecttype = get_related_object(obj)
-                admin_url = reverse(
-                    "admin:catalogi_informatieobjecttype_change",
-                    kwargs={"object_id": informatieobjecttype.pk},
-                )
-                iot_repr = str(informatieobjecttype)
-            else:
-                admin_url = obj.informatieobjecttype
-                iot_repr = f"{obj.informatieobjecttype} (EXTERN)"
-
-            return format_html(
-                template,
-                admin_url=admin_url,
-                iot_repr=iot_repr,
-                va=obj.get_max_vertrouwelijkheidaanduiding_display(),
-            )
-
-        if obj.component == ComponentTypes.brc:
-            template = (
-                "<strong>Besluittype</strong>: "
-                '<a href="{admin_url}" target="_blank" rel="noopener">{bt_repr}</a>'
-            )
-            if loader.is_local_url(obj.besluittype):
-                besluittype = get_related_object(obj)
-                admin_url = reverse(
-                    "admin:catalogi_besluittype_change",
-                    kwargs={"object_id": besluittype.pk},
-                )
-                bt_repr = str(besluittype)
-            else:
-                admin_url = obj.besluittype
-                bt_repr = f"{obj.besluittype} (EXTERN)"
-
-            return format_html(template, admin_url=admin_url, bt_repr=bt_repr,)
-
-        return ""
-
-    _get_extra.short_description = _("Extra parameters")
 
 
 class CredentialsInline(admin.TabularInline):
@@ -172,10 +75,7 @@ class ApplicatieAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid",)
     form = ApplicatieForm
-    inlines = (
-        CredentialsInline,
-        AutorisatieInline,
-    )
+    inlines = (CredentialsInline,)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
