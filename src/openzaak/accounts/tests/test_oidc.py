@@ -15,7 +15,9 @@ class OIDCLoginButtonTestCase(WebTest):
 
         response = self.app.get(reverse("admin:login"))
 
-        oidc_login_link = response.html.find("a", string=_("Login with OIDC"))
+        oidc_login_link = response.html.find(
+            "a", string=_("Login with organization account")
+        )
 
         # Verify that the login button is not visible
         self.assertIsNone(oidc_login_link)
@@ -31,7 +33,9 @@ class OIDCLoginButtonTestCase(WebTest):
 
         response = self.app.get(reverse("admin:login"))
 
-        oidc_login_link = response.html.find("a", string=_("Login with OIDC"))
+        oidc_login_link = response.html.find(
+            "a", string=_("Login with organization account")
+        )
 
         # Verify that the login button is visible
         self.assertIsNotNone(oidc_login_link)
