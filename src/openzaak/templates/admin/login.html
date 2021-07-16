@@ -17,7 +17,7 @@
 {% get_solo 'mozilla_django_oidc_db.OpenIDConnectConfig' as oidc_config %}
 {% if oidc_config.enabled %}
 <div class="submit-row">
-    <a href="{% url 'oidc_authentication_init' %}">{% trans "Login with OIDC" %}</a>
+    <a href="{% url 'oidc_authentication_init' %}">{% trans "Login with organization account" %}</a>
 </div>
 {% endif %}
 
