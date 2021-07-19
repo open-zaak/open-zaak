@@ -842,24 +842,27 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
-        response = self.client.post(
-            self.list_url,
-            {
-                "identificatie": "12345",
-                "bronorganisatie": "159351741",
-                "creatiedatum": "2018-06-27",
-                "titel": "detailed summary",
-                "auteur": "test_auteur",
-                "formaat": "txt",
-                "taal": "eng",
-                "bestandsnaam": "dummy.txt",
-                "inhoud": b64encode(b"some file content").decode("utf-8"),
-                "link": "http://een.link",
-                "beschrijving": "test_beschrijving",
-                "informatieobjecttype": "http://example.com",
-                "vertrouwelijkheidaanduiding": "openbaar",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "identificatie": "12345",
+                    "bronorganisatie": "159351741",
+                    "creatiedatum": "2018-06-27",
+                    "titel": "detailed summary",
+                    "auteur": "test_auteur",
+                    "formaat": "txt",
+                    "taal": "eng",
+                    "bestandsnaam": "dummy.txt",
+                    "inhoud": b64encode(b"some file content").decode("utf-8"),
+                    "link": "http://een.link",
+                    "beschrijving": "test_beschrijving",
+                    "informatieobjecttype": "http://example.com",
+                    "vertrouwelijkheidaanduiding": "openbaar",
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
