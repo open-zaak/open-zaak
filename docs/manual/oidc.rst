@@ -50,28 +50,22 @@ Zorg dat je de volgende :ref:`gegevens <manual_oidc_appgroup>` hebt:
 Navigeer vervolgens in de admin naar **Configuratie** > **OpenID Connect configuration**.
 
 1. Vink *Enable* aan om OIDC in te schakelen.
-2. Vul bij **Server (on premise)** het server adres in, bijvoorbeeld
-   ``login.gemeente.nl``.
-3. Vul bij **OpenID Connect client ID** het Client ID in, bijvoorbeeld
+2. Vul bij **OpenID Connect client ID** het Client ID in, bijvoorbeeld
    ``a7d14516-8b20-418f-b34e-25f53c930948``.
-4. Vul bij **OpenID Connect secret** het Client secret in, bijvoobeeld
+3. Vul bij **OpenID Connect secret** het Client secret in, bijvoobeeld
    ``97d663a9-3624-4930-90c7-2b90635bd990``.
+4. Laat bij **OpenID Connect scopes** de standaardwaarden staan.
 5. Vul bij **OpenID sign algorithm** ``RS256`` in.
-6. Laat bij **OpenID Connect scopes** de standaardwaarden staan.
+6. Laat **Sign key** leeg.
 
 Vervolgens moeten er een aantal endpoints van de OIDC provider ingesteld worden,
-deze zijn af te leiden uit het OIDC Discovery Endpoint
-(``https://login.gemeente.nl/auth/realms/{realm}/.well-known/openid-configuration``)
+deze kunnen automatisch bepaald worden aan de hand van het discovery endpoint
+(``https://login.gemeente.nl/auth/realms/{realm}/.well-known/openid-configuration``).
 
-7. Vul bij **JSON Web Key Set endpoint** het JWKS endpoint van de OpenID Connect provider in,
-   meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/protocol/openid-connect/certs``.
-8. Vul bij **Authorization endpoint** het authorization endpoint van de OpenID Connect provider in,
-   meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/protocol/openid-connect/auth``.
-9. Vul bij **Token endpoint** het token endpoint van de OpenID Connect provider in,
-   meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/protocol/openid-connect/token``.
-10. Vul bij **User endpoint** het user endpoint van de OpenID Connect provider in,
-    meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/protocol/openid-connect/userinfo``.
-11. Laat **Sign key** leeg.
+7. Vul bij **Discovery endpoint** het pad naar het juiste authenticatie realm endpoint
+   van de OpenID Connect provider in (met een `/` op het einde),
+   meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/``.
+8. Laat de overige endpoints leeg.
 
 Klik tot slot rechtsonder op **Opslaan**.
 
