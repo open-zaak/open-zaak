@@ -142,7 +142,7 @@ class ObjectInformatieObjectInline(
 
 
 class EnkelvoudigInformatieObjectInline(
-    AuditTrailInlineAdminMixin, admin.StackedInline
+    AuditTrailInlineAdminMixin, PrivateMediaMixin, admin.StackedInline
 ):
     model = EnkelvoudigInformatieObject
     raw_id_fields = ("canonical", "_informatieobjecttype")
@@ -151,6 +151,9 @@ class EnkelvoudigInformatieObjectInline(
     verbose_name = _("versie")
     verbose_name_plural = _("versies")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
+    private_media_fields = ("inhoud",)
+    private_media_view_class = PrivateMediaView
+    private_media_file_widget = PrivateFileWidget
 
 
 def unlock(modeladmin, request, queryset):

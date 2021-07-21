@@ -173,6 +173,33 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         ]
         self.assertEqual(len(max_length_errors), 1)
 
+    def test_identificatie_all_characters_allowed(self):
+        """
+        Test that there is no limitation on certain characters for the identificatie field.
+
+        Upstream standard issue: https://github.com/VNG-Realisatie/gemma-zaken/issues/1790
+        """
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+
+        url = get_operation_url("besluit_create")
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijke_organisatie": "517439943",  # RSIN
+                "identificatie": "ZK bläh",
+                "besluittype": f"http://testserver{besluittype_url}",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
@@ -250,21 +277,24 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_create_external_besluittype_fail_not_json_url(self):
         url = reverse(Besluit)
 
-        response = self.client.post(
-            url,
-            {
-                "verantwoordelijke_organisatie": "517439943",  # RSIN
-                "identificatie": "123123",
-                "besluittype": "http://example.com",
-                "datum": "2018-09-06",
-                "toelichting": "Vergunning verleend.",
-                "ingangsdatum": "2018-10-01",
-                "vervaldatum": "2018-11-01",
-                "vervalreden": VervalRedenen.tijdelijk,
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            response = self.client.post(
+                url,
+                {
+                    "verantwoordelijke_organisatie": "517439943",  # RSIN
+                    "identificatie": "123123",
+                    "besluittype": "http://example.com",
+                    "datum": "2018-09-06",
+                    "toelichting": "Vergunning verleend.",
+                    "ingangsdatum": "2018-10-01",
+                    "vervaldatum": "2018-11-01",
+                    "vervalreden": VervalRedenen.tijdelijk,
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "invalid-resource")

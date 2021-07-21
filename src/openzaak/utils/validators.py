@@ -13,7 +13,7 @@ from rest_framework.validators import (
     UniqueTogetherValidator as _UniqueTogetherValidator,
 )
 from vng_api_common.oas import fetcher, obj_has_shape
-from vng_api_common.utils import get_uuid_from_path
+from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
 from vng_api_common.validators import IsImmutableValidator
 
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -177,8 +177,8 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
         elif isinstance(informatieobject, EnkelvoudigInformatieObject):
             io_type = informatieobject.informatieobjecttype
         elif isinstance(informatieobject, str):
-            io_uuid = get_uuid_from_path(informatieobject)
-            io = EnkelvoudigInformatieObject.objects.get(uuid=io_uuid)
+            io_path = urlparse(informatieobject).path
+            io = get_resource_for_path(io_path)
             io_type = io.informatieobjecttype
         else:
             io_type = informatieobject.latest_version.informatieobjecttype

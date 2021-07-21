@@ -7,15 +7,12 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.zaken.tests.factories import (
-    ZaakFactory,
-    ZaakInformatieObjectFactory,
-)
 
 from ...models import ZaakBesluit
+from ..factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
-class ZaaktypeAdminTests(WebTest):
+class ZaakAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
@@ -56,3 +53,18 @@ class ZaaktypeAdminTests(WebTest):
         self.assertEqual(response.status_code, 200)
 
         self.assertIn("http://bla.com/404", response.text)
+
+    def test_non_alphanumeric_identificatie_validation(self):
+        """
+        Edit a zaak with an identificatie allowed by the API.
+
+        This should not trigger validation errors.
+        """
+        zaak = ZaakFactory.create(identificatie="ZK bläh")
+        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+        response = self.app.get(url)
+        self.assertEqual(response.form["identificatie"].value, "ZK bläh")
+
+        submit_response = response.form.submit()
+
+        self.assertEqual(submit_response.status_code, 302)

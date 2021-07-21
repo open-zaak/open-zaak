@@ -89,6 +89,14 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
         },
     },
+    "oidc": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
+    },
 }
 
 #
@@ -133,6 +141,8 @@ INSTALLED_APPS = [
     "django_loose_fk",
     "zgw_consumers",
     "drc_cmis",
+    "mozilla_django_oidc",
+    "mozilla_django_oidc_db",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
@@ -157,6 +167,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "openzaak.components.autorisaties.middleware.AuthMiddleware",
+    "mozilla_django_oidc_db.middleware.SessionRefresh",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
@@ -311,6 +322,10 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        "mozilla_django_oidc": {
+            "handlers": ["project"] if not LOG_STDOUT else ["console"],
+            "level": "DEBUG",
+        },
         "openzaak.utils.middleware": {
             "handlers": ["requests"] if not LOG_STDOUT else ["console"],
             "level": "DEBUG",
@@ -338,7 +353,6 @@ LOGGING = {
     },
 }
 
-
 #
 # AUTH settings - user accounts, passwords, backends...
 #
@@ -353,12 +367,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 # Allow logging in with both username+password and email+password
 AUTHENTICATION_BACKENDS = [
     "openzaak.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
     "django_auth_adfs_db.backends.AdfsAuthCodeBackend",
+    "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
 SESSION_COOKIE_NAME = "openzaak_sessionid"
@@ -366,6 +380,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 LOGIN_URL = reverse_lazy("admin:login")
 LOGIN_REDIRECT_URL = reverse_lazy("admin:index")
+LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 
 #
 # SECURITY settings
@@ -381,11 +396,6 @@ X_FRAME_OPTIONS = "DENY"
 # Silenced checks
 #
 SILENCED_SYSTEM_CHECKS = ["rest_framework.W001"]
-
-#
-# Increase number of parameters for GET/POST requests
-#
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 #
 # Custom settings
@@ -545,6 +555,14 @@ ADMIN_INDEX_SHOW_REMAINING_APPS_TO_SUPERUSERS = False
 ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 
 #
+# Mozilla Django OIDC DB settings
+#
+OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationRequestView"
+MOZILLA_DJANGO_OIDC_DB_CACHE = "oidc"
+MOZILLA_DJANGO_OIDC_DB_CACHE_TIMEOUT = 1
+
+
+#
 # OpenZaak configuration
 #
 
@@ -568,3 +586,5 @@ CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
+
+VNG_COMPONENTS_BRANCH = "stable/1.0.x"

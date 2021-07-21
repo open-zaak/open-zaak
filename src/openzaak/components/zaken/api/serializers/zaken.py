@@ -566,7 +566,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # ), "Expected to be in autocommit mode at this point"
 
         # local FK or CMIS - nothing to do -> our signals create the OIO
-        if zio.informatieobject.pk or settings.CMIS_ENABLED:
+        if settings.CMIS_ENABLED or zio.informatieobject.pk:
             return zio
 
         # we know that we got valid URLs in the initial data

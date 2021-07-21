@@ -116,53 +116,6 @@ class ApplicatieInlinesAdminTests(WebTest):
             applicatie=self.applicatie, **{field: url, **kwargs},
         )
 
-    def test_inline_zaaktype_autorisaties(self):
-        zt = ZaakTypeFactory.create()
-        self._add_autorisatie(
-            zt,
-            component=ComponentTypes.zrc,
-            scopes=["zaken.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-
-        response = self.app.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, str(zt))
-        self.assertContains(
-            response,
-            VertrouwelijkheidsAanduiding.labels[VertrouwelijkheidsAanduiding.geheim],
-        )
-
-    def test_inline_informatieobjecttype_autorisaties(self):
-        iot = InformatieObjectTypeFactory.create()
-        self._add_autorisatie(
-            iot,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-
-        response = self.app.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, str(iot))
-        self.assertContains(
-            response,
-            VertrouwelijkheidsAanduiding.labels[VertrouwelijkheidsAanduiding.geheim],
-        )
-
-    def test_inline_besluittype_autorisaties(self):
-        bt = BesluitTypeFactory.create()
-        self._add_autorisatie(
-            bt, component=ComponentTypes.brc, scopes=["besluiten.lezen"]
-        )
-
-        response = self.app.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, str(bt))
-
 
 @tag("admin-autorisaties")
 class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
