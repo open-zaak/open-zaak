@@ -51,7 +51,6 @@ class GeldigheidValidator:
             einde_geldigheid=attrs.get("datum_einde_geldigheid"),
             instance=self.instance,
         ):
-            # regel voor zaaktype omschrijving
             raise ValidationError(
                 {
                     "begin_geldigheid": self.message.format(
