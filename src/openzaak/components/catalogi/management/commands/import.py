@@ -20,18 +20,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--import_file",
+            "--import-file",
             type=str,
             help=_("The name of the .zip file to import from"),
         )
         parser.add_argument(
-            "--import_file_content",
+            "--import-file-content",
             type=bytes,
             help=_("The .zip file content to import from"),
         )
         parser.add_argument(
-            "--generate_new_uuids",
-            type=bool,
+            "--generate-new-uuids",
+            action="store_true",
             help=_(
                 "Indicates whether new UUIDs should be generated for the import data"
             ),
