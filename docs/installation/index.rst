@@ -44,4 +44,13 @@ Guides
    self_signed
    post_install
    updating
-   extra/index
+
+Reference
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   reference/cli
+   reference/logging
+   reference/containers

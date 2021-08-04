@@ -13,7 +13,7 @@ to create this superuser.
 Creating a superuser manually
 -----------------------------
 
-Superusers can be created through the :ref:`installation_extra_cli` built into Open
+Superusers can be created through the :ref:`installation_reference_cli` built into Open
 Zaak, for example:
 
 .. code-block:: bash
@@ -44,7 +44,7 @@ Creating a superuser as part of the (initial) deployment
 It's possible to automatically provision a superuser as part of your regular deployment,
 be it on Kubernetes, Docker or Podman or any other way. Behind the scenes, the
 ``createinitialsuperuser`` management command is executed (see
-:ref:`installation_extra_cli` for more details).
+:ref:`installation_reference_cli` for more details).
 
 To opt in to this behaviour, you must specify the following environment variables:
 
