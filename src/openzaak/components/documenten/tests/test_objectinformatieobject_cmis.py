@@ -395,7 +395,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             secret="test",
         )
 
-        config = CMISConfig.objects.get()
+        config = CMISConfig.get_solo()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             UrlMapping.objects.create(

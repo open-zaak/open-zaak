@@ -27,7 +27,7 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
 
             UrlMapping.objects.create(
                 long_pattern="https://external.documenten.nl/documenten",

@@ -95,7 +95,7 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         )
 
         if settings.CMIS_URL_MAPPING_ENABLED:
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
 
             UrlMapping.objects.create(
                 long_pattern="https://externe.catalogus.nl",

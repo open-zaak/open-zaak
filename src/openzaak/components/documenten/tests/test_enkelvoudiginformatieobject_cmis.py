@@ -837,7 +837,7 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
 
     def test_create_external_informatieobjecttype(self):
-        config = CMISConfig.objects.get()
+        config = CMISConfig.get_solo()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             UrlMapping.objects.create(
