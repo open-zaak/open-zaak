@@ -831,5 +831,5 @@ class BesluitTypeValidationTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "unique")
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")

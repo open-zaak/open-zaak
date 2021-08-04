@@ -132,7 +132,6 @@ class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     class Meta:
         verbose_name = _("besluittype")
         verbose_name_plural = _("besluittypen")
-        unique_together = ("catalogus", "omschrijving")
 
     def __str__(self):
         representation = f"{self.catalogus} - {self.omschrijving}"

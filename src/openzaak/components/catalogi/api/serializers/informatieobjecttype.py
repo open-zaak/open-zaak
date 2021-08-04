@@ -7,7 +7,7 @@ from vng_api_common.serializers import add_choice_values_help_text
 from ...models import InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
-    InformatieobjecttypeGeldigheidValidator,
+    GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
 )
@@ -33,7 +33,7 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
             "concept",
         )
         validators = [
-            InformatieobjecttypeGeldigheidValidator(),
+            GeldigheidValidator(),
             ConceptUpdateValidator(),
             M2MConceptCreateValidator(["besluittypen", "zaaktypen"]),
             M2MConceptUpdateValidator(["besluittypen", "zaaktypen"]),
