@@ -11,7 +11,7 @@ flow:
 
 1. Klikt een gebruiker op het inlogscherm op *Inloggen met OIDC*
 2. De gebruiker wordt naar de omgeving van de OpenID Connect provider geleid (bijv. Keycloak) waar ze inloggen met gebruikersnaam
-   en wachtwoord (en eventuele Multi Factor Authorization)
+   en wachtwoord (en eventuele Multi Factor Authentication)
 3. De OIDC omgeving stuurt de gebruiker terug naar Open Zaak (waar de account aangemaakt
    wordt indien die nog niet bestaat)
 4. Een beheerder in Open Zaak kent de juiste groepen toe aan deze gebruiker als deze
