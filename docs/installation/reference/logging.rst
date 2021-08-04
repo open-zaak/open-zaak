@@ -1,4 +1,4 @@
-.. _installation_extra_logging:
+.. _installation_reference_logging:
 
 =======
 Logging
