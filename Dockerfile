@@ -46,7 +46,7 @@ COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 # Stage 3.2 - Copy source code
 WORKDIR /app
 COPY ./bin/docker_start.sh /start.sh
-RUN mkdir /app/log /app/config
+RUN mkdir /app/log /app/config /app/media /app/private-media
 
 COPY ./config /app/config
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
@@ -54,8 +54,13 @@ COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/
 COPY bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./src /app/src
 
-RUN useradd -M -u 1000 openzaak
-RUN chown -R openzaak /app
+RUN groupadd -g 1000 openzaak \
+    && useradd -M -u 1000 -g 1000 openzaak \
+    && chown -R openzaak:openzaak /app
+
+# prevent writing to the container layer, which would degrade performance.
+# This also serves as a hint for the intended volumes.
+VOLUME /app/media /app/private-media /app/log
 
 # drop privileges
 USER openzaak
