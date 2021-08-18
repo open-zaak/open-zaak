@@ -157,6 +157,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
             "object": OBJECT_MET_ADRES,
             "objectType": ZaakobjectTypes.adres,
             "relatieomschrijving": "Het adres waar de overlast vastgesteld werd.",
+            "objectTypeOverigeDefinitie": None,
         }
 
         response = self.client.post(url, data)
@@ -225,6 +226,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
             "object": STADSDEEL,
             "objectType": ZaakobjectTypes.adres,
             "relatieomschrijving": "Afgeleid gebied",
+            "objectTypeOverigeDefinitie": None,
         }
 
         response = self.client.post(url, data)
