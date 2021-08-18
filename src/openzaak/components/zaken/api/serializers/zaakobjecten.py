@@ -46,6 +46,37 @@ from .objecten import (
 )
 
 
+class ObjectTypeOverigeDefinitieSerializer(serializers.Serializer):
+    url = serializers.URLField(
+        label="Objecttype-URL",
+        max_length=1000,
+        help_text=(
+            "URL-referentie naar de objecttype resource in een API. Deze resource "
+            "moet de [JSON-schema](https://json-schema.org/)-definitie van het objecttype "
+            "bevatten."
+        ),
+    )
+    schema = serializers.CharField(
+        label="schema-pad",
+        max_length=100,
+        help_text=(
+            "Een geldige [jq](http://stedolan.github.io/jq/) expressie. Dit wordt "
+            "gecombineerd met de resource uit het `url`-attribuut om het schema "
+            "van het objecttype uit te lezen. Bijvoorbeeld: `.jsonSchema`."
+        ),
+    )
+    objectData = serializers.CharField(
+        label="objectgegevens-pad",
+        max_length=100,
+        help_text=(
+            "Een geldige [jq](http://stedolan.github.io/jq/) expressie. Dit wordt "
+            "gecombineerd met de JSON data uit de OBJECT url om de objectgegevens uit "
+            "te lezen en de vorm van de gegevens tegen het schema te valideren. "
+            "Bijvoorbeeld: `.record.data`."
+        ),
+    )
+
+
 class ZaakObjectSerializer(PolymorphicSerializer):
     discriminator = Discriminator(
         discriminator_field="object_type",
@@ -85,6 +116,26 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         group_field="object_identificatie",
         same_model=False,
     )
+    object_type_overige_definitie = ObjectTypeOverigeDefinitieSerializer(
+        label=_("definitie object type overige"),
+        required=False,
+        allow_null=True,
+        help_text=(
+            "Verwijzing naar het schema van het type OBJECT als `objectType` de "
+            'waarde "overige" heeft.\n\n'
+            "* De URL referentie moet naar een JSON endpoint "
+            "  wijzen waarin het objecttype gedefinieerd is, inclusief het "
+            "  [JSON-schema](https://json-schema.org/).\n"
+            "* Gebruik het `schema` attribuut om te verwijzen naar het schema binnen "
+            "  de objecttype resource (deze gebruikt het "
+            "  [jq](http://stedolan.github.io/jq/) formaat.\n"
+            "* Gebruik het `objectData` attribuut om te verwijzen naar de gegevens "
+            "  binnen het OBJECT. Deze gebruikt ook het "
+            "  [jq](http://stedolan.github.io/jq/) formaat."
+            "\n\nDe opgegeven OBJECT url wordt gevalideerd tegen het schema van het "
+            "opgegeven objecttype."
+        ),
+    )
 
     class Meta:
         model = ZaakObject
@@ -95,6 +146,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             "object",
             "object_type",
             "object_type_overige",
+            "object_type_overige_definitie",
             "relatieomschrijving",
         )
         extra_kwargs = {
@@ -120,7 +172,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
         if not object and not object_identificatie:
             raise serializers.ValidationError(
-                _("betrokkene or betrokkeneIdentificatie must be provided"),
+                _("object or objectIdentificatie must be provided"),
                 code="invalid-zaakobject",
             )
 
