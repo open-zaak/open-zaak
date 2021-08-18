@@ -23,12 +23,9 @@ CATALOGUS = f"{ZTC_ROOT}/catalogus/878a3318-5950-4642-8715-189745f91b04"
 ZAAKTYPE = f"{CATALOGUS}/zaaktypen/283ffaf5-8470-457b-8064-90e5728f413f"
 EIGENSCHAP = f"{ZTC_ROOT}/eigenschappen/f420c3e0-8345-44d9-a981-0f424538b9e9"
 EIGENSCHAP2 = f"{ZTC_ROOT}/eigenschappen/0ab8cc90-dfeb-4cd0-9dab-821104c90741"
-IO_TYPE = f"{ZTC_ROOT}informatieobjecttypen/31442352-5645-42d9-aca2-6064a94d4dfb"
 
-
-BESLUIT = "https://example.com/brc/api/v1/besluiten/12345678"
 RESPONSES = {
-    ZAAKTYPE: {"url": ZAAKTYPE, "informatieobjecttypen": [IO_TYPE]},
+    ZAAKTYPE: {"url": ZAAKTYPE},
     EIGENSCHAP: {"url": EIGENSCHAP, "zaaktype": ZAAKTYPE, "naam": "foo"},
     EIGENSCHAP2: {"url": EIGENSCHAP2, "zaaktype": ZAAKTYPE, "naam": "bar"},
 }
@@ -42,7 +39,7 @@ class ZaakEigenschappenTest(JWTAuthMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        mock_fetcher = patch("vng_api_common.validators.fetcher")
+        mock_fetcher = patch("openzaak.utils.validators.fetcher")
         mock_fetcher.start()
         self.addCleanup(mock_fetcher.stop)
 
@@ -52,11 +49,12 @@ class ZaakEigenschappenTest(JWTAuthMixin, APITestCase):
         mock_has_shape.start()
         self.addCleanup(mock_has_shape.stop)
 
-        def _fetch_obj(resource: str, url: str):
+        def _fetch_obj(url: str, do_underscoreize=True):
             return RESPONSES[url]
 
         mock_fetch_object = patch(
-            "zrc.api.validators.fetch_object", side_effect=_fetch_obj
+            "openzaak.loaders.AuthorizedRequestsLoader.fetch_object",
+            side_effect=_fetch_obj,
         )
         mock_fetch_object.start()
         self.addCleanup(mock_fetch_object.stop)
@@ -89,7 +87,7 @@ class ZaakEigenschappenTest(JWTAuthMixin, APITestCase):
 
         zaakeigenschap_data = {
             "zaak": f"http://example.com{zaak_url}",
-            "eigenschap": zaakeigenschap.eigenschap,
+            "eigenschap": EIGENSCHAP,
             "waarde": "This is a changed value",
         }
 
@@ -115,7 +113,7 @@ class ZaakEigenschappenTest(JWTAuthMixin, APITestCase):
 
         zaakeigenschap_data = {
             "zaak": f"http://example.com{zaak_url}",
-            "eigenschap": zaakeigenschap.eigenschap,
+            "eigenschap": EIGENSCHAP,
             "waarde": "This is a changed value",
         }
 
