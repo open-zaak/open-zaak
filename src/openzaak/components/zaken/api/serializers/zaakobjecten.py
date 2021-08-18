@@ -173,6 +173,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 fields=("object", "object_identificatie"),
                 message=_("object or objectIdentificatie must be provided"),
                 code="invalid-zaakobject",
+                skip_for_updates=True,
             ),
             ObjectTypeOverigeDefinitieValidator(),
         ]
@@ -185,6 +186,10 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)
+
+        # for update don't validate fields, cause most of them are immutable
+        if self.instance:
+            return validated_attrs
 
         object_type = validated_attrs.get("object_type", None)
         object_type_overige = validated_attrs.get("object_type_overige", None)
@@ -215,6 +220,13 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
         return validated_attrs
 
+    def to_internal_value(self, data):
+        # add object_type to data for PATCH
+        if self.instance and "object_type" not in data:
+            data["object_type"] = self.instance.object_type
+
+        return super().to_internal_value(data)
+
     @transaction.atomic
     def create(self, validated_data):
         group_data = validated_data.pop("object_identificatie", None)
@@ -223,6 +235,23 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         if group_data:
             group_serializer = self.discriminator.mapping[validated_data["object_type"]]
             serializer = group_serializer.get_fields()["object_identificatie"]
+            group_data["zaakobject"] = zaakobject
+            serializer.create(group_data)
+
+        return zaakobject
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        group_data = validated_data.pop("object_identificatie", None)
+        zaakobject = super().update(instance, validated_data)
+
+        if group_data:
+            group_serializer = self.discriminator.mapping[instance.object_type]
+            serializer = group_serializer.get_fields()["object_identificatie"]
+            # remove the previous data
+            model = serializer.Meta.model
+            model.objects.filter(zaakobject=zaakobject).delete()
+
             group_data["zaakobject"] = zaakobject
             serializer.create(group_data)
 

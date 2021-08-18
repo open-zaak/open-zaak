@@ -360,13 +360,24 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
 class EitherFieldRequiredValidator:
     default_message = _("One of %(fields)s must be provided")
     default_code = "invalid"
+    requires_context = True
 
-    def __init__(self, fields: Iterable[str], message: str = "", code: str = ""):
+    def __init__(
+        self,
+        fields: Iterable[str],
+        message: str = "",
+        code: str = "",
+        skip_for_updates=False,
+    ):
         self.fields = fields
         self.message = (message or self.default_message) % {"fields": ", ".join(fields)}
         self.code = code or self.default_code
+        self.skip_for_updates = skip_for_updates
 
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        if self.skip_for_updates and serializer.instance:
+            return
+
         values = [attrs.get(field, None) for field in self.fields]
         if not any(values):
             raise serializers.ValidationError(self.message, code=self.code)
