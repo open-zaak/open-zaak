@@ -28,10 +28,11 @@ info:
     \ URL-referentie naar het ZAAKTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`:\
     \ Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid\
     \ bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n\
-    - `status`: create\n- `zaakobject`: create\n- `zaakinformatieobject`: create\n\
-    - `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`: create, destroy\n\
-    - `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n- `zaakcontactmoment`:\
-    \ create\n- `zaakverzoek`: create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    - `status`: create\n- `zaakobject`: create, update, destroy\n- `zaakinformatieobject`:\
+    \ create\n- `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`: create,\
+    \ destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n-\
+    \ `zaakcontactmoment`: create\n- `zaakverzoek`: create\n\n\n**Handige links**\n\
+    \n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -2213,7 +2214,10 @@ paths:
     post:
       operationId: zaakobject_create
       summary: Maak een ZAAKOBJECT aan.
-      description: Maak een ZAAKOBJECT aan.
+      description: "Maak een ZAAKOBJECT aan.\n\n**Er wordt gevalideerd op**\n\n- Indien\
+        \ de `object` URL opgegeven is, dan moet deze een geldige response\n  (HTTP\
+        \ 200) geven.\n- Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd\
+        \ tegen de\n  `objectType` discriminator."
       parameters:
       - name: Content-Type
         in: header
@@ -2236,11 +2240,7 @@ paths:
         schema:
           type: string
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakObject'
-        required: true
+        $ref: '#/components/requestBodies/ZaakObject'
       responses:
         '201':
           description: Created
@@ -2324,6 +2324,155 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+    put:
+      operationId: zaakobject_update
+      summary: Werk een ZAAKOBJECT in zijn geheel bij.
+      description: "**Er wordt gevalideerd op**\n\n- De attributen `zaak`, `object`\
+        \ en `objectType` mogen niet gewijzigd worden.\n- Indien opgegeven, dan wordt\
+        \ `objectIdentificatie` gevalideerd tegen de\n  `objectType` discriminator."
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObject'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObject'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecten
+      security:
+      - JWT-Claims:
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+    patch:
+      operationId: zaakobject_partial_update
+      summary: Werk een ZAAKOBJECT deels bij.
+      description: "**Er wordt gevalideerd op**\n\n- De attributen `zaak`, `object`\
+        \ en `objectType` mogen niet gewijzigd worden.\n- Indien opgegeven, dan wordt\
+        \ `objectIdentificatie` gevalideerd tegen de\n  `objectType` discriminator."
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObject'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObject'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecten
+      security:
+      - JWT-Claims:
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+    delete:
+      operationId: zaakobject_delete
+      summary: Verwijder een ZAAKOBJECT.
+      description: 'Verbreek de relatie tussen een ZAAK en een OBJECT door de ZAAKOBJECT
+        resource te
+
+        verwijderen.'
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecten
+      security:
+      - JWT-Claims:
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken | zaken.verwijderen)
     parameters:
     - name: uuid
       in: path
@@ -4278,6 +4427,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ZaakInformatieObject'
+      required: true
+    ZaakObject:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ZaakObject'
       required: true
     Zaak:
       content:
