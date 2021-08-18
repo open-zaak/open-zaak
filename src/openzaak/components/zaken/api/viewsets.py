@@ -649,7 +649,7 @@ class ZaakInformatieObjectViewSet(
 
 @conditional_retrieve()
 class ZaakEigenschapViewSet(
-    NotificationCreateMixin,
+    NotificationViewSetMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
     ClosedZaakMixin,
