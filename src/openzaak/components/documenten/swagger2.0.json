@@ -2370,7 +2370,7 @@
                     "minLength": 1
                 },
                 "locked": {
-                    "title": "locked",
+                    "title": "geblokkeerd",
                     "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
                     "type": "boolean",
                     "readOnly": true
@@ -2677,7 +2677,7 @@
                     "minLength": 1
                 },
                 "locked": {
-                    "title": "locked",
+                    "title": "geblokkeerd",
                     "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
                     "type": "boolean",
                     "readOnly": true
@@ -2999,7 +2999,7 @@
                     "minLength": 1
                 },
                 "locked": {
-                    "title": "locked",
+                    "title": "geblokkeerd",
                     "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
                     "type": "boolean",
                     "readOnly": true

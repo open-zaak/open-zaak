@@ -10,7 +10,7 @@ import django_loose_fk.constraints
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0004_auto_20210628_1514"),
+        ("zaken", "0005_zaakobject_object_type_overige_definitie"),
     ]
 
     operations = [
