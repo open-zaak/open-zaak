@@ -289,6 +289,10 @@ josepy==1.13.0
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc
+jq==1.2.1
+    # via -r requirements/base.txt
+jsonschema==3.2.0
+    # via -r requirements/base.txt
 markdown==3.3.6
     # via -r requirements/base.txt
 markupsafe==2.1.1
@@ -345,6 +349,10 @@ pyparsing==3.0.7
     #   -r requirements/base.txt
     #   httplib2
     #   packaging
+pyrsistent==0.18.0
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.txt
@@ -413,6 +421,8 @@ six==1.16.0
     #   furl
     #   isodate
     #   orderedmultidict
+    #   jsonschema
+    #   mozilla-django-oidc
     #   pyopenssl
     #   python-dateutil
     #   requests-mock

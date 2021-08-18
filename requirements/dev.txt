@@ -341,8 +341,12 @@ josepy==1.13.0
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc
+jq==1.2.1
+    # via -r requirements/ci.txt
 jsonschema==3.2.0
     # via kubernetes-validate
+kubernetes-validate==1.18.0
+    # via -r requirements/../deployment/requirements.in
 kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
@@ -436,7 +440,7 @@ pyparsing==3.0.7
     #   -r requirements/ci.txt
     #   httplib2
     #   packaging
-pyrsistent==0.17.3
+pyrsistent==0.18.0
     # via jsonschema
 python-dateutil==2.8.2
     # via
