@@ -43,6 +43,7 @@ from ..models import Zaak
 from .factories import (
     ResultaatFactory,
     RolFactory,
+    ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
@@ -168,6 +169,42 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
                 "hoofdObject": f"http://testserver{zaak_url}",
                 "resource": "zaakobject",
                 "resourceUrl": f"http://testserver{zaakobject_url}",
+                "actie": "partial_update",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+            },
+        )
+
+    @patch("zds_client.Client.from_url")
+    def test_send_notif_update_zaak_eigenschap(self, mock_client):
+        """
+        Check if notifications will be send when zaak-eigenschap is updated
+        """
+        client = mock_client.return_value
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        zaak = ZaakFactory.create(zaaktype=f"http://testserver{zaaktype_url}")
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaakeigenschap = ZaakEigenschapFactory.create(zaak=zaak, waarde="old")
+        zaakeigenschap_url = get_operation_url(
+            "zaakeigenschap_update", uuid=zaakeigenschap.uuid, zaak_uuid=zaak.uuid
+        )
+
+        with capture_on_commit_callbacks(execute=True):
+            response = self.client.patch(zaakeigenschap_url, data={"waarde": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        client.create.assert_called_once_with(
+            "notificaties",
+            {
+                "kanaal": "zaken",
+                "hoofdObject": f"http://testserver{zaak_url}",
+                "resource": "zaakeigenschap",
+                "resourceUrl": f"http://testserver{zaakeigenschap_url}",
                 "actie": "partial_update",
                 "aanmaakdatum": "2012-01-14T00:00:00Z",
                 "kenmerken": {
