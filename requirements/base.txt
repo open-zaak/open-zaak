@@ -4,6 +4,8 @@
 #
 #    ./bin/compile_dependencies.sh
 #
+attrs==21.2.0
+    # via jsonschema
 certifi==2018.4.16
     # via
     #   requests
@@ -166,6 +168,10 @@ jinja2==2.11.3
     # via coreschema
 josepy==1.8.0
     # via mozilla-django-oidc
+jq==1.2.1
+    # via -r requirements/base.in
+jsonschema==3.2.0
+    # via -r requirements/base.in
 markdown==3.0.1
     # via -r requirements/base.in
 markupsafe==1.1.1
@@ -195,6 +201,8 @@ pyparsing==2.4.7
     # via
     #   httplib2
     #   packaging
+pyrsistent==0.18.0
+    # via jsonschema
 python-dateutil==2.7.3
     # via
     #   -r requirements/base.in
@@ -225,8 +233,6 @@ requests==2.26.0
     #   mozilla-django-oidc
     #   vng-api-common
     #   zgw-consumers
-ruamel.yaml.clib==0.2.2
-    # via ruamel.yaml
 ruamel.yaml==0.16.7
     # via drf-yasg
 self-certifi==1.0.0
@@ -239,6 +245,7 @@ six==1.11.0
     #   django-extra-views
     #   django-markup
     #   isodate
+    #   jsonschema
     #   mozilla-django-oidc
     #   pyopenssl
     #   python-dateutil

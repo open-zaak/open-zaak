@@ -12,7 +12,7 @@ appdirs==1.4.4
     # via
     #   -r requirements/ci.txt
     #   black
-attrs==19.3.0
+attrs==21.2.0
     # via
     #   -r requirements/ci.txt
     #   black
@@ -254,12 +254,6 @@ idna==2.6
     #   requests
 imagesize==1.1.0
     # via sphinx
-importlib-metadata==3.1.1
-    # via
-    #   -r requirements/ci.txt
-    #   flake8
-    #   jsonschema
-    #   pep517
 inflection==0.3.1
     # via
     #   -r requirements/ci.txt
@@ -295,8 +289,12 @@ josepy==1.8.0
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc
+jq==1.2.1
+    # via -r requirements/ci.txt
 jsonschema==3.2.0
-    # via kubernetes-validate
+    # via
+    #   -r requirements/ci.txt
+    #   kubernetes-validate
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
 kubernetes==11.0.0
@@ -385,8 +383,10 @@ pyparsing==2.4.7
     #   -r requirements/ci.txt
     #   httplib2
     #   packaging
-pyrsistent==0.17.3
-    # via jsonschema
+pyrsistent==0.18.0
+    # via
+    #   -r requirements/ci.txt
+    #   jsonschema
 python-dateutil==2.7.3
     # via
     #   -r requirements/ci.txt
@@ -450,10 +450,6 @@ requests==2.26.0
     #   zgw-consumers
 rsa==4.7.2
     # via google-auth
-ruamel.yaml.clib==0.2.2
-    # via
-    #   -r requirements/ci.txt
-    #   ruamel.yaml
 ruamel.yaml==0.16.7
     # via
     #   -r requirements/ci.txt
@@ -575,11 +571,6 @@ whitenoise==5.1.0
     # via -r requirements/dev.in
 zgw-consumers==0.12.2
     # via -r requirements/ci.txt
-zipp==3.4.0
-    # via
-    #   -r requirements/ci.txt
-    #   importlib-metadata
-    #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

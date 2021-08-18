@@ -1,4 +1,6 @@
 # Core python libraries
+jq
+jsonschema
 dictdiffer # Used to show diffs for audittrails in admin
 markdown  # used to render some markdown in code to html
 psycopg2
