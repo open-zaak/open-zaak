@@ -7,7 +7,7 @@ from rest_framework import serializers
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
-from vng_api_common.validators import URLValidator
+from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.utils.auth import get_auth
 
@@ -161,11 +161,12 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
             "object": {
                 "required": False,
-                "validators": [URLValidator(get_auth=get_auth)],
+                "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
             },
+            "object_type": {"validators": [IsImmutableValidator()],},
         }
         validators = [
             EitherFieldRequiredValidator(
