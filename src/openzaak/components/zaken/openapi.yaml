@@ -29,10 +29,9 @@ info:
     \ Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid\
     \ bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n\
     - `status`: create\n- `zaakobject`: create, update, destroy\n- `zaakinformatieobject`:\
-    \ create\n- `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`: create,\
-    \ destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n-\
-    \ `zaakcontactmoment`: create\n- `zaakverzoek`: create\n\n\n**Handige links**\n\
-    \n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    \ create\n- `zaakeigenschap`: create, update, destroy\n- `klantcontact`: create\n\
+    - `rol`: create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`:\
+    \ create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -4078,11 +4077,7 @@ paths:
         schema:
           type: string
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakEigenschap'
-        required: true
+        $ref: '#/components/requestBodies/ZaakEigenschap'
       responses:
         '201':
           description: Created
@@ -4198,6 +4193,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+<<<<<<< HEAD
     head:
       operationId: zaakeigenschap_headers
       summary: De headers voor een specifiek(e) ZAAKEIGENSCHAP opvragen
@@ -4221,26 +4217,153 @@ paths:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
         schema:
           type: string
+=======
+    put:
+      operationId: zaakeigenschap_update
+      summary: Werk een ZAAKEIGENSCHAP in zijn geheel bij.
+      description: '**Er wordt gevalideerd op**
+
+
+        - Alleen de WAARDE mag gewijzigd worden'
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakEigenschap'
+>>>>>>> 4672bae4... :memo: Updated Schema
       responses:
         '200':
           description: OK
           headers:
+<<<<<<< HEAD
             ETag:
               description: De ETag berekend op de response body JSON. Indien twee
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
               schema:
                 type: string
+=======
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakEigenschap'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
       tags:
       - zaken
       security:
       - JWT-Claims:
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+    patch:
+      operationId: zaakeigenschap_partial_update
+      summary: Werk een ZAAKEIGENSCHAP deels bij.
+      description: '**Er wordt gevalideerd op**
+
+
+        - Alleen de WAARDE mag gewijzigd worden'
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakEigenschap'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakEigenschap'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaken
+      security:
+      - JWT-Claims:
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+    delete:
+      operationId: zaakeigenschap_delete
+      description: Verwijder een ZAAKEIGENSCHAP.
+      responses:
+        '204':
+          description: No content
+          headers:
+>>>>>>> 4672bae4... :memo: Updated Schema
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+<<<<<<< HEAD
+=======
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+>>>>>>> 4672bae4... :memo: Updated Schema
+      tags:
+      - zaken
+      security:
+      - JWT-Claims:
+<<<<<<< HEAD
         - zaken.lezen
+=======
+        - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+>>>>>>> 4672bae4... :memo: Updated Schema
     parameters:
     - name: uuid
       in: path
@@ -4439,6 +4562,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Zaak'
+      required: true
+    ZaakEigenschap:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ZaakEigenschap'
       required: true
   securitySchemes:
     JWT-Claims:
