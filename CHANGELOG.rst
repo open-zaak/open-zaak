@@ -4,8 +4,7 @@ Changelog
 1.7.1-utrecht (2022-??-??)
 --------------------------
 
-New features
-------------
+**New features**
 
 * Added support for ``ZaakObject.objectTypeOverigeDefinitie``, so you can refer to
   object type and object registrations that are not part of the standard while keeping
@@ -18,6 +17,11 @@ New features
   and a ``objectData`` key which is also a valid ``jq`` expression pointing to the data
   of the related object.
 
+* Added support for modifying and deleting case characteristics (zaak eigenschappen).
+  However, only the value of the eigenschap can be changed, the link to the eigenschap or the link to
+  the zaak remain immutable.
+
+<<<<<<< HEAD
 1.7.1 (2022-07-19)
 ------------------
 
