@@ -19,7 +19,10 @@ src/openzaak/static/css/screen.css
 src/openzaak/static/css/admin/
 src/openzaak/static/js/
 docs/_build
-/volumes/
+
+/docker/volumes/
+/docker/volumes/
+!/docker/volumes/.gitkeep
 
 # Coverage reports
 /reports/

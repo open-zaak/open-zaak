@@ -47,8 +47,7 @@ services:
             - POSTGRES_DB=alfresco
         command: postgres -c max_connections=300 -c log_min_messages=LOG
         volumes:
-           - ./volumes/data/postgres-data:/var/lib/postgresql/data
-        #    - ./volumes/logs/postgres:/var/log/postgresql
+           - ./docker/volumes/data/postgres-data:/var/lib/postgresql/data
         ports:
             - 5434:5432
 
