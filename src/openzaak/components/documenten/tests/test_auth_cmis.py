@@ -277,7 +277,7 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
 
             UrlMapping.objects.create(
                 long_pattern="https://externe.catalogus.nl",
@@ -399,7 +399,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
 
             UrlMapping.objects.create(
                 long_pattern="https://externe.catalogus.nl",
@@ -532,7 +532,7 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
         site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
-            config = CMISConfig.objects.get()
+            config = CMISConfig.get_solo()
 
             UrlMapping.objects.create(
                 long_pattern="https://externe.catalogus.nl",

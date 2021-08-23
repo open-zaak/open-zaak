@@ -59,8 +59,31 @@ class CMISStorageFile(File):
 
 
 class CMISStorage(Storage):
+    _cmis_client = None
+
     def __init__(self, location=None, base_url=None, encoding=None):
-        self._client = get_cmis_client()
+        pass
+
+    @property
+    def cmis_client(self):
+        """
+        Wrap the CMIS client in a property to defer initialization.
+
+        The client is only initialized when it's actually needed, and then cached on the
+        instance rather than initializing it when the storage is initialized. On fresh
+        installations, the database has not migrated yet, and get_cmis_client needs the
+        django-solo table configuration table to exist. See #972 for more information.
+        """
+        assert settings.CMIS_ENABLED, "CMIS is not enabled"
+        if self._cmis_client is None:
+            self._cmis_client = get_cmis_client()
+        return self._cmis_client
+
+    def _clear_cached_properties(self, setting, **kwargs):
+        if setting == "CMIS_ENABLED":
+            self._cmis_client = None
+        if setting == "CMIS_URL_MAPPING_ENABLED":
+            self._cmis_client = None
 
     def _open(self, uuid_version, mode="rb") -> CMISStorageFile:
         return CMISStorageFile(uuid_version)
@@ -76,7 +99,7 @@ class CMISStorage(Storage):
 
     def url(self, uuid_version: str) -> str:
         # TODO create a custom link to support content URLs with SOAP
-        if "cmisws" in self._client.base_url:
+        if "cmisws" in self.cmis_client.base_url:
             raise RuntimeError(
                 "Webservice CMIS binding does not support file content URLs"
             )
@@ -84,9 +107,9 @@ class CMISStorage(Storage):
         cmis_doc = self._get_cmis_doc(uuid_version)
 
         # introspect repos
-        repositories = self._client.get_request(self._client.base_url)
+        repositories = self.cmis_client.get_request(self.cmis_client.base_url)
         for repo_id, repo_config in repositories.items():
-            if repo_config["repositoryUrl"] == self._client.base_url:
+            if repo_config["repositoryUrl"] == self.cmis_client.base_url:
                 break
         else:
             raise RuntimeError("Repository config not found for this client config!")
@@ -95,7 +118,9 @@ class CMISStorage(Storage):
 
         if vendor.lower() == Vendor.alfresco:
             # we know Alfresco URLs, we need the part before /api/
-            base_url = self._client.base_url[: self._client.base_url.index("/api/")]
+            base_url = self.cmis_client.base_url[
+                : self.cmis_client.base_url.index("/api/")
+            ]
             node_ref = cmis_doc.properties["alfcmis:nodeRef"]["value"]
             part = node_ref.replace("://", "/", 1)
             return f"{base_url}/s/api/node/content/{part}"
@@ -105,10 +130,10 @@ class CMISStorage(Storage):
     def _get_cmis_doc(self, uuid_version: str) -> Cmisdoc:
         uuid, wanted_version = uuid_version.split(";")
         wanted_version = int(Decimal(wanted_version))
-        cmis_doc = self._client.get_document(drc_uuid=uuid)
+        cmis_doc = self.cmis_client.get_document(drc_uuid=uuid)
         # only way to get a specific version
         if cmis_doc.versie != wanted_version:
-            all_versions = self._client.get_all_versions(cmis_doc)
+            all_versions = self.cmis_client.get_all_versions(cmis_doc)
             for version in all_versions:
                 if version.versie == wanted_version:
                     cmis_doc = version

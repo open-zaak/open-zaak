@@ -53,6 +53,54 @@ jobs:
       changed-js-files: ${{ steps.changed-js-files.outputs.any_changed }}
       changed-requirements: ${{ steps.changed-requirements.outputs.any_changed }}
 
+  cmis-init:  # regression check for #972
+    runs-on: ubuntu-latest
+    needs:
+      - changed-files
+
+    # only run tests if source files have changed (e.g. skip for PRs that only update docs)
+    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
+
+    name: Check 'install' with CMIS enabled
+
+    services:
+      postgres:
+        image: postgis/postgis:12-2.5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update \
+          && sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            gdal-bin
+
+      - name: Install dependencies
+        run: pip install -r requirements/ci.txt
+
+      - name: Test migrate and check
+        run: |
+          createdb -U postgres -h localhost openzaak
+          python src/manage.py check
+          python src/manage.py migrate
+        env:
+          CMIS_ENABLED: True
+          DB_NAME: openzaak
+
   tests:
     runs-on: ubuntu-latest
     needs:
