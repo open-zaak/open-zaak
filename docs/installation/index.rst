@@ -54,3 +54,4 @@ Reference
    reference/cli
    reference/logging
    reference/containers
+   reference/time
