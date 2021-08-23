@@ -4,7 +4,10 @@ from typing import List
 
 from django.db import models
 from django.db.models import Subquery
+from django.utils.translation import gettext_lazy as _
 
+import jwt
+from rest_framework.exceptions import PermissionDenied
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.middleware import (
     AuthMiddleware as _AuthMiddleware,
@@ -16,6 +19,16 @@ from openzaak.utils.constants import COMPONENT_MAPPING
 
 class JWTAuth(_JWTAuth):
     component = None
+
+    @property
+    def payload(self):
+        try:
+            return super().payload
+        except jwt.PyJWTError as exc:
+            raise PermissionDenied(
+                _("JWT did not validate, try checking the `nbf` and ``"),
+                code="jwt-{err}".format(err=type(exc).__name__.lower()),
+            )
 
     def _request_auth(self) -> list:
         return []

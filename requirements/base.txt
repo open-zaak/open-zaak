@@ -140,7 +140,7 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
-gemma-zds-client==0.13.0
+gemma-zds-client==0.15.0
     # via
     #   vng-api-common
     #   zgw-consumers
