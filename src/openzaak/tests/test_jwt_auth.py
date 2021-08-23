@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2021 Dimpact
 from django.test import override_settings
 
 from freezegun import freeze_time
