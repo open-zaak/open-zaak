@@ -26,7 +26,7 @@ class JWTAuth(_JWTAuth):
             return super().payload
         except jwt.PyJWTError as exc:
             raise PermissionDenied(
-                _("JWT did not validate, try checking the `nbf` and ``"),
+                _("JWT did not validate, try checking the `nbf` and `iat`"),
                 code="jwt-{err}".format(err=type(exc).__name__.lower()),
             )
 
