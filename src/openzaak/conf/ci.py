@@ -5,6 +5,8 @@ Continuous integration settings module.
 """
 import os
 
+from urllib3.exceptions import SystemTimeWarning
+
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 
 os.environ.setdefault("IS_HTTPS", "no")
@@ -32,3 +34,8 @@ AXES_BEHIND_REVERSE_PROXY = False
 # Open Zaak specific settings
 #
 NOTIFICATIONS_DISABLED = True
+
+#
+# Warning output
+#
+warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")

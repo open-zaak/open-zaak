@@ -6,6 +6,8 @@ import warnings
 
 from django.core.paginator import UnorderedObjectListWarning
 
+from urllib3.exceptions import SystemTimeWarning
+
 os.environ.setdefault("DEBUG", "yes")
 os.environ.setdefault("ALLOWED_HOSTS", "*")
 os.environ.setdefault(
@@ -101,6 +103,8 @@ warnings.filterwarnings(
 
 if "test" in sys.argv:
     NOTIFICATIONS_DISABLED = True
+
+    warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")
 
 # Override settings with local settings.
 try:
