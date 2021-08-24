@@ -4,6 +4,7 @@
 Continuous integration settings module.
 """
 import os
+import warnings
 
 from urllib3.exceptions import SystemTimeWarning
 
