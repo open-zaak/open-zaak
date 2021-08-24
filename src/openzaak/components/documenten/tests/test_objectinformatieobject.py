@@ -34,6 +34,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio")
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
@@ -313,7 +314,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(ObjectInformatieObject)

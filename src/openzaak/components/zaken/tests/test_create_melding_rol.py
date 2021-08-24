@@ -36,7 +36,10 @@ BEHANDELAAR = "https://example.com/orc/api/v1/brp/organisatorische-eenheden/d6cb
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
-@override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+@override_settings(
+    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200",
+    ALLOWED_HOSTS=["testserver", "openzaak.nl"],
+)
 class US169TestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True

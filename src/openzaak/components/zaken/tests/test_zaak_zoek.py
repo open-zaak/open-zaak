@@ -7,6 +7,7 @@ gemeente zodat ik weet wat er speelt of dat een melding al gedaan is.
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/42
 """
 from django.contrib.gis.geos import Point
+from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -20,6 +21,7 @@ from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
     heeft_alle_autorisaties = True

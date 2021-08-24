@@ -23,6 +23,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_besluittype_response, get_operation_url
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
