@@ -41,6 +41,7 @@ from .factories import ZaakFactory, ZaakInformatieObjectFactory
 from .utils import get_zaaktype_response
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
@@ -421,6 +422,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertTrue(Zaak.objects.exists())
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 @tag("external-urls")
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -522,7 +524,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         list_url = reverse(ZaakInformatieObject)
         data = {"zaak": zaak_url, "informatieobject": "http://example.com"}
 
-        response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", text="<html></html>")
+            response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -674,7 +678,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -850,7 +854,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

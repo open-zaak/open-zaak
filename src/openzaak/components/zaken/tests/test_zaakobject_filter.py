@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.test import override_settings
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
@@ -10,6 +12,7 @@ from .factories import ZaakObjectFactory
 from .utils import get_operation_url
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakObjectFilterTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
