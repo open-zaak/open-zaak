@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import logging
 import time
 from typing import Any, Dict
 from urllib.parse import urlparse
@@ -21,6 +22,8 @@ from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.utils import get_resource_for_path
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
+
+logger = logging.getLogger(__name__)
 
 
 class AuthRequired(permissions.BasePermission):
@@ -77,13 +80,11 @@ class AuthRequired(permissions.BasePermission):
         difference = current_timestamp - iat
         # check for "negative" clock drift
         if difference < 0 and difference < -settings.JWT_LEEWAY:
-            raise PermissionDenied(
-                _(
-                    "The JWT used for this request is not valid yet, the `iat` claim is "
-                    "newer than the current time stamp. You may want to check the clock drift "
-                    "on the Open Zaak server and/or tweak the `JWT_LEEWAY` setting."
-                ),
-                code="jwt-not-valid-yet",
+            logger.warning(
+                "The JWT used for this request is not valid yet, the `iat` claim is "
+                "newer than the current time stamp. You may want to check the clock drift "
+                "on the Open Zaak server and/or tweak the `JWT_LEEWAY` setting.",
+                extra={"payload": payload},
             )
 
         if difference >= (settings.JWT_EXPIRY + settings.JWT_LEEWAY):
