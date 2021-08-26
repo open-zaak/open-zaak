@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from rest_framework.request import Request
 
 from openzaak.utils.admin import ExtraContextAdminMixin
+from openzaak.utils.models import clone_object
 
 from ..api.viewsets import (
     BesluitTypeViewSet,
@@ -139,22 +140,20 @@ class NewVersionMixin(object):
     exclude_copy_relation = []
 
     def create_new_version(self, obj):
-        old_pk = obj.pk
-
-        # new obj
+        new_obj = clone_object(obj)
         version_date = date.today()
 
-        obj.pk = None
-        obj.uuid = uuid.uuid4()
-        obj.datum_begin_geldigheid = version_date
-        obj.versiedatum = version_date
-        obj.datum_einde_geldigheid = None
-        obj.concept = True
-        obj.save()
+        new_obj.pk = None
+        new_obj.uuid = uuid.uuid4()
+        new_obj.datum_begin_geldigheid = version_date
+        new_obj.versiedatum = version_date
+        new_obj.datum_einde_geldigheid = None
+        new_obj.concept = True
+        new_obj.save()
 
         related_objects = [
             f
-            for f in obj._meta.get_fields(include_hidden=True)
+            for f in new_obj._meta.get_fields(include_hidden=True)
             if (f.auto_created and not f.concrete)
         ]
 
@@ -168,14 +167,21 @@ class NewVersionMixin(object):
                 remote_model = relation.related_model
                 remote_field = relation.field.name
 
-                related_queryset = remote_model.objects.filter(**{remote_field: old_pk})
+                related_queryset = remote_model.objects.filter(**{remote_field: obj.pk})
                 for related_obj in related_queryset:
                     related_obj.pk = None
-                    setattr(related_obj, remote_field, obj)
+                    setattr(related_obj, remote_field, new_obj)
 
                     if hasattr(related_obj, "uuid"):
                         related_obj.uuid = uuid.uuid4()
                     related_obj.save()
+
+        return new_obj
+
+    def save_model(self, request, obj, form, change):
+        if "_addversion" in request.POST:
+            self.new_version_instance = self.create_new_version(obj)
+        super().save_model(request, obj, form, change)
 
     def response_change(self, request, obj):
         opts = self.model._meta
@@ -186,8 +192,6 @@ class NewVersionMixin(object):
         }
 
         if "_addversion" in request.POST:
-            self.create_new_version(obj)
-
             msg = format_html(
                 _('The new version of {name} "{obj}" was successfully created'),
                 **msg_dict,
@@ -196,7 +200,7 @@ class NewVersionMixin(object):
 
             redirect_url = reverse(
                 "admin:%s_%s_change" % (opts.app_label, opts.model_name),
-                args=(obj.pk,),
+                args=(self.new_version_instance.pk,),
                 current_app=self.admin_site.name,
             )
             redirect_url = add_preserved_filters(
@@ -439,16 +443,16 @@ class NotificationMixin:
             viewset.action = "update"
 
         if send_notification:
+            reference_object = getattr(self, "new_version_instance", obj)
+
             context_request = Request(request)
-            (
-                context_request.version,
-                context_request.versioning_scheme,
-            ) = viewset.determine_version(context_request)
+            # set versioning to context_request
+            (context_request.version, context_request.versioning_scheme) = viewset.determine_version(context_request)
 
             data = viewset.serializer_class(
-                obj, context={"request": context_request}
+                reference_object, context={"request": context_request}
             ).data
 
-            viewset.notify(status_code=200, data=data, instance=obj)
+            viewset.notify(status_code=200, data=data, instance=reference_object)
 
         super().save_model(request, obj, form, change)
