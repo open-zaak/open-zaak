@@ -36,11 +36,11 @@ from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
-    NewVersionMixin,
     NotificationMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
     ReadOnlyPublishedZaaktypeMixin,
+    SideEffectsMixin,
 )
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
@@ -104,7 +104,7 @@ class ZaakTypenRelatieInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
     ReadOnlyPublishedMixin,
-    NewVersionMixin,
+    SideEffectsMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     PublishAdminMixin,

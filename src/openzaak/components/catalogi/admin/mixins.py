@@ -28,6 +28,7 @@ from ..api.viewsets import (
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
+from .side_effects import VersioningSideEffect
 
 VIEWSET_FOR_MODEL = {
     ZaakType: ZaakTypeViewSet,
@@ -136,52 +137,38 @@ class PublishAdminMixin:
     publish_selected.short_description = _("Publish selected objects")
 
 
-class NewVersionMixin(object):
+class SideEffectsMixin:
+    """
+    Invoke handlers that depend on an object being saved in the admin.
+
+    An object can either be created or updated from the admin. This mixin merely holds
+    a reference to various loosely coupled handlers that introduce side effects from
+    the action of saving the main object.
+
+    Note that the django admin ``change_view`` method runs in an atomic transaction,
+    so any side effects should take this into account.
+
+    Also note that we tap into the ``save_related`` method, because this method gives
+    us the most context while ensuring the main object procesisng has been done.
+    """
+
     exclude_copy_relation = []
 
-    def create_new_version(self, obj):
-        new_obj = clone_object(obj)
-        version_date = date.today()
+    def save_related(self, request, form, formsets, change):
+        # we set up our custom handlers and processing
+        # since know we are using model forms, we can mutate form.instance for further
+        # calls, which is a bit of a nasty hack, but necessary since the admin instance
+        # is not thread safe
+        with VersioningSideEffect(
+            self, request, original=form.instance, change=change, form=form,
+        ) as side_effect:
+            super().save_related(request, form, formsets, change)
 
-        new_obj.pk = None
-        new_obj.uuid = uuid.uuid4()
-        new_obj.datum_begin_geldigheid = version_date
-        new_obj.versiedatum = version_date
-        new_obj.datum_einde_geldigheid = None
-        new_obj.concept = True
-        new_obj.save()
-
-        related_objects = [
-            f
-            for f in new_obj._meta.get_fields(include_hidden=True)
-            if (f.auto_created and not f.concrete)
-        ]
-
-        # related objects
-        for relation in related_objects:
-            if relation.name in self.exclude_copy_relation:
-                continue
-
-            # m2m relation included in the loop below as one_to_many
-            if relation.one_to_many or relation.one_to_one:
-                remote_model = relation.related_model
-                remote_field = relation.field.name
-
-                related_queryset = remote_model.objects.filter(**{remote_field: obj.pk})
-                for related_obj in related_queryset:
-                    related_obj.pk = None
-                    setattr(related_obj, remote_field, new_obj)
-
-                    if hasattr(related_obj, "uuid"):
-                        related_obj.uuid = uuid.uuid4()
-                    related_obj.save()
-
-        return new_obj
-
-    def save_model(self, request, obj, form, change):
-        if "_addversion" in request.POST:
-            self.new_version_instance = self.create_new_version(obj)
-        super().save_model(request, obj, form, change)
+        # we essentially "replace" the original object with the new version. In
+        # ``response_change``, the redirect to the new version should happen, which
+        # we do by overwriting the PK
+        if side_effect.new_version is not None:
+            form.instance.pk = side_effect.new_version.pk
 
     def response_change(self, request, obj):
         opts = self.model._meta
@@ -191,6 +178,8 @@ class NewVersionMixin(object):
             "obj": format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
         }
 
+        # because of the VersioningSideEffect, the form.instance has been mutated
+        # with the newly created object, so we can generate the right redirect link
         if "_addversion" in request.POST:
             msg = format_html(
                 _('The new version of {name} "{obj}" was successfully created'),
@@ -200,7 +189,7 @@ class NewVersionMixin(object):
 
             redirect_url = reverse(
                 "admin:%s_%s_change" % (opts.app_label, opts.model_name),
-                args=(self.new_version_instance.pk,),
+                args=(obj.pk,),
                 current_app=self.admin_site.name,
             )
             redirect_url = add_preserved_filters(
@@ -447,7 +436,10 @@ class NotificationMixin:
 
             context_request = Request(request)
             # set versioning to context_request
-            (context_request.version, context_request.versioning_scheme) = viewset.determine_version(context_request)
+            (
+                context_request.version,
+                context_request.versioning_scheme,
+            ) = viewset.determine_version(context_request)
 
             data = viewset.serializer_class(
                 reference_object, context={"request": context_request}
