@@ -25,6 +25,7 @@ from ..factories import (
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
+from ...models import ZaakType
 
 
 @override_settings(NOTIFICATIONS_DISABLED=False)
@@ -305,4 +306,50 @@ class NotificationAdminTests(
         called_urls = [item.url for item in m.request_history]
         self.assertNotIn(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        )
+
+    def test_zaaktype_notify_correct_resource_url_on_new_version(self, m):
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
+
+        zaaktype_old = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype_old.pk,))
+
+        response = self.app.get(url)
+        form = response.form
+        form["datum_einde_geldigheid"] = "2021-01-01"
+
+        with capture_on_commit_callbacks(execute=True):
+            form.submit("_addversion")
+
+        called_urls = [item.url for item in m.request_history]
+        self.assertIn(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        )
+
+        zaaktype_old.refresh_from_db()
+
+        zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
+
+        last_request = m.request_history[-1]
+        last_request_data = last_request.json()
+        self.assertEqual(
+            f"http://testserver{zaaktype_new.get_absolute_api_url()}",
+            last_request_data['resourceUrl']
         )
