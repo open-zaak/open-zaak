@@ -199,7 +199,7 @@ Get a copy of the deployment configuration
 
 You can either clone the https://github.com/open-zaak/open-zaak repository,
 or download and extract the latest ZIP:
-https://github.com/open-zaak/open-zaak/archive/master.zip
+https://github.com/open-zaak/open-zaak/archive/main.zip
 
 Ensure you have a suitable Python version
 -----------------------------------------
