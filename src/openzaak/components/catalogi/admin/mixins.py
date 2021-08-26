@@ -180,7 +180,7 @@ class NewVersionMixin(object):
 
     def save_model(self, request, obj, form, change):
         if "_addversion" in request.POST:
-            self.new_version_instance = self.create_new_version(obj)
+            request.new_version_instance = self.create_new_version(obj)
         super().save_model(request, obj, form, change)
 
     def response_change(self, request, obj):
@@ -192,6 +192,8 @@ class NewVersionMixin(object):
         }
 
         if "_addversion" in request.POST:
+            new_version_instance = getattr(request, "new_version_instance")
+
             msg = format_html(
                 _('The new version of {name} "{obj}" was successfully created'),
                 **msg_dict,
@@ -200,7 +202,7 @@ class NewVersionMixin(object):
 
             redirect_url = reverse(
                 "admin:%s_%s_change" % (opts.app_label, opts.model_name),
-                args=(self.new_version_instance.pk,),
+                args=(new_version_instance.pk,),
                 current_app=self.admin_site.name,
             )
             redirect_url = add_preserved_filters(
@@ -443,11 +445,14 @@ class NotificationMixin:
             viewset.action = "update"
 
         if send_notification:
-            reference_object = getattr(self, "new_version_instance", obj)
+            reference_object = getattr(request, "new_version_instance", obj)
 
             context_request = Request(request)
             # set versioning to context_request
-            (context_request.version, context_request.versioning_scheme) = viewset.determine_version(context_request)
+            (
+                context_request.version,
+                context_request.versioning_scheme,
+            ) = viewset.determine_version(context_request)
 
             data = viewset.serializer_class(
                 reference_object, context={"request": context_request}

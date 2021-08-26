@@ -19,13 +19,13 @@ from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils.tests import ClearCachesMixin
 
+from ...models import ZaakType
 from ..factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
-from ...models import ZaakType
 
 
 @override_settings(NOTIFICATIONS_DISABLED=False)
@@ -351,5 +351,5 @@ class NotificationAdminTests(
         last_request_data = last_request.json()
         self.assertEqual(
             f"http://testserver{zaaktype_new.get_absolute_api_url()}",
-            last_request_data['resourceUrl']
+            last_request_data["resourceUrl"],
         )
