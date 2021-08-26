@@ -22,10 +22,36 @@ from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import generate_jwt_auth, reverse
+from vng_api_common.tests import reverse
+from zds_client.compat import jwt_encode
 from zds_client.tests.mocks import MockClient
 
 from openzaak.accounts.models import User
+
+
+def generate_jwt_auth(
+    client_id,
+    secret,
+    user_id="test_user_id",
+    user_representation="Test User",
+    **extra_claims,
+):
+    """
+    Generate a JWT suitable for the second version of the AC-based auth.
+    """
+    now = int(timezone.now().timestamp())
+    payload = {
+        # standard claims
+        "iss": "testsuite",
+        "iat": now,
+        # custom
+        "client_id": client_id,
+        "user_id": user_id,
+        "user_representation": user_representation,
+    }
+    payload.update(**extra_claims)
+    encoded = jwt_encode(payload, secret, algorithm="HS256")
+    return f"Bearer {encoded}"
 
 
 class JWTAuthMixin:

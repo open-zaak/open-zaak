@@ -572,6 +572,8 @@ STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
+# leeway when comparing timestamps - non-zero value account for clock drift
+JWT_LEEWAY = config("JWT_LEEWAY", default=0)
 
 NLX_DIRECTORY_URLS = {
     NLXDirectories.demo: "https://directory.demo.nlx.io/",

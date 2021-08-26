@@ -229,7 +229,7 @@ flake8==3.8.3
     # via -r requirements/ci.txt
 freezegun==0.3.12
     # via -r requirements/ci.txt
-gemma-zds-client==0.13.0
+gemma-zds-client==0.15.0
     # via
     #   -r requirements/ci.txt
     #   vng-api-common
@@ -553,7 +553,7 @@ urllib3==1.26.6
     #   sentry-sdk
 uwsgi==2.0.19.1
     # via -r requirements/ci.txt
-vng-api-common==1.0.63
+vng-api-common==1.0.64
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
