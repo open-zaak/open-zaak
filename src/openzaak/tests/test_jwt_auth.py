@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
 from django.test import override_settings
+from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -23,6 +24,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
             self.secret,
             user_id=self.user_id,
             user_representation=self.user_representation,
+            nbf=int(timezone.now().timestamp()),
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
@@ -69,6 +71,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
             self.secret,
             user_id=self.user_id,
             user_representation=self.user_representation,
+            nbf=int(timezone.now().timestamp()),
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 

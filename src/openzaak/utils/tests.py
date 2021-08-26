@@ -44,7 +44,6 @@ def generate_jwt_auth(
         # standard claims
         "iss": "testsuite",
         "iat": now,
-        "nbf": now,
         # custom
         "client_id": client_id,
         "user_id": user_id,
