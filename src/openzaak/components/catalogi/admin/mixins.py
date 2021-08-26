@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import uuid
-from datetime import date
+from copy import deepcopy
 from urllib.parse import parse_qsl, quote as urlquote
 
 from django.contrib import messages
@@ -15,10 +14,7 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
-from rest_framework.request import Request
-
 from openzaak.utils.admin import ExtraContextAdminMixin
-from openzaak.utils.models import clone_object
 
 from ..api.viewsets import (
     BesluitTypeViewSet,
@@ -28,7 +24,7 @@ from ..api.viewsets import (
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
-from .side_effects import VersioningSideEffect
+from .side_effects import NotificationSideEffect, VersioningSideEffect
 
 VIEWSET_FOR_MODEL = {
     ZaakType: ZaakTypeViewSet,
@@ -155,12 +151,13 @@ class SideEffectsMixin:
     exclude_copy_relation = []
 
     def save_related(self, request, form, formsets, change):
+        original = deepcopy(form.instance)
         # we set up our custom handlers and processing
         # since know we are using model forms, we can mutate form.instance for further
         # calls, which is a bit of a nasty hack, but necessary since the admin instance
         # is not thread safe
         with VersioningSideEffect(
-            self, request, original=form.instance, change=change, form=form,
+            self, request, original=original, change=change, form=form,
         ) as side_effect:
             super().save_related(request, form, formsets, change)
 
@@ -169,6 +166,16 @@ class SideEffectsMixin:
         # we do by overwriting the PK
         if side_effect.new_version is not None:
             form.instance.pk = side_effect.new_version.pk
+
+        notification_side_effect = NotificationSideEffect(
+            self,
+            request,
+            original=side_effect.new_version
+            or original,  # use the new version if it exists
+            change=change,
+            form=form,
+        )
+        notification_side_effect.apply()
 
     def response_change(self, request, obj):
         opts = self.model._meta
@@ -416,35 +423,3 @@ class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
         if not obj:
             return True
         return obj.zaaktype.concept
-
-
-class NotificationMixin:
-    def save_model(self, request, obj, form, change):
-        viewset_cls = VIEWSET_FOR_MODEL[type(obj)]
-        viewset = viewset_cls()
-
-        send_notification = False
-        if not obj.pk or "_addversion" in request.POST:
-            send_notification = True
-            viewset.action = "create"
-        elif form.has_changed() or "_publish" in request.POST:
-            send_notification = True
-            viewset.action = "update"
-
-        if send_notification:
-            reference_object = getattr(self, "new_version_instance", obj)
-
-            context_request = Request(request)
-            # set versioning to context_request
-            (
-                context_request.version,
-                context_request.versioning_scheme,
-            ) = viewset.determine_version(context_request)
-
-            data = viewset.serializer_class(
-                reference_object, context={"request": context_request}
-            ).data
-
-            viewset.notify(status_code=200, data=data, instance=reference_object)
-
-        super().save_model(request, obj, form, change)

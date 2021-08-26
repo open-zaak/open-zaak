@@ -10,9 +10,9 @@ from .forms import BesluitTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
-    NotificationMixin,
     PublishAdminMixin,
     ReadOnlyPublishedMixin,
+    SideEffectsMixin,
 )
 
 
@@ -23,7 +23,7 @@ class BesluitTypeAdmin(
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
     PublishAdminMixin,
-    NotificationMixin,
+    SideEffectsMixin,
     admin.ModelAdmin,
 ):
     # List

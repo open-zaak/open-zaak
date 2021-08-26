@@ -3,6 +3,8 @@
 import uuid
 from datetime import date
 
+from rest_framework.request import Request
+
 from openzaak.utils.models import clone_object
 
 from ..api.viewsets import (
@@ -92,23 +94,21 @@ class VersioningSideEffect(SideEffectBase):
 
 class NotificationSideEffect(SideEffectBase):
     def apply(self):
-        obj = self.new_version or self.original
-
-        viewset_cls = VIEWSET_FOR_MODEL[type(obj)]
+        viewset_cls = VIEWSET_FOR_MODEL[type(self.original)]
         viewset = viewset_cls()
 
         send_notification = False
-        if not obj.pk or "_addversion" in request.POST:
+        if not self.original.pk or "_addversion" in self.request.POST:
             send_notification = True
             viewset.action = "create"
-        elif form.has_changed() or "_publish" in request.POST:
+        elif self.form.has_changed() or "_publish" in self.request.POST:
             send_notification = True
             viewset.action = "update"
 
         if send_notification:
-            reference_object = getattr(self, "new_version_instance", obj)
+            reference_object = getattr(self, "new_version_instance", self.original)
 
-            context_request = Request(request)
+            context_request = Request(self.request)
             # set versioning to context_request
             (
                 context_request.version,
