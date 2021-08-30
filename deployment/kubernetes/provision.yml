@@ -4,8 +4,6 @@
   hosts: localhost
 
   vars:
-    acme_email: info@maykinmedia.nl
-    needs_ingress: yes
     needs_nfs: yes
 
     # Google Cloud SQL already has Postgis
@@ -58,8 +56,3 @@
       when: needs_nfs
       vars:
         disk_name: gce-nfs-disk-perf
-
-
-  tasks:
-    - import_tasks: tasks/ingress.yml
-      when: needs_ingress
