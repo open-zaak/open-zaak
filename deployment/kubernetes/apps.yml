@@ -7,8 +7,6 @@
     - vars/db_credentials.yml
     - vars/open-zaak.yml
     - vars/open-notificaties.yml
-    # NLX is done separately via the nlx.yml playbook.
-    # - vars/nlx.yml
 
   collections:
     - openzaak.deploy
@@ -16,7 +14,7 @@
   roles:
     - role: open_zaak_k8s
       vars:  # these override vars_files
-        openzaak_version: '1.4.0'
+        openzaak_version: latest
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
       tags:

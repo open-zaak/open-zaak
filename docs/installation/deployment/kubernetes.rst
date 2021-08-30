@@ -30,6 +30,9 @@ determine your hardware requirements.
     Head's up! If you're familiar with Helm_, there are community-provided Helm charts_
     for Open Zaak and Open Notificaties!
 
+.. warning:: This section of the documentation is outdated and more verbose than it
+   should be. We're working on this!
+
 .. _Helm: https://helm.sh
 .. _charts: https://github.com/open-zaak/charts
 
