@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import uuid
-from datetime import date
+from copy import deepcopy
 from urllib.parse import parse_qsl, quote as urlquote
 
 from django.contrib import messages
@@ -15,8 +14,6 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
-from rest_framework.request import Request
-
 from openzaak.utils.admin import ExtraContextAdminMixin
 
 from ..api.viewsets import (
@@ -27,6 +24,7 @@ from ..api.viewsets import (
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import CatalogusImportForm
 from .helpers import AdminForm
+from .side_effects import NotificationSideEffect, VersioningSideEffect
 
 VIEWSET_FOR_MODEL = {
     ZaakType: ZaakTypeViewSet,
@@ -135,47 +133,49 @@ class PublishAdminMixin:
     publish_selected.short_description = _("Publish selected objects")
 
 
-class NewVersionMixin(object):
+class SideEffectsMixin:
+    """
+    Invoke handlers that depend on an object being saved in the admin.
+
+    An object can either be created or updated from the admin. This mixin merely holds
+    a reference to various loosely coupled handlers that introduce side effects from
+    the action of saving the main object.
+
+    Note that the django admin ``change_view`` method runs in an atomic transaction,
+    so any side effects should take this into account.
+
+    Also note that we tap into the ``save_related`` method, because this method gives
+    us the most context while ensuring the main object procesisng has been done.
+    """
+
     exclude_copy_relation = []
 
-    def create_new_version(self, obj):
-        old_pk = obj.pk
+    def save_related(self, request, form, formsets, change):
+        original = deepcopy(form.instance)
+        # we set up our custom handlers and processing
+        # since know we are using model forms, we can mutate form.instance for further
+        # calls, which is a bit of a nasty hack, but necessary since the admin instance
+        # is not thread safe
+        with VersioningSideEffect(
+            self, request, original=original, change=change, form=form,
+        ) as side_effect:
+            super().save_related(request, form, formsets, change)
 
-        # new obj
-        version_date = date.today()
+        # we essentially "replace" the original object with the new version. In
+        # ``response_change``, the redirect to the new version should happen, which
+        # we do by overwriting the PK
+        if side_effect.new_version is not None:
+            form.instance.pk = side_effect.new_version.pk
 
-        obj.pk = None
-        obj.uuid = uuid.uuid4()
-        obj.datum_begin_geldigheid = version_date
-        obj.versiedatum = version_date
-        obj.datum_einde_geldigheid = None
-        obj.concept = True
-        obj.save()
-
-        related_objects = [
-            f
-            for f in obj._meta.get_fields(include_hidden=True)
-            if (f.auto_created and not f.concrete)
-        ]
-
-        # related objects
-        for relation in related_objects:
-            if relation.name in self.exclude_copy_relation:
-                continue
-
-            # m2m relation included in the loop below as one_to_many
-            if relation.one_to_many or relation.one_to_one:
-                remote_model = relation.related_model
-                remote_field = relation.field.name
-
-                related_queryset = remote_model.objects.filter(**{remote_field: old_pk})
-                for related_obj in related_queryset:
-                    related_obj.pk = None
-                    setattr(related_obj, remote_field, obj)
-
-                    if hasattr(related_obj, "uuid"):
-                        related_obj.uuid = uuid.uuid4()
-                    related_obj.save()
+        notification_side_effect = NotificationSideEffect(
+            self,
+            request,
+            original=side_effect.new_version
+            or original,  # use the new version if it exists
+            change=change,
+            form=form,
+        )
+        notification_side_effect.apply()
 
     def response_change(self, request, obj):
         opts = self.model._meta
@@ -185,9 +185,9 @@ class NewVersionMixin(object):
             "obj": format_html('<a href="{}">{}</a>', urlquote(request.path), obj),
         }
 
+        # because of the VersioningSideEffect, the form.instance has been mutated
+        # with the newly created object, so we can generate the right redirect link
         if "_addversion" in request.POST:
-            self.create_new_version(obj)
-
             msg = format_html(
                 _('The new version of {name} "{obj}" was successfully created'),
                 **msg_dict,
@@ -423,32 +423,3 @@ class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
         if not obj:
             return True
         return obj.zaaktype.concept
-
-
-class NotificationMixin:
-    def save_model(self, request, obj, form, change):
-        viewset_cls = VIEWSET_FOR_MODEL[type(obj)]
-        viewset = viewset_cls()
-
-        send_notification = False
-        if not obj.pk or "_addversion" in request.POST:
-            send_notification = True
-            viewset.action = "create"
-        elif form.has_changed() or "_publish" in request.POST:
-            send_notification = True
-            viewset.action = "update"
-
-        if send_notification:
-            context_request = Request(request)
-            (
-                context_request.version,
-                context_request.versioning_scheme,
-            ) = viewset.determine_version(context_request)
-
-            data = viewset.serializer_class(
-                obj, context={"request": context_request}
-            ).data
-
-            viewset.notify(status_code=200, data=data, instance=obj)
-
-        super().save_model(request, obj, form, change)
