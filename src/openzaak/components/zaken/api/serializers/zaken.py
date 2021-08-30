@@ -386,6 +386,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "statustoelichting",
         )
         validators = [
+            UniqueTogetherValidator(
+                queryset=Status.objects.all(), fields=("zaak", "datum_status_gezet"),
+            ),
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
