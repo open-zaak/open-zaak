@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
 import uuid
+from abc import ABC, abstractmethod
 from datetime import date
 
 from rest_framework.request import Request
@@ -21,7 +22,7 @@ VIEWSET_FOR_MODEL = {
 }
 
 
-class SideEffectBase:
+class SideEffectBase(ABC):
     def __init__(self, modeladmin, request, original, change, form):
         self.modeladmin = modeladmin
         self.request = request
@@ -39,6 +40,10 @@ class SideEffectBase:
 
         self.apply()
 
+    @abstractmethod
+    def apply(self):
+        pass
+
 
 class VersioningSideEffect(SideEffectBase):
 
@@ -54,7 +59,6 @@ class VersioningSideEffect(SideEffectBase):
         new_obj = clone_object(self.original)
         version_date = date.today()
 
-        new_obj.pk = None
         new_obj.uuid = uuid.uuid4()
         new_obj.datum_begin_geldigheid = version_date
         new_obj.versiedatum = version_date
