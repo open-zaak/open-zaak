@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
+from datetime import datetime
 from unittest.mock import patch
 
 from django.conf import settings
 from django.test import override_settings, tag
+from django.utils.timezone import make_aware
 
 import requests_mock
 from freezegun import freeze_time
@@ -859,6 +861,24 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(validation_error["code"], "indicatiegebruiksrecht-unset")
+
+    def test_unique_date_status_set_zaak_combination(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        timestamp = make_aware(datetime(2021, 8, 30, 10, 0, 0))
+        StatusFactory.create(zaak=zaak, datum_status_gezet=timestamp)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": f"http://testserver{self.statustype_url}",
+                "datumStatusGezet": timestamp.isoformat(),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class ResultaatValidationTests(JWTAuthMixin, APITestCase):
