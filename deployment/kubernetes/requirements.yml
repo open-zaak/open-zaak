@@ -1,4 +1,4 @@
 collections:
-  - name: openzaak.deploy
-    version: 0.14.4
-    source: https://galaxy.ansible.com
+  - name: git@github.com:open-zaak/ansible-collection.git
+    type: git
+    version: main
