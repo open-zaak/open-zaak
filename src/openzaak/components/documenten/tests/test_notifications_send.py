@@ -6,17 +6,20 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+import requests_mock
 from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests import mock_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import JWTAuthMixin
@@ -25,6 +28,7 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactor
 from .utils import get_operation_url
 
 
+@requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
@@ -32,10 +36,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
+    def test_send_notif_create_enkelvoudiginformatieobject(self, m, mock_client):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
+        mock_oas_get(m)
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         client = mock_client.return_value
@@ -77,13 +82,18 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
+@requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_eio_create_fail_send_notification_create_db_entry(self):
+    def test_eio_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("enkelvoudiginformatieobject_create")
 
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -133,7 +143,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_eio_delete_fail_send_notification_create_db_entry(self):
+    def test_eio_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)
 
@@ -163,7 +177,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_gebruiksrechten_create_fail_send_notification_create_db_entry(self):
+    def test_gebruiksrechten_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("gebruiksrechten_create")
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -202,7 +220,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self):
+    def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         gebruiksrechten = GebruiksrechtenFactory.create()
 
         url = reverse(gebruiksrechten)
