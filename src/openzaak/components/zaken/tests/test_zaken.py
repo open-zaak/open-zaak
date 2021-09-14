@@ -38,7 +38,13 @@ from ..api.scopes import (
 from ..constants import BetalingsIndicatie
 from ..models import Medewerker, NatuurlijkPersoon, OrganisatorischeEenheid, Zaak
 from .constants import POLYGON_AMSTERDAM_CENTRUM
-from .factories import RolFactory, StatusFactory, ZaakFactory
+from .factories import (
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
+)
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
@@ -287,6 +293,66 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "max_length")
+
+    def test_get_zaak_inline_resources(self):
+        self.applicatie.heeft_alle_autorisaties = True
+        self.applicatie.save()
+
+        zaak = ZaakFactory.create()
+        url = reverse(zaak)
+
+        rol = RolFactory.create(zaak=zaak)
+        zio = ZaakInformatieObjectFactory.create(zaak=zaak)
+        zaakobject = ZaakObjectFactory.create(zaak=zaak)
+
+        rol_url = f"http://testserver{reverse(rol)}"
+        zio_url = f"http://testserver{reverse(zio)}"
+        zaakobject_url = f"http://testserver{reverse(zaakobject)}"
+
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        expected_data = {
+            "archiefactiedatum": None,
+            "archiefnominatie": None,
+            "archiefstatus": zaak.archiefstatus,
+            "betalingsindicatie": "",
+            "betalingsindicatie_weergave": "",
+            "bronorganisatie": zaak.bronorganisatie,
+            "communicatiekanaal": "",
+            "deelzaken": [],
+            "eigenschappen": [],
+            "einddatum": None,
+            "einddatum_gepland": None,
+            "hoofdzaak": None,
+            "identificatie": zaak.identificatie,
+            "kenmerken": [],
+            "laatste_betaaldatum": None,
+            "omschrijving": "",
+            "opschorting": {"indicatie": False, "reden": ""},
+            "producten_of_diensten": [],
+            "publicatiedatum": None,
+            "registratiedatum": str(zaak.registratiedatum),
+            "relevante_andere_zaken": [],
+            "resultaat": None,
+            "rollen": [rol_url],
+            "selectielijstklasse": "",
+            "startdatum": str(zaak.startdatum),
+            "status": None,
+            "toelichting": "",
+            "uiterlijke_einddatum_afdoening": None,
+            "url": f"http://testserver{url}",
+            "uuid": str(zaak.uuid),
+            "verantwoordelijke_organisatie": zaak.verantwoordelijke_organisatie,
+            "verlenging": {"reden": "", "duur": None},
+            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            "zaakgeometrie": None,
+            "zaakinformatieobjecten": [zio_url],
+            "zaakobjecten": [zaakobject_url],
+            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+        }
+        self.assertDictEqual(dict(response.data), expected_data)
 
     def test_zaak_met_producten(self):
         url = reverse("zaak-list")

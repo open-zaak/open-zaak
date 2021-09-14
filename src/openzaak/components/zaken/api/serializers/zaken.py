@@ -139,6 +139,13 @@ class ZaakSerializer(
         parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
         source="zaakeigenschap_set",
     )
+    rollen = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        view_name="rol-detail",
+        source="rol_set",
+    )
     status = serializers.HyperlinkedRelatedField(
         source="current_status_uuid",
         read_only=True,
@@ -146,6 +153,20 @@ class ZaakSerializer(
         view_name="status-detail",
         lookup_url_kwarg="uuid",
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
+    )
+    zaakinformatieobjecten = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        view_name="zaakinformatieobject-detail",
+        source="zaakinformatieobject_set",
+    )
+    zaakobjecten = NestedHyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        view_name="zaakobject-detail",
+        source="zaakobject_set",
     )
 
     kenmerken = ZaakKenmerkSerializer(
@@ -235,7 +256,10 @@ class ZaakSerializer(
             "relevante_andere_zaken",
             "eigenschappen",
             # read-only veld, on-the-fly opgevraagd
+            "rollen",
             "status",
+            "zaakinformatieobjecten",
+            "zaakobjecten",
             # Writable inline resource, as opposed to eigenschappen for demo
             # purposes. Eventually, we need to choose one form.
             "kenmerken",
