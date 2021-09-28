@@ -306,7 +306,7 @@ class CMISOioIterable(BaseIterable):
         unique_filters = self._combine_duplicate_filters(filters)
 
         lhs, rhs = self._normalize_filters(unique_filters)
-        oios = queryset.cmis_client.query(self.return_type, lhs, rhs)
+        oios = queryset.cmis_client.filter_oios(lhs, rhs)
         # To avoid attempting prefetch of the canonical objects
         queryset._prefetch_done = True
 
