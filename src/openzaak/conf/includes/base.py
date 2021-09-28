@@ -97,6 +97,15 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
         },
     },
+    "cmis-client": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
+        "TIMEOUT": 120,
+    },
 }
 
 #

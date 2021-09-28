@@ -72,6 +72,7 @@ CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "cmis-client": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
 REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
