@@ -130,7 +130,7 @@ djangorestframework==3.12.4
     #   drf-nested-routers
     #   drf-yasg
     #   vng-api-common
-drc-cmis==1.2.6
+git+https://github.com/open-zaak/cmis-adapter.git@ca170de788ca4b8c1f9b9a420d81b523cec69662#egg=drc_cmis
     # via -r requirements/base.in
 drf-nested-routers==0.93.3
     # via vng-api-common
@@ -140,6 +140,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
+furl==2.1.3
+    # via drc-cmis
 gemma-zds-client==0.15.0
     # via
     #   vng-api-common
@@ -174,6 +176,8 @@ mozilla-django-oidc-db==0.3.0
     # via -r requirements/base.in
 mozilla-django-oidc==1.2.4
     # via mozilla-django-oidc-db
+orderedmultidict==1.0.1
+    # via furl
 oyaml==1.0
     # via vng-api-common
 packaging==20.9
@@ -238,8 +242,10 @@ six==1.11.0
     #   cmislib-maykin
     #   django-extra-views
     #   django-markup
+    #   furl
     #   isodate
     #   mozilla-django-oidc
+    #   orderedmultidict
     #   pyopenssl
     #   python-dateutil
 sqlparse==0.3.0

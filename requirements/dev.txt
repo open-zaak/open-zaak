@@ -207,7 +207,7 @@ docutils==0.15.2
     # via
     #   recommonmark
     #   sphinx
-drc-cmis==1.2.6
+git+https://github.com/open-zaak/cmis-adapter.git@ca170de788ca4b8c1f9b9a420d81b523cec69662#egg=drc_cmis
     # via -r requirements/ci.txt
 drf-nested-routers==0.93.3
     # via
@@ -229,6 +229,10 @@ flake8==3.8.3
     # via -r requirements/ci.txt
 freezegun==0.3.12
     # via -r requirements/ci.txt
+furl==2.1.3
+    # via
+    #   -r requirements/ci.txt
+    #   drc-cmis
 gemma-zds-client==0.15.0
     # via
     #   -r requirements/ci.txt
@@ -323,6 +327,10 @@ oauthlib==3.1.0
     # via requests-oauthlib
 openshift==0.11.2
     # via -r requirements/../deployment/requirements.in
+orderedmultidict==1.0.1
+    # via
+    #   -r requirements/ci.txt
+    #   furl
 oyaml==1.0
     # via
     #   -r requirements/ci.txt
@@ -472,12 +480,14 @@ six==1.11.0
     #   django-markup
     #   faker
     #   freezegun
+    #   furl
     #   google-auth
     #   isodate
     #   jsonschema
     #   kubernetes
     #   mozilla-django-oidc
     #   openshift
+    #   orderedmultidict
     #   pyopenssl
     #   python-dateutil
     #   requests-mock

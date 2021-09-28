@@ -39,7 +39,8 @@ drf-yasg
 drf-writable-nested
 vng-api-common<1.1
 humanize
-drc-cmis
+# drc-cmis
+git+https://github.com/open-zaak/cmis-adapter.git@ca170de788ca4b8c1f9b9a420d81b523cec69662#egg=drc_cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi
