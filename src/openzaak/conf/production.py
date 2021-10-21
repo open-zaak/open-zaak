@@ -56,8 +56,25 @@ if subpath and subpath != "/":
     STATIC_URL = f"{subpath}{STATIC_URL}"
     MEDIA_URL = f"{subpath}{MEDIA_URL}"
 
+ENVIRONMENT = config("ENVIRONMENT", "Utrecht")
+
+# Set up APM
+ELASTIC_APM_SERVER_URL = config("ELASTIC_APM_SERVER_URL", None)
+ELASTIC_APM = {
+    "SERVICE_NAME": f"Open Zaak - {ENVIRONMENT}",
+    "SECRET_TOKEN": config("ELASTIC_APM_SECRET_TOKEN", "default"),
+    "SERVER_URL": ELASTIC_APM_SERVER_URL,
+}
+if not ELASTIC_APM_SERVER_URL:
+    ELASTIC_APM["ENABLED"] = False
+    ELASTIC_APM["SERVER_URL"] = "http://localhost:8200"
+else:
+    MIDDLEWARE = ["elasticapm.contrib.django.middleware.TracingMiddleware"] + MIDDLEWARE
+    INSTALLED_APPS = INSTALLED_APPS + [
+        "elasticapm.contrib.django",
+    ]
+
 #
 # Custom settings overrides
 #
-ENVIRONMENT = "production"
 ENVIRONMENT_SHOWN_IN_ADMIN = False
