@@ -34,6 +34,7 @@ cachetools==4.1.1
 certifi==2018.4.16
     # via
     #   -r requirements/ci.txt
+    #   elastic-apm
     #   kubernetes
     #   requests
     #   self-certifi
@@ -219,6 +220,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/ci.txt
     #   vng-api-common
+elastic-apm==6.6.0
+    # via -r requirements/ci.txt
 factory-boy==2.12.0
     # via -r requirements/ci.txt
 faker==2.0.1
@@ -548,6 +551,7 @@ uritemplate==3.0.0
 urllib3==1.26.6
     # via
     #   -r requirements/ci.txt
+    #   elastic-apm
     #   kubernetes
     #   requests
     #   sentry-sdk
