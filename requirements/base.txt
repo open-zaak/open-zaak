@@ -24,6 +24,7 @@ cattrs==1.10.0
     # via requests-cache
 certifi==2021.10.8
     # via
+    #   elastic-apm
     #   requests
     #   self-certifi
     #   sentry-sdk
@@ -162,6 +163,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
+elastic-apm==6.6.0
+    # via -r requirements/base.in
 face==20.1.1
     # via glom
 faker==13.3.2
@@ -305,6 +308,7 @@ url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.9
     # via
+    #   elastic-apm
     #   requests
     #   requests-cache
     #   sentry-sdk
