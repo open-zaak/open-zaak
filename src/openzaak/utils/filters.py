@@ -23,3 +23,17 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         qs = qs.annotate(**{self.field_name: order_expression})
         numeric_value = VertrouwelijkheidsAanduiding.get_choice(value).order
         return super().filter(qs, numeric_value)
+
+
+# TODO move to vng-api-common
+class ExpandFilter(filters.ChoiceFilter):
+    def __init__(self, *args, **kwargs):
+        serializer_class = kwargs.pop("serializer_class")
+        kwargs.setdefault(
+            "choices", [(x, x) for x in serializer_class.Meta.expandable_fields]
+        )
+
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        return qs
