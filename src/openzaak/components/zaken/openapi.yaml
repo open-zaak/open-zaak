@@ -5526,6 +5526,13 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        rollen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         status:
           title: Status
           description: Indien geen status bekend is, dan is de waarde 'null'
@@ -5533,6 +5540,20 @@ components:
           format: uri
           readOnly: true
           nullable: true
+        zaakinformatieobjecten:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        zaakobjecten:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         kenmerken:
           description: Lijst van kenmerken. Merk op dat refereren naar gerelateerde
             objecten beter kan via `ZaakObject`.
