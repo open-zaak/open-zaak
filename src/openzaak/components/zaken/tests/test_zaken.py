@@ -39,8 +39,10 @@ from ..constants import BetalingsIndicatie
 from ..models import Medewerker, NatuurlijkPersoon, OrganisatorischeEenheid, Zaak
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import (
+    ResultaatFactory,
     RolFactory,
     StatusFactory,
+    ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
@@ -1007,3 +1009,256 @@ class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 1)
+
+
+class ZakenExpandTests(JWTAuthMixin, APITestCase):
+
+    scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_ALLES_LEZEN]
+    component = ComponentTypes.zrc
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+        cls.zaaktype_url = reverse(cls.zaaktype)
+        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype_url = reverse(cls.statustype)
+        cls.statustype2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.statustype2_url = reverse(cls.statustype2)
+
+        super().setUpTestData()
+
+    def test_list_expand(self):
+        zaak = ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+
+        # Create related resources
+        RolFactory.create_batch(2, zaak=zaak)
+        ZaakObjectFactory.create_batch(2, zaak=zaak)
+        ZaakInformatieObjectFactory.create_batch(2, zaak=zaak)
+        ZaakEigenschapFactory.create_batch(2, zaak=zaak)
+        zaak_status = StatusFactory.create(zaak=zaak)
+        resultaat = ResultaatFactory.create(zaak=zaak)
+
+        # Create unrelated resources
+        RolFactory.create_batch(2)
+        ZaakObjectFactory.create_batch(2)
+        ZaakInformatieObjectFactory.create_batch(2)
+        ZaakEigenschapFactory.create_batch(2)
+        StatusFactory.create_batch(2)
+        ResultaatFactory.create_batch(2)
+
+        url = reverse("zaak-list")
+
+        for resource in [
+            "status",
+            "resultaat",
+            "eigenschappen",
+            "rollen",
+            "zaakobjecten",
+            "zaakinformatieobjecten",
+        ]:
+            with self.subTest(resource=resource):
+                response = self.client.get(
+                    url, {"expand": resource}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["count"], 1)
+
+                inline_resources = response.data["results"][0][resource]
+
+                if resource == "status":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(zaak_status.uuid))
+                elif resource == "resultaat":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(resultaat.uuid))
+                else:
+                    self.assertEqual(len(inline_resources), 2)
+                    self.assertEqual(
+                        *[r["zaak"] for r in inline_resources],
+                        f"http://testserver{zaak_url}",
+                    )
+
+    def test_list_expand_some(self):
+        zaak = ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        RolFactory.create_batch(2, zaak=zaak)
+        ZaakObjectFactory.create_batch(2, zaak=zaak)
+        ZaakInformatieObjectFactory.create_batch(2, zaak=zaak)
+
+        # Create unrelated resources
+        RolFactory.create_batch(2)
+        ZaakObjectFactory.create_batch(2)
+        ZaakInformatieObjectFactory.create_batch(2)
+
+        url = reverse("zaak-list")
+
+        # for resource in ["rollen", "zaakobjecten", "zaakinformatieobjecten"]:
+        response = self.client.get(
+            url,
+            {"expand": ["zaakobjecten", "zaakinformatieobjecten"]},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 1)
+
+        zaakobjecten = response.data["results"][0]["zaakobjecten"]
+        self.assertEqual(len(zaakobjecten), 2)
+        self.assertEqual(
+            *[r["zaak"] for r in zaakobjecten], f"http://testserver{zaak_url}",
+        )
+
+        zaakinformatieobjecten = response.data["results"][0]["zaakinformatieobjecten"]
+        self.assertEqual(len(zaakinformatieobjecten), 2)
+        self.assertEqual(
+            *[r["zaak"] for r in zaakinformatieobjecten],
+            f"http://testserver{zaak_url}",
+        )
+
+        # Rollen should not be expanded
+        rollen = response.data["results"][0]["rollen"]
+        self.assertEqual(len(rollen), 2)
+        self.assertTrue(*[isinstance(r, str) for r in rollen])
+
+    def test_list_expand_all(self):
+        zaak = ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+
+        # Create related resources
+        RolFactory.create_batch(2, zaak=zaak)
+        ZaakObjectFactory.create_batch(2, zaak=zaak)
+        ZaakInformatieObjectFactory.create_batch(2, zaak=zaak)
+        ZaakEigenschapFactory.create_batch(2, zaak=zaak)
+        zaak_status = StatusFactory.create(zaak=zaak)
+        resultaat = ResultaatFactory.create(zaak=zaak)
+
+        # Create unrelated resources
+        RolFactory.create_batch(2)
+        ZaakObjectFactory.create_batch(2)
+        ZaakInformatieObjectFactory.create_batch(2)
+        ZaakEigenschapFactory.create_batch(2)
+        StatusFactory.create_batch(2)
+        ResultaatFactory.create_batch(2)
+
+        url = reverse(Zaak)
+
+        resources = [
+            "status",
+            "resultaat",
+            "eigenschappen",
+            "rollen",
+            "zaakobjecten",
+            "zaakinformatieobjecten",
+        ]
+
+        response = self.client.get(url, {"expand": resources}, **ZAAK_READ_KWARGS)
+
+        for resource in resources:
+            with self.subTest(resource=resource):
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["count"], 1)
+
+                inline_resources = response.data["results"][0][resource]
+
+                if resource == "status":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(zaak_status.uuid))
+                elif resource == "resultaat":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(resultaat.uuid))
+                else:
+                    self.assertEqual(len(inline_resources), 2)
+                    self.assertEqual(
+                        *[r["zaak"] for r in inline_resources],
+                        f"http://testserver{zaak_url}",
+                    )
+
+    def test_detail_expand(self):
+        zaak = ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+
+        # Create related resources
+        RolFactory.create_batch(2, zaak=zaak)
+        ZaakObjectFactory.create_batch(2, zaak=zaak)
+        ZaakInformatieObjectFactory.create_batch(2, zaak=zaak)
+        ZaakEigenschapFactory.create_batch(2, zaak=zaak)
+        zaak_status = StatusFactory.create(zaak=zaak)
+        resultaat = ResultaatFactory.create(zaak=zaak)
+
+        # Create unrelated resources
+        RolFactory.create_batch(2)
+        ZaakObjectFactory.create_batch(2)
+        ZaakInformatieObjectFactory.create_batch(2)
+        ZaakEigenschapFactory.create_batch(2)
+        StatusFactory.create_batch(2)
+        ResultaatFactory.create_batch(2)
+
+        url = reverse(zaak)
+
+        for resource in [
+            "status",
+            "resultaat",
+            "eigenschappen",
+            "rollen",
+            "zaakobjecten",
+            "zaakinformatieobjecten",
+        ]:
+            with self.subTest(resource=resource):
+                response = self.client.get(
+                    url, {"expand": resource}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                inline_resources = response.data[resource]
+
+                if resource == "status":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(zaak_status.uuid))
+                elif resource == "resultaat":
+                    self.assertEqual(
+                        inline_resources["zaak"], f"http://testserver{zaak_url}"
+                    )
+                    self.assertEqual(inline_resources["uuid"], str(resultaat.uuid))
+                else:
+                    self.assertEqual(len(inline_resources), 2)
+                    self.assertEqual(
+                        *[r["zaak"] for r in inline_resources],
+                        f"http://testserver{zaak_url}",
+                    )
+
+    def test_list_expand_invalid_parameter(self):
+        ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+
+        url = reverse(Zaak)
+
+        response = self.client.get(url, {"expand": "foo"}, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "expand")
+        self.assertEqual(error["code"], "invalid_choice")
+
+    def test_detail_expand_invalid_parameter(self):
+        zaak = ZaakFactory.create(startdatum="2019-01-01", zaaktype=self.zaaktype)
+
+        url = reverse(zaak)
+
+        response = self.client.get(url, {"expand": "foo"}, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "expand")
+        self.assertEqual(error["code"], "invalid_choice")
