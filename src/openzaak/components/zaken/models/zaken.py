@@ -337,9 +337,9 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def current_status_uuid(self):
+    def current_status(self):
         status = self.status_set.first()
-        return status.uuid if status else None
+        return status
 
     @property
     def is_closed(self) -> bool:

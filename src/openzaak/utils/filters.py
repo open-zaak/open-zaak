@@ -31,6 +31,7 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         return super().filter(qs, numeric_value)
 
 
+# TODO move to vng-api-common
 class OrderingFilter(drf_filters.OrderingFilter):
     def get_schema_fields(self, view):
         """
@@ -57,3 +58,17 @@ class OrderingFilter(drf_filters.OrderingFilter):
                 ),
             )
         ]
+
+
+# TODO move to vng-api-common
+class ExpandFilter(filters.ChoiceFilter):
+    def __init__(self, *args, **kwargs):
+        serializer_class = kwargs.pop("serializer_class")
+        kwargs.setdefault(
+            "choices", [(x, x) for x in serializer_class.Meta.expandable_fields]
+        )
+
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        return qs
