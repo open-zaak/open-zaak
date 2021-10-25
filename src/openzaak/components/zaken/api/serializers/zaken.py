@@ -568,11 +568,13 @@ class ZaakSerializer(
     serializers.HyperlinkedModelSerializer,
 ):
     eigenschappen = ExpandSerializer(
+        name="eigenschappen",
         source="zaakeigenschap_set",
         default_serializer=NestedHyperlinkedRelatedField,
         expanded_serializer=ZaakEigenschapSerializer,
+        many=True,
         read_only=True,
-        common_kwargs={"many": True, "read_only": True,},
+        common_kwargs={"read_only": True,},
         default_serializer_kwargs={
             "parent_lookup_kwargs": {"zaak_uuid": "zaak__uuid"},
             "lookup_field": "uuid",
@@ -580,14 +582,17 @@ class ZaakSerializer(
         },
     )
     rollen = ExpandSerializer(
+        name="rollen",
         source="rol_set",
         default_serializer=NestedHyperlinkedRelatedField,
         expanded_serializer=RolSerializer,
+        many=True,
         read_only=True,
-        common_kwargs={"many": True, "read_only": True,},
+        common_kwargs={"read_only": True,},
         default_serializer_kwargs={"lookup_field": "uuid", "view_name": "rol-detail",},
     )
     status = ExpandSerializer(
+        name="status",
         source="current_status",
         default_serializer=serializers.HyperlinkedRelatedField,
         expanded_serializer=StatusSerializer,
@@ -600,22 +605,26 @@ class ZaakSerializer(
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
     )
     zaakinformatieobjecten = ExpandSerializer(
+        name="zaakinformatieobjecten",
         source="zaakinformatieobject_set",
         default_serializer=NestedHyperlinkedRelatedField,
         expanded_serializer=ZaakInformatieObjectSerializer,
+        many=True,
         read_only=True,
-        common_kwargs={"many": True, "read_only": True,},
+        common_kwargs={"read_only": True,},
         default_serializer_kwargs={
             "lookup_field": "uuid",
             "view_name": "zaakinformatieobject-detail",
         },
     )
     zaakobjecten = ExpandSerializer(
+        name="zaakobjecten",
         source="zaakobject_set",
         default_serializer=NestedHyperlinkedRelatedField,
         expanded_serializer="openzaak.components.zaken.api.serializers.zaakobjecten.ZaakObjectSerializer",
+        many=True,
         read_only=True,
-        common_kwargs={"many": True, "read_only": True,},
+        common_kwargs={"read_only": True,},
         default_serializer_kwargs={
             "lookup_field": "uuid",
             "view_name": "zaakobject-detail",
@@ -662,6 +671,7 @@ class ZaakSerializer(
     )
 
     resultaat = ExpandSerializer(
+        name="resultaat",
         default_serializer=serializers.HyperlinkedRelatedField,
         expanded_serializer=ResultaatSerializer,
         read_only=True,

@@ -36,6 +36,9 @@ class ConvertNoneMixin:
 
 class ExpandSerializer(NestedHyperlinkedRelatedField):
     def __init__(self, *args, **kwargs):
+        # For some reason self.field_name is empty for `many=True`
+        self.name = kwargs.pop("name")
+
         self.default_serializer = kwargs.pop("default_serializer")
         self.expanded_serializer = kwargs.pop("expanded_serializer")
 
@@ -61,7 +64,7 @@ class ExpandSerializer(NestedHyperlinkedRelatedField):
 
         if hasattr(self.context["request"], "query_params"):
             expand = self.context["request"].query_params.getlist("expand")
-            if self.field_name in expand:
+            if self.name in expand:
                 serializer_class = self.expanded_serializer
                 if isinstance(self.expanded_serializer, str):
                     serializer_class = import_string(self.expanded_serializer)

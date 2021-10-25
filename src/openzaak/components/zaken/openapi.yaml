@@ -1913,6 +1913,19 @@ paths:
         required: false
         schema:
           type: string
+      - name: expand
+        in: query
+        description: Haal details van inline resources direct op.
+        required: false
+        schema:
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
       - name: ordering
         in: query
         description: Which field to use when ordering the results.
@@ -2214,6 +2227,18 @@ paths:
       summary: Een specifieke ZAAK opvragen.
       description: Een specifieke ZAAK opvragen.
       parameters:
+      - name: expand
+        in: query
+        description: Haal details van inline resources direct op.
+        schema:
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
       - name: Accept-Crs
         in: header
         description: Het gewenste 'Coordinate Reference System' (CRS) van de geometrie
@@ -5849,6 +5874,33 @@ components:
           description: Een korte identificatie van de organisatorische eenheid.
           type: string
           minLength: 1
+        expand:
+          title: Expand
+          description: 'Haal details van inline resources direct op.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `status` - status
+
+            * `resultaat` - resultaat
+
+            * `eigenschappen` - eigenschappen
+
+            * `rollen` - rollen
+
+            * `zaakobjecten` - zaakobjecten
+
+            * `zaakinformatieobjecten` - zaakinformatieobjecten'
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
         ordering:
           title: Ordering
           description: Which field to use when ordering the results.
