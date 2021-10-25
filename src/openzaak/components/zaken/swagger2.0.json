@@ -2593,6 +2593,21 @@
                         "type": "string"
                     },
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Haal details van inline resources direct op.",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "status",
+                            "resultaat",
+                            "eigenschappen",
+                            "rollen",
+                            "zaakobjecten",
+                            "zaakinformatieobjecten"
+                        ]
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "description": "***AFWIJKING:** Which field to use when ordering the results.",
@@ -2984,6 +2999,20 @@
                 "summary": "Een specifieke ZAAK opvragen.",
                 "description": "Een specifieke ZAAK opvragen.",
                 "parameters": [
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Haal details van inline resources direct op.",
+                        "type": "string",
+                        "enum": [
+                            "status",
+                            "resultaat",
+                            "eigenschappen",
+                            "rollen",
+                            "zaakobjecten",
+                            "zaakinformatieobjecten"
+                        ]
+                    },
                     {
                         "name": "Accept-Crs",
                         "in": "header",
@@ -7142,6 +7171,19 @@
                     "description": "Een korte identificatie van de organisatorische eenheid.",
                     "type": "string",
                     "minLength": 1
+                },
+                "expand": {
+                    "title": "Expand",
+                    "description": "Haal details van inline resources direct op.\n\nUitleg bij mogelijke waarden:\n\n* `status` - status\n* `resultaat` - resultaat\n* `eigenschappen` - eigenschappen\n* `rollen` - rollen\n* `zaakobjecten` - zaakobjecten\n* `zaakinformatieobjecten` - zaakinformatieobjecten",
+                    "type": "string",
+                    "enum": [
+                        "status",
+                        "resultaat",
+                        "eigenschappen",
+                        "rollen",
+                        "zaakobjecten",
+                        "zaakinformatieobjecten"
+                    ]
                 },
                 "ordering": {
                     "title": "Ordering",

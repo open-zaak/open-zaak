@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -248,6 +250,20 @@ class ZaakViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "expand",
+                openapi.IN_QUERY,
+                description="Haal details van inline resources direct op.",
+                type=openapi.TYPE_STRING,
+                enum=ZaakSerializer.Meta.expandable_fields,
+            )
+        ]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):
