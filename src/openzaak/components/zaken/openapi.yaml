@@ -3064,6 +3064,11 @@ paths:
         required: false
         schema:
           type: string
+          enum:
+          - startdatum
+          - einddatum
+          - publicatiedatum
+          - archiefactiedatum
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
