@@ -2597,7 +2597,13 @@
                         "in": "query",
                         "description": "Which field to use when ordering the results.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "startdatum",
+                            "einddatum",
+                            "publicatiedatum",
+                            "archiefactiedatum"
+                        ]
                     },
                     {
                         "name": "page",
