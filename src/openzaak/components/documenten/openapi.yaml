@@ -83,6 +83,13 @@ paths:
         required: false
         schema:
           type: string
+      - name: object
+        in: query
+        description: De URL van het gerelateerde object (zoals vastgelegd in de OBJECTINFORMATIEOBJECT
+          resource). Meerdere waardes kunnen met komma's gescheiden worden.
+        required: false
+        schema:
+          type: string
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
