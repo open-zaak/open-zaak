@@ -12,13 +12,19 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.utils.tests import JWTAuthMixin
 
-from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+from ..models import (
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    ObjectInformatieObject,
+)
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
     get_catalogus_response,
@@ -363,6 +369,90 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(response_data), 1)
         self.assertEqual(response_data[0]["identificatie"], "foo")
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_filter_by_object_local(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(identificatie="foo")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(identificatie="bar")
+
+        zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio1.canonical)
+        ZaakInformatieObjectFactory.create(informatieobject=eio2.canonical)
+
+        response = self.client.get(
+            self.list_url, {"object": f"http://testserver{reverse(zio1.zaak)}"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(response_data[0]["identificatie"], "foo")
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_filter_by_object_external(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(identificatie="foo")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(identificatie="bar")
+
+        ObjectInformatieObject(
+            informatieobject=eio1.canonical,
+            _zaak_url="http://zrc.com/zaken/1",
+            object_type=ObjectTypes.zaak,
+        ).save()
+        ObjectInformatieObject(
+            informatieobject=eio2.canonical,
+            _zaak_url="http://zrc.com/zaken/2",
+            object_type=ObjectTypes.zaak,
+        ).save()
+
+        response = self.client.get(self.list_url, {"object": "http://zrc.com/zaken/1"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(response_data[0]["identificatie"], "foo")
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_filter_by_object_fail_resolve(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(identificatie="foo")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(identificatie="bar")
+
+        # Generate a Zaak url that seems valid, but does not exist inside the
+        # database
+        incorrect_zaak_url = f"http://testserver{reverse(Zaak)}/{uuid.uuid4()}"
+
+        ZaakInformatieObjectFactory.create(informatieobject=eio1.canonical)
+        ZaakInformatieObjectFactory.create(informatieobject=eio2.canonical)
+
+        # URL is local, but trying to resolve it should raise an error internally
+        response = self.client.get(self.list_url, {"object": incorrect_zaak_url})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+
+        self.assertEqual(len(response_data), 0)
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_filter_by_object_multiple(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(identificatie="foo")
+        eio2 = EnkelvoudigInformatieObjectFactory.create(identificatie="bar")
+        eio3 = EnkelvoudigInformatieObjectFactory.create(identificatie="baz")
+
+        zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio1.canonical)
+        zio2 = ZaakInformatieObjectFactory.create(informatieobject=eio2.canonical)
+        ZaakInformatieObjectFactory.create(informatieobject=eio3.canonical)
+
+        url1 = f"http://testserver{reverse(zio1.zaak)}"
+        url2 = f"http://testserver{reverse(zio2.zaak)}"
+
+        response = self.client.get(f"{self.list_url}?object={url1},{url2}")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+
+        self.assertEqual(len(response_data), 2)
+        self.assertEqual(response_data[0]["identificatie"], "foo")
+        self.assertEqual(response_data[1]["identificatie"], "bar")
 
     def test_destroy_no_relations_allowed(self):
         """
