@@ -39,6 +39,7 @@ from openzaak.utils.api import (
     delete_remote_oio,
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+
 from openzaak.utils.filters import SearchOrderingFilter
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -243,7 +244,12 @@ class ZaakViewSet(
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend, SearchOrderingFilter)
     filterset_class = ZaakFilter
-    ordering_fields = ("startdatum",)
+    ordering_fields = (
+        "startdatum",
+        "einddatum",
+        "publicatiedatum",
+        "archiefactiedatum",
+    )
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
 
