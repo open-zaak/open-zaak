@@ -7,6 +7,11 @@ Tweaks the base settings so that caching mechanisms are used where possible,
 and HTTPS is leveraged where possible to further secure things.
 """
 from .includes.base import *  # noqa
+from .includes.environ import config
+
+conn_max_age = config("DB_CONN_MAX_AGE", cast=float, default=None)
+for db_config in DATABASES.values():
+    db_config["CONN_MAX_AGE"] = conn_max_age
 
 # Caching sessions.
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"

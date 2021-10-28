@@ -56,6 +56,9 @@ on Docker, since `localhost` is contained within the container:
 
 * `DB_PORT`: port number of the database, defaults to `5432`.
 
+* `DB_CONN_MAX_AGE`: maximum age of a database connection, in seconds. This reduces
+  overhead of connecting to the database server for every request. Defaults to `60`.
+
 * `USE_X_FORWARDED_HOST`: whether to grab the domain/host from the `X-Forwarded-Host`
   header or not. This header is typically set by reverse proxies (such as nginx,
   traefik, Apache...). Default `False` - this is a header that can be spoofed and you
