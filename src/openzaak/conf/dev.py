@@ -42,14 +42,12 @@ LOGGING["loggers"].update(
             "level": "INFO",
             "propagate": False,
         },
-        "django.db.backends": {
-            "handlers": ["django"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
         "performance": {"handlers": ["console"], "level": "INFO", "propagate": True},
     }
 )
+
+if not LOG_QUERIES:
+    LOGGING["loggers"]["django.db.backends"]["handlers"] = ["django"]
 
 #
 # Custom settings

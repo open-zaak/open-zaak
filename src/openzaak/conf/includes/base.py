@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import datetime
 import os
+import warnings
 
 from django.urls import reverse_lazy
 
@@ -246,6 +247,12 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 # LOGGING
 #
 LOG_STDOUT = config("LOG_STDOUT", default=False)
+LOG_QUERIES = config("LOG_QUERIES", default=False)
+if LOG_QUERIES and not DEBUG:
+    warnings.warn(
+        "Requested LOG_QUERIES=1 but DEBUG is false, no query logs will be emited.",
+        RuntimeWarning,
+    )
 
 LOGGING_DIR = os.path.join(BASE_DIR, "log")
 
@@ -259,6 +266,7 @@ LOGGING = {
         "timestamped": {"format": "%(asctime)s %(levelname)s %(name)s  %(message)s"},
         "simple": {"format": "%(levelname)s  %(message)s"},
         "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
+        "db": {"format": "%(asctime)s | %(message)s"},
     },
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
@@ -277,6 +285,11 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "timestamped",
+        },
+        "console_db": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "db",
         },
         "django": {
             "level": "DEBUG",
@@ -332,6 +345,11 @@ LOGGING = {
             "propagate": False,
         },
         "vng_api_common": {"handlers": ["console"], "level": "INFO", "propagate": True},
+        "django.db.backends": {
+            "handlers": ["console_db"] if LOG_QUERIES else [],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "django.request": {
             "handlers": ["django"] if not LOG_STDOUT else ["console"],
             "level": "ERROR",
