@@ -108,7 +108,7 @@ on Docker, since `localhost` is contained within the container:
   `True`, for other environments the default is to log to file.
 
 * `LOG_QUERIES`: enable (query) logging at the database backend level. Note that you
-  must also sest `DEBUG=1`, which should be done very sparingly!
+  must also set `DEBUG=1`, which should be done very sparingly!
 
 * `PROFILE`: whether to enable profiling-tooling or not. Applies to the development
   settings only. Defaults to `False`.
