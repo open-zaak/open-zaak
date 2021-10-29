@@ -98,7 +98,6 @@ class ZaakTypeViewSet(
             "statustypen",
             "zaaktypenrelaties",
             "informatieobjecttypen",
-            "statustypen",
             "resultaattypen",
             "eigenschap_set",
             "roltype_set",
