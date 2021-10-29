@@ -5,12 +5,15 @@ Guarantee that the proper authorization machinery is in place.
 """
 from django.test import override_settings, tag
 
+from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
+from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.components.besluiten.tests.factories import BesluitFactory
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
@@ -158,6 +161,74 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         results = response.data["results"]
 
         self.assertEqual(len(results), 4)
+
+
+class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+    component = ComponentTypes.zrc
+    heeft_alle_autorisaties = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        # we're managing those directly in the test itself
+        cls.autorisatie.delete()
+        # strip out some queries that we don't normally have to run
+        OpenIDConnectConfig.get_solo()
+
+    @override_settings(ALLOWED_HOSTS=["example.com", "testserver"])
+    def test_zaak_list_performance(self):
+        """
+        Test the performance of zaak-list when authorizations are checked.
+
+        This is a regression test for #1057 where the number of queries scaled with
+        the amount of zaaktypen involved in the permissions.
+        """
+        # queries not directly involved with this endpoint in particular
+        BASE_NUM_QUERIES = 11
+        # queries because of the permission checks
+        PERMISSION_CHECK_NUM_QUERIES = 2
+        # queries because of the list endpoint itself
+        ENDPOINT_NUM_QUERIES = 8
+        TOTAL_EXPECTED_QUERIES = (
+            BASE_NUM_QUERIES + PERMISSION_CHECK_NUM_QUERIES + ENDPOINT_NUM_QUERIES
+        )
+
+        # check with different orders of magnitude for the number of zaaktypen the client
+        # is authorized for
+        num_zaaktypen_cases = (1, 10, 100)
+
+        for num_zaaktypen in num_zaaktypen_cases:
+            # reset state
+            ZaakType.objects.all().delete()
+            self.applicatie.save()
+            AutorisatieSpec.objects.all().delete()
+            # set up the authorization spec to give blanket permissions
+            AutorisatieSpec.objects.create(
+                applicatie=self.applicatie,
+                component=self.component,
+                scopes=self.scopes,
+                max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+            )
+
+            with self.subTest(num_zaaktypen=num_zaaktypen):
+                ZaakTypeFactory.create_batch(num_zaaktypen, concept=False)
+                AutorisatieSpec.sync()
+                # check that the sync worked correctly
+                assert (
+                    self.applicatie.autorisaties.count() == num_zaaktypen
+                ), "AutorisatieSpec.sync is broken"
+                # create a zaak for response data
+                zaaktype = ZaakType.objects.last()
+                ZaakFactory.create(zaaktype=zaaktype)
+
+                with self.assertNumQueries(TOTAL_EXPECTED_QUERIES):
+                    response = self.client.get(reverse("zaak-list"), **ZAAK_READ_KWARGS)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["count"], 1)
 
 
 class StatusReadTests(JWTAuthMixin, APITestCase):
