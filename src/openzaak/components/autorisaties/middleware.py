@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import List
+from typing import List, Union
 
 from django.db import models
-from django.db.models import Subquery
 from django.utils.translation import gettext_lazy as _
 
 import jwt
@@ -30,6 +29,13 @@ class JWTAuth(_JWTAuth):
                 code="jwt-{err}".format(err=type(exc).__name__.lower()),
             )
 
+    @property
+    def applicaties(self) -> Union[models.QuerySet, List, None]:
+        # Add caching, compared to base class since we do a lot of self.applicaties calls
+        if not hasattr(self, "_applicaties_qs"):
+            self._applicaties_qs = super().applicaties
+        return self._applicaties_qs
+
     def _request_auth(self) -> list:
         return []
 
@@ -41,9 +47,9 @@ class JWTAuth(_JWTAuth):
             return Autorisatie.objects.none()
 
         component = COMPONENT_MAPPING.get(init_component, init_component)
-        app_ids = self.applicaties.values("id")
+        app_ids = [app.id for app in self.applicaties]
         return Autorisatie.objects.filter(
-            applicatie_id__in=Subquery(app_ids), component=component
+            applicatie_id__in=app_ids, component=component
         )
 
     def has_auth(self, scopes: List[str], init_component: str = None, **fields) -> bool:
@@ -54,7 +60,10 @@ class JWTAuth(_JWTAuth):
             return False
 
         # allow everything
-        if self.applicaties.filter(heeft_alle_autorisaties=True).exists():
+        superuser_applications = [
+            app for app in self.applicaties if app.heeft_alle_autorisaties
+        ]
+        if any(superuser_applications):
             return True
 
         if not init_component:
