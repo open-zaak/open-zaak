@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Union
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -10,7 +9,7 @@ from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
-from vng_api_common.utils import get_resource_for_path
+from vng_api_common.utils import get_resources_for_paths
 
 
 class QueryBlocked(Exception):
@@ -52,17 +51,6 @@ class LooseFkAuthorizationsFilterMixin:
             "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
         )
 
-    def get_loose_fk_object(
-        self, authorization, local=True
-    ) -> Union[models.Model, str]:
-        loose_fk_url = getattr(authorization, self.loose_fk_field)
-        if local:
-            loose_fk_object_path = urlparse(loose_fk_url).path
-            loose_fk_object = get_resource_for_path(loose_fk_object_path)
-        else:
-            loose_fk_object = loose_fk_url
-        return loose_fk_object
-
     def build_queryset(self, filters) -> models.QuerySet:
         if self.vertrouwelijkheidaanduiding_use:
             # annotate the queryset so we can map a string value to a logical number
@@ -84,18 +72,37 @@ class LooseFkAuthorizationsFilterMixin:
             f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
         )
 
+        # resource URLs to either use as-is or resolve to database records
+        resource_urls = [
+            getattr(authorization, self.loose_fk_field)
+            for authorization in authorizations
+        ]
+
         # keep a list of allowed loose-fk objects
         loose_fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
         # on the ``zaaktype``
         vertrouwelijkheidaanduiding_whens = []
 
-        for authorization in authorizations:
-            # test if this authorization has the scope that's needed
-            if not scope.is_contained_in(authorization.scopes):
-                continue
+        if not local:
+            loose_fk_object_map = dict(zip(resource_urls, resource_urls))
+        else:
+            # prepare to get the loose_fk_objects in bulk from the DB
+            loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
+            loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
+            # nothing to resolve
+            if loose_fk_objects is None:
+                loose_fk_object_map = {}
+            else:
+                # keep the sorting so we can zip them correctly
+                sorted_objects = sorted(
+                    loose_fk_objects, key=lambda o: o.get_absolute_api_url()
+                )
+                loose_fk_object_map = dict(zip(sorted(resource_urls), sorted_objects))
 
-            loose_fk_object = self.get_loose_fk_object(authorization, local)
+        for authorization in authorizations:
+            resource_url = getattr(authorization, self.loose_fk_field)
+            loose_fk_object = loose_fk_object_map[resource_url]
             loose_fk_objecten.append(loose_fk_object)
 
             # extract the order and map it to the database value
@@ -134,10 +141,14 @@ class LooseFkAuthorizationsFilterMixin:
 
         authorizations_local = []
         authorizarions_external = []
+        allowed_hosts = settings.ALLOWED_HOSTS
 
         for auth in authorizations:
+            # test if this authorization has the scope that's needed
+            if not scope.is_contained_in(auth.scopes):
+                continue
+
             loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname
-            allowed_hosts = settings.ALLOWED_HOSTS
             if validate_host(loose_fk_host, allowed_hosts):
                 authorizations_local.append(auth)
             else:
