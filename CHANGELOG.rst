@@ -4,6 +4,61 @@ Changelog
 1.5.0 (2021-??-??)
 ------------------
 
+**New features**
+
+* Drop privileges in container to not run as root user (#869). **See the warning below for
+  possible manual intervention!**
+* Added generic OpenID Connect integration (#1002)
+* Implemented ``JWT_LEEWAY`` configuration option to account for clock drift (#796)
+* Enabled database connection re-use, configurable via ``DB_CONN_MAX_AGE``
+* Implemented configuration option to enable query logging for debugging purposes
+* Added a number of useful links to the dashboard menu. Most notably, this includes
+  the link to `sign up for early notices`_ to plan around security releases in advance (#830).
+
+.. _sign up for early notices: https://odoo.publiccode.net/survey/start/086e0627-8bc0-4b65-8aa9-f6872aba89d0
+
+**Bugfixes**
+
+* Bumped dependencies to newer versions (old versions were known to have vulnerabilities)
+* Performance improvements in Documenten API when using CMIS-adapter (#974, #985)
+* Fixed process forking in container to run as PID 1 (ec51077c19d4aaef4262464fc7db19cdf9d4a82c)
+* Fixed incorrect validation error code in Documents API
+* Fixed missing remote ZaakInformatieObject/BesluitInformatieObject validation on
+  ObjectInformatieObject delete operation
+* Fixed ``identificatie`` validation in the admin interface (#890)
+* Fixed broken zaak document link in admin interface (#911)
+* Fixed broken built-in documentation (notifications sent by component, #980)
+* Fixed autorisaties admin breaking when a lot of authorizations applied for an application (#860)
+* Fixed geldigheid-overlap detection in API/admin for zaaktypen, informatieobjecttypen
+  and besluittypen (#994)
+* Fixed incorrect notifications being sent when a new zaaktype version is created (#1026)
+* Fixed crash because of missing validation on unique-together (zaak, status.datumGezet)
+  fields (#960)
+* Fixed performance regression for API clients with "large" numbers of authorizations (#1057)
+* Fixed a crash when the JWT ``user_id`` claim is ``null`` (#936)
+
+**CI/CD - Deployment tooling - infrastructure**
+
+* Renamed various codebase aspects from Travis to generic "CI" after moving to Github Actions
+* Replaced Alfresco CI tooling with prebuild extension image (#931)
+* Cleanup up codebase structure (#939)
+* Improved Github action to detect changed files and optimized CI to only run the
+  necessary parts
+* Added CI check for fresh deploys with ``CMIS_ENABLED=1`` (#972)
+* Various improvements to make tests more deterministic/isolated
+
+**Documentation**
+
+* Added missing authors to the authors list
+* Fixed broken GCloud link
+* Documented ``UWSGI_HTTP_TIMEOUT`` environment variable
+* Documented need to synchronized clocks (#796)
+
+**Removed features**
+
+* Removed NLX inway configuration integration (#949, #1061)
+* Removed some deployment stuff not directly related to Open Zaak (NLX, ingress)
+
 .. warning::
 
    Manual intervention required!
