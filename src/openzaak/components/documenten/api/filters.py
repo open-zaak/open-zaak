@@ -6,13 +6,18 @@ import uuid
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
+from django_filters.constants import EMPTY_VALUES
 from django_loose_fk.filters import FkOrUrlFieldFilter
+from django_loose_fk.loaders import BaseLoader
 from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
+
+from openzaak.utils.apidoc import mark_oas_difference
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -24,10 +29,55 @@ from ..models import (
 logger = logging.getLogger(__name__)
 
 
+class ObjectFilter(filters.BaseCSVFilter):
+    """
+    Allow filtering of ENKELVOUDIGINFORMATIEOBJECTen by objects they are related
+    to (through the OBJECTINFORMATIEOBJECT resource)
+    """
+
+    def filter(self, qs, values):
+        if values in EMPTY_VALUES:
+            return qs
+
+        if self.distinct:
+            qs = qs.distinct()
+
+        loader = BaseLoader()
+        lookups = Q()
+        for value in values:
+            if loader.is_local_url(value):
+                parsed = urlparse(value)
+                uuid = parsed.path.split("/")[-1]
+                if uuid:
+                    lookups |= Q(_zaak__uuid=uuid) | Q(_besluit__uuid=uuid)
+            else:
+                lookups |= Q(_zaak_url=value) | Q(_besluit_url=value)
+
+        oios = ObjectInformatieObject.objects.filter(lookups)
+        qs = self.get_method(qs)(
+            canonical__id__in=list(oios.values_list("informatieobject__id", flat=True))
+        )
+        return qs
+
+
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
+    object = ObjectFilter(
+        help_text=_(
+            mark_oas_difference(
+                "De URL van het gerelateerde object "
+                "(zoals vastgelegd in de OBJECTINFORMATIEOBJECT resource). "
+                "Meerdere waardes kunnen met komma's gescheiden worden."
+            )
+        )
+    )
+
     class Meta:
         model = EnkelvoudigInformatieObject
-        fields = ("identificatie", "bronorganisatie")
+        fields = (
+            "identificatie",
+            "bronorganisatie",
+            "object",
+        )
 
 
 class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
