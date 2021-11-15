@@ -17,7 +17,9 @@ info:
     \ in worst-case scenario's. Dit\nbetekent dat bij een limiet van 4GB het bestand\
     \ maximaal ongeveer 3GB groot\nmag zijn.\n\n**Afhankelijkheden**\n\nDeze API is\
     \ afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n\
-    * Zaken API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\
+    * Zaken API *(optioneel)*\n\n\n### API specificatie afwijkingen\n\nAfwijkingen\
+    \ in de API specificatie ten opzichte van de referentie API specificatie\nzijn\
+    \ aangemerkt met ***AFWIJKING:**\n\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\
     \n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie\
     \ zijn [jwt.io][JWT's] (JSON web\ntoken). In de API calls moeten deze gebruikt\
     \ worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n\
@@ -85,8 +87,9 @@ paths:
           type: string
       - name: object
         in: query
-        description: De URL van het gerelateerde object (zoals vastgelegd in de OBJECTINFORMATIEOBJECT
-          resource). Meerdere waardes kunnen met komma's gescheiden worden.
+        description: '***AFWIJKING:** De URL van het gerelateerde object (zoals vastgelegd
+          in de OBJECTINFORMATIEOBJECT resource). Meerdere waardes kunnen met komma''s
+          gescheiden worden.'
         required: false
         schema:
           type: string
