@@ -82,7 +82,7 @@ django-sendfile2==0.6.0
     # via django-privates
 django-sniplates==0.7.0
     # via -r requirements/base.in
-django-solo==1.1.3
+django-solo==1.2.0
     # via
     #   django-auth-adfs-db
     #   drc-cmis

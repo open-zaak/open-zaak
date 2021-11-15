@@ -149,7 +149,7 @@ django-silk==4.0.1
     # via -r requirements/dev.in
 django-sniplates==0.7.0
     # via -r requirements/ci.txt
-django-solo==1.1.3
+django-solo==1.2.0
     # via
     #   -r requirements/ci.txt
     #   django-auth-adfs-db
