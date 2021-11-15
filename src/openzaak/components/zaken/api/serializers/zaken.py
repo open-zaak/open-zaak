@@ -35,6 +35,7 @@ from vng_api_common.validators import (
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.utils.api import create_remote_oio
+from openzaak.utils.apidoc import mark_oas_difference
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.serializers import ExpandSerializer
@@ -593,6 +594,7 @@ class ZaakSerializer(
         read_only=True,
         common_kwargs={"read_only": True,},
         default_serializer_kwargs={"lookup_field": "uuid", "view_name": "rol-detail",},
+        help_text=_("Lijst van gerelateerde ROLlen"),
     )
     status = ExpandSerializer(
         name="status",
@@ -619,6 +621,7 @@ class ZaakSerializer(
             "lookup_field": "uuid",
             "view_name": "zaakinformatieobject-detail",
         },
+        help_text=_("Lijst van gerelateerde ZAAKINFORMATIEOBJECTen"),
     )
     zaakobjecten = ExpandSerializer(
         name="zaakobjecten",
@@ -632,6 +635,7 @@ class ZaakSerializer(
             "lookup_field": "uuid",
             "view_name": "zaakobject-detail",
         },
+        help_text=_("Lijst van gerelateerde ZAAKOBJECTen"),
     )
 
     kenmerken = ZaakKenmerkSerializer(
@@ -814,6 +818,17 @@ class ZaakSerializer(
 
         value_display_mapping = add_choice_values_help_text(Archiefnominatie)
         self.fields["archiefnominatie"].help_text += f"\n\n{value_display_mapping}"
+
+        # Document OAS deviations from Zaken API standard
+        self.fields["rollen"].help_text = mark_oas_difference(
+            self.fields["rollen"].help_text
+        )
+        self.fields["zaakobjecten"].help_text = mark_oas_difference(
+            self.fields["zaakobjecten"].help_text
+        )
+        self.fields["zaakinformatieobjecten"].help_text = mark_oas_difference(
+            self.fields["zaakinformatieobjecten"].help_text
+        )
 
     def validate(self, attrs):
         super().validate(attrs)

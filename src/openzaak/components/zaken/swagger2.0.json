@@ -2595,7 +2595,7 @@
                     {
                         "name": "expand",
                         "in": "query",
-                        "description": "Haal details van inline resources direct op.",
+                        "description": "***AFWIJKING:** Haal details van inline resources direct op.",
                         "required": false,
                         "type": "string",
                         "enum": [
@@ -6912,8 +6912,10 @@
                     "uniqueItems": true
                 },
                 "rollen": {
+                    "description": "***AFWIJKING:** Lijst van gerelateerde ROLlen",
                     "type": "array",
                     "items": {
+                        "description": "Lijst van gerelateerde ROLlen",
                         "type": "string",
                         "format": "uri"
                     },
@@ -6929,8 +6931,10 @@
                     "x-nullable": true
                 },
                 "zaakinformatieobjecten": {
+                    "description": "***AFWIJKING:** Lijst van gerelateerde ZAAKINFORMATIEOBJECTen",
                     "type": "array",
                     "items": {
+                        "description": "Lijst van gerelateerde ZAAKINFORMATIEOBJECTen",
                         "type": "string",
                         "format": "uri"
                     },
@@ -6938,8 +6942,10 @@
                     "uniqueItems": true
                 },
                 "zaakobjecten": {
+                    "description": "***AFWIJKING:** Lijst van gerelateerde ZAAKOBJECTen",
                     "type": "array",
                     "items": {
+                        "description": "Lijst van gerelateerde ZAAKOBJECTen",
                         "type": "string",
                         "format": "uri"
                     },
@@ -7174,7 +7180,7 @@
                 },
                 "expand": {
                     "title": "Expand",
-                    "description": "Haal details van inline resources direct op.\n\nUitleg bij mogelijke waarden:\n\n* `status` - status\n* `resultaat` - resultaat\n* `eigenschappen` - eigenschappen\n* `rollen` - rollen\n* `zaakobjecten` - zaakobjecten\n* `zaakinformatieobjecten` - zaakinformatieobjecten",
+                    "description": "***AFWIJKING:** Haal details van inline resources direct op.\n\nUitleg bij mogelijke waarden:\n\n* `status` - status\n* `resultaat` - resultaat\n* `eigenschappen` - eigenschappen\n* `rollen` - rollen\n* `zaakobjecten` - zaakobjecten\n* `zaakinformatieobjecten` - zaakinformatieobjecten",
                     "type": "string",
                     "enum": [
                         "status",
