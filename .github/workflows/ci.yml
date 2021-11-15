@@ -291,7 +291,7 @@ jobs:
 
     name: Push Docker image
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository_owner == 'open-zaak'  # exclude PRs/forks
+    if: github.event_name == 'push' && github.repository_owner == 'Gemeente-DenHaag'  # exclude PRs/forks
 
     steps:
       - uses: actions/checkout@v2
