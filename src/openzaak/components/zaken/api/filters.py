@@ -11,6 +11,7 @@ from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.apidoc import mark_oas_difference
 from openzaak.utils.filters import (
     ExpandFilter,
     MaximaleVertrouwelijkheidaanduidingFilter,
@@ -51,7 +52,9 @@ class ZaakFilter(FilterSet):
     )
     expand = ExpandFilter(
         serializer_class=ZaakSerializer,
-        help_text=_("Haal details van inline resources direct op."),
+        help_text=_(
+            mark_oas_difference("Haal details van inline resources direct op.")
+        ),
     )
 
     class Meta:

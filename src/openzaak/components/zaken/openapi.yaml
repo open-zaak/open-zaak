@@ -1915,7 +1915,7 @@ paths:
           type: string
       - name: expand
         in: query
-        description: Haal details van inline resources direct op.
+        description: '***AFWIJKING:** Haal details van inline resources direct op.'
         required: false
         schema:
           type: string
@@ -5547,8 +5547,10 @@ components:
           readOnly: true
           uniqueItems: true
         rollen:
+          description: '***AFWIJKING:** Lijst van gerelateerde ROLlen'
           type: array
           items:
+            description: Lijst van gerelateerde ROLlen
             type: string
             format: uri
           readOnly: true
@@ -5561,15 +5563,19 @@ components:
           readOnly: true
           nullable: true
         zaakinformatieobjecten:
+          description: '***AFWIJKING:** Lijst van gerelateerde ZAAKINFORMATIEOBJECTen'
           type: array
           items:
+            description: Lijst van gerelateerde ZAAKINFORMATIEOBJECTen
             type: string
             format: uri
           readOnly: true
           uniqueItems: true
         zaakobjecten:
+          description: '***AFWIJKING:** Lijst van gerelateerde ZAAKOBJECTen'
           type: array
           items:
+            description: Lijst van gerelateerde ZAAKOBJECTen
             type: string
             format: uri
           readOnly: true
@@ -5876,7 +5882,7 @@ components:
           minLength: 1
         expand:
           title: Expand
-          description: 'Haal details van inline resources direct op.
+          description: '***AFWIJKING:** Haal details van inline resources direct op.
 
 
             Uitleg bij mogelijke waarden:

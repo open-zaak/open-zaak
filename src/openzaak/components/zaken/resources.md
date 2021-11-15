@@ -215,10 +215,10 @@ Uitleg bij mogelijke waarden:
 | deelzaken | URL-referenties naar deel ZAAKen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | relevanteAndereZaken | Een lijst van relevante andere zaken. | array | nee | C​R​U​D |
 | eigenschappen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
-| rollen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| rollen | ***AFWIJKING:** Lijst van gerelateerde ROLlen | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | status | Indien geen status bekend is, dan is de waarde &#39;null&#39; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| zaakinformatieobjecten |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
-| zaakobjecten |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaakinformatieobjecten | ***AFWIJKING:** Lijst van gerelateerde ZAAKINFORMATIEOBJECTen | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaakobjecten | ***AFWIJKING:** Lijst van gerelateerde ZAAKOBJECTen | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | kenmerken | Lijst van kenmerken. Merk op dat refereren naar gerelateerde objecten beter kan via `ZaakObject`. | array | nee | C​R​U​D |
 | archiefnominatie | Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
 
