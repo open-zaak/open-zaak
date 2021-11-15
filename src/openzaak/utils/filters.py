@@ -7,6 +7,8 @@ from rest_framework import filters as drf_filters
 from rest_framework.compat import coreapi, coreschema
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
+from openzaak.utils.apidoc import mark_oas_difference
+
 
 class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
     def __init__(self, *args, **kwargs):
@@ -48,7 +50,9 @@ class OrderingFilter(drf_filters.OrderingFilter):
                 location="query",
                 schema=coreschema.Enum(
                     title=force_str(self.ordering_title),
-                    description=force_str(self.ordering_description),
+                    description=force_str(
+                        mark_oas_difference(self.ordering_description)
+                    ),
                     enum=view.ordering_fields,
                 ),
             )
