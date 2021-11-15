@@ -11,7 +11,7 @@ from vng_api_common.inspectors.view import HTTP_STATUS_CODE_TITLES
 from vng_api_common.notifications.utils import notification_documentation
 from vng_api_common.serializers import FoutSerializer
 
-from openzaak.utils.apidoc import DOC_AUTH_JWT
+from openzaak.utils.apidoc import DOC_AUTH_JWT, DOC_OAS_DIFFERENCES
 from openzaak.utils.schema import AutoSchema
 
 from .kanalen import KANAAL_DOCUMENTEN
@@ -50,6 +50,8 @@ Deze API is afhankelijk van:
 * Notificaties API
 * Autorisaties API *(optioneel)*
 * Zaken API *(optioneel)*
+
+{DOC_OAS_DIFFERENCES}
 
 {DOC_AUTH_JWT}
 

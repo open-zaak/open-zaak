@@ -17,6 +17,8 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.apidoc import mark_oas_difference
+
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -61,9 +63,11 @@ class ObjectFilter(filters.BaseCSVFilter):
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
     object = ObjectFilter(
         help_text=_(
-            "De URL van het gerelateerde object "
-            "(zoals vastgelegd in de OBJECTINFORMATIEOBJECT resource). "
-            "Meerdere waardes kunnen met komma's gescheiden worden."
+            mark_oas_difference(
+                "De URL van het gerelateerde object "
+                "(zoals vastgelegd in de OBJECTINFORMATIEOBJECT resource). "
+                "Meerdere waardes kunnen met komma's gescheiden worden."
+            )
         )
     )
 
