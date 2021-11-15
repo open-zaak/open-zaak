@@ -2595,9 +2595,15 @@
                     {
                         "name": "ordering",
                         "in": "query",
-                        "description": "Which field to use when ordering the results.",
+                        "description": "***AFWIJKING:** Which field to use when ordering the results.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "startdatum",
+                            "einddatum",
+                            "publicatiedatum",
+                            "archiefactiedatum"
+                        ]
                     },
                     {
                         "name": "page",
@@ -7112,7 +7118,7 @@
                 },
                 "ordering": {
                     "title": "Ordering",
-                    "description": "Which field to use when ordering the results.",
+                    "description": "***AFWIJKING:** Which field to use when ordering the results.",
                     "type": "string",
                     "minLength": 1
                 }

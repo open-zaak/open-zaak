@@ -1915,10 +1915,15 @@ paths:
           type: string
       - name: ordering
         in: query
-        description: Which field to use when ordering the results.
+        description: '***AFWIJKING:** Which field to use when ordering the results.'
         required: false
         schema:
           type: string
+          enum:
+          - startdatum
+          - einddatum
+          - publicatiedatum
+          - archiefactiedatum
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -5830,7 +5835,7 @@ components:
           minLength: 1
         ordering:
           title: Ordering
-          description: Which field to use when ordering the results.
+          description: '***AFWIJKING:** Which field to use when ordering the results.'
           type: string
           minLength: 1
     Wijzigingen:
