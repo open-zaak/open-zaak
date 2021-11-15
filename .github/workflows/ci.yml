@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: openzaak/open-zaak
+  IMAGE_NAME: maykinmedia/open-zaak-denhaag
   DJANGO_SETTINGS_MODULE: openzaak.conf.ci
   DB_PASSWORD: ''
   DB_USER: postgres
