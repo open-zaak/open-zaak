@@ -7,9 +7,9 @@ Changelog
 .. warning::
 
    Manual intervention required
-   
-  k8s the correct pod securityGroupContext needs to be specified and on plain Docker 
-  deploys the permissions of the volumes will probably have to be fixed. 
+
+  k8s the correct pod securityGroupContext needs to be specified and on plain Docker
+  deploys the permissions of the volumes will probably have to be fixed.
 
 
 1.4.0 (2021-04-30)
@@ -555,7 +555,7 @@ specs!
 ------------------
 
 Improved support for integration with other APIs, most notably BAG/BRT APIs from the
-kadaster (see https://pdok.nl). This increases the usability of ZaakObject relations.
+kadaster (see https://www.pdok.nl). This increases the usability of ZaakObject relations.
 
 * Added api-test.nl badge - proves that Open Zaak is compliant with the
   *API's voor zaakgericht werken* standard
