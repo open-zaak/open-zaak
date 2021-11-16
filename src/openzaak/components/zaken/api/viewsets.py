@@ -244,12 +244,6 @@ class ZaakViewSet(
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend, SearchOrderingFilter)
     filterset_class = ZaakFilter
-    ordering_fields = (
-        "startdatum",
-        "einddatum",
-        "publicatiedatum",
-        "archiefactiedatum",
-    )
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
 

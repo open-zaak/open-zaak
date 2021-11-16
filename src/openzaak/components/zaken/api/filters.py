@@ -3,6 +3,7 @@
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
@@ -83,6 +84,10 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
         field_name="rol__organisatorischeeenheid__identificatie",
         help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
+    )
+    ordering = filters.OrderingFilter(
+        fields=("startdatum", "einddatum", "publicatiedatum", "archiefactiedatum",),
+        help_text=_("Het veld waarop de resultaten geordend worden.")
     )
 
     class Meta:
