@@ -36,7 +36,6 @@ from zgw_consumers.models import Service
 
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.filters import OrderingFilter
 
 from ..models import (
     KlantContact,
@@ -227,14 +226,8 @@ class ZaakViewSet(
     )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
-    filter_backends = (Backend, OrderingFilter)
+    filter_backends = (Backend,)
     filterset_class = ZaakFilter
-    ordering_fields = (
-        "startdatum",
-        "einddatum",
-        "publicatiedatum",
-        "archiefactiedatum",
-    )
     lookup_field = "uuid"
     pagination_class = PageNumberPagination
 

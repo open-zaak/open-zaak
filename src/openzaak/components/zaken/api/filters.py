@@ -56,6 +56,12 @@ class ZaakFilter(FilterSet):
             mark_oas_difference("Haal details van inline resources direct op.")
         ),
     )
+    ordering = filters.OrderingFilter(
+        fields=("startdatum", "einddatum", "publicatiedatum", "archiefactiedatum",),
+        help_text=_(
+            mark_oas_difference("Het veld waarop de resultaten geordend worden.")
+        ),
+    )
 
     class Meta:
         model = Zaak
