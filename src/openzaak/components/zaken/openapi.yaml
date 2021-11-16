@@ -1928,15 +1928,19 @@ paths:
           - zaakinformatieobjecten
       - name: ordering
         in: query
-        description: '***AFWIJKING:** Which field to use when ordering the results.'
+        description: '***AFWIJKING:** Het veld waarop de resultaten geordend worden.'
         required: false
         schema:
           type: string
           enum:
           - startdatum
+          - -startdatum
           - einddatum
+          - -einddatum
           - publicatiedatum
+          - -publicatiedatum
           - archiefactiedatum
+          - -archiefactiedatum
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -5914,9 +5918,37 @@ components:
           - zaakinformatieobjecten
         ordering:
           title: Ordering
-          description: '***AFWIJKING:** Which field to use when ordering the results.'
+          description: '***AFWIJKING:** Het veld waarop de resultaten geordend worden.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `startdatum` - Startdatum
+
+            * `-startdatum` - Startdatum (descending)
+
+            * `einddatum` - Einddatum
+
+            * `-einddatum` - Einddatum (descending)
+
+            * `publicatiedatum` - Publicatiedatum
+
+            * `-publicatiedatum` - Publicatiedatum (descending)
+
+            * `archiefactiedatum` - Archiefactiedatum
+
+            * `-archiefactiedatum` - Archiefactiedatum (descending)'
           type: string
-          minLength: 1
+          enum:
+          - startdatum
+          - -startdatum
+          - einddatum
+          - -einddatum
+          - publicatiedatum
+          - -publicatiedatum
+          - archiefactiedatum
+          - -archiefactiedatum
     Wijzigingen:
       type: object
       properties:
