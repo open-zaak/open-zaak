@@ -555,7 +555,7 @@ specs!
 ------------------
 
 Improved support for integration with other APIs, most notably BAG/BRT APIs from the
-kadaster (see https://pdok.nl). This increases the usability of ZaakObject relations.
+kadaster (see https://www.pdok.nl). This increases the usability of ZaakObject relations.
 
 * Added api-test.nl badge - proves that Open Zaak is compliant with the
   *API's voor zaakgericht werken* standard
