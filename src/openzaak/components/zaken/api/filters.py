@@ -3,6 +3,7 @@
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
@@ -10,6 +11,7 @@ from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.apidoc import mark_oas_difference
 from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
 
 from ..models import (
@@ -43,6 +45,12 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
         field_name="rol__organisatorischeeenheid__identificatie",
         help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
+    )
+    ordering = filters.OrderingFilter(
+        fields=("startdatum", "einddatum", "publicatiedatum", "archiefactiedatum",),
+        help_text=_(
+            mark_oas_difference("Het veld waarop de resultaten geordend worden.")
+        ),
     )
 
     class Meta:

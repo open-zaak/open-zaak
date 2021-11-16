@@ -1,13 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.utils.encoding import force_str
 
 from django_filters import filters
-from rest_framework import filters as drf_filters
-from rest_framework.compat import coreapi, coreschema
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-
-from openzaak.utils.apidoc import mark_oas_difference
 
 
 class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
@@ -29,31 +24,3 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         qs = qs.annotate(**{self.field_name: order_expression})
         numeric_value = VertrouwelijkheidsAanduiding.get_choice(value).order
         return super().filter(qs, numeric_value)
-
-
-class OrderingFilter(drf_filters.OrderingFilter):
-    def get_schema_fields(self, view):
-        """
-        Display as enum in schema, to show which fields can be used
-        for ordering
-        """
-        assert (
-            coreapi is not None
-        ), "coreapi must be installed to use `get_schema_fields()`"
-        assert (
-            coreschema is not None
-        ), "coreschema must be installed to use `get_schema_fields()`"
-        return [
-            coreapi.Field(
-                name=self.ordering_param,
-                required=False,
-                location="query",
-                schema=coreschema.Enum(
-                    title=force_str(self.ordering_title),
-                    description=force_str(
-                        mark_oas_difference(self.ordering_description)
-                    ),
-                    enum=view.ordering_fields,
-                ),
-            )
-        ]
