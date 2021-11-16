@@ -145,7 +145,7 @@
             "configuration"
         ],
         "name": "Service configuration",
-        "link": "/admin/config/detail"
+        "link": "/admin/config/detail/"
     }
 }
 ]
