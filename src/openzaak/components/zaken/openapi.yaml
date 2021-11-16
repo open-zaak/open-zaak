@@ -1913,6 +1913,19 @@ paths:
         required: false
         schema:
           type: string
+      - name: expand
+        in: query
+        description: '***AFWIJKING:** Haal details van inline resources direct op.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
       - name: ordering
         in: query
         description: '***AFWIJKING:** Which field to use when ordering the results.'
@@ -2219,6 +2232,18 @@ paths:
       summary: Een specifieke ZAAK opvragen.
       description: Een specifieke ZAAK opvragen.
       parameters:
+      - name: expand
+        in: query
+        description: Haal details van inline resources direct op.
+        schema:
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
       - name: Accept-Crs
         in: header
         description: Het gewenste 'Coordinate Reference System' (CRS) van de geometrie
@@ -5526,6 +5551,15 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        rollen:
+          description: '***AFWIJKING:** Lijst van gerelateerde ROLlen'
+          type: array
+          items:
+            description: Lijst van gerelateerde ROLlen
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         status:
           title: Status
           description: Indien geen status bekend is, dan is de waarde 'null'
@@ -5533,6 +5567,24 @@ components:
           format: uri
           readOnly: true
           nullable: true
+        zaakinformatieobjecten:
+          description: '***AFWIJKING:** Lijst van gerelateerde ZAAKINFORMATIEOBJECTen'
+          type: array
+          items:
+            description: Lijst van gerelateerde ZAAKINFORMATIEOBJECTen
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        zaakobjecten:
+          description: '***AFWIJKING:** Lijst van gerelateerde ZAAKOBJECTen'
+          type: array
+          items:
+            description: Lijst van gerelateerde ZAAKOBJECTen
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         kenmerken:
           description: Lijst van kenmerken. Merk op dat refereren naar gerelateerde
             objecten beter kan via `ZaakObject`.
@@ -5833,6 +5885,33 @@ components:
           description: Een korte identificatie van de organisatorische eenheid.
           type: string
           minLength: 1
+        expand:
+          title: Expand
+          description: '***AFWIJKING:** Haal details van inline resources direct op.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `status` - status
+
+            * `resultaat` - resultaat
+
+            * `eigenschappen` - eigenschappen
+
+            * `rollen` - rollen
+
+            * `zaakobjecten` - zaakobjecten
+
+            * `zaakinformatieobjecten` - zaakinformatieobjecten'
+          type: string
+          enum:
+          - status
+          - resultaat
+          - eigenschappen
+          - rollen
+          - zaakobjecten
+          - zaakinformatieobjecten
         ordering:
           title: Ordering
           description: '***AFWIJKING:** Which field to use when ordering the results.'

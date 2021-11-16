@@ -3,6 +3,7 @@
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
@@ -10,7 +11,11 @@ from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
+from openzaak.utils.apidoc import mark_oas_difference
+from openzaak.utils.filters import (
+    ExpandFilter,
+    MaximaleVertrouwelijkheidaanduidingFilter,
+)
 
 from ..models import (
     KlantContact,
@@ -21,6 +26,7 @@ from ..models import (
     ZaakInformatieObject,
     ZaakObject,
 )
+from .serializers.zaken import ZaakSerializer
 
 
 class ZaakFilter(FilterSet):
@@ -43,6 +49,12 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
         field_name="rol__organisatorischeeenheid__identificatie",
         help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
+    )
+    expand = ExpandFilter(
+        serializer_class=ZaakSerializer,
+        help_text=_(
+            mark_oas_difference("Haal details van inline resources direct op.")
+        ),
     )
 
     class Meta:
