@@ -24,6 +24,11 @@ LOGGING_SETTINGS = {
             "level": "WARNING",
             "propagate": False,
         },
+        "vng_api_common.exception_handling": {
+            "handlers": [],
+            "level": "CRITICAL",
+            "propagate": False,
+        },
     },
 }
 
