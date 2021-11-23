@@ -22,8 +22,8 @@ impossible to cover every case.
 The instructions on what to check on how to handle this are provided below per
 supported environment.
 
-**We strongly advise to test this upgrade on a test/staging environment before rolling
-it out in production!**
+**We strongly advise to backup your data and test this upgrade on a test/staging
+environment before rolling it out in production!**
 
 
 Single server with Ansible collection
@@ -79,3 +79,67 @@ Kubernetes
   .. group-tab:: Helm
 
      TODO - apply above strategy in Helm charts, but can't test.
+
+
+Cloud provider specific notes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Not all cloud providers are the same. The three big ones are arguably Azure, AWS and
+Google Cloud. Where applicable, we have provider-specific notes.
+
+.. tabs::
+
+    .. group-tab:: Azure
+
+        **Storage classes**
+
+        Persistent volumes on Azure are tricky. Out of the box only the
+        ``kubernetes.io/azure-file`` provisioner works with ``ReadWriteMany`` mount
+        mode, which Open Zaak requires.
+
+        However, this filesystem gets mounted as ``root`` by default and it's not possible
+        to correct the file permissions via an init container or the
+        ``securityContext.fsGroup`` option. You must use a storage class with the
+        correct mount options, for example:
+
+        .. code-block:: yaml
+
+            kind: StorageClass
+            apiVersion: storage.k8s.io/v1
+            allowVolumeExpansion: true
+            reclaimPolicy: Delete
+            volumeBindingMode: Immediate
+            metadata:
+              name: azurefile-openzaak
+            provisioner: kubernetes.io/azure-file
+            parameters:
+              skuName: Standard_LRS
+            mountOptions:
+            - uid=1000
+            - gid=1000
+
+        Note the explicit ``uid`` and ``gid`` mount options which map to the user that
+        Open Zaak runs as. For more information, see also
+        `this related Kubernetes issue <https://github.com/kubernetes/kubernetes/issues/54610>`_.
+
+        In our own testing, upgrading worked out of the box because the mounted volume
+        results in ``777`` file permissions mode, while still being owned by the root
+        user, which is functional but may not be what you want.
+
+        .. note::
+
+            On an existing installation you will probably have an existing PVC with
+            incorrect mount options and changing the storage class after creation is
+            not possible.
+
+            We recommend backing up the uploaded files, deleting the PVC, modifying the
+            storage class that Open Zaak uses and the restoring the backed up data on
+            the new PVC.
+
+    .. group-tab:: AWS
+
+        No known challenges at the moment.
+
+    .. group-tab:: Google Cloud
+
+        No known challenges at the moment.
