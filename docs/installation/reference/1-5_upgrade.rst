@@ -78,8 +78,21 @@ Kubernetes
 
   .. group-tab:: Helm
 
-     TODO - apply above strategy in Helm charts, but can't test.
+     We have added an init container to the Helm charts by default to fix the file
+     system permissions. For this you need to:
 
+     * update the Open Zaak chart version to at least 0.5.0
+     * have ``persistence`` enabled
+     * check if there are any :ref:`installation_reference_1_5_upgrade_cloud_provider_notes`
+
+     Once the upgrade is performed, you can skip this init container by setting the
+     ``initContainers.volumePerms=false`` value.
+
+     Note that the Open Notificaties update also requires a Helm chart version update
+     to ``0.5.0``.
+
+
+.. _installation_reference_1_5_upgrade_cloud_provider_notes:
 
 Cloud provider specific notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
