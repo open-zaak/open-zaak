@@ -138,6 +138,15 @@
     }
 },
 {
+    "model": "admin_index.appgroup",
+    "fields": {
+        "order": 5,
+        "name": "Handige links",
+        "slug": "handige-links",
+        "models": []
+    }
+},
+{
     "model": "admin_index.applink",
     "fields": {
         "order": 0,
@@ -146,6 +155,106 @@
         ],
         "name": "Service configuration",
         "link": "/admin/config/detail/"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 0,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Documentatie",
+        "link": "https://open-zaak.readthedocs.org"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 1,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Mailing list",
+        "link": "https://lists.publiccode.net/hyperkitty/hyperkitty/list/openzaak-discuss@lists.publiccode.net/"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 2,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Opgeven als contactpersoon bij veiligheidslekken",
+        "link": "https://odoo.publiccode.net/survey/start/086e0627-8bc0-4b65-8aa9-f6872aba89d0"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 3,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Website",
+        "link": "https://openzaak.org/"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 4,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Slack (kanaal #open-zaak)",
+        "link": "https://samenorganiseren.slack.com/"
+    }
+}
+,
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 5,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Github",
+        "link": "https://github.com/open-zaak/open-zaak"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 6,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "VNG-Standaard",
+        "link": "https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 7,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "VNG-Standaarddocumentatie",
+        "link": "https://vng-realisatie.github.io/gemma-zaken/"
+    }
+},
+{
+    "model": "admin_index.applink",
+    "fields": {
+        "order": 8,
+        "app_group": [
+            "handige-links"
+        ],
+        "name": "Common Ground community",
+        "link": "https://commonground.nl/groups/view/d9c2f667-2f3e-4153-a79b-57dde7f56cc2/team-open-zaak"
     }
 }
 ]
