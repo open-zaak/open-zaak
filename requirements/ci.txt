@@ -250,7 +250,7 @@ markupsafe==1.1.1
     #   jinja2
 mccabe==0.6.1
     # via flake8
-mozilla-django-oidc-db==0.5.0
+mozilla-django-oidc-db==0.6.0
     # via -r requirements/base.txt
 mozilla-django-oidc==1.2.4
     # via
