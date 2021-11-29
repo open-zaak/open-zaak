@@ -9,7 +9,7 @@ from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text
+from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.utils.apidoc import mark_oas_difference
 from openzaak.utils.filters import (
@@ -41,6 +41,41 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="rol__natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
+        max_length=get_field_attribute(
+            "zaken.NatuurlijkPersoon", "inp_bsn", "max_length"
+        ),
+    )
+    rol__betrokkene_identificatie__natuurlijk_persoon__anp_identificatie = filters.CharFilter(
+        field_name="rol__natuurlijkpersoon__anp_identificatie",
+        help_text=get_help_text("zaken.NatuurlijkPersoon", "anp_identificatie"),
+        max_length=get_field_attribute(
+            "zaken.NatuurlijkPersoon", "anp_identificatie", "max_length"
+        ),
+    )
+    rol__betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer = filters.CharFilter(
+        field_name="rol__natuurlijkpersoon__inp_a_nummer",
+        help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_a_nummer"),
+        max_length=get_field_attribute(
+            "zaken.NatuurlijkPersoon", "inp_a_nummer", "max_length"
+        ),
+    )
+    rol__betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id = filters.CharFilter(
+        field_name="rol__nietnatuurlijkpersoon__inn_nnp_id",
+        help_text=get_help_text("zaken.NietNatuurlijkPersoon", "inn_nnp_id"),
+    )
+    rol__betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie = filters.CharFilter(
+        field_name="rol__nietnatuurlijkpersoon__ann_identificatie",
+        help_text=get_help_text("zaken.NietNatuurlijkPersoon", "ann_identificatie"),
+        max_length=get_field_attribute(
+            "zaken.NietNatuurlijkPersoon", "ann_identificatie", "max_length"
+        ),
+    )
+    rol__betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
+        field_name="rol__vestiging__vestigings_nummer",
+        help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
+        max_length=get_field_attribute(
+            "zaken.Vestiging", "vestigings_nummer", "max_length"
+        ),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
