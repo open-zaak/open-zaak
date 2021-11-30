@@ -2576,7 +2576,47 @@
                         "in": "query",
                         "description": "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
                         "required": false,
+                        "type": "string",
+                        "maxLength": 9
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie",
+                        "in": "query",
+                        "description": "Het door de gemeente uitgegeven unieke nummer voor een ANDER NATUURLIJK PERSOON",
+                        "required": false,
+                        "type": "string",
+                        "maxLength": 17
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer",
+                        "in": "query",
+                        "description": "Het administratienummer van de persoon, bedoeld in de Wet BRP",
+                        "required": false,
+                        "type": "string",
+                        "maxLength": 10
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId",
+                        "in": "query",
+                        "description": "Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
+                        "required": false,
                         "type": "string"
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie",
+                        "in": "query",
+                        "description": "Het door de gemeente uitgegeven unieke nummer voor een ANDER NIET-NATUURLIJK PERSOON",
+                        "required": false,
+                        "type": "string",
+                        "maxLength": 17
+                    },
+                    {
+                        "name": "rol__betrokkeneIdentificatie__vestiging__vestigingsNummer",
+                        "in": "query",
+                        "description": "Een korte unieke aanduiding van de Vestiging.",
+                        "required": false,
+                        "type": "string",
+                        "maxLength": 24
                     },
                     {
                         "name": "rol__betrokkeneIdentificatie__medewerker__identificatie",
@@ -7167,6 +7207,36 @@
                 "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": {
                     "title": "Rol  betrokkeneidentificatie  natuurlijkpersoon  inpbsn",
                     "description": "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie": {
+                    "title": "Rol  betrokkeneidentificatie  natuurlijkpersoon  anpidentificatie",
+                    "description": "Het door de gemeente uitgegeven unieke nummer voor een ANDER NATUURLIJK PERSOON",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer": {
+                    "title": "Rol  betrokkeneidentificatie  natuurlijkpersoon  inpa nummer",
+                    "description": "Het administratienummer van de persoon, bedoeld in de Wet BRP",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId": {
+                    "title": "Rol  betrokkeneidentificatie  nietnatuurlijkpersoon  innnnpid",
+                    "description": "Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie": {
+                    "title": "Rol  betrokkeneidentificatie  nietnatuurlijkpersoon  annidentificatie",
+                    "description": "Het door de gemeente uitgegeven unieke nummer voor een ANDER NIET-NATUURLIJK PERSOON",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "rol__betrokkeneIdentificatie__vestiging__vestigingsNummer": {
+                    "title": "Rol  betrokkeneidentificatie  vestiging  vestigingsnummer",
+                    "description": "Een korte unieke aanduiding van de Vestiging.",
                     "type": "string",
                     "minLength": 1
                 },
