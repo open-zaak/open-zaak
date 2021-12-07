@@ -129,7 +129,7 @@ django-solo==1.1.3
     #   zgw-consumers
 django-webtest==1.9.7
     # via -r requirements/test-tools.in
-django==2.2.24
+django==2.2.25
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs
@@ -359,7 +359,7 @@ six==1.11.0
     #   webtest
 soupsieve==1.9.5
     # via beautifulsoup4
-sqlparse==0.3.0
+sqlparse==0.4.2
     # via
     #   -r requirements/base.txt
     #   django
