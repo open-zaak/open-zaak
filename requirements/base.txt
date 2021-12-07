@@ -89,7 +89,7 @@ django-solo==1.1.3
     #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
-django==2.2.24
+django==2.2.25
     # via
     #   -r requirements/base.in
     #   django-auth-adfs
@@ -242,7 +242,7 @@ six==1.11.0
     #   mozilla-django-oidc
     #   pyopenssl
     #   python-dateutil
-sqlparse==0.3.0
+sqlparse==0.4.2
     # via django
 unidecode==1.0.22
     # via vng-api-common
