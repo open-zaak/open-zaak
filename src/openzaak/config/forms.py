@@ -3,15 +3,14 @@
 import logging
 import socket
 from typing import Dict
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 import requests
 from zgw_consumers.models import Service
-
-from openzaak.nlx.api import get_services
+from zgw_consumers.nlx import get_nlx_services
 
 from .models import InternalService, NLXConfig
 
@@ -59,19 +58,22 @@ class InternalServiceForm(ModelForm):
 def get_nlx_choices() -> Dict[str, dict]:
     choices = {}
     nlx_outway = NLXConfig.get_solo().outway
+
     try:
-        services = get_services()
+        services_per_organization = get_nlx_services()
     except requests.RequestException:
         logger.warning("Failed fetching the NLX services", exc_info=True)
         return {}
 
-    for service in services:
-        url = f"{nlx_outway}{service['organization_name']}/{service['service_name']}/"
-        service_data = {
-            "service_name": service["service_name"],
-            "oas": service.get("documentation_url", ""),
-        }
-        choices.setdefault(service["organization_name"], {}).update({url: service_data})
+    for org, services in services_per_organization:
+        org_services = {}
+        for service in services:
+            url = urljoin(nlx_outway, f"{org['serial_number']}/{service['name']}")
+            org_services[url] = {
+                "service_name": service["name"],
+                "oas": service.get("documentation_url", ""),
+            }
+        choices[org["name"]] = org_services
 
     return choices
 
