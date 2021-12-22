@@ -9,10 +9,10 @@ from django.forms import ModelForm, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 import requests
-from zgw_consumers.models import Service
+from zgw_consumers.models import NLXConfig, Service
 from zgw_consumers.nlx import get_nlx_services
 
-from .models import InternalService, NLXConfig
+from .models import InternalService
 
 logger = logging.getLogger(__name__)
 

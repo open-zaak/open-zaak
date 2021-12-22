@@ -5,7 +5,7 @@ from django.views.generic import TemplateView, UpdateView
 
 from extra_views import ModelFormSetView
 from zgw_consumers.constants import AuthTypes
-from zgw_consumers.models import Service
+from zgw_consumers.models import NLXConfig, Service
 
 from openzaak.components.autorisaties.admin_views import get_form_data
 
@@ -15,7 +15,7 @@ from .forms import (
     NLXConfigForm,
     get_nlx_choices,
 )
-from .models import InternalService, NLXConfig
+from .models import InternalService
 from .utils import AdminRequiredMixin
 
 

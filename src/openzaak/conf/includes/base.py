@@ -10,9 +10,6 @@ import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
 from sentry_sdk.integrations import django, redis
 
-# NLX directory urls
-from openzaak.config.constants import NLXDirectories
-
 from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
 from .environ import config
@@ -592,12 +589,6 @@ STORE_FAILED_NOTIFS = True
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
 # leeway when comparing timestamps - non-zero value account for clock drift
 JWT_LEEWAY = config("JWT_LEEWAY", default=0)
-
-NLX_DIRECTORY_URLS = {
-    NLXDirectories.demo: "https://directory.demo.nlx.io/",
-    NLXDirectories.preprod: "https://directory.preprod.nlx.io/",
-    NLXDirectories.prod: "https://directory.prod.nlx.io/",
-}
 
 CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
 
