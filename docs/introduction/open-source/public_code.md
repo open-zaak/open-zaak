@@ -10,7 +10,7 @@ Requirement | meets | links and notes
 All source code for any policy and software in use (unless used for fraud detection) MUST be published and publicly accessible. | yes | [code](https://github.com/open-zaak/open-zaak), VNG/GEMMA2 policy linked in [README](https://github.com/open-zaak/open-zaak/blob/master/README.en.md)
 Contributors MUST NOT upload sensitive information regarding users, their organization or third parties to the repository. | yes | 2020-05-12 review by @EricHerman; [ISO 27001](https://www.maykinmedia.nl/en/)
 Any source code not currently in use (such as new versions, proposals or older versions) SHOULD be published. | yes | [releases](https://github.com/open-zaak/open-zaak/releases), [docker hub tags](https://hub.docker.com/r/openzaak/open-zaak/tags)
-The source code MAY provide the general public with insight into which source code or policy underpins any specific interaction they have with your organization. | |
+The source code MAY provide the general public with insight into which source code or policy underpins any specific interaction they have with an organization. | |
 
 
 ## [Bundle policy and source code](https://standard.publiccode.net/criteria/bundle-policy-and-code.html)
@@ -35,9 +35,9 @@ The codebase MUST be developed to be reusable in different contexts. | yes | Des
 The codebase MUST be independent from any secret, undisclosed, proprietary or non-open licensed code or services for execution and understanding. | yes | installation supports docker, kubernetes, vmware appliances, bare-metal is possible
 The codebase SHOULD be in use by multiple parties. | yes | Deployed in multiple sandbox environments (e.g: Utrecht is testing it, others Den Haag, Delft looking at it.)
 The roadmap SHOULD be influenced by the needs of multiple parties. | yes | [Dimpact](https://www.dimpact.nl/openzaak), [market consultation](https://github.com/open-zaak/open-zaak-market-consultation) |
-Configuration SHOULD be used to make code adapt to context specific needs. |
-Codebases SHOULD include a publiccode.yml metadata description so that they’re easily discoverable. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
-Code and its documentation SHOULD NOT contain situation-specific information.  | yes | Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
+Configuration SHOULD be used to make code adapt to context specific needs. |  |
+The codebase SHOULD include a machine readable metadata description, for example in a publiccode.yml](https://github.com/publiccodeyml/publiccode.yml) file. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
+Code and its documentation SHOULD NOT contain situation-specific information. | yes | Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
 
 ## [Welcome contributors](https://standard.publiccode.net/criteria/open-to-contributions.html)
 
@@ -46,7 +46,7 @@ Code and its documentation SHOULD NOT contain situation-specific information.  |
 Requirement | meets | links and notes
 -----|-----|-----
 The codebase MUST allow anyone to submit suggestions for changes to the codebase. | yes | [requests](https://github.com/open-zaak/open-zaak/pulls)
-The codebase MUST include contribution guidelines explaining how contributors can get involved, for example in a CONTRIBUTING file. | yes | [CONTRIBUTING](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md), [Documentation](https://open-zaak.readthedocs.io/en/latest/development/index.html)
+The codebase MUST include contribution guidelines explaining what kinds of contributions are welcome and how contributors can get involved, for example in a CONTRIBUTING file. | yes | [CONTRIBUTING](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md), [Documentation](https://open-zaak.readthedocs.io/en/latest/development/index.html)
 The codebase SHOULD advertise the committed engagement of involved organizations in the development and maintenance. | yes | [Readme](https://github.com/open-zaak/open-zaak/blob/master/README.en.md#Construction)
 The codebase SHOULD document the governance of the codebase, contributions and its community, for example in a GOVERNANCE file. | no | draft [GOVERNANCE](https://github.com/open-zaak/open-zaak/blob/master/GOVERNANCE.md) file
 The codebase SHOULD have a publicly available roadmap. | no | Issues are not yet collected into a roadmap view; tech-debt and tech-wishlist not yet collected into a technical roadmap
@@ -59,9 +59,9 @@ The codebase MAY include a code of conduct for contributors. | no | no email add
 Requirement | meets | links and notes
 -----|-----|-----
 The codebase MUST have a public issue tracker that accepts suggestions from anyone. | yes | [issues](https://github.com/open-zaak/open-zaak/issues)
-The codebase MUST include an email address for security issues and responsible disclosure. | yes | [security@maykinmedia.nl](mailto:security@maykinmedia.nl)
+The codebase MUST include instructions for how to privately report security issues for responsible disclosure. | yes | [Reporting security issues](https://open-zaak.readthedocs.io/en/stable/support/security.html#reporting-security-issues)
 The documentation MUST link to both the public issue tracker and submitted codebase changes, for example in a README file. | yes | [Documentation](https://open-zaak.readthedocs.io/en/latest/support/index.html), [CONTRIBUTING.md](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md)
-The project MUST have communication channels for users and developers, for example email lists. | yes | [Mailing list](https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/), github [issues](https://github.com/open-zaak/open-zaak/issues), [VNG slack channel](https://samenorganiseren.slack.com/archives/CT6UH711Q) (requires an invite)
+The codebase MUST have communication channels for users and developers, for example email lists. | yes | [Mailing list](https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/), github [issues](https://github.com/open-zaak/open-zaak/issues), [VNG slack channel](https://samenorganiseren.slack.com/archives/CT6UH711Q) (requires an invite)
 The documentation SHOULD include instructions for how to report potentially security sensitive issues on a closed channel. | yes | [SECURITY.rst](https://github.com/open-zaak/open-zaak/blob/master/SECURITY.rst)
 
 ## [Maintain version control](https://standard.publiccode.net/criteria/version-control-and-history.html)
@@ -70,13 +70,15 @@ The documentation SHOULD include instructions for how to report potentially secu
 
 Requirement | meets | links and notes
 -----|-----|-----
-You MUST have a way to maintain version control for the code. | yes | [GitHub](https://github.com/open-zaak/open-zaak)
+The community MUST have a way to maintain version control for the code. | yes | [GitHub](https://github.com/open-zaak/open-zaak)
 All files in a codebase MUST be version controlled. | yes | [git](https://github.com/open-zaak/open-zaak/)
 All decisions MUST be documented in commit messages. | | Generally good, some room for improvement, commit template may help
 Every commit message MUST link to discussions and issues wherever possible. |  | yes for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/master)
-You SHOULD group relevant changes in commits. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
-You SHOULD mark different versions of the codebase, for example using revision tags or textual labels. | yes | [releases](https://github.com/open-zaak/open-zaak/releases)
-You SHOULD prefer file formats that can easily be version controlled. | yes | mostly code and Restructured Text or Markdown
+The codebase SHOULD be maintained in a distributed version control system. | yes | git
+Contributors SHOULD group relevant changes in commits. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
+Maintainers SHOULD mark released versions of the codebase, for example using revision tags or textual labels. | yes | [releases](https://github.com/open-zaak/open-zaak/releases)
+Contributors SHOULD prefer file formats where the changes within the files can be easily viewed and understood in the version control system. | yes | mostly code and Restructured Text or Markdown
+Contributors MAY sign their commits and provide an email address, so that future contributors are able to contact past contributors with questions about their work. |  |
 
 ## [Require review of contributions](https://standard.publiccode.net/criteria/require-review.html)
 
@@ -86,7 +88,7 @@ Requirement | meets | links and notes
 -----|-----|-----
 All contributions that are accepted or committed to release versions of the codebase MUST be reviewed by another contributor. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
 Reviews MUST include source, policy, tests and documentation. | yes | repo is configured, tests span, practices right, yet documentation could be more explicit on this point
-Reviewers MUST provide feedback on all decisions made and the implementation in the review. | yes | documentations/contrib guidelines could copy-paste from the employement handbook,  [PRs](https://github.com/open-zaak/open-zaak/pulls)
+Reviewers MUST provide feedback on all decisions to not accept a contribution. | yes | documentations/contrib guidelines could copy-paste from the employement handbook,  [PRs](https://github.com/open-zaak/open-zaak/pulls)
 Contributions SHOULD conform to the standards, architecture and decisions set out in the codebase in order to pass review. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls), django best practices
 Reviews SHOULD include running both the code and the tests of the codebase. | yes | CI and manual validation required, not clearly documented yet (in handbook)
 Contributions SHOULD be reviewed by someone in a different context than the contributor. | | (some) not applicable yet
@@ -94,18 +96,18 @@ Version control systems SHOULD not accept non-reviewed contributions in release 
 Reviews SHOULD happen within two business days. | yes | no official policy, is the practice
 Reviews MAY be performed by multiple reviewers. | | mostly
 
-## [Document your objectives](https://standard.publiccode.net/criteria/document-objectives.html)
+## [Document codebase objectives](https://standard.publiccode.net/criteria/document-objectives.html)
 
 - [x] Objectives are clear in the introduction documenation
 
 Requirement | meets | links and notes
 -----|-----|-----
 The codebase MUST contain documentation of its objectives – like a mission and goal statement – that is understandable by designers and developers so that they can use or contribute to the codebase. | yes | "Open Zaak is based on the API reference implementations by VNG Realisatie to create a production-grade product that can be used by municipalities." [introduction](https://open-zaak.readthedocs.io/en/latest/introduction/index.html)
-The codebase SHOULD contain documentation of its objectives understandable by policy makers and management. | yes |
+Codebase documentation SHOULD clearly describe the connections between policy objectives and codebase objectives. | yes |
 The codebase MAY contain documentation of its objectives for the general public. | | could elaborate for general public: Common Ground, data security, GDPR requests and such
 
 
-## [Document your code](https://standard.publiccode.net/criteria/documenting.html)
+## [Document the code](https://standard.publiccode.net/criteria/documenting.html)
 
 - [x] documentation is good across the board, "recipies" would be nice
 
@@ -114,9 +116,9 @@ Requirement | meets | links and notes
 All of the functionality of the codebase – policy as well as source – MUST be described in language clearly understandable for those that understand the purpose of the code. | yes | additional docs are generated from code comments
 The documentation of the codebase MUST contain: a description of how to install and run the source code, examples demonstrating the key functionality. | yes | [getting started](https://open-zaak.readthedocs.io/en/latest/development/getting_started.html), [post-install checklist](https://open-zaak.readthedocs.io/en/latest/installation/index.html#post-install-checklist), improvement: add demo fixtures/instructions
 The documentation of the codebase SHOULD contain: a high level description that is clearly understandable for a wide audience of stakeholders, like the general public and journalists, a section describing how to install and run a standalone version of the source code, including, if necessary, a test dataset, examples for all functionality. |  | [documentation](https://open-zaak.readthedocs.io/en/latest/introduction/index.html), would like to see standard recipies and examples of more fuctionality
-There SHOULD be continuous integration tests for the quality of your documentation. | yes | link checks, build checks, [Travis config](https://github.com/open-zaak/open-zaak/blob/master/.travis.yml#L74)
+There SHOULD be continuous integration tests for the quality of the documentation. | yes | link checks, build checks, [Travis config](https://github.com/open-zaak/open-zaak/blob/master/.travis.yml#L74)
 The documentation of the codebase MAY contain examples that make users want to immediately start using the codebase. |
-You MAY use the examples in your documentation to test the code. |
+The code MAY be tested by using examples in the documentation. |
 
 ## [Use plain English](https://standard.publiccode.net/criteria/understandable-english-first.html)
 
@@ -124,11 +126,12 @@ You MAY use the examples in your documentation to test the code. |
 
 Requirement | meets | links and notes
 -----|-----|-----
-All code and documentation MUST be in English. |  | [manual in Dutch](https://open-zaak.readthedocs.io/en/latest/manual/index.html)
+All codebase documentation MUST be in English. |  | [manual in Dutch](https://open-zaak.readthedocs.io/en/latest/manual/index.html)
+All code MUST be in English, except where policy is machine interpreted as code. |  |
 Any translation MUST be up to date with the English version and vice versa. | | TODO: add translations of user-facing texts (NL -> EN) (makemessages)
-There SHOULD be no acronyms, abbreviations, puns or legal/domain specific terms in the codebase without an explanation preceding it or a link to an explanation. | |Domain specific Dutch terms could be in a glossary which is also translated in English.
-The name of the project or codebase SHOULD be descriptive and free from acronyms, abbreviations, puns or branding. | yes |
-Documentation SHOULD aim for a lower secondary education reading level, as recommended by the Web Content Accessibility Guidelines 2. | | Would be good to get an evaluation of this prior to investing in translation.
+There SHOULD be no acronyms, abbreviations, puns or legal/non-English/domain specific terms in the codebase without an explanation preceding it or a link to an explanation. | |Domain specific Dutch terms could be in a glossary which is also translated in English.
+The name of the codebase SHOULD be descriptive and free from acronyms, abbreviations, puns or organizational branding. | yes |
+Documentation SHOULD aim for a lower secondary education reading level, as recommended by the [Web Content Accessibility Guidelines 2](https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=315#readable). | | Would be good to get an evaluation of this prior to investing in translation.
 Any code, documentation and tests MAY have a translation. |
 
 ## [Use open standards](https://standard.publiccode.net/criteria/open-standards.html)
@@ -165,7 +168,7 @@ Policy and documentation MAY have testing for style and broken links. | yes | [d
 Requirement | meets | links and notes
 -----|-----|-----
 All code and documentation MUST be licensed such that it may be freely reusable, changeable and redistributable. | yes | [copyright marks in the footer?](https://open-zaak.readthedocs.io/en/latest/index.html) -> check if we can add license to footer ([sphinx conf](https://github.com/open-zaak/open-zaak/blob/master/docs/conf.py#L30)), but explicit open license
-Software source code MUST be licensed under an OSI-approved open source license. | yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
+Software source code MUST be licensed under an [OSI-approved open source license](https://opensource.org/licenses/category). | yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 All code MUST be published with a license file. |yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 Contributors MUST NOT be required to transfer copyright of their contributions to the codebase. | yes |
 All source code files in the codebase SHOULD include a copyright notice and a license header. | yes | 2020-08-03 review by @ericherman
@@ -177,10 +180,10 @@ Codebases MAY have multiple licenses for different types of code and documentati
 
 Requirement | meets | links and notes
 -----|-----|-----
-Contributions MUST adhere to either a coding or writing style guide, either your own or an existing one that is advertised in or part of the codebase. | yes | [Style guides](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md)
+Contributions MUST adhere to either a coding or writing style guide, either the codebase community’s own or an existing one that is advertised in or part of the codebase. | yes | [Style guides](https://github.com/open-zaak/open-zaak/blob/master/CONTRIBUTING.md)
 Contributions SHOULD pass automated tests on style. | yes |
-Your codebase SHOULD include inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
-You MAY include sections in your style guide on understandable English. |  |
+The codebase SHOULD include inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
+The style guide MAY include sections on understandable English. |  |
 
 ## [Document codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
@@ -191,4 +194,4 @@ Requirement | meets | links and notes
 A codebase MUST be versioned. | yes | [version list](https://open-zaak.readthedocs.io/en/latest/development/index.html)
 A codebase that is ready to use MUST only depend on other codebases that are also ready to use. | yes | [Open source dependencies](https://github.com/open-zaak/open-zaak/blob/master/docs/introduction/open-source/dependencies.rst)
 A codebase that is not yet ready to use MUST have one of these labels: prototype - to test the look and feel, and to internally prove the concept of the technical possibilities, alpha - to do guided tests with a limited set of users, beta - to open up testing to a larger section of the general public, for example to test if the codebase works at scale, pre-release version - code that is ready to be released but hasn’t received formal approval yet. | N/A | Is ready
- A codebase SHOULD contain a log of changes from version to version, for example in the CHANGELOG. | yes | [changelog](https://open-zaak.readthedocs.io/en/latest/development/changelog.html) |
+A codebase SHOULD contain a log of changes from version to version, for example in the CHANGELOG. | yes | [changelog](https://open-zaak.readthedocs.io/en/latest/development/changelog.html) |
