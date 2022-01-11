@@ -168,8 +168,7 @@ class ZaakArchiveIOsArchivedValidator:
 
         documents_not_archived_error = serializers.ValidationError(
             {
-                "archiefstatus",
-                _(
+                "archiefstatus": _(
                     "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk is aan "
                     "`gearchiveerd`. Dit is een voorwaarde voor het zetten van de `archiefstatus` "
                     "op een andere waarde dan `nog_te_archiveren`."
