@@ -79,7 +79,8 @@ The codebase SHOULD be maintained in a distributed version control system. | yes
 Contributors SHOULD group relevant changes in commits. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
 Maintainers SHOULD mark released versions of the codebase, for example using revision tags or textual labels. | yes | [releases](https://github.com/open-zaak/open-zaak/releases)
 Contributors SHOULD prefer file formats where the changes within the files can be easily viewed and understood in the version control system. | yes | mostly code and Restructured Text or Markdown
-Contributors MAY sign their commits and provide an email address, so that future contributors are able to contact past contributors with questions about their work. |  |
+Contributors MAY sign their commits and provide an email address, so that future contributors are able to contact past contributors with questions about their work. | yes | Commits have email addresses, release tags GPG signed
+
 
 ## [Require review of contributions](https://standard.publiccode.net/criteria/require-review.html)
 
