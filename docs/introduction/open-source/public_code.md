@@ -23,7 +23,8 @@ A codebase MUST include the policy that the source code is based on. | yes | [AP
 A codebase MUST include all source code that the policy is based on. | | "yes" or "not applicable", do we consider it based on the API?
 All policy and source code that the codebase is based on MUST be documented, reusable and portable. | yes | code dependencies are OSI
 Policy SHOULD be provided in machine readable and unambiguous formats. | yes | OpenAPI is in machine readable yaml format
-Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [Travis CI config](https://github.com/open-zaak/open-zaak/blob/master/.travis.yml#L86), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
+Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow]
+(https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 
 ## [Create reusable and portable code](https://standard.publiccode.net/criteria/reusable-and-portable-codebases.html)
 
@@ -116,7 +117,7 @@ Requirement | meets | links and notes
 All of the functionality of the codebase – policy as well as source – MUST be described in language clearly understandable for those that understand the purpose of the code. | yes | additional docs are generated from code comments
 The documentation of the codebase MUST contain: a description of how to install and run the source code, examples demonstrating the key functionality. | yes | [getting started](https://open-zaak.readthedocs.io/en/latest/development/getting_started.html), [post-install checklist](https://open-zaak.readthedocs.io/en/latest/installation/index.html#post-install-checklist), improvement: add demo fixtures/instructions
 The documentation of the codebase SHOULD contain: a high level description that is clearly understandable for a wide audience of stakeholders, like the general public and journalists, a section describing how to install and run a standalone version of the source code, including, if necessary, a test dataset, examples for all functionality. |  | [documentation](https://open-zaak.readthedocs.io/en/latest/introduction/index.html), would like to see standard recipies and examples of more fuctionality
-There SHOULD be continuous integration tests for the quality of the documentation. | yes | link checks, build checks, [Travis config](https://github.com/open-zaak/open-zaak/blob/master/.travis.yml#L74)
+There SHOULD be continuous integration tests for the quality of the documentation. | yes | link checks, build checks, [Travis config](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml#L178-L190)
 The documentation of the codebase MAY contain examples that make users want to immediately start using the codebase. |
 The code MAY be tested by using examples in the documentation. |
 
