@@ -170,7 +170,7 @@ markdown==3.0.1
     # via -r requirements/base.in
 markupsafe==1.1.1
     # via jinja2
-mozilla-django-oidc-db==0.7.1
+mozilla-django-oidc-db==0.7.2
     # via -r requirements/base.in
 mozilla-django-oidc==1.2.4
     # via mozilla-django-oidc-db
