@@ -61,7 +61,11 @@ from .filters import (
 )
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin
-from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
+from .permissions import (
+    ZaakAudittrailAuthRequired,
+    ZaakAuthRequired,
+    ZaakNestedAuthRequired,
+)
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -861,7 +865,15 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     Een specifieke audit trail regel opvragen.
     """
 
+    parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     main_resource_lookup_field = "zaak_uuid"
+    permission_classes = (ZaakAudittrailAuthRequired,)
+
+    def _get_zaak(self):
+        if not hasattr(self, "_zaak"):
+            filters = lookup_kwargs_to_filters(self.parent_retrieve_kwargs, self.kwargs)
+            self._zaak = get_object_or_404(Zaak, **filters)
+        return self._zaak
 
 
 class ZaakBesluitViewSet(

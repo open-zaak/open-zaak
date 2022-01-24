@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from collections import defaultdict
 
 from django.apps import apps
@@ -7,8 +7,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes
+from vng_api_common.authorizations.models import APIMixin, Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 
 from openzaak.utils import build_absolute_url
@@ -154,3 +154,74 @@ class AutorisatieSpec(models.Model):
         changed = {autorisatie.applicatie for autorisatie in (to_delete + _to_add)}
         for applicatie in changed:
             send_applicatie_changed_notification(applicatie)
+
+
+class Role(APIMixin, models.Model):
+    slug = models.SlugField(
+        max_length=255, help_text=_("Unieke naam van de rol"), unique=True,
+    )
+    name = models.CharField(
+        max_length=255, help_text=_("Gebruikersvriendelijke naam van de rol")
+    )
+
+    component = models.CharField(
+        _("component"),
+        max_length=50,
+        choices=ComponentTypes.choices,
+        help_text=_("Component waarop autorisatie van toepassing is."),
+    )
+    scopes = ArrayField(
+        models.CharField(max_length=100),
+        verbose_name=_("scopes"),
+        help_text=_("Komma-gescheiden lijst van scope labels."),
+    )
+
+    # ZRC exclusive
+    zaaktype = models.URLField(
+        _("zaaktype"),
+        help_text=_("URL naar het zaaktype waarop de autorisatie van toepassing is."),
+        max_length=1000,
+        blank=True,
+    )
+
+    # DRC exclusive
+    informatieobjecttype = models.URLField(
+        _("informatieobjecttype"),
+        help_text=_(
+            "URL naar het informatieobjecttype waarop de autorisatie van toepassing is."
+        ),
+        max_length=1000,
+        blank=True,
+    )
+
+    # BRC exclusive
+    besluittype = models.URLField(
+        _("besluittype"),
+        help_text=_(
+            "URL naar het besluittype waarop de autorisatie van toepassing is."
+        ),
+        max_length=1000,
+        blank=True,
+    )
+
+    # ZRC & DRC exclusive
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
+        help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _("rol")
+        verbose_name_plural = _("rollen")
+
+    def __str__(self):
+        return self.name
+
+    def satisfy_vertrouwelijkheid(self, vertrouwelijkheidaanduiding: str) -> bool:
+        max_confid_level = VertrouwelijkheidsAanduiding.get_choice(
+            self.max_vertrouwelijkheidaanduiding
+        ).order
+        provided_confid_level = VertrouwelijkheidsAanduiding.get_choice(
+            vertrouwelijkheidaanduiding
+        ).order
+        return max_confid_level >= provided_confid_level
