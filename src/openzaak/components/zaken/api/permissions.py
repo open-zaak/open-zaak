@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 
@@ -20,6 +20,9 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
     def has_permission(self, request: Request, view) -> bool:
         if bypass_permissions(request):
             return True
+
+        # JWTs are only valid for a short amount of time
+        self.check_jwt_expiry(request.jwt_auth.payload)
 
         scopes_required = get_required_scopes(view)
         component = self.get_component(view)
