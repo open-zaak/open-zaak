@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 
@@ -33,3 +33,8 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
     def has_object_permission(self, request: Request, view, obj) -> bool:
         # all checks are made in has_permission stage
         return True
+
+
+class ZaakAudittrailAuthRequired(ZaakNestedAuthRequired):
+    def get_component(self, view) -> str:
+        return "zaken"

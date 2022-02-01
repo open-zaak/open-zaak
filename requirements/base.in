@@ -37,7 +37,8 @@ django-filter
 djangorestframework-camel-case~=1.2.0
 drf-yasg
 drf-writable-nested
-vng-api-common<1.1
+# vng-api-common<1.1
+git+https://github.com/VNG-Realisatie/vng-api-common.git@2e97d27b08ce4f5093be65e8c09d1070f7ccce08#egg=vng-api-common
 humanize
 drc-cmis
 

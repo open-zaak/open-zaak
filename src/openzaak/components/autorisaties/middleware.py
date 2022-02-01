@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from typing import List, Union
 
 from django.db import models
@@ -13,6 +13,7 @@ from vng_api_common.middleware import (
     JWTAuth as _JWTAuth,
 )
 
+from openzaak.components.autorisaties.models import Role
 from openzaak.utils.constants import COMPONENT_MAPPING
 
 
@@ -35,6 +36,21 @@ class JWTAuth(_JWTAuth):
         if not hasattr(self, "_applicaties_qs"):
             self._applicaties_qs = super().applicaties
         return self._applicaties_qs
+
+    @property
+    def roles(self) -> models.QuerySet:
+        role_slugs = self.payload.get("roles", [])
+        return Role.objects.filter(slug__in=role_slugs)
+
+    def get_roles(self, init_component: str) -> models.QuerySet:
+        """
+        Retrieve all authorizations relevant to this component.
+        """
+        if not self.roles:
+            return Role.objects.none()
+
+        component = COMPONENT_MAPPING.get(init_component, init_component)
+        return Role.objects.filter(component=component)
 
     def _request_auth(self) -> list:
         return []
@@ -86,7 +102,27 @@ class JWTAuth(_JWTAuth):
         for autorisatie in autorisaties:
             scopes_provided.update(autorisatie.scopes)
 
-        return scopes.is_contained_in(list(scopes_provided))
+        scopes_in_autorisaties = scopes.is_contained_in(list(scopes_provided))
+        if not scopes_in_autorisaties:
+            return False
+
+        roles = self.get_roles(init_component)
+        if not roles:
+            return scopes_in_autorisaties
+
+        scopes_provided_by_roles = set()
+
+        # filter on all additional components
+        for field_name, field_value in fields.items():
+            if hasattr(self, f"filter_{field_name}"):
+                roles = getattr(self, f"filter_{field_name}")(roles, field_value)
+            else:
+                roles = self.filter_default(roles, field_name, field_value)
+
+        for role in roles:
+            scopes_provided_by_roles.update(role.scopes)
+
+        return scopes.is_contained_in(list(scopes_provided_by_roles))
 
 
 class AuthMiddleware(_AuthMiddleware):

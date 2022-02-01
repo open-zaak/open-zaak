@@ -11,11 +11,13 @@ from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils.tests import JWTAuthMixin
 
+from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
@@ -89,3 +91,63 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         response_data = response.json()["results"]
         self.assertEqual(len(response_data), 1)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ZaakZoekPermissionTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+    component = ComponentTypes.zrc
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.confidentieel
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+
+        super().setUpTestData()
+
+    def test_zaak_zoek(self):
+        """
+        Regression test for filtering the Zaak list based on authorizations
+        """
+
+        zaaktype2 = ZaakTypeFactory.create(concept=False)
+
+        # in district
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+            zaakgeometrie=Point(4.887990, 52.377595),
+        )  # LONG LAT
+        #
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            zaakgeometrie=Point(4.887990, 52.377595),
+        )
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            zaakgeometrie=Point(4.887990, 52.377595),
+        )
+
+        url = get_operation_url("zaak__zoek")
+
+        response = self.client.post(
+            url,
+            {
+                "zaakgeometrie": {
+                    "within": {
+                        "type": "Polygon",
+                        "coordinates": [POLYGON_AMSTERDAM_CENTRUM],
+                    }
+                }
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response_data = response.json()["results"]
+        self.assertEqual(len(response_data), 1)
+        detail_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        self.assertEqual(response_data[0]["url"], f"http://testserver{detail_url}")
