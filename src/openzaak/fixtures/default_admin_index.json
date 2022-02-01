@@ -29,6 +29,10 @@
                 "applicatie"
             ],
             [
+                "autorisaties",
+                "role"
+            ],
+            [
                 "zgw_consumers",
                 "service"
             ]

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django.contrib import admin
 from django.db import transaction
 from django.db.models import Exists, OuterRef
@@ -20,7 +20,7 @@ from zds_client import ClientAuth
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
-from .models import AutorisatieSpec
+from .models import AutorisatieSpec, Role
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
@@ -145,3 +145,12 @@ class AutorisatieSpecAdmin(admin.ModelAdmin):
     )
     list_filter = ("component", "applicatie")
     search_fields = ("applicatie__uuid",)
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = (
+        "slug",
+        "component",
+    )
+    list_filter = ("component", "slug")
