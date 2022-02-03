@@ -15,7 +15,7 @@ The OpenZaak community adheres to the following principles:
 * Transparent and accessible, changes to the OpenZaak organization, OpenZaak code repositories, and OpenZaak related activities (e.g. level, involvement, etc) are done in public.
 * Ideas and contributions are accepted according to their technical merit and alignment with project objectives, scope, and design principles.
 
-The maintainers of OpenZaak have two steering teams, a technical one and a product one.
+The maintainers of OpenZaak have two steering teams, a technical one and a core group (kern groep).
 
 Through codebase stewardship the Foundation for Public Code supports the governance of OpenZaak, the product and technical steering teams, and its community.
 
@@ -56,15 +56,15 @@ to review or approve all patches. This is mainly being done through the process
 described in [the contributing guide](CONTRIBUTING.md#Reviews).
 
 If more than one technical steering team member disagrees with a decision of the
-technical steering team they may appeal to the product steering team who will make the
+technical steering team they may appeal to the core group who will make the
 ultimate ruling.
 
 Ideally, no one company or organization will employ a simple majority of the technical
 steering team.
 
-## Product steering team
+## Core group
 
-Responsibilities of the product steering team:
+Responsibilities of the core group:
 
 * Maintaining the mission, vision, values, and scope of the project
 * Collecting planned features and presenting them in a unified view
@@ -74,24 +74,6 @@ Responsibilities of the product steering team:
 * Managing the OpenZaak brand
 * Licensing and intellectual property changes
 * Controlling access to OpenZaak assets such as hosting and project calendars
-
-Changes in codebase governance can only be done by the product steering team and requires super majority.
-
-Anyone with an interest in Open Zaak can request to become a product steering team member by asking the product steering team. The product steering team will vote on this request (simple majority). However, no more than 1 person per organization can have a vote. Typical members are:
-
-1) Representatives of a municipality that uses Open Zaak in some form as part of their current or future architecture.
-2) Representatives of an organization that manages or delivers Open Zaak installation(s) at one or more public organizations.
-3) Representatives of an organization that incorporates or uses Open Zaak in combination with their own product(s).
-
-The current team members are:
-
-* Joeri Bekker, Maykin Media
-* Jolanda van de Kooij, Exxellence
-* Peter Moen, Exxellence
-* Hugo ter Doest, Dimpact
-* Niels Lindeboom, Dimpact
-* Tahir Malik, Contezza
-* Silvion Moesan, Open.Satisfaction
 
 ## Decision making process
 
@@ -111,8 +93,8 @@ Many of the day-to-day project maintenance tasks can be done by a lazy consensus
 
 OpenZaak's Code of Conduct is explained in [this project's code of conduct](CODE_OF_CONDUCT.md).
 
-Currently, the Technical Steering Group handles Code of Conduct violations.
+Currently, the Technical Steering team handles Code of Conduct violations.
 
 If the possible violation involves a team member that member will be recused from voting
-on the issue. Such issues must be escalated to the product steering team contact, and
-the product steering team may choose to intervene.
+on the issue. Such issues must be escalated to the core group contact, and
+the core group choose to intervene.
