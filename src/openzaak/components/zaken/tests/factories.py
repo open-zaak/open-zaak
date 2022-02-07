@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from datetime import date
 
 from django.utils import timezone
@@ -135,3 +135,11 @@ class KlantContactFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.KlantContact"
+
+
+class ZaakContactMomentFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    contactmoment = factory.Faker("url")
+
+    class Meta:
+        model = "zaken.ZaakContactMoment"

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
 
@@ -19,6 +19,7 @@ from ..models import (
     Status,
     Zaak,
     ZaakBesluit,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
@@ -449,6 +450,10 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakContactMomentInline(admin.TabularInline):
+    model = ZaakContactMoment
+
+
 class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
@@ -497,6 +502,7 @@ class ZaakAdmin(
         ResultaatInline,
         RelevanteZaakRelatieInline,
         ZaakBesluitInline,
+        ZaakContactMomentInline,
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
@@ -513,3 +519,10 @@ class ZaakAdmin(
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
         )
+
+
+@admin.register(ZaakContactMoment)
+class ZaakContactMomentAdmin(admin.ModelAdmin):
+    list_display = ["zaak", "contactmoment"]
+    list_select_related = ["zaak"]
+    raw_id_fields = ["zaak"]
