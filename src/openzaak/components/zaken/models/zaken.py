@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import logging
 import uuid
 from datetime import date
@@ -54,6 +54,7 @@ __all__ = [
     "ZaakInformatieObject",
     "KlantContact",
     "ZaakBesluit",
+    "ZaakContactMoment",
 ]
 
 
@@ -992,3 +993,41 @@ class ZaakBesluit(models.Model):
         zaak_repr = self.zaak.unique_representation()
 
         return f"({zaak_repr}) - {self.besluit.identificatie}"
+
+
+class ZaakContactMoment(models.Model):
+    """
+    Model ContactMoment belonged to Zaak
+    """
+
+    uuid = models.UUIDField(
+        unique=True,
+        default=uuid.uuid4,
+        help_text=_("Unieke resource identifier (UUID4)"),
+    )
+    zaak = models.ForeignKey(
+        Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
+    )
+    contactmoment = models.URLField(
+        "contactmoment",
+        help_text=_("URL-referentie naar het CONTACTMOMENT (in de KCC API)"),
+        max_length=1000,
+    )
+    _objectcontactmoment = models.URLField(
+        "objectcontactmoment",
+        blank=True,
+        help_text="Link to the related object in the KCC API",
+    )
+
+    objects = ZaakRelatedQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = "contactmoment"
+        verbose_name_plural = "contactmomenten"
+        unique_together = ("zaak", "contactmoment")
+
+    def __str__(self) -> str:
+        return f"{self.zaak} - {self.contactmoment}"
+
+    def unique_representation(self):
+        return f"{self.zaak} - {self.contactmoment}"

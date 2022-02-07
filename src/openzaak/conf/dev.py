@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import os
 import sys
 import warnings
@@ -72,6 +72,7 @@ CACHES = {
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "import_requests": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "kcc_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
 REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
