@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 """
 Continuous integration settings module.
 """
@@ -20,6 +20,7 @@ CACHES = {
     # See: https://github.com/jazzband/django-axes/blob/master/docs/configuration.rst#cache-problems
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "kcc_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
 LOGGING = LOGGING_SETTINGS  # Minimally required logging is nice

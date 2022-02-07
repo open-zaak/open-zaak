@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django.conf import settings
 from django.conf.urls import url
 from django.urls import include, path
@@ -15,6 +15,7 @@ from .viewsets import (
     StatusViewSet,
     ZaakAuditTrailViewSet,
     ZaakBesluitViewSet,
+    ZaakContactMomentViewSet,
     ZaakEigenschapViewSet,
     ZaakInformatieObjectViewSet,
     ZaakObjectViewSet,
@@ -37,6 +38,7 @@ router.register("klantcontacten", KlantContactViewSet)
 router.register("rollen", RolViewSet)
 router.register("resultaten", ResultaatViewSet)
 router.register("zaakinformatieobjecten", ZaakInformatieObjectViewSet)
+router.register("zaakcontactmomenten", ZaakContactMomentViewSet)
 
 
 # set the path to schema file

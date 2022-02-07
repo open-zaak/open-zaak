@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
 # Remove the reference - we don't have a single API version.
@@ -88,6 +88,9 @@ BRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
 )
 
+kcc_repo = "VNG-Realisatie/contactmomenten-api"
+kcc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
+KCC_API_SPEC = f"https://raw.githubusercontent.com/{kcc_repo}/{kcc_commit}/src/openapi.yaml"  # noqa
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
