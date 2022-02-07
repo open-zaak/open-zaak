@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -18,6 +18,7 @@ from ..models import (
     Rol,
     Status,
     Zaak,
+    ZaakContactMoment,
     ZaakInformatieObject,
     ZaakObject,
 )
@@ -178,3 +179,9 @@ class KlantContactFilter(FilterSet):
     class Meta:
         model = KlantContact
         fields = ("zaak",)
+
+
+class ZaakContactMomentFilter(FilterSet):
+    class Meta:
+        model = ZaakContactMoment
+        fields = ("zaak", "contactmoment")
