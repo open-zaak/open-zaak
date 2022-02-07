@@ -98,6 +98,17 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | datumStatusGezet | De datum waarop de ZAAK de status heeft verkregen. | string | ja | C​R​U​D |
 | statustoelichting | Een, voor de initiator van de zaak relevante, toelichting op de status van een zaak. | string | nee | C​R​U​D |
 
+## ZaakContactMoment
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakcontactmoment)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaak | URL-referentie naar de ZAAK. | string | ja | C​R​U​D |
+| contactmoment | URL-referentie naar het CONTACTMOMENT (in de KCC API) | string | ja | C​R​U​D |
+
 ## ZaakInformatieObject
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakinformatieobject)

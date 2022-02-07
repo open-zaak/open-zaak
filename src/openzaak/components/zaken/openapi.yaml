@@ -29,8 +29,8 @@ info:
     \ bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n\
     - `status`: create\n- `zaakobject`: create\n- `zaakinformatieobject`: create\n\
     - `zaakeigenschap`: create\n- `klantcontact`: create\n- `rol`: create, destroy\n\
-    - `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n\n\n**Handige\
-    \ links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    - `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n- `zaakcontactmoment`:\
+    \ create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -1125,6 +1125,231 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+    parameters:
+    - name: uuid
+      in: path
+      description: Unieke resource identifier (UUID4)
+      required: true
+      schema:
+        type: string
+        format: uuid
+  /zaakcontactmomenten:
+    get:
+      operationId: zaakcontactmoment_list
+      description: 'Alle ZAAKCONTACTMOMENTen opvragen.
+
+        Alle ZAAKCONTACTMOMENTen opvragen.'
+      parameters:
+      - name: zaak
+        in: query
+        description: URL-referentie naar de ZAAK.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: contactmoment
+        in: query
+        description: URL-referentie naar het CONTACTMOMENT (in de KCC API)
+        required: false
+        schema:
+          type: string
+          format: uri
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZaakContactMoment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakcontactmomenten
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+    post:
+      operationId: zaakcontactmoment_create
+      description: 'Maak een ZAAKCONTACTMOMENT aan.
+
+        **Er wordt gevalideerd op**
+
+        - geldigheid URL naar de CONTACTMOMENT'
+      parameters:
+      - name: X-NLX-Logrecord-ID
+        in: header
+        description: Identifier of the request, traceable throughout the network
+        required: false
+        schema:
+          type: string
+      - name: X-Audit-Toelichting
+        in: header
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakContactMoment'
+        required: true
+      responses:
+        '201':
+          description: Created
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakContactMoment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakcontactmomenten
+      security:
+      - JWT-Claims:
+        - zaken.bijwerken
+    parameters: []
+  /zaakcontactmomenten/{uuid}:
+    get:
+      operationId: zaakcontactmoment_read
+      description: 'Een specifiek ZAAKCONTACTMOMENT opvragen.
+
+        Een specifiek ZAAKCONTACTMOMENT opvragen.'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakContactMoment'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakcontactmomenten
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+    delete:
+      operationId: zaakcontactmoment_delete
+      description: Verwijder een ZAAKCONTACTMOMENT.
+      parameters:
+      - name: X-NLX-Logrecord-ID
+        in: header
+        description: Identifier of the request, traceable throughout the network
+        required: false
+        schema:
+          type: string
+      - name: X-Audit-Toelichting
+        in: header
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+        required: false
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakcontactmomenten
+      security:
+      - JWT-Claims:
+        - zaken.bijwerken
     parameters:
     - name: uuid
       in: path
@@ -3959,6 +4184,39 @@ components:
             de status van een zaak.
           type: string
           maxLength: 1000
+    ZaakContactMoment:
+      required:
+      - zaak
+      - contactmoment
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        uuid:
+          title: Uuid
+          description: Unieke resource identifier (UUID4)
+          type: string
+          format: uuid
+          readOnly: true
+        zaak:
+          title: Zaak
+          description: URL-referentie naar de ZAAK.
+          type: string
+          format: uri
+        contactmoment:
+          title: Contactmoment
+          description: URL-referentie naar het CONTACTMOMENT (in de KCC API)
+          type: string
+          format: uri
+          maxLength: 1000
+          minLength: 1
     ZaakInformatieObject:
       required:
       - informatieobject
