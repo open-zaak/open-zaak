@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 import logging
 
+from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -33,6 +34,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 from zgw_consumers.models import Service
 
+from openzaak.components.zaken.signals import SyncError
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.permissions import AuthRequired
@@ -45,6 +47,7 @@ from ..models import (
     Status,
     Zaak,
     ZaakBesluit,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
@@ -55,6 +58,7 @@ from .filters import (
     ResultaatFilter,
     RolFilter,
     StatusFilter,
+    ZaakContactMomentFilter,
     ZaakFilter,
     ZaakInformatieObjectFilter,
     ZaakObjectFilter,
@@ -77,6 +81,7 @@ from .serializers import (
     RolSerializer,
     StatusSerializer,
     ZaakBesluitSerializer,
+    ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
     ZaakObjectSerializer,
@@ -994,3 +999,75 @@ class ZaakBesluitViewSet(
             )
         super().perform_destroy(instance)
         return
+
+
+class ZaakContactMomentViewSet(
+    NotificationCreateMixin,
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
+    ListFilterByAuthorizationsMixin,
+    CheckQueryParamsMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    """
+    Opvragen en bewerken van ZAAK-CONTACTMOMENT relaties.
+    list:
+    Alle ZAAKCONTACTMOMENTen opvragen.
+    Alle ZAAKCONTACTMOMENTen opvragen.
+    retrieve:
+    Een specifiek ZAAKCONTACTMOMENT opvragen.
+    Een specifiek ZAAKCONTACTMOMENT opvragen.
+    create:
+    Maak een ZAAKCONTACTMOMENT aan.
+    **Er wordt gevalideerd op**
+    - geldigheid URL naar de CONTACTMOMENT
+    destroy:
+    Verwijder een ZAAKCONTACTMOMENT.
+    """
+
+    queryset = ZaakContactMoment.objects.order_by("-pk")
+    serializer_class = ZaakContactMomentSerializer
+    filterset_class = ZaakContactMomentFilter
+    lookup_field = "uuid"
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
+    required_scopes = {
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN,
+    }
+    notifications_kanaal = KANAAL_ZAKEN
+    audit = AUDIT_ZRC
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # Do not display ZaakContactMomenten that are marked to be deleted
+        cache = caches["kcc_sync"]
+        marked_zcms = cache.get("zcms_marked_for_delete")
+        if marked_zcms:
+            return qs.exclude(uuid__in=marked_zcms)
+        return qs
+
+    @property
+    def notifications_wrap_in_atomic_block(self):
+        # do not wrap the outermost create/destroy in atomic transaction blocks to send
+        # notifications. The serializer wraps the actual object creation into a single
+        # transaction, and after that, we're in autocommit mode.
+        # Once the response has been properly obtained (success), then the notification
+        # gets scheduled, and because of the transaction being in autocommit mode at that
+        # point, the notification sending will fire immediately.
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().notifications_wrap_in_atomic_block
+
+    def perform_destroy(self, instance):
+        try:
+            super().perform_destroy(instance)
+        except SyncError as sync_error:
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]}
+            ) from sync_error

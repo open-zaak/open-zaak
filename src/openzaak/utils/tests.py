@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import contextlib
 import hashlib
 import json
@@ -7,6 +7,7 @@ import os
 import sys
 import uuid
 from datetime import date
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -325,3 +326,24 @@ def serialise_eio(eio, eio_url, **overrides):
     serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
     serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
     return camelize(serialised_eio)
+
+
+class ZaakContactMomentSyncMixin:
+    def setUp(self):
+        super().setUp()
+
+        patcher_sync_create_zcm = patch(
+            "openzaak.components.zaken.signals.sync_create_zaakcontactmoment"
+        )
+        self.mocked_sync_create_zcm = patcher_sync_create_zcm.start()
+        self.addCleanup(patcher_sync_create_zcm.stop)
+
+        patcher_sync_delete_zcm = patch(
+            "openzaak.components.zaken.signals.sync_delete_zaakcontactmoment"
+        )
+        self.mocked_sync_delete_zcm = patcher_sync_delete_zcm.start()
+        self.addCleanup(patcher_sync_delete_zcm.stop)
+
+
+# class SyncMixin(ZaakInformatieObjectSyncMixin, ZaakContactMomentSyncMixin):
+#     pass
