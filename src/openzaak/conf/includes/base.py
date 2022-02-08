@@ -179,6 +179,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
+    "openzaak.utils.middleware.DeprecationMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
 ]
 
