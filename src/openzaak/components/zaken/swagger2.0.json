@@ -38,7 +38,7 @@
             "get": {
                 "operationId": "klantcontact_list",
                 "summary": "Alle KLANTCONTACTen opvragen.",
-                "description": "Alle KLANTCONTACTen opvragen.",
+                "description": "Alle KLANTCONTACTen opvragen.\n\n**DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.",
                 "parameters": [
                     {
                         "name": "zaak",
@@ -93,6 +93,12 @@
                                     "type": "string"
                                 },
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            },
+                            "Warning": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren van functionaliteit."
                             }
                         }
                     },
@@ -136,12 +142,13 @@
                             "zaken.lezen"
                         ]
                     }
-                ]
+                ],
+                "deprecated": true
             },
             "post": {
                 "operationId": "klantcontact_create",
                 "summary": "Maak een KLANTCONTACT bij een ZAAK aan.",
-                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd.",
+                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd.\n\n**DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -195,6 +202,12 @@
                                     "format": "uri"
                                 },
                                 "description": "URL waar de resource leeft."
+                            },
+                            "Warning": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren van functionaliteit."
                             }
                         }
                     },
@@ -238,7 +251,8 @@
                             "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
                         ]
                     }
-                ]
+                ],
+                "deprecated": true
             },
             "parameters": []
         },
@@ -246,7 +260,7 @@
             "get": {
                 "operationId": "klantcontact_read",
                 "summary": "Een specifiek KLANTCONTACT bij een ZAAK opvragen.",
-                "description": "Een specifiek KLANTCONTACT bij een ZAAK opvragen.",
+                "description": "Een specifiek KLANTCONTACT bij een ZAAK opvragen.\n\n**DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.",
                 "parameters": [
                     {
                         "name": "If-None-Match",
@@ -282,6 +296,12 @@
                                     "type": "string"
                                 },
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            },
+                            "Warning": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren van functionaliteit."
                             }
                         }
                     },
@@ -325,7 +345,8 @@
                             "zaken.lezen"
                         ]
                     }
-                ]
+                ],
+                "deprecated": true
             },
             "parameters": [
                 {
