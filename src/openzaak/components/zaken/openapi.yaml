@@ -48,7 +48,10 @@ paths:
     get:
       operationId: klantcontact_list
       summary: Alle KLANTCONTACTen opvragen.
-      description: Alle KLANTCONTACTen opvragen.
+      description: 'Alle KLANTCONTACTen opvragen.
+
+
+        **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.'
       parameters:
       - name: zaak
         in: query
@@ -72,6 +75,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Warning:
+              schema:
+                type: string
+              description: Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren
+                van functionaliteit.
           content:
             application/json:
               schema:
@@ -117,12 +125,16 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
     post:
       operationId: klantcontact_create
       summary: Maak een KLANTCONTACT bij een ZAAK aan.
       description: 'Indien geen identificatie gegeven is, dan wordt deze automatisch
 
-        gegenereerd.'
+        gegenereerd.
+
+
+        **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.'
       parameters:
       - name: X-NLX-Logrecord-ID
         in: header
@@ -156,6 +168,11 @@ paths:
                 type: string
                 format: uri
               description: URL waar de resource leeft.
+            Warning:
+              schema:
+                type: string
+              description: Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren
+                van functionaliteit.
           content:
             application/json:
               schema:
@@ -183,12 +200,16 @@ paths:
       security:
       - JWT-Claims:
         - (zaken.bijwerken | zaken.geforceerd-bijwerken)
+      deprecated: true
     parameters: []
   /klantcontacten/{uuid}:
     get:
       operationId: klantcontact_read
       summary: Een specifiek KLANTCONTACT bij een ZAAK opvragen.
-      description: Een specifiek KLANTCONTACT bij een ZAAK opvragen.
+      description: 'Een specifiek KLANTCONTACT bij een ZAAK opvragen.
+
+
+        **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.'
       responses:
         '200':
           description: OK
@@ -198,6 +219,11 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Warning:
+              schema:
+                type: string
+              description: Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren
+                van functionaliteit.
           content:
             application/json:
               schema:
@@ -225,6 +251,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
     parameters:
     - name: uuid
       in: path

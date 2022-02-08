@@ -691,15 +691,21 @@ class KlantContactViewSet(
     Indien geen identificatie gegeven is, dan wordt deze automatisch
     gegenereerd.
 
+    **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.
+
     list:
     Alle KLANTCONTACTen opvragen.
 
     Alle KLANTCONTACTen opvragen.
 
+    **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.
+
     retrieve:
     Een specifiek KLANTCONTACT bij een ZAAK opvragen.
 
     Een specifiek KLANTCONTACT bij een ZAAK opvragen.
+
+    **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.
     """
 
     queryset = KlantContact.objects.select_related("zaak").order_by("-pk")
@@ -717,6 +723,11 @@ class KlantContactViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    deprecation_message = (
+        "Deze endpoint is verouderd en zal binnenkort uit dienst worden genomen. "
+        "Maak gebruik van de vervangende contactmomenten API."
+    )
 
 
 class RolViewSet(
