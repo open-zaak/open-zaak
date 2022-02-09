@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
@@ -24,6 +24,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
+from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ..models import (
@@ -429,6 +430,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
     """
 
     main_resource_lookup_field = "enkelvoudiginformatieobject_uuid"
+    permission_classes = (AuthRequired,)
 
 
 class ObjectInformatieObjectViewSet(

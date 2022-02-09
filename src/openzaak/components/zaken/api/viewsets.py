@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import logging
 
 from django.db import models, transaction
@@ -35,6 +35,7 @@ from zgw_consumers.models import Service
 
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
     KlantContact,
@@ -845,6 +846,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     """
 
     main_resource_lookup_field = "zaak_uuid"
+    permission_classes = (AuthRequired,)
 
 
 class ZaakBesluitViewSet(

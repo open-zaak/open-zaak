@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 """
 Als behandelaar wil ik locatie- en/of objectinformatie bij de melding
 ontvangen, zodat ik voldoende details weet om de melding op te volgen.
@@ -7,14 +7,16 @@ ontvangen, zodat ik voldoende details weet om de melding op te volgen.
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/52
 """
 from django.test import override_settings, tag
+from django.utils import timezone
 
 import requests_mock
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import EigenschapFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory
@@ -221,3 +223,63 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+
+class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @freeze_time("2019-01-01T12:00:00")
+    def setUp(self):
+        super().setUp()
+        token = generate_jwt_auth(
+            self.client_id,
+            self.secret,
+            user_id=self.user_id,
+            user_representation=self.user_representation,
+            nbf=int(timezone.now().timestamp()),
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_zaakeigenschap_list_jwt_expired(self):
+        zaak = ZaakFactory.create()
+        url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_zaakeigenschap_detail_jwt_expired(self):
+        eigenschap = ZaakEigenschapFactory.create()
+        url = reverse(
+            "zaakeigenschap-detail",
+            kwargs={"zaak_uuid": eigenschap.zaak.uuid, "uuid": eigenschap.uuid},
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_zaakeigenschap_create_jwt_expired(self):
+        zaak = ZaakFactory.create()
+        eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
+        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        eigenschap_url = reverse(eigenschap)
+        data = {
+            "zaak": zaak_url,
+            "eigenschap": f"http://testserver{eigenschap_url}",
+            "waarde": "overlast_water",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")

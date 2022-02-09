@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,6 +24,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.permissions import AuthRequired
 
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
@@ -283,3 +284,4 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
     """
 
     main_resource_lookup_field = "besluit_uuid"
+    permission_classes = (AuthRequired,)
