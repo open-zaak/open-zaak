@@ -46,7 +46,6 @@
     "sass-loader": "^7.2.0",
     "swagger2openapi": "^7.0.4",
     "webpack": "^5.38.1",
-    "webpack-dev-server": "^3.11.2",
     "webpack-stream": "^5.2.1",
     "yargs": "^16.0.0"
   }
