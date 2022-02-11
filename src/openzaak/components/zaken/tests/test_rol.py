@@ -533,16 +533,19 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaak": f"http://testserver{zaak_url}",
-                "betrokkene": BETROKKENE,
-                "betrokkene_type": RolTypes.natuurlijk_persoon,
-                "roltype": "http://example.com",
-                "roltoelichting": "awerw",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": "http://example.com",
+                    "roltoelichting": "awerw",
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

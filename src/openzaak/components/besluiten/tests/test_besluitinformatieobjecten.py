@@ -296,10 +296,12 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_create_bio_fail_not_json(self):
+    @requests_mock.Mocker()
+    def test_create_bio_fail_not_json(self, m):
         besluit = BesluitFactory.create(besluittype__concept=False)
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
         data = {"besluit": besluit_url, "informatieobject": "http://example.com"}
+        m.get("http://example.com", status_code=200, text="<html></html>")
 
         response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
 

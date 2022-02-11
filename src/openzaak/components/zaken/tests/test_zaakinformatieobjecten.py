@@ -518,6 +518,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "bad-url")
 
+    @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
     def test_create_zio_fail_not_json(self):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"

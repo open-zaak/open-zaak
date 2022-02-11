@@ -151,24 +151,27 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "eigenschap")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_create_external_resultaattype_fail_not_json_url(self):
+    def test_create_external_eigenschap_fail_not_json_url(self):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
         url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
 
-        response = self.client.post(
-            url,
-            {
-                "zaak": zaak_url,
-                "eigenschap": "http://example.com",
-                "waarde": "overlast_water",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                url,
+                {
+                    "zaak": zaak_url,
+                    "eigenschap": "http://example.com",
+                    "waarde": "overlast_water",
+                },
+            )
 
         error = get_validation_errors(response, "eigenschap")
         self.assertEqual(error["code"], "invalid-resource")
 
-    def test_create_external_resultaattype_fail_invalid_schema(self):
+    def test_create_external_eigenschap_fail_invalid_schema(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         eigenschap = "https://externe.catalogus.nl/api/v1/eigenschappen/7a3e4a22-d789-4381-939b-401dbce29426"
@@ -195,7 +198,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "eigenschap")
         self.assertEqual(error["code"], "invalid-resource")
 
-    def test_create_external_resultaattype_fail_zaaktype_mismatch(self):
+    def test_create_external_eigenschap_fail_zaaktype_mismatch(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/b923543f-97aa-4a55-8c20-889b5906cf75"

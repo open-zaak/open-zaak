@@ -65,9 +65,12 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         m.get("https://example.com", text="<html><head></head><body></body></html>")
         url = reverse("enkelvoudiginformatieobject-list")
 
-        response = self.client.post(
-            url, {"informatieobjecttype": "https://example.com"}
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                url, {"informatieobjecttype": "https://example.com"}
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobjecttype")

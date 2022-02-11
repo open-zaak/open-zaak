@@ -666,17 +666,19 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_zaaktype_fail_not_json_url(self):
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaaktype": "http://example.com",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-12-24",
-                "startdatum": "2018-12-24",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaaktype": "http://example.com",
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-12-24",
+                    "startdatum": "2018-12-24",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
