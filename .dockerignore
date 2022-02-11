@@ -5,9 +5,12 @@ docker-compose*
 .git
 .vscode
 env/
+
 private-media/
 media/
+static/
 log/
+
 .env
 includes/local.py
 volumes/
