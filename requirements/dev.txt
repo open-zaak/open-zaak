@@ -161,7 +161,7 @@ django-solo==1.1.3
     #   zgw-consumers
 django-webtest==1.9.7
     # via -r requirements/ci.txt
-django==2.2.25
+django==2.2.27
     # via
     #   -r requirements/ci.txt
     #   django-auth-adfs
