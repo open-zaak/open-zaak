@@ -458,7 +458,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             response = self.client.get(
                 url,
                 {
-                    "betrokkeneIdentificatie__organisatorischeeenheid__identificatie": "pbz"
+                    "betrokkeneIdentificatie__organisatorischeEenheid__identificatie": "pbz"
                 },
             )
 
