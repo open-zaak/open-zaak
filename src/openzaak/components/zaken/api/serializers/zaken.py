@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import logging
 
 from django.conf import settings
@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
+from rest_framework.settings import api_settings
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
@@ -34,6 +35,7 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.zaken.signals import SyncError
 from openzaak.utils.api import create_remote_oio
 from openzaak.utils.apidoc import mark_oas_difference
 from openzaak.utils.auth import get_auth
@@ -57,6 +59,7 @@ from ...models import (
     Status,
     Zaak,
     ZaakBesluit,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakKenmerk,
@@ -880,3 +883,34 @@ class ZaakSerializer(
             ] = zaaktype.vertrouwelijkheidaanduiding
 
         return super().create(validated_data)
+
+
+class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakContactMoment
+        fields = ("url", "uuid", "zaak", "contactmoment")
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+            "contactmoment": {
+                "validators": [
+                    ResourceValidator(
+                        "ContactMoment", settings.KCC_API_SPEC, get_auth=get_auth
+                    )
+                ]
+            },
+        }
+
+    def save(self, **kwargs):
+        try:
+            return super().save(**kwargs)
+        except SyncError as sync_error:
+            # delete the object again
+            ZaakContactMoment.objects.filter(
+                contactmoment=self.validated_data["contactmoment"],
+                zaak=self.validated_data["zaak"],
+            )._raw_delete("default")
+            raise serializers.ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]}
+            ) from sync_error

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import datetime
 import os
 import warnings
@@ -98,6 +98,16 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
         },
     },
+    # Cache for ZaakContactMoment removal sync with KCC
+    "kcc_sync": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        # NOTE: watch out for multiple projects using the same cache!
+        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
+    },
 }
 
 #
@@ -172,6 +182,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
+    "openzaak.utils.middleware.DeprecationMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
 ]
 
