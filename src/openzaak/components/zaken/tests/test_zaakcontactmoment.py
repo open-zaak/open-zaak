@@ -88,7 +88,9 @@ class ZaakContactMomentTests(ZaakContactMomentSyncMixin, JWTAuthMixin, APITestCa
 
 
 @override_settings(
-    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", NOTIFICATIONS_DISABLED=True,
+    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200",
+    NOTIFICATIONS_DISABLED=True,
+    ALLOWED_HOSTS=["testserver", "testserver.com"],
 )
 class ZaakContactMomentFilterTests(
     ZaakContactMomentSyncMixin, JWTAuthMixin, APITestCase
