@@ -79,7 +79,7 @@ class JWTAuth(_JWTAuth):
         superuser_applications = [
             app for app in self.applicaties if app.heeft_alle_autorisaties
         ]
-        if any(superuser_applications):
+        if any(superuser_applications) and not self.roles.exists():
             return True
 
         if not init_component:
