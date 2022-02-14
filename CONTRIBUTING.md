@@ -44,5 +44,5 @@ The [codebase stewardship activities](https://about.publiccode.net/activities/co
 * facilitating the community and its members
 * help all contributors contribute in line with the contributing guidelines and the [Standard for Public Code](https://standard.publiccode.net/)
 * work with the community to tell their stories, create their brand and market their products
-* support the technical and product steering teams
+* support the technical steering team
 

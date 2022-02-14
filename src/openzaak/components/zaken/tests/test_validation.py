@@ -93,17 +93,20 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def test_validate_zaaktype_invalid_resource(self):
         url = reverse("zaak-list")
 
-        response = self.client.post(
-            url,
-            {
-                "zaaktype": "https://example.com",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                url,
+                {
+                    "zaaktype": "https://example.com",
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-06-11",
+                    "startdatum": "2018-06-11",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -753,14 +756,17 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         list_url = reverse("status-list")
 
-        response = self.client.post(
-            list_url,
-            {
-                "zaak": zaak_url,
-                "statustype": "https://example.com",
-                "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                list_url,
+                {
+                    "zaak": zaak_url,
+                    "statustype": "https://example.com",
+                    "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -920,9 +926,12 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         list_url = reverse("resultaat-list")
 
-        response = self.client.post(
-            list_url, {"zaak": zaak_url, "resultaattype": "https://example.com"}
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                list_url, {"zaak": zaak_url, "resultaattype": "https://example.com"}
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1033,10 +1042,17 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
         list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
-        response = self.client.post(
-            list_url,
-            {"zaak": zaak_url, "eigenschap": "http://example.com", "waarde": "test"},
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                list_url,
+                {
+                    "zaak": zaak_url,
+                    "eigenschap": "http://example.com",
+                    "waarde": "test",
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

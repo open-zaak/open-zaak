@@ -68,14 +68,17 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
 
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaak": f"http://testserver{zaak_url}",
-                "resultaattype": "http://example.com",
-                "toelichting": "some desc",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                    "resultaattype": "http://example.com",
+                    "toelichting": "some desc",
+                },
+            )
 
         error = get_validation_errors(response, "resultaattype")
         self.assertEqual(error["code"], "invalid-resource")

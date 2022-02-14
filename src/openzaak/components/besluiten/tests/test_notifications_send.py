@@ -4,11 +4,13 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+import requests_mock
 from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
@@ -16,6 +18,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests import mock_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import JWTAuthMixin
@@ -25,6 +28,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
+@requests_mock.Mocker()
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
@@ -32,10 +36,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_besluit(self, mock_client, *mocks):
+    def test_send_notif_create_besluit(self, m, mock_client):
         """
         Check if notifications will be send when Besluit is created
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
@@ -74,10 +79,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_delete_resultaat(self, mock_client):
+    def test_send_notif_delete_resultaat(self, m, mock_client):
         """
         Check if notifications will be send when resultaat is deleted
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         besluit = BesluitFactory.create()
         besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
@@ -109,6 +115,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
+@requests_mock.Mocker()
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=False
 )
@@ -117,7 +124,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_besluit_create_fail_send_notification_create_db_entry(self):
+    def test_besluit_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         url = get_operation_url("besluit_create")
@@ -159,7 +170,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_besluit_delete_fail_send_notification_create_db_entry(self):
+    def test_besluit_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         besluit = BesluitFactory.create()
         url = reverse(besluit)
 
@@ -189,8 +204,12 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
-        self,
+        self, m
     ):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("besluitinformatieobject_create")
 
         besluit = BesluitFactory.create()
@@ -233,8 +252,12 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
-        self,
+        self, m
     ):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         bio = BesluitInformatieObjectFactory.create()
         url = reverse(bio)
 

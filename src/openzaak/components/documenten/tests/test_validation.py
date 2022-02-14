@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from django.test import override_settings, tag
 
+import requests_mock
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -59,12 +60,17 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "bad-url")
 
-    def test_validate_informatieobjecttype_invalid_resource(self):
+    @requests_mock.Mocker()
+    def test_validate_informatieobjecttype_invalid_resource(self, m):
+        m.get("https://example.com", text="<html><head></head><body></body></html>")
         url = reverse("enkelvoudiginformatieobject-list")
 
-        response = self.client.post(
-            url, {"informatieobjecttype": "https://example.com"}
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                url, {"informatieobjecttype": "https://example.com"}
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "informatieobjecttype")

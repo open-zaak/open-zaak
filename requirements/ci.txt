@@ -130,7 +130,7 @@ django-solo==1.2.0
     #   zgw-consumers
 django-webtest==1.9.7
     # via -r requirements/test-tools.in
-django==2.2.25
+django==2.2.27
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs
