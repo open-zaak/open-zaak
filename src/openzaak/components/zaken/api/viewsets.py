@@ -36,7 +36,6 @@ from zgw_consumers.models import Service
 
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
     KlantContact,
