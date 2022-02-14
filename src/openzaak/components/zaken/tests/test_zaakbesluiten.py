@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django.test import override_settings, tag
+from django.utils import timezone
 
 import requests_mock
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory
@@ -267,3 +269,45 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @freeze_time("2019-01-01T12:00:00")
+    def setUp(self):
+        super().setUp()
+        token = generate_jwt_auth(
+            self.client_id,
+            self.secret,
+            user_id=self.user_id,
+            user_representation=self.user_representation,
+            nbf=int(timezone.now().timestamp()),
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_zaakbesluit_list_jwt_expired(self):
+        zaak = ZaakFactory.create()
+        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_zaakbesluit_detail_jwt_expired(self):
+        besluit = BesluitFactory.create(for_zaak=True)
+        zaakbesluit = besluit.zaak.zaakbesluit_set.first()
+        url = reverse(
+            "zaakbesluit-detail",
+            kwargs={"zaak_uuid": besluit.zaak.uuid, "uuid": zaakbesluit.uuid},
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")

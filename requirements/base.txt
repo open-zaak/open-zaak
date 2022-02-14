@@ -90,7 +90,7 @@ django-solo==1.2.0
     #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
-django==2.2.25
+django==2.2.27
     # via
     #   -r requirements/base.in
     #   django-auth-adfs

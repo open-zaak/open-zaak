@@ -22,9 +22,9 @@ low prio.
 Features
 --------
 
-Feature implementation is the connection between the product steering team and the
-technical team. The product steering team will usually bring up request features or
-consider the requested (big) features from the Github issues.
+Feature implementation is the connection between the core group and the
+technical team. The core group may request features or consider the 
+requested (big) features from the Github issues.
 
 Current list is created from issue skimming on Github.
 

@@ -7,6 +7,7 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.utils.timezone import now
 
+import requests_mock
 from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
@@ -35,6 +36,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests import mock_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.utils.tests import JWTAuthMixin
 
@@ -50,16 +52,18 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
+@requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_zaak(self, mock_client):
+    def test_send_notif_create_zaak(self, m, mock_client):
         """
         Check if notifications will be send when zaak is created
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -103,10 +107,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_delete_resultaat(self, mock_client):
+    def test_send_notif_delete_resultaat(self, m, mock_client):
         """
         Check if notifications will be send when resultaat is deleted
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
@@ -139,13 +144,18 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
+@requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_zaak_create_fail_send_notification_create_db_entry(self):
+    def test_zaak_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
@@ -192,7 +202,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaak_delete_fail_send_notification_create_db_entry(self):
+    def test_zaak_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zaak = ZaakFactory.create()
         url = reverse(zaak)
 
@@ -222,7 +236,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_status_create_fail_send_notification_create_db_entry(self):
+    def test_status_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("status_create")
         zaak = ZaakFactory.create(
             einddatum=now(),
@@ -270,7 +288,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaakobject_create_fail_send_notification_create_db_entry(self):
+    def test_zaakobject_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -313,7 +335,13 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
+    def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
+        self, m
+    ):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("zaakinformatieobject_create")
 
         zaak = ZaakFactory.create()
@@ -359,7 +387,13 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     @skip(reason="Standard does not prescribe ZIO destroy notifications.")
-    def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(self):
+    def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(
+        self, m
+    ):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zio = ZaakInformatieObjectFactory.create()
         url = reverse(zio)
 
@@ -389,7 +423,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaakeigenschap_create_fail_send_notification_create_db_entry(self):
+    def test_zaakeigenschap_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -429,7 +467,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_klantcontact_create_fail_send_notification_create_db_entry(self):
+    def test_klantcontact_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -467,7 +509,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_rol_create_fail_send_notification_create_db_entry(self):
+    def test_rol_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -516,7 +562,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_rol_delete_fail_send_notification_create_db_entry(self):
+    def test_rol_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         rol = RolFactory.create()
         url = reverse(rol)
 
@@ -546,7 +596,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_resultaat_create_fail_send_notification_create_db_entry(self):
+    def test_resultaat_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -587,7 +641,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_resultaat_delete_fail_send_notification_create_db_entry(self):
+    def test_resultaat_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         resultaat = ResultaatFactory.create()
         url = reverse(resultaat)
 
@@ -616,7 +674,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaakbesluit_create_fail_send_notification_create_db_entry(self):
+    def test_zaakbesluit_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         besluit = BesluitFactory.create(for_zaak=True)
         besluit_url = reverse(besluit)
         url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})

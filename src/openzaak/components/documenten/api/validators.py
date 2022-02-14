@@ -50,7 +50,7 @@ class InformatieObjectUniqueValidator:
     exist yet in the Documenten component
     """
 
-    message = _("The fields object and infromatieobject must make a unique set.")
+    message = _("The fields object and informatieobject must make a unique set.")
     code = "unique"
 
     def __call__(self, context: OrderedDict):

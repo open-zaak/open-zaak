@@ -155,14 +155,17 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = f"http://testserver{reverse(zaak)}"
 
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaak": zaak_url,
-                "statustype": "http://example.com",
-                "datumStatusGezet": "2018-10-18T20:00:00Z",
-            },
-        )
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": zaak_url,
+                    "statustype": "http://example.com",
+                    "datumStatusGezet": "2018-10-18T20:00:00Z",
+                },
+            )
 
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data

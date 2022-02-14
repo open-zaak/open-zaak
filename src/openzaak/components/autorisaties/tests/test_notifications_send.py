@@ -4,15 +4,18 @@ from unittest.mock import patch
 
 from django.test import override_settings
 
+import requests_mock
 from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests import mock_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.utils.tests import JWTAuthMixin
@@ -22,6 +25,7 @@ from .factories import ApplicatieFactory, AutorisatieFactory
 from .utils import get_operation_url
 
 
+@requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
@@ -29,10 +33,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.ac
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_application(self, mock_client):
+    def test_send_notif_create_application(self, m, mock_client):
         """
         Check if notifications will be send when applicaties is created
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         url = get_operation_url("applicatie_create")
 
@@ -62,10 +67,11 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_update_application(self, mock_client):
+    def test_send_notif_update_application(self, m, mock_client):
         """
         Check if notifications will be send when applicatie is updated
         """
+        mock_oas_get(m)
         client = mock_client.return_value
         autorisatie = AutorisatieFactory.create(
             applicatie__client_ids=["id1", "id2"],
@@ -97,13 +103,18 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
 
+@requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_applicatie_create_fail_send_notification_create_db_entry(self):
+    def test_applicatie_create_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         url = get_operation_url("applicatie_create")
 
         data = {
@@ -136,7 +147,11 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_applicatie_delete_fail_send_notification_create_db_entry(self):
+    def test_applicatie_delete_fail_send_notification_create_db_entry(self, m):
+        mock_oas_get(m)
+        m.post(
+            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
+        )
         applicatie = ApplicatieFactory.create(heeft_alle_autorisaties=True)
         url = reverse(applicatie)
 

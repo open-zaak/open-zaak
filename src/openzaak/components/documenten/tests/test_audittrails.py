@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import uuid
 from base64 import b64encode
 from datetime import datetime
+
+from django.test import override_settings
+from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -12,7 +15,7 @@ from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -293,3 +296,61 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the resource weergave stored in the AuditTrail matches
         # the unique representation as defined in the Zaak model
         self.assertIn(audittrail.resource_weergave, eio_unique_representation)
+
+
+class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @freeze_time("2019-01-01T12:00:00")
+    def setUp(self):
+        super().setUp()
+        token = generate_jwt_auth(
+            self.client_id,
+            self.secret,
+            user_id=self.user_id,
+            user_representation=self.user_representation,
+            nbf=int(timezone.now().timestamp()),
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_eio_audittrail_list_jwt_expired(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(eio)
+
+        AuditTrail.objects.create(
+            hoofd_object=url, resource="EnkelvoudigInformatieObject", resultaat=200
+        )
+
+        audit_url = reverse(
+            "audittrail-list", kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid},
+        )
+
+        response = self.client.get(audit_url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")
+
+    @override_settings(JWT_EXPIRY=60 * 60)
+    @freeze_time("2019-01-01T13:00:00")
+    def test_eio_audittrail_detail_jwt_expired(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(eio)
+
+        audittrail = AuditTrail.objects.create(
+            hoofd_object=url, resource="EnkelvoudigInformatieObject", resultaat=200
+        )
+
+        audit_url = reverse(
+            "audittrail-detail",
+            kwargs={
+                "enkelvoudiginformatieobject_uuid": eio.uuid,
+                "uuid": audittrail.uuid,
+            },
+        )
+
+        response = self.client.get(audit_url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "jwt-expired")
