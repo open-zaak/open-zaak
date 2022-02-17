@@ -451,7 +451,7 @@ Make sure your ``kubectl`` command can access the correct cluster:
 
     For the proper authentication setup, you might need a service account. See
     the
-    [Getting Started with Authentication on Google Cloud](https://cloud.google.com/docs/authentication/getting-started#command-line).
+    [Getting Started with Authentication on Google Cloud](https://cloud.google.com/docs/authentication/getting-started).
 
 
 Next, to perform the upgrade, you run the ``apps.yml`` playbook just like with the

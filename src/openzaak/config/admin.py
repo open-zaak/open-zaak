@@ -8,12 +8,7 @@ from drc_cmis.admin import CMISConfigAdmin as _CMISConfigAdmin
 from drc_cmis.models import CMISConfig
 from solo.admin import SingletonModelAdmin
 
-from .models import FeatureFlags, InternalService, NLXConfig
-
-
-@admin.register(NLXConfig)
-class NLXConfigAdmin(SingletonModelAdmin):
-    pass
+from .models import FeatureFlags, InternalService
 
 
 @admin.register(InternalService)

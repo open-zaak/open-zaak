@@ -23,7 +23,7 @@ def show_api_type(api_type_value):
         APITypes.ztc: "Catalogi API",
         APITypes.drc: "Documenten API",
         APITypes.brc: "Besluiten API",
-        APITypes.kic: "Klantinteracties API",
+        APITypes.kc: "Klanten API",
         APITypes.orc: "Overige",
     }
     return component_choices.get(api_type_value, "Overige")
