@@ -1,11 +1,24 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+import json
+import random
+from pathlib import Path
+from unittest.mock import patch
+
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
+import requests_mock
 from django_webtest import WebTest
+from zgw_consumers.models import NLXConfig, NLXDirectories
 
 from openzaak.utils.tests import AdminTestMixin
+
+from ..forms import get_nlx_choices
+
+CURRENT_DIR = Path(__file__).parent
+
+DEMO_DIRECTORY = "https://directory.demo.nlx.io/"
 
 
 class NLXConfigTests(AdminTestMixin, WebTest):
@@ -26,3 +39,66 @@ class NLXConfigTests(AdminTestMixin, WebTest):
             "__all__",
             _("Connection refused. Please provide a correct address."),
         )
+
+    @patch(
+        "openzaak.config.forms.NLXConfig.get_solo",
+        return_value=NLXConfig(
+            directory=NLXDirectories.demo, outway="http://my-outway:8080/"
+        ),
+    )
+    @requests_mock.Mocker()
+    def test_get_nlx_service_dropdown_choices(self, mock_get_solo, m):
+        with open(CURRENT_DIR / "demo-directory.json", "r") as infile:
+            m.get(
+                f"{DEMO_DIRECTORY}api/directory/list-services", json=json.load(infile)
+            )
+
+        choices = get_nlx_choices()
+
+        self.assertEqual(
+            choices,
+            {
+                "Gemeente Stijns": {
+                    "http://my-outway:8080/12345678901234567890/parkeerrechten": {
+                        "service_name": "parkeerrechten",
+                        "oas": "https://nlx.io",
+                    },
+                },
+                "RvRD": {
+                    "http://my-outway:8080/12345678901234567891/basisregister-fictieve-kentekens": {
+                        "service_name": "basisregister-fictieve-kentekens",
+                        "oas": "https://nlx.io",
+                    },
+                    "http://my-outway:8080/12345678901234567891/basisregister-fictieve-personen": {
+                        "service_name": "basisregister-fictieve-personen",
+                        "oas": "https://nlx.io",
+                    },
+                },
+            },
+        )
+
+    @patch(
+        "openzaak.config.forms.NLXConfig.get_solo",
+        return_value=NLXConfig(directory=NLXDirectories.demo, outway=""),
+    )
+    def test_get_nlx_service_no_outway_configured(self, mock_get_solo):
+        choices = get_nlx_choices()
+
+        self.assertEqual(choices, {})
+
+    @patch(
+        "openzaak.config.forms.NLXConfig.get_solo",
+        return_value=NLXConfig(
+            directory=NLXDirectories.demo, outway="http://my-outway:8080/"
+        ),
+    )
+    @requests_mock.Mocker()
+    def test_get_nlx_service_some_error(self, mock_get_solo, m):
+        m.get(
+            f"{DEMO_DIRECTORY}api/directory/list-services",
+            status_code=random.choice([500, 502, 503]),
+        )
+
+        choices = get_nlx_choices()
+
+        self.assertEqual(choices, {})

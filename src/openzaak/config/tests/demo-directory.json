@@ -1,0 +1,73 @@
+{
+    "services":
+    [
+        {
+            "name": "parkeerrechten",
+            "documentation_url": "https://nlx.io",
+            "api_specification_type": "OpenAPI3",
+            "public_support_contact": "support@nlx.io",
+            "inways":
+            [
+                {
+                    "address": "inway.demo.gemeentestijns.nl:443",
+                    "state": "UP"
+                }
+            ],
+            "costs":
+            {
+                "one_time": 1100,
+                "monthly": 12000,
+                "request": 1
+            },
+            "organization":
+            {
+                "serial_number": "12345678901234567890",
+                "name": "Gemeente Stijns"
+            }
+        },
+        {
+            "name": "basisregister-fictieve-kentekens",
+            "documentation_url": "https://nlx.io",
+            "api_specification_type": "OpenAPI3",
+            "public_support_contact": "support@nlx.io",
+            "inways":
+            [
+                {
+                    "address": "inway.demo.rvrd.nl:443",
+                    "state": "UP"
+                }
+            ],
+            "costs":
+            {
+                "one_time": 100000,
+                "monthly": 10000,
+                "request": 100
+            },
+            "organization":
+            {
+                "serial_number": "12345678901234567891",
+                "name": "RvRD"
+            }
+        },
+        {
+            "name": "basisregister-fictieve-personen",
+            "documentation_url": "https://nlx.io",
+            "api_specification_type": "OpenAPI3",
+            "public_support_contact": "support@nlx.io",
+            "inways":
+            [
+                {
+                    "address": "inway.demo.rvrd.nl:443",
+                    "state": "UP"
+                }
+            ],
+            "costs":
+            {},
+            "organization":
+            {
+                "serial_number": "12345678901234567891",
+                "name": "RvRD"
+            }
+        }
+    ]
+}
