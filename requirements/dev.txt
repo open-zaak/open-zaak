@@ -586,7 +586,7 @@ webtest==2.0.33
     #   django-webtest
 whitenoise==5.1.0
     # via -r requirements/dev.in
-zgw-consumers==0.17.0
+zgw-consumers==0.17.1
     # via -r requirements/ci.txt
 zipp==3.4.0
     # via

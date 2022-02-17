@@ -273,7 +273,7 @@ vng-api-common==1.0.66
     # via
     #   -r requirements/base.in
     #   drc-cmis
-zgw-consumers==0.17.0
+zgw-consumers==0.17.1
     # via -r requirements/base.in
 
 # The following packages are considered to be unsafe in a requirements file:
