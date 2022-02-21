@@ -1,7 +1,0 @@
----
-
-- name: Configure nginx ingress for performance testing
-  hosts: localhost
-
-  tasks:
-    - import_tasks: tasks/ingress-nginx.yml
