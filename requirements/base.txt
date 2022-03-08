@@ -80,6 +80,8 @@ django-relativedelta==1.0.5
     # via
     #   -r requirements/base.in
     #   zgw-consumers
+django-rest-framework-condition==0.1.1
+    # via vng-api-common
 django-sendfile2==0.6.0
     # via django-privates
 django-sniplates==0.7.0
@@ -107,6 +109,7 @@ django==2.2.27
     #   django-privates
     #   django-redis
     #   django-relativedelta
+    #   django-rest-framework-condition
     #   django-sendfile2
     #   django-sniplates
     #   djangorestframework
@@ -269,7 +272,7 @@ urllib3==1.26.6
     #   sentry-sdk
 uwsgi==2.0.19.1
     # via -r requirements/base.in
-vng-api-common==1.0.66
+vng-api-common==1.7.1
     # via
     #   -r requirements/base.in
     #   drc-cmis
