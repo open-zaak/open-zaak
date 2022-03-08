@@ -81,6 +81,7 @@ django==3.2.13
     #   django-privates
     #   django-redis
     #   django-relativedelta
+    #   django-rest-framework-condition
     #   django-sendfile2
     #   django-sniplates
     #   django-solo
@@ -146,6 +147,10 @@ django-relativedelta==1.1.2
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
+django-rest-framework-condition==0.1.1
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 django-sendfile2==0.6.1
     # via
     #   -r requirements/base.txt
@@ -395,10 +400,6 @@ typing-extensions==4.1.1
     #   asgiref
     #   faker
     #   importlib-metadata
-unidecode==1.0.22
-    # via
-    #   -r requirements/base.txt
-    #   vng-api-common
 uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
@@ -411,7 +412,7 @@ urllib3==1.26.9
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/base.txt
-vng-api-common==1.0.69
+vng-api-common==1.7.2
     # via
     #   -r requirements/base.txt
     #   drc-cmis
