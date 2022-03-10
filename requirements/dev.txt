@@ -108,7 +108,7 @@ django-choices==1.7.2
     #   zgw-consumers
 django-cors-headers==3.5.0
     # via -r requirements/ci.txt
-django-db-logger==0.1.7
+django-db-logger==0.1.12
     # via -r requirements/ci.txt
 django-debug-toolbar==3.2.1
     # via -r requirements/dev.in
@@ -479,6 +479,7 @@ six==1.16.0
     #   -r requirements/ci.txt
     #   cmislib-maykin
     #   django-choices
+    #   django-db-logger
     #   django-extensions
     #   django-extra-views
     #   django-markup

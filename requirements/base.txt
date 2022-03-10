@@ -51,7 +51,7 @@ django-choices==1.7.2
     #   zgw-consumers
 django-cors-headers==3.5.0
     # via -r requirements/base.in
-django-db-logger==0.1.7
+django-db-logger==0.1.12
     # via -r requirements/base.in
 django-extra-views==0.13.0
     # via -r requirements/base.in
@@ -245,6 +245,7 @@ six==1.16.0
     # via
     #   cmislib-maykin
     #   django-choices
+    #   django-db-logger
     #   django-extra-views
     #   django-markup
     #   isodate
