@@ -170,6 +170,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "openzaak.urls"
@@ -384,6 +385,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Allow logging in with both username+password and email+password
 AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesBackend",
     "openzaak.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
     "django_auth_adfs_db.backends.AdfsAuthCodeBackend",
@@ -481,16 +483,31 @@ AUTH_ADFS = {"SETTINGS_CLASS": "django_auth_adfs_db.settings.Settings"}
 # DJANGO-AXES
 #
 AXES_CACHE = "axes"  # refers to CACHES setting
-AXES_LOGIN_FAILURE_LIMIT = 5  # Default: 3
+AXES_FAILURE_LIMIT = 5  # Default: 3
 AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 AXES_USE_USER_AGENT = False  # Default: False
-AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)  # One hour
-AXES_BEHIND_REVERSE_PROXY = IS_HTTPS  # We have either Ingress or Nginx
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
+AXES_PROXY_COUNT = config(  # TODO: this also is relevant for DRF settings if/when we have rate-limited endpoints
+    "NUM_PROXIES", default=1, cast=lambda val: int(val) if val is not None else None,
+)
 AXES_ONLY_USER_FAILURES = (
     False  # Default: False (you might want to block on username rather than IP)
 )
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = (
     False  # Default: False (you might want to block on username and IP)
+)
+# The default meta precedence order
+IPWARE_META_PRECEDENCE_ORDER = (
+    "HTTP_X_FORWARDED_FOR",
+    "X_FORWARDED_FOR",  # <client>, <proxy1>, <proxy2>
+    "HTTP_CLIENT_IP",
+    "HTTP_X_REAL_IP",
+    "HTTP_X_FORWARDED",
+    "HTTP_X_CLUSTER_CLIENT_IP",
+    "HTTP_FORWARDED_FOR",
+    "HTTP_FORWARDED",
+    "HTTP_VIA",
+    "REMOTE_ADDR",
 )
 
 #

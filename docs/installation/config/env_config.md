@@ -64,6 +64,10 @@ on Docker, since `localhost` is contained within the container:
   traefik, Apache...). Default `False` - this is a header that can be spoofed and you
   need to ensure you control it before enabling this.
 
+* `NUM_PROXIES`: the number of reverse proxies in front of Open Zaak, as an integer.
+  This is used to determine the actual client IP adres. Defaults to 1, however on
+  Kubernetes with an ingress you typically want to set this to 2.
+
 * `CACHE_DEFAULT`: redis cache address for the default cache. Defaults to
   `localhost:6379/0`.
 
