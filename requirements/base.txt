@@ -121,7 +121,7 @@ djangorestframework-camel-case==1.2.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
-djangorestframework-gis==0.14
+djangorestframework-gis==0.18
     # via -r requirements/base.in
 djangorestframework==3.12.4
     # via
