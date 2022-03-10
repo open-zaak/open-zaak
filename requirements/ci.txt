@@ -109,7 +109,7 @@ django-privates==1.2.1
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
-django-redis==4.10.0
+django-redis==5.2.0
     # via -r requirements/base.txt
 django-relativedelta==1.0.5
     # via
