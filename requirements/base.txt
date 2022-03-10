@@ -33,13 +33,11 @@ dictdiffer==0.8.0
     # via -r requirements/base.in
 django-admin-index==1.2.2
     # via -r requirements/base.in
-django-appconf==1.0.5
-    # via django-axes
 django-auth-adfs-db==0.3.0
     # via -r requirements/base.in
 django-auth-adfs==1.6.1
     # via django-auth-adfs-db
-django-axes==4.4.0
+django-axes==5.31.0
     # via -r requirements/base.in
 django-better-admin-arrayfield==1.4.2
     # via
@@ -64,7 +62,7 @@ django-filter==2.4.0
     #   -r requirements/base.in
     #   django-loose-fk
     #   vng-api-common
-django-ipware==2.1.0
+django-ipware==4.0.2
     # via django-axes
 django-loose-fk==0.7.4
     # via -r requirements/base.in
@@ -96,9 +94,9 @@ django-solo==2.0.0
 django==3.2.12
     # via
     #   -r requirements/base.in
-    #   django-appconf
     #   django-auth-adfs
     #   django-auth-adfs-db
+    #   django-axes
     #   django-choices
     #   django-cors-headers
     #   django-db-logger
@@ -215,9 +213,7 @@ python-decouple==3.1
 python-dotenv==0.8.2
     # via -r requirements/base.in
 pytz==2019.1
-    # via
-    #   django
-    #   django-axes
+    # via django
 pyyaml==5.4.1
     # via
     #   gemma-zds-client

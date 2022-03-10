@@ -60,17 +60,13 @@ dictdiffer==0.8.0
     # via -r requirements/base.txt
 django-admin-index==1.2.2
     # via -r requirements/base.txt
-django-appconf==1.0.5
-    # via
-    #   -r requirements/base.txt
-    #   django-axes
 django-auth-adfs-db==0.3.0
     # via -r requirements/base.txt
 django-auth-adfs==1.6.1
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs-db
-django-axes==4.4.0
+django-axes==5.31.0
     # via -r requirements/base.txt
 django-better-admin-arrayfield==1.4.2
     # via
@@ -97,7 +93,7 @@ django-filter==2.4.0
     #   -r requirements/base.txt
     #   django-loose-fk
     #   vng-api-common
-django-ipware==2.1.0
+django-ipware==4.0.2
     # via
     #   -r requirements/base.txt
     #   django-axes
@@ -138,9 +134,9 @@ django-webtest==1.9.7
 django==3.2.12
     # via
     #   -r requirements/base.txt
-    #   django-appconf
     #   django-auth-adfs
     #   django-auth-adfs-db
+    #   django-axes
     #   django-capture-on-commit-callbacks
     #   django-choices
     #   django-cors-headers
@@ -317,7 +313,6 @@ pytz==2019.1
     # via
     #   -r requirements/base.txt
     #   django
-    #   django-axes
 pyyaml==5.4.1
     # via
     #   -r requirements/base.txt
