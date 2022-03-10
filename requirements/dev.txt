@@ -112,7 +112,7 @@ django-db-logger==0.1.12
     # via -r requirements/ci.txt
 django-debug-toolbar==3.2.1
     # via -r requirements/dev.in
-django-extensions==2.2.1
+django-extensions==3.1.5
     # via -r requirements/dev.in
 django-extra-views==0.13.0
     # via -r requirements/ci.txt
@@ -172,6 +172,7 @@ django==3.2.12
     #   django-cors-headers
     #   django-db-logger
     #   django-debug-toolbar
+    #   django-extensions
     #   django-extra-views
     #   django-filter
     #   django-loose-fk
@@ -480,7 +481,6 @@ six==1.16.0
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
-    #   django-extensions
     #   django-extra-views
     #   django-markup
     #   google-auth
