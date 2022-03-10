@@ -6,6 +6,10 @@
 #
 appdirs==1.4.4
     # via black
+asgiref==3.5.0
+    # via
+    #   -r requirements/base.txt
+    #   django
 attrs==19.3.0
     # via black
 beautifulsoup4==4.8.1
@@ -131,7 +135,7 @@ django-solo==1.1.3
     #   zgw-consumers
 django-webtest==1.9.7
     # via -r requirements/test-tools.in
-django==2.2.27
+django==3.2.12
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs
@@ -383,6 +387,7 @@ typed-ast==1.4.1
 typing-extensions==4.0.1
     # via
     #   -r requirements/base.txt
+    #   asgiref
     #   faker
 unidecode==1.0.22
     # via
