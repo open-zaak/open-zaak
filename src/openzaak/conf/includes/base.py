@@ -70,6 +70,10 @@ DATABASES = {
     }
 }
 
+# TODO: after the 3.2 upgrade at some point we'll switch this to BigAutoField which will
+# become the default in Django
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
