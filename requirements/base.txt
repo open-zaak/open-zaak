@@ -43,7 +43,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -r requirements/base.in
     #   mozilla-django-oidc-db
-django-choices==1.7.0
+django-choices==1.7.2
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -241,9 +241,10 @@ self-certifi==1.0.0
     # via -r requirements/base.in
 sentry-sdk==0.16.5
     # via -r requirements/base.in
-six==1.11.0
+six==1.16.0
     # via
     #   cmislib-maykin
+    #   django-choices
     #   django-extra-views
     #   django-markup
     #   isodate

@@ -100,7 +100,7 @@ django-better-admin-arrayfield==1.4.2
     #   mozilla-django-oidc-db
 django-capture-on-commit-callbacks==1.3.0
     # via -r requirements/ci.txt
-django-choices==1.7.0
+django-choices==1.7.2
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
@@ -474,10 +474,11 @@ self-certifi==1.0.0
     # via -r requirements/ci.txt
 sentry-sdk==0.16.5
     # via -r requirements/ci.txt
-six==1.11.0
+six==1.16.0
     # via
     #   -r requirements/ci.txt
     #   cmislib-maykin
+    #   django-choices
     #   django-extensions
     #   django-extra-views
     #   django-markup
