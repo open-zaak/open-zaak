@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,7 +19,7 @@ class FailedNotification(StatusLog):
         _("status_code"),
         help_text=_("Status code received from the Notifications API."),
     )
-    message = JSONField(
+    message = models.JSONField(
         _("notification message"),
         help_text=_("Content of the notification that was attempted to send."),
     )

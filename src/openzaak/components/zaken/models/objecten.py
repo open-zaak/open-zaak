@@ -7,7 +7,6 @@ Each model class roughly maps to an Object Type in RGBZ.
 """
 import logging
 
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -304,7 +303,7 @@ class Woonplaats(models.Model):
 
 class Overige(models.Model):
     zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE)
-    overige_data = JSONField()
+    overige_data = models.JSONField()
 
     class Meta:
         verbose_name = _("overig")
