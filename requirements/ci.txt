@@ -173,7 +173,7 @@ djangorestframework==3.12.4
     #   drf-nested-routers
     #   drf-yasg
     #   vng-api-common
-drc-cmis==1.2.6
+drc-cmis==1.3.0
     # via -r requirements/base.txt
 drf-nested-routers==0.93.3
     # via
@@ -400,7 +400,7 @@ urllib3==1.26.6
     #   sentry-sdk
 uwsgi==2.0.19.1
     # via -r requirements/base.txt
-vng-api-common==1.0.66
+vng-api-common==1.0.69
     # via
     #   -r requirements/base.txt
     #   drc-cmis
