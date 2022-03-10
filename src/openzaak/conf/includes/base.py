@@ -193,7 +193,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "openzaak.utils.context_processors.settings",
-                "django_admin_index.context_processors.dashboard",
             ],
             "loaders": TEMPLATE_LOADERS,
         },
