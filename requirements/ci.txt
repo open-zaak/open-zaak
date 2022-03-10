@@ -196,7 +196,7 @@ faker==10.0.0
     #   zgw-consumers
 flake8==3.8.3
     # via -r requirements/test-tools.in
-freezegun==0.3.12
+freezegun==1.2.0
     # via -r requirements/test-tools.in
 gemma-zds-client==0.15.0
     # via
@@ -359,7 +359,6 @@ six==1.16.0
     #   django-choices
     #   django-extra-views
     #   django-markup
-    #   freezegun
     #   isodate
     #   mozilla-django-oidc
     #   pyopenssl
