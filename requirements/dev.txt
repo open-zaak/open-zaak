@@ -139,7 +139,7 @@ django-privates==1.2.1
     #   zgw-consumers
 django-redis==5.2.0
     # via -r requirements/ci.txt
-django-relativedelta==1.0.5
+django-relativedelta==1.1.2
     # via
     #   -r requirements/ci.txt
     #   zgw-consumers

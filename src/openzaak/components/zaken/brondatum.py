@@ -7,7 +7,7 @@ from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
-from relativedeltafield import parse_relativedelta
+from relativedeltafield.utils import parse_relativedelta
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
 from openzaak.utils import parse_isodatetime
