@@ -48,7 +48,10 @@ Uitleg bij mogelijke waarden:
 * `zrc` - Zaken API
 * `ztc` - Catalogi API
 * `drc` - Documenten API
-* `brc` - Besluiten API | string | ja | C​R​U​D |
+* `brc` - Besluiten API
+* `cmc` - Contactmomenten API
+* `kc` - Klanten API
+* `vrc` - Verzoeken API | string | ja | C​R​U​D |
 | applicatieId | Unieke identificatie van de applicatie, binnen de organisatie. | string | nee | C​R​U​D |
 | applicatieWeergave | Vriendelijke naam van de applicatie. | string | nee | C​R​U​D |
 | gebruikersId | Unieke identificatie van de gebruiker die binnen de organisatie herleid kan worden naar een persoon. | string | nee | C​R​U​D |
