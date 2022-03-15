@@ -1311,9 +1311,8 @@ paths:
   /zaakcontactmomenten:
     get:
       operationId: zaakcontactmoment_list
-      description: 'Alle ZAAKCONTACTMOMENTen opvragen.
-
-        Alle ZAAKCONTACTMOMENTen opvragen.'
+      summary: Alle ZAAKCONTACTMOMENTen opvragen.
+      description: Alle ZAAKCONTACTMOMENTen opvragen.
       parameters:
       - name: zaak
         in: query
@@ -1446,9 +1445,8 @@ paths:
   /zaakcontactmomenten/{uuid}:
     get:
       operationId: zaakcontactmoment_read
-      description: 'Een specifiek ZAAKCONTACTMOMENT opvragen.
-
-        Een specifiek ZAAKCONTACTMOMENT opvragen.'
+      summary: Een specifiek ZAAKCONTACTMOMENT opvragen.
+      description: Een specifiek ZAAKCONTACTMOMENT opvragen.
       parameters:
       - name: If-None-Match
         in: header
