@@ -1324,7 +1324,7 @@ paths:
           format: uri
       - name: contactmoment
         in: query
-        description: URL-referentie naar het CONTACTMOMENT (in de KCC API)
+        description: URL-referentie naar het CONTACTMOMENT (in de CMC API)
         required: false
         schema:
           type: string
@@ -3724,6 +3724,8 @@ tags:
   description: ''
 - name: statussen
   description: ''
+- name: zaakcontactmomenten
+  description: ''
 - name: zaakinformatieobjecten
   description: ''
 - name: zaakobjecten
@@ -4596,7 +4598,7 @@ components:
           format: uri
         contactmoment:
           title: Contactmoment
-          description: URL-referentie naar het CONTACTMOMENT (in de KCC API)
+          description: URL-referentie naar het CONTACTMOMENT (in de CMC API)
           type: string
           format: uri
           maxLength: 1000

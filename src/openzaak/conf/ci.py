@@ -21,7 +21,7 @@ CACHES = {
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "import_requests": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    "kcc_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "kic_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
 LOGGING = LOGGING_SETTINGS  # Minimally required logging is nice

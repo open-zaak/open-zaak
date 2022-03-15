@@ -1058,7 +1058,7 @@ class ZaakContactMomentViewSet(
         qs = super().get_queryset()
 
         # Do not display ZaakContactMomenten that are marked to be deleted
-        cache = caches["kcc_sync"]
+        cache = caches["kic_sync"]
         marked_zcms = cache.get("zcms_marked_for_delete")
         if marked_zcms:
             return qs.exclude(uuid__in=marked_zcms)

@@ -1010,13 +1010,13 @@ class ZaakContactMoment(models.Model):
     )
     contactmoment = models.URLField(
         "contactmoment",
-        help_text=_("URL-referentie naar het CONTACTMOMENT (in de KCC API)"),
+        help_text=_("URL-referentie naar het CONTACTMOMENT (in de CMC API)"),
         max_length=1000,
     )
     _objectcontactmoment = models.URLField(
         "objectcontactmoment",
         blank=True,
-        help_text="Link to the related object in the KCC API",
+        help_text="Link to the related object in the CMC API",
     )
 
     objects = ZaakRelatedQuerySet.as_manager()

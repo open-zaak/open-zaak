@@ -100,8 +100,8 @@ CACHES = {
         },
     },
     "import_requests": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    # Cache for ZaakContactMoment removal sync with KCC
-    "kcc_sync": {
+    # Cache for ZaakContactMoment removal sync with CMC
+    "kic_sync": {
         "BACKEND": "django_redis.cache.RedisCache",
         # NOTE: watch out for multiple projects using the same cache!
         "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
