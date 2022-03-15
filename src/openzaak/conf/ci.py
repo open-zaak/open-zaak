@@ -20,7 +20,7 @@ CACHES = {
     # See: https://github.com/jazzband/django-axes/blob/master/docs/configuration.rst#cache-problems
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    "kcc_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "kic_sync": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
 LOGGING = LOGGING_SETTINGS  # Minimally required logging is nice

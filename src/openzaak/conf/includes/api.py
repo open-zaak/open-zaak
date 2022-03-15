@@ -88,9 +88,9 @@ BRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
 )
 
-kcc_repo = "VNG-Realisatie/contactmomenten-api"
-kcc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
-KCC_API_SPEC = f"https://raw.githubusercontent.com/{kcc_repo}/{kcc_commit}/src/openapi.yaml"  # noqa
+cmc_repo = "VNG-Realisatie/contactmomenten-api"
+cmc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
+CMC_API_SPEC = f"https://raw.githubusercontent.com/{cmc_repo}/{cmc_commit}/src/openapi.yaml"  # noqa
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 

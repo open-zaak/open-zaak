@@ -1757,7 +1757,7 @@
                     {
                         "name": "contactmoment",
                         "in": "query",
-                        "description": "URL-referentie naar het CONTACTMOMENT (in de KCC API)",
+                        "description": "URL-referentie naar het CONTACTMOMENT (in de CMC API)",
                         "required": false,
                         "type": "string",
                         "format": "uri"
@@ -5680,7 +5680,7 @@
                 },
                 "contactmoment": {
                     "title": "Contactmoment",
-                    "description": "URL-referentie naar het CONTACTMOMENT (in de KCC API)",
+                    "description": "URL-referentie naar het CONTACTMOMENT (in de CMC API)",
                     "type": "string",
                     "format": "uri",
                     "maxLength": 1000,
@@ -8300,6 +8300,10 @@
         },
         {
             "name": "statussen",
+            "description": ""
+        },
+        {
+            "name": "zaakcontactmomenten",
             "description": ""
         },
         {

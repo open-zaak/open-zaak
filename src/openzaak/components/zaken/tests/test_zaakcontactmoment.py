@@ -18,7 +18,7 @@ from openzaak.utils.tests import ZaakContactMomentSyncMixin
 
 from ..models import ZaakContactMoment
 
-CONTACTMOMENT = "https://kcc.nl/api/v1/contactmomenten/1234"
+CONTACTMOMENT = "https://kic.nl/api/v1/contactmomenten/1234"
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
