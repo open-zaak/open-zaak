@@ -150,6 +150,14 @@ paths:
         \ vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie\
         \ `besluittype` - `concept` moet `false` zijn"
       parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       - name: X-NLX-Logrecord-ID
         in: header
         description: Identifier of the request, traceable throughout the network
@@ -260,10 +268,35 @@ paths:
       operationId: audittrail_read
       summary: Een specifieke audit trail regel opvragen.
       description: Een specifieke audit trail regel opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -316,10 +349,35 @@ paths:
       operationId: besluit_read
       summary: Een specifiek BESLUIT opvragen.
       description: Een specifiek BESLUIT opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -362,6 +420,14 @@ paths:
         \ hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept`\
         \ moet `false` zijn"
       parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       - name: X-NLX-Logrecord-ID
         in: header
         description: Identifier of the request, traceable throughout the network
@@ -424,6 +490,14 @@ paths:
         \ hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept`\
         \ moet `false` zijn"
       parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       - name: X-NLX-Logrecord-ID
         in: header
         description: Identifier of the request, traceable throughout the network
@@ -611,6 +685,14 @@ paths:
         \ wordt ook door het systeem gezet.\n- Bij het aanmaken wordt ook in de Documenten\
         \ API de gespiegelde relatie\n  aangemaakt, echter zonder de relatie-informatie."
       parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       - name: X-NLX-Logrecord-ID
         in: header
         description: Identifier of the request, traceable throughout the network
@@ -676,10 +758,35 @@ paths:
       operationId: besluitinformatieobject_read
       summary: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       description: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -1182,7 +1289,11 @@ components:
 
             * `drc` - Documenten API
 
-            * `brc` - Besluiten API'
+            * `brc` - Besluiten API
+
+            * `cmc` - Contactmomenten API
+
+            * `kc` - Klanten API'
           type: string
           enum:
           - ac
@@ -1191,6 +1302,8 @@ components:
           - ztc
           - drc
           - brc
+          - cmc
+          - kc
         applicatieId:
           title: Applicatie id
           description: Unieke identificatie van de applicatie, binnen de organisatie.

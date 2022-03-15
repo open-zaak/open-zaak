@@ -156,6 +156,15 @@ paths:
       operationId: besluittype_create
       summary: Maak een BESLUITTYPE aan.
       description: Maak een BESLUITTYPE aan.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/BesluitType'
       responses:
@@ -205,10 +214,35 @@ paths:
       operationId: besluittype_read
       summary: Een specifieke BESLUITTYPE opvragen.
       description: Een specifieke BESLUITTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -248,6 +282,15 @@ paths:
         een concept
 
         betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/BesluitType'
       responses:
@@ -293,6 +336,15 @@ paths:
       summary: Werk een BESLUITTYPE deels bij.
       description: Werk een BESLUITTYPE deels bij. Dit kan alleen als het een concept
         betreft.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/BesluitType'
       responses:
@@ -390,6 +442,15 @@ paths:
         dan moet
 
         je een nieuwe versie aanmaken.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       responses:
         '200':
           description: ''
@@ -530,6 +591,15 @@ paths:
       operationId: catalogus_create
       summary: Maak een CATALOGUS aan.
       description: Maak een CATALOGUS aan.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         content:
           application/json:
@@ -583,10 +653,35 @@ paths:
       operationId: catalogus_read
       summary: Een specifieke CATALOGUS opvragen.
       description: Een specifieke CATALOGUS opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -726,6 +821,15 @@ paths:
         een
 
         concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Eigenschap'
       responses:
@@ -775,10 +879,35 @@ paths:
       operationId: eigenschap_read
       summary: Een specifieke EIGENSCHAP opvragen.
       description: Een specifieke EIGENSCHAP opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -817,6 +946,15 @@ paths:
       description: 'Werk een EIGENSCHAP in zijn geheel bij. Dit kan alleen als het
 
         bijbehorende ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Eigenschap'
       responses:
@@ -863,6 +1001,15 @@ paths:
       description: 'Werk een EIGENSCHAP deels bij. Dit kan alleen als het bijbehorende
 
         ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Eigenschap'
       responses:
@@ -1046,6 +1193,15 @@ paths:
       operationId: informatieobjecttype_create
       summary: Maak een INFORMATIEOBJECTTYPE aan.
       description: Maak een INFORMATIEOBJECTTYPE aan.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/InformatieObjectType'
       responses:
@@ -1095,10 +1251,35 @@ paths:
       operationId: informatieobjecttype_read
       summary: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       description: Een specifieke INFORMATIEOBJECTTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -1138,6 +1319,15 @@ paths:
         als het een
 
         concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/InformatieObjectType'
       responses:
@@ -1185,6 +1375,15 @@ paths:
         een concept
 
         betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/InformatieObjectType'
       responses:
@@ -1284,6 +1483,15 @@ paths:
         inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren nog wat
 
         gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       responses:
         '200':
           description: ''
@@ -1427,6 +1635,15 @@ paths:
         ZAAKTYPE een
 
         concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ResultaatType'
       responses:
@@ -1476,10 +1693,35 @@ paths:
       operationId: resultaattype_read
       summary: Een specifieke RESULTAATTYPE opvragen.
       description: Een specifieke RESULTAATTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -1519,6 +1761,15 @@ paths:
         het
 
         bijbehorende ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ResultaatType'
       responses:
@@ -1565,6 +1816,15 @@ paths:
       description: 'Werk een RESULTAATTYPE deels bij. Dit kan alleen als het bijbehorende
 
         ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ResultaatType'
       responses:
@@ -1766,6 +2026,15 @@ paths:
         een
 
         concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/RolType'
       responses:
@@ -1815,10 +2084,35 @@ paths:
       operationId: roltype_read
       summary: Een specifieke ROLTYPE opvragen.
       description: Een specifieke ROLTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -1857,6 +2151,15 @@ paths:
       description: 'Werk een ROLTYPE in zijn geheel bij. Dit kan alleen als het
 
         bijbehorende ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/RolType'
       responses:
@@ -1903,6 +2206,15 @@ paths:
       description: 'Werk een ROLTYPE deels bij. Dit kan alleen als het bijbehorende
 
         ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/RolType'
       responses:
@@ -2088,6 +2400,15 @@ paths:
         een
 
         concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/StatusType'
       responses:
@@ -2137,10 +2458,35 @@ paths:
       operationId: statustype_read
       summary: Een specifieke STATUSTYPE opvragen.
       description: Een specifieke STATUSTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -2179,6 +2525,15 @@ paths:
       description: 'Werk een STATUSTYPE in zijn geheel bij. Dit kan alleen als het
 
         bijbehorende ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/StatusType'
       responses:
@@ -2225,6 +2580,15 @@ paths:
       description: 'Werk een STATUSTYPE deels bij. Dit kan alleen als het bijbehorende
 
         ZAAKTYPE een concept betreft.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/StatusType'
       responses:
@@ -2429,6 +2793,15 @@ paths:
         Er wordt gevalideerd op:
 
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -2478,10 +2851,35 @@ paths:
       operationId: zaakinformatieobjecttype_read
       summary: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       description: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -2526,6 +2924,15 @@ paths:
         Er wordt gevalideerd op:
 
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -2578,6 +2985,15 @@ paths:
         Er wordt gevalideerd op:
 
         - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakTypeInformatieObjectType'
       responses:
@@ -2783,6 +3199,15 @@ paths:
         \ gebruikt worden als het zaaktype een andere geldigheidsperiode\n  kent dan\
         \ bestaande zaaktypen.\n- `deelzaaktypen` moeten tot dezelfde catalogus behoren\
         \ als het ZAAKTYPE."
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -2832,10 +3257,35 @@ paths:
       operationId: zaaktype_read
       summary: Een specifieke ZAAKTYPE opvragen.
       description: Een specifieke ZAAKTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -2880,6 +3330,15 @@ paths:
         Er wordt gevalideerd op:
 
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -2930,6 +3389,15 @@ paths:
         Er wordt gevalideerd op:
 
         - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakType'
       responses:
@@ -3029,6 +3497,15 @@ paths:
         publiceren nog wat gewijzigd moet worden, dan moet je een nieuwe versie
 
         aanmaken.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       responses:
         '200':
           description: ''

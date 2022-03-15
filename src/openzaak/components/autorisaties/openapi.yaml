@@ -140,6 +140,15 @@ paths:
 
 
         Na het aanmaken wordt een notificatie verstuurd.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Applicatie'
       responses:
@@ -257,10 +266,35 @@ paths:
         van het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding
 
         dan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.'
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
       responses:
         '200':
           description: OK
           headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
             API-version:
               schema:
                 type: string
@@ -307,6 +341,15 @@ paths:
 
 
         Na het bijwerken wordt een notificatie verstuurd.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Applicatie'
       responses:
@@ -366,6 +409,15 @@ paths:
 
 
         Na het bijwerken wordt een notificatie verstuurd.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/Applicatie'
       responses:
@@ -623,7 +675,11 @@ components:
 
             * `drc` - Documenten API
 
-            * `brc` - Besluiten API'
+            * `brc` - Besluiten API
+
+            * `cmc` - Contactmomenten API
+
+            * `kc` - Klanten API'
           type: string
           enum:
           - ac
@@ -632,6 +688,8 @@ components:
           - ztc
           - drc
           - brc
+          - cmc
+          - kc
         componentWeergave:
           title: Component weergave
           description: Omschrijving van `component`.
