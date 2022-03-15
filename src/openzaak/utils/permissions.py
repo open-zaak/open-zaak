@@ -109,7 +109,7 @@ class AuthRequired(permissions.BasePermission):
         if bypass_permissions(request):
             return True
 
-        scopes_required = get_required_scopes(view)
+        scopes_required = get_required_scopes(request, view)
         component = self.get_component(view)
 
         if not self.permission_fields:
@@ -158,7 +158,7 @@ class AuthRequired(permissions.BasePermission):
         if bypass_permissions(request):
             return True
 
-        scopes_required = get_required_scopes(view)
+        scopes_required = get_required_scopes(request, view)
         component = self.get_component(view)
 
         if not self.permission_fields:
