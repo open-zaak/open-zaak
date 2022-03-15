@@ -4,6 +4,7 @@ from django.conf import settings
 from django.urls import set_script_prefix
 
 from vng_api_common.management.commands import generate_swagger
+from vng_api_common.schema import OpenAPISchemaGenerator
 
 SCHEMA_MAPPING = {
     "info": "openzaak.components.{}.api.schema.info",
@@ -22,6 +23,11 @@ class Command(generate_swagger.Command):
             help="The component name to define urlconf, base_path and schema info",
         )
 
+    def get_schema_generator(
+        self, generator_class_name, api_info, api_version, api_url
+    ):
+        return OpenAPISchemaGenerator(info=api_info, url=api_url, urlconf=self.urlconf)
+
     def handle(
         self,
         output_file,
@@ -29,12 +35,13 @@ class Command(generate_swagger.Command):
         format,
         api_url,
         mock,
+        api_version,
         user,
         private,
+        generator_class_name,
         info,
         urlconf,
         component=None,
-        *args,
         **options,
     ):
         _version = getattr(settings, f"{component.upper()}_API_VERSION")
@@ -52,17 +59,18 @@ class Command(generate_swagger.Command):
                 format,
                 api_url,
                 mock,
+                api_version,
                 user,
                 private,
+                generator_class_name,
                 info,
                 urlconf,
-                *args,
                 **options,
             )
 
         # rewrite command arguments based on the component
         info = SCHEMA_MAPPING["info"].format(component)
-        urlconf = SCHEMA_MAPPING["urlconf"].format(component)
+        self.urlconf = SCHEMA_MAPPING["urlconf"].format(component)
 
         # generate schema
         super().handle(
@@ -71,10 +79,11 @@ class Command(generate_swagger.Command):
             format,
             api_url,
             mock,
+            api_version,
             user,
             private,
-            info,
-            urlconf,
-            *args,
+            generator_class_name,
+            info=info,
+            urlconf=self.urlconf,
             **options,
         )
