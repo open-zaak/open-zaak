@@ -112,7 +112,7 @@ class DSOApi50Tests(APITestCase):
             views.ConflictView,
             {
                 "code": "conflict",
-                "title": "A conflict occurred",
+                "title": "Er is een conflict",
                 "status": 409,
                 "detail": "The resource was updated, please retrieve it again",
             },
