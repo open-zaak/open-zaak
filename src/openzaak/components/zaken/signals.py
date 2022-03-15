@@ -115,7 +115,7 @@ def sync_contactmoment_relation(sender, instance: ZaakContactMoment = None, **kw
     if signal is post_save and not instance._objectcontactmoment:
         sync_create_zaakcontactmoment(instance)
     elif signal is pre_delete and instance._objectcontactmoment:
-        cache = caches["kcc_sync"]
+        cache = caches["kic_sync"]
         marked_zcms = cache.get("zcms_marked_for_delete")
         if marked_zcms:
             cache.set("zcms_marked_for_delete", marked_zcms + [instance.uuid])

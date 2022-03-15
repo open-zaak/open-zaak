@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 (
                     "contactmoment",
                     models.URLField(
-                        help_text="URL-referentie naar het CONTACTMOMENT (in de KCC API)",
+                        help_text="URL-referentie naar het CONTACTMOMENT (in de CMC API)",
                         max_length=1000,
                         verbose_name="contactmoment",
                     ),
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                     "_objectcontactmoment",
                     models.URLField(
                         blank=True,
-                        help_text="Link to the related object in the KCC API",
+                        help_text="Link to the related object in the CMC API",
                         verbose_name="objectcontactmoment",
                     ),
                 ),
