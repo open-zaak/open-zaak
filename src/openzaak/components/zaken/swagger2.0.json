@@ -1744,7 +1744,8 @@
         "/zaakcontactmomenten": {
             "get": {
                 "operationId": "zaakcontactmoment_list",
-                "description": "Alle ZAAKCONTACTMOMENTen opvragen.\nAlle ZAAKCONTACTMOMENTen opvragen.",
+                "summary": "Alle ZAAKCONTACTMOMENTen opvragen.",
+                "description": "Alle ZAAKCONTACTMOMENTen opvragen.",
                 "parameters": [
                     {
                         "name": "zaak",
@@ -1929,7 +1930,8 @@
         "/zaakcontactmomenten/{uuid}": {
             "get": {
                 "operationId": "zaakcontactmoment_read",
-                "description": "Een specifiek ZAAKCONTACTMOMENT opvragen.\nEen specifiek ZAAKCONTACTMOMENT opvragen.",
+                "summary": "Een specifiek ZAAKCONTACTMOMENT opvragen.",
+                "description": "Een specifiek ZAAKCONTACTMOMENT opvragen.",
                 "parameters": [
                     {
                         "name": "If-None-Match",
