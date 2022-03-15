@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 """
-Als KCC medewerker wil ik een behandelaar kunnen toewijzen zodat de melding
+Als KIC medewerker wil ik een behandelaar kunnen toewijzen zodat de melding
 kan worden gerouteerd.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/45
