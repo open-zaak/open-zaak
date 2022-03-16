@@ -57,7 +57,7 @@ class DefaultCORSConfigurationTests(CorsMixin, APITestCase):
 
     def test_credentialed_request(self):
         user = SuperUserFactory.create(password="secret")
-        self.assertTrue(self.client.login(username=user.username, password="secret"))
+        self.client.force_login(user=user)
 
         response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
 
@@ -101,7 +101,7 @@ class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
 
     def test_credentialed_request(self):
         user = SuperUserFactory.create(password="secret")
-        self.assertTrue(self.client.login(username=user.username, password="secret"))
+        self.client.force_login(user=user)
 
         response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
 
