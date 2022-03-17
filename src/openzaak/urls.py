@@ -10,6 +10,8 @@ from django.views.generic.base import TemplateView
 
 from openzaak.utils.views import ViewConfigView
 
+admin.site.enable_nav_sidebar = False
+
 handler500 = "openzaak.utils.views.server_error"
 
 urlpatterns = [
