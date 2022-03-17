@@ -412,7 +412,7 @@ python-dotenv==0.8.2
     # via -r requirements/ci.txt
 python-string-utils==1.0.0
     # via openshift
-pytz==2019.1
+pytz==2021.3
     # via
     #   -r requirements/ci.txt
     #   babel

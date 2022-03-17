@@ -309,7 +309,7 @@ python-decouple==3.1
     #   drc-cmis
 python-dotenv==0.8.2
     # via -r requirements/base.txt
-pytz==2019.1
+pytz==2021.3
     # via
     #   -r requirements/base.txt
     #   django
