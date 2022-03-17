@@ -31,7 +31,7 @@ cryptography==3.4.4
     #   pyopenssl
 dictdiffer==0.8.0
     # via -r requirements/base.in
-django-admin-index==1.5.0
+django-admin-index==2.0.0
     # via -r requirements/base.in
 django-auth-adfs-db==0.3.0
     # via -r requirements/base.in
@@ -92,6 +92,7 @@ django-solo==2.0.0
 django==3.2.12
     # via
     #   -r requirements/base.in
+    #   django-admin-index
     #   django-auth-adfs
     #   django-auth-adfs-db
     #   django-axes
