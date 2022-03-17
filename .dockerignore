@@ -14,3 +14,6 @@ log/
 .env
 includes/local.py
 volumes/
+
+src/openzaak/static/css/
+src/openzaak/static/js/
