@@ -8,7 +8,6 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 from freezegun import freeze_time
 
@@ -173,7 +172,7 @@ class ZaaktypeAdminTests(
         form = get_response.form
         form["datum_einde_geldigheid"] = "2019-01-01"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             post_response = form.submit("_addversion")
 
         zaaktype_old.refresh_from_db()

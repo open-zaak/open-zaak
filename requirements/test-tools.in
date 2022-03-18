@@ -1,6 +1,5 @@
 # Dependencies only relevant for (unit) testing
 coverage
-django-capture-on-commit-callbacks
 django-webtest
 factory-boy
 freezegun

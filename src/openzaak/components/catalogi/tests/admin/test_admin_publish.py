@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
@@ -87,7 +86,7 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()

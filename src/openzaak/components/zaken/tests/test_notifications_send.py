@@ -8,7 +8,6 @@ from django.test import override_settings
 from django.utils.timezone import now
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
@@ -83,7 +82,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
             },
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -119,7 +118,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         resultaat = ResultaatFactory.create(zaak=zaak)
         resultaat_url = get_operation_url("resultaat_update", uuid=resultaat.uuid)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(resultaat_url)
 
         self.assertEqual(
@@ -174,7 +173,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -210,7 +209,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         zaak = ZaakFactory.create()
         url = reverse(zaak)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -260,7 +259,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "datumStatusGezet": "2019-01-01T12:00:00Z",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -307,7 +306,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -358,7 +357,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "zaak": f"http://testserver{zaak_url}",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -398,7 +397,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         url = reverse(zio)
 
         # this endpoint does not run in a transaction.atomic() block, so the
-        # capture_on_commit_callbacks context manager is not useful
+        # self.captureOnCommitCallbacks context manager is not useful
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -440,7 +439,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "waarde": "ja",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -481,7 +480,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "datumtijd": "2019-01-01T12:00:00Z",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -534,7 +533,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -570,7 +569,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         rol = RolFactory.create()
         url = reverse(rol)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -613,7 +612,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "resultaattype": f"http://testserver{resultaattype_url}",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -649,7 +648,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         resultaat = ResultaatFactory.create()
         url = reverse(resultaat)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -683,7 +682,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         besluit_url = reverse(besluit)
         url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(
                 url, data={"besluit": f"http://testserver{besluit_url}",}
             )
