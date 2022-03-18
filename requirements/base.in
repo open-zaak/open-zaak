@@ -8,6 +8,7 @@ python-decouple  # processing of envvar configs
 requests
 zgw-consumers
 self-certifi
+bleach
 
 # Framework libraries
 django
