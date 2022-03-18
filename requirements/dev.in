@@ -11,7 +11,7 @@ whitenoise
 
 # Documentation
 sphinx
-sphinx_rtd_theme
+sphinx-rtd-theme
 recommonmark
 sphinx-markdown-tables
 sphinx-tabs
