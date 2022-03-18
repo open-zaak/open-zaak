@@ -23,6 +23,7 @@ from ..models import (
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
+    ZaakVerzoek,
 )
 from .betrokkenen import (
     MedewerkerInline,
@@ -409,6 +410,20 @@ class ZaakContactMomentAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAd
     viewset = "openzaak.components.zaken.api.viewsets.ZaakContactMomentViewSet"
 
 
+@admin.register(ZaakVerzoek)
+class ZaakVerzoekAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "verzoek"]
+    list_select_related = ["zaak"]
+    search_fields = (
+        "uuid",
+        "zaak__identificatie",
+        "zaak__uuid",
+        "verzoek",
+    )
+    raw_id_fields = ["zaak"]
+    viewset = "openzaak.components.zaken.api.viewsets.ZaakVerzoekViewSet"
+
+
 # inline classes for Zaak
 class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
@@ -470,6 +485,12 @@ class ZaakContactMomentInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakVerzoekInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakVerzoek
+    fields = ZaakVerzoekAdmin.list_display
+    fk_name = "zaak"
+
+
 class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
@@ -513,6 +534,7 @@ class ZaakAdmin(
         ZaakObjectInline,
         ZaakInformatieObjectInline,
         ZaakContactMomentInline,
+        ZaakVerzoekInline,
         ZaakEigenschapInline,
         RolInline,
         ResultaatInline,
