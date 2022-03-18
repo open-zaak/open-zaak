@@ -143,3 +143,11 @@ class ZaakContactMomentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.ZaakContactMoment"
+
+
+class ZaakVerzoekFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    verzoek = factory.Faker("url")
+
+    class Meta:
+        model = "zaken.ZaakVerzoek"

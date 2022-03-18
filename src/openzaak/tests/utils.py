@@ -6,8 +6,6 @@ from requests_mock import Mocker
 
 MOCK_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "schemas",)
 
-NRC_API_SPEC = os.path.join(MOCK_FILES_DIR, "nrc.yaml")
-
 _CACHE = {}
 
 
