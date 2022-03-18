@@ -18,7 +18,7 @@ asgiref==3.5.0
     # via
     #   -r requirements/ci.txt
     #   django
-attrs==19.3.0
+attrs==21.4.0
     # via
     #   -r requirements/ci.txt
     #   black
@@ -27,7 +27,7 @@ autopep8==1.5.2
     # via django-silk
 babel==2.9.1
     # via sphinx
-beautifulsoup4==4.8.1
+beautifulsoup4==4.10.0
     # via
     #   -r requirements/ci.txt
     #   webtest
@@ -52,7 +52,7 @@ charset-normalizer==2.0.12
     # via
     #   -r requirements/ci.txt
     #   requests
-click==7.1.2
+click==8.0.4
     # via
     #   -r requirements/ci.txt
     #   black
@@ -72,7 +72,7 @@ coreschema==0.0.4
     #   -r requirements/ci.txt
     #   coreapi
     #   drf-yasg
-coverage==4.5.4
+coverage==6.3.2
     # via -r requirements/ci.txt
 cryptography==3.4.8
     # via
@@ -196,7 +196,7 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
-django-webtest==1.9.7
+django-webtest==1.9.10
     # via -r requirements/ci.txt
 djangorestframework==3.12.4
     # via
@@ -231,7 +231,7 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/ci.txt
     #   vng-api-common
-factory-boy==2.12.0
+factory-boy==3.2.1
     # via -r requirements/ci.txt
 faker==13.3.2
     # via
@@ -240,7 +240,7 @@ faker==13.3.2
     #   zgw-consumers
 flake8==3.8.3
     # via -r requirements/ci.txt
-freezegun==1.2.0
+freezegun==1.2.1
     # via -r requirements/ci.txt
 gemma-zds-client==0.15.0
     # via
@@ -270,6 +270,7 @@ imagesize==1.1.0
 importlib-metadata==4.11.3
     # via
     #   -r requirements/ci.txt
+    #   click
     #   flake8
     #   humanize
     #   jsonschema
@@ -352,7 +353,7 @@ packaging==21.3
     #   sphinx
 passlib==1.7.2
     # via -r requirements/../deployment/requirements.in
-pathspec==0.8.0
+pathspec==0.9.0
     # via
     #   -r requirements/ci.txt
     #   black
@@ -444,7 +445,7 @@ redis==4.1.4
     # via
     #   -r requirements/ci.txt
     #   django-redis
-regex==2020.6.8
+regex==2022.3.15
     # via
     #   -r requirements/ci.txt
     #   black
@@ -501,7 +502,6 @@ six==1.16.0
     #   python-dateutil
     #   requests-mock
     #   websocket-client
-    #   webtest
 smmap==3.0.4
     # via gitdb
 snowballstemmer==2.0.0
@@ -540,14 +540,14 @@ sqlparse==0.4.2
     #   django
     #   django-debug-toolbar
     #   django-silk
-tblib==1.4.0
+tblib==1.7.0
     # via -r requirements/ci.txt
-toml==0.10.1
+toml==0.10.2
     # via
     #   -r requirements/ci.txt
     #   black
     #   pep517
-typed-ast==1.4.1
+typed-ast==1.5.2
     # via
     #   -r requirements/ci.txt
     #   black
@@ -578,17 +578,17 @@ vng-api-common==1.0.69
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
-waitress==1.4.3
+waitress==2.1.1
     # via
     #   -r requirements/ci.txt
     #   webtest
-webob==1.8.5
+webob==1.8.7
     # via
     #   -r requirements/ci.txt
     #   webtest
 websocket-client==0.57.0
     # via kubernetes
-webtest==2.0.33
+webtest==3.0.0
     # via
     #   -r requirements/ci.txt
     #   django-webtest

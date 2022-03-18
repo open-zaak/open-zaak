@@ -2,7 +2,7 @@
 coverage
 django-capture-on-commit-callbacks
 django-webtest
-factory_boy
+factory-boy
 freezegun
 requests-mock
 tblib
