@@ -1,5 +1,5 @@
 # Helpers
-bumpversion
+bump2version
 pip-tools
 gitpython
 

@@ -415,7 +415,10 @@ X_FRAME_OPTIONS = "DENY"
 #
 # Silenced checks
 #
-SILENCED_SYSTEM_CHECKS = ["rest_framework.W001"]
+SILENCED_SYSTEM_CHECKS = [
+    "rest_framework.W001",
+    "debug_toolbar.W006",
+]
 
 #
 # Custom settings
