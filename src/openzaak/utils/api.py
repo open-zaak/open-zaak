@@ -69,3 +69,25 @@ def create_remote_objectcontactmoment(
 
 def delete_remote_objectcontactmoment(objectcontactmoment_url: str) -> None:
     delete_remote_resource("objectcontactmoment", objectcontactmoment_url)
+
+
+def create_remote_objectverzoek(
+    verzoek_url: str, object_url: str, object_type: str = "zaak"
+) -> dict:
+    client = Service.get_client(verzoek_url)
+    if client is None:
+        raise UnknownService(f"{verzoek_url} API should be added to Service model")
+
+    body = {
+        "verzoek": verzoek_url,
+        "object": object_url,
+        "objectType": object_type,
+    }
+
+    response = client.create("objectverzoek", data=body)
+
+    return response
+
+
+def delete_remote_objectverzoek(objectverzoek_url: str) -> None:
+    delete_remote_resource("objectverzoek", objectverzoek_url)
