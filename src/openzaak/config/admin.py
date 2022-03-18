@@ -13,7 +13,10 @@ from .models import FeatureFlags, InternalService
 
 @admin.register(InternalService)
 class InternalServiceAdmin(admin.ModelAdmin):
-    list_display = ("api_type", "enabled", "nlx")
+    list_display = (
+        "api_type",
+        "enabled",
+    )
 
 
 @admin.register(FeatureFlags)

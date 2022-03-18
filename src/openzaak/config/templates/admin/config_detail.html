@@ -49,9 +49,6 @@
                         <th scope="col" title="Service geactiveerd en aangeboden door Open Zaak">
                             {% trans "Actief" %}
                         </th>
-                        <th scope="col" title="Service wordt ook aangeboden over NLX">
-                            {% trans "Aanbieden via NLX" %}
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,9 +57,6 @@
                         <td>{{ service.component|title }} API</td>
                         <td>
                             {{ service.enabled|boolean_icon }}
-                        </td>
-                        <td>
-                            {{ service.nlx|boolean_icon }}
                         </td>
                     </tr>
                     {% endfor %}
