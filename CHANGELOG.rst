@@ -4,9 +4,43 @@ Changelog
 1.6.0 (2022-03-??)
 ------------------
 
-* Upgraded to Django 3.2 LTS version
-* Upgraded a number of dependencies to be compatible with Django 3.2
-* ...
+**New features**
+
+* Upgraded to Django 3.2 LTS version (#1098)
+
+**Bugfixes**
+
+* Fixed a crash in the validation path for "zaak sluiten" where the archive status of
+  related documents is checked.
+* Fixed missing JWT expiry validation for audittrail endpoints and nested zaak resources
+* Real IP address detection in brute-force protection should be fixed if configured
+  correctly (#643)
+* Fixed a wrong name in the ``ROL`` list endpoint filter parameters
+* Updated the Docker base images to use slim-bullseye instead of stretch (#1097)
+* Fixed NLX integration after their breaking changes and removed a bunch of custom
+  code in the process (#1082)
+* Fixed real IP detection in the Access logs by relying on the ``NUM_PROXIES`` config
+  var (#643)
+
+**Documentation**
+
+* Fixed 1.5.0 release date in the changelog
+* Updated the FFPC assessment to version 0.2.2
+* Renamed the "product steering group" to "core" group (=kerngroep)
+* Rewrote the Kubernetes deployment documentation (#854)
+
+**Project maintenance**
+
+* Upgraded a number of dependencies to be compatible with Django 3.2 (#1098)
+* Upgraded most dependencies to their latest available versions (#1098)
+* Updated assessment content w/r to CI location and git tag PGP signing
+* Improved test suite to not rely on real network calls (related to #644)
+* Removed some unused dev-tooling
+* Enabled the newer Docker buildkit on CI
+* Handled the KIC -> KC component rename
+* Removed Kubernetes cluster infrastructure code/playbooks/manifests - this is not the
+  scope of Open Zaak (#854)
+* Updated CI/test dependencies (#1098)
 
 .. warning::
 
