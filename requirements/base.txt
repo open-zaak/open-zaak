@@ -6,14 +6,14 @@
 #
 asgiref==3.5.0
     # via django
-certifi==2018.4.16
+certifi==2021.10.8
     # via
     #   requests
     #   self-certifi
     #   sentry-sdk
-cffi==1.13.2
+cffi==1.15.0
     # via cryptography
-charset-normalizer==2.0.3
+charset-normalizer==2.0.12
     # via requests
 cmislib-maykin==0.7.4
     # via drc-cmis
@@ -23,13 +23,13 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==3.4.4
+cryptography==3.4.8
     # via
     #   django-auth-adfs
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-dictdiffer==0.8.0
+dictdiffer==0.9.0
     # via -r requirements/base.in
 django-admin-index==2.0.0
     # via -r requirements/base.in
@@ -49,13 +49,13 @@ django-choices==1.7.2
     #   drc-cmis
     #   vng-api-common
     #   zgw-consumers
-django-cors-headers==3.5.0
+django-cors-headers==3.11.0
     # via -r requirements/base.in
 django-db-logger==0.1.12
     # via -r requirements/base.in
-django-extra-views==0.13.0
+django-extra-views==0.14.0
     # via -r requirements/base.in
-django-filter==2.4.0
+django-filter==21.1
     # via
     #   -r requirements/base.in
     #   django-loose-fk
@@ -64,11 +64,11 @@ django-ipware==4.0.2
     # via django-axes
 django-loose-fk==1.0.2
     # via -r requirements/base.in
-django-markup==1.3
+django-markup==1.5
     # via -r requirements/base.in
 django-ordered-model==3.5
     # via django-admin-index
-django-privates==1.2.1
+django-privates==1.3.0
     # via
     #   -r requirements/base.in
     #   zgw-consumers
@@ -78,7 +78,7 @@ django-relativedelta==1.1.2
     # via
     #   -r requirements/base.in
     #   zgw-consumers
-django-sendfile2==0.6.0
+django-sendfile2==0.6.1
     # via django-privates
 django-sniplates==0.7.0
     # via -r requirements/base.in
@@ -139,29 +139,31 @@ drf-extra-fields==3.4.0
     # via -r requirements/base.in
 drf-nested-routers==0.93.3
     # via vng-api-common
-drf-writable-nested==0.6.2
+drf-writable-nested==0.6.3
     # via -r requirements/base.in
 drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
-faker==10.0.0
+faker==13.3.2
     # via zgw-consumers
 gemma-zds-client==0.15.0
     # via
     #   vng-api-common
     #   zgw-consumers
-httplib2==0.19.0
+httplib2==0.20.4
     # via cmislib-maykin
-humanize==3.2.0
+humanize==4.0.0
     # via -r requirements/base.in
-idna==2.6
+idna==3.3
     # via requests
-inflection==0.3.1
+importlib-metadata==4.11.3
+    # via humanize
+inflection==0.5.1
     # via drf-yasg
 iso-639==0.4.5
     # via vng-api-common
-iso8601==0.1.12
+iso8601==1.0.2
     # via
     #   cmislib-maykin
     #   drc-cmis
@@ -247,8 +249,6 @@ six==1.16.0
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
-    #   django-extra-views
-    #   django-markup
     #   isodate
     #   mozilla-django-oidc
     #   pyopenssl
@@ -256,12 +256,11 @@ six==1.16.0
     #   requests-mock
 sqlparse==0.4.2
     # via django
-text-unidecode==1.3
-    # via faker
 typing-extensions==4.0.1
     # via
     #   asgiref
     #   faker
+    #   importlib-metadata
 unidecode==1.0.22
     # via vng-api-common
 uritemplate==3.0.0
@@ -280,6 +279,8 @@ vng-api-common==1.0.69
     #   drc-cmis
 zgw-consumers==0.17.1
     # via -r requirements/base.in
+zipp==3.7.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

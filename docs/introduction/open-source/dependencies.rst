@@ -50,7 +50,7 @@ anyway, in alphabetical order.
 * ``coreschema==0.0.4`` is a transitive dependency of ``coreapi`` and ``drf-yasg``,
   which are both well-maintained. It is made by the same author as DRF itself.
 
-* ``dictdiffer==0.8.0`` is not mission-critical and can easily be swapped out if needed.
+* ``dictdiffer==0.9.0`` is not mission-critical and can easily be swapped out if needed.
   It's currently used to visualize changes obtained from audit trail records in the
   admin interface. The library is Open Source on Github, and could be forked if needed.
 
