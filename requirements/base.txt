@@ -195,7 +195,7 @@ psycopg2==2.9.3
     #   mozilla-django-oidc-db
 pycparser==2.21
     # via cffi
-pyjwt==1.6.4
+pyjwt==2.3.0
     # via
     #   django-auth-adfs
     #   gemma-zds-client

@@ -21,7 +21,6 @@ class JWTTests(JWTAuthMixin, APITestCase):
             "user_representation": self.client_id,
         }
         encoded = jwt.encode(payload, self.secret, algorithm="HS256")
-        encoded = encoded.decode("ascii")
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {encoded}")
 
         # request any resource

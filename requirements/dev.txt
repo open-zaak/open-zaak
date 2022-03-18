@@ -382,7 +382,7 @@ pygments==2.8.1
     #   django-silk
     #   sphinx
     #   sphinx-tabs
-pyjwt==1.6.4
+pyjwt==2.3.0
     # via
     #   -r requirements/ci.txt
     #   django-auth-adfs
