@@ -474,6 +474,10 @@ else:
 
 RELEASE = config("RELEASE", GIT_SHA)
 
+NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we have rate-limited endpoints
+    "NUM_PROXIES", default=1, cast=lambda val: int(val) if val is not None else None,
+)
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #
@@ -493,9 +497,13 @@ AXES_FAILURE_LIMIT = 5  # Default: 3
 AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
 AXES_USE_USER_AGENT = False  # Default: False
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
-AXES_PROXY_COUNT = config(  # TODO: this also is relevant for DRF settings if/when we have rate-limited endpoints
-    "NUM_PROXIES", default=1, cast=lambda val: int(val) if val is not None else None,
-)
+# after testing, the REMOTE_ADDR does not appear to be included with nginx (so single
+# reverse proxy) and the ipware detection didn't properly work. On K8s you typically have
+# ingress (load balancer) and then an additional nginx container for private file serving,
+# bringing the total of reverse proxies to 2 - meaning HTTP_X_FORWARDED_FOR basically
+# looks like ``$realIp,$ingressIp``. -> to get to $realIp, there is only 1 extra reverse
+# proxy included.
+AXES_PROXY_COUNT = NUM_PROXIES - 1 if NUM_PROXIES else None
 AXES_ONLY_USER_FAILURES = (
     False  # Default: False (you might want to block on username rather than IP)
 )

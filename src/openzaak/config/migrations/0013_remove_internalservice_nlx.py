@@ -12,8 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="internalservice",
-            name="nlx",
-        ),
+        migrations.RemoveField(model_name="internalservice", name="nlx",),
     ]
