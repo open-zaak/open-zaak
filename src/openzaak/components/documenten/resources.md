@@ -28,7 +28,7 @@ Uitleg bij mogelijke waarden:
 * `geheim` - Geheim
 * `zeer_geheim` - Zeer geheim | string | nee | C​R​U​D |
 | auteur | De persoon of organisatie die in de eerste plaats verantwoordelijk is voor het creëren van de inhoud van het INFORMATIEOBJECT. | string | ja | C​R​U​D |
-| status | Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden &#39;in bewerking&#39; en &#39;ter vaststelling&#39; komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in &#39;gearchiveerd&#39; impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.
+| status | Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden &#x27;in bewerking&#x27; en &#x27;ter vaststelling&#x27; komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in &#x27;gearchiveerd&#x27; impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.
 
 Uitleg bij mogelijke waarden:
 
