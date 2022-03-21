@@ -126,6 +126,16 @@ jobs:
           # Browser binding + cmisurlmapping is not supported
           - binding: 'BROWSER'
             cmisurlmapping: 'True'
+          # do not run tests for all CMIS bindings on all database versions (we only run on postgres 12)
+          - binding: 'WEBSERVICE'
+            postgres: '10'
+          - binding: 'WEBSERVICE'
+            postgres: '11'
+          - binding: 'WEBSERVICE'
+            postgres: '13'
+          - binding: 'WEBSERVICE'
+            postgres: '14'
+
 
     name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}, ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }} )
 
