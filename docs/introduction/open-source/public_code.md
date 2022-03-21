@@ -23,8 +23,7 @@ A codebase MUST include the policy that the source code is based on. | yes | [AP
 A codebase MUST include all source code that the policy is based on. | | "yes" or "not applicable", do we consider it based on the API?
 All policy and source code that the codebase is based on MUST be documented, reusable and portable. | yes | code dependencies are OSI
 Policy SHOULD be provided in machine readable and unambiguous formats. | yes | OpenAPI is in machine readable yaml format
-Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow]
-(https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
+Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 
 ## [Create reusable and portable code](https://standard.publiccode.net/criteria/reusable-and-portable-codebases.html)
 
@@ -37,7 +36,7 @@ The codebase MUST be independent from any secret, undisclosed, proprietary or no
 The codebase SHOULD be in use by multiple parties. | yes | Deployed in multiple sandbox environments (e.g: Utrecht is testing it, others Den Haag, Delft looking at it.)
 The roadmap SHOULD be influenced by the needs of multiple parties. | yes | [Dimpact](https://www.dimpact.nl/openzaak), [market consultation](https://github.com/open-zaak/open-zaak-market-consultation) |
 Configuration SHOULD be used to make code adapt to context specific needs. |  |
-The codebase SHOULD include a machine readable metadata description, for example in a publiccode.yml](https://github.com/publiccodeyml/publiccode.yml) file. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
+The codebase SHOULD include a machine readable metadata description, for example in a [publiccode.yml](https://github.com/publiccodeyml/publiccode.yml) file. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
 Code and its documentation SHOULD NOT contain situation-specific information. | yes | Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
 
 ## [Welcome contributors](https://standard.publiccode.net/criteria/open-to-contributions.html)
