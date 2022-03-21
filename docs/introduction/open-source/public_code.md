@@ -94,7 +94,7 @@ Reviewers MUST provide feedback on all decisions to not accept a contribution. |
 Contributions SHOULD conform to the standards, architecture and decisions set out in the codebase in order to pass review. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls), django best practices
 Reviews SHOULD include running both the code and the tests of the codebase. | yes | CI and manual validation required, not clearly documented yet (in handbook)
 Contributions SHOULD be reviewed by someone in a different context than the contributor. | | (some) not applicable yet
-Version control systems SHOULD not accept non-reviewed contributions in release versions. | yes | master branch protected, [release process](https://open-zaak.readthedocs.io/en/latest/development/releasing.html)
+Version control systems SHOULD NOT accept non-reviewed contributions in release versions. | yes | master branch protected, [release process](https://open-zaak.readthedocs.io/en/latest/development/releasing.html)
 Reviews SHOULD happen within two business days. | yes | no official policy, is the practice
 Reviews MAY be performed by multiple reviewers. | | mostly
 
@@ -104,7 +104,7 @@ Reviews MAY be performed by multiple reviewers. | | mostly
 
 Requirement | meets | links and notes
 -----|-----|-----
-The codebase MUST contain documentation of its objectives – like a mission and goal statement – that is understandable by designers and developers so that they can use or contribute to the codebase. | yes | "Open Zaak is based on the API reference implementations by VNG Realisatie to create a production-grade product that can be used by municipalities." [introduction](https://open-zaak.readthedocs.io/en/latest/introduction/index.html)
+The codebase MUST contain documentation of its objectives – like a mission and goal statement – that is understandable by developers and designers so that they can use or contribute to the codebase. | yes | "Open Zaak is based on the API reference implementations by VNG Realisatie to create a production-grade product that can be used by municipalities." [introduction](https://open-zaak.readthedocs.io/en/latest/introduction/index.html)
 Codebase documentation SHOULD clearly describe the connections between policy objectives and codebase objectives. | yes |
 The codebase MAY contain documentation of its objectives for the general public. | | could elaborate for general public: Common Ground, data security, GDPR requests and such
 
@@ -130,11 +130,12 @@ Requirement | meets | links and notes
 -----|-----|-----
 All codebase documentation MUST be in English. |  | [manual in Dutch](https://open-zaak.readthedocs.io/en/latest/manual/index.html)
 All code MUST be in English, except where policy is machine interpreted as code. |  |
+All bundled policy not available in English MUST have an accompanying summary in English. |  |
 Any translation MUST be up to date with the English version and vice versa. | | TODO: add translations of user-facing texts (NL -> EN) (makemessages)
 There SHOULD be no acronyms, abbreviations, puns or legal/non-English/domain specific terms in the codebase without an explanation preceding it or a link to an explanation. | |Domain specific Dutch terms could be in a glossary which is also translated in English.
 The name of the codebase SHOULD be descriptive and free from acronyms, abbreviations, puns or organizational branding. | yes |
 Documentation SHOULD aim for a lower secondary education reading level, as recommended by the [Web Content Accessibility Guidelines 2](https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=315#readable). | | Would be good to get an evaluation of this prior to investing in translation.
-Any code, documentation and tests MAY have a translation. |
+Any code, documentation or tests MAY have a translation. |
 
 ## [Use open standards](https://standard.publiccode.net/criteria/open-standards.html)
 
@@ -173,7 +174,7 @@ All code and documentation MUST be licensed such that it may be freely reusable,
 Software source code MUST be licensed under an [OSI-approved open source license](https://opensource.org/licenses/category). | yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 All code MUST be published with a license file. |yes | [LICENSE](https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md)
 Contributors MUST NOT be required to transfer copyright of their contributions to the codebase. | yes |
-All source code files in the codebase SHOULD include a copyright notice and a license header. | yes | 2020-08-03 review by @ericherman
+All source code files in the codebase SHOULD include a copyright notice and a license header that are machine readable. | yes | 2020-08-03 review by @ericherman
 Codebases MAY have multiple licenses for different types of code and documentation. | | N/A
 
 ## [Use a coherent style](https://standard.publiccode.net/criteria/style.html)
