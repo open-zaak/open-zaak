@@ -12,6 +12,7 @@ Before you begin
 
 * Check the :ref:`minimum system requirements<installation_hardware>` for the target
   machine(s).
+* Ensure you have the :ref:`installation_prerequisites` available
 * Make sure the target machine(s) have access to the Internet.
 * The target machine(s) should be reachable via at least a local DNS entry:
 
@@ -37,6 +38,7 @@ Guides
    :maxdepth: 1
 
    hardware
+   prerequisites
    deployment/kubernetes
    deployment/single_server
    provision_superuser
