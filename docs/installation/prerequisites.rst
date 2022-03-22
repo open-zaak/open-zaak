@@ -50,7 +50,7 @@ header.
 
 You can use alternative reverse proxy implementations and configure this through the
 ``SENDFILE_BACKEND`` environment variable. See the
-``django-sendfile2 <https://django-sendfile2.readthedocs.io/en/latest/backends.html>``
+`django-sendfile2 <https://django-sendfile2.readthedocs.io/en/latest/backends.html>`_
 documentation for available backends.
 
 
