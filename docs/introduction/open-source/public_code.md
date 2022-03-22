@@ -66,14 +66,14 @@ The documentation SHOULD include instructions for how to report potentially secu
 
 ## [Maintain version control](https://standard.publiccode.net/criteria/version-control-and-history.html)
 
-- [ ] Good, but let's wait for a commit template
+- [x] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
 The community MUST have a way to maintain version control for the code. | yes | [GitHub](https://github.com/open-zaak/open-zaak)
 All files in a codebase MUST be version controlled. | yes | [git](https://github.com/open-zaak/open-zaak/)
-All decisions MUST be documented in commit messages. | | Generally good, some room for improvement, commit template may help
-Every commit message MUST link to discussions and issues wherever possible. |  | yes for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/master)
+All decisions MUST be documented in commit messages. | yes | Commit messages are sufficiently detailed or contain links to detail; the repo has a [policy](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md#making-the-changes) and a `pull_request_template.md` which encourages referencing an issue and describing the changes @ericherman 2022-0321
+Every commit message MUST link to discussions and issues wherever possible. | yes  | for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/master)
 The codebase SHOULD be maintained in a distributed version control system. | yes | git
 Contributors SHOULD group relevant changes in commits. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
 Maintainers SHOULD mark released versions of the codebase, for example using revision tags or textual labels. | yes | [releases](https://github.com/open-zaak/open-zaak/releases)
