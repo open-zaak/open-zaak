@@ -113,13 +113,29 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ['10', '11', '12']
-        postgis: ['2.5']
+        postgres: ['10', '11', '12', '13', '14']
+        postgis: ['2.5', '3.2']
         binding: ['BROWSER', 'WEBSERVICE']
         cmisurlmapping: ['False', 'True']
         exclude:
+          # postgis 2.5 is not compatible with recent postgres versions
+          - postgres: '13'
+            postgis: '2.5'
+          - postgres: '14'
+            postgis: '2.5'
+          # Browser binding + cmisurlmapping is not supported
           - binding: 'BROWSER'
             cmisurlmapping: 'True'
+          # do not run tests for all CMIS bindings on all database versions (we only run on postgres 12)
+          - binding: 'WEBSERVICE'
+            postgres: '10'
+          - binding: 'WEBSERVICE'
+            postgres: '11'
+          - binding: 'WEBSERVICE'
+            postgres: '13'
+          - binding: 'WEBSERVICE'
+            postgres: '14'
+
 
     name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}, ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }} )
 
