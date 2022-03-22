@@ -7,6 +7,7 @@ Changelog
 **New features**
 
 * Upgraded to Django 3.2 LTS version (#1098)
+* Confirmed support for Postgres 13 and 14 and Postgis 3.2
 
 **Bugfixes**
 
@@ -28,6 +29,7 @@ Changelog
 * Updated the FFPC assessment to version 0.2.2
 * Renamed the "product steering group" to "core" group (=kerngroep)
 * Rewrote the Kubernetes deployment documentation (#854)
+* Explicitly documented the Open Zaak service dependencies (with supported version ranges)
 
 **Project maintenance**
 
