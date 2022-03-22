@@ -23,8 +23,7 @@ A codebase MUST include the policy that the source code is based on. | yes | [AP
 A codebase MUST include all source code that the policy is based on. | | "yes" or "not applicable", do we consider it based on the API?
 All policy and source code that the codebase is based on MUST be documented, reusable and portable. | yes | code dependencies are OSI
 Policy SHOULD be provided in machine readable and unambiguous formats. | yes | OpenAPI is in machine readable yaml format
-Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow]
-(https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
+Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 
 ## [Create reusable and portable code](https://standard.publiccode.net/criteria/reusable-and-portable-codebases.html)
 
@@ -37,7 +36,7 @@ The codebase MUST be independent from any secret, undisclosed, proprietary or no
 The codebase SHOULD be in use by multiple parties. | yes | Deployed in multiple sandbox environments (e.g: Utrecht is testing it, others Den Haag, Delft looking at it.)
 The roadmap SHOULD be influenced by the needs of multiple parties. | yes | [Dimpact](https://www.dimpact.nl/openzaak), [market consultation](https://github.com/open-zaak/open-zaak-market-consultation) |
 Configuration SHOULD be used to make code adapt to context specific needs. |  |
-The codebase SHOULD include a machine readable metadata description, for example in a publiccode.yml](https://github.com/publiccodeyml/publiccode.yml) file. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
+The codebase SHOULD include a machine readable metadata description, for example in a [publiccode.yml](https://github.com/publiccodeyml/publiccode.yml) file. | yes | [publiccode.yml](https://github.com/open-zaak/open-zaak/blob/master/publiccode.yaml)
 Code and its documentation SHOULD NOT contain situation-specific information. | yes | Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
 
 ## [Welcome contributors](https://standard.publiccode.net/criteria/open-to-contributions.html)
@@ -67,14 +66,14 @@ The documentation SHOULD include instructions for how to report potentially secu
 
 ## [Maintain version control](https://standard.publiccode.net/criteria/version-control-and-history.html)
 
-- [ ] Good, but let's wait for a commit template
+- [x] compliant with this criterion.
 
 Requirement | meets | links and notes
 -----|-----|-----
 The community MUST have a way to maintain version control for the code. | yes | [GitHub](https://github.com/open-zaak/open-zaak)
 All files in a codebase MUST be version controlled. | yes | [git](https://github.com/open-zaak/open-zaak/)
-All decisions MUST be documented in commit messages. | | Generally good, some room for improvement, commit template may help
-Every commit message MUST link to discussions and issues wherever possible. |  | yes for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/master)
+All decisions MUST be documented in commit messages. | yes | Commit messages are sufficiently detailed or contain links to detail; the repo has a [policy](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md#making-the-changes) and a `pull_request_template.md` which encourages referencing an issue and describing the changes @ericherman 2022-0321
+Every commit message MUST link to discussions and issues wherever possible. | yes  | for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/master)
 The codebase SHOULD be maintained in a distributed version control system. | yes | git
 Contributors SHOULD group relevant changes in commits. | yes | [PRs](https://github.com/open-zaak/open-zaak/pulls)
 Maintainers SHOULD mark released versions of the codebase, for example using revision tags or textual labels. | yes | [releases](https://github.com/open-zaak/open-zaak/releases)
