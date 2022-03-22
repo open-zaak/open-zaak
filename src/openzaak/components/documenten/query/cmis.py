@@ -829,6 +829,19 @@ class ObjectInformatieObjectCMISQuerySet(
         return obj.delete()
 
     def filter(self, *args, **kwargs):
+        # django-loose-fk 1.x supports complex OR queries which manifest in non-empty *args here.
+        # This looks like it was some prelimanary work for CMIS adapter optimizations, but that's a
+        # different beast alltogether. The following code is just get Open Zaak on Django 3.2
+        if args:
+            complex_q = args[0]
+            assert (
+                len(args) == 1 and len(complex_q.children) == 1
+            ), "Cannot currently handle multiple complex query objects"
+            assert (
+                complex_q.connector == "AND"
+            ), "Can currently only handle AND complex query objects"
+            kwargs.update(dict(complex_q.children))
+
         filters = self.process_filters(kwargs)
 
         if filters.get("object_type"):

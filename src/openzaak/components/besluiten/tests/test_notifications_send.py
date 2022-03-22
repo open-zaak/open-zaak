@@ -5,7 +5,6 @@ from unittest.mock import patch
 from django.test import override_settings
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
@@ -56,7 +55,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
             "vervalreden": VervalRedenen.tijdelijk,
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -91,7 +90,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         bio = BesluitInformatieObjectFactory.create(besluit=besluit)
         bio_url = get_operation_url("besluitinformatieobject_delete", uuid=bio.uuid)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(bio_url)
 
         self.assertEqual(
@@ -143,7 +142,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "vervalreden": VervalRedenen.tijdelijk,
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -178,7 +177,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         besluit = BesluitFactory.create()
         url = reverse(besluit)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -224,7 +223,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "besluit": f"http://testserver{besluit_url}",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -261,7 +260,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         bio = BesluitInformatieObjectFactory.create()
         url = reverse(bio)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

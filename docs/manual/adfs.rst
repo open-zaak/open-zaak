@@ -28,7 +28,8 @@ Configureren van ADFS zelf
 
 Contacteer de IAM/ADFS-beheerders in je organisatie om een *Application Group* aan te
 maken in de ADFS omgeving. Er zijn
-`configuratiehandleidingen (Engels) <django_auth_adfs_docs>`_ beschikbaar.
+`configuratiehandleidingen (Engels) <https://django-auth-adfs.readthedocs.io/en/latest/config_guides.html>`_
+beschikbaar.
 
 Voor de **Redirect URI** vul je ``https://open-zaak.gemeente.nl/adfs/callback`` in,
 waarbij je ``open-zaak.gemeente.nl`` vervangt door het relevante domein.
@@ -37,8 +38,6 @@ Aan het eind van dit proces moet je de volgende gegevens hebben (on premise):
 
 * Server adres, bijvoorbeeld ``login.gemeente.nl``
 * Client ID, bijvoorbeeld ``3ae1852d-bf76-4731-9c41-1a31928cf6a6``
-
-.. _django_auth_adfs_docs: https://django-auth-adfs.readthedocs.io/en/latest/config_guides.html
 
 Configureren van ADFS in Open Zaak
 ==================================

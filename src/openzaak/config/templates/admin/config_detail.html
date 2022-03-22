@@ -1,11 +1,7 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/config_base.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2020 Dimpact {% endcomment %}
-{% load i18n config static %}
-
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
-
-{% block title %} {% trans "Service configuratie" %} {{ block.super }} {% endblock %}
+{% load i18n config %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -53,9 +49,6 @@
                         <th scope="col" title="Service geactiveerd en aangeboden door Open Zaak">
                             {% trans "Actief" %}
                         </th>
-                        <th scope="col" title="Service wordt ook aangeboden over NLX">
-                            {% trans "Aanbieden via NLX" %}
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,9 +57,6 @@
                         <td>{{ service.component|title }} API</td>
                         <td>
                             {{ service.enabled|boolean_icon }}
-                        </td>
-                        <td>
-                            {{ service.nlx|boolean_icon }}
                         </td>
                     </tr>
                     {% endfor %}

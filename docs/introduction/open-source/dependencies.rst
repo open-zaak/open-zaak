@@ -50,77 +50,58 @@ anyway, in alphabetical order.
 * ``coreschema==0.0.4`` is a transitive dependency of ``coreapi`` and ``drf-yasg``,
   which are both well-maintained. It is made by the same author as DRF itself.
 
-* ``dictdiffer==0.8.0`` is not mission-critical and can easily be swapped out if needed.
+* ``dictdiffer==0.9.0`` is not mission-critical and can easily be swapped out if needed.
   It's currently used to visualize changes obtained from audit trail records in the
   admin interface. The library is Open Source on Github, and could be forked if needed.
 
-* ``django-auth-adfs-db==0.2.0`` is an add-on for ``django-auth-adfs``. Maykin Media is
+* ``django-auth-adfs-db==0.3.0`` is an add-on for ``django-auth-adfs``. Maykin Media is
   one of the maintainers.
 
-* ``django-db-logger==0.1.7`` is a package authored and maintained by Maykin Media, and
-  used in various other projects.
+* ``django-db-logger==0.1.12`` is not mission-critical and can easily be swapped out if
+  needed. The library is Open Source on Github, and could be forked if needed.
 
-* ``django-extra-views==0.13.0`` is a popular Django package with a large community
+* ``django-extra-views==0.14.0`` is a popular Django package with a large community
   behind it. The original author is still active as well.
 
-* ``django-loose-fk==0.7.1`` is a package authored by Maykin Media to serve Open Zaak. It
-  can be considered an integral part of Open Zaak, but the code was separated out in a
-  standalone package for easier maintenance.
-
-* ``django-sendfile2==0.6.0`` is a fork of django-sendfile, focusing on Python 3 support.
+* ``django-sendfile2==0.6.1`` is a fork of django-sendfile, focusing on Python 3 support.
   The core functionality is very stable and unlikely to cause problems.
 
-* ``djangorestframework-camel-case==0.2.0`` is a fairly popular and standard DRF add-on.
-  Schema generators like drf-yasg, drf-spectacular and DRF even have explicit support
-  for this package.
-
-* ``djangorestframework-gis==0.14`` is used for the GeoJSON serialization. We only use
+* ``djangorestframework-gis==0.18`` is used for the GeoJSON serialization. We only use
   a small set of features, but it's the go-to GIS library in combination with DRF, and
   very stable despite the version numbering.
 
-* ``drf-nested-routers==0.90.2`` sees regular maintenance and activity on Github, with
+* ``drf-nested-routers==0.93.3`` sees regular maintenance and activity on Github, with
   high popularity.
 
-* ``drf-writable-nested==0.4.3`` sees regular maintenance and activity on Github, with
+* ``drf-writable-nested==0.6.3`` sees regular maintenance and activity on Github, with
   high popularity.
 
-* ``gemma-zds-client==0.13.0`` originally developed by Maykin Media for the demo's of
+* ``gemma-zds-client==0.15.0`` originally developed by Maykin Media for the demo's of
   the VNG standard, this package is now used by multiple municipalities. VNG has been
-  requested to transfer the package to Maykin Media, and 1.0 preparations are in
-  progress at the time of writing.
+  requested to transfer the package to Maykin Media. 1.0 has been released and we will
+  soon upgrade.
 
-* ``httplib2==0.19.0`` transitive dependency of the CMIS binding. Recently saw a
-  security release and is still maintained.
+* ``httplib2==0.20.4`` transitive dependency of the CMIS binding. Still maintained.
 
-* ``inflection==0.3.1`` transitive dependency of drf-yasg, which is quite a popular
+* ``inflection==0.5.1`` transitive dependency of drf-yasg, which is quite a popular
   project.
 
 * ``iso-639==0.4.5`` stable package that just happens to never have been named 1.0.
   ISO-639 is an international standard, which don't tend to change.
 
-* ``iso8601==0.1.12`` transitive dependency of the CMIS bindings. Appears to still be
-  maintained.
-
-* ``isodate==0.6.0`` yet another library to parse ISO-8601 dates. Transitive dependency
+* ``isodate==0.6.1`` yet another library to parse ISO-8601 dates. Transitive dependency
   of ``vng-api-common``.
 
-* ``nlx-url-rewriter==0.1.2`` no longer actively used, only here for historical reasons
-  (migrations).
+* ``python-dotenv==0.19.2`` is a popular, actively maintained project on Github
 
-* ``python-dotenv==0.8.2`` is a popular, actively maintained project on Github
+* ``ruamel.yaml.clib==0.2.6`` transitive dependency of ``ruamel.yaml``, by the same author
 
-* ``ruamel.yaml.clib==0.2.2`` transitive dependency of ``ruamel.yaml``, by the same author
+* ``ruamel.yaml==0.17.21`` transitive dependency of drf-yasg, actively maintained.
 
-* ``ruamel.yaml==0.16.7`` transitive dependency of drf-yasg, actively maintained.
-
-* ``sentry-sdk==0.16.5`` SDK maintained by the Sentry.io team, it replaces raven. Sentry
-  is widely adapted and has a large community of developers making use of the
-  error-monitoring services through the SDK.
-
-* ``sqlparse==0.3.0`` direct dependency of Django. Given the widespreak use of Django,
+* ``sqlparse==0.4.2`` direct dependency of Django. Given the widespread use of Django,
   this should not pose any problems.
 
-* ``zgw-consumers==0.12.2`` library maintained by Maykin Media. Together with
+* ``zgw-consumers==0.18.0`` library maintained by Maykin Media. Together with
   gemma-zds-client, preparations are in the works for a 1.0 version.
 
 .. _`requirements`: https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt

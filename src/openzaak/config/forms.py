@@ -24,7 +24,7 @@ class NLXConfigForm(ModelForm):
 class InternalServiceForm(ModelForm):
     class Meta:
         model = InternalService
-        fields = ("enabled", "nlx")
+        fields = ("enabled",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

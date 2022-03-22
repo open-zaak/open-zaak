@@ -150,7 +150,7 @@ class AdminTestMixin:
 
     def setUp(self) -> None:
         super().setUp()
-        self.client.login(username="demo", password="demo")
+        self.client.force_login(user=self.user)
 
     def tearDown(self) -> None:
         super().tearDown()

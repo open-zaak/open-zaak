@@ -123,7 +123,7 @@ class EditInlineAdminMixin(object):
     show_change_link = True
     show_add_link = True
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
     def get_readonly_fields(self, request, obj=None):

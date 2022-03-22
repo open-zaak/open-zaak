@@ -1,17 +1,30 @@
 /* SPDX-License-Identifier: EUPL-1.2 */
 /* Copyright (C) 2019 - 2020 Dimpact */
 /* Colors */
-$color_primary: #2E8DD0;
-$color_primary_dark: #124078;
-$color_primary_light: #c4dce8;
+$color-primary: #2E8DD0;
+$color-primary-dark: #124078;
+$color-primary-light: #c4dce8;
 
-$color_secondary: #F3F3F3;
-$color_secondary_dark: #C6C6C6;
-$color_secondary_light: #fff;
+$color-secondary: #F3F3F3;
+$color-secondary-dark: #C6C6C6;
+$color-secondary-light: #fff;
 
-$color_link: #005DD0;
-$color_link_hover: #124078;
+$color-link: #005DD0;
+$color-link-hover: #124078;
 
-$color_darkest: #000;
-$color_dark: #333;
-$color_lightest: #fff;
+$color-darkest: #000;
+$color-dark: #333;
+$color-lightest: #fff;
+
+$color-error: #ba2121; // default django admin color
+
+$color-tooltip-background: #fffeaa;
+$color-tooltip-border: #f7f071;
+$color-tooltip-text: #000;
+
+/* Dimensions */
+$input-field-size: 20em; // django-original: 20em;
+
+/* Responsive breakpoints used int the Django admin */
+$breakpoint-tablet: 768px;
+$breakpoint-laptop: 1025px;

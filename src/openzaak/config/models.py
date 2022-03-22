@@ -19,11 +19,6 @@ class InternalService(models.Model):
         default=True,
         help_text=_("Indicates if the API is enabled in Open Zaak."),
     )
-    nlx = models.BooleanField(
-        _("nlx"),
-        default=True,
-        help_text=_("Indicates if the service is to be provided over NLX."),
-    )
 
     class Meta:
         verbose_name = _("Internal service")

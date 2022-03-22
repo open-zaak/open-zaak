@@ -24,6 +24,7 @@ os.environ.setdefault("SENDFILE_BACKEND", "django_sendfile.backends.development"
 
 os.environ.setdefault("ZTC_JWT_SECRET", "open-to-ztc")
 os.environ.setdefault("ZRC_JWT_SECRET", "open-to-zrc")
+os.environ.setdefault("NUM_PROXIES", "0")
 
 from .includes.base import *  # noqa isort:skip
 

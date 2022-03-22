@@ -4,7 +4,6 @@ from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -69,7 +68,7 @@ class NotificationAdminTests(
         form["catalogus"] = self.catalogus.pk
         form["vertrouwelijkheidaanduiding"].select("openbaar")
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -95,7 +94,7 @@ class NotificationAdminTests(
         form = response.forms["informatieobjecttype_form"]
         form["omschrijving"] = "different-test"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -120,7 +119,7 @@ class NotificationAdminTests(
         response = self.app.get(url)
         form = response.forms["informatieobjecttype_form"]
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         self.assertFalse(m.called)
@@ -156,7 +155,7 @@ class NotificationAdminTests(
         form["zaaktypen"] = zaaktype.id
         form["catalogus"] = self.catalogus.pk
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -177,7 +176,7 @@ class NotificationAdminTests(
         form = response.forms["besluittype_form"]
         form["omschrijving"] = "different-test"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -197,7 +196,7 @@ class NotificationAdminTests(
         response = self.app.get(url)
         form = response.forms["besluittype_form"]
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         self.assertFalse(m.called)
@@ -231,7 +230,7 @@ class NotificationAdminTests(
         form["catalogus"] = self.catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -266,7 +265,7 @@ class NotificationAdminTests(
         form = response.forms["zaaktype_form"]
         form["zaaktype_omschrijving"] = "different-test"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -300,7 +299,7 @@ class NotificationAdminTests(
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
         called_urls = [item.url for item in m.request_history]
@@ -335,7 +334,7 @@ class NotificationAdminTests(
         form = response.form
         form["datum_einde_geldigheid"] = "2021-01-01"
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             form.submit("_addversion")
 
         called_urls = [item.url for item in m.request_history]

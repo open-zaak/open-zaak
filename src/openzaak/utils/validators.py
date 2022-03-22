@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
+from django_loose_fk.drf import FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.utils.representation import smart_repr
@@ -26,12 +26,7 @@ class PublishValidator(FKOrURLValidator):
     publish_code = "not-published"
     publish_message = _("The resource is not published.")
 
-    def set_context(self, serializer_field):
-        # loose-fk field
-        if isinstance(serializer_field, FKOrURLField):
-            super().set_context(serializer_field)
-
-    def __call__(self, value):
+    def __call__(self, value, serializer_field):
         # check the feature flag to allow unpublished types. if that's enabled,
         # there's no point in checking anything beyond this as "everything goes"
         feature_flags = FeatureFlags.get_solo()
@@ -42,10 +37,12 @@ class PublishValidator(FKOrURLValidator):
         if value and isinstance(value, str):
             # not to double FKOrURLValidator
             try:
-                super().__call__(value)
+                super().__call__(value, serializer_field)
             except serializers.ValidationError:
                 return
-            value = self.resolver.resolve(self.host, value)
+            host = serializer_field.context["request"].get_host()
+            resolver = serializer_field.context["resolver"]
+            value = resolver.resolve(host, value)
 
         if value.concept:
             raise serializers.ValidationError(
@@ -62,31 +59,26 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
         self.instance_path = kwargs.pop("instance_path", None)
         super().__init__(*args, **kwargs)
 
-    def set_context(self, serializer_field):
-        # loose-fk field
-        if isinstance(serializer_field, FKOrURLField):
-            super().set_context(serializer_field)
+    def __call__(self, new_value, serializer_field):
+        instance = getattr(serializer_field.parent, "instance", None)
 
-        # Determine the existing instance, if this is an update operation.
-        self.serializer_field = serializer_field
-        self.instance = getattr(serializer_field.parent, "instance", None)
-
-    def __call__(self, new_value):
         # no instance -> it's not an update
-        if not self.instance:
+        if not instance:
             return
 
-        current_value = getattr(self.instance, self.serializer_field.field_name)
+        current_value = getattr(instance, serializer_field.field_name)
 
         # loose-fk field
         if new_value and isinstance(new_value, str):
             # not to double FKOrURLValidator
             try:
-                super().__call__(new_value)
+                super().__call__(new_value, serializer_field)
             except serializers.ValidationError:
                 return
 
-            new_value = self.resolver.resolve(self.host, new_value)
+            host = serializer_field.context["request"].get_host()
+            resolver = serializer_field.context["resolver"]
+            new_value = resolver.resolve(host, new_value)
 
         if isinstance(current_value, EnkelvoudigInformatieObject) and isinstance(
             new_value, EnkelvoudigInformatieObject
@@ -125,16 +117,17 @@ class LooseFkResourceValidator(FKOrURLValidator):
         self.oas_schema = oas_schema
         super().__init__(*args, **kwargs)
 
-    def __call__(self, value: str):
+    def __call__(self, value: str, serializer_field):
         # not to double FKOrURLValidator
         try:
-            super().__call__(value)
+            super().__call__(value, serializer_field)
         except serializers.ValidationError:
             return
 
         # if local - do nothing
         parsed = urlparse(value)
-        is_local = parsed.netloc == self.host
+        host = serializer_field.context["request"].get_host()
+        is_local = parsed.netloc == host
         if is_local:
             return
 

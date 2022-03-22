@@ -132,9 +132,10 @@ class InformatieObject(models.Model):
             "van de zaak waarin het document een rol speelt."
         ),
     )
-    indicatie_gebruiksrecht = models.NullBooleanField(
+    indicatie_gebruiksrecht = models.BooleanField(
         _("indicatie gebruiksrecht"),
         blank=True,
+        null=True,
         default=None,
         help_text=_(
             "Indicatie of er beperkingen gelden aangaande het gebruik van "

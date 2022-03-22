@@ -10,7 +10,8 @@ from django.utils.translation import gettext as _
 
 import requests_mock
 from django_webtest import WebTest
-from zgw_consumers.models import NLXConfig, NLXDirectories
+from zgw_consumers.constants import NLXDirectories
+from zgw_consumers.models import NLXConfig
 
 from openzaak.utils.tests import AdminTestMixin
 

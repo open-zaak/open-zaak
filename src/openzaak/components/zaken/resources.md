@@ -210,12 +210,12 @@ Uitleg bij mogelijke waarden:
 * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald. | string | nee | C​R​U​D |
 | betalingsindicatieWeergave | Uitleg bij `betalingsindicatie`. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | laatsteBetaaldatum | De datum waarop de meest recente betaling is verwerkt van kosten die gemoeid zijn met behandeling van de zaak. | string | nee | C​R​U​D |
-| selectielijstklasse | URL-referentie naar de categorie in de gehanteerde &#39;Selectielijst Archiefbescheiden&#39; die, gezien het zaaktype en het resultaattype van de zaak, bepalend is voor het archiefregime van de zaak. | string | nee | C​R​U​D |
+| selectielijstklasse | URL-referentie naar de categorie in de gehanteerde &#x27;Selectielijst Archiefbescheiden&#x27; die, gezien het zaaktype en het resultaattype van de zaak, bepalend is voor het archiefregime van de zaak. | string | nee | C​R​U​D |
 | hoofdzaak | URL-referentie naar de ZAAK, waarom verzocht is door de initiator daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de onderhavige ZAAK er één is. | string | nee | C​R​U​D |
 | deelzaken | URL-referenties naar deel ZAAKen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | relevanteAndereZaken | Een lijst van relevante andere zaken. | array | nee | C​R​U​D |
 | eigenschappen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
-| status | Indien geen status bekend is, dan is de waarde &#39;null&#39; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| status | Indien geen status bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | kenmerken | Lijst van kenmerken. Merk op dat refereren naar gerelateerde objecten beter kan via `ZaakObject`. | array | nee | C​R​U​D |
 | archiefnominatie | Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
 
@@ -232,7 +232,7 @@ Uitleg bij mogelijke waarden:
 * `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum kan nog niet bepaald worden.
 * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats. | string | nee | C​R​U​D |
 | archiefactiedatum | De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg. | string | nee | C​R​U​D |
-| resultaat | URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde &#39;null&#39; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| resultaat | URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## AuditTrail
 

@@ -5,6 +5,117 @@
 
  Generic overrides should go in _admin_theme.scss
  */
+@import 'microscope-sass/lib/responsive';
+@import 'microscope-sass/lib/util';
+
+@import 'vars';
+
+/**
+ * DJANGO ADMIN INDEX
+ */
+body {
+  --djai-tab-bg: var(--primary); // no fallback to default admin vars
+  --djai-tab-bg--active: var(--breadcrumbs-bg);
+  --djai-tab-bg--hover: #{$color-primary-dark};
+  --djai-tab-fg--active: var(--secondary);
+  --djai-dropdown-bg--active: #{$color-primary-dark};
+  --djai-dropdown-bg--hover: #{$color-primary-dark};
+}
+
+$djai-padding: 40px;
+$djai-padding--mobile: 15px;
+$djai-padding--tablet: 30px;
+$djai-border-width: 8px;
+
+.djai-dropdown-menu {
+  // by default, the header has 40px padding on both sides. To make the border stretch
+  // full width, set negative margins and positive paddings. On mobile and tablet these
+  // values are 15px and 30px respectively.
+  @include responsive((margin-left, margin-right), -$djai-padding--mobile, -$djai-padding--tablet, -$djai-padding);
+  @include responsive((padding-left, padding-right), $djai-padding--mobile, $djai-padding--tablet, $djai-padding);
+
+  // use full width on mobile & tablet
+  width: 100%;
+
+  /* Added to attach to body/breadcrumbs */
+  border-bottom: $djai-border-width solid $color-secondary;
+
+  & &__drop {
+    min-width: 250px !important;
+  }
+
+  // remove the header padding on mobile and tablet
+  @at-root #header {
+    padding-bottom: 0 !important;
+
+    // remove the border height from the breadcrumbs padding
+    & + .breadcrumbs {
+      padding-top: 10px - $djai-border-width;  // 10px is original django value
+    }
+
+    // overwrite admin '#header a:link' rule which is otherwise more specific
+    .djai-dropdown-menu .djai-dropdown-menu__item--active:link,
+    .djai-dropdown-menu .djai-dropdown-menu__item--active:visited {
+      color: var(--djai-tab-fg--active);
+
+      &:hover {
+        color: var(--djai-tab-fg--hover);
+      }
+    }
+  }
+
+  @at-root body.login #header {
+    padding-bottom: 15px !important;
+  }
+}
+
+/**
+ * DJANGO-BETTER-ADMIN-ARRAYFIELD
+ * Some elements are marked as !important because the style is loaded after
+ * this theme.
+ */
+.dynamic-array-widget {
+  button {
+    background: $color-primary !important;
+    color: $color-lightest !important;
+    &:hover {
+      background: $color-primary-dark !important;
+      /* border: 2px solid $color-dark !important; */
+    }
+
+    /* Substitute theme style above with icon. Solves translation string as well. */
+    &.add-array-item {
+      background: url('../../img/admin/plus-square-regular.svg') 0 0/14px 14px no-repeat !important;
+      width: 14px;
+      line-height: 16px;
+      text-indent: -9999px;
+      white-space: nowrap;
+      margin: 0 0 5px 170px;
+      display: block;
+
+      &:focus {
+        outline-width: 0;
+      }
+    }
+  }
+
+  /* Substitute with icon */
+  .remove {
+    background: url('../../img/admin/trash-alt-regular.svg') 0 0/14px 14px no-repeat;
+    width: 14px;
+    line-height: 16px;
+
+    .inline-deletelink {
+      display: none;
+    }
+  }
+
+  .array-item {
+    input {
+      width: $input-field-size;
+    }
+  }
+}
 
 /* Secondary submit row */
 .submit-row {

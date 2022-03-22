@@ -35,7 +35,9 @@ class BesluitFactory(factory.django.DjangoModelFactory):
             end_date=self.datum + timedelta(days=180),
             tzinfo=timezone.utc,
         )
-        return _ingangsdatum.evaluate(self, None, None)
+        return _ingangsdatum.evaluate(
+            self, None, {"locale": _ingangsdatum._defaults["locale"]}
+        )
 
 
 class BesluitInformatieObjectFactory(factory.django.DjangoModelFactory):

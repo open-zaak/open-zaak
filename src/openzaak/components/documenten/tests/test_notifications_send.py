@@ -7,7 +7,6 @@ from unittest.mock import patch
 from django.test import override_settings
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
@@ -58,7 +57,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -114,7 +113,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -151,7 +150,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -192,7 +191,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
             "omschrijvingVoorwaarden": "Een hele set onredelijke voorwaarden",
         }
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -229,7 +228,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
         url = reverse(gebruiksrechten)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

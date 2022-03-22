@@ -166,14 +166,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         brondatumArchiefprocedure = response.json()["brondatumArchiefprocedure"]
-
-        afleidingswijze = resultaattype.brondatum_archiefprocedure_afleidingswijze
-        procestermijn = resultaattype.brondatum_archiefprocedure_procestermijn
-
-        self.assertEqual(brondatumArchiefprocedure["afleidingswijze"], afleidingswijze)
-
+        self.assertEqual(brondatumArchiefprocedure["afleidingswijze"], "procestermijn")
         # Verify that the procestermijn was serialized correctly
-        self.assertEqual(brondatumArchiefprocedure["procestermijn"], procestermijn)
+        self.assertEqual(brondatumArchiefprocedure["procestermijn"], "P5Y")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})

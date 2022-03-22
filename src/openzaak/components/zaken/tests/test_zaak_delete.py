@@ -5,7 +5,6 @@ import uuid
 from django.test import tag
 
 import requests_mock
-from django_capture_on_commit_callbacks import capture_on_commit_callbacks
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
@@ -154,7 +153,7 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
         m.delete(zio._objectinformatieobject_url, status_code=204)
         zaak_delete_url = get_operation_url("zaak_delete", uuid=zaak.uuid)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(zaak_delete_url, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(

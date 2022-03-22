@@ -1,6 +1,6 @@
 # Helpers
-bumpversion
-pip-tools~=6.0.1
+bump2version
+pip-tools
 gitpython
 
 # Debug tooling
@@ -11,7 +11,7 @@ whitenoise
 
 # Documentation
 sphinx
-sphinx_rtd_theme
+sphinx-rtd-theme
 recommonmark
 sphinx-markdown-tables
 sphinx-tabs

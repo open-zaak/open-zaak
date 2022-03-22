@@ -6,7 +6,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
-from relativedeltafield import format_relativedelta, parse_relativedelta
+from relativedeltafield.utils import format_relativedelta, parse_relativedelta
 
 
 class BooleanRadio(forms.RadioSelect):
