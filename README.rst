@@ -114,7 +114,7 @@ Licensed under the EUPL_
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
-.. |docker| image:: https://images.microbadger.com/badges/image/openzaak/open-zaak.svg
+.. |docker| image:: https://img.shields.io/docker/image-size/openzaak/open-zaak
     :target: https://hub.docker.com/r/openzaak/open-zaak
 
 .. |atp| image:: https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/
