@@ -395,6 +395,20 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
 
 
+@admin.register(ZaakContactMoment)
+class ZaakContactMomentAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "contactmoment"]
+    list_select_related = ["zaak"]
+    search_fields = (
+        "uuid",
+        "zaak__identificatie",
+        "zaak__uuid",
+        "contactmoment",
+    )
+    raw_id_fields = ["zaak"]
+    viewset = "openzaak.components.zaken.api.viewsets.ZaakContactMomentViewSet"
+
+
 # inline classes for Zaak
 class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
@@ -450,8 +464,10 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
-class ZaakContactMomentInline(admin.TabularInline):
+class ZaakContactMomentInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakContactMoment
+    fields = ZaakContactMomentAdmin.list_display
+    fk_name = "zaak"
 
 
 class ZaakForm(forms.ModelForm):
@@ -496,13 +512,13 @@ class ZaakAdmin(
         StatusInline,
         ZaakObjectInline,
         ZaakInformatieObjectInline,
-        KlantContactInline,
+        ZaakContactMomentInline,
         ZaakEigenschapInline,
         RolInline,
         ResultaatInline,
         RelevanteZaakRelatieInline,
         ZaakBesluitInline,
-        ZaakContactMomentInline,
+        KlantContactInline,
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
@@ -519,10 +535,3 @@ class ZaakAdmin(
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
         )
-
-
-@admin.register(ZaakContactMoment)
-class ZaakContactMomentAdmin(admin.ModelAdmin):
-    list_display = ["zaak", "contactmoment"]
-    list_select_related = ["zaak"]
-    raw_id_fields = ["zaak"]
