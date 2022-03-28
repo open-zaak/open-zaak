@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from rest_framework.settings import api_settings
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
@@ -35,8 +34,7 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.components.zaken.signals import SyncError
-from openzaak.utils.api import create_remote_oio
+from openzaak.utils.api import create_remote_objectcontactmoment, create_remote_oio
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.validators import (
@@ -824,15 +822,38 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
             },
         }
 
-    def save(self, **kwargs):
+    def create(self, validated_data):
+        with transaction.atomic():
+            zaakcontactmoment = super().create(validated_data)
+
+        # we now expect to be in autocommit mode, i.e. - the transaction before has been
+        # committed to the database as well. This makes it so that the remote
+        # Contactmomenten API can actually retrieve this ZaakContactmomenten we just
+        # created, to validate that we did indeed create the relation information on our
+        # end.
+
+        # we know that we got valid URLs in the initial data
+        contactmoment_url = self.initial_data["contactmoment"]
+        zaak_url = self.initial_data["zaak"]
+
+        # manual transaction management - contactmomenten API checks that the
+        # ZaakContactMoment exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the ZaakContactMoment creation.
         try:
-            return super().save(**kwargs)
-        except SyncError as sync_error:
-            # delete the object again
-            ZaakContactMoment.objects.filter(
-                contactmoment=self.validated_data["contactmoment"],
-                zaak=self.validated_data["zaak"],
-            )._raw_delete("default")
+            response = create_remote_objectcontactmoment(contactmoment_url, zaak_url)
+        except Exception as exception:
+            zaakcontactmoment.delete()
             raise serializers.ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]}
-            ) from sync_error
+                {
+                    "contactmoment": _(
+                        "Could not create remote relation: {exception}"
+                    ).format(exception=exception)
+                },
+                code="pending-relations",
+            )
+        else:
+            zaakcontactmoment._objectcontactmoment = response["url"]
+            zaakcontactmoment.save()
+
+        return zaakcontactmoment

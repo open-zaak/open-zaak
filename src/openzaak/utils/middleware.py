@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
+from dataclasses import dataclass
 from typing import Dict, Optional
 
 from django.conf import settings
@@ -105,11 +106,11 @@ class EnabledMiddleware:
 
 
 # See https://github.com/Geonovum/KP-APIs/blob/master/Werkgroep%20API%20strategie/extensies/ext-versionering.md
+@dataclass
 class Warning:
-    def __init__(self, code: int, agent: str, text: str):
-        self.code = code
-        self.agent = agent
-        self.text = text
+    code: int
+    agent: str
+    text: str
 
     def __str__(self):
         return f'{self.code} "{self.agent}" "{self.text}"'
