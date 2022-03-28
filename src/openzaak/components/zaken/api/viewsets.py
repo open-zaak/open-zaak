@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2022 Dimpact
 import logging
 
-from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -34,8 +33,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 from zgw_consumers.models import Service
 
-from openzaak.components.zaken.signals import SyncError
-from openzaak.utils.api import delete_remote_oio
+from openzaak.utils.api import delete_remote_objectcontactmoment, delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.permissions import AuthRequired
 
@@ -1025,16 +1023,22 @@ class ZaakContactMomentViewSet(
 ):
     """
     Opvragen en bewerken van ZAAK-CONTACTMOMENT relaties.
+
     list:
     Alle ZAAKCONTACTMOMENTen opvragen.
+
     Alle ZAAKCONTACTMOMENTen opvragen.
+
     retrieve:
     Een specifiek ZAAKCONTACTMOMENT opvragen.
+
     Een specifiek ZAAKCONTACTMOMENT opvragen.
+
     create:
     Maak een ZAAKCONTACTMOMENT aan.
     **Er wordt gevalideerd op**
     - geldigheid URL naar de CONTACTMOMENT
+
     destroy:
     Verwijder een ZAAKCONTACTMOMENT.
     """
@@ -1054,16 +1058,6 @@ class ZaakContactMomentViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        # Do not display ZaakContactMomenten that are marked to be deleted
-        cache = caches["kic_sync"]
-        marked_zcms = cache.get("zcms_marked_for_delete")
-        if marked_zcms:
-            return qs.exclude(uuid__in=marked_zcms)
-        return qs
-
     @property
     def notifications_wrap_in_atomic_block(self):
         # do not wrap the outermost create/destroy in atomic transaction blocks to send
@@ -1077,9 +1071,20 @@ class ZaakContactMomentViewSet(
         return super().notifications_wrap_in_atomic_block
 
     def perform_destroy(self, instance):
-        try:
+        with transaction.atomic():
             super().perform_destroy(instance)
-        except SyncError as sync_error:
-            raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: sync_error.args[0]}
-            ) from sync_error
+
+        if instance._objectcontactmoment:
+            try:
+                delete_remote_objectcontactmoment(instance._objectcontactmoment)
+            except Exception as exception:
+                # bring back the instance
+                instance.save()
+                raise ValidationError(
+                    {
+                        "contactmoment": _(
+                            "Could not delete remote relation: {}".format(exception)
+                        )
+                    },
+                    code="pending-relations",
+                )

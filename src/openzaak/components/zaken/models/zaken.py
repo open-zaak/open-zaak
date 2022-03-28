@@ -997,7 +997,7 @@ class ZaakBesluit(models.Model):
 
 class ZaakContactMoment(models.Model):
     """
-    Model ContactMoment belonged to Zaak
+    Model ContactMoment belonging to Zaak
     """
 
     uuid = models.UUIDField(
@@ -1027,7 +1027,7 @@ class ZaakContactMoment(models.Model):
         unique_together = ("zaak", "contactmoment")
 
     def __str__(self) -> str:
-        return f"{self.zaak} - {self.contactmoment}"
+        return self.unique_representation()
 
     def unique_representation(self):
-        return f"{self.zaak} - {self.contactmoment}"
+        return f"{self.zaak.unique_representation()} - {self.contactmoment}"

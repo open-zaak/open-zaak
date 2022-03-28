@@ -2,89 +2,129 @@
 # Copyright (C) 2022 Dimpact
 from unittest.mock import patch
 
-from django.db import transaction
 from django.test import override_settings
 
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
-from openzaak.components.zaken.signals import SyncError
 from openzaak.components.zaken.tests.factories import (
     ZaakContactMomentFactory,
     ZaakFactory,
 )
-from openzaak.utils.tests import ZaakContactMomentSyncMixin
+from openzaak.tests.utils import mock_contactmomenten_oas_get
 
 from ..models import ZaakContactMoment
 
-CONTACTMOMENT = "https://kic.nl/api/v1/contactmomenten/1234"
+CONTACTMOMENTEN_BASE = "https://contactmomenten.nl/api/v1/"
+CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 @patch("vng_api_common.validators.fetcher")
 @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-class ZaakContactMomentTests(ZaakContactMomentSyncMixin, JWTAuthMixin, APITestCase):
+class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_type=APITypes.orc,
+            api_root=CONTACTMOMENTEN_BASE,
+            label="contactmomenten",
+            auth_type=AuthTypes.zgw,
+        )
 
     def test_create(self, *mocks):
         zaak = ZaakFactory.create()
         url = reverse("zaakcontactmoment-list")
 
-        response = self.client.post(
-            url, {"contactmoment": CONTACTMOMENT, "zaak": reverse(zaak)}
-        )
+        with requests_mock.Mocker() as m:
+            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
+            m.post(
+                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
+                json={
+                    "url": f"{CONTACTMOMENTEN_BASE}objectcontactmomenten/1",
+                    "contactmoment": CONTACTMOMENT,
+                    "object": f"http://testserver{reverse(zaak)}",
+                    "objectType": "zaak",
+                },
+                status_code=201,
+            )
+            response = self.client.post(
+                url, {"contactmoment": CONTACTMOMENT, "zaak": reverse(zaak)}
+            )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         zaak_contactmoment = zaak.zaakcontactmoment_set.get()
         self.assertEqual(zaak_contactmoment.contactmoment, CONTACTMOMENT)
+        self.assertEqual(
+            zaak_contactmoment._objectcontactmoment,
+            f"{CONTACTMOMENTEN_BASE}objectcontactmomenten/1",
+        )
 
     def test_create_fail_sync(self, *mocks):
-        self.mocked_sync_create_zcm.side_effect = SyncError("Sync failed")
-
         zaak = ZaakFactory.create()
         url = reverse("zaakcontactmoment-list")
 
-        response = self.client.post(
-            url, {"contactmoment": CONTACTMOMENT, "zaak": reverse(zaak)}
-        )
+        with requests_mock.Mocker() as m:
+            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
+            m.post(
+                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten", status_code=400,
+            )
+            response = self.client.post(
+                url, {"contactmoment": CONTACTMOMENT, "zaak": reverse(zaak)}
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["reason"], "Sync failed")
+        error = get_validation_errors(response, "contactmoment")
+        self.assertEqual(error["code"], "pending-relations")
 
         self.assertEqual(ZaakContactMoment.objects.count(), 0)
 
     def test_delete(self, *mocks):
         zaak_contactmoment = ZaakContactMomentFactory.create(
-            _objectcontactmoment="http://example.com/api/v1/_objectcontactmomenten/1"
+            _objectcontactmoment=f"{CONTACTMOMENTEN_BASE}objectcontactmomenten/1"
         )
         zaak = zaak_contactmoment.zaak
         url = reverse(zaak_contactmoment)
 
-        response = self.client.delete(url)
+        with requests_mock.Mocker() as m:
+            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
+            m.delete(
+                zaak_contactmoment._objectcontactmoment, status_code=204,
+            )
+            response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(zaak.zaakcontactmoment_set.exists())
 
     def test_delete_fail_sync(self, *mocks):
-        self.mocked_sync_delete_zcm.side_effect = SyncError("Sync failed")
-
         zaak_contactmoment = ZaakContactMomentFactory.create(
-            _objectcontactmoment="http://example.com/api/v1/_objectcontactmomenten/1"
+            _objectcontactmoment=f"{CONTACTMOMENTEN_BASE}objectcontactmomenten/1"
         )
         url = reverse(zaak_contactmoment)
 
-        with transaction.atomic():
+        with requests_mock.Mocker() as m:
+            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
+            m.post(
+                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten", status_code=400,
+            )
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["reason"], "Sync failed")
+        error = get_validation_errors(response, "contactmoment")
+        self.assertEqual(error["code"], "pending-relations")
 
-        self.assertEqual(ZaakContactMoment.objects.get(), zaak_contactmoment)
+        self.assertEqual(ZaakContactMoment.objects.count(), 1)
 
 
 @override_settings(
@@ -92,9 +132,7 @@ class ZaakContactMomentTests(ZaakContactMomentSyncMixin, JWTAuthMixin, APITestCa
     NOTIFICATIONS_DISABLED=True,
     ALLOWED_HOSTS=["testserver", "testserver.com"],
 )
-class ZaakContactMomentFilterTests(
-    ZaakContactMomentSyncMixin, JWTAuthMixin, APITestCase
-):
+class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_zaak(self):
