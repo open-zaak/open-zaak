@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2022 Dimpact */
+// bootstrap reverts
+.btn {
+  &-primary {
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
+
+    &:hover {
+      background-color: var(--button-hover-bg);
+      border-color: var(--button-hover-bg);
+    }
+  }
+}

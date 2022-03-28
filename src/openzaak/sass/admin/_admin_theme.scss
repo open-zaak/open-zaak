@@ -42,6 +42,11 @@ DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
 
 /* Overrides */
 
+// bootstrap is included in some pages, which messes everything up again with the reset...
+body {
+  font-size: 14px;
+}
+
 /**
  * Branding
  */
