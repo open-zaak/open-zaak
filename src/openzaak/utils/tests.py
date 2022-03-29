@@ -157,9 +157,6 @@ class AdminTestMixin:
         self.client.logout()
 
 
-no_fetch = object()
-
-
 @contextlib.contextmanager
 def mock_client(responses: dict):
     try:
