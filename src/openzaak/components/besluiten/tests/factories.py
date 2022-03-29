@@ -26,6 +26,9 @@ class BesluitFactory(factory.django.DjangoModelFactory):
                 "openzaak.components.zaken.tests.factories.ZaakFactory"
             )
         )
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
 
     @factory.lazy_attribute
     def ingangsdatum(self):
@@ -46,3 +49,8 @@ class BesluitInformatieObjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "besluiten.BesluitInformatieObject"
+
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
