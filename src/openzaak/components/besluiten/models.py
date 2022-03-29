@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
+from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["Besluit", "BesluitInformatieObject"]
 
 
-class Besluit(AuditTrailMixin, APIMixin, models.Model):
+class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -205,7 +206,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         return None
 
 
-class BesluitInformatieObject(models.Model):
+class BesluitInformatieObject(ETagMixin, models.Model):
     """
     Aanduiding van het (de) INFORMATIEOBJECT(en) waarin
     het BESLUIT beschreven is.
