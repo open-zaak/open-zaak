@@ -5,6 +5,7 @@ import uuid as _uuid
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 
@@ -14,7 +15,9 @@ from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
-class InformatieObjectType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
+class InformatieObjectType(
+    ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Model
+):
     """
     Aanduiding van de aard van INFORMATIEOBJECTen zoals gehanteerd door de zaakbehandelende organisatie.
 
