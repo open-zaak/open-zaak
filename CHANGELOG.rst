@@ -46,7 +46,7 @@ Changelog
 
 .. warning::
 
-   Manual intervention required!
+   Manual intervention(s) required!
 
    **Admin panel brute-force protection**
 
@@ -66,6 +66,22 @@ Changelog
 
    Please review the documentation for more information about this configuration
    parameter.
+
+   **Flush the caches**
+
+   Because of the Django 2.2 -> 3.2 upgrade in the dependencies, it's likely the
+   implementation details of the caches have an effect making old cached data
+   incompatible with the new Django version.
+
+   Therefore we recommend flushing the caches and let them rebuild automatically.
+
+   On the redis containers, you can do this by getting a shell in the container and
+   run the command:
+
+   .. code-block:: bash
+
+   redis-cli flushall
+
 
 1.5.0 (2021-11-25)
 ------------------
