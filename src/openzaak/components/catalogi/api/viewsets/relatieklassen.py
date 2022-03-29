@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
@@ -27,6 +28,7 @@ class ZaakTypeInformatieObjectTypeSchema(AutoSchema):
         return f"zaakinformatieobjecttype_{operation_keys[-1]}"
 
 
+@conditional_retrieve()
 class ZaakTypeInformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
     ConceptFilterMixin,

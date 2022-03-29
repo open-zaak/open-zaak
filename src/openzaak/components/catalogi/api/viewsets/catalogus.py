@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
@@ -12,6 +13,7 @@ from ..scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..serializers import CatalogusSerializer
 
 
+@conditional_retrieve()
 class CatalogusViewSet(
     CheckQueryParamsMixin, mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet
 ):

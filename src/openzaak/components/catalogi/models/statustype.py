@@ -6,8 +6,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.caching import ETagMixin
 
-class StatusType(models.Model):
+
+class StatusType(ETagMixin, models.Model):
     """
     Generieke aanduiding van de aard van een STATUS
 
