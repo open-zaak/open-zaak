@@ -5,10 +5,11 @@ import uuid
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import RolOmschrijving
 
 
-class RolType(models.Model):
+class RolType(ETagMixin, models.Model):
     """
     Generieke aanduiding van de aard van een ROL die een BETROKKENE kan
     uitoefenen in ZAAKen van een ZAAKTYPE.

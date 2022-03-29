@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.models.fields import ArrayField
+from vng_api_common.caching import ETagMixin
 
 from ..constants import FormaatChoices
 from .validators import validate_kardinaliteit, validate_letters_numbers_underscores
@@ -121,7 +122,7 @@ class EigenschapSpecificatie(models.Model):
                     )
 
 
-class Eigenschap(models.Model):
+class Eigenschap(ETagMixin, models.Model):
     """
     Een relevant inhoudelijk gegeven dat bij ZAAKen van dit ZAAKTYPE geregistreerd
     moet kunnen worden en geen standaard kenmerk is van een zaak.
