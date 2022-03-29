@@ -19,6 +19,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -76,6 +77,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 )
 
 
+@conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -338,6 +340,7 @@ class EnkelvoudigInformatieObjectViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@conditional_retrieve()
 class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -433,6 +436,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
     permission_classes = (AuthRequired,)
 
 
+@conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,

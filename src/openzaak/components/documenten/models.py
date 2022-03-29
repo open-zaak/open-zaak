@@ -14,6 +14,7 @@ from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
+from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
@@ -275,7 +276,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
 
 
 class EnkelvoudigInformatieObject(
-    AuditTrailMixin, APIMixin, InformatieObject, CMISClientMixin
+    ETagMixin, AuditTrailMixin, APIMixin, InformatieObject, CMISClientMixin
 ):
     """
     Stores the content of a specific version of an
@@ -498,7 +499,7 @@ class EnkelvoudigInformatieObject(
             return self.canonical.gebruiksrechten_set.exists()
 
 
-class Gebruiksrechten(models.Model, CMISClientMixin):
+class Gebruiksrechten(ETagMixin, models.Model, CMISClientMixin):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -626,7 +627,7 @@ class Gebruiksrechten(models.Model, CMISClientMixin):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(models.Model, CMISClientMixin):
+class ObjectInformatieObject(ETagMixin, models.Model, CMISClientMixin):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
