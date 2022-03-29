@@ -6,6 +6,7 @@ from typing import Dict, Union
 from django.conf import settings
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
+from vng_api_common.tests.schema import get_spec
 
 JsonValue = Union[str, None, int, float]
 
@@ -14,6 +15,10 @@ def get_operation_url(operation, **kwargs):
     return _get_operation_url(
         operation, spec_path=settings.SPEC_URL["documenten"], **kwargs
     )
+
+
+def get_documenten_spec() -> dict:
+    return get_spec("src/openzaak/components/documenten/openapi.yaml")
 
 
 def get_oio_response(
