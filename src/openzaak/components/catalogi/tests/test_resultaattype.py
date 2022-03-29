@@ -109,12 +109,12 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             resultaattype = ResultaatTypeFactory.create(
                 resultaattypeomschrijving=resultaattypeomschrijving
             )
-        url = reverse(resultaattype)
-        zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
-        )
+            url = reverse(resultaattype)
+            zaaktype_url = reverse(
+                "zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
+            )
 
-        response = self.client.get(url)
+            response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = response.json()
