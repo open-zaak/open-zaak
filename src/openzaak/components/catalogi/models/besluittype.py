@@ -5,6 +5,7 @@ import uuid as _uuid
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common.caching import ETagMixin
 from vng_api_common.models import APIMixin
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
@@ -14,7 +15,7 @@ from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
-class BesluitType(APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
+class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Model):
     """
     Generieke aanduiding van de aard van een besluit.
 
