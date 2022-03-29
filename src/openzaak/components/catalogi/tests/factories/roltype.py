@@ -16,3 +16,8 @@ class RolTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = RolType
+
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
