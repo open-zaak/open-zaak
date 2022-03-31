@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.0 (2022-03-??)
+1.6.0 (2022-03-31)
 ------------------
 
 **New features**
@@ -22,20 +22,24 @@ Changelog
   code in the process (#1082)
 * Fixed real IP detection in the Access logs by relying on the ``NUM_PROXIES`` config
   var (#643)
+* Fixesd styles broken by bootstrap css (#1122)
 
 **Documentation**
 
 * Fixed 1.5.0 release date in the changelog
-* Updated the FFPC assessment to version 0.2.2
+* Updated the FFPC assessment to version 0.2.3
 * Renamed the "product steering group" to "core" group (=kerngroep)
+* Updated assessment content w/r to CI location and git tag PGP signing
+* Update Standard for Public Code assessment w/r to version control
 * Rewrote the Kubernetes deployment documentation (#854)
 * Explicitly documented the Open Zaak service dependencies (with supported version ranges)
+* Documented advice to flush the caches after update to 1.6 (#1120)
+* Fixed broken URL/markup in docs
 
 **Project maintenance**
 
 * Upgraded a number of dependencies to be compatible with Django 3.2 (#1098)
 * Upgraded most dependencies to their latest available versions (#1098)
-* Updated assessment content w/r to CI location and git tag PGP signing
 * Improved test suite to not rely on real network calls (related to #644)
 * Removed some unused dev-tooling
 * Enabled the newer Docker buildkit on CI
@@ -43,6 +47,7 @@ Changelog
 * Removed Kubernetes cluster infrastructure code/playbooks/manifests - this is not the
   scope of Open Zaak (#854)
 * Updated CI/test dependencies (#1098)
+* Fixed Docker Hub and docs badges
 
 .. warning::
 
