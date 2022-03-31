@@ -23,7 +23,7 @@ A codebase MUST include the policy that the source code is based on. | yes | [AP
 A codebase MUST include all source code that the policy is based on. | | "yes" or "not applicable", do we consider it based on the API?
 All policy and source code that the codebase is based on MUST be documented, reusable and portable. | yes | code dependencies are OSI
 Policy SHOULD be provided in machine readable and unambiguous formats. | yes | OpenAPI is in machine readable yaml format
-Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/224fd5be-bc64-4d55-a190-454bee3cc8e3/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
+Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/6b5fe675-694d-4948-8896-5eae88d30ef0/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 
 ## [Create reusable and portable code](https://standard.publiccode.net/criteria/reusable-and-portable-codebases.html)
 
