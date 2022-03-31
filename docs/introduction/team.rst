@@ -18,7 +18,7 @@ Using `Dimpact`_ as a legal entity, they formed a project to develop a modern,
 open-source data- and services-layer to enable `zaakgericht werken`_, in line with the
 `Common Ground`_ model.
 
-.. _`VNG standards for "API's voor Zaakgericht werken"`: https://zaakgerichtwerken.vng.cloud/
-.. _`zaakgericht werken`: https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken
+.. _`VNG standards for "API's voor Zaakgericht werken"`: https://vng-realisatie.github.io/gemma-zaken/
+.. _`zaakgericht werken`: https://vng.nl/projecten/zaakgericht-werken
 .. _`Common Ground`: https://commonground.nl/
 .. _`Dimpact`: https://www.dimpact.nl/

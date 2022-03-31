@@ -7,8 +7,8 @@ structured data storage and services that implement the `VNG standards for
 "API's voor Zaakgericht werken"`_ in line with the `Common Ground`_ model.
 
 .. _`Common Ground`: https://commonground.nl/
-.. _`zaakgericht werken`: https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken
-.. _`VNG standards for "API's voor Zaakgericht werken"`: https://zaakgerichtwerken.vng.cloud/
+.. _`zaakgericht werken`: https://vng.nl/projecten/zaakgericht-werken
+.. _`VNG standards for "API's voor Zaakgericht werken"`: https://vng-realisatie.github.io/gemma-zaken/
 
 Getting Started
 ---------------

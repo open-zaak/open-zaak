@@ -39,6 +39,6 @@ Overview
     :alt: Architectural overview of component inside and related to Open Zaak.
 
 .. _reference implementation of the "API's voor Zaakgericht werken": https://github.com/VNG-Realisatie/gemma-zaken
-.. _VNG Realisatie: https://www.vngrealisatie.nl/
+.. _VNG Realisatie: https://vng.nl/
 .. _Common Ground: https://commonground.nl/
-.. _`VNG standards for "API's voor Zaakgericht werken"`: https://zaakgerichtwerken.vng.cloud/
+.. _`VNG standards for "API's voor Zaakgericht werken"`: https://vng-realisatie.github.io/gemma-zaken/
