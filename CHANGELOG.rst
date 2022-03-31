@@ -85,7 +85,7 @@ Changelog
 
    .. code-block:: bash
 
-   redis-cli flushall
+       redis-cli flushall
 
 
 1.5.0 (2021-11-25)
