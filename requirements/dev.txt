@@ -90,7 +90,7 @@ deprecated==1.2.13
     #   redis
 dictdiffer==0.9.0
     # via -r requirements/ci.txt
-django==3.2.12
+django==3.2.13
     # via
     #   -r requirements/ci.txt
     #   django-admin-index
