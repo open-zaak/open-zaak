@@ -40,6 +40,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.inclusion import InclusionJSONRenderer
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
@@ -244,6 +245,7 @@ class ZaakViewSet(
     filterset_class = ZaakFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
+    renderer_classes = (InclusionJSONRenderer,)
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {

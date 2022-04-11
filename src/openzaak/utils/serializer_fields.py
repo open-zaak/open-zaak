@@ -111,3 +111,24 @@ class FKOrServiceUrlField(FKOrURLField):
         source = source.split("__")[0]
         model_field = model_class._meta.get_field(source)
         return model_class, model_field
+
+
+class LooseFKHyperlinkedRelatedField(serializers.HyperlinkedRelatedField):
+    def get_url(self, obj, view_name, request, format):
+        """
+        Given an object, return the URL that hyperlinks to the object.
+
+        May raise a `NoReverseMatch` if the `view_name` and `lookup_field`
+        attributes are not configured to correctly match the URL conf.
+        """
+        if hasattr(obj, "_loose_fk_data"):
+            return obj._loose_fk_data["url"]
+
+        return super().get_url(obj, view_name, request, format)
+
+
+class LooseFKHyperlinkedIdentityField(
+    LooseFKHyperlinkedRelatedField, serializers.HyperlinkedIdentityField
+):
+    pass
+

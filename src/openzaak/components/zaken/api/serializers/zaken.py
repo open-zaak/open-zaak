@@ -280,6 +280,10 @@ class ZaakSerializer(
         ),
     )
 
+    inclusion_serializers = {
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer"
+    }
+
     class Meta:
         model = Zaak
         fields = (

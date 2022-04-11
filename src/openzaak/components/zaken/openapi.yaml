@@ -3065,6 +3065,14 @@ paths:
         required: false
         schema:
           type: string
+      - name: include
+        in: query
+        description: Haal details van gerelateerde resources direct op.
+        required: false
+        schema:
+          type: string
+          enum:
+          - zaaktype
       - name: ordering
         in: query
         description: Het veld waarop de resultaten geordend worden.
@@ -7825,6 +7833,18 @@ components:
           description: Een korte identificatie van de organisatorische eenheid.
           type: string
           minLength: 1
+        include:
+          title: Include
+          description: 'Haal details van gerelateerde resources direct op.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `zaaktype` - zaaktype'
+          type: string
+          enum:
+          - zaaktype
         ordering:
           title: Ordering
           description: 'Het veld waarop de resultaten geordend worden.
