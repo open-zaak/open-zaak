@@ -46,6 +46,7 @@ commonground-api-common
 notifications-api-common
 humanize
 drc-cmis
+git+https://github.com/maykinmedia/djangorestframework-inclusions.git@670557f47cc6dc357284f8730940cda18390a85a#egg=djangorestframework-inclusions
 
 # WSGI servers & monitoring - production oriented
 uwsgi
