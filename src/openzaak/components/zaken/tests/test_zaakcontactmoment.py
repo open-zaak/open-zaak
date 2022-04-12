@@ -11,13 +11,17 @@ from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.tests.utils import mock_contactmomenten_oas_get
+from openzaak.tests.utils import mock_service_oas_get
 
 from ..models import ZaakContactMoment
 from .factories import ZaakContactMomentFactory, ZaakFactory
 
 CONTACTMOMENTEN_BASE = "https://contactmomenten.nl/api/v1/"
 CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
+
+
+def mock_contactmomenten_oas_get(m, base: str):
+    mock_service_oas_get(m, "contactmomenten", url=base)
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
