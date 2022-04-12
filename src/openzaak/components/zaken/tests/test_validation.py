@@ -178,12 +178,9 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "vrl", oas_url=settings.REFERENTIELIJSTEN_API_SPEC)
             m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
-            m.get(
-                settings.REFERENTIELIJSTEN_API_SPEC,
-                json={},
-                headers={"X-OAS-Version": "3.0"},
-            )
+
             response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
