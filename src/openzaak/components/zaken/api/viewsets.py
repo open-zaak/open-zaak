@@ -21,6 +21,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.notifications.viewsets import (
@@ -97,6 +98,7 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
+@conditional_retrieve(extra_depends_on={"status"})
 class ZaakViewSet(
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
@@ -330,6 +332,7 @@ class ZaakViewSet(
         super().perform_destroy(instance)
 
 
+@conditional_retrieve()
 class StatusViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
@@ -473,6 +476,7 @@ class ZaakObjectViewSet(
     audit = AUDIT_ZRC
 
 
+@conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
@@ -604,6 +608,7 @@ class ZaakInformatieObjectViewSet(
                 )
 
 
+@conditional_retrieve()
 class ZaakEigenschapViewSet(
     NotificationCreateMixin,
     AuditTrailCreateMixin,
@@ -716,6 +721,7 @@ class KlantContactViewSet(
     )
 
 
+@conditional_retrieve()
 class RolViewSet(
     NotificationCreateMixin,
     NotificationDestroyMixin,
@@ -781,6 +787,7 @@ class RolViewSet(
     audit = AUDIT_ZRC
 
 
+@conditional_retrieve()
 class ResultaatViewSet(
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
