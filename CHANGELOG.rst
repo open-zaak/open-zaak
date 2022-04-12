@@ -21,6 +21,9 @@ Changelog
    ``https://open-zaak.gemeente.nl/adfs/callback`` becomes
    ``https://open-zaak.gemeente.nl/oidc/callback``.
 
+   In release 1.8.0 you will be able to finalize the removal by dropping the relevant
+   tables.
+
 1.6.0 (2022-03-31)
 ------------------
 
