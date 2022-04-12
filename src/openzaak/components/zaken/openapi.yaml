@@ -219,35 +219,10 @@ paths:
 
 
         **DEPRECATED**: gebruik de contactmomenten API in plaats van deze endpoint.'
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -508,6 +483,24 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+      tags:
+      - resultaten
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+    head:
+      operationId: resultaat_headers
+      summary: De headers voor een specifiek(e) RESULTAAT opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
       tags:
       - resultaten
       security:
@@ -1020,6 +1013,24 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+    head:
+      operationId: rol_headers
+      summary: De headers voor een specifiek(e) ROL opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - rollen
+      security:
+      - JWT-Claims:
+        - zaken.lezen
     delete:
       operationId: rol_delete
       summary: Verwijder een ROL van een ZAAK.
@@ -1301,6 +1312,24 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+    head:
+      operationId: status_headers
+      summary: De headers voor een specifiek(e) STATUS opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - statussen
+      security:
+      - JWT-Claims:
+        - zaken.lezen
     parameters:
     - name: uuid
       in: path
@@ -1448,35 +1477,10 @@ paths:
       operationId: zaakcontactmoment_read
       summary: Een specifiek ZAAKCONTACTMOMENT opvragen.
       description: Een specifiek ZAAKCONTACTMOMENT opvragen.
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -1761,6 +1765,24 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+      tags:
+      - zaakinformatieobjecten
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+    head:
+      operationId: zaakinformatieobject_headers
+      summary: De headers voor een specifiek(e) ZAAKINFORMATIEOBJECT opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
       tags:
       - zaakinformatieobjecten
       security:
@@ -2167,35 +2189,10 @@ paths:
       operationId: zaakobject_read
       summary: Een specifiek ZAAKOBJECT opvragen.
       description: Een specifiek ZAAKOBJECT opvragen.
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -2375,35 +2372,10 @@ paths:
       operationId: zaakverzoek_read
       summary: Een specifiek ZAAK-VERZOEK opvragen.
       description: Een specifiek ZAAK-VERZOEK opvragen.
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -3090,6 +3062,53 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+    head:
+      operationId: zaak_headers
+      summary: De headers voor een specifiek(e) ZAAK opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      parameters:
+      - name: Accept-Crs
+        in: header
+        description: Het gewenste 'Coordinate Reference System' (CRS) van de geometrie
+          in het antwoord (response body). Volgens de GeoJSON spec is WGS84 de default
+          (EPSG:4326 is hetzelfde als WGS84).
+        required: true
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+      - name: Content-Crs
+        in: header
+        description: Het 'Coordinate Reference System' (CRS) van de geometrie in de
+          vraag (request body). Volgens de GeoJSON spec is WGS84 de default (EPSG:4326
+          is hetzelfde als WGS84).
+        required: true
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Crs:
+              description: Het 'Coordinate Reference System' (CRS) van de antwoorddata.
+                Volgens de GeoJSON spec is WGS84 de default (EPSG:4326 is hetzelfde
+                als WGS84).
+              schema:
+                type: string
+                enum:
+                - EPSG:4326
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - zaken
+      security:
+      - JWT-Claims:
+        - zaken.lezen
     put:
       operationId: zaak_update
       summary: Werk een ZAAK in zijn geheel bij.
@@ -3426,35 +3445,10 @@ paths:
       operationId: audittrail_read
       summary: Een specifieke audit trail regel opvragen.
       description: Een specifieke audit trail regel opvragen.
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -3638,35 +3632,10 @@ paths:
       operationId: zaakbesluit_read
       summary: Een specifiek ZAAKBESLUIT opvragen.
       description: Een specifiek ZAAKBESLUIT opvragen.
-      parameters:
-      - name: If-None-Match
-        in: header
-        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
-          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
-          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
-          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
-          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
-          \ voor meer informatie."
-        required: false
-        examples:
-          oneValue:
-            summary: "E\xE9n ETag-waarde"
-            value: '"79054025255fb1a26e4bc422aef54eb4"'
-          multipleValues:
-            summary: Meerdere ETag-waardes
-            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
-        schema:
-          type: string
       responses:
         '200':
           description: OK
           headers:
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
             API-version:
               schema:
                 type: string
@@ -3950,6 +3919,24 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+      tags:
+      - zaken
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+    head:
+      operationId: zaakeigenschap_headers
+      summary: De headers voor een specifiek(e) ZAAKEIGENSCHAP opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
       tags:
       - zaken
       security:
