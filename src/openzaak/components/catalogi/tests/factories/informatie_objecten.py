@@ -19,3 +19,8 @@ class InformatieObjectTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = InformatieObjectType
+
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )

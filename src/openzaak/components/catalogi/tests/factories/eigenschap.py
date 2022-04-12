@@ -24,3 +24,8 @@ class EigenschapFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Eigenschap
+
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
