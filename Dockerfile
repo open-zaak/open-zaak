@@ -1,5 +1,5 @@
 # Stage 1 - Compile needed python dependencies
-FROM python:3.7-slim-bullseye AS build
+FROM python:3.10-slim-bullseye AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         pkg-config \
@@ -36,7 +36,7 @@ RUN npm run build
 # Stage 3 - Build docker image suitable for execution and deployment
 # bullseye will likely require django 3.2+ for the geolib support, see
 # https://docs.djangoproject.com/en/2.2/ref/contrib/gis/install/geolibs/
-FROM python:3.7-slim-bullseye AS production
+FROM python:3.10-slim-bullseye AS production
 
 # Stage 3.1 - Set up the needed production dependencies
 # install all the dependencies for GeoDjango
@@ -64,7 +64,7 @@ RUN mkdir /app/log /app/config /app/media /app/private-media
 VOLUME ["/app/log", "/app/media", "/app/private-media"]
 
 # copy backend build deps
-COPY --from=build /usr/local/lib/python3.7 /usr/local/lib/python3.7
+COPY --from=build /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css

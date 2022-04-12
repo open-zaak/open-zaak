@@ -29,7 +29,7 @@ class NLXConfigTests(AdminTestMixin, WebTest):
         config_page = self.app.get(self.url, user=self.user)
         form = config_page.form
 
-        form["outway"] = "invalid-host.local:1337"
+        form["outway"] = "https://invalid-host.local:1337"
         response = form.submit()
 
         # form validation errors -> no redirect
