@@ -7,7 +7,7 @@ Deze API vereist autorisatie.
 
 _Zelf een token genereren_
 
-De tokens die gebruikt worden voor autorisatie zijn [jwt.io][JWT's] (JSON web
+De tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web
 token). In de API calls moeten deze gebruikt worden in de `Authorization`
 header:
 
