@@ -590,8 +590,8 @@ class ZaakInformatieObjectViewSet(
                 raise ValidationError(
                     {
                         "informatieobject": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
+                            "Could not delete remote relation: {exc}"
+                        ).format(exc=exception)
                     },
                     code="pending-relations",
                 )
@@ -1083,8 +1083,8 @@ class ZaakContactMomentViewSet(
                 raise ValidationError(
                     {
                         "contactmoment": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
+                            "Could not delete remote relation: {exc}"
+                        ).format(exc=exception)
                     },
                     code="pending-relations",
                 )
