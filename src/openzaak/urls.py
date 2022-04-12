@@ -43,7 +43,6 @@ urlpatterns = [
             pattern_name="oidc_authentication_callback",
         ),
     ),
-    path("adfs/", include("django_auth_adfs.urls")),
     path("oidc/", include("mozilla_django_oidc.urls")),
 ]
 

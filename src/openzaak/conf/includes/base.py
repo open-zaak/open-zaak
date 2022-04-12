@@ -391,7 +391,6 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     "openzaak.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
-    "django_auth_adfs_db.backends.AdfsAuthCodeBackend",
     "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 

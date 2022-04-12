@@ -63,10 +63,6 @@
                 "cmisconfig"
             ],
             [
-                "django_auth_adfs_db",
-                "adfsconfig"
-            ],
-            [
                 "mozilla_django_oidc_db",
                 "openidconnectconfig"
             ],
