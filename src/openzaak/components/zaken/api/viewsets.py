@@ -33,7 +33,11 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 from zgw_consumers.models import Service
 
-from openzaak.utils.api import delete_remote_objectcontactmoment, delete_remote_oio
+from openzaak.utils.api import (
+    delete_remote_objectcontactmoment,
+    delete_remote_objectverzoek,
+    delete_remote_oio,
+)
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.permissions import AuthRequired
 
@@ -49,6 +53,7 @@ from ..models import (
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
+    ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
 from .filters import (
@@ -60,6 +65,7 @@ from .filters import (
     ZaakFilter,
     ZaakInformatieObjectFilter,
     ZaakObjectFilter,
+    ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin
@@ -84,6 +90,7 @@ from .serializers import (
     ZaakInformatieObjectSerializer,
     ZaakObjectSerializer,
     ZaakSerializer,
+    ZaakVerzoekSerializer,
     ZaakZoekSerializer,
 )
 
@@ -1084,6 +1091,85 @@ class ZaakContactMomentViewSet(
                         "contactmoment": _(
                             "Could not delete remote relation: {exc}"
                         ).format(exc=exception)
+                    },
+                    code="pending-relations",
+                )
+
+
+class ZaakVerzoekViewSet(
+    NotificationCreateMixin,
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
+    ListFilterByAuthorizationsMixin,
+    CheckQueryParamsMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    """
+    Opvragen en bewerken van ZAAK-VERZOEK relaties.
+
+    list:
+    Alle ZAAK-VERZOEK opvragen.
+
+    Alle ZAAK-VERZOEK opvragen.
+
+    retrieve:
+    Een specifiek ZAAK-VERZOEK opvragen.
+
+    Een specifiek ZAAK-VERZOEK opvragen.
+
+    create:
+    Maak een ZAAK-VERZOEK aan.
+    **Er wordt gevalideerd op**
+    - geldigheid URL naar de VERZOEK
+
+    destroy:
+    Verwijder een ZAAK-VERZOEK.
+    """
+
+    queryset = ZaakVerzoek.objects.order_by("-pk")
+    serializer_class = ZaakVerzoekSerializer
+    filterset_class = ZaakVerzoekFilter
+    lookup_field = "uuid"
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
+    required_scopes = {
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN,
+    }
+    notifications_kanaal = KANAAL_ZAKEN
+    audit = AUDIT_ZRC
+
+    @property
+    def notifications_wrap_in_atomic_block(self):
+        # do not wrap the outermost create/destroy in atomic transaction blocks to send
+        # notifications. The serializer wraps the actual object creation into a single
+        # transaction, and after that, we're in autocommit mode.
+        # Once the response has been properly obtained (success), then the notification
+        # gets scheduled, and because of the transaction being in autocommit mode at that
+        # point, the notification sending will fire immediately.
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().notifications_wrap_in_atomic_block
+
+    def perform_destroy(self, instance):
+        with transaction.atomic():
+            super().perform_destroy(instance)
+
+        if instance._objectverzoek:
+            try:
+                delete_remote_objectverzoek(instance._objectverzoek)
+            except Exception as exception:
+                # bring back the instance
+                instance.save()
+                raise ValidationError(
+                    {
+                        "verzoek": _("Could not delete remote relation: {exc}").format(
+                            exc=exception
+                        )
                     },
                     code="pending-relations",
                 )

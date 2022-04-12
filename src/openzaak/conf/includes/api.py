@@ -92,6 +92,10 @@ cmc_repo = "VNG-Realisatie/contactmomenten-api"
 cmc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
 CMC_API_SPEC = f"https://raw.githubusercontent.com/{cmc_repo}/{cmc_commit}/src/openapi.yaml"  # noqa
 
+vrc_repo = "VNG-Realisatie/verzoeken-api"
+vrc_commit = "57c83f6799df482f5c7fc70813d59264b9979619"
+VRC_API_SPEC = f"https://raw.githubusercontent.com/{vrc_repo}/{vrc_commit}/src/openapi.yaml"  # noqa
+
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
 LINK_FETCHER = "openzaak.nlx.fetcher"
