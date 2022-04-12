@@ -63,8 +63,8 @@ deze kunnen automatisch bepaald worden aan de hand van het discovery endpoint
 (``https://login.gemeente.nl/auth/realms/{realm}/.well-known/openid-configuration``).
 
 7. Vul bij **Discovery endpoint** het pad naar het juiste authenticatie realm endpoint
-   van de OpenID Connect provider in (met een `/` op het einde),
-   meestal is dit ``https://login.gemeente.nl/auth/realms/{realm}/``.
+   van de OpenID Connect provider in (met een ``/`` op het einde). Voor provider-specifieke
+   hints, zie :ref:`manual_oidc_providers`.
 8. Laat de overige endpoints leeg.
 
 Klik tot slot rechtsonder op **Opslaan**.
@@ -72,3 +72,37 @@ Klik tot slot rechtsonder op **Opslaan**.
 Je kan vervolgens het makkelijkst testen of alles werkt door in een incognitoscherm
 naar https://open-zaak.gemeente.nl/admin/ te navigeren en op *Inloggen met OIDC* te
 klikken.
+
+.. _manual_oidc_providers:
+
+Providersreferentie
+===================
+
+ADFS (on premise)
+-----------------
+
+For on premise ADFS, the discovery URL usually has the form
+``https://login.gemeente.nl/adfs/.well-known/openid-configuration``.
+
+Azure AD
+--------
+
+Azure Active Directory is a cloud-hosted identity provider from Microsoft, part of Azure webservices.
+
+To use AAD as OIDC provider, you require a Tenant ID, usually in the same of a UUID v4.
+This tenant ID is used in the discovery URL, having the form
+``https://login.microsoftonline.com/${tenantId}/v2.0``.
+
+Keycloak
+--------
+
+Keycloak is a multi-tenant IDP which itself can configure other IDPs.
+
+To use Keycloak, you need to know your relevant ``realm``. The discovery URL has the form
+``https://keycloak.gemeente.nl/auth/realms/${realm}/.well-known/openid-configuration``.
+
+Other
+-----
+
+You may also find some configuration hints for other Identity Providers using OIDC
+in the NLX Reference documentation: https://docs.nlx.io/reference-information/oidc

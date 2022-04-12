@@ -1,6 +1,26 @@
 Changelog
 =========
 
+1.7.0 (2022-0?-??)
+------------------
+
+.. warning::
+
+   Manual intervention required for ADFS/AAD users.
+
+   Open Zaak replaces the ADFS/Azure AD integration with the generic OIDC integration.
+   On update, Open Zaak will attempt to automatically migrate your ADFS configuration,
+   but this may fail for a number of reasons.
+
+   We advise you to:
+
+   * back up/write down the ADFS configuration BEFORE updating
+   * verify the OIDC configuration after updating and correct if needed
+
+   Additionally, on the ADFS/Azure AD side of things, you must update the Redirect URIs:
+   ``https://open-zaak.gemeente.nl/adfs/callback`` becomes
+   ``https://open-zaak.gemeente.nl/oidc/callback``.
+
 1.6.0 (2022-03-31)
 ------------------
 
