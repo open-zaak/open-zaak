@@ -1030,4 +1030,4 @@ class ZaakContactMoment(models.Model):
         return self.unique_representation()
 
     def unique_representation(self):
-        return f"{self.zaak.unique_representation()} - {self.contactmoment}"
+        return f"({self.zaak.unique_representation()}) - {self.contactmoment}"
