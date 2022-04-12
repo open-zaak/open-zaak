@@ -1,0 +1,1514 @@
+openapi: 3.0.0
+info:
+  title: Referentielijsten & Selectielijst API
+  description: "\nEen API om referentielijstwaarden en de gemeentelijke selectielijst\
+    \ te\nbenaderen.\n\n## Selectielijst\n\nDe [Gemeentelijke Selectielijst](https://vng.nl/selectielijst)\
+    \ is relevant\nin het kader van archivering.\n\n**Zaakgericht werken**\n\nBij\
+    \ het configureren van zaaktypes (en resultaattypes) in de catalogus API\nrefereren\
+    \ een aantal resources naar resources binnen de Selectielijst API. Het\ngaat dan\
+    \ om de `ProcesType` en `Resultaat` resources.\n\n## Referentielijsten\n\nReferentielijsten\
+    \ bevat een standaardset aan waarden. Deze waarden zijn net t\xE9\ndynamisch om\
+    \ in een enum opgenomen te worden, maar er is wel behoefte om deze\nlandelijk\
+    \ te standaardiseren. Een voorbeeld hiervan is de set aan mogelijke\ncommunicatiekanalen.\n\
+    \n## Autorisatie\n\nDeze APIs zijn alleen-lezen, en behoeven geen autorisatie.\n\
+    \n## Inhoud\n\nDe inhoud wordt beheerd door VNG Realisatie. Om de inhoud van\n\
+    referentielijsten bij te werken, contacteer dan VNG Realisatie via e-mail of\n\
+    op Github.\n\nDe inhoud van de Gemeentelijke Selectielijst wordt ge\xEFmporteerd\
+    \ vanuit de\ngepubliceerde Excel-bestanden.\n"
+  contact:
+    url: https://github.com/VNG-Realisatie/VNG-referentielijsten
+    email: standaarden.ondersteuning@vng.nl
+  license:
+    name: EUPL 1.2
+    url: https://opensource.org/licenses/EUPL-1.2
+  version: 1.0.0-alpha
+paths:
+  /communicatiekanalen:
+    get:
+      operationId: communicatiekanaal_list
+      description: Raadpleeg de lijst van communicatiekanalen.
+      parameters:
+      - name: page
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CommunicatieKanaal'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - communicatiekanalen
+    parameters: []
+  /communicatiekanalen/{uuid}:
+    get:
+      operationId: communicatiekanaal_read
+      description: Raadpleeg de lijst van communicatiekanalen.
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunicatieKanaal'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '404':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - communicatiekanalen
+    parameters:
+    - name: uuid
+      in: path
+      description: Unieke resource identifier (UUID4)
+      required: true
+      schema:
+        type: string
+        format: uuid
+  /procestypen:
+    get:
+      operationId: procestype_list
+      summary: Ontsluit de selectielijst procestypen.
+      description: 'Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren
+
+        van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat
+
+        het archiefregime van zaken bepaald kan worden.
+
+
+        Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf
+
+        voor de bron van de inhoud.'
+      parameters:
+      - name: jaar
+        in: query
+        description: Het jaartal waartoe dit ProcesType behoort
+        required: false
+        schema:
+          type: number
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProcesType'
+        '400':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - procestypen
+    parameters: []
+  /procestypen/{uuid}:
+    get:
+      operationId: procestype_read
+      summary: Ontsluit de selectielijst procestypen.
+      description: 'Procestypen worden gerefereerd in zaaktypecatalogi - bij het configureren
+
+        van een zaaktype wordt aangegeven welk procestype van toepassing is, zodat
+
+        het archiefregime van zaken bepaald kan worden.
+
+
+        Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf
+
+        voor de bron van de inhoud.'
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcesType'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '404':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - procestypen
+    parameters:
+    - name: uuid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  /resultaattypeomschrijvingen:
+    get:
+      operationId: resultaattypeomschrijvinggeneriek_list
+      description: Raadpleeg de generieke resultaattypeomschrijvingen.
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResultaattypeOmschrijvingGeneriek'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - resultaattypeomschrijvingen
+    parameters: []
+  /resultaattypeomschrijvingen/{uuid}:
+    get:
+      operationId: resultaattypeomschrijvinggeneriek_read
+      description: Raadpleeg de generieke resultaattypeomschrijvingen.
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultaattypeOmschrijvingGeneriek'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '404':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - resultaattypeomschrijvingen
+    parameters:
+    - name: uuid
+      in: path
+      description: Unieke resource identifier (UUID4)
+      required: true
+      schema:
+        type: string
+        format: uuid
+  /resultaten:
+    get:
+      operationId: resultaat_list
+      summary: Ontsluit de selectielijst resultaten.
+      description: 'Bij een procestype horen meerdere mogelijke resultaten, al dan
+        niet
+
+        generiek/specifiek. Bij het configureren van een resultaattype in het ZTC
+
+        wordt aangegeven welke selectielijstklasse van toepassing is, wat een
+
+        referentie is naar een item van deze resource.
+
+
+        Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf
+
+        voor de bron van de inhoud.'
+      parameters:
+      - name: procesType
+        in: query
+        description: URL naar de/het gerelateerde proces_type
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: page
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Resultaat'
+        '400':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - resultaten
+    parameters: []
+  /resultaten/{uuid}:
+    get:
+      operationId: resultaat_read
+      summary: Ontsluit de selectielijst resultaten.
+      description: 'Bij een procestype horen meerdere mogelijke resultaten, al dan
+        niet
+
+        generiek/specifiek. Bij het configureren van een resultaattype in het ZTC
+
+        wordt aangegeven welke selectielijstklasse van toepassing is, wat een
+
+        referentie is naar een item van deze resource.
+
+
+        Zie https://vng.nl/files/vng/20170706-selectielijst-gemeenten-intergemeentelijke-organen-2017.pdf
+
+        voor de bron van de inhoud.'
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resultaat'
+        '401':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '403':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '404':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '406':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '409':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '410':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '429':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '500':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+      tags:
+      - resultaten
+    parameters:
+    - name: uuid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+servers:
+- url: /api/v1
+components:
+  schemas:
+    CommunicatieKanaal:
+      required:
+      - naam
+      - omschrijving
+      type: object
+      properties:
+        url:
+          title: Url
+          type: string
+          format: uri
+          readOnly: true
+        naam:
+          title: Naam
+          description: De gangbare naam van het communicatiekanaal.
+          type: string
+          maxLength: 20
+          minLength: 1
+        omschrijving:
+          title: Omschrijving
+          description: Toelichtende beschrijving van (de naam van) het communicatiekanaal.
+          type: string
+          maxLength: 200
+          minLength: 1
+    Fout:
+      required:
+      - code
+      - title
+      - status
+      - detail
+      - instance
+      type: object
+      properties:
+        type:
+          title: Type
+          description: URI referentie naar het type fout, bedoeld voor developers
+          type: string
+        code:
+          title: Code
+          description: Systeemcode die het type fout aangeeft
+          type: string
+          minLength: 1
+        title:
+          title: Title
+          description: Generieke titel voor het type fout
+          type: string
+          minLength: 1
+        status:
+          title: Status
+          description: De HTTP status code
+          type: integer
+        detail:
+          title: Detail
+          description: Extra informatie bij de fout, indien beschikbaar
+          type: string
+          minLength: 1
+        instance:
+          title: Instance
+          description: URI met referentie naar dit specifiek voorkomen van de fout.
+            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+          type: string
+          minLength: 1
+    ProcesType:
+      required:
+      - nummer
+      - jaar
+      - naam
+      - omschrijving
+      - toelichting
+      - procesobject
+      type: object
+      properties:
+        url:
+          title: Url
+          type: string
+          format: uri
+          readOnly: true
+        nummer:
+          title: Procestypenummer
+          description: Nummer van de selectielijstcategorie
+          type: integer
+          maximum: 32767
+          minimum: 0
+        jaar:
+          title: Jaar
+          description: Het jaartal waartoe dit ProcesType behoort
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        naam:
+          title: Procestypenaam
+          description: Benaming van het procestype
+          type: string
+          maxLength: 100
+          minLength: 1
+        omschrijving:
+          title: Procestypeomschrijving
+          description: Omschrijving van het procestype
+          type: string
+          maxLength: 300
+          minLength: 1
+        toelichting:
+          title: Procestypetoelichting
+          description: Toelichting van het procestype
+          type: string
+          minLength: 1
+        procesobject:
+          title: Procesobject
+          description: Object waar de uitvoering van het proces op van toepassing
+            is en waarvan de bestaans- of geldigheidsduur eventueel van belang is
+            bij het bepalen van de start van de bewaartermijn
+          type: string
+          maxLength: 80
+          minLength: 1
+    FieldValidationError:
+      required:
+      - name
+      - code
+      - reason
+      type: object
+      properties:
+        name:
+          title: Name
+          description: Naam van het veld met ongeldige gegevens
+          type: string
+          minLength: 1
+        code:
+          title: Code
+          description: Systeemcode die het type fout aangeeft
+          type: string
+          minLength: 1
+        reason:
+          title: Reason
+          description: Uitleg wat er precies fout is met de gegevens
+          type: string
+          minLength: 1
+    ValidatieFout:
+      required:
+      - code
+      - title
+      - status
+      - detail
+      - instance
+      - invalidParams
+      type: object
+      properties:
+        type:
+          title: Type
+          description: URI referentie naar het type fout, bedoeld voor developers
+          type: string
+        code:
+          title: Code
+          description: Systeemcode die het type fout aangeeft
+          type: string
+          minLength: 1
+        title:
+          title: Title
+          description: Generieke titel voor het type fout
+          type: string
+          minLength: 1
+        status:
+          title: Status
+          description: De HTTP status code
+          type: integer
+        detail:
+          title: Detail
+          description: Extra informatie bij de fout, indien beschikbaar
+          type: string
+          minLength: 1
+        instance:
+          title: Instance
+          description: URI met referentie naar dit specifiek voorkomen van de fout.
+            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+          type: string
+          minLength: 1
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldValidationError'
+    ResultaattypeOmschrijvingGeneriek:
+      required:
+      - omschrijving
+      - definitie
+      type: object
+      properties:
+        url:
+          title: Url
+          type: string
+          format: uri
+          readOnly: true
+        omschrijving:
+          title: Omschrijving
+          description: Algemeen gehanteerde omschrijvingen van de aard van het resultaat
+            van zaken
+          type: string
+          maxLength: 20
+          minLength: 1
+        definitie:
+          title: Definitie
+          description: Nauwkeurige beschrijving van het generieke type resultaat.
+          type: string
+          maxLength: 255
+          minLength: 1
+        opmerking:
+          title: Opmerking
+          description: Zinvolle toelichting bij de waarde van de generieke omschrijving
+            van het resultaat.
+          type: string
+          maxLength: 255
+    Resultaat:
+      required:
+      - nummer
+      - naam
+      - herkomst
+      - waardering
+      type: object
+      properties:
+        url:
+          title: Url
+          type: string
+          format: uri
+          readOnly: true
+        procesType:
+          title: Proces type
+          type: string
+          format: uri
+          readOnly: true
+        nummer:
+          title: Nummer
+          description: Nummer van het resultaat. Dit wordt samengesteld met het procestype
+            en generiek resultaat indien van toepassing.
+          type: integer
+          maximum: 32767
+          minimum: 0
+        volledigNummer:
+          title: Volledig nummer
+          type: string
+          readOnly: true
+        generiek:
+          title: Generiek
+          type: boolean
+          readOnly: true
+        specifiek:
+          title: Specifiek
+          type: boolean
+          readOnly: true
+        naam:
+          title: Naam
+          description: Benaming van het procestype
+          type: string
+          maxLength: 40
+          minLength: 1
+        omschrijving:
+          title: Omschrijving
+          description: Omschrijving van het specifieke resultaat
+          type: string
+          maxLength: 150
+        herkomst:
+          title: Herkomst
+          description: 'Voorbeeld: ''Risicoanalyse'', ''Systeemanalyse'' of verwijzing
+            naar Wet- en regelgeving'
+          type: string
+          maxLength: 200
+          minLength: 1
+        waardering:
+          title: Waardering
+          type: string
+          enum:
+          - blijvend_bewaren
+          - vernietigen
+        procestermijn:
+          title: Procestermijn
+          description: "De mapping van waarden naar weergave is als volgt:\n\n* `nihil`\
+            \ - Nihil\n* `bestaansduur_procesobject` - De bestaans- of geldigheidsduur\
+            \ van het procesobject.\n* `ingeschatte_bestaansduur_procesobject` - De\
+            \ ingeschatte maximale bestaans- of geldigheidsduur van het procesobject.\n\
+            * `vast_te_leggen_datum` - De tijdens het proces vast te leggen datum\
+            \ waarop de geldigheid van het procesobject komt te vervallen. \n* `samengevoegd_met_bewaartermijn`\
+            \ - De procestermijn is samengevoegd met de bewaartermijn."
+          type: string
+          enum:
+          - nihil
+          - bestaansduur_procesobject
+          - ingeschatte_bestaansduur_procesobject
+          - vast_te_leggen_datum
+          - samengevoegd_met_bewaartermijn
+        procestermijnWeergave:
+          title: Procestermijn weergave
+          type: string
+          readOnly: true
+          minLength: 1
+        bewaartermijn:
+          title: Bewaartermijn
+          type: string
+          format: duration
+          nullable: true
+        toelichting:
+          title: Toelichting
+          type: string
+        algemeenBestuurEnInrichtingOrganisatie:
+          title: Algemeen bestuur en inrichting organisatie
+          type: boolean
+        bedrijfsvoeringEnPersoneel:
+          title: Bedrijfsvoering en personeel
+          type: boolean
+        publiekeInformatieEnRegistratie:
+          title: Publieke informatie en registratie
+          type: boolean
+        burgerzaken:
+          title: Burgerzaken
+          type: boolean
+        veiligheid:
+          title: Veiligheid
+          type: boolean
+        verkeerEnVervoer:
+          title: Verkeer en vervoer
+          type: boolean
+        economie:
+          title: Economie
+          type: boolean
+        onderwijs:
+          title: Onderwijs
+          type: boolean
+        sportCultuurEnRecreatie:
+          title: Sport, cultuur en recreatie
+          type: boolean
+        sociaalDomein:
+          title: Sociaal domein
+          type: boolean
+        volksgezonheidEnMilieu:
+          title: Volksgezonheid en milieu
+          type: boolean
+        vhrosv:
+          title: VHROSV
+          type: boolean
+        heffenBelastingen:
+          title: Heffen belastingen etc.
+          type: boolean
+        alleTaakgebieden:
+          title: Alle taakgebieden
+          type: boolean
+        procestermijnOpmerking:
+          title: Procestermijn opmerking
+          description: 'Voorbeeld: ''25 jaar'', ''30 jaar, ''5 of 10 jaar'''
+          type: string
+          maxLength: 20
