@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
 from django_loose_fk.loaders import FetchError
+from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -59,7 +60,7 @@ __all__ = [
 ]
 
 
-class Zaak(AuditTrailMixin, APIMixin, models.Model):
+class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     """
     Modelleer de structuur van een ZAAK.
 
@@ -389,7 +390,7 @@ class RelevanteZaakRelatie(models.Model):
     )
 
 
-class Status(models.Model):
+class Status(ETagMixin, models.Model):
     """
     Modelleer een status van een ZAAK.
 
@@ -451,7 +452,7 @@ class Status(models.Model):
         return f"({self.zaak.unique_representation()}) - {self.datum_status_gezet}"
 
 
-class Resultaat(models.Model):
+class Resultaat(ETagMixin, models.Model):
     """
     Het behaalde RESULTAAT is een koppeling tussen een RESULTAATTYPE en een
     ZAAK.
@@ -507,7 +508,7 @@ class Resultaat(models.Model):
         )
 
 
-class Rol(models.Model):
+class Rol(ETagMixin, models.Model):
     """
     Modelleer de rol van een BETROKKENE bij een ZAAK.
 
@@ -682,7 +683,7 @@ class ZaakObject(models.Model):
         return f"({self.zaak.unique_representation()}) - {object.rsplit('/')[-1]}"
 
 
-class ZaakEigenschap(models.Model):
+class ZaakEigenschap(ETagMixin, models.Model):
     """
     Een relevant inhoudelijk gegeven waarvan waarden bij
     ZAAKen van eenzelfde ZAAKTYPE geregistreerd moeten
@@ -765,7 +766,7 @@ class ZaakKenmerk(models.Model):
         verbose_name_plural = "zaak kenmerken"
 
 
-class ZaakInformatieObject(models.Model):
+class ZaakInformatieObject(ETagMixin, models.Model):
     """
     Modelleer INFORMATIEOBJECTen die bij een ZAAK horen.
     """
