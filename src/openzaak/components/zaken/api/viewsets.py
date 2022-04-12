@@ -1167,8 +1167,8 @@ class ZaakVerzoekViewSet(
                 instance.save()
                 raise ValidationError(
                     {
-                        "verzoek": _(
-                            "Could not delete remote relation: {}".format(exception)
+                        "verzoek": _("Could not delete remote relation: {exc}").format(
+                            exc=exception
                         )
                     },
                     code="pending-relations",
