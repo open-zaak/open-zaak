@@ -11,13 +11,10 @@ from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.components.zaken.tests.factories import (
-    ZaakContactMomentFactory,
-    ZaakFactory,
-)
 from openzaak.tests.utils import mock_contactmomenten_oas_get
 
 from ..models import ZaakContactMoment
+from .factories import ZaakContactMomentFactory, ZaakFactory
 
 CONTACTMOMENTEN_BASE = "https://contactmomenten.nl/api/v1/"
 CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
