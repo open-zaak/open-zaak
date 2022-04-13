@@ -8,7 +8,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path, re_path
 from django.views.generic.base import TemplateView
 
-from openzaak.utils.views import ViewConfigView
+from openzaak.utils.exceptions import RequestEntityTooLargeException
+from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
 admin.site.enable_nav_sidebar = False
 
@@ -35,6 +36,13 @@ urlpatterns = [
     # auth backends
     path("adfs/", include("django_auth_adfs.urls")),
     path("oidc/", include("mozilla_django_oidc.urls")),
+    # custom error documents for nginx
+    path(
+        "413.json",
+        ErrorDocumentView.as_view(exception_cls=RequestEntityTooLargeException),
+        name="errordoc-413",
+    ),
+    path("500.json", ErrorDocumentView.as_view(), name="errordoc-500"),
 ]
 
 # NOTE: The staticfiles_urlpatterns also discovers static files (ie. no need to run collectstatic). Both the static
