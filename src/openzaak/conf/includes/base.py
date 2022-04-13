@@ -248,6 +248,7 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 # LOGGING
 #
 LOG_STDOUT = config("LOG_STDOUT", default=False)
+LOG_LEVEL = config("LOG_LEVEL", default="WARNING")
 LOG_QUERIES = config("LOG_QUERIES", default=False)
 if LOG_QUERIES and not DEBUG:
     warnings.warn(
@@ -256,6 +257,9 @@ if LOG_QUERIES and not DEBUG:
     )
 
 LOGGING_DIR = os.path.join(BASE_DIR, "log")
+
+_root_handlers = ["console"] if LOG_STDOUT else ["project"]
+_django_handlers = ["console"] if LOG_STDOUT else ["django"]
 
 LOGGING = {
     "version": 1,
@@ -331,40 +335,42 @@ LOGGING = {
         },
     },
     "loggers": {
+        "": {"handlers": _root_handlers, "level": "ERROR", "propagate": False,},
         "openzaak": {
-            "handlers": ["project"] if not LOG_STDOUT else ["console"],
-            "level": "INFO",
+            "handlers": _root_handlers,
+            "level": LOG_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {
-            "handlers": ["project"] if not LOG_STDOUT else ["console"],
-            "level": "DEBUG",
-        },
+        "mozilla_django_oidc": {"handlers": _root_handlers, "level": LOG_LEVEL,},
         "openzaak.utils.middleware": {
-            "handlers": ["requests"] if not LOG_STDOUT else ["console"],
-            "level": "DEBUG",
+            "handlers": _root_handlers,
+            "level": LOG_LEVEL,
             "propagate": False,
         },
-        "vng_api_common": {"handlers": ["console"], "level": "INFO", "propagate": True},
+        "vng_api_common": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
         "django.db.backends": {
             "handlers": ["console_db"] if LOG_QUERIES else [],
             "level": "DEBUG",
             "propagate": False,
         },
         "django.request": {
-            "handlers": ["django"] if not LOG_STDOUT else ["console"],
-            "level": "ERROR",
+            "handlers": _django_handlers,
+            "level": LOG_LEVEL,
             "propagate": True,
         },
         "django.template": {
             "handlers": ["console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "vng_api_common.notifications.viewsets": {
             "handlers": [
                 "failed_notification",  # always log this to the database!
-                "project" if not LOG_STDOUT else "console",
+                *_root_handlers,
             ],
             "level": "WARNING",
             "propagate": True,
