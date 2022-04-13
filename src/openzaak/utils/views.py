@@ -8,6 +8,8 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
+from rest_framework import exceptions
+from rest_framework.views import APIView
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zds_client import ClientError
 
@@ -86,3 +88,11 @@ def _test_nrc_config() -> list:
         checks.append((_("NRC connection and authorizations"), message, not error))
 
     return checks
+
+
+class ErrorDocumentView(APIView):
+    exception_cls = exceptions.APIException
+    schema = None  # do not document this in the API specs
+
+    def get(self, request):
+        raise self.exception_cls()
