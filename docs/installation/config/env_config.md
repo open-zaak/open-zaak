@@ -114,6 +114,9 @@ on Docker, since `localhost` is contained within the container:
 * `LOG_QUERIES`: enable (query) logging at the database backend level. Note that you
   must also set `DEBUG=1`, which should be done very sparingly!
 
+* `LOG_LEVEL`: control the verbosity of logging output. Available values are `CRITICAL`,
+  `ERROR`, `WARNING`, `INFO` and `DEBUG`. Defaults to `WARNING`.
+
 * `PROFILE`: whether to enable profiling-tooling or not. Applies to the development
   settings only. Defaults to `False`.
 
