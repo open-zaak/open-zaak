@@ -25,6 +25,7 @@ from notifications_api_common.viewsets import (
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
@@ -65,6 +66,7 @@ from ..models import (
     Resultaat,
     Rol,
     Status,
+    SubStatus,
     Zaak,
     ZaakBesluit,
     ZaakContactMoment,
@@ -106,6 +108,7 @@ from .serializers import (
     ResultaatSerializer,
     RolSerializer,
     StatusSerializer,
+    SubStatusSerializer,
     ZaakBesluitSerializer,
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
@@ -592,6 +595,75 @@ class StatusViewSet(
                 raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle SUBSTATUSsen van STATUSsen opvragen.",
+        description=mark_experimental(
+            "Deze lijst kan gefilterd wordt met query-string parameters."
+        ),
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke SUBSTATUS bij een STATUS van een ZAAK opvragen.",
+        description=mark_experimental(
+            "Een specifieke SUBSTATUS bij een STATUS van een ZAAK opvragen."
+        ),
+    ),
+    create=extend_schema(
+        summary="Maak een SUBSTATUS aan bij een STATUS voor een ZAAK.",
+        description=mark_experimental(
+            "**Er wordt gevalideerd op**\n"
+            "- geldigheid URL naar de ZAAK\n"
+            "- geldigheid URL naar de STATUS\n"
+            "- STATUS moet horen bij de ZAAK"
+        ),
+    ),
+)
+class SubStatusViewSet(
+    NotificationCreateMixin,
+    AuditTrailCreateMixin,
+    CheckQueryParamsMixin,
+    ListFilterByAuthorizationsMixin,
+    mixins.CreateModelMixin,
+    viewsets.ReadOnlyModelViewSet,
+):
+    """
+    Opvragen en beheren van substatussen.
+    list:
+    Alle SUBSTATUSsen van STATUSsen opvragen.
+    Deze lijst kan gefilterd wordt met query-string parameters.
+    retrieve:
+    Een specifieke SUBSTATUS bij een STATUS van een ZAAK opvragen.
+    Een specifieke SUBSTATUS bij een STATUS van een ZAAK opvragen.
+    create:
+    Maak een SUBSTATUS aan bij een STATUS voor een ZAAK.
+    **Er wordt gevalideerd op**
+    - geldigheid URL naar de ZAAK
+    - geldigheid URL naar de STATUS
+    - STATUS moet horen bij de ZAAK
+    """
+
+    queryset = SubStatus.objects.select_related("zaak", "status").order_by("-tijdstip")
+    serializer_class = SubStatusSerializer
+    filterset_fields = {
+        "zaak": ["exact"],
+        "doelgroep": ["exact"],
+        "status": ["exact"],
+        "tijdstip": ["gt", "lt", "gte", "lte"],
+    }
+    lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
+    required_scopes = {
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN,
+    }
+    notifications_kanaal = KANAAL_ZAKEN
+    audit = AUDIT_ZRC
 
 
 @extend_schema_view(
