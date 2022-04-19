@@ -3,6 +3,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from django_choices import ChoiceItem, DjangoChoices
+
 from openzaak.utils.help_text import mark_experimental
 
 
@@ -90,6 +92,11 @@ class AardZaakRelatie(models.TextChoices):
         ),
     )
     overig = ("overig", mark_experimental(_("Overig")))
+
+
+class Doelgroep(DjangoChoices):
+    betrokkenen = ChoiceItem("betrokkenen", "betrokkenen")
+    intern = ChoiceItem("intern", "Intern")
 
 
 # for zaaokbject models

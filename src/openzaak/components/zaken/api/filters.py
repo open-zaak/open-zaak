@@ -26,6 +26,7 @@ from ..models import (
     Resultaat,
     Rol,
     Status,
+    SubStatus,
     Zaak,
     ZaakContactMoment,
     ZaakInformatieObject,
@@ -435,6 +436,15 @@ class StatusFilter(FilterSet):
             )
 
         return queryset.none()
+
+
+class SubStatusFilter(FilterSet):
+    class Meta:
+        model = SubStatus
+        fields = (
+            "zaak",
+            "doelgroep",
+        )
 
 
 class ResultaatFilter(FilterSet):
