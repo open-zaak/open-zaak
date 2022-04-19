@@ -322,3 +322,23 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
         for zio in remote_zios:
             if zio.informatieobject.indicatie_gebruiksrecht is None:
                 raise serializers.ValidationError(self.message, self.code)
+
+
+class StatusBelongsToZaakValidator:
+    """
+    Validate that a given STATUS belongs to a given ZAAK
+    """
+
+    code = "zaak-status-mismatch"
+    message = "De opgegeven `status` hoort niet bij de opgegeven `zaak`."
+
+    def __call__(self, attrs: dict):
+        if not attrs.get("status"):
+            # No status passed, use the current status
+            return
+
+        status = attrs["status"]
+        zaak = attrs["zaak"]
+
+        if status.zaak != zaak:
+            raise serializers.ValidationError(self.message, self.code)

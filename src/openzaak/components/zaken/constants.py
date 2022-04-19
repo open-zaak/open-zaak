@@ -94,6 +94,11 @@ class AardZaakRelatie(DjangoChoices):
     )
 
 
+class Doelgroep(DjangoChoices):
+    betrokkenen = ChoiceItem("betrokkenen", "betrokkenen")
+    intern = ChoiceItem("intern", "Intern")
+
+
 # for zaaokbject models
 class TyperingInrichtingselement(DjangoChoices):
     bak = ChoiceItem("bak", "Bak")
