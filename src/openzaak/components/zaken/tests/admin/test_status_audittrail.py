@@ -36,6 +36,15 @@ class StatusAdminTests(AdminTestMixin, TestCase):
             "datum_status_gezet_1": time(10, 0, 0),
         }
 
+        data.update(
+            {
+                "substatus_set-TOTAL_FORMS": 0,
+                "substatus_set-INITIAL_FORMS": 0,
+                "substatus_set-MIN_NUM_FORMS": 0,
+                "substatus_set-MAX_NUM_FORMS": 1000,
+            }
+        )
+
         self.client.post(add_url, data)
 
         self.assertEqual(Status.objects.count(), 1)
@@ -78,6 +87,15 @@ class StatusAdminTests(AdminTestMixin, TestCase):
             "datum_status_gezet_1": timezone.now().time(),
             "statustoelichting": "new",
         }
+
+        data.update(
+            {
+                "substatus_set-TOTAL_FORMS": 0,
+                "substatus_set-INITIAL_FORMS": 0,
+                "substatus_set-MIN_NUM_FORMS": 0,
+                "substatus_set-MAX_NUM_FORMS": 1000,
+            }
+        )
 
         self.client.post(change_url, data)
 
