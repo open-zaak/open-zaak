@@ -162,6 +162,15 @@ class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFac
         )
 
 
+class SubStatusFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    status = factory.SubFactory(StatusFactory)
+    tijdstip = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
+
+    class Meta:
+        model = "zaken.SubStatus"
+
+
 class KlantContactFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     identificatie = factory.Sequence(lambda n: f"{n}")
