@@ -118,6 +118,15 @@ class StatusFactory(factory.django.DjangoModelFactory):
         model = "zaken.Status"
 
 
+class SubStatusFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    status = factory.SubFactory(StatusFactory)
+    tijdstip = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
+
+    class Meta:
+        model = "zaken.SubStatus"
+
+
 class ResultaatFactory(factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     resultaattype = factory.SubFactory(
