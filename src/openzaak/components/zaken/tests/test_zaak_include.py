@@ -45,7 +45,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)["data"]
+        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)[
+            "data"
+        ]
 
         response = self.client.get(url, {"include": "zaaktype"}, **ZAAK_READ_KWARGS,)
 
@@ -56,6 +58,37 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         self.assertIn("inclusions", data)
         self.assertDictEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
+
+    def test_zaak_list_include_nested(self):
+        """
+        Test if related resources that are in the local database can be included
+        """
+        ZaakFactory.create(zaaktype=self.zaaktype)
+
+        url = reverse("zaak-list")
+
+        catalogus_data = json.loads(self.client.get(reverse(self.catalogus)).content)
+        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)[
+            "data"
+        ]
+
+        response = self.client.get(
+            url, {"include": "zaaktype,zaaktype.catalogus"}, **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # `response.data` does not generate the rendered response
+        data = json.loads(response.content)
+
+        self.assertIn("inclusions", data)
+        self.assertDictEqual(
+            data["inclusions"],
+            {
+                "catalogi:zaaktype": [zaaktype_data],
+                "catalogi:catalogus": [catalogus_data],
+            },
+        )
 
 
 @tag("include")
@@ -76,7 +109,7 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
             m.register_uri(
                 "GET", zaaktype, json=zaaktype_data,
             )
@@ -94,3 +127,41 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
         self.assertIn("inclusions", data)
         self.assertDictEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
+
+    def test_zaak_list_include_nested(self):
+        """
+        Test if related resources that are in the local database can be included
+        """
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
+        catalogus_data = get_catalogus_response(catalogus, zaaktype)
+
+        ZaakFactory.create(zaaktype=zaaktype)
+
+        url = reverse("zaak-list")
+
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "GET", zaaktype, json=zaaktype_data,
+            )
+            m.register_uri(
+                "GET", catalogus, json=catalogus_data,
+            )
+            response = self.client.get(
+                url, {"include": "zaaktype,zaaktype.catalogus"}, **ZAAK_READ_KWARGS,
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # `response.data` does not generate the rendered response
+        data = json.loads(response.content)
+
+        self.assertIn("inclusions", data)
+        self.assertDictEqual(
+            data["inclusions"],
+            {
+                "catalogi:zaaktype": [zaaktype_data],
+                "catalogi:catalogus": [catalogus_data],
+            },
+        )
