@@ -13,7 +13,10 @@ from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
-from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
+from openzaak.utils.filters import (
+    IncludeFilter,
+    MaximaleVertrouwelijkheidaanduidingFilter,
+)
 
 from ..models import (
     KlantContact,
@@ -26,20 +29,6 @@ from ..models import (
     ZaakObject,
     ZaakVerzoek,
 )
-
-
-class IncludeFilter(filters.ChoiceFilter):
-    def __init__(self, *args, **kwargs):
-        serializer_class = kwargs.pop("serializer_class")
-
-        kwargs.setdefault(
-            "choices", [(x, x) for x in serializer_class.inclusion_serializers.keys()]
-        )
-
-        super().__init__(*args, **kwargs)
-
-    def filter(self, qs, value):
-        return qs
 
 
 class ZaakFilter(FilterSet):

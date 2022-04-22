@@ -8,8 +8,15 @@ from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer as _InclusionJSONRenderer,
 )
 
+from openzaak.utils.serializer_fields import (
+    LooseFKHyperlinkedIdentityField,
+    LooseFKHyperlinkedRelatedField,
+)
+
 
 class InclusionLoader(_InclusionLoader):
+    nested_inclusions_use_parent = False
+
     def get_model_key(self, obj, serializer):
         return serializer.Meta.model._meta.label.lower().replace(".", ":")
 
@@ -20,8 +27,8 @@ class InclusionLoader(_InclusionLoader):
             model_key = self.get_model_key(obj, inclusion_serializer)
 
             # In case of external resources
-            if isinstance(obj, dict):
-                data = obj
+            if hasattr(obj, "_initial_data"):
+                data = obj._initial_data
             else:
                 data = inclusion_serializer(
                     instance=obj, context={"request": serializer.context.get("request")}
@@ -39,7 +46,11 @@ class InclusionLoader(_InclusionLoader):
             return []
 
         # Properly include loose fk fields
-        if isinstance(field, FKOrURLField):
+        if (
+            isinstance(field, FKOrURLField)
+            or isinstance(field, LooseFKHyperlinkedRelatedField)
+            or isinstance(field, LooseFKHyperlinkedIdentityField)
+        ):
             return self._loose_fk_field_inclusions(
                 path, field, instance, inclusion_serializer
             )
@@ -50,24 +61,14 @@ class InclusionLoader(_InclusionLoader):
     def _loose_fk_field_inclusions(self, path, field, instance, inclusion_serializer):
         value = field.get_attribute(instance)
         # In case it's an external resource
-        if isinstance(value, str):
+        if isinstance(value, str) or hasattr(value, "_initial_data"):
             try:
-                yield getattr(instance, field.field_name)._initial_data
+                yield getattr(instance, field.field_name)  # ._initial_data
             except FetchError:  # Something failed during fetching, ignore this instance
                 return []
         else:
             for entry in self._primary_key_related_field_inclusions(
                 path, field, instance, inclusion_serializer
-            ):
-                yield entry
-
-    def _field_inclusions(self, path, field, instance, name, inclusion_serializers):
-        # For external resources
-        if isinstance(instance, dict):
-            return
-        else:
-            for entry in super()._field_inclusions(
-                path, field, instance, name, inclusion_serializers
             ):
                 yield entry
 
