@@ -243,7 +243,7 @@ djangorestframework-camel-case==1.2.0
 djangorestframework-gis==0.18
     # via -r requirements/base.txt
 drc-cmis==1.8.0
-djangorestframework-inclusions @ git+https://github.com/maykinmedia/djangorestframework-inclusions.git@670557f47cc6dc357284f8730940cda18390a85a
+djangorestframework-inclusions @ git+https://github.com/isprojects/djangorestframework-inclusions.git@c2ff654254e4ef7dbadd264004b70e0efce44327
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt
