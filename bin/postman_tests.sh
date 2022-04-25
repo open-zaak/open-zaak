@@ -29,7 +29,7 @@ until [ "$status" = "200" ]; do
 done
 
 # Download and execute the ZGW postman tests
-wget https://api-test.nl/api/v1/postman-test/get_version/ZGW_api_postman_tests/1.0.0 -O tests.json
+wget https://raw.githubusercontent.com/VNG-Realisatie/gemma-postman-tests/stable/zgw-apis-1.1.0/ZGW_api_postman_tests.json -O tests.json
 
 # Run the tests using the newman library for nodejs
 node bin/newman_tests.js \
