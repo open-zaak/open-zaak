@@ -47,6 +47,7 @@ SWAGGER_SETTINGS.update(
             "vng_api_common.inspectors.files.FileFieldInspector",
             "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
             "django_loose_fk.inspectors.fields.LooseFkFieldInspector",
+            "openzaak.utils.inspectors.IncludeSerializerInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
         "DEFAULT_FILTER_INSPECTORS": (

@@ -3073,6 +3073,8 @@ paths:
           type: string
           enum:
           - zaaktype
+          - zaaktype.catalogus
+          - '*'
       - name: ordering
         in: query
         description: Het veld waarop de resultaten geordend worden.
@@ -3157,10 +3159,23 @@ paths:
                     type: string
                     format: uri
                     nullable: true
-                  results:
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3262,7 +3277,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Zaak'
+                required:
+                - data
+                - inclusions
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3372,10 +3406,23 @@ paths:
                     type: string
                     format: uri
                     nullable: true
-                  results:
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3472,7 +3519,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Zaak'
+                required:
+                - data
+                - inclusions
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -3649,7 +3715,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Zaak'
+                required:
+                - data
+                - inclusions
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3757,7 +3842,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Zaak'
+                required:
+                - data
+                - inclusions
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Zaak'
+                  inclusions:
+                    type: object
+                    properties:
+                      catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:catalogus:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -7841,10 +7945,16 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `zaaktype` - zaaktype'
+            * `zaaktype` - zaaktype
+
+            * `zaaktype.catalogus` - zaaktype.catalogus
+
+            * `*` - *'
           type: string
           enum:
           - zaaktype
+          - zaaktype.catalogus
+          - '*'
         ordering:
           title: Ordering
           description: 'Het veld waarop de resultaten geordend worden.

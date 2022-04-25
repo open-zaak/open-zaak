@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from typing import List, Optional
+
+from django.utils.module_loading import import_string
+
 from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework.serializers import Serializer
 from rest_framework_inclusions.core import InclusionLoader as _InclusionLoader, sort_key
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer as _InclusionJSONRenderer,
@@ -14,11 +19,15 @@ from openzaak.utils.serializer_fields import (
 )
 
 
+def get_inclusion_key(serializer):
+    return serializer.Meta.model._meta.label.lower().replace(".", ":")
+
+
 class InclusionLoader(_InclusionLoader):
     nested_inclusions_use_parent = False
 
     def get_model_key(self, obj, serializer):
-        return serializer.Meta.model._meta.label.lower().replace(".", ":")
+        return get_inclusion_key(serializer)
 
     def inclusions_dict(self, serializer):
         entries = self._inclusions((), serializer, serializer.instance)
@@ -80,3 +89,33 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
     """
 
     loader_class = InclusionLoader
+
+
+def get_include_options_for_serializer(
+    dotted_path: str,
+    serializer_class: Serializer,
+    result: Optional[List[tuple]] = None,
+    namespacing: bool = False,
+) -> List[tuple]:
+    """
+    Determine the possible options for the `include` query parameter given a serializer
+    """
+    if not result:
+        result = []
+
+    if not hasattr(serializer_class, "inclusion_serializers"):
+        return result
+
+    for field, inclusion_serializer in serializer_class.inclusion_serializers.items():
+        serializer = import_string(inclusion_serializer)
+        if namespacing:  # Namespace by component name
+            key = get_inclusion_key(serializer)
+        else:
+            key = f"{dotted_path}.{field}" if dotted_path else field
+
+        result.append((key, serializer))
+
+        result = result + get_include_options_for_serializer(
+            field, serializer, result, namespacing=namespacing
+        )
+    return result

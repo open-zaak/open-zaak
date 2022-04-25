@@ -4096,7 +4096,9 @@
                         "required": false,
                         "type": "string",
                         "enum": [
-                            "zaaktype"
+                            "zaaktype",
+                            "zaaktype.catalogus",
+                            "*"
                         ]
                     },
                     {
@@ -4179,10 +4181,29 @@
                                     "format": "uri",
                                     "x-nullable": true
                                 },
-                                "results": {
+                                "data": {
                                     "type": "array",
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
+                                    }
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -4310,7 +4331,35 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/Zaak"
+                            "required": [
+                                "data",
+                                "inclusions"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/definitions/Zaak"
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "headers": {
                             "API-version": {
@@ -4450,10 +4499,29 @@
                                     "format": "uri",
                                     "x-nullable": true
                                 },
-                                "results": {
+                                "data": {
                                     "type": "array",
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
+                                    }
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -4569,7 +4637,35 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Zaak"
+                            "required": [
+                                "data",
+                                "inclusions"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/definitions/Zaak"
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "headers": {
                             "Content-Crs": {
@@ -4779,7 +4875,35 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Zaak"
+                            "required": [
+                                "data",
+                                "inclusions"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/definitions/Zaak"
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "headers": {
                             "Content-Crs": {
@@ -4907,7 +5031,35 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Zaak"
+                            "required": [
+                                "data",
+                                "inclusions"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/definitions/Zaak"
+                                },
+                                "inclusions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "catalogi:zaaktype": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        },
+                                        "catalogi:catalogus": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "headers": {
                             "Content-Crs": {
@@ -9568,10 +9720,12 @@
                 },
                 "include": {
                     "title": "Include",
-                    "description": "Haal details van gerelateerde resources direct op.\n\nUitleg bij mogelijke waarden:\n\n* `zaaktype` - zaaktype",
+                    "description": "Haal details van gerelateerde resources direct op.\n\nUitleg bij mogelijke waarden:\n\n* `zaaktype` - zaaktype\n* `zaaktype.catalogus` - zaaktype.catalogus\n* `*` - *",
                     "type": "string",
                     "enum": [
-                        "zaaktype"
+                        "zaaktype",
+                        "zaaktype.catalogus",
+                        "*"
                     ]
                 },
                 "ordering": {
