@@ -3073,6 +3073,11 @@ paths:
           type: string
           enum:
           - zaaktype
+          - hoofdzaak
+          - deelzaken
+          - eigenschappen
+          - status
+          - resultaat
           - zaaktype.catalogus
           - '*'
       - name: ordering
@@ -3167,6 +3172,26 @@ paths:
                     type: object
                     properties:
                       catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
                         type: array
                         items:
                           type: object
@@ -3288,6 +3313,26 @@ paths:
                     type: object
                     properties:
                       catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
                         type: array
                         items:
                           type: object
@@ -3418,6 +3463,26 @@ paths:
                         items:
                           type: object
                           properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
                       catalogi:catalogus:
                         type: array
                         items:
@@ -3530,6 +3595,26 @@ paths:
                     type: object
                     properties:
                       catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
                         type: array
                         items:
                           type: object
@@ -3730,6 +3815,26 @@ paths:
                         items:
                           type: object
                           properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
                       catalogi:catalogus:
                         type: array
                         items:
@@ -3853,6 +3958,26 @@ paths:
                     type: object
                     properties:
                       catalogi:zaaktype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaak:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:zaakeigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:status:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      zaken:resultaat:
                         type: array
                         items:
                           type: object
@@ -7947,12 +8072,27 @@ components:
 
             * `zaaktype` - zaaktype
 
+            * `hoofdzaak` - hoofdzaak
+
+            * `deelzaken` - deelzaken
+
+            * `eigenschappen` - eigenschappen
+
+            * `status` - status
+
+            * `resultaat` - resultaat
+
             * `zaaktype.catalogus` - zaaktype.catalogus
 
             * `*` - *'
           type: string
           enum:
           - zaaktype
+          - hoofdzaak
+          - deelzaken
+          - eigenschappen
+          - status
+          - resultaat
           - zaaktype.catalogus
           - '*'
         ordering:

@@ -7,7 +7,7 @@ from django.utils.module_loading import import_string
 from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import HyperlinkedRelatedField, Serializer
 from rest_framework_inclusions.core import InclusionLoader as _InclusionLoader, sort_key
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer as _InclusionJSONRenderer,
@@ -63,6 +63,10 @@ class InclusionLoader(_InclusionLoader):
             return self._loose_fk_field_inclusions(
                 path, field, instance, inclusion_serializer
             )
+        elif isinstance(field, HyperlinkedRelatedField):
+            return self._primary_key_related_field_inclusions(
+                path, field, instance, inclusion_serializer
+            )
         return super()._some_related_field_inclusions(
             path, field, instance, inclusion_serializer
         )
@@ -96,6 +100,7 @@ def get_include_options_for_serializer(
     serializer_class: Serializer,
     result: Optional[List[tuple]] = None,
     namespacing: bool = False,
+    _seen: Optional[List[Serializer]] = None,
 ) -> List[tuple]:
     """
     Determine the possible options for the `include` query parameter given a serializer
@@ -103,9 +108,13 @@ def get_include_options_for_serializer(
     if not result:
         result = []
 
-    if not hasattr(serializer_class, "inclusion_serializers"):
-        return result
+    if not _seen:
+        _seen = []
 
+    if not hasattr(serializer_class, "inclusion_serializers"):
+        return []
+
+    # First add all the include options for the current serializers
     for field, inclusion_serializer in serializer_class.inclusion_serializers.items():
         serializer = import_string(inclusion_serializer)
         if namespacing:  # Namespace by component name
@@ -113,9 +122,16 @@ def get_include_options_for_serializer(
         else:
             key = f"{dotted_path}.{field}" if dotted_path else field
 
-        result.append((key, serializer))
+        if f"{field}:{inclusion_serializer}" not in _seen:
+            _seen.append(f"{field}:{inclusion_serializer}")
+            result.append((key, serializer))
 
-        result = result + get_include_options_for_serializer(
-            field, serializer, result, namespacing=namespacing
-        )
+    # Add all the nested include options
+    for field, inclusion_serializer in serializer_class.inclusion_serializers.items():
+        if inclusion_serializer not in _seen:
+            _seen.append(inclusion_serializer)
+            serializer = import_string(inclusion_serializer)
+            result = result + get_include_options_for_serializer(
+                field, serializer, [], namespacing=namespacing, _seen=_seen
+            )
     return result

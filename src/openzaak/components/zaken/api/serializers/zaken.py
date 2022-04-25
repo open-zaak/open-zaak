@@ -192,11 +192,11 @@ class ZaakSerializer(
         help_text=_("URL-referenties naar ROLLen."),
     )
     status = serializers.HyperlinkedRelatedField(
-        source="current_status_uuid",
+        source="current_status",
         read_only=True,
         allow_null=True,
         view_name="status-detail",
-        lookup_url_kwarg="uuid",
+        lookup_field="uuid",
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
     )
     zaakinformatieobjecten = NestedHyperlinkedRelatedField(
@@ -281,7 +281,13 @@ class ZaakSerializer(
     )
 
     inclusion_serializers = {
-        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer"
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "hoofdzaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "deelzaken": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        # "relevanteAndereZaken": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "eigenschappen": "openzaak.components.zaken.api.serializers.ZaakEigenschapSerializer",
+        "status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "resultaat": "openzaak.components.zaken.api.serializers.ResultaatSerializer",
     }
 
     class Meta:

@@ -16,7 +16,12 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
 from openzaak.tests.utils.auth import JWTAuthMixin
 
-from .factories import ZaakFactory
+from .factories import (
+    ResultaatFactory,
+    StatusFactory,
+    ZaakEigenschapFactory,
+    ZaakFactory,
+)
 from .utils import ZAAK_READ_KWARGS, get_catalogus_response, get_zaaktype_response
 
 
@@ -41,23 +46,49 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         """
         Test if related resources that are in the local database can be included
         """
-        ZaakFactory.create(zaaktype=self.zaaktype)
+        hoofdzaak = ZaakFactory(zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype, hoofdzaak=hoofdzaak)
+        zaak_status = StatusFactory(zaak=zaak)
+        resultaat = ResultaatFactory(zaak=zaak)
+        eigenschap = ZaakEigenschapFactory(zaak=zaak)
 
         url = reverse("zaak-list")
 
+        hoofdzaak_data = json.loads(
+            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
+        )["data"]
         zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)[
             "data"
         ]
+        status_data = json.loads(self.client.get(reverse(zaak_status)).content)
+        resultaat_data = json.loads(self.client.get(reverse(resultaat)).content)
+        eigenschap_data = json.loads(
+            self.client.get(
+                reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+            ).content
+        )
 
-        response = self.client.get(url, {"include": "zaaktype"}, **ZAAK_READ_KWARGS,)
+        response = self.client.get(
+            url,
+            {"include": "hoofdzaak,zaaktype,status,resultaat,eigenschappen"},
+            **ZAAK_READ_KWARGS,
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
         data = json.loads(response.content)
 
+        expected = {
+            "zaken:zaak": [hoofdzaak_data],
+            "catalogi:zaaktype": [zaaktype_data],
+            "zaken:resultaat": [resultaat_data],
+            "zaken:status": [status_data],
+            "zaken:zaakeigenschap": [eigenschap_data],
+        }
+
         self.assertIn("inclusions", data)
-        self.assertDictEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
+        self.assertDictEqual(data["inclusions"], expected)
 
     def test_zaak_list_include_nested(self):
         """

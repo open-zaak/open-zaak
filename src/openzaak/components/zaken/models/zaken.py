@@ -475,6 +475,11 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         self._current_status_uuid = value
 
     @property
+    def current_status(self):
+        status = self.status_set.first()
+        return status
+
+    @property
     def is_closed(self) -> bool:
         return self.einddatum is not None
 
