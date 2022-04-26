@@ -11,13 +11,21 @@ asgiref==3.5.0
     #   -r requirements/base.txt
     #   django
 attrs==21.4.0
-    # via black
+    # via
+    #   -r requirements/base.txt
+    #   black
+    #   glom
 beautifulsoup4==4.10.0
     # via webtest
 black==19.10b0
     # via -r requirements/test-tools.in
 bleach==4.1.0
     # via -r requirements/base.txt
+boltons==21.0.0
+    # via
+    #   -r requirements/base.txt
+    #   face
+    #   glom
 certifi==2021.10.8
     # via
     #   -r requirements/base.txt
@@ -191,6 +199,10 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.txt
     #   vng-api-common
+face==20.1.1
+    # via
+    #   -r requirements/base.txt
+    #   glom
 factory-boy==3.2.1
     # via -r requirements/test-tools.in
 faker==13.3.2
@@ -207,6 +219,10 @@ gemma-zds-client==0.15.0
     #   -r requirements/base.txt
     #   vng-api-common
     #   zgw-consumers
+glom==22.1.0
+    # via
+    #   -r requirements/base.txt
+    #   mozilla-django-oidc-db
 httplib2==0.20.4
     # via
     #   -r requirements/base.txt
@@ -260,11 +276,11 @@ markupsafe==2.1.1
     #   jinja2
 mccabe==0.6.1
     # via flake8
-mozilla-django-oidc==1.2.4
+mozilla-django-oidc==2.0.0
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.8.0
+mozilla-django-oidc-db==0.10.0
     # via -r requirements/base.txt
 oyaml==1.0
     # via
@@ -279,9 +295,7 @@ packaging==21.3
 pathspec==0.9.0
     # via black
 psycopg2==2.9.3
-    # via
-    #   -r requirements/base.txt
-    #   mozilla-django-oidc-db
+    # via -r requirements/base.txt
 pycodestyle==2.6.0
     # via flake8
 pycparser==2.21
@@ -369,7 +383,6 @@ six==1.16.0
     #   django-choices
     #   django-db-logger
     #   isodate
-    #   mozilla-django-oidc
     #   pyopenssl
     #   python-dateutil
     #   requests-mock
