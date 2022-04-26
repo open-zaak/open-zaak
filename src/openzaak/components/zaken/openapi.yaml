@@ -3078,7 +3078,19 @@ paths:
           - eigenschappen
           - status
           - resultaat
-          - zaaktype.catalogus
+          - hoofdzaak.zaaktype
+          - hoofdzaak.status
+          - hoofdzaak.status.statustype
+          - hoofdzaak.resultaat
+          - hoofdzaak.resultaat.resultaattype
+          - deelzaken.zaaktype
+          - deelzaken.status
+          - deelzaken.status.statustype
+          - deelzaken.resultaat
+          - deelzaken.resultaat.resultaattype
+          - eigenschappen.eigenschap
+          - status.statustype
+          - resultaat.resultaattype
           - '*'
       - name: ordering
         in: query
@@ -3196,7 +3208,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -3337,7 +3364,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -3483,7 +3525,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -3619,7 +3676,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -3835,7 +3907,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -3982,7 +4069,22 @@ paths:
                         items:
                           type: object
                           properties: {}
-                      catalogi:catalogus:
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:statustype:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      catalogi:eigenschap:
+                        type: array
+                        items:
+                          type: object
+                          properties: {}
+                      '*':
                         type: array
                         items:
                           type: object
@@ -8082,7 +8184,31 @@ components:
 
             * `resultaat` - resultaat
 
-            * `zaaktype.catalogus` - zaaktype.catalogus
+            * `hoofdzaak.zaaktype` - hoofdzaak.zaaktype
+
+            * `hoofdzaak.status` - hoofdzaak.status
+
+            * `hoofdzaak.status.statustype` - hoofdzaak.status.statustype
+
+            * `hoofdzaak.resultaat` - hoofdzaak.resultaat
+
+            * `hoofdzaak.resultaat.resultaattype` - hoofdzaak.resultaat.resultaattype
+
+            * `deelzaken.zaaktype` - deelzaken.zaaktype
+
+            * `deelzaken.status` - deelzaken.status
+
+            * `deelzaken.status.statustype` - deelzaken.status.statustype
+
+            * `deelzaken.resultaat` - deelzaken.resultaat
+
+            * `deelzaken.resultaat.resultaattype` - deelzaken.resultaat.resultaattype
+
+            * `eigenschappen.eigenschap` - eigenschappen.eigenschap
+
+            * `status.statustype` - status.statustype
+
+            * `resultaat.resultaattype` - resultaat.resultaattype
 
             * `*` - *'
           type: string
@@ -8093,7 +8219,19 @@ components:
           - eigenschappen
           - status
           - resultaat
-          - zaaktype.catalogus
+          - hoofdzaak.zaaktype
+          - hoofdzaak.status
+          - hoofdzaak.status.statustype
+          - hoofdzaak.resultaat
+          - hoofdzaak.resultaat.resultaattype
+          - deelzaken.zaaktype
+          - deelzaken.status
+          - deelzaken.status.statustype
+          - deelzaken.resultaat
+          - deelzaken.resultaat.resultaattype
+          - eigenschappen.eigenschap
+          - status.statustype
+          - resultaat.resultaattype
           - '*'
         ordering:
           title: Ordering

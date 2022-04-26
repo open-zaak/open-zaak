@@ -45,7 +45,7 @@ class IncludeSerializerInspector(SerializerInspector):
     def get_inclusion_props(self, serializer_class) -> OrderedDict:
         inclusion_props = OrderedDict()
         inclusion_opts = get_include_options_for_serializer(
-            "", serializer_class, namespacing=True
+            serializer_class, namespacing=True
         )
         # TODO use reference?
         for key, serializer in inclusion_opts:

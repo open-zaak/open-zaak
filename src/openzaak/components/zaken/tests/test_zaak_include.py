@@ -92,19 +92,29 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
     def test_zaak_list_include_nested(self):
         """
-        Test if related resources that are in the local database can be included
+        Test if nested related resources that are in the local database can be included
         """
-        ZaakFactory.create(zaaktype=self.zaaktype)
+        hoofdzaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        resultaat1 = ResultaatFactory.create(zaak=hoofdzaak)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype, hoofdzaak=hoofdzaak)
+        ResultaatFactory.create(zaak=zaak)
 
         url = reverse("zaak-list")
 
-        catalogus_data = json.loads(self.client.get(reverse(self.catalogus)).content)
-        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)[
-            "data"
-        ]
+        zaak_data = json.loads(
+            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
+        )["data"]
+        resultaat_data = json.loads(self.client.get(reverse(resultaat1)).content)
+        resultaattype_data = json.loads(
+            self.client.get(reverse(resultaat1.resultaattype)).content
+        )
 
         response = self.client.get(
-            url, {"include": "zaaktype,zaaktype.catalogus"}, **ZAAK_READ_KWARGS,
+            url,
+            {
+                "include": "hoofdzaak,hoofdzaak.resultaat,hoofdzaak.resultaat.resultaattype"
+            },
+            **ZAAK_READ_KWARGS,
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -116,8 +126,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         self.assertDictEqual(
             data["inclusions"],
             {
-                "catalogi:zaaktype": [zaaktype_data],
-                "catalogi:catalogus": [catalogus_data],
+                "zaken:zaak": [zaak_data],
+                "zaken:resultaat": [resultaat_data],
+                "catalogi:resultaattype": [resultaattype_data],
             },
         )
 
@@ -161,16 +172,21 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
     def test_zaak_list_include_nested(self):
         """
-        Test if related resources that are in the local database can be included
+        Test if nested related resources that are external can be included
         """
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
-        catalogus_data = get_catalogus_response(catalogus, zaaktype)
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
-        ZaakFactory.create(zaaktype=zaaktype)
+        hoofdzaak = ZaakFactory.create(zaaktype=zaaktype)
+        ZaakFactory.create(zaaktype=zaaktype, hoofdzaak=hoofdzaak)
 
         url = reverse("zaak-list")
+
+        zaak_data = json.loads(
+            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
+        )["data"]
+        catalogus_data = get_catalogus_response(catalogus, zaaktype)
+        zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
 
         with requests_mock.Mocker() as m:
             m.register_uri(
@@ -180,7 +196,7 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
                 "GET", catalogus, json=catalogus_data,
             )
             response = self.client.get(
-                url, {"include": "zaaktype,zaaktype.catalogus"}, **ZAAK_READ_KWARGS,
+                url, {"include": "hoofdzaak,hoofdzaak.zaaktype"}, **ZAAK_READ_KWARGS,
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -191,8 +207,5 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         self.assertIn("inclusions", data)
         self.assertDictEqual(
             data["inclusions"],
-            {
-                "catalogi:zaaktype": [zaaktype_data],
-                "catalogi:catalogus": [catalogus_data],
-            },
+            {"zaken:zaak": [zaak_data], "catalogi:zaaktype": [zaaktype_data],},
         )

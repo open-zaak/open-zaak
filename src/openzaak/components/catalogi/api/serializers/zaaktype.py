@@ -198,10 +198,6 @@ class ZaakTypeSerializer(
         help_text=_("De datum van de aller laatste versie van het object."),
     )
 
-    inclusion_serializers = {
-        "catalogus": "openzaak.components.catalogi.api.serializers.CatalogusSerializer",
-    }
-
     class Meta:
         model = ZaakType
         fields = (

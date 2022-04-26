@@ -36,12 +36,9 @@ class IncludeFilter(filters.BaseInFilter, filters.ChoiceFilter):
     def __init__(self, *args, **kwargs):
         serializer_class = kwargs.pop("serializer_class")
 
-        options = get_include_options_for_serializer(
-            "", serializer_class, namespacing=False
+        kwargs.setdefault(
+            "choices", get_include_options_for_serializer(serializer_class)
         )
-        choices = [(opt[0], opt[0],) for opt in options]
-        choices.append(("*", "*",))
-        kwargs.setdefault("choices", choices)
 
         super().__init__(*args, **kwargs)
 
