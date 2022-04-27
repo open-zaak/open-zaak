@@ -417,12 +417,11 @@ class StatusViewSet(
 
 class ZaakObjectViewSet(
     CheckQueryParamsMixin,
-    NotificationCreateMixin,
+    NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
     ClosedZaakMixin,
-    mixins.CreateModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van ZAAKOBJECTen.
@@ -431,6 +430,12 @@ class ZaakObjectViewSet(
     Maak een ZAAKOBJECT aan.
 
     Maak een ZAAKOBJECT aan.
+
+    **Er wordt gevalideerd op**
+    - Indien de `object` URL opgegeven is, dan moet deze een geldige response
+      (HTTP 200) geven.
+    - Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de
+      `objectType` discriminator.
 
     list:
     Alle ZAAKOBJECTen opvragen.
@@ -441,6 +446,27 @@ class ZaakObjectViewSet(
     Een specifiek ZAAKOBJECT opvragen.
 
     Een specifiek ZAAKOBJECT opvragen.
+
+    update:
+    Werk een ZAAKOBJECT in zijn geheel bij.
+
+    **Er wordt gevalideerd op**
+    - De attributen `zaak`, `object` en `objectType` mogen niet gewijzigd worden.
+    - Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de
+      `objectType` discriminator.
+
+    partial_update:
+    Werk een ZAAKOBJECT deels bij.
+
+    **Er wordt gevalideerd op**
+    - De attributen `zaak`, `object` en `objectType` mogen niet gewijzigd worden.
+    - Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de
+      `objectType` discriminator.
+
+    destroy:
+    Verwijder een ZAAKOBJECT.
+    Verbreek de relatie tussen een ZAAK en een OBJECT door de ZAAKOBJECT resource te
+    verwijderen.
     """
 
     queryset = ZaakObject.objects.select_related("zaak").order_by("-pk")
@@ -457,6 +483,11 @@ class ZaakObjectViewSet(
         "create": SCOPE_ZAKEN_CREATE
         | SCOPE_ZAKEN_BIJWERKEN
         | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "partial_update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN
+        | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+        | SCOPE_ZAKEN_ALLES_VERWIJDEREN,
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
@@ -594,12 +625,11 @@ class ZaakInformatieObjectViewSet(
 
 
 class ZaakEigenschapViewSet(
-    NotificationCreateMixin,
+    NotificationViewSetMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
     ClosedZaakMixin,
-    mixins.CreateModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van ZAAKEIGENSCHAPpen
@@ -618,6 +648,20 @@ class ZaakEigenschapViewSet(
     Een specifieke ZAAKEIGENSCHAP opvragen.
 
     Een specifieke ZAAKEIGENSCHAP opvragen.
+
+    update:
+    Werk een ZAAKEIGENSCHAP in zijn geheel bij.
+
+    **Er wordt gevalideerd op**
+    - Alleen de WAARDE mag gewijzigd worden
+
+    partial_update:
+    Werk een ZAAKEIGENSCHAP deels bij.
+
+    **Er wordt gevalideerd op**
+    - Alleen de WAARDE mag gewijzigd worden
+    destroy:
+    Verwijder een ZAAKEIGENSCHAP.
     """
 
     queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").order_by(
@@ -631,6 +675,8 @@ class ZaakEigenschapViewSet(
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "partial_update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     }
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     notifications_kanaal = KANAAL_ZAKEN
@@ -646,6 +692,12 @@ class ZaakEigenschapViewSet(
             filters = lookup_kwargs_to_filters(self.parent_retrieve_kwargs, self.kwargs)
             self._zaak = get_object_or_404(Zaak, **filters)
         return self._zaak
+
+    def initialize_request(self, request, *args, **kwargs):
+        # workaround for drf-nested-viewset injecting the URL kwarg into request.data
+        return super(viewsets.ModelViewSet, self).initialize_request(
+            request, *args, **kwargs
+        )
 
 
 class KlantContactViewSet(

@@ -11,7 +11,10 @@ asgiref==3.5.0
     #   -r requirements/base.txt
     #   django
 attrs==21.4.0
-    # via black
+    # via
+    #   -r requirements/base.txt
+    #   black
+    #   jsonschema
 beautifulsoup4==4.10.0
     # via webtest
 black==19.10b0
@@ -223,8 +226,13 @@ importlib-metadata==4.11.3
     #   click
     #   flake8
     #   humanize
+    #   jsonschema
     #   markdown
     #   redis
+importlib-resources==5.7.1
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 inflection==0.5.1
     # via
     #   -r requirements/base.txt
@@ -256,6 +264,10 @@ josepy==1.13.0
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc
+jq==1.2.2
+    # via -r requirements/base.txt
+jsonschema==4.4.0
+    # via -r requirements/base.txt
 markdown==3.3.6
     # via -r requirements/base.txt
 markupsafe==2.1.1
@@ -310,6 +322,10 @@ pyparsing==3.0.7
     #   -r requirements/base.txt
     #   httplib2
     #   packaging
+pyrsistent==0.18.1
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.txt
@@ -395,6 +411,7 @@ typing-extensions==4.1.1
     #   asgiref
     #   faker
     #   importlib-metadata
+    #   jsonschema
 unidecode==1.0.22
     # via
     #   -r requirements/base.txt
@@ -435,6 +452,7 @@ zipp==3.7.0
     # via
     #   -r requirements/base.txt
     #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

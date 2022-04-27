@@ -611,6 +611,12 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
+    zaak = serializers.HyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        view_name="zaak-detail",
+        lookup_field="uuid",
+        validators=[IsImmutableValidator()],
+    )
 
     class Meta:
         model = ZaakEigenschap
@@ -626,6 +632,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator("Eigenschap", settings.ZTC_API_SPEC),
+                    IsImmutableValidator(),
                 ],
             },
         }
@@ -634,8 +641,10 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     def validate(self, attrs):
         super().validate(attrs)
 
-        eigenschap = attrs["eigenschap"]
-        attrs["_naam"] = eigenschap.eigenschapnaam
+        # assign _naam only when creating zaak eigenschap
+        if not self.instance:
+            eigenschap = attrs["eigenschap"]
+            attrs["_naam"] = eigenschap.eigenschapnaam
 
         return attrs
 

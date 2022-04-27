@@ -90,7 +90,7 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(zaakobject.object, OBJECT)
 
-    def test_create_rol_fail_validation(self):
+    def test_create_zaakobject_fail_validation(self):
         url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
@@ -106,6 +106,49 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(validation_error["code"], "invalid-zaakobject")
+
+    def test_update_zaakobject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.besluit
+        )
+        url = get_operation_url("zaakobject_update", uuid=zaakobject.uuid)
+        data = {"relatieomschrijving": "new"}
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+
+        self.assertEqual(zaakobject.relatieomschrijving, "new")
+
+    def test_update_zaakobject_fail_immuitable_field(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.besluit
+        )
+        url = get_operation_url("zaakobject_update", uuid=zaakobject.uuid)
+        data = {"objectType": ZaakobjectTypes.adres}
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "objectType")
+        self.assertEqual(validation_error["code"], "wijzigen-niet-toegelaten")
+
+    def test_delete_zaakobject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.besluit
+        )
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ZaakObject.objects.count(), 0)
 
 
 class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
@@ -157,6 +200,7 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
                     "huisnummertoevoeging": "",
                     "postcode": "",
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -191,6 +235,60 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(zaakobject.adres, adres)
         self.assertEqual(adres.identificatie, "123456")
+
+    def test_update_zaakobject_adres(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.adres
+        )
+        Adres.objects.create(
+            zaakobject=zaakobject,
+            identificatie="old",
+            wpl_woonplaats_naam="old city",
+            gor_openbare_ruimte_naam="old space",
+            huisnummer=1,
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        data = {
+            "objectIdentificatie": {
+                "identificatie": "new",
+                "wplWoonplaatsNaam": "new city",
+                "gorOpenbareRuimteNaam": "new space",
+                "huisnummer": 2,
+            }
+        }
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+        adres = zaakobject.adres
+
+        self.assertEqual(adres.identificatie, "new")
+        self.assertEqual(adres.wpl_woonplaats_naam, "new city")
+        self.assertEqual(adres.gor_openbare_ruimte_naam, "new space")
+        self.assertEqual(adres.huisnummer, 2)
+
+    def test_delete_zaakobject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.adres
+        )
+        Adres.objects.create(
+            zaakobject=zaakobject,
+            identificatie="old",
+            wpl_woonplaats_naam="old city",
+            gor_openbare_ruimte_naam="old space",
+            huisnummer=1,
+        )
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ZaakObject.objects.count(), 0)
 
 
 class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
@@ -256,6 +354,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -301,6 +400,25 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             huishouden.is_gehuisvest_in.adres_aanduiding_grp.identificatie, "a"
         )
+
+    def test_update_zaakobject_medewerker(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.medewerker
+        )
+        Medewerker.objects.create(
+            zaakobject=zaakobject, identificatie="old",
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        data = {"objectIdentificatie": {"identificatie": "new",}}
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+        self.assertEqual(zaakobject.medewerker.identificatie, "new")
 
 
 class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
@@ -348,6 +466,7 @@ class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
                     "voorletters": "J",
                     "voorvoegselAchternaam": "van",
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -439,6 +558,7 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
                         "ogoLocatieAanduiding": "test",
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -582,6 +702,45 @@ class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(wozobject.aanduiding_woz_object, adres)
         self.assertEqual(adres.identificatie, "a")
 
+    def test_update_zaakobject_wozObject(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.woz_object
+        )
+        wozobject = WozObject.objects.create(
+            zaakobject=zaakobject, woz_object_nummer="12345"
+        )
+        Adres.objects.create(
+            wozobject=wozobject,
+            identificatie="old",
+            wpl_woonplaats_naam="old city",
+            gor_openbare_ruimte_naam="old space",
+            huisnummer="11",
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        data = {
+            "objectIdentificatie": {
+                "wozObjectNummer": "6789",
+                "aanduidingWozObject": {
+                    "aoaIdentificatie": "new",
+                    "wplWoonplaatsNaam": "new city",
+                    "gorOpenbareRuimteNaam": "new space",
+                    "aoaHuisnummer": 22,
+                },
+            }
+        }
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+        wozobject = zaakobject.wozobject
+
+        self.assertEqual(wozobject.woz_object_nummer, "6789")
+        self.assertEqual(wozobject.aanduiding_woz_object.identificatie, "new")
+
 
 class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
     """
@@ -647,6 +806,7 @@ class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -887,6 +1047,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -918,6 +1079,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
                     },
                 },
             },
+            "objectTypeOverigeDefinitie": None,
         }
 
         response = self.client.post(url, data)
@@ -941,6 +1103,48 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(
             zakelijkrecht.heeft_als_gerechtigde.nietnatuurlijkpersoon.ann_identificatie,
             "123456",
+        )
+
+    def test_update_zaakobject_zakelijkRecht(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.zakelijk_recht
+        )
+        zakelijk_recht = ZakelijkRecht.objects.create(
+            zaakobject=zaakobject, identificatie="12345", avg_aard="old"
+        )
+        KadastraleOnroerendeZaak.objects.create(
+            zakelijk_recht=zakelijk_recht,
+            kadastrale_identificatie="1",
+            kadastrale_aanduiding="old",
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        data = {
+            "objectIdentificatie": {
+                "identificatie": "6789",
+                "avgAard": "new",
+                "heeftBetrekkingOp": {
+                    "kadastraleIdentificatie": "2",
+                    "kadastraleAanduiding": "new",
+                },
+            }
+        }
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+        zakelijk_recht = zaakobject.zakelijkrecht
+
+        self.assertEqual(zakelijk_recht.identificatie, "6789")
+        self.assertEqual(zakelijk_recht.avg_aard, "new")
+        self.assertEqual(
+            zakelijk_recht.heeft_betrekking_op.kadastrale_identificatie, "2"
+        )
+        self.assertEqual(
+            zakelijk_recht.heeft_betrekking_op.kadastrale_aanduiding, "new"
         )
 
 
@@ -981,6 +1185,7 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
                 "objectType": ZaakobjectTypes.overige,
                 "objectTypeOverige": "",
                 "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -995,6 +1200,7 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
             "objectType": ZaakobjectTypes.overige,
             "objectTypeOverige": "test",
             "relatieomschrijving": "test",
+            "objectTypeOverigeDefinitie": None,
         }
 
         response = self.client.post(url, data)
@@ -1068,6 +1274,43 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "invalid-object-type-overige-usage")
+
+    def test_update_zaakobject_overige(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.overige
+        )
+        Overige.objects.create(
+            zaakobject=zaakobject, overige_data={"some_field": "old value"}
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+        data = {"objectIdentificatie": {"overigeData": {"someField": "new value"}}}
+
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaakobject.refresh_from_db()
+        overige = zaakobject.overige
+
+        self.assertEqual(overige.overige_data, {"some_field": "new value"})
+
+    def test_delete_zaakobject_overige(self):
+        zaak = ZaakFactory.create()
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak, object="", object_type=ZaakobjectTypes.overige
+        )
+        Overige.objects.create(
+            zaakobject=zaakobject, overige_data={"some_field": "some value"}
+        )
+
+        url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ZaakObject.objects.count(), 0)
 
 
 @tag("bag")

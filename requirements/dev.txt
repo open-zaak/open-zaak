@@ -279,6 +279,10 @@ importlib-metadata==4.11.3
     #   pep517
     #   redis
     #   sphinx
+importlib-resources==5.7.1
+    # via
+    #   -r requirements/ci.txt
+    #   jsonschema
 inflection==0.5.1
     # via
     #   -r requirements/ci.txt
@@ -314,8 +318,12 @@ josepy==1.13.0
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc
-jsonschema==3.2.0
-    # via kubernetes-validate
+jq==1.2.2
+    # via -r requirements/ci.txt
+jsonschema==4.4.0
+    # via
+    #   -r requirements/ci.txt
+    #   kubernetes-validate
 kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
@@ -407,8 +415,10 @@ pyparsing==3.0.7
     #   -r requirements/ci.txt
     #   httplib2
     #   packaging
-pyrsistent==0.17.3
-    # via jsonschema
+pyrsistent==0.18.1
+    # via
+    #   -r requirements/ci.txt
+    #   jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/ci.txt
@@ -497,7 +507,6 @@ six==1.16.0
     #   django-db-logger
     #   google-auth
     #   isodate
-    #   jsonschema
     #   kubernetes
     #   mozilla-django-oidc
     #   openshift
@@ -561,6 +570,7 @@ typing-extensions==4.1.1
     #   faker
     #   gitpython
     #   importlib-metadata
+    #   jsonschema
 unidecode==1.0.22
     # via
     #   -r requirements/ci.txt
@@ -614,6 +624,7 @@ zipp==3.7.0
     # via
     #   -r requirements/ci.txt
     #   importlib-metadata
+    #   importlib-resources
     #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:

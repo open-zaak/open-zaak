@@ -6,6 +6,8 @@
 #
 asgiref==3.5.0
     # via django
+attrs==21.4.0
+    # via jsonschema
 bleach==4.1.0
     # via -r requirements/base.in
 certifi==2021.10.8
@@ -164,8 +166,11 @@ idna==3.3
 importlib-metadata==4.11.3
     # via
     #   humanize
+    #   jsonschema
     #   markdown
     #   redis
+importlib-resources==5.7.1
+    # via jsonschema
 inflection==0.5.1
     # via drf-yasg
 iso-639==0.4.5
@@ -182,6 +187,10 @@ jinja2==3.0.3
     # via coreschema
 josepy==1.13.0
     # via mozilla-django-oidc
+jq==1.2.2
+    # via -r requirements/base.in
+jsonschema==4.4.0
+    # via -r requirements/base.in
 markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
@@ -216,6 +225,8 @@ pyparsing==3.0.7
     # via
     #   httplib2
     #   packaging
+pyrsistent==0.18.1
+    # via jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
@@ -274,6 +285,7 @@ typing-extensions==4.1.1
     #   asgiref
     #   faker
     #   importlib-metadata
+    #   jsonschema
 unidecode==1.0.22
     # via vng-api-common
 uritemplate==4.1.1
@@ -297,7 +309,9 @@ wrapt==1.14.0
 zgw-consumers==0.18.0
     # via -r requirements/base.in
 zipp==3.7.0
-    # via importlib-metadata
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
