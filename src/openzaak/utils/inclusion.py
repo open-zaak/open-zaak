@@ -159,6 +159,20 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
             data, accepted_media_type, renderer_context
         )
 
+    def _render_inclusions(self, data, renderer_context):
+        render_data = super()._render_inclusions(data, renderer_context)
+
+        # Store serializer data in `results` for paginated lists, instead of `data`
+        # to prevent breaking changes
+        if (
+            renderer_context["view"].action == "list"
+            and render_data
+            and "count" in render_data
+        ):
+            render_data["results"] = render_data.pop("data")
+
+        return render_data
+
 
 def get_include_options_for_serializer(
     serializer_class: Serializer, namespacing: Optional[bool] = False

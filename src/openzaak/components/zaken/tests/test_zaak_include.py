@@ -100,6 +100,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         url = reverse("zaak-list")
 
         zaak_data = json.loads(
+            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
+        )
+        hoofdzaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
         )
         resultaat_data = json.loads(self.client.get(reverse(resultaat1)).content)
@@ -120,11 +123,12 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         # `response.data` does not generate the rendered response
         data = json.loads(response.content)
 
+        self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
         self.assertDictEqual(
             data["inclusions"],
             {
-                "zaken:zaak": [zaak_data],
+                "zaken:zaak": [hoofdzaak_data],
                 "zaken:resultaat": [resultaat_data],
                 "catalogi:resultaattype": [resultaattype_data],
             },
@@ -176,11 +180,14 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
         hoofdzaak = ZaakFactory.create(zaaktype=zaaktype)
-        ZaakFactory.create(zaaktype=zaaktype, hoofdzaak=hoofdzaak)
+        zaak = ZaakFactory.create(zaaktype=zaaktype, hoofdzaak=hoofdzaak)
 
         url = reverse("zaak-list")
 
         zaak_data = json.loads(
+            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
+        )
+        hoofdzaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
         )
         catalogus_data = get_catalogus_response(catalogus, zaaktype)
@@ -202,8 +209,9 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         # `response.data` does not generate the rendered response
         data = json.loads(response.content)
 
+        self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
         self.assertDictEqual(
             data["inclusions"],
-            {"zaken:zaak": [zaak_data], "catalogi:zaaktype": [zaaktype_data],},
+            {"zaken:zaak": [hoofdzaak_data], "catalogi:zaaktype": [zaaktype_data],},
         )
