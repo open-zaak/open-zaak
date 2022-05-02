@@ -2905,7 +2905,8 @@
                         "schema": {
                             "required": [
                                 "count",
-                                "results"
+                                "results",
+                                "inclusions"
                             ],
                             "type": "object",
                             "properties": {
@@ -4181,7 +4182,8 @@
                         "schema": {
                             "required": [
                                 "count",
-                                "results"
+                                "results",
+                                "inclusions"
                             ],
                             "type": "object",
                             "properties": {
@@ -4198,7 +4200,7 @@
                                     "format": "uri",
                                     "x-nullable": true
                                 },
-                                "data": {
+                                "results": {
                                     "type": "array",
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
@@ -4210,64 +4212,49 @@
                                         "catalogi:zaaktype": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType"
                                             }
                                         },
                                         "zaken:zaak": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Zaak"
                                             }
                                         },
                                         "zaken:zaakeigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/ZaakEigenschap"
                                             }
                                         },
                                         "zaken:status": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Status"
                                             }
                                         },
                                         "zaken:resultaat": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Resultaat"
                                             }
                                         },
                                         "catalogi:statustype": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType"
+                                            }
+                                        },
+                                        "catalogi:resultaattype": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType"
                                             }
                                         },
                                         "catalogi:eigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap"
                                             }
                                         }
                                     }
@@ -4397,84 +4384,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "required": [
-                                "data",
-                                "inclusions"
-                            ],
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/definitions/Zaak"
-                                },
-                                "inclusions": {
-                                    "type": "object",
-                                    "properties": {
-                                        "catalogi:zaaktype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaak": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaakeigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:status": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:resultaat": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:statustype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:eigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/Zaak"
                         },
                         "headers": {
                             "API-version": {
@@ -4614,7 +4524,7 @@
                                     "format": "uri",
                                     "x-nullable": true
                                 },
-                                "data": {
+                                "results": {
                                     "type": "array",
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
@@ -4626,64 +4536,49 @@
                                         "catalogi:zaaktype": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType"
                                             }
                                         },
                                         "zaken:zaak": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Zaak"
                                             }
                                         },
                                         "zaken:zaakeigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/ZaakEigenschap"
                                             }
                                         },
                                         "zaken:status": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Status"
                                             }
                                         },
                                         "zaken:resultaat": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "#/components/schemas/Resultaat"
                                             }
                                         },
                                         "catalogi:statustype": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType"
+                                            }
+                                        },
+                                        "catalogi:resultaattype": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType"
                                             }
                                         },
                                         "catalogi:eigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
+                                                "$ref": "https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap"
                                             }
                                         }
                                     }
@@ -4801,84 +4696,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "required": [
-                                "data",
-                                "inclusions"
-                            ],
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/definitions/Zaak"
-                                },
-                                "inclusions": {
-                                    "type": "object",
-                                    "properties": {
-                                        "catalogi:zaaktype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaak": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaakeigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:status": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:resultaat": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:statustype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:eigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/Zaak"
                         },
                         "headers": {
                             "Content-Crs": {
@@ -5088,84 +4906,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "required": [
-                                "data",
-                                "inclusions"
-                            ],
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/definitions/Zaak"
-                                },
-                                "inclusions": {
-                                    "type": "object",
-                                    "properties": {
-                                        "catalogi:zaaktype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaak": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaakeigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:status": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:resultaat": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:statustype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:eigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/Zaak"
                         },
                         "headers": {
                             "Content-Crs": {
@@ -5293,84 +5034,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "required": [
-                                "data",
-                                "inclusions"
-                            ],
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/definitions/Zaak"
-                                },
-                                "inclusions": {
-                                    "type": "object",
-                                    "properties": {
-                                        "catalogi:zaaktype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaak": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:zaakeigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:status": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "zaken:resultaat": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:resultaattype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:statustype": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "catalogi:eigenschap": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        },
-                                        "*": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/Zaak"
                         },
                         "headers": {
                             "Content-Crs": {

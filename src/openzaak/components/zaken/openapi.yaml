@@ -2179,6 +2179,7 @@ paths:
                 required:
                 - count
                 - results
+                - inclusions
                 type: object
                 properties:
                   count:
@@ -3164,6 +3165,7 @@ paths:
                 required:
                 - count
                 - results
+                - inclusions
                 type: object
                 properties:
                   count:
@@ -3176,7 +3178,7 @@ paths:
                     type: string
                     format: uri
                     nullable: true
-                  data:
+                  results:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
@@ -3186,48 +3188,35 @@ paths:
                       catalogi:zaaktype:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType
                       zaken:zaak:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Zaak'
                       zaken:zaakeigenschap:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/ZaakEigenschap'
                       zaken:status:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Status'
                       zaken:resultaat:
                         type: array
                         items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Resultaat'
                       catalogi:statustype:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType
                       catalogi:eigenschap:
                         type: array
                         items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3329,61 +3318,7 @@ paths:
           content:
             application/json:
               schema:
-                required:
-                - data
-                - inclusions
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Zaak'
-                  inclusions:
-                    type: object
-                    properties:
-                      catalogi:zaaktype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaak:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaakeigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:status:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:resultaat:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:statustype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:eigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                $ref: '#/components/schemas/Zaak'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3493,7 +3428,7 @@ paths:
                     type: string
                     format: uri
                     nullable: true
-                  data:
+                  results:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
@@ -3503,48 +3438,35 @@ paths:
                       catalogi:zaaktype:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType
                       zaken:zaak:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Zaak'
                       zaken:zaakeigenschap:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/ZaakEigenschap'
                       zaken:status:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Status'
                       zaken:resultaat:
                         type: array
                         items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                          $ref: '#/components/schemas/Resultaat'
                       catalogi:statustype:
                         type: array
                         items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType
+                      catalogi:resultaattype:
+                        type: array
+                        items:
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType
                       catalogi:eigenschap:
                         type: array
                         items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3641,61 +3563,7 @@ paths:
           content:
             application/json:
               schema:
-                required:
-                - data
-                - inclusions
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Zaak'
-                  inclusions:
-                    type: object
-                    properties:
-                      catalogi:zaaktype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaak:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaakeigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:status:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:resultaat:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:statustype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:eigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                $ref: '#/components/schemas/Zaak'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -3872,61 +3740,7 @@ paths:
           content:
             application/json:
               schema:
-                required:
-                - data
-                - inclusions
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Zaak'
-                  inclusions:
-                    type: object
-                    properties:
-                      catalogi:zaaktype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaak:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaakeigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:status:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:resultaat:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:statustype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:eigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                $ref: '#/components/schemas/Zaak'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -4034,61 +3848,7 @@ paths:
           content:
             application/json:
               schema:
-                required:
-                - data
-                - inclusions
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Zaak'
-                  inclusions:
-                    type: object
-                    properties:
-                      catalogi:zaaktype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaak:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:zaakeigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:status:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      zaken:resultaat:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:resultaattype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:statustype:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      catalogi:eigenschap:
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
-                      '*':
-                        type: array
-                        items:
-                          type: object
-                          properties: {}
+                $ref: '#/components/schemas/Zaak'
         '400':
           $ref: '#/components/responses/400'
         '401':

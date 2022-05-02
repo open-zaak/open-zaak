@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from typing import List, Optional
+from typing import List
 
 from django.utils.module_loading import import_string
 
@@ -23,8 +23,16 @@ from openzaak.utils.serializer_fields import (
 )
 
 
-def get_inclusion_key(serializer):
-    return serializer.Meta.model._meta.label.lower().replace(".", ":")
+def get_component_name(serializer: Serializer) -> str:
+    return serializer.Meta.model._meta.label.split(".")[0]
+
+
+def get_resource_name(serializer: Serializer) -> str:
+    return serializer.Meta.model._meta.label.split(".")[1]
+
+
+def get_inclusion_key(serializer: Serializer) -> str:
+    return f"{get_component_name(serializer)}:{get_resource_name(serializer)}".lower()
 
 
 class InclusionLoader(_InclusionLoader):
@@ -174,15 +182,17 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
         return render_data
 
 
-def get_include_options_for_serializer(
-    serializer_class: Serializer, namespacing: Optional[bool] = False
-) -> List[tuple]:
-    if namespacing:
-        choices = []
-        for opt in serializer_class.inclusion_serializers.values():
-            key = get_inclusion_key(import_string(opt))
-            choices.append((key, key,))
-    else:
-        choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
+def get_include_resources(serializer_class: Serializer) -> List[tuple]:
+    resources = []
+    for opt in serializer_class.inclusion_serializers.values():
+        sub_serializer = import_string(opt)
+        component = get_component_name(sub_serializer)
+        resource = get_resource_name(sub_serializer)
+        resources.append((component, resource,))
+    return resources
+
+
+def get_include_options_for_serializer(serializer_class: Serializer) -> List[tuple]:
+    choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
     choices.append(("*", "*",))
     return choices

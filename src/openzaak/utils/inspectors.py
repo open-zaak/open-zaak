@@ -4,11 +4,13 @@ import logging
 from collections import OrderedDict
 from typing import Iterable
 
+from django.conf import settings
+
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector, SerializerInspector
 
-from openzaak.utils.inclusion import get_include_options_for_serializer
+from openzaak.utils.inclusion import get_component_name, get_include_resources
 
 from .serializer_fields import LengthHyperlinkedRelatedField
 
@@ -41,19 +43,45 @@ class LengthHyperlinkedRelatedFieldInspector(FieldInspector):
         return NotHandled
 
 
+API_VERSION_MAPPING = {
+    "autorisaties": settings.AUTORISATIES_API_VERSION,
+    "besluiten": settings.BESLUITEN_API_VERSION,
+    "catalogi": settings.CATALOGI_API_VERSION,
+    "documenten": settings.DOCUMENTEN_API_VERSION,
+    "zaken": settings.ZAKEN_API_VERSION,
+}
+
+
+def get_schema_ref(component: str, resource: str, current_component: str) -> str:
+    """
+    Constructs the schema reference for internal and external resources
+    """
+    schema_ref = f"#/components/schemas/{resource}"
+    if current_component != component:
+        ref_url = (
+            "https://raw.githubusercontent.com/VNG-Realisatie"
+            "/{component}-api/{version}/src/openapi.yaml"
+            "{schema_ref}"
+        )
+        return ref_url.format(
+            component=component,
+            version=API_VERSION_MAPPING[component],
+            schema_ref=schema_ref,
+        )
+    return schema_ref
+
+
 class IncludeSerializerInspector(SerializerInspector):
     def get_inclusion_props(self, serializer_class) -> OrderedDict:
         inclusion_props = OrderedDict()
-        inclusion_opts = get_include_options_for_serializer(
-            serializer_class, namespacing=True
-        )
-        # TODO use reference?
-        for key, serializer in inclusion_opts:
-            inclusion_props[key] = openapi.Schema(
-                type=openapi.TYPE_ARRAY,
-                items=openapi.Schema(type=openapi.TYPE_OBJECT, properties={}),
+        inclusion_opts = get_include_resources(serializer_class)
+        for component, resource in inclusion_opts:
+            ref_url = get_schema_ref(
+                component, resource, get_component_name(serializer_class)
             )
-
+            inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
+                type=openapi.TYPE_ARRAY, items=openapi.SwaggerDict(**{"$ref": ref_url}),
+            )
         return inclusion_props
 
     def get_inclusion_responses(
@@ -66,7 +94,6 @@ class IncludeSerializerInspector(SerializerInspector):
             inclusion_props = self.get_inclusion_props(self.view.serializer_class)
             if "properties" in response["schema"]:
                 properties = response["schema"]["properties"]
-                properties["data"] = properties.pop("results")
                 properties["inclusions"] = openapi.Schema(
                     type=openapi.TYPE_OBJECT, properties=inclusion_props
                 )
@@ -74,25 +101,8 @@ class IncludeSerializerInspector(SerializerInspector):
                 schema = openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties=properties,
-                    required=response["schema"].get("required", ["data", "inclusions"]),
+                    required=response["schema"].get("required", []) + ["inclusions"],
                 )
-            else:
-                schema = openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties=OrderedDict(
-                        (
-                            ("data", response["schema"]),
-                            (
-                                "inclusions",
-                                openapi.Schema(
-                                    type=openapi.TYPE_OBJECT, properties=inclusion_props
-                                ),
-                            ),
-                        )
-                    ),
-                    required=response["schema"].get("required", ["data", "inclusions"]),
-                )
-
-            response["schema"] = schema
+                response["schema"] = schema
 
         return response_schema
