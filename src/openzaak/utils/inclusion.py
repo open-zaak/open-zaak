@@ -151,6 +151,14 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
 
     loader_class = InclusionLoader
 
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        # Only render inclusions for list operation
+        if renderer_context["view"].action == "list":
+            return super().render(data, accepted_media_type, renderer_context)
+        return super(_InclusionJSONRenderer, self).render(
+            data, accepted_media_type, renderer_context
+        )
+
 
 def get_include_options_for_serializer(
     serializer_class: Serializer, namespacing: Optional[bool] = False

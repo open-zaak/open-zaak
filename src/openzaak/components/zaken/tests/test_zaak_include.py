@@ -56,10 +56,8 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         hoofdzaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )["data"]
-        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)[
-            "data"
-        ]
+        )
+        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)
         status_data = json.loads(self.client.get(reverse(zaak_status)).content)
         resultaat_data = json.loads(self.client.get(reverse(resultaat)).content)
         eigenschap_data = json.loads(
@@ -103,7 +101,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         zaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )["data"]
+        )
         resultaat_data = json.loads(self.client.get(reverse(resultaat1)).content)
         resultaattype_data = json.loads(
             self.client.get(reverse(resultaat1.resultaattype)).content
@@ -184,7 +182,7 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
         zaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )["data"]
+        )
         catalogus_data = get_catalogus_response(catalogus, zaaktype)
         zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
 
