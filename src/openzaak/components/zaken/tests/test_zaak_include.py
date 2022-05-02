@@ -54,6 +54,9 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
+        zaak_data = json.loads(
+            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
+        )
         hoofdzaak_data = json.loads(
             self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
         )
@@ -85,6 +88,106 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
             "zaken:zaakeigenschap": [eigenschap_data],
         }
 
+        self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
+        self.assertIn("inclusions", data)
+        self.assertDictEqual(data["inclusions"], expected)
+
+    def test_zaak_list_include_wildcard(self):
+        """
+        Test if all related resources that are in the local database can be included
+        with a wildcard
+        """
+        # Explicitly set a UUID, because the ordering of inclusions seems a bit funky
+        hoofdzaak = ZaakFactory(
+            zaaktype=self.zaaktype, uuid="da0e1b14-bdc8-466b-b145-a0c49081a466"
+        )
+        hoofdzaak_status = StatusFactory(
+            zaak=hoofdzaak, uuid="da0e1b14-bdc8-466b-b145-a0c49081a466"
+        )
+        hoofdzaak_resultaat = ResultaatFactory(
+            zaak=hoofdzaak, uuid="da0e1b14-bdc8-466b-b145-a0c49081a466"
+        )
+        hoofdzaak_eigenschap = ZaakEigenschapFactory(zaak=hoofdzaak)
+
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            hoofdzaak=hoofdzaak,
+            uuid="bedc3f70-bcb9-4ee7-b3c8-1782c3dd8707",
+        )
+        zaak_status = StatusFactory(
+            zaak=zaak,
+            statustype=hoofdzaak_status.statustype,
+            uuid="bedc3f70-bcb9-4ee7-b3c8-1782c3dd8707",
+        )
+        resultaat = ResultaatFactory(
+            zaak=zaak,
+            resultaattype=hoofdzaak_resultaat.resultaattype,
+            uuid="bedc3f70-bcb9-4ee7-b3c8-1782c3dd8707",
+        )
+        eigenschap = ZaakEigenschapFactory(
+            zaak=zaak, eigenschap=hoofdzaak_eigenschap.eigenschap
+        )
+
+        url = reverse("zaak-list")
+
+        hoofdzaak_data = json.loads(
+            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
+        )
+        hoofdzaak_status_data = json.loads(
+            self.client.get(reverse(hoofdzaak_status)).content
+        )
+        hoofdzaak_resultaat_data = json.loads(
+            self.client.get(reverse(hoofdzaak_resultaat)).content
+        )
+        hoofdzaak_zaakeigenschap_data = json.loads(
+            self.client.get(
+                reverse(hoofdzaak_eigenschap, kwargs={"zaak_uuid": hoofdzaak.uuid})
+            ).content
+        )
+
+        zaak_data = json.loads(
+            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
+        )
+        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)
+        status_data = json.loads(self.client.get(reverse(zaak_status)).content)
+        resultaat_data = json.loads(self.client.get(reverse(resultaat)).content)
+        zaakeigenschap_data = json.loads(
+            self.client.get(
+                reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+            ).content
+        )
+        zaak_statustype_data = json.loads(
+            self.client.get(reverse(zaak_status.statustype)).content
+        )
+        zaak_resultaattype_data = json.loads(
+            self.client.get(reverse(resultaat.resultaattype)).content
+        )
+        zaak_eigenschap_data = json.loads(
+            self.client.get(reverse(eigenschap.eigenschap)).content
+        )
+
+        response = self.client.get(url, {"include": "*"}, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # `response.data` does not generate the rendered response
+        data = json.loads(response.content)
+
+        expected = {
+            "zaken:zaak": [zaak_data, hoofdzaak_data],
+            "zaken:resultaat": [resultaat_data, hoofdzaak_resultaat_data],
+            "zaken:status": [status_data, hoofdzaak_status_data],
+            "zaken:zaakeigenschap": [
+                zaakeigenschap_data,
+                hoofdzaak_zaakeigenschap_data,
+            ],
+            "catalogi:zaaktype": [zaaktype_data],
+            "catalogi:statustype": [zaak_statustype_data],
+            "catalogi:resultaattype": [zaak_resultaattype_data],
+            "catalogi:eigenschap": [zaak_eigenschap_data],
+        }
+
+        self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
         self.assertDictEqual(data["inclusions"], expected)
 
@@ -135,7 +238,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         )
 
 
-@tag("include")
+@tag("external-urls", "include")
 class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -149,7 +252,11 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
         catalogus_data = get_catalogus_response(catalogus, zaaktype)
 
-        ZaakFactory.create(zaaktype=zaaktype)
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+
+        zaak_data = json.loads(
+            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
+        )
 
         url = reverse("zaak-list")
 
@@ -169,6 +276,7 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         # `response.data` does not generate the rendered response
         data = json.loads(response.content)
 
+        self.assertEqual(data["results"], [zaak_data])
         self.assertIn("inclusions", data)
         self.assertDictEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
 
