@@ -6,8 +6,14 @@
 #
 asgiref==3.5.0
     # via django
+attrs==21.4.0
+    # via glom
 bleach==4.1.0
     # via -r requirements/base.in
+boltons==21.0.0
+    # via
+    #   face
+    #   glom
 certifi==2021.10.8
     # via
     #   requests
@@ -149,12 +155,16 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   vng-api-common
+face==20.1.1
+    # via glom
 faker==13.3.2
     # via zgw-consumers
 gemma-zds-client==0.15.0
     # via
     #   vng-api-common
     #   zgw-consumers
+glom==22.1.0
+    # via mozilla-django-oidc-db
 httplib2==0.20.4
     # via cmislib-maykin
 humanize==4.0.0
@@ -183,9 +193,9 @@ markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
     # via jinja2
-mozilla-django-oidc==1.2.4
+mozilla-django-oidc==2.0.0
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.8.0
+mozilla-django-oidc-db==0.10.0
     # via -r requirements/base.in
 oyaml==1.0
     # via vng-api-common
@@ -195,9 +205,7 @@ packaging==21.3
     #   drf-yasg
     #   redis
 psycopg2==2.9.3
-    # via
-    #   -r requirements/base.in
-    #   mozilla-django-oidc-db
+    # via -r requirements/base.in
 pycparser==2.21
     # via cffi
 pyjwt==2.3.0
@@ -260,7 +268,6 @@ six==1.16.0
     #   django-choices
     #   django-db-logger
     #   isodate
-    #   mozilla-django-oidc
     #   pyopenssl
     #   python-dateutil
     #   requests-mock
