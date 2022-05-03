@@ -122,7 +122,8 @@ class ZaakViewSet(
     gegenereerd. De identificatie moet uniek zijn binnen de bronorganisatie.
 
     **Er wordt gevalideerd op**:
-    - `zaaktype` moet een geldige URL zijn.
+    - geldigheid `zaaktype` URL - de resource moet opgevraagd kunnen worden uit de
+      Catalogi API en de vorm van een ZAAKTYPE hebben.
     - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
@@ -154,7 +155,6 @@ class ZaakViewSet(
 
     **Er wordt gevalideerd op**
     - `zaaktype` mag niet gewijzigd worden.
-    - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `identificatie` mag niet gewijzigd worden.
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
@@ -180,7 +180,6 @@ class ZaakViewSet(
 
     **Er wordt gevalideerd op**
     - `zaaktype` mag niet gewijzigd worden.
-    - `zaaktype` is geen concept (`zaaktype.concept` = False)
     - `identificatie` mag niet gewijzigd worden.
     - `laatsteBetaaldatum` mag niet in de toekomst liggen.
     - `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie
@@ -1050,6 +1049,7 @@ class ZaakContactMomentViewSet(
 
     create:
     Maak een ZAAKCONTACTMOMENT aan.
+
     **Er wordt gevalideerd op**
     - geldigheid URL naar de CONTACTMOMENT
 
@@ -1129,6 +1129,7 @@ class ZaakVerzoekViewSet(
 
     create:
     Maak een ZAAK-VERZOEK aan.
+
     **Er wordt gevalideerd op**
     - geldigheid URL naar de VERZOEK
 
