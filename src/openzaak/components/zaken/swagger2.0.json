@@ -1900,7 +1900,8 @@
             },
             "post": {
                 "operationId": "zaakcontactmoment_create",
-                "description": "Maak een ZAAKCONTACTMOMENT aan.\n**Er wordt gevalideerd op**\n- geldigheid URL naar de CONTACTMOMENT",
+                "summary": "Maak een ZAAKCONTACTMOMENT aan.",
+                "description": "**Er wordt gevalideerd op**\n- geldigheid URL naar de CONTACTMOMENT",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -3148,7 +3149,8 @@
             },
             "post": {
                 "operationId": "zaakverzoek_create",
-                "description": "Maak een ZAAK-VERZOEK aan.\n**Er wordt gevalideerd op**\n- geldigheid URL naar de VERZOEK",
+                "summary": "Maak een ZAAK-VERZOEK aan.",
+                "description": "**Er wordt gevalideerd op**\n- geldigheid URL naar de VERZOEK",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -3725,7 +3727,7 @@
             "post": {
                 "operationId": "zaak_create",
                 "summary": "Maak een ZAAK aan.",
-                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd. De identificatie moet uniek zijn binnen de bronorganisatie.\n\n**Er wordt gevalideerd op**:\n- `zaaktype` moet een geldige URL zijn.\n- `zaaktype` is geen concept (`zaaktype.concept` = False)\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.",
+                "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd. De identificatie moet uniek zijn binnen de bronorganisatie.\n\n**Er wordt gevalideerd op**:\n- geldigheid `zaaktype` URL - de resource moet opgevraagd kunnen worden uit de\n  Catalogi API en de vorm van een ZAAKTYPE hebben.\n- `zaaktype` is geen concept (`zaaktype.concept` = False)\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -4173,7 +4175,7 @@
             "put": {
                 "operationId": "zaak_update",
                 "summary": "Werk een ZAAK in zijn geheel bij.",
-                "description": "**Er wordt gevalideerd op**\n- `zaaktype` mag niet gewijzigd worden.\n- `zaaktype` is geen concept (`zaaktype.concept` = False)\n- `identificatie` mag niet gewijzigd worden.\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.\n\n**Opmerkingen**\n- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd\n  bent.\n- zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.\n- indien een zaak heropend moet worden, doe dit dan door een nieuwe status\n  toe te voegen die NIET de eindstatus is.\n  Zie de `Status` resource.",
+                "description": "**Er wordt gevalideerd op**\n- `zaaktype` mag niet gewijzigd worden.\n- `identificatie` mag niet gewijzigd worden.\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.\n\n**Opmerkingen**\n- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd\n  bent.\n- zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.\n- indien een zaak heropend moet worden, doe dit dan door een nieuwe status\n  toe te voegen die NIET de eindstatus is.\n  Zie de `Status` resource.",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -4301,7 +4303,7 @@
             "patch": {
                 "operationId": "zaak_partial_update",
                 "summary": "Werk een ZAAK deels bij.",
-                "description": "**Er wordt gevalideerd op**\n- `zaaktype` mag niet gewijzigd worden.\n- `zaaktype` is geen concept (`zaaktype.concept` = False)\n- `identificatie` mag niet gewijzigd worden.\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.\n\n**Opmerkingen**\n- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd\n  bent.\n- zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.\n- indien een zaak heropend moet worden, doe dit dan door een nieuwe status\n  toe te voegen die NIET de eindstatus is. Zie de `Status` resource.",
+                "description": "**Er wordt gevalideerd op**\n- `zaaktype` mag niet gewijzigd worden.\n- `identificatie` mag niet gewijzigd worden.\n- `laatsteBetaaldatum` mag niet in de toekomst liggen.\n- `laatsteBetaaldatum` mag niet gezet worden als de betalingsindicatie\n  \"nvt\" is.\n- `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de\n  waarde \"nog_te_archiveren\" heeft.\n- `archiefstatus` kan alleen een waarde anders dan \"nog_te_archiveren\"\n  hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut\n  `status` de waarde \"gearchiveerd\" heeft.\n\n**Opmerkingen**\n- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd\n  bent.\n- zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.\n- indien een zaak heropend moet worden, doe dit dan door een nieuwe status\n  toe te voegen die NIET de eindstatus is. Zie de `Status` resource.",
                 "parameters": [
                     {
                         "name": "Content-Type",
