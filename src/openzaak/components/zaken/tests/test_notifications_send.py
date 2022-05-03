@@ -145,7 +145,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_update_zaakobject(self, mock_client):
+    def test_send_notif_update_zaakobject(self, m, mock_client):
         """
         Check if notifications will be send when zaakobject is updated
         """
@@ -153,12 +153,13 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         client = mock_client.return_value
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
-        zaak = ZaakFactory.create(zaaktype=f"http://testserver{zaaktype_url}")
+
+        zaak = ZaakFactory.create(zaaktype=zaaktype_url)
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         zaakobject = ZaakObjectFactory.create(zaak=zaak, relatieomschrijving="old")
         zaakobject_url = get_operation_url("zaakobject_update", uuid=zaakobject.uuid)
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.patch(zaakobject_url, {"relatieomschrijving": "new"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -173,28 +174,29 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
                 "aanmaakdatum": "2012-01-14T00:00:00Z",
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
-                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "zaaktype": zaak.zaaktype,
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_update_zaak_eigenschap(self, mock_client):
+    def test_send_notif_update_zaak_eigenschap(self, m, mock_client):
         """
         Check if notifications will be send when zaak-eigenschap is updated
         """
         client = mock_client.return_value
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
-        zaak = ZaakFactory.create(zaaktype=f"http://testserver{zaaktype_url}")
+
+        zaak = ZaakFactory.create(zaaktype=zaaktype_url)
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         zaakeigenschap = ZaakEigenschapFactory.create(zaak=zaak, waarde="old")
         zaakeigenschap_url = get_operation_url(
             "zaakeigenschap_update", uuid=zaakeigenschap.uuid, zaak_uuid=zaak.uuid
         )
 
-        with capture_on_commit_callbacks(execute=True):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.patch(zaakeigenschap_url, data={"waarde": "new"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -209,7 +211,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
                 "aanmaakdatum": "2012-01-14T00:00:00Z",
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
-                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "zaaktype": zaak.zaaktype,
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
