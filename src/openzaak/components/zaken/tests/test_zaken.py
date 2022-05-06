@@ -525,6 +525,46 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             response.data["results"][0]["url"], f"http://testserver{reverse(zaak2)}",
         )
 
+    def test_filter_rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn_max_length(
+        self,
+    ):
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-01-01")
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-03-01")
+        url = reverse("zaak-list")
+
+        response = self.client.get(
+            url,
+            {"rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "0" * 10},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response, "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn"
+        )
+        self.assertEqual(error["code"], "max_length")
+
+    def test_filter_rol__betrokkeneIdentificatie__medewerker__identificatie_max_length(
+        self,
+    ):
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-01-01")
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-03-01")
+        url = reverse("zaak-list")
+
+        response = self.client.get(
+            url,
+            {"rol__betrokkeneIdentificatie__medewerker__identificatie": "0" * 25},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response, "rol__betrokkeneIdentificatie__medewerker__identificatie"
+        )
+        self.assertEqual(error["code"], "max_length")
+
 
 class HoofdZaakTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
