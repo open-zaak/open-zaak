@@ -380,7 +380,20 @@ class GeoWithinSerializer(serializers.Serializer):
 
 
 class ZaakZoekSerializer(serializers.Serializer):
-    zaakgeometrie = GeoWithinSerializer(required=True)
+    zaakgeometrie = GeoWithinSerializer(required=False)
+    uuid__in = serializers.ListField(
+        child=serializers.UUIDField(),
+        required=False,
+        help_text=_("Array of unieke resource identifiers (UUID4)"),
+    )
+
+    def validate(self, attrs):
+        validated_attrs = super().validate(attrs)
+        if not validated_attrs:
+            raise serializers.ValidationError(
+                _("Search parameters must be specified"), code="empty_search_body"
+            )
+        return validated_attrs
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):

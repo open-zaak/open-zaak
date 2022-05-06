@@ -263,11 +263,13 @@ class ZaakViewSet(
         niet geschikt voor geo-zoekopdrachten.
         """
         search_input = self.get_search_input()
+        queryset = self.filter_queryset(self.get_queryset())
 
-        within = search_input["zaakgeometrie"]["within"]
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            zaakgeometrie__within=within
-        )
+        for name, value in search_input.items():
+            if name == "zaakgeometrie":
+                queryset = queryset.filter(zaakgeometrie__within=value["within"])
+            else:
+                queryset = queryset.filter(**{name: value})
 
         return self.get_search_output(queryset)
 
