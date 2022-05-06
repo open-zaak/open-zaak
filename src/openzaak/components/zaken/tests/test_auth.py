@@ -27,7 +27,7 @@ from ..api.scopes import (
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
 )
-from ..models import ZaakBesluit, ZaakInformatieObject
+from ..models import Zaak, ZaakBesluit, ZaakInformatieObject
 from .factories import (
     ResultaatFactory,
     RolFactory,
@@ -212,6 +212,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
 
         for num_zaaktypen in num_zaaktypen_cases:
             # reset state
+            Zaak.objects.all().delete()
             ZaakType.objects.all().delete()
             self.applicatie.save()
             AutorisatieSpec.objects.all().delete()
