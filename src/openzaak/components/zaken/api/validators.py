@@ -114,6 +114,25 @@ class HoofdzaakValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
+class HoofdZaaktypeRelationValidator:
+    code = "invalid-deelzaaktype"
+    message = _("Zaaktype niet vastgelegd in deelzaaktypen van hoofdzaak.zaaktype")
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        instance = getattr(serializer, "instance", None)
+        if not attrs.get("hoofdzaak"):
+            return
+
+        hoofdzaak = attrs.get("hoofdzaak") or instance.hoofdzaak
+        zaaktype = attrs.get("zaaktype") or instance.zaaktype
+
+        hoofdzaaktype = hoofdzaak.zaaktype
+
+        if zaaktype not in hoofdzaaktype.deelzaaktypen.all():
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
 class CorrectZaaktypeValidator:
     code = "zaaktype-mismatch"
     message = _("De referentie hoort niet bij het zaaktype van de zaak.")
@@ -139,7 +158,8 @@ class DateNotInFutureValidator:
 
     def __call__(self, value):
         now = timezone.now()
-        if type(value) == date:
+
+        if type(value) is date:  # noqa - datetime is subclass of date
             now = now.date()
 
         if value > now:

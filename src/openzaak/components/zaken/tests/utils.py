@@ -61,6 +61,7 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "eigenschappen": [],
         "informatieobjecttypen": [],
         "roltypen": [],
+        "deelzaaktypen": [],
         "besluittypen": [],
         "gerelateerdeZaaktypen": [],
         "beginGeldigheid": "2019-11-20",

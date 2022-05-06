@@ -70,6 +70,7 @@ from ..validators import (
     DateNotInFutureValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
+    HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
     RolOccurenceValidator,
@@ -303,9 +304,10 @@ class ZaakSerializer(
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
         }
-        # Replace a default "unique together" constraint.
         validators = [
+            # Replace a default "unique together" constraint.
             UniekeIdentificatieValidator(),
+            HoofdZaaktypeRelationValidator(),
             ZaakArchiveIOsArchivedValidator(),
         ]
 
