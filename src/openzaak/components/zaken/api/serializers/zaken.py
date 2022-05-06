@@ -250,6 +250,7 @@ class ZaakSerializer(
             "archiefstatus",
             "archiefactiedatum",
             "resultaat",
+            "opdrachtgevende_organisatie",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
