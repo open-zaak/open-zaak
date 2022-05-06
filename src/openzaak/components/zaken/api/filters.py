@@ -8,7 +8,7 @@ from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text
+from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
 
@@ -37,10 +37,16 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="rol__natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
+        max_length=get_field_attribute(
+            "zaken.NatuurlijkPersoon", "inp_bsn", "max_length"
+        ),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
+        max_length=get_field_attribute(
+            "zaken.Medewerker", "identificatie", "max_length"
+        ),
     )
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
         field_name="rol__organisatorischeeenheid__identificatie",
