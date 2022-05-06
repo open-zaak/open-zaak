@@ -64,25 +64,25 @@ REFERENTIELIJSTEN_API_SPEC = (
 )
 VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
 
-ztc_repo = "vng-Realisatie/gemma-zaaktypecatalogus"
+ztc_repo = "vng-Realisatie/catalogi-api"
 ztc_commit = "d52ff0a8138b577e4f4516b0bd957354d91fb97c"
 ZTC_API_SPEC = (
     f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
 )
 
-drc_repo = "vng-Realisatie/gemma-documentregistratiecomponent"
+drc_repo = "vng-Realisatie/documenten-api"
 drc_commit = "7b3725282bfe694aee5b6dba6ae8bfb81cea0a5d"
 DRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
 )
 
-zrc_repo = "vng-Realisatie/gemma-zaakregistratiecomponent"
+zrc_repo = "vng-Realisatie/zaken-api"
 zrc_commit = "d7c335084a1f25f92cbced253885de0f01896aa1"
 ZRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
 )
 
-brc_repo = "vng-Realisatie/gemma-besluitregistratiecomponent"
+brc_repo = "vng-Realisatie/besluiten-api"
 brc_commit = "bf69bf643ce0c9146eeb014adc940e06948a8cac"
 BRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
