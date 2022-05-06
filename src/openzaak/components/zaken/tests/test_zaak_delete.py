@@ -116,7 +116,7 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "pending-besluit-relation")
+        self.assertEqual(error["code"], "related-besluiten")
 
 
 @tag("external-urls")
