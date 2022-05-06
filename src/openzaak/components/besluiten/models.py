@@ -54,7 +54,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
     )
     _besluittype = models.ForeignKey(
         "catalogi.BesluitType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
         null=True,
         blank=True,
