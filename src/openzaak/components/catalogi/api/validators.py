@@ -3,7 +3,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ErrorDetail
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import Serializer, ValidationError
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -13,6 +13,7 @@ from openzaak.client import fetch_object
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..utils import has_overlapping_objects
+from ..validators import validate_brondatumarchiefprocedure
 
 
 class GeldigheidValidator:
@@ -171,48 +172,25 @@ class ProcestermijnAfleidingswijzeValidator:
             )
 
 
-def validate_brondatumarchiefprocedure(data: dict, mapping: dict):
-    error = False
-    empty = []
-    required = []
-    for key, value in mapping.items():
-        if bool(data[key]) != value:
-            error = True
-            if value:
-                required.append(key)
-            else:
-                empty.append(key)
-    return error, empty, required
-
-
 class BrondatumArchiefprocedureValidator:
     empty_code = "must-be-empty"
     empty_message = _("This field must be empty for afleidingswijze `{}`")
     required_code = "required"
     required_message = _("This field is required for afleidingswijze `{}`")
+    requires_context = True
 
     def __init__(self, archiefprocedure_field="brondatum_archiefprocedure"):
         self.archiefprocedure_field = archiefprocedure_field
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.partial = getattr(serializer, "partial", None)
-
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer: Serializer):
+        instance = getattr(serializer, "instance", None)
+        partial = getattr(serializer, "partial", None)
         archiefprocedure = attrs.get(self.archiefprocedure_field)
         if archiefprocedure is None:
             archiefnominatie = attrs.get(
-                "archiefnominatie", getattr(self.instance, "archiefnominatie", None)
+                "archiefnominatie", getattr(instance, "archiefnominatie", None)
             )
-            if (
-                not self.partial
-                and archiefnominatie != Archiefnominatie.blijvend_bewaren
-            ):
+            if not partial and archiefnominatie != Archiefnominatie.blijvend_bewaren:
                 raise ValidationError(
                     {
                         self.archiefprocedure_field: _(
@@ -224,69 +202,7 @@ class BrondatumArchiefprocedureValidator:
             return
 
         afleidingswijze = archiefprocedure["afleidingswijze"]
-
-        mapping = {
-            Afleidingswijze.afgehandeld: {
-                "procestermijn": False,
-                "datumkenmerk": False,
-                "einddatum_bekend": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.ander_datumkenmerk: {
-                "procestermijn": False,
-                "datumkenmerk": True,
-                "objecttype": True,
-                "registratie": True,
-            },
-            Afleidingswijze.eigenschap: {
-                "procestermijn": False,
-                "datumkenmerk": True,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.gerelateerde_zaak: {
-                "procestermijn": False,
-                "datumkenmerk": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.hoofdzaak: {
-                "procestermijn": False,
-                "datumkenmerk": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.ingangsdatum_besluit: {
-                "procestermijn": False,
-                "datumkenmerk": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.termijn: {
-                "procestermijn": True,
-                "datumkenmerk": False,
-                "einddatum_bekend": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.vervaldatum_besluit: {
-                "procestermijn": False,
-                "datumkenmerk": False,
-                "objecttype": False,
-                "registratie": False,
-            },
-            Afleidingswijze.zaakobject: {
-                "procestermijn": False,
-                "datumkenmerk": True,
-                "objecttype": True,
-                "registratie": False,
-            },
-        }
-
-        error, empty, required = validate_brondatumarchiefprocedure(
-            archiefprocedure, mapping[afleidingswijze]
-        )
+        error, empty, required = validate_brondatumarchiefprocedure(archiefprocedure)
 
         if error:
             error_dict = {}

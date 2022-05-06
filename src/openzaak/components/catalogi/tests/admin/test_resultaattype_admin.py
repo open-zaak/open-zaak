@@ -76,10 +76,10 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
-        zaaktype = ResultaatTypeFactory.create(
+        resultaattype = ResultaatTypeFactory.create(
             zaaktype__selectielijst_procestype=procestype_url
         )
-        url = reverse("admin:catalogi_resultaattype_change", args=(zaaktype.pk,))
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
 
         response = self.app.get(url)
 
@@ -368,4 +368,52 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
                 "proper filtering of selectielijstklasses"
             ),
             response.text,
+        )
+
+    def test_update_resultaattype_afleidingswijze_datum_kenmerk(self, m):
+        # Regression for issue #1107 - data valid in the admin was not valid in the API
+        # and vice versa
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        selectielijstklasse = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaten", selectielijstklasse)
+        mock_resource_get(
+            m,
+            "resultaattypeomschrijvingen",
+            (
+                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+            ),
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=selectielijstklasse,
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+        change_page = self.app.get(url)
+        form = change_page.forms["resultaattype_form"]
+
+        # specify the data
+        form["brondatum_archiefprocedure_afleidingswijze"] = "ander_datumkenmerk"
+        form["brondatum_archiefprocedure_datumkenmerk"] = "een.kenmerk"
+        form["brondatum_archiefprocedure_einddatum_bekend"] = False
+        form["brondatum_archiefprocedure_objecttype"] = "overige"
+        form["brondatum_archiefprocedure_registratie"] = "een.registratie"
+        form["brondatum_archiefprocedure_procestermijn_years"] = ""
+        form["brondatum_archiefprocedure_procestermijn_months"] = ""
+        form["brondatum_archiefprocedure_procestermijn_days"] = ""
+
+        response = form.submit()
+
+        self.assertRedirects(
+            response, reverse("admin:catalogi_resultaattype_changelist")
         )
