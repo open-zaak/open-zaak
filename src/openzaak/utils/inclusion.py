@@ -38,6 +38,16 @@ def get_inclusion_key(serializer: Serializer) -> str:
 class InclusionLoader(_InclusionLoader):
     nested_inclusions_use_parent = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._seen_external = set()
+
+    def _has_been_seen_external(self, url: str) -> bool:
+        if url in self._seen_external:
+            return True
+        self._seen_external.add(url)
+        return False
+
     def get_model_key(self, obj, serializer):
         return get_inclusion_key(serializer)
 
@@ -140,6 +150,9 @@ class InclusionLoader(_InclusionLoader):
         value = field.get_attribute(instance)
         # In case it's an external resource
         if isinstance(value, str) or hasattr(value, "_initial_data"):
+            if self._has_been_seen_external(value):
+                return
+
             try:
                 yield getattr(instance, field.field_name)  # ._initial_data
             except FetchError:  # Something failed during fetching, ignore this instance
