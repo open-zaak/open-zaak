@@ -31,6 +31,7 @@ from ..models import (
     ZaakTypeInformatieObjectType,
     ZaakTypenRelatie,
 )
+from ..validators import validate_brondatumarchiefprocedure
 from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 
@@ -104,7 +105,8 @@ class ZaakTypeForm(forms.ModelForm):
 
 
 class ResultaatTypeForm(forms.ModelForm):
-    _zaaktype = None  # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute
+    # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute
+    _zaaktype = None
 
     class Meta:
         model = ResultaatType
@@ -259,170 +261,53 @@ class ResultaatTypeForm(forms.ModelForm):
         More rules are described in https://www.gemmaonline.nl/index.php/Imztc_2.2/doc
         /attribuutsoort/resultaattype.brondatum_archiefprocedure.einddatum_bekend
         """
-
-        # these values of afleidingswijze forbid you to set values for
-        # the other parameter fields
-        ONLY_AFLEIDINGSWIJZE = (
-            Afleidingswijze.afgehandeld,
-            Afleidingswijze.gerelateerde_zaak,
-            Afleidingswijze.hoofdzaak,
-            Afleidingswijze.ingangsdatum_besluit,
-            Afleidingswijze.vervaldatum_besluit,
+        afleidingswijze = self.cleaned_data.get(
+            "brondatum_archiefprocedure_afleidingswijze"
         )
+        if not afleidingswijze:  # earlier validation errors
+            return
 
-        # these values of afleidingswijze make the value of einddatum_bekend
-        # irrelevant - it's only relevant if it's a datumkenmerk of the process-object
-        EINDDATUM_BEKEND_IRRELEVANT = (
-            Afleidingswijze.afgehandeld,
-            Afleidingswijze.termijn,
-        )
+        data = {
+            "afleidingswijze": self.cleaned_data[
+                "brondatum_archiefprocedure_afleidingswijze"
+            ],
+            "datumkenmerk": self.cleaned_data[
+                "brondatum_archiefprocedure_datumkenmerk"
+            ],
+            "einddatum_bekend": self.cleaned_data[
+                "brondatum_archiefprocedure_einddatum_bekend"
+            ],
+            "objecttype": self.cleaned_data["brondatum_archiefprocedure_objecttype"],
+            "registratie": self.cleaned_data["brondatum_archiefprocedure_registratie"],
+            "procestermijn": self.cleaned_data[
+                "brondatum_archiefprocedure_procestermijn"
+            ],
+        }
+        error, empty, required = validate_brondatumarchiefprocedure(data)
 
-        # these are the extra parameter fields that are sometimes required,
-        # sometimes not
-        PARAMETER_FIELDS = (
-            "brondatum_archiefprocedure_datumkenmerk",
-            "brondatum_archiefprocedure_objecttype",
-            "brondatum_archiefprocedure_registratie",
-            "brondatum_archiefprocedure_procestermijn",
-        )
+        if not error:
+            return
 
+        afleidingswijze_label = Afleidingswijze.labels[afleidingswijze]
         MSG_FIELD_FORBIDDEN = "Het veld '{verbose_name}' mag niet ingevuld zijn als de afleidingswijze '{value}' is"
         MSG_FIELD_REQUIRED = (
             "Het veld '{verbose_name}' is verplicht als de afleidingswijze '{value}' is"
         )
 
-        # read out the values
-        afleidingswijze = self.cleaned_data.get(
-            "brondatum_archiefprocedure_afleidingswijze"
-        )
-        if not afleidingswijze:
-            return
-
-        afleidingswijze_label = Afleidingswijze.labels[afleidingswijze]
-        einddatum_bekend = self.cleaned_data.get(
-            "brondatum_archiefprocedure_einddatum_bekend"
-        )
-        datumkenmerk = self.cleaned_data.get("brondatum_archiefprocedure_datumkenmerk")
-
-        if afleidingswijze in ONLY_AFLEIDINGSWIJZE:
-            for field in PARAMETER_FIELDS:
-                value = self.cleaned_data.get(field)
-                if value:
-                    msg = MSG_FIELD_FORBIDDEN.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="invalid"))
-
-        # do not allow einddatum_bekend to be set to True if the value is not relevant
-        if (
-            afleidingswijze in EINDDATUM_BEKEND_IRRELEVANT and einddatum_bekend is True
-        ):  # noqa
+        # add the validation errors
+        for key in empty:
+            field = f"brondatum_archiefprocedure_{key}"
             msg = MSG_FIELD_FORBIDDEN.format(
-                verbose_name=self._get_field_label(
-                    "brondatum_archiefprocedure_einddatum_bekend"
-                ),
-                value=afleidingswijze_label,
+                verbose_name=self._get_field_label(field), value=afleidingswijze_label,
             )
-            self.add_error(
-                "brondatum_archiefprocedure_einddatum_bekend",
-                forms.ValidationError(msg, code="invalid"),
+            self.add_error(field, forms.ValidationError(msg, code="invalid"))
+
+        for key in required:
+            field = f"brondatum_archiefprocedure_{key}"
+            msg = MSG_FIELD_REQUIRED.format(
+                verbose_name=self._get_field_label(field), value=afleidingswijze_label,
             )
-
-        if afleidingswijze == Afleidingswijze.termijn:
-
-            for field in (
-                "brondatum_archiefprocedure_datumkenmerk",
-                "brondatum_archiefprocedure_objecttype",
-                "brondatum_archiefprocedure_registratie",
-            ):
-                value = self.cleaned_data.get(field)
-                if value:
-                    msg = MSG_FIELD_FORBIDDEN.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="invalid"))
-
-            termijn = self.cleaned_data.get("brondatum_archiefprocedure_procestermijn")
-            if not termijn:
-                msg = MSG_FIELD_REQUIRED.format(
-                    verbose_name=self._get_field_label(
-                        "brondatum_archiefprocedure_procestermijn"
-                    ),
-                    value=afleidingswijze_label,
-                )
-                self.add_error(
-                    "brondatum_archiefprocedure_procestermijn",
-                    forms.ValidationError(msg, code="required"),
-                )
-
-        # eigenschap - only ZAAKen have eigenschappen, so objecttype/registratie are not relevant
-        if afleidingswijze == Afleidingswijze.eigenschap:
-            for field in (
-                "brondatum_archiefprocedure_objecttype",
-                "brondatum_archiefprocedure_registratie",
-                "brondatum_archiefprocedure_procestermijn",
-            ):
-                value = self.cleaned_data.get(field)
-                if value:
-                    msg = MSG_FIELD_FORBIDDEN.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="invalid"))
-
-            if not datumkenmerk:
-                msg = MSG_FIELD_REQUIRED.format(
-                    verbose_name=self._get_field_label(
-                        "brondatum_archiefprocedure_datumkenmerk"
-                    ),
-                    value=afleidingswijze_label,
-                )
-                self.add_error(
-                    "brondatum_archiefprocedure_datumkenmerk",
-                    forms.ValidationError(msg, code="required"),
-                )
-
-        # zaakobject - the object is already related to the ZAAK, so we don't need
-        # the 'registratie' to be able to figure out where it lives
-        # the other two fields are required so that ZRC can filter on objectType to
-        # get the correct object(s) and datumkenmerk to know which attribute to inspect
-        if afleidingswijze == Afleidingswijze.zaakobject:
-            for field in (
-                "brondatum_archiefprocedure_registratie",
-                "brondatum_archiefprocedure_procestermijn",
-            ):
-                value = self.cleaned_data.get(field)
-                if value:
-                    msg = MSG_FIELD_FORBIDDEN.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="invalid"))
-
-            for field in (
-                "brondatum_archiefprocedure_objecttype",
-                "brondatum_archiefprocedure_datumkenmerk",
-            ):
-                value = self.cleaned_data.get(field)
-                if not value:
-                    msg = MSG_FIELD_REQUIRED.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="required"))
-
-        # ander datumkenmerk -> we need everything
-        if afleidingswijze == Afleidingswijze.ander_datumkenmerk:
-            for field in PARAMETER_FIELDS:
-                value = self.cleaned_data.get(field)
-                if not value:
-                    msg = MSG_FIELD_REQUIRED.format(
-                        verbose_name=self._get_field_label(field),
-                        value=afleidingswijze_label,
-                    )
-                    self.add_error(field, forms.ValidationError(msg, code="required"))
+            self.add_error(field, forms.ValidationError(msg, code="required"))
 
 
 class CatalogusImportForm(forms.Form):
