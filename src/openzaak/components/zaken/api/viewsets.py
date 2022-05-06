@@ -305,10 +305,11 @@ class ZaakViewSet(
             raise ValidationError(
                 {
                     api_settings.NON_FIELD_ERRORS_KEY: _(
-                        "All related Besluit objects should be destroyed before destroying the zaak"
+                        "Zaak has related Besluit(en), these relations should be deleted "
+                        "before deleting the Zaak"
                     )
                 },
-                code="pending-besluit-relation",
+                code="related-besluiten",
             )
 
         # check if we need to delete any remote OIOs
