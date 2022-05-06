@@ -7,6 +7,7 @@ from django.utils.module_loading import import_string
 from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from drc_cmis.connections import use_cmis_connection_pool
 from rest_framework.serializers import (
     BaseSerializer,
     HyperlinkedRelatedField,
@@ -172,6 +173,7 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
 
     loader_class = InclusionLoader
 
+    @use_cmis_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
         # Only render inclusions for list operation
         if renderer_context["view"].action == "list":

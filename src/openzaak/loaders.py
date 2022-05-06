@@ -11,6 +11,7 @@ import requests
 from django_loose_fk.loaders import BaseLoader, FetchError, FetchJsonError
 from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
+from drc_cmis.connections import get_session
 from vng_api_common.descriptors import GegevensGroepType
 
 
@@ -28,8 +29,10 @@ class AuthorizedRequestsLoader(BaseLoader):
         client_auth_header = Service.get_auth_header(url)
         headers = client_auth_header or {}
 
+        session = get_session()
+
         try:
-            response = requests.get(url, headers=headers)
+            response = session.get(url, headers=headers)
         except requests.exceptions.RequestException as exc:
             raise FetchError(exc.args[0]) from exc
 
