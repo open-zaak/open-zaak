@@ -255,6 +255,7 @@ Uitleg bij mogelijke waarden:
 * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats. | string | nee | C​R​U​D |
 | archiefactiedatum | De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg. | string | nee | C​R​U​D |
 | resultaat | URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| opdrachtgevendeOrganisatie | De krachtens publiekrecht ingestelde rechtspersoon dan wel ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling geeft. | string | nee | C​R​U​D |
 
 ## AuditTrail
 
