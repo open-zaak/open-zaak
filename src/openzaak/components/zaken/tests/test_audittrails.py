@@ -24,7 +24,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
 
 from ..models import Resultaat, Zaak, ZaakInformatieObject
-from .factories import ZaakFactory
+from .factories import RolFactory, ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS
 
 
@@ -262,6 +262,21 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the resource weergave stored in the AuditTrail matches
         # the unique representation as defined in the Zaak model
         self.assertIn(audittrail.resource_weergave, zaak_unique_representation)
+
+    def test_delete_rol(self):
+        rol = RolFactory.create()
+
+        rol_url = reverse(rol)
+        zaak_url = reverse(rol.zaak)
+
+        # Delete the Rol
+        response = self.client.delete(rol_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        audittrail = AuditTrail.objects.get()
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
 
 
 class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
