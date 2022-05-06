@@ -2741,12 +2741,14 @@ paths:
         required: false
         schema:
           type: string
+          maxLength: 9
       - name: rol__betrokkeneIdentificatie__medewerker__identificatie
         in: query
         description: Een korte unieke aanduiding van de MEDEWERKER.
         required: false
         schema:
           type: string
+          maxLength: 24
       - name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         in: query
         description: Een korte identificatie van de organisatorische eenheid.
@@ -6738,18 +6740,30 @@ components:
           format: uri
           readOnly: true
           nullable: true
+        opdrachtgevendeOrganisatie:
+          title: Opdrachtgevende organisatie
+          description: De krachtens publiekrecht ingestelde rechtspersoon dan wel
+            ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat
+            opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
+            geeft.
+          type: string
+          maxLength: 9
     GeoWithin:
       type: object
       properties:
         within:
           $ref: '#/components/schemas/GeoJSONGeometry'
     ZaakZoek:
-      required:
-      - zaakgeometrie
       type: object
       properties:
         zaakgeometrie:
           $ref: '#/components/schemas/GeoWithin'
+        uuid__in:
+          description: Array of unieke resource identifiers (UUID4)
+          type: array
+          items:
+            type: string
+            format: uuid
         identificatie:
           title: Identificatie
           description: De unieke identificatie van de ZAAK binnen de organisatie die

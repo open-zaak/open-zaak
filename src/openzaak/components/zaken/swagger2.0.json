@@ -3669,14 +3669,16 @@
                         "in": "query",
                         "description": "Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 9
                     },
                     {
                         "name": "rol__betrokkeneIdentificatie__medewerker__identificatie",
                         "in": "query",
                         "description": "Een korte unieke aanduiding van de MEDEWERKER.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 24
                     },
                     {
                         "name": "rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie",
@@ -8335,6 +8337,12 @@
                     "format": "uri",
                     "readOnly": true,
                     "x-nullable": true
+                },
+                "opdrachtgevendeOrganisatie": {
+                    "title": "Opdrachtgevende organisatie",
+                    "description": "De krachtens publiekrecht ingestelde rechtspersoon dan wel ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling geeft.",
+                    "type": "string",
+                    "maxLength": 9
                 }
             }
         },
@@ -8347,13 +8355,18 @@
             }
         },
         "ZaakZoek": {
-            "required": [
-                "zaakgeometrie"
-            ],
             "type": "object",
             "properties": {
                 "zaakgeometrie": {
                     "$ref": "#/definitions/GeoWithin"
+                },
+                "uuid__in": {
+                    "description": "Array of unieke resource identifiers (UUID4)",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
                 },
                 "identificatie": {
                     "title": "Identificatie",
