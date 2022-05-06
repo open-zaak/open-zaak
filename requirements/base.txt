@@ -286,7 +286,7 @@ urllib3==1.26.9
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/base.in
-vng-api-common==1.7.6
+vng-api-common==1.7.7
     # via
     #   -r requirements/base.in
     #   drc-cmis
