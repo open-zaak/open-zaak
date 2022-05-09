@@ -77,7 +77,7 @@ DRC_API_SPEC = (
 )
 
 zrc_repo = "vng-Realisatie/zaken-api"
-zrc_commit = "d7c335084a1f25f92cbced253885de0f01896aa1"
+zrc_commit = "1.0.3"
 ZRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
 )
