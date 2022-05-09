@@ -71,7 +71,7 @@ ZTC_API_SPEC = (
 )
 
 drc_repo = "vng-Realisatie/documenten-api"
-drc_commit = "7b3725282bfe694aee5b6dba6ae8bfb81cea0a5d"
+drc_commit = "1.0.1.post1"
 DRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
 )
