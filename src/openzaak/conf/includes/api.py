@@ -65,7 +65,7 @@ REFERENTIELIJSTEN_API_SPEC = (
 VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
 
 ztc_repo = "vng-Realisatie/catalogi-api"
-ztc_commit = "d52ff0a8138b577e4f4516b0bd957354d91fb97c"
+ztc_commit = "1.0.0.post5"
 ZTC_API_SPEC = (
     f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
 )
