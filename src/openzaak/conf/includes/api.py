@@ -83,7 +83,7 @@ ZRC_API_SPEC = (
 )
 
 brc_repo = "vng-Realisatie/besluiten-api"
-brc_commit = "bf69bf643ce0c9146eeb014adc940e06948a8cac"
+brc_commit = "1.0.1.post0"
 BRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
 )
