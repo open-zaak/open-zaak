@@ -178,7 +178,7 @@ class InformatieObject(models.Model):
     )
     _informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text=_(
             "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),

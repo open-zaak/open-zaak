@@ -121,7 +121,7 @@ class Zaak(AuditTrailMixin, APIMixin, models.Model):
     )
     _zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
         null=True,
         blank=True,
@@ -413,7 +413,7 @@ class Status(models.Model):
     )
     _statustype = models.ForeignKey(
         "catalogi.StatusType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
         null=True,
         blank=True,
@@ -473,7 +473,7 @@ class Resultaat(models.Model):
     )
     _resultaattype = models.ForeignKey(
         "catalogi.ResultaatType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
         null=True,
         blank=True,
@@ -539,7 +539,7 @@ class Rol(models.Model):
     )
     _roltype = models.ForeignKey(
         "catalogi.RolType",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar het ROLTYPE (in de Catalogi API).",
         null=True,
         blank=True,
@@ -711,7 +711,7 @@ class ZaakEigenschap(models.Model):
     )
     _eigenschap = models.ForeignKey(
         "catalogi.Eigenschap",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
         null=True,
         blank=True,
@@ -782,7 +782,7 @@ class ZaakInformatieObject(models.Model):
     )
     _informatieobject = models.ForeignKey(
         "documenten.EnkelvoudigInformatieObjectCanonical",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         blank=True,
         null=True,
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
