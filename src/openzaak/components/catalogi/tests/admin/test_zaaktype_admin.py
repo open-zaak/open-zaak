@@ -10,6 +10,7 @@ from django.utils.translation import gettext, ugettext_lazy as _
 import requests_mock
 from django_webtest import WebTest
 from freezegun import freeze_time
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
@@ -423,6 +424,46 @@ class ZaaktypeAdminTests(
             "to the current procestype."
         )
         self.assertIn(expected_error, errors)
+
+    def test_reset_selectielijst_configuration(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+        )
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        form = response.form
+        # check that changing the procestype is now possible when we reset (that
+        # validation needs to skip)
+        form["selectielijst_reset"] = True
+        form["selectielijst_procestype"] = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/96eae691-077f-4fd6-ad66-950b9b714880"
+        )
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.selectielijst_procestype, "")
+        resultaat = zaaktype.resultaattypen.get()
+        self.assertEqual(resultaat.selectielijstklasse, "")
 
 
 class ZaakTypePublishAdminTests(WebTest):
