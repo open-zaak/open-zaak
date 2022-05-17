@@ -87,6 +87,14 @@ class MockSelectielijst:
                 "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
             ),
         )
+        mock_resource_get(
+            mocker,
+            "resultaten",
+            (
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+            ),
+        )
 
 
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
@@ -113,6 +121,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -143,7 +152,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
@@ -239,6 +248,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -269,7 +279,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
