@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+import requests_cache
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
@@ -39,6 +40,8 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        backend = requests_cache.BaseCache()
+        requests_cache.install_cache("import", backend=backend)
         import_file = options.pop("import_file")
         import_file_content = options.pop("import_file_content")
         generate_new_uuids = options.pop("generate_new_uuids")
@@ -93,3 +96,4 @@ class Command(BaseCommand):
                                     "A validation error occurred while deserializing a {}\n{}"
                                 ).format(resource, deserialized.errors)
                             )
+        requests_cache.uninstall_cache()
