@@ -27,6 +27,7 @@ from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.user = SuperUserFactory.create()
 
     def setUp(self):

@@ -220,7 +220,9 @@ class ResultaatTypeForm(forms.ModelForm):
             return
 
         try:
-            client.retrieve("resultaat", url=selectielijstklasse)
+            selectielijst_resultaat = client.retrieve(
+                "resultaat", url=selectielijstklasse
+            )
         except ClientError as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")
@@ -237,7 +239,7 @@ class ResultaatTypeForm(forms.ModelForm):
             err = forms.ValidationError(exc.detail[0], code=exc.detail[0].code)
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
 
-        procestype = response.json()["procesType"]
+        procestype = selectielijst_resultaat["procesType"]
         if procestype != zaaktype.selectielijst_procestype:
             if not zaaktype.selectielijst_procestype:
                 edit_zaaktype = reverse(

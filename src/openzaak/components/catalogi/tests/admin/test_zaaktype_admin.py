@@ -45,6 +45,8 @@ class ZaaktypeAdminTests(
 ):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
         cls.user = SuperUserFactory.create()
 
         # there are TransactionTestCases that truncate the DB, so we need to ensure
