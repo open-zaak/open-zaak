@@ -37,6 +37,18 @@ from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 
 class ZaakTypeForm(forms.ModelForm):
+    selectielijst_reset = forms.BooleanField(
+        label=_("Reset selectielijst configuration"),
+        required=False,
+        initial=False,
+        help_text=_(
+            "Reset the selectielijstprocestype for the zaaktype and all "
+            "selectielijstklassen specified for the attached resultaattypen. You need "
+            "to check this if you want to change the selectielijstprocestype of a "
+            "zaaktype."
+        ),
+    )
+
     class Meta:
         model = ZaakType
         fields = "__all__"
@@ -94,6 +106,10 @@ class ZaakTypeForm(forms.ModelForm):
         procestype_url = self.cleaned_data["selectielijst_procestype"]
         # create instead of update -> no validation required
         if not self.instance.pk:
+            return procestype_url
+
+        # if we are resetting, there's no reason to run validation
+        if self.cleaned_data.get("selectielijst_reset"):
             return procestype_url
 
         selectielijstklassen = (
