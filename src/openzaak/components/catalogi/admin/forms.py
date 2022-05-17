@@ -18,6 +18,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import reverse as _reverse
 from vng_api_common.validators import ResourceValidator
+from zds_client import ClientError
 from zgw_consumers.models import Service
 
 from openzaak.forms.widgets import BooleanRadio
@@ -205,10 +206,22 @@ class ResultaatTypeForm(forms.ModelForm):
             # nothing to do
             return
 
-        response = requests.get(selectielijstklasse)
+        client = Service.get_client(selectielijstklasse)
+        if client is None:
+            self.add_error(
+                "selectielijstklasse",
+                forms.ValidationError(
+                    _(
+                        "Could not determine the selectielijstklasse service for URL {url}"
+                    ).format(url=selectielijstklasse),
+                    code="invalid",
+                ),
+            )
+            return
+
         try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
+            client.retrieve("resultaat", url=selectielijstklasse)
+        except ClientError as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")
                 % selectielijstklasse
