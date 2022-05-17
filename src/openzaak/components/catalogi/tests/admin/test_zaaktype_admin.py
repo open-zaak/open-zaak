@@ -15,7 +15,11 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import mock_oas_get, mock_resource_list
+from openzaak.selectielijst.tests import (
+    mock_oas_get,
+    mock_resource_get,
+    mock_resource_list,
+)
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils.tests import ClearCachesMixin
@@ -369,6 +373,53 @@ class ZaaktypeAdminTests(
             self.assertNotContains(response, "zaaktype 2")
             self.assertNotContains(response, "zaaktype 3")
             self.assertContains(response, "zaaktype 4")
+
+    def test_validate_changing_procestype_with_existing_resultaattypen(self, m):
+        """
+        Assert that the zaaktype procestype (selectielijst) stays consistent.
+
+        Regression test for #970 -- changing the selectielijst procestype after
+        resultaattypen have been made for the zaaktype is not supported, as this breaks
+        the integrity (resultaattype selectielijstklasse must belong to
+        zaaktype.selectielijst_procestype).
+        """
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+        )
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        form = response.form
+        form["selectielijst_procestype"] = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+        errors = response.context["adminform"].errors["selectielijst_procestype"]
+        expected_error = _(
+            "You cannot change the procestype because there are resultaatypen "
+            "attached to this zaaktype with a selectielijstklasse belonging "
+            "to the current procestype."
+        )
+        self.assertIn(expected_error, errors)
 
 
 class ZaakTypePublishAdminTests(WebTest):
