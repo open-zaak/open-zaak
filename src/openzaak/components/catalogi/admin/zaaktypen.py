@@ -292,14 +292,17 @@ class ZaakTypeAdmin(
                 localize=False,
             )
         if db_field.name == "selectielijst_procestype":
+            referentielijst_config = ReferentieLijstConfig.get_solo()
+            config_default = referentielijst_config.default_year
+
             if "object_id" in request.resolver_match.kwargs:
                 obj = ZaakType.objects.get(
                     id=str(request.resolver_match.kwargs["object_id"])
                 )
-                procestype_jaar = obj.selectielijst_procestype_jaar
+                procestype_jaar = obj.selectielijst_procestype_jaar or config_default
             else:
-                referentielijst_config = ReferentieLijstConfig.get_solo()
-                procestype_jaar = referentielijst_config.default_year
+                procestype_jaar = config_default
+
             try:
                 return get_procestype_field(
                     db_field, request, procestype_jaar, **kwargs
