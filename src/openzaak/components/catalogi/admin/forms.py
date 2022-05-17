@@ -18,6 +18,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import reverse as _reverse
 from vng_api_common.validators import ResourceValidator
+from zgw_consumers.models import Service
 
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
@@ -85,6 +86,48 @@ class ZaakTypeForm(forms.ModelForm):
         ]
 
         return bool(changed_data)
+
+    def clean_selectielijst_procestype(self):
+        # #970 -- check that if the procestype from selectielijst changes, this does
+        # not break the consistency with the selectielijstklasse specified in each
+        # resultaattype
+        procestype_url = self.cleaned_data["selectielijst_procestype"]
+        # create instead of update -> no validation required
+        if not self.instance.pk:
+            return procestype_url
+
+        selectielijstklassen = (
+            self.instance.resultaattypen.exclude(selectielijstklasse="")
+            .values_list("selectielijstklasse", flat=True)
+            .distinct()
+        )
+        #  no existing selectielijstklassen specified -> nothing to validate
+        if not selectielijstklassen:
+            return procestype_url
+
+        # fetch the selectielijstklasse and compare that relations are still consistent
+        for url in selectielijstklassen:
+            client = Service.get_client(url)
+            if client is None:
+                # TOOD
+                self.add_error(
+                    None, _("Could not build a client for {url}").format(url=url)
+                )
+                continue
+
+            resultaat = client.retrieve("resultaat", url=url)
+
+            if resultaat["procesType"] != procestype_url:
+                raise forms.ValidationError(
+                    _(
+                        "You cannot change the procestype because there are resultaatypen "
+                        "attached to this zaaktype with a selectielijstklasse belonging "
+                        "to the current procestype."
+                    ),
+                    code="invalid",
+                )
+
+        return procestype_url
 
     def clean(self):
         super().clean()
