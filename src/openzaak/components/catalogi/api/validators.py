@@ -280,25 +280,21 @@ class DeelzaaktypeCatalogusValidator:
 class ConceptUpdateValidator:
     message = _("Het is niet toegestaan om een non-concept object bij te werken")
     code = "non-concept-object"
+    requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
+    def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.request = serializer.context["request"]
+        instance = getattr(serializer, "instance", None)
+        request = serializer.context["request"]
 
-    def __call__(self, attrs):
-        if not self.instance:
+        if not instance:
             return
 
         einde_geldigheid = attrs.get("datum_einde_geldigheid")
-        if einde_geldigheid and len(self.request.data) == 1:
+        if einde_geldigheid and len(request.data) == 1:
             return
 
-        if not self.instance.concept:
+        if not instance.concept:
             raise ValidationError(self.message, code=self.code)
 
 
@@ -350,20 +346,15 @@ class M2MConceptCreateValidator:
     """
 
     code = "non-concept-relation"
+    requires_context = True
 
     def __init__(self, concept_related_fields):
         self.concept_related_fields = concept_related_fields
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
+    def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs):
-        if self.instance:
+        instance = getattr(serializer, "instance", None)
+        if instance:
             return
 
         for field_name in self.concept_related_fields:
@@ -383,29 +374,24 @@ class M2MConceptUpdateValidator:
     """
 
     code = "non-concept-relation"
+    requires_context = True
 
     def __init__(self, concept_related_fields):
         self.concept_related_fields = concept_related_fields
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
+    def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.request = serializer.context["request"]
-
-    def __call__(self, attrs):
-        if not self.instance:
+        instance = getattr(serializer, "instance", None)
+        request = serializer.context["request"]
+        if not instance:
             return
 
         einde_geldigheid = attrs.get("datum_einde_geldigheid")
-        if einde_geldigheid and len(self.request.data) == 1:
+        if einde_geldigheid and len(request.data) == 1:
             return
 
         for field_name in self.concept_related_fields:
-            field = getattr(self.instance, field_name)
+            field = getattr(instance, field_name)
             related_non_concepts = field.filter(concept=False)
             if related_non_concepts.exists():
                 msg = _(f"Objects related to non-concept {field_name} can't be updated")
