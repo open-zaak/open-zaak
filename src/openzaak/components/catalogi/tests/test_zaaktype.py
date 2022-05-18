@@ -1032,7 +1032,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
             "catalogus": reverse(catalogus),
-            # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
