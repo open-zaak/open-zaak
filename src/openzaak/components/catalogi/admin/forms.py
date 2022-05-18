@@ -36,6 +36,16 @@ from ..models import (
 from ..validators import validate_brondatumarchiefprocedure
 from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
+EMPTY_SELECTIELIJSTKLASSE_CHOICES = (
+    (
+        "",
+        _(
+            "Please select a Procestype for the related ZaakType to "
+            "get proper filtering of selectielijstklasses"
+        ),
+    ),
+)
+
 
 class ZaakTypeForm(forms.ModelForm):
     selectielijst_reset = forms.BooleanField(
@@ -208,15 +218,9 @@ class ResultaatTypeForm(forms.ModelForm):
         if not self._zaaktype or not self._zaaktype.selectielijst_procestype:
             self.fields["selectielijstklasse"].required = False
             self.fields["selectielijstklasse"].disabled = True
-            self.fields["selectielijstklasse"].choices = (
-                (
-                    "",
-                    _(
-                        "Please select a Procestype for the related ZaakType to "
-                        "get proper filtering of selectielijstklasses"
-                    ),
-                ),
-            )
+            self.fields[
+                "selectielijstklasse"
+            ].choices = EMPTY_SELECTIELIJSTKLASSE_CHOICES
 
     def clean(self):
         super().clean()
