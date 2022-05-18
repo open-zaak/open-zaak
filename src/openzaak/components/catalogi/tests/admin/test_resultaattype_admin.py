@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import WebTest
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.tests import (
@@ -457,3 +458,81 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         self.assertRedirects(
             response, reverse("admin:catalogi_resultaattype_changelist")
         )
+
+    def test_selectielijstklasse_correctly_prefiltered(self, m):
+        """
+        Assert that the available options for selectielijstklasse are correctly scoped.
+
+        Regression test for #1030 - adding a resultaattype for a zaaktype must use
+        the zaaktype.selectielijst_procestype correctly to filter for valid
+        selectielijstklasse options.
+        """
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(
+            m,
+            "resultaattypeomschrijvingen",
+            (
+                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+            ),
+        )
+        # set up a zaaktype
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            selectielijst_procestype="",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # simulate user navigation in the admin
+        changelist = self.app.get(reverse("admin:catalogi_zaaktype_changelist"))
+        link_description = _("Toon {verbose_name}").format(
+            verbose_name=ResultaatType._meta.verbose_name_plural
+        )
+        resultaat_changelist = changelist.click(description=link_description)
+        add_link_description = _("Add %(name)s") % {
+            "name": ResultaatType._meta.verbose_name
+        }
+        add_page = resultaat_changelist.click(description=add_link_description)
+
+        with self.subTest("Check selectielijstklasse options"):
+            form_field = add_page.form["selectielijstklasse"]
+
+            # placeholder option
+            self.assertEqual(len(form_field.options), 1)
+            self.assertEqual(form_field.options[0][0], "")
+
+        with self.subTest("Saving the resultaattype"):
+            add_page.form["omschrijving"] = "Some description"
+            add_page.form["brondatum_archiefprocedure_afleidingswijze"] = "afgehandeld"
+
+            save_response = add_page.form.submit("_continue")
+
+            self.assertEqual(save_response.status_code, 302)
+            resultaat = zaaktype.resultaattypen.get()
+            self.assertEqual(resultaat.selectielijstklasse, "")
+
+        with self.subTest("Publishing blocked"):
+            zaaktype_url = reverse(
+                "admin:catalogi_zaaktype_change", args=(zaaktype.id,)
+            )
+            zaaktype_change_page = self.app.get(zaaktype_url)
+
+            # save and publish
+            response = zaaktype_change_page.form.submit("_publish")
+
+            self.assertEqual(response.status_code, 200)
+            errors = response.context["adminform"].errors
+
+            error = _(
+                "This zaaktype has resultaattypen without a selectielijstklasse. "
+                "Please specify those before publishing the zaaktype."
+            )
+            self.assertIn(error, errors["__all__"])
