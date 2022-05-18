@@ -374,7 +374,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
 
         url = reverse("admin:catalogi_resultaattype_add")
 
-        response = self.app.get(url)
+        response = self.app.get(url, {"zaaktype": zaaktype.id})
 
         self.assertEqual(response.status_code, 200)
 

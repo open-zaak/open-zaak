@@ -34,7 +34,12 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
     """
 
     def test_not_a_url(self, mock_has_shape, mock_fetcher):
-        form = ResultaatTypeForm(data={"selectielijstklasse": "not a url"})
+        zaaktype = ZaakTypeFactory.create(
+            concept=True, selectielijst_procestype="dummy"
+        )
+        form = ResultaatTypeForm(
+            data={"selectielijstklasse": "not a url"}, _zaaktype=zaaktype
+        )
 
         valid = form.is_valid()
 
@@ -43,11 +48,12 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
         self.assertEqual(error.code, "invalid")
 
     def test_404_url(self, mock_has_shape, mock_fetcher):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype="dummy")
         bad_url = RESULTAAT_URL.format(uuid="5d4b7dac-4452-41b9-ac26-a0c5a1abef9c")
         self.requests_mocker.get(bad_url, status_code=404)
         form = ResultaatTypeForm(
-            data={"selectielijstklasse": bad_url, "zaaktype": zaaktype.id}
+            data={"selectielijstklasse": bad_url, "zaaktype": zaaktype.id},
+            _zaaktype=zaaktype,
         )
 
         valid = form.is_valid()
@@ -64,7 +70,8 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
         )
 
         form = ResultaatTypeForm(
-            data={"selectielijstklasse": bad_resultaat_url, "zaaktype": zaaktype.id}
+            data={"selectielijstklasse": bad_resultaat_url, "zaaktype": zaaktype.id},
+            _zaaktype=zaaktype,
         )
         self.requests_mocker.get(
             bad_resultaat_url,
@@ -95,7 +102,8 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
         )
 
         form = ResultaatTypeForm(
-            data={"selectielijstklasse": good_resultaat_url, "zaaktype": zaaktype.id}
+            data={"selectielijstklasse": good_resultaat_url, "zaaktype": zaaktype.id},
+            _zaaktype=zaaktype,
         )
         form.is_valid()
 
@@ -114,7 +122,8 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
                 "selectielijstklasse": procestype,
                 "zaaktype": zaaktype.id,
                 "datum_begin_geldigheid": zaaktype.versiedatum,
-            }
+            },
+            _zaaktype=zaaktype,
         )
 
         # Overwrite mock for obj_has_shape, ensure that it returns False,
@@ -193,7 +202,8 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                         "selectielijstklasse": resultaat_url,
                         "zaaktype": zaaktype.id,
                         "brondatum_archiefprocedure_afleidingswijze": value,
-                    }
+                    },
+                    _zaaktype=zaaktype,
                 )
 
                 valid = form.is_valid()
@@ -222,7 +232,8 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                 "selectielijstklasse": resultaat_url,
                 "zaaktype": zaaktype.id,
                 "brondatum_archiefprocedure_afleidingswijze": Afleidingswijze.afgehandeld,
-            }
+            },
+            _zaaktype=zaaktype,
         )
 
         # See https://ref.tst.vng.cloud/referentielijsten/api/v1/schema/#operation/resultaat_read
@@ -292,7 +303,8 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                         "selectielijstklasse": resultaat_url,
                         "zaaktype": zaaktype.id,
                         "brondatum_archiefprocedure_afleidingswijze": value,
-                    }
+                    },
+                    _zaaktype=zaaktype,
                 )
 
                 valid = form.is_valid()
@@ -323,7 +335,8 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                 "selectielijstklasse": resultaat_url,
                 "zaaktype": zaaktype.id,
                 "brondatum_archiefprocedure_afleidingswijze": Afleidingswijze.termijn,
-            }
+            },
+            _zaaktype=zaaktype,
         )
 
         # See https://ref.tst.vng.cloud/referentielijsten/api/v1/schema/#operation/resultaat_read
@@ -388,7 +401,8 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
             "brondatum_archiefprocedure_procestermijn_days": 30,
         }
         data.update(kwargs)
-        return ResultaatTypeForm(data=data)
+        form = ResultaatTypeForm(data=data, _zaaktype=zaaktype)
+        return form
 
     def assertParameterFieldsForbidden(
         self, afleidingswijze: str, procestype: str, resultaat_url: str

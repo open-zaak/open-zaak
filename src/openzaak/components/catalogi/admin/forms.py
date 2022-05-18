@@ -151,6 +151,9 @@ class ZaakTypeForm(forms.ModelForm):
         if "_addversion" in self.data:
             self._clean_datum_einde_geldigheid()
 
+        if "_publish" in self.data:
+            self._clean_all_data_present_for_publish()
+
     def _clean_datum_einde_geldigheid(self):
         datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")
 
@@ -160,6 +163,19 @@ class ZaakTypeForm(forms.ModelForm):
             )
             self.add_error(
                 "datum_einde_geldigheid", forms.ValidationError(msg, code="invalid"),
+            )
+
+    def _clean_all_data_present_for_publish(self):
+        has_invalid_resultaattypen = self.instance.resultaattypen.filter(
+            selectielijstklasse=""
+        ).exists()
+        if has_invalid_resultaattypen:
+            self.add_error(
+                None,
+                _(
+                    "This zaaktype has resultaattypen without a selectielijstklasse. "
+                    "Please specify those before publishing the zaaktype."
+                ),
             )
 
 
@@ -172,6 +188,9 @@ class ResultaatTypeForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        # for tests
+        if _zaaktype := kwargs.pop("_zaaktype", None):
+            self._zaaktype = _zaaktype
         super().__init__(*args, **kwargs)
 
         if not self.instance.pk and self._zaaktype:
@@ -183,6 +202,21 @@ class ResultaatTypeForm(forms.ModelForm):
                 self.fields[
                     "selectielijstklasse"
                 ].choices = get_selectielijst_resultaat_choices(proces_type)
+
+        # make the selectielijstklasse field readonly if we don't have sufficient
+        # information to validate/filter it
+        if not self._zaaktype or not self._zaaktype.selectielijst_procestype:
+            self.fields["selectielijstklasse"].required = False
+            self.fields["selectielijstklasse"].disabled = True
+            self.fields["selectielijstklasse"].choices = (
+                (
+                    "",
+                    _(
+                        "Please select a Procestype for the related ZaakType to "
+                        "get proper filtering of selectielijstklasses"
+                    ),
+                ),
+            )
 
     def clean(self):
         super().clean()
