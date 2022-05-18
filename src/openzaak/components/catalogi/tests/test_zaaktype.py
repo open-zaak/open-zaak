@@ -991,7 +991,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
         zaaktype.delete()
 
-    def test_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(self):
+    def test_update_zaaktype_related_to_non_concept_informatieobjecttype_is_allowed(
+        self,
+    ):
         catalogus = CatalogusFactory.create()
 
         zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
@@ -1030,7 +1032,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             ],
             "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
             "catalogus": reverse(catalogus),
-            # 'informatieobjecttypen': [f'http://testserver{informatieobjecttype_url}'],
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
@@ -1038,11 +1039,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.put(zaaktype_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
-        zaaktype.delete()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_zaaktype_add_relation_to_non_concept_besluittype_fails(self):
         catalogus = CatalogusFactory.create()
@@ -1151,7 +1148,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["aanleiding"], "aangepast")
         zaaktype.delete()
 
-    def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_fails(
+    def test_partial_update_zaaktype_related_to_non_concept_informatieobjecttype_allowed(
         self,
     ):
         catalogus = CatalogusFactory.create()
@@ -1168,11 +1165,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         response = self.client.patch(zaaktype_url, {"aanleiding": "aangepast"})
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], M2MConceptUpdateValidator.code)
-        zaaktype.delete()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_partial_update_zaaktype_add_relation_to_non_concept_besluittype_fails(
         self,

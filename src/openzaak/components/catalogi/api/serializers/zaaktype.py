@@ -193,7 +193,7 @@ class ZaakTypeSerializer(
             RelationCatalogValidator("besluittypen"),
             ConceptUpdateValidator(),
             M2MConceptCreateValidator(["besluittypen", "informatieobjecttypen"]),
-            M2MConceptUpdateValidator(["besluittypen", "informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["besluittypen"]),
             DeelzaaktypeCatalogusValidator(),
             VerlengingsValidator(),
         ]
