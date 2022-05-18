@@ -38,5 +38,6 @@ to create a production-grade product that can be used by municipalities.
    :caption: Further reading
 
    architecture
+   upstream-api-parity
    team
    open-source/index
