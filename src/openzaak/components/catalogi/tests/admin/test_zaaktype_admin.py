@@ -427,6 +427,44 @@ class ZaaktypeAdminTests(
         )
         self.assertIn(expected_error, errors)
 
+    def test_selectielijst_selectielijstklasse_missing_client_configuration(self, m):
+        # the form may not validate if the selectielijstklasse data cannot be retrieved
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+        )
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        change_page = self.app.get(url)
+        self.assertEqual(change_page.status_code, 200)
+
+        with patch(
+            "openzaak.components.catalogi.admin.forms.Service.get_client",
+            return_value=None,
+        ):
+            response = change_page.form.submit()
+
+            self.assertEqual(response.status_code, 200)  # instead of 302 for success
+            expected_error = _("Could not build a client for {url}").format(
+                url=selectielijst_resultaat
+            )
+            self.assertIn(
+                expected_error, response.context["adminform"].errors["__all__"]
+            )
+
     def test_reset_selectielijst_configuration(self, m):
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")

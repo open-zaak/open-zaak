@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import Permission
@@ -94,6 +95,44 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             field._value,
             "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
         )
+
+    def test_selectielijstklasse_missing_client_configuration(self, m):
+        # the form may not validate if the selectielijstklasse data cannot be retrieved
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_get(m, "procestypen", procestype_url)
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        # mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__concept=True,
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=selectielijst_resultaat,
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+        change_page = self.app.get(url)
+
+        with patch(
+            "openzaak.components.catalogi.admin.forms.Service.get_client",
+            return_value=None,
+        ):
+            response = change_page.form.submit()
+
+            self.assertEqual(response.status_code, 200)  # instead of 302 for success
+            expected_error = _(
+                "Could not determine the selectielijstklasse service for URL {url}"
+            ).format(url=selectielijst_resultaat)
+            self.assertIn(
+                expected_error,
+                response.context["adminform"].errors["selectielijstklasse"],
+            )
 
     def test_resultaattype_detail_with_read_only_user(self, m):
         user = UserFactory.create(is_staff=True)

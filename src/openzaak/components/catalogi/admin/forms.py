@@ -126,7 +126,6 @@ class ZaakTypeForm(forms.ModelForm):
         for url in selectielijstklassen:
             client = Service.get_client(url)
             if client is None:
-                # TOOD
                 self.add_error(
                     None, _("Could not build a client for {url}").format(url=url)
                 )
