@@ -28,34 +28,30 @@ class GeldigheidValidator:
     message = _(
         "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
     )
+    requires_context = True
 
     def __init__(self, omschrijving_field="omschrijving"):
         self.omschrijving_field = omschrijving_field
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
+    def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.base_model = getattr(serializer.Meta, "model", None)
+        instance = getattr(serializer, "instance", None)
+        base_model = getattr(serializer.Meta, "model", None)
 
-    def __call__(self, attrs):
         if has_overlapping_objects(
-            model_manager=self.base_model._default_manager,
+            model_manager=base_model._default_manager,
             catalogus=attrs.get("catalogus"),
             omschrijving_query={
                 self.omschrijving_field: attrs.get(self.omschrijving_field)
             },
             begin_geldigheid=attrs.get("datum_begin_geldigheid"),
             einde_geldigheid=attrs.get("datum_einde_geldigheid"),
-            instance=self.instance,
+            instance=instance,
         ):
             raise ValidationError(
                 {
                     "begin_geldigheid": self.message.format(
-                        self.base_model._meta.verbose_name
+                        base_model._meta.verbose_name
                     )
                 },
                 code=self.code,
