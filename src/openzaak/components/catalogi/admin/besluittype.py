@@ -28,7 +28,10 @@ class BesluitTypeAdmin(
 ):
     # List
     list_display = ("omschrijving", "besluitcategorie", "catalogus", "is_published")
-    list_filter = ("catalogus",)
+    list_filter = (
+        "concept",
+        "catalogus",
+    )
     search_fields = ("uuid", "omschrijving", "besluitcategorie", "toelichting")
     ordering = ("catalogus", "omschrijving")
     raw_id_fields = (

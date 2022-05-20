@@ -123,6 +123,7 @@ class ZaakTypeAdmin(
         "is_published",
     )
     list_filter = (
+        "concept",
         "catalogus",
         "publicatie_indicatie",
         "verlenging_mogelijk",

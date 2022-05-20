@@ -84,7 +84,11 @@ class InformatieObjectTypeAdmin(
         "num_zaaktypen",
         "is_published",
     )
-    list_filter = ("catalogus", "concept", "vertrouwelijkheidaanduiding")
+    list_filter = (
+        "concept",
+        "catalogus",
+        "vertrouwelijkheidaanduiding",
+    )
     search_fields = (
         "uuid",
         "omschrijving",
