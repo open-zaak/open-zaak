@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import override_settings
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext, ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -314,6 +314,61 @@ class ZaaktypeAdminTests(
         self.assertIsNone(
             response.html.select_one(".field-producten_of_diensten .errorlist")
         )
+
+    @freeze_time("2022-01-01T16:00Z")
+    def test_filtering_on_validity(self, m):
+        # create zaaktypen with different validities
+        ZaakTypeFactory.create(
+            zaaktype_omschrijving="zaaktype 1",
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 12, 31),
+        )
+        ZaakTypeFactory.create(
+            zaaktype_omschrijving="zaaktype 2",
+            datum_begin_geldigheid=date(2021, 1, 1),
+            datum_einde_geldigheid=date(2022, 12, 31),
+        )
+        ZaakTypeFactory.create(
+            zaaktype_omschrijving="zaaktype 3",
+            datum_begin_geldigheid=date(2021, 1, 1),
+            datum_einde_geldigheid=None,
+        )
+        ZaakTypeFactory.create(
+            zaaktype_omschrijving="zaaktype 4",
+            datum_begin_geldigheid=date(2022, 7, 1),
+            datum_einde_geldigheid=None,
+        )
+        changelist_page = self.app.get(reverse("admin:catalogi_zaaktype_changelist"))
+
+        with self.subTest("No validity filtering"):
+            self.assertContains(changelist_page, "zaaktype 1")
+            self.assertContains(changelist_page, "zaaktype 2")
+            self.assertContains(changelist_page, "zaaktype 3")
+            self.assertContains(changelist_page, "zaaktype 4")
+
+        with self.subTest("filter currently valid"):
+            response = changelist_page.click(description=gettext("Now"))
+
+            self.assertNotContains(response, "zaaktype 1")
+            self.assertContains(response, "zaaktype 2")
+            self.assertContains(response, "zaaktype 3")
+            self.assertNotContains(response, "zaaktype 4")
+
+        with self.subTest("filter valid in the past"):
+            response = changelist_page.click(description=gettext("Past"))
+
+            self.assertContains(response, "zaaktype 1")
+            self.assertNotContains(response, "zaaktype 2")
+            self.assertNotContains(response, "zaaktype 3")
+            self.assertNotContains(response, "zaaktype 4")
+
+        with self.subTest("filter valid in the future"):
+            response = changelist_page.click(description=gettext("Future"))
+
+            self.assertNotContains(response, "zaaktype 1")
+            self.assertNotContains(response, "zaaktype 2")
+            self.assertNotContains(response, "zaaktype 3")
+            self.assertContains(response, "zaaktype 4")
 
 
 class ZaakTypePublishAdminTests(WebTest):

@@ -37,4 +37,4 @@ class GeldigheidFilter(admin.SimpleListFilter):
         if value == "future":
             return queryset.filter(datum_begin_geldigheid__gt=today)
 
-        raise ValueError("Unknown lookup value")
+        raise ValueError("Unknown lookup value")  # pragma: nocover
