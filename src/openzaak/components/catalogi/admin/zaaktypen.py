@@ -32,6 +32,7 @@ from ..models import (
     ZaakTypenRelatie,
 )
 from .eigenschap import EigenschapAdmin
+from .filters import GeldigheidFilter
 from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
@@ -121,8 +122,11 @@ class ZaakTypeAdmin(
         "identificatie",
         "versiedatum",
         "is_published",
+        "datum_begin_geldigheid",
+        "datum_einde_geldigheid",
     )
     list_filter = (
+        GeldigheidFilter,
         "concept",
         "catalogus",
         "publicatie_indicatie",
