@@ -80,7 +80,10 @@ class ZaakTypeForm(forms.ModelForm):
         # properly set the default for selectielijst_jaar from the global config,
         # as the django admin has no hook for specifying initial and otherwise the
         # instance `None` value is used.
-        if self.initial["selectielijst_procestype_jaar"] is None:
+        if (
+            "selectielijst_procestype_jaar" in self.initial
+            and self.initial["selectielijst_procestype_jaar"] is None
+        ):
             referentielijst_config = ReferentieLijstConfig.get_solo()
             self.initial[
                 "selectielijst_procestype_jaar"

@@ -2,7 +2,7 @@
 # Copyright (C) 2022 Dimpact
 from django.urls import path
 
-from .views import SelectielijstResultatenListView
+from .views import SelectielijstProcestypenListView, SelectielijstResultatenListView
 
 app_name = "admin-api"
 
@@ -11,5 +11,10 @@ urlpatterns = [
         "selectielijst/resultaten",
         SelectielijstResultatenListView.as_view(),
         name="selectielijst-resultaten",
+    ),
+    path(
+        "selectielijst/procestypen",
+        SelectielijstProcestypenListView.as_view(),
+        name="selectielijst-procestypen",
     ),
 ]

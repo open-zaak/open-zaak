@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
+from openzaak.selectielijst.api import get_procestypen
+from openzaak.selectielijst.models import ReferentieLijstConfig
 
 from ...admin.forms import EMPTY_SELECTIELIJSTKLASSE_CHOICES
 from ...models import ZaakType
@@ -35,3 +37,30 @@ class SelectielijstResultatenListView(APIView):
 
         choices = get_selectielijst_resultaat_choices(url)
         return Response(choices)
+
+
+class SelectielijstProcestypenListView(APIView):
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (permissions.IsAdminUser,)
+    schema = None  # keep it undocumented
+
+    def get(self, request, *args, **kwargs):
+        try:
+            year = int(request.GET.get("year", ""))
+        except ValueError:
+            raise ValidationError({"year": _("Provide a valid year to filter for")})
+
+        config = ReferentieLijstConfig.get_solo()
+        if year not in config.allowed_years:
+            raise ValidationError(
+                {
+                    "year": _(
+                        "Provide a valid year to filter for, must be one of: {valid_years}."
+                    ).format(
+                        valid_years=", ".join([str(x) for x in config.allowed_years])
+                    )
+                }
+            )
+
+        procestypen = get_procestypen(procestype_jaar=year)
+        return Response(procestypen)

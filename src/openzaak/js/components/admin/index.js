@@ -3,3 +3,4 @@
 import './applicatie-autorisaties';
 import './external-services';
 import './resultaattypen';
+import './zaaktypen';
