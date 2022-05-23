@@ -14,6 +14,7 @@ from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.catalogi.api import serializers
 from openzaak.components.catalogi.constants import IMPORT_ORDER
+from openzaak.utils.cache import DjangoRequestsCache
 
 
 class Command(BaseCommand):
@@ -38,10 +39,9 @@ class Command(BaseCommand):
             ),
         )
 
+    @requests_cache.enabled("import", backend=DjangoRequestsCache())
     @transaction.atomic
     def handle(self, *args, **options):
-        backend = requests_cache.BaseCache()
-        requests_cache.install_cache("import", backend=backend)
         import_file = options.pop("import_file")
         import_file_content = options.pop("import_file_content")
         generate_new_uuids = options.pop("generate_new_uuids")
@@ -96,4 +96,3 @@ class Command(BaseCommand):
                                     "A validation error occurred while deserializing a {}\n{}"
                                 ).format(resource, deserialized.errors)
                             )
-        requests_cache.uninstall_cache()
