@@ -10,6 +10,7 @@ from vng_api_common.constants import (
 )
 
 from openzaak.client import fetch_object
+from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..utils import has_overlapping_objects
@@ -28,36 +29,46 @@ class GeldigheidValidator:
     message = _(
         "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
     )
+    requires_context = True
 
     def __init__(self, omschrijving_field="omschrijving"):
         self.omschrijving_field = omschrijving_field
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
+    def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-        self.base_model = getattr(serializer.Meta, "model", None)
+        instance = getattr(serializer, "instance", None)
+        base_model = getattr(serializer.Meta, "model", None)
 
-    def __call__(self, attrs):
+        catalogus = get_from_serializer_data_or_instance("catalogus", attrs, serializer)
+        begin_geldigheid = get_from_serializer_data_or_instance(
+            "begin_geldigheid", attrs, serializer
+        )
+        einde_geldigheid = get_from_serializer_data_or_instance(
+            "einde_geldigheid", attrs, serializer
+        )
+        omschrijving = get_from_serializer_data_or_instance(
+            "omschrijving", attrs, serializer
+        )
+
         if has_overlapping_objects(
-            model_manager=self.base_model._default_manager,
-            catalogus=attrs.get("catalogus"),
-            omschrijving_query={
-                self.omschrijving_field: attrs.get(self.omschrijving_field)
-            },
-            begin_geldigheid=attrs.get("datum_begin_geldigheid"),
-            einde_geldigheid=attrs.get("datum_einde_geldigheid"),
-            instance=self.instance,
+            model_manager=base_model._default_manager,
+            catalogus=catalogus,
+            omschrijving_query={self.omschrijving_field: omschrijving},
+            begin_geldigheid=begin_geldigheid,
+            einde_geldigheid=einde_geldigheid,
+            instance=instance,
         ):
+            # are we patching eindeGeldigheid?
+            changing_published_geldigheid = serializer.partial and list(attrs) == [
+                "datum_einde_geldigheid"
+            ]
+            error_field = (
+                "einde_geldigheid"
+                if changing_published_geldigheid
+                else "begin_geldigheid"
+            )
             raise ValidationError(
-                {
-                    "begin_geldigheid": self.message.format(
-                        self.base_model._meta.verbose_name
-                    )
-                },
+                {error_field: self.message.format(base_model._meta.verbose_name)},
                 code=self.code,
             )
 
@@ -285,13 +296,12 @@ class ConceptUpdateValidator:
     def __call__(self, attrs, serializer):
         # Determine the existing instance, if this is an update operation.
         instance = getattr(serializer, "instance", None)
-        request = serializer.context["request"]
 
         if not instance:
             return
 
-        einde_geldigheid = attrs.get("datum_einde_geldigheid")
-        if einde_geldigheid and len(request.data) == 1:
+        # updating eindeGeldigheid is allowed through patch requests
+        if serializer.partial and list(attrs.keys()) == ["datum_einde_geldigheid"]:
             return
 
         if not instance.concept:
