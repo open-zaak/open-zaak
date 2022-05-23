@@ -12,6 +12,7 @@ from openzaak.utils.admin import (
 )
 
 from ..models import InformatieObjectType, ZaakTypeInformatieObjectType
+from .filters import GeldigheidFilter
 from .forms import ZaakTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
@@ -84,7 +85,12 @@ class InformatieObjectTypeAdmin(
         "num_zaaktypen",
         "is_published",
     )
-    list_filter = ("catalogus", "concept", "vertrouwelijkheidaanduiding")
+    list_filter = (
+        GeldigheidFilter,
+        "concept",
+        "catalogus",
+        "vertrouwelijkheidaanduiding",
+    )
     search_fields = (
         "uuid",
         "omschrijving",

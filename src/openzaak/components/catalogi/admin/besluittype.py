@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from openzaak.utils.admin import UUIDAdminMixin
 
 from ..models import BesluitType
+from .filters import GeldigheidFilter
 from .forms import BesluitTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
@@ -28,7 +29,11 @@ class BesluitTypeAdmin(
 ):
     # List
     list_display = ("omschrijving", "besluitcategorie", "catalogus", "is_published")
-    list_filter = ("catalogus",)
+    list_filter = (
+        GeldigheidFilter,
+        "concept",
+        "catalogus",
+    )
     search_fields = ("uuid", "omschrijving", "besluitcategorie", "toelichting")
     ordering = ("catalogus", "omschrijving")
     raw_id_fields = (
