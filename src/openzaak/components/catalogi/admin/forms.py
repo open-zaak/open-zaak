@@ -23,6 +23,7 @@ from zgw_consumers.models import Service
 
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
+from openzaak.selectielijst.models import ReferentieLijstConfig
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import (
@@ -75,6 +76,15 @@ class ZaakTypeForm(forms.ModelForm):
         self._make_required("opschorting_en_aanhouding_mogelijk")
         self._make_required("verlenging_mogelijk")
         self._make_required("publicatie_indicatie")
+
+        # properly set the default for selectielijst_jaar from the global config,
+        # as the django admin has no hook for specifying initial and otherwise the
+        # instance `None` value is used.
+        if self.initial["selectielijst_procestype_jaar"] is None:
+            referentielijst_config = ReferentieLijstConfig.get_solo()
+            self.initial[
+                "selectielijst_procestype_jaar"
+            ] = referentielijst_config.default_year
 
     def _make_required(self, field: str):
         if field not in self.fields:
