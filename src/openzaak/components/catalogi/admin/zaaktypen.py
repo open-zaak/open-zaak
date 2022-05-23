@@ -4,6 +4,7 @@ import logging
 
 from django.apps import apps
 from django.contrib import admin, messages
+from django.db import transaction
 from django.db.models import Field
 from django.forms import ChoiceField
 from django.http import HttpRequest
@@ -193,7 +194,13 @@ class ZaakTypeAdmin(
         ),
         (
             _("Gemeentelijke selectielijst"),
-            {"fields": ("selectielijst_procestype_jaar", "selectielijst_procestype",)},
+            {
+                "fields": (
+                    "selectielijst_reset",
+                    "selectielijst_procestype_jaar",
+                    "selectielijst_procestype",
+                )
+            },
         ),
         (
             _("Referentieproces"),
@@ -292,14 +299,17 @@ class ZaakTypeAdmin(
                 localize=False,
             )
         if db_field.name == "selectielijst_procestype":
+            referentielijst_config = ReferentieLijstConfig.get_solo()
+            config_default = referentielijst_config.default_year
+
             if "object_id" in request.resolver_match.kwargs:
                 obj = ZaakType.objects.get(
                     id=str(request.resolver_match.kwargs["object_id"])
                 )
-                procestype_jaar = obj.selectielijst_procestype_jaar
+                procestype_jaar = obj.selectielijst_procestype_jaar or config_default
             else:
-                referentielijst_config = ReferentieLijstConfig.get_solo()
-                procestype_jaar = referentielijst_config.default_year
+                procestype_jaar = config_default
+
             try:
                 return get_procestype_field(
                     db_field, request, procestype_jaar, **kwargs
@@ -320,10 +330,30 @@ class ZaakTypeAdmin(
 
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
+    @transaction.atomic
     def save_model(self, request, obj, form, change):
         obj.versiedatum = obj.datum_begin_geldigheid
 
         super().save_model(request, obj, form, change)
+
+        # check if we need to reset selectielijstconfiguration
+        if form.cleaned_data["selectielijst_reset"]:
+            # clear zaaktype procestype
+            obj.selectielijst_procestype_jaar = None
+            obj.selectielijst_procestype = ""
+            obj.save()
+            # reset specified selectielijstklasse on related resultaattypen
+            obj.resultaattypen.update(
+                selectielijstklasse="",
+                archiefnominatie="",
+                archiefactietermijn=None,
+                brondatum_archiefprocedure_afleidingswijze="",
+                brondatum_archiefprocedure_datumkenmerk="",
+                brondatum_archiefprocedure_einddatum_bekend=False,
+                brondatum_archiefprocedure_objecttype="",
+                brondatum_archiefprocedure_registratie="",
+                brondatum_archiefprocedure_procestermijn=None,
+            )
 
     def render_readonly(self, field, result_repr, value):
         if field.name == "selectielijst_procestype" and value:

@@ -12,16 +12,11 @@ from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import TransactionWebTest, WebTest
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import (
-    mock_oas_get,
-    mock_resource_get,
-    mock_resource_list,
-)
+from openzaak.selectielijst.tests import mock_resource_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.utils.tests import mock_client
 
 from ...models import (
@@ -48,43 +43,24 @@ from ..factories import (
 )
 
 
-class MockSelectielijst:
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        # there are TransactionTestCases that truncate the DB, so we need to ensure
-        # there are available years
-        config = ReferentieLijstConfig.get_solo()
-        config.allowed_years = [2017, 2020]
-        config.save()
-        cls.base = config.api_root
-
-        Service.objects.get_or_create(
-            api_root=cls.base,
-            defaults=dict(
-                api_type=APITypes.orc,
-                label="external selectielijst",
-                auth_type=AuthTypes.no_auth,
-            ),
-        )
-
+class MockSelectielijst(SelectieLijstMixin):
     def setUp(self):
         super().setUp()
 
-        mocker = requests_mock.Mocker()
-        mocker.start()
-        self.addCleanup(mocker.stop)
-
-        mock_oas_get(mocker)
-
-        mock_resource_list(mocker, "procestypen")
         mock_resource_get(
-            mocker,
+            self.requests_mocker,
             "procestypen",
             (
                 "https://selectielijst.openzaak.nl/api/v1/"
                 "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+            ),
+        )
+        mock_resource_get(
+            self.requests_mocker,
+            "resultaten",
+            (
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
             ),
         )
 
@@ -113,6 +89,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -143,7 +120,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
@@ -239,6 +216,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -269,7 +247,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 brondatum_archiefprocedure_registratie="bla",
                 brondatum_archiefprocedure_objecttype="besluit",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")

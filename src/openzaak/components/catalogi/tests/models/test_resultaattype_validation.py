@@ -11,23 +11,24 @@ from unittest.mock import patch
 
 from django.test import TestCase, tag
 
-import requests_mock
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
+
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 from ...admin.forms import ResultaatTypeForm
 from ...constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..factories import ZaakTypeFactory
 
-RESULTAAT_URL = "https://ref.tst.vng.cloud/referentielijsten/api/v1/resultaten/{uuid}"
-PROCESTYPE_URL = "https://ref.tst.vng.cloud/referentielijsten/api/v1/procestypen/{uuid}"
+RESULTAAT_URL = "https://selectielijst.openzaak.nl/api/v1/resultaten/{uuid}"
+PROCESTYPE_URL = "https://selectielijst.openzaak.nl/api/v1/procestypen/{uuid}"
 
 
 @tag("resultaattype")
 @patch("vng_api_common.validators.fetcher")
 @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-class ResultaattypeSelectielijstlasseValidationTests(TestCase):
+class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCase):
     """
     Test the validation on Resultaattype.selectielijstklasse.
     """
@@ -44,13 +45,12 @@ class ResultaattypeSelectielijstlasseValidationTests(TestCase):
     def test_404_url(self, mock_has_shape, mock_fetcher):
         zaaktype = ZaakTypeFactory.create()
         bad_url = RESULTAAT_URL.format(uuid="5d4b7dac-4452-41b9-ac26-a0c5a1abef9c")
+        self.requests_mocker.get(bad_url, status_code=404)
         form = ResultaatTypeForm(
             data={"selectielijstklasse": bad_url, "zaaktype": zaaktype.id}
         )
 
-        with requests_mock.Mocker() as m:
-            m.register_uri("GET", bad_url, status_code=404)
-            valid = form.is_valid()
+        valid = form.is_valid()
 
         self.assertFalse(valid)
         error = form.errors.as_data()["selectielijstklasse"][0]
@@ -66,20 +66,18 @@ class ResultaattypeSelectielijstlasseValidationTests(TestCase):
         form = ResultaatTypeForm(
             data={"selectielijstklasse": bad_resultaat_url, "zaaktype": zaaktype.id}
         )
+        self.requests_mocker.get(
+            bad_resultaat_url,
+            json={
+                "url": bad_resultaat_url,
+                # different from zaaktype.selectielijst_procestype
+                "procesType": PROCESTYPE_URL.format(
+                    uuid="d0176d01-6ba6-407c-aadb-454ee06f4b90"
+                ),
+            },
+        )
 
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET",
-                bad_resultaat_url,
-                json={
-                    "url": bad_resultaat_url,
-                    # different from zaaktype.selectielijst_procestype
-                    "procesType": PROCESTYPE_URL.format(
-                        uuid="d0176d01-6ba6-407c-aadb-454ee06f4b90"
-                    ),
-                },
-            )
-            valid = form.is_valid()
+        valid = form.is_valid()
 
         self.assertFalse(valid)
         error = form.errors.as_data()["selectielijstklasse"][0]
@@ -91,18 +89,15 @@ class ResultaattypeSelectielijstlasseValidationTests(TestCase):
         good_resultaat_url = RESULTAAT_URL.format(
             uuid="ebe82547-609d-464d-875e-7088bf5dc8aa"
         )
+        self.requests_mocker.get(
+            good_resultaat_url,
+            json={"url": good_resultaat_url, "procesType": procestype},
+        )
 
         form = ResultaatTypeForm(
             data={"selectielijstklasse": good_resultaat_url, "zaaktype": zaaktype.id}
         )
-
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET",
-                good_resultaat_url,
-                json={"url": good_resultaat_url, "procesType": procestype},
-            )
-            form.is_valid()
+        form.is_valid()
 
         self.assertNotIn("selectielijstklasse", form.errors.as_data())
 
@@ -125,22 +120,21 @@ class ResultaattypeSelectielijstlasseValidationTests(TestCase):
         # Overwrite mock for obj_has_shape, ensure that it returns False,
         # indicating that the form validation should fail
         with patch("vng_api_common.validators.obj_has_shape", return_value=False):
-            with requests_mock.Mocker() as m:
-                # Mock the request of the procestype url, return a response of a
-                # form that would be expected from a procestype
-                m.register_uri(
-                    "GET",
-                    procestype,
-                    json={
-                        "url": procestype,
-                        "nummer": 1,
-                        "naam": "some name",
-                        "omschrijving": "some omschrijving",
-                        "toelichting": "some toelichting",
-                        "procesobject": "test",
-                    },
-                )
-                valid = form.is_valid()
+            # Mock the request of the procestype url, return a response of a
+            # form that would be expected from a procestype
+            self.requests_mocker.get(
+                procestype,
+                json={
+                    "url": procestype,
+                    "nummer": 1,
+                    "naam": "some name",
+                    "omschrijving": "some omschrijving",
+                    "toelichting": "some toelichting",
+                    "procesobject": "test",
+                },
+            )
+
+            valid = form.is_valid()
 
         self.assertFalse(valid)
 
@@ -158,13 +152,14 @@ class ResultaattypeSelectielijstlasseValidationTests(TestCase):
 @tag("resultaattype")
 @patch("vng_api_common.validators.fetcher")
 @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-class ResultaattypeAfleidingswijzeSelectielijstValidationTests(TestCase):
+class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
+    SelectieLijstMixin, TestCase
+):
     """
     Test the validation where afleidingswijze is restricted by the selected selectielijstklasse.
     """
 
-    @requests_mock.Mocker()
-    def test_procestermijn_nihil(self, mock_has_shape, mock_fetcher, m):
+    def test_procestermijn_nihil(self, mock_has_shape, mock_fetcher):
         """
         Validate that the afleidingswijze is fixed for 'nihil' values.
 
@@ -178,7 +173,7 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(TestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype)
 
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -239,32 +234,30 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(TestCase):
             "samengevoegd_met_bewaartermijn",
         ):
             with self.subTest(procestermijn=value):
-                with requests_mock.Mocker() as m:
-                    # re-use same form instance...
-                    form._errors = None
+                # re-use same form instance...
+                form._errors = None
 
-                    # set up selectielijst API mock
-                    m.register_uri(
-                        "GET",
-                        resultaat_url,
-                        json={
-                            "url": resultaat_url,
-                            "procesType": procestype,
-                            "procestermijn": value,
-                        },
-                    )
+                # set up selectielijst API mock
+                self.requests_mocker.register_uri(
+                    "GET",
+                    resultaat_url,
+                    json={
+                        "url": resultaat_url,
+                        "procesType": procestype,
+                        "procestermijn": value,
+                    },
+                )
 
-                    valid = form.is_valid()
+                valid = form.is_valid()
 
-                    self.assertFalse(valid)
-                    error = form.errors.as_data()[
-                        "brondatum_archiefprocedure_afleidingswijze"
-                    ][0]
-                    self.assertEqual(error.code, "invalid")
+                self.assertFalse(valid)
+                error = form.errors.as_data()[
+                    "brondatum_archiefprocedure_afleidingswijze"
+                ][0]
+                self.assertEqual(error.code, "invalid")
 
-    @requests_mock.Mocker()
     def test_procestermijn_ingeschatte_bestaansduur_procesobject(
-        self, mock_has_shape, mock_fetcher, m
+        self, mock_has_shape, mock_fetcher
     ):
         """
         Validate that the afleidingswijze is fixed for 'ingeschatte_bestaansduur_procesobject' values.
@@ -279,7 +272,7 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(TestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype)
 
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -342,34 +335,35 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(TestCase):
             "samengevoegd_met_bewaartermijn",
         ):
             with self.subTest(procestermijn=value):
-                with requests_mock.Mocker() as m:
-                    # re-use same form instance...
-                    form._errors = None
+                # re-use same form instance...
+                form._errors = None
 
-                    # set up selectielijst API mock
-                    m.register_uri(
-                        "GET",
-                        resultaat_url,
-                        json={
-                            "url": resultaat_url,
-                            "procesType": procestype,
-                            "procestermijn": value,
-                        },
-                    )
+                # set up selectielijst API mock
+                self.requests_mocker.register_uri(
+                    "GET",
+                    resultaat_url,
+                    json={
+                        "url": resultaat_url,
+                        "procesType": procestype,
+                        "procestermijn": value,
+                    },
+                )
 
-                    valid = form.is_valid()
+                valid = form.is_valid()
 
-                    self.assertFalse(valid)
-                    error = form.errors.as_data()[
-                        "brondatum_archiefprocedure_afleidingswijze"
-                    ][0]
-                    self.assertEqual(error.code, "invalid")
+                self.assertFalse(valid)
+                error = form.errors.as_data()[
+                    "brondatum_archiefprocedure_afleidingswijze"
+                ][0]
+                self.assertEqual(error.code, "invalid")
 
 
 @tag("resultaattype")
 @patch("vng_api_common.validators.fetcher")
 @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
+class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
+    SelectieLijstMixin, TestCase
+):
     """
     Validate the dependencies between afleidingswijze and paramter fields
 
@@ -420,8 +414,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             errors["brondatum_archiefprocedure_procestermijn"][0].code, "invalid"
         )
 
-    @requests_mock.Mocker()
-    def test_only_afleidingswijze_1(self, mock_has_shape, mock_fetcher, m):
+    def test_only_afleidingswijze_1(self, mock_has_shape, mock_fetcher):
         """
         Test the values that forbid any parameter fields
 
@@ -441,7 +434,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
 
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -455,8 +448,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             with self.subTest(afleidingswijze=value):
                 self.assertParameterFieldsForbidden(value, procestype, resultaat_url)
 
-    @requests_mock.Mocker()
-    def test_only_afleidingswijze_afgehandeld(self, mock_has_shape, mock_fetcher, m):
+    def test_only_afleidingswijze_afgehandeld(self, mock_has_shape, mock_fetcher):
         """
         Test the values that forbid any parameter fields
 
@@ -469,7 +461,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
 
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -483,8 +475,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             Afleidingswijze.afgehandeld, procestype, resultaat_url
         )
 
-    @requests_mock.Mocker()
-    def test_only_afleidingswijze_termijn(self, mock_has_shape, mock_fetcher, m):
+    def test_only_afleidingswijze_termijn(self, mock_has_shape, mock_fetcher):
         """
         Test the values that forbid any parameter fields
 
@@ -497,7 +488,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
 
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -551,34 +542,32 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
 
         for procestermijn, afleidingswijze in pairs:
             with self.subTest(afleidingswijze=afleidingswijze):
-                with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        resultaat_url,
-                        json={
-                            "url": resultaat_url,
-                            "procesType": procestype,
-                            "procestermijn": procestermijn,
-                        },
-                    )
+                self.requests_mocker.register_uri(
+                    "GET",
+                    resultaat_url,
+                    json={
+                        "url": resultaat_url,
+                        "procesType": procestype,
+                        "procestermijn": procestermijn,
+                    },
+                )
 
-                    form = self._get_form(
-                        afleidingswijze,
-                        zaaktype,
-                        resultaat_url,
-                        **{"brondatum_archiefprocedure_einddatum_bekend": True}
-                    )
+                form = self._get_form(
+                    afleidingswijze,
+                    zaaktype,
+                    resultaat_url,
+                    **{"brondatum_archiefprocedure_einddatum_bekend": True}
+                )
 
-                    self.assertFalse(form.is_valid())
-                    errors = form.errors.as_data()
+                self.assertFalse(form.is_valid())
+                errors = form.errors.as_data()
 
-                    self.assertEqual(
-                        errors["brondatum_archiefprocedure_einddatum_bekend"][0].code,
-                        "invalid",
-                    )
+                self.assertEqual(
+                    errors["brondatum_archiefprocedure_einddatum_bekend"][0].code,
+                    "invalid",
+                )
 
-    @requests_mock.Mocker()
-    def test_afleidingswijze_eigenschap(self, mock_has_shape, mock_fetcher, m):
+    def test_afleidingswijze_eigenschap(self, mock_has_shape, mock_fetcher):
         """
         Assert that registratie and objecttype are forbidden and datumkenmerk required
         """
@@ -587,7 +576,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
         zaaktype = ZaakTypeFactory.create()
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -621,8 +610,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             errors["brondatum_archiefprocedure_datumkenmerk"][0].code, "required"
         )
 
-    @requests_mock.Mocker()
-    def test_afleidingswijze_zaakobject(self, mock_has_shape, mock_fetcher, m):
+    def test_afleidingswijze_zaakobject(self, mock_has_shape, mock_fetcher):
         """
         Assert that registratie and objecttype are forbidden and datumkenmerk required
         """
@@ -631,7 +619,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
         zaaktype = ZaakTypeFactory.create()
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={
@@ -665,8 +653,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
             errors["brondatum_archiefprocedure_datumkenmerk"][0].code, "required"
         )
 
-    @requests_mock.Mocker()
-    def test_afleidingswijze_ander_datumkenmerk(self, mock_has_shape, mock_fetcher, m):
+    def test_afleidingswijze_ander_datumkenmerk(self, mock_has_shape, mock_fetcher):
         """
         Assert that registratie and objecttype are forbidden and datumkenmerk required
         """
@@ -675,7 +662,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(TestCase):
         )
         zaaktype = ZaakTypeFactory.create()
         # set up selectielijst API mock
-        m.register_uri(
+        self.requests_mocker.register_uri(
             "GET",
             resultaat_url,
             json={

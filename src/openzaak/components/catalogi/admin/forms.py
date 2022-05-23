@@ -18,6 +18,8 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import reverse as _reverse
 from vng_api_common.validators import ResourceValidator
+from zds_client import ClientError
+from zgw_consumers.models import Service
 
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
@@ -36,6 +38,18 @@ from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 
 class ZaakTypeForm(forms.ModelForm):
+    selectielijst_reset = forms.BooleanField(
+        label=_("Reset selectielijst configuration"),
+        required=False,
+        initial=False,
+        help_text=_(
+            "Reset the selectielijstprocestype for the zaaktype and all "
+            "selectielijstklassen specified for the attached resultaattypen. You need "
+            "to check this if you want to change the selectielijstprocestype of a "
+            "zaaktype."
+        ),
+    )
+
     class Meta:
         model = ZaakType
         fields = "__all__"
@@ -85,6 +99,51 @@ class ZaakTypeForm(forms.ModelForm):
         ]
 
         return bool(changed_data)
+
+    def clean_selectielijst_procestype(self):
+        # #970 -- check that if the procestype from selectielijst changes, this does
+        # not break the consistency with the selectielijstklasse specified in each
+        # resultaattype
+        procestype_url = self.cleaned_data["selectielijst_procestype"]
+        # create instead of update -> no validation required
+        if not self.instance.pk:
+            return procestype_url
+
+        # if we are resetting, there's no reason to run validation
+        if self.cleaned_data.get("selectielijst_reset"):
+            return procestype_url
+
+        selectielijstklassen = (
+            self.instance.resultaattypen.exclude(selectielijstklasse="")
+            .values_list("selectielijstklasse", flat=True)
+            .distinct()
+        )
+        #  no existing selectielijstklassen specified -> nothing to validate
+        if not selectielijstklassen:
+            return procestype_url
+
+        # fetch the selectielijstklasse and compare that relations are still consistent
+        for url in selectielijstklassen:
+            client = Service.get_client(url)
+            if client is None:
+                self.add_error(
+                    None, _("Could not build a client for {url}").format(url=url)
+                )
+                continue
+
+            resultaat = client.retrieve("resultaat", url=url)
+
+            if resultaat["procesType"] != procestype_url:
+                raise forms.ValidationError(
+                    _(
+                        "You cannot change the procestype because there are resultaatypen "
+                        "attached to this zaaktype with a selectielijstklasse belonging "
+                        "to the current procestype."
+                    ),
+                    code="invalid",
+                )
+
+        return procestype_url
 
     def clean(self):
         super().clean()
@@ -146,10 +205,24 @@ class ResultaatTypeForm(forms.ModelForm):
             # nothing to do
             return
 
-        response = requests.get(selectielijstklasse)
+        client = Service.get_client(selectielijstklasse)
+        if client is None:
+            self.add_error(
+                "selectielijstklasse",
+                forms.ValidationError(
+                    _(
+                        "Could not determine the selectielijstklasse service for URL {url}"
+                    ).format(url=selectielijstklasse),
+                    code="invalid",
+                ),
+            )
+            return
+
         try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
+            selectielijst_resultaat = client.retrieve(
+                "resultaat", url=selectielijstklasse
+            )
+        except ClientError as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")
                 % selectielijstklasse
@@ -165,7 +238,7 @@ class ResultaatTypeForm(forms.ModelForm):
             err = forms.ValidationError(exc.detail[0], code=exc.detail[0].code)
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
 
-        procestype = response.json()["procesType"]
+        procestype = selectielijst_resultaat["procesType"]
         if procestype != zaaktype.selectielijst_procestype:
             if not zaaktype.selectielijst_procestype:
                 edit_zaaktype = reverse(
