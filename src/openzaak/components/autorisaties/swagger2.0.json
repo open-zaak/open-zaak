@@ -308,25 +308,7 @@
                 "operationId": "applicatie_read",
                 "summary": "Vraag een applicatie op, met ingesloten autorisaties.",
                 "description": "De autorisaties zijn gedefinieerd op een specifieke component, bijvoorbeeld\nhet ZRC, en geven aan welke scopes van toepassing zijn voor dit component.\nDe waarde van de `component` bepaalt ook welke verdere informatie ingesloten\nis, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.\n\nIn dit voorbeeld gelden er dus zaaktype-specifieke scopes en mogen zaken\nvan het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding\ndan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.",
-                "parameters": [
-                    {
-                        "name": "If-None-Match",
-                        "in": "header",
-                        "description": "Voer een voorwaardelijk verzoek uit. Deze header moet \u00e9\u00e9n of meerdere ETag-waardes bevatten van resources die de consumer gecached heeft. Indien de waarde van de ETag van de huidige resource voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer informatie.",
-                        "required": false,
-                        "type": "string",
-                        "examples": {
-                            "oneValue": {
-                                "summary": "E\u00e9n ETag-waarde",
-                                "value": "\"79054025255fb1a26e4bc422aef54eb4\""
-                            },
-                            "multipleValues": {
-                                "summary": "Meerdere ETag-waardes",
-                                "value": "\"79054025255fb1a26e4bc422aef54eb4\", \"e4d909c290d0fb1ca068ffaddf22cbd0\""
-                            }
-                        }
-                    }
-                ],
+                "parameters": [],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -334,10 +316,6 @@
                             "$ref": "#/definitions/Applicatie"
                         },
                         "headers": {
-                            "ETag": {
-                                "description": "De ETag berekend op de response body JSON. Indien twee resources exact dezelfde ETag hebben, dan zijn deze resources identiek aan elkaar. Je kan de ETag gebruiken om caching te implementeren.",
-                                "type": "string"
-                            },
                             "API-version": {
                                 "schema": {
                                     "type": "string"
