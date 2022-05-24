@@ -8,13 +8,12 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-import requests_cache
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.catalogi.api import serializers
 from openzaak.components.catalogi.constants import IMPORT_ORDER
-from openzaak.utils.cache import DjangoRequestsCache
+from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
 
 
 class Command(BaseCommand):
@@ -39,7 +38,7 @@ class Command(BaseCommand):
             ),
         )
 
-    @requests_cache.enabled("import", backend=DjangoRequestsCache())
+    @requests_cache_enabled("import", backend=DjangoRequestsCache())
     @transaction.atomic
     def handle(self, *args, **options):
         import_file = options.pop("import_file")
