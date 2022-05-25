@@ -24,7 +24,6 @@ from vng_api_common.validators import (
     URLValidator,
 )
 
-from openzaak.components.catalogi.models import catalogus
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
@@ -35,6 +34,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
@@ -47,7 +47,7 @@ from .factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, isodatetime
+from .utils import ZAAK_WRITE_KWARGS, get_zaaktype_response, isodatetime
 
 
 class ZaakValidationTests(JWTAuthMixin, APITestCase):
@@ -519,8 +519,6 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
         """
         # set up zaaktypen
         hoofdzaaktype = ZaakTypeFactory.create()
-        deelzaaktype = ZaakTypeFactory.create(catalogus=hoofdzaaktype.catalogus)
-        hoofdzaaktype.deelzaaktypen.set([deelzaaktype])
         unrelated_zaaktype = ZaakTypeFactory.create(
             catalogus=hoofdzaaktype.catalogus, concept=False
         )
@@ -540,6 +538,46 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
             },
             **ZAAK_WRITE_KWARGS,
         )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "hoofdzaak")
+        self.assertEqual(error["code"], "invalid-deelzaaktype")
+
+    @tag("gh-992", "external-urls")
+    def test_validate_hoofdzaaktype_deelzaaktypen_remote_zaaktype(self):
+        """
+        Assert that the zaatkype allowed deelzaaktypen is validated.
+        """
+        # set up zaaktypen
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            m.get(
+                hoofdzaaktype,
+                json=get_zaaktype_response(catalogus, hoofdzaaktype, deelzaaktypen=[]),
+            )
+            m.get(
+                unrelated_zaaktype,
+                json=get_zaaktype_response(catalogus, unrelated_zaaktype),
+            )
+            # set up hoofdzaak
+            hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
+            url = reverse("zaak-list")
+
+            response = self.client.post(
+                url,
+                {
+                    "zaaktype": unrelated_zaaktype,
+                    "hoofdzaak": reverse(hoofdzaak),
+                    "bronorganisatie": "123456782",
+                    "verantwoordelijkeOrganisatie": "123456782",
+                    "startdatum": "1970-01-01",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
