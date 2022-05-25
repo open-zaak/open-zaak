@@ -365,7 +365,8 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], "bad-url")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    def test_validate_selectielijstklasse_invalid_resource(self):
+    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
+    def test_validate_selectielijstklasse_invalid_resource(self, mock_has_shape):
         url = reverse("zaak-list")
         responses = {"https://ztc.com/resultaten/1234": {"some": "incorrect property"}}
 
