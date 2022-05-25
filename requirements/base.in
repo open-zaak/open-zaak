@@ -6,6 +6,7 @@ python-dateutil
 python-dotenv  # environment variables for secrets
 python-decouple  # processing of envvar configs
 requests
+requests-cache
 zgw-consumers
 self-certifi
 bleach

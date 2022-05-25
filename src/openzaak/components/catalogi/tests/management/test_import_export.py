@@ -8,8 +8,9 @@ from unittest.mock import patch
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
+import requests_cache
 import requests_mock
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
@@ -162,6 +163,7 @@ class ExportCatalogiTests(TestCase):
             self.assertEqual(f.namelist(), ["Catalogus.json"])
 
 
+@tag("catalogi-import")
 class ImportCatalogiTests(TestCase):
     base = "https://selectielijst.example.nl/api/v1/"
 
@@ -177,7 +179,9 @@ class ImportCatalogiTests(TestCase):
 
     def setUp(self):
         self.filepath = os.path.join(PATH, "export_test.zip")
-        self.addCleanup(lambda: os.remove(self.filepath))
+        self.addCleanup(
+            lambda: os.remove(self.filepath) if os.path.exists(self.filepath) else None
+        )
 
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
@@ -387,3 +391,129 @@ class ImportCatalogiTests(TestCase):
 
         self.assertEqual(zaaktype2.catalogus, imported_catalogus)
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "test2")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_import_request_caching(self, *mocks):
+        """
+        Assert that when running imports, external requests are cached to improve import performance
+        """
+        catalogus = CatalogusFactory.create(rsin="000000000")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+
+        resultaattypeomschrijving = "https://example.com/resultaattypeomschrijving/2"
+        selectielijstklasse = (
+            f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
+            )
+
+            # Create multiple resultaattypen with same `resultaattypeomschrijving`
+            resultaattypen = ResultaatTypeFactory.create_batch(
+                10,
+                zaaktype=zaaktype,
+                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
+                brondatum_archiefprocedure_datumkenmerk="datum",
+                brondatum_archiefprocedure_registratie="bla",
+                brondatum_archiefprocedure_objecttype="besluit",
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                selectielijstklasse=selectielijstklasse,
+            )
+
+        Catalogus.objects.exclude(pk=catalogus.pk).delete()
+
+        resources = [
+            "Catalogus",
+            "ZaakType",
+            "ResultaatType",
+        ]
+        ids = [
+            [catalogus.id],
+            [zaaktype.id],
+            [resultaattype.id for resultaattype in resultaattypen],
+        ]
+        call_command("export", archive_name=self.filepath, resource=resources, ids=ids)
+
+        catalogus.delete()
+
+        responses = {
+            resultaattypeomschrijving: {
+                "url": resultaattypeomschrijving,
+                "omschrijving": "bla",
+                "definitie": "bla",
+                "opmerking": "adasdasd",
+            },
+            selectielijstklasse: {
+                "url": selectielijstklasse,
+                "procesType": zaaktype.selectielijst_procestype,
+                "nummer": 1,
+                "naam": "bla",
+                "herkomst": "adsad",
+                "waardering": "blijvend_bewaren",
+                "procestermijn": "P5Y",
+            },
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(resultaattypeomschrijving, json={"omschrijving": "bla"})
+            with mock_client(responses):
+                call_command(
+                    "import", import_file=self.filepath, generate_new_uuids=True
+                )
+
+            # Only one request to retrieve the `resultaattypeomschrijving`, due to caching
+            self.assertEqual(len(m.request_history), 1)
+            [resultaattypeomschrijving_request] = m.request_history
+
+        self.assertEqual(resultaattypeomschrijving_request.method, "GET")
+        self.assertEqual(
+            resultaattypeomschrijving_request.url, resultaattypeomschrijving,
+        )
+
+        imported_catalogus = Catalogus.objects.get()
+        zaaktype = ZaakType.objects.get()
+
+        self.assertEqual(zaaktype.catalogus, imported_catalogus)
+        self.assertEqual(ResultaatType.objects.count(), 10)
+        self.assertEqual(ResultaatType.objects.filter(zaaktype=zaaktype).count(), 10)
+
+        # Run another import, the cache should be reset between imports
+        imported_catalogus.delete()
+        with requests_mock.Mocker() as m:
+            m.get(resultaattypeomschrijving, json={"omschrijving": "bla"})
+            with mock_client(responses):
+                call_command(
+                    "import", import_file=self.filepath, generate_new_uuids=True
+                )
+
+            # Only one request to retrieve the `resultaattypeomschrijving`, due to caching
+            self.assertEqual(len(m.request_history), 1)
+            [resultaattypeomschrijving_request] = m.request_history
+
+        self.assertEqual(resultaattypeomschrijving_request.method, "GET")
+        self.assertEqual(
+            resultaattypeomschrijving_request.url, resultaattypeomschrijving,
+        )
+
+    @patch(
+        "openzaak.utils.cache.uninstall_cache",
+        side_effect=requests_cache.uninstall_cache,
+    )
+    def test_import_failure_uninstall_cache(self, uninstall_cache_mock):
+        """
+        Assert that when running imports, the requests cache is properly uninstalled if errors occur
+        """
+
+        with self.assertRaises(zipfile.BadZipFile):
+            call_command("import", import_file_content=b"bad-data")
+
+        # Cache should be uninstalled despite errors during import
+        self.assertTrue(uninstall_cache_mock.called)
