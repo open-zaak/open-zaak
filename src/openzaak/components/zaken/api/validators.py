@@ -19,6 +19,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..models import Zaak
 
@@ -112,6 +113,25 @@ class HoofdzaakValidator:
     def __call__(self, obj: models.Model):
         if obj.hoofdzaak_id is not None:
             raise serializers.ValidationError(self.message, code=self.code)
+
+
+class HoofdZaaktypeRelationValidator:
+    code = "invalid-deelzaaktype"
+    message = _("Zaaktype niet vastgelegd in deelzaaktypen van hoofdzaak.zaaktype")
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        hoofdzaak = get_from_serializer_data_or_instance("hoofdzaak", attrs, serializer)
+        zaaktype = get_from_serializer_data_or_instance("zaaktype", attrs, serializer)
+
+        # keys may be missing because of earlier validation
+        if not hoofdzaak or not zaaktype:
+            return
+
+        if zaaktype not in hoofdzaak.zaaktype.deelzaaktypen.all():
+            raise serializers.ValidationError(
+                {"hoofdzaak": self.message}, code=self.code
+            )
 
 
 class CorrectZaaktypeValidator:
