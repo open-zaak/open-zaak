@@ -220,6 +220,7 @@ class ZaakViewSet(
             ),
         )
         .order_by("-pk")
+        .distinct()
     )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
