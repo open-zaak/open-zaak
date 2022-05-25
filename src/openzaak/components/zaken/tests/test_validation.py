@@ -24,6 +24,7 @@ from vng_api_common.validators import (
     URLValidator,
 )
 
+from openzaak.components.catalogi.models import catalogus
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
@@ -510,6 +511,40 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "hoofdzaak")
         self.assertEqual(error["code"], "deelzaak-als-hoofdzaak")
+
+    @tag("gh-992")
+    def test_validate_hoofdzaaktype_deelzaaktypen(self):
+        """
+        Assert that the zaatkype allowed deelzaaktypen is validated.
+        """
+        # set up zaaktypen
+        hoofdzaaktype = ZaakTypeFactory.create()
+        deelzaaktype = ZaakTypeFactory.create(catalogus=hoofdzaaktype.catalogus)
+        hoofdzaaktype.deelzaaktypen.set([deelzaaktype])
+        unrelated_zaaktype = ZaakTypeFactory.create(
+            catalogus=hoofdzaaktype.catalogus, concept=False
+        )
+        # set up hoofdzaak
+        hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
+
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{reverse(unrelated_zaaktype)}",
+                "hoofdzaak": reverse(hoofdzaak),
+                "bronorganisatie": "123456782",
+                "verantwoordelijkeOrganisatie": "123456782",
+                "startdatum": "1970-01-01",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "hoofdzaak")
+        self.assertEqual(error["code"], "invalid-deelzaaktype")
 
 
 class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
