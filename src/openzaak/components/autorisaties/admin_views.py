@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -198,6 +198,10 @@ def get_initial_for_component(
     return initial
 
 
+def _get_group_key(spec: Union[Autorisatie, AutorisatieSpec]) -> Tuple[str, Tuple[str]]:
+    return (spec.component, tuple(sorted(spec.scopes)))
+
+
 def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     """
     Figure out the initial data for the formset, showing existing config.
@@ -216,11 +220,17 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     grouped = defaultdict(list)
     autorisaties = applicatie.autorisaties.all()
     for autorisatie in autorisaties:
-        key = (
-            autorisatie.component,
-            tuple(sorted(autorisatie.scopes)),
-        )
+        key = _get_group_key(autorisatie)
         grouped[key].append(autorisatie)
+
+    # if there's no existing records yet, there will not be any autorisaties and we
+    # have to inject the autorisatiespec itself. See #1080 for the bug report.
+    for spec in autorisatie_specs.values():
+        key = _get_group_key(spec)
+        # can happen if there's a spec but no existing records yet
+        if key in grouped:
+            continue
+        grouped[key] = []
 
     for (component, _scopes), _autorisaties in grouped.items():
         component_initial = get_initial_for_component(
