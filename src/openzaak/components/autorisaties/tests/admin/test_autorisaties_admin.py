@@ -763,3 +763,29 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
             response.context_data["formset"]._non_form_errors[0],
             "Scopes in ztc may not be duplicated.",
         )
+
+    @tag("gh-1080")
+    def test_autorisaties_visible_even_if_only_a_spec_exists(self):
+        """
+        Assert that the initial form data contains autorisatiespecs if only the spec exists.
+
+        Regression test for Github issue #1080.
+        """
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        initial_data = response.context["formdata"]
+        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
+        form_data = initial_data[0]
+        self.assertEqual(form_data["values"]["component"], ComponentTypes.brc)
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(form_data["values"]["scopes"], ["besluiten.lezen"])
