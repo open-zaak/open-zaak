@@ -64,6 +64,7 @@ from ..validators import (
     DateNotInFutureValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
+    HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
     RolOccurenceValidator,
@@ -300,6 +301,7 @@ class ZaakSerializer(
         validators = [
             UniekeIdentificatieValidator(),
             ZaakArchiveIOsArchivedValidator(),
+            HoofdZaaktypeRelationValidator(),
         ]
 
     def __init__(self, *args, **kwargs):

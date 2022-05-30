@@ -26,7 +26,7 @@ def get_operation_url(operation, **kwargs):
     return _get_operation_url(operation, spec_path=settings.SPEC_URL["zaken"], **kwargs)
 
 
-def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
+def get_zaaktype_response(catalogus: str, zaaktype: str, **overrides) -> dict:
     return {
         "url": zaaktype,
         "catalogus": catalogus,
@@ -66,6 +66,7 @@ def get_zaaktype_response(catalogus: str, zaaktype: str) -> dict:
         "beginGeldigheid": "2019-11-20",
         "versiedatum": "2019-11-20",
         "concept": False,
+        **overrides,
     }
 
 
