@@ -2,3 +2,5 @@
 // Copyright (C) 2020 Dimpact
 import './applicatie-autorisaties';
 import './external-services';
+import './resultaattypen';
+import './zaaktypen';

@@ -106,7 +106,8 @@ class ResultaatTypeAdmin(
         """
         if not hasattr(request, "_zaaktype"):
             object_id = request.resolver_match.kwargs.get("object_id")
-            zaaktype_pk = request.GET.get("zaaktype")
+            container = request.POST if request.method == "POST" else request.GET
+            zaaktype_pk = container.get("zaaktype")
 
             # fetch it from the instance we're viewing/editing if possible
             if obj is not None:
