@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.test import tag
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import RolOmschrijving, RolTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.utils.tests import JWTAuthMixin
@@ -180,3 +183,31 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.data, {"count": 0, "next": None, "previous": None, "results": []}
         )
+
+    @tag("gh-1023")
+    def test_filter_by_rol_omschrijving_generiek_no_duplicate_results(self):
+        """
+        Assert that filtering on rol__omschrijvingGeneriek does not return duplicate results.
+
+        Regression test for bug reported in #1023
+        """
+        zaak = ZaakFactory.create()
+        RolFactory.create(
+            zaak=zaak,
+            betrokkene_type=RolTypes.medewerker,
+            omschrijving_generiek=RolOmschrijving.behandelaar,
+        )
+        RolFactory.create(
+            zaak=zaak,
+            betrokkene_type=RolTypes.organisatorische_eenheid,
+            omschrijving_generiek=RolOmschrijving.behandelaar,
+        )
+
+        response = self.client.get(
+            reverse(Zaak),
+            {"rol__omschrijvingGeneriek": "behandelaar"},
+            **ZAAK_READ_KWARGS
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
