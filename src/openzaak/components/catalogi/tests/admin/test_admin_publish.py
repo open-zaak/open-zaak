@@ -23,6 +23,9 @@ from openzaak.utils.tests import ClearCachesMixin
 from ..factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
@@ -59,6 +62,11 @@ class ZaaktypeAdminTests(
         mock_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -71,7 +79,14 @@ class ZaaktypeAdminTests(
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
         )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         response = self.app.get(url)
@@ -163,7 +178,16 @@ class ZaaktypeAdminTests(
 
     def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
         mock_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
         mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
 
         zaaktype = ZaakTypeFactory.create(
             concept=True,
@@ -171,8 +195,16 @@ class ZaaktypeAdminTests(
             vertrouwelijkheidaanduiding="openbaar",
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
         )
         BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         response = self.app.get(url)
@@ -206,7 +238,16 @@ class ZaaktypeAdminTests(
 
     def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
         mock_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
         mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
 
         zaaktype = ZaakTypeFactory.create(
             concept=True,
@@ -214,7 +255,15 @@ class ZaaktypeAdminTests(
             vertrouwelijkheidaanduiding="openbaar",
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
         )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=True, zaaktype=zaaktype
         )

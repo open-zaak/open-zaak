@@ -522,8 +522,33 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.url = reverse_lazy("admin:catalogi_zaaktype_changelist")
         self.query_params = {"catalogus_id__exact": self.catalogus.pk}
 
-    def test_publish_selected_success(self):
-        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=self.catalogus)
+    @requests_mock.Mocker()
+    def test_publish_selected_success(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(
+            2,
+            catalogus=self.catalogus,
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+            verlenging_mogelijk=False,
+        )
+        for zaaktype in zaaktype1, zaaktype2:
+            StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+            StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+            ResultaatTypeFactory.create(
+                zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+            )
+            RolTypeFactory.create(zaaktype=zaaktype)
 
         response = self.app.get(self.url, self.query_params)
 
@@ -561,8 +586,31 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
 
-    def test_publish_related_to_not_published(self):
-        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=True)
+    @requests_mock.Mocker()
+    def test_publish_related_to_not_published(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+            verlenging_mogelijk=False,
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
         BesluitTypeFactory.create(
             zaaktypen=[zaaktype], catalogus=self.catalogus, concept=True
         )
