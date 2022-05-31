@@ -6,7 +6,7 @@ from django.apps import apps
 from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import Field
-from django.forms import ChoiceField
+from django.forms import ChoiceField, model_to_dict
 from django.http import HttpRequest
 from django.utils.translation import ugettext_lazy as _
 
@@ -273,6 +273,16 @@ class ZaakTypeAdmin(
             or obj.informatieobjecttypen.filter(concept=True).exists()
         ):
             errors.append(_("All related resources should be published"))
+
+        form = self.form(instance=obj, data={**model_to_dict(obj), "_publish": "1"})
+        if not form.is_valid():
+            for field_name, error_list in form.errors.items():
+                if field_name != "__all__":
+                    form_field = form.fields[field_name]
+                    errors += [f"{form_field.label}: {err}" for err in error_list]
+                else:
+                    errors += error_list
+
         return errors
 
     def get_object_actions(self, obj):
