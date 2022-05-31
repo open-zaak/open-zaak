@@ -404,7 +404,7 @@ pygments==2.8.1
     # via
     #   sphinx
     #   sphinx-tabs
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via
     #   -r requirements/ci.txt
     #   django-auth-adfs
