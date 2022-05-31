@@ -707,4 +707,38 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
     @tag("gh-1085")
     def test_bulk_publish_action_validation(self):
-        raise NotImplementedError
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="#1085",
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [zaaktype.pk]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        expected_messages = [
+            _("Publishing a zaaktype requires at least one roltype to be defined."),
+            _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            ),
+            _("Publishing a zaaktype requires at least two statustypes to be defined."),
+        ]
+        for expected_error in expected_messages:
+            with self.subTest(error=expected_error):
+                full_error = _("%(obj)s can't be published: %(error)s") % {
+                    "obj": zaaktype,
+                    "error": expected_error,
+                }
+                self.assertIn(full_error, messages)
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
