@@ -313,7 +313,7 @@ pycparser==2.21
     #   cffi
 pyflakes==2.2.0
     # via flake8
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via
     #   -r requirements/base.txt
     #   django-auth-adfs

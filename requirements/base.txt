@@ -215,7 +215,7 @@ psycopg2==2.9.3
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via
     #   django-auth-adfs
     #   gemma-zds-client
