@@ -18,6 +18,9 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.catalogi.models.informatieobjecttype import (
+    InformatieObjectType,
+)
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
@@ -28,7 +31,7 @@ from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
-from ..factories import ApplicatieFactory, AutorisatieSpecFactory
+from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
 
 ZTC_URL = "https://ztc.com/api/v1"
 ZAAKTYPE1 = f"{ZTC_URL}/zaaktypen/1"
@@ -789,3 +792,41 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
             RelatedTypeSelectionMethods.all_current_and_future,
         )
         self.assertEqual(form_data["values"]["scopes"], ["besluiten.lezen"])
+
+    @tag("gh-1081")
+    def test_remove_iotype_with_autorisaties_linked(self):
+        """
+        Assert that the autorisatie is deleted if the related informatieobjecttype is deleted.
+
+        Regression test for Github issue #1081.
+
+        Note that there is a similar test in
+        openzaak.components.catalogi.tests.test_zaaktype.ZaaktypeDeleteAutorisatieTests
+        """
+        # set up unrelated other authorization spec
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+        )
+
+        # set up reproduction case
+        iotype = InformatieObjectTypeFactory.create(concept=True)
+        url = f"http://testserver{iotype.get_absolute_api_url()}"
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            informatieobjecttype=url,
+        )
+
+        # now delete the iotype - which is allowed since it's a draft
+        InformatieObjectType.objects.filter(id=iotype.id).delete()
+
+        # check that the admin page does not crash
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        initial_data = response.context["formdata"]
+        self.assertEqual(len(initial_data), 2)  # 1 empty form, 1 unrelated auth spec
