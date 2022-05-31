@@ -15,7 +15,6 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
-from openzaak.utils.tests import mock_client
 
 from ...models import (
     BesluitType,
@@ -39,20 +38,26 @@ from ..factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from .test_import_export_zaaktype import MockSelectielijst
+
+mock_selectielijst_client = Service(
+    label="VNG Selectielijst",
+    api_type=APITypes.orc,
+    api_root="https://selectielijst.openzaak.nl/api/v1/",
+    oas="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+    auth_type=AuthTypes.no_auth,
+).build_client()
 
 
-class CatalogusAdminImportExportTests(WebTest):
-    base = "https://selectielijst.example.nl/api/v1/"
-
+@patch(
+    "openzaak.components.catalogi.models.zaaktype.Service.get_client",
+    return_value=mock_selectielijst_client,
+)
+class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.user = SuperUserFactory.create()
-        Service.objects.create(
-            api_type=APITypes.orc,
-            api_root=cls.base,
-            label="external selectielijst",
-            auth_type=AuthTypes.no_auth,
-        )
 
     def setUp(self):
         super().setUp()
@@ -70,7 +75,7 @@ class CatalogusAdminImportExportTests(WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
-            selectielijst_procestype="https://example.com/",
+            selectielijst_procestype=f"{self.base}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -98,12 +103,9 @@ class CatalogusAdminImportExportTests(WebTest):
             resultaattype = ResultaatTypeFactory.create(
                 zaaktype=zaaktype,
                 omschrijving_generiek="bla",
-                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
-                brondatum_archiefprocedure_datumkenmerk="datum",
-                brondatum_archiefprocedure_registratie="bla",
-                brondatum_archiefprocedure_objecttype="besluit",
+                brondatum_archiefprocedure_afleidingswijze="afgehandeld",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
@@ -142,28 +144,22 @@ class CatalogusAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        responses = {
-            resultaattype.resultaattypeomschrijving: {
-                "url": resultaattype.resultaattypeomschrijving,
-                "omschrijving": "bla",
-                "definitie": "bla",
-                "opmerking": "adasdasd",
-            },
-            resultaattype.selectielijstklasse: {
-                "url": resultaattype.selectielijstklasse,
-                "procesType": zaaktype.selectielijst_procestype,
-                "nummer": 1,
-                "naam": "bla",
-                "herkomst": "adsad",
-                "waardering": "blijvend_bewaren",
-                "procestermijn": "P5Y",
-            },
+        selectielijstklasse_body = {
+            "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+            "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            "procestermijn": "nihil",
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
-            with mock_client(responses):
-                response = form.submit("_import")
+        self.requests_mocker.get(
+            resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"}
+        )
+        self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
+        self.requests_mocker.get(
+            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+        )
+        response = form.submit("_import")
+
+        self.assertEqual(response.status_code, 302)
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -184,6 +180,7 @@ class CatalogusAdminImportExportTests(WebTest):
         self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
 
         self.assertEqual(zaaktype.catalogus, imported_catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
 
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
@@ -213,7 +210,7 @@ class CatalogusAdminImportExportTests(WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
-            selectielijst_procestype="https://example.com/",
+            selectielijst_procestype=f"{self.base}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -241,12 +238,9 @@ class CatalogusAdminImportExportTests(WebTest):
             resultaattype = ResultaatTypeFactory.create(
                 zaaktype=zaaktype,
                 omschrijving_generiek="bla",
-                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
-                brondatum_archiefprocedure_datumkenmerk="datum",
-                brondatum_archiefprocedure_registratie="bla",
-                brondatum_archiefprocedure_objecttype="besluit",
+                brondatum_archiefprocedure_afleidingswijze="afgehandeld",
                 resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             )
 
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
@@ -286,28 +280,22 @@ class CatalogusAdminImportExportTests(WebTest):
             f.read(),
         )
 
-        responses = {
-            resultaattype.resultaattypeomschrijving: {
-                "url": resultaattype.resultaattypeomschrijving,
-                "omschrijving": "bla",
-                "definitie": "bla",
-                "opmerking": "adasdasd",
-            },
-            resultaattype.selectielijstklasse: {
-                "url": resultaattype.selectielijstklasse,
-                "procesType": zaaktype.selectielijst_procestype,
-                "nummer": 1,
-                "naam": "bla",
-                "herkomst": "adsad",
-                "waardering": "blijvend_bewaren",
-                "procestermijn": "P5Y",
-            },
+        selectielijstklasse_body = {
+            "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+            "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            "procestermijn": "nihil",
         }
 
-        with requests_mock.Mocker() as m:
-            m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
-            with mock_client(responses):
-                response = form.submit("_import")
+        self.requests_mocker.get(
+            resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"}
+        )
+        self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
+        self.requests_mocker.get(
+            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+        )
+        response = form.submit("_import")
+
+        self.assertEqual(response.status_code, 302)
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -328,6 +316,7 @@ class CatalogusAdminImportExportTests(WebTest):
         self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
 
         self.assertEqual(zaaktype.catalogus, imported_catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
 
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
@@ -348,7 +337,7 @@ class CatalogusAdminImportExportTests(WebTest):
         self.assertEqual(statustype.uuid, statustype_uuid)
         self.assertEqual(eigenschap.uuid, eigenschap_uuid)
 
-    def test_import_catalogus_already_exists(self):
+    def test_import_catalogus_already_exists(self, *mocks):
         catalogus = CatalogusFactory.create(
             rsin="000000000",
             domein="TEST",
@@ -386,7 +375,7 @@ class CatalogusAdminImportExportTests(WebTest):
         )
         self.assertEqual(Catalogus.objects.count(), 1)
 
-    def test_export_button_not_visible_on_create_new_catalogus(self):
+    def test_export_button_not_visible_on_create_new_catalogus(self, *mocks):
         url = reverse("admin:catalogi_catalogus_add")
 
         response = self.app.get(url)
