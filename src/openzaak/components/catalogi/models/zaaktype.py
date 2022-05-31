@@ -12,6 +12,7 @@ from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
+from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
@@ -296,6 +297,13 @@ class ZaakType(APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
         # sync after creating new objects
         if not self.pk:
             transaction.on_commit(AutorisatieSpec.sync)
+
+        if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
+            client = Service.get_client(self.selectielijst_procestype)
+            response = client.retrieve(
+                "selectielijst_procestype", url=self.selectielijst_procestype
+            )
+            self.selectielijst_procestype_jaar = response["jaar"]
 
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "versiedatum")
