@@ -1,19 +1,32 @@
 node_modules
+**/__pycache__
+*.pyc
 Dockerfile*
 docker-compose*
 .dockerignore
 .git
+.github/
 .vscode
+deployment/
+docs/
+docker/
 env/
 
 private-media/
 media/
 static/
 log/
+.coverage
+htmlcov
 
 .env
 includes/local.py
-volumes/
+docker/volumes/
 
+# tests & test assets
+src/**/tests/**
+src/openzaak/tests/schemas/
+
+# compiled static assets
 src/openzaak/static/css/
 src/openzaak/static/js/
