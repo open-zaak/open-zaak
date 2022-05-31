@@ -201,6 +201,31 @@ class ZaakTypeForm(forms.ModelForm):
                 ),
             )
 
+        num_roltypen = self.instance.roltype_set.count()
+        if not num_roltypen >= 1:
+            self.add_error(
+                None,
+                _("Publishing a zaaktype requires at least one roltype to be defined."),
+            )
+
+        num_resultaattypen = self.instance.resultaattypen.count()
+        if not num_resultaattypen >= 1:
+            self.add_error(
+                None,
+                _(
+                    "Publishing a zaaktype requires at least one resultaattype to be defined."
+                ),
+            )
+
+        num_statustypen = self.instance.statustypen.count()
+        if not num_statustypen >= 2:
+            self.add_error(
+                None,
+                _(
+                    "Publishing a zaaktype requires at least two statustypes to be defined."
+                ),
+            )
+
 
 class ResultaatTypeForm(forms.ModelForm):
     # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute

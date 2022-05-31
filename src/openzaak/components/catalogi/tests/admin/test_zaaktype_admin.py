@@ -3,7 +3,7 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext, ugettext_lazy as _
 
@@ -21,7 +21,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
 )
-from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils.tests import ClearCachesMixin
 
@@ -41,7 +41,7 @@ from ..factories import (
 
 @requests_mock.Mocker()
 class ZaaktypeAdminTests(
-    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+    NotificationsConfigMixin, SelectieLijstMixin, ClearCachesMixin, WebTest
 ):
     @classmethod
     def setUpTestData(cls):
@@ -506,9 +506,11 @@ class ZaaktypeAdminTests(
         self.assertEqual(resultaat.selectielijstklasse, "")
 
 
-class ZaakTypePublishAdminTests(WebTest):
+class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
         cls.user = SuperUserFactory.create()
 
     def setUp(self):
@@ -520,8 +522,33 @@ class ZaakTypePublishAdminTests(WebTest):
         self.url = reverse_lazy("admin:catalogi_zaaktype_changelist")
         self.query_params = {"catalogus_id__exact": self.catalogus.pk}
 
-    def test_publish_selected_success(self):
-        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=self.catalogus)
+    @requests_mock.Mocker()
+    def test_publish_selected_success(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(
+            2,
+            catalogus=self.catalogus,
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+            verlenging_mogelijk=False,
+        )
+        for zaaktype in zaaktype1, zaaktype2:
+            StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+            StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+            ResultaatTypeFactory.create(
+                zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+            )
+            RolTypeFactory.create(zaaktype=zaaktype)
 
         response = self.app.get(self.url, self.query_params)
 
@@ -559,8 +586,31 @@ class ZaakTypePublishAdminTests(WebTest):
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
 
-    def test_publish_related_to_not_published(self):
-        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=True)
+    @requests_mock.Mocker()
+    def test_publish_related_to_not_published(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+            verlenging_mogelijk=False,
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
         BesluitTypeFactory.create(
             zaaktypen=[zaaktype], catalogus=self.catalogus, concept=True
         )
@@ -580,6 +630,163 @@ class ZaakTypePublishAdminTests(WebTest):
                 f"{zaaktype} can't be published: All related resources should be published"
             ],
         )
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
+
+    @tag("gh-1085")
+    def test_publish_missing_roltype(self):
+        """
+        Assert that at least one roltype exists.
+
+        ImZTC prescribes a [1..*] cardinality. There's no requirements as far as I can
+        see that there MUST be an initiator type.
+        """
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+
+        response = change_page.form.submit("_publish")
+
+        self.assertEqual(
+            response.status_code, 200
+        )  # no redirect because validation errors
+        validation_errors = response.context["adminform"].errors
+
+        error = _("Publishing a zaaktype requires at least one roltype to be defined.")
+        self.assertIn(error, validation_errors["__all__"])
+
+    @tag("gh-1085")
+    def test_publish_requires_at_least_two_statustypes(self):
+        """
+        Assert that a zaaktype can only be published if there are at least two status types.
+
+        ImZTC prescribes at least one, but this doesn't make sense in the context of the
+        standard - a case must be created with an initial status (the single statustype).
+        But a case is also closed by setting the last statustype (based on
+        ``StatusType.volgNummer``). However, doing that requires a ``resultaat`` to be
+        set, which should logically only be possible after the case was started (by
+        setting the initial status). This means that the initial status cannot be the
+        final status, thus we require at least 2 statustypen for a zaaktype.
+        """
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+
+        error = _(
+            "Publishing a zaaktype requires at least two statustypes to be defined."
+        )
+
+        with self.subTest("no statustypen"):
+            response = change_page.form.submit("_publish")
+
+            self.assertEqual(
+                response.status_code, 200
+            )  # no redirect because validation errors
+            validation_errors = response.context["adminform"].errors
+
+            self.assertIn(error, validation_errors["__all__"])
+
+        with self.subTest("one statustype"):
+            StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+
+            response = change_page.form.submit("_publish")
+
+            self.assertEqual(
+                response.status_code, 200
+            )  # no redirect because validation errors
+            validation_errors = response.context["adminform"].errors
+
+            self.assertIn(error, validation_errors["__all__"])
+
+    @tag("gh-1085")
+    def test_publish_requires_at_least_once_resultaattype(self):
+        """
+        Assert that at least one resultaattype must exist before publishing a zaaktype.
+        """
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+
+        response = change_page.form.submit("_publish")
+
+        self.assertEqual(
+            response.status_code, 200
+        )  # no redirect because validation errors
+        validation_errors = response.context["adminform"].errors
+
+        error = _(
+            "Publishing a zaaktype requires at least one resultaattype to be defined."
+        )
+        self.assertIn(error, validation_errors["__all__"])
+
+    @tag("gh-1085")
+    @requests_mock.Mocker()
+    def test_publish_with_minimum_requirements(self, m):
+        mock_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(
+                "https://selectielijst.openzaak.nl/api/v1/"
+                "procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+            ),
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+
+        response = change_page.form.submit("_publish")
+
+        self.assertEqual(response.status_code, 302)
+
+    @tag("gh-1085")
+    def test_bulk_publish_action_validation(self):
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="#1085",
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.app.get(self.url, self.query_params)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [zaaktype.pk]
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        expected_messages = [
+            _("Publishing a zaaktype requires at least one roltype to be defined."),
+            _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            ),
+            _("Publishing a zaaktype requires at least two statustypes to be defined."),
+        ]
+        for expected_error in expected_messages:
+            with self.subTest(error=expected_error):
+                full_error = _("%(obj)s can't be published: %(error)s") % {
+                    "obj": zaaktype,
+                    "error": expected_error,
+                }
+                self.assertIn(full_error, messages)
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)

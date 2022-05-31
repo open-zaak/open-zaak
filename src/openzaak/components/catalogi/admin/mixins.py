@@ -3,7 +3,7 @@
 from copy import deepcopy
 from urllib.parse import parse_qsl, quote as urlquote
 
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.core.exceptions import PermissionDenied
 from django.core.management import CommandError, call_command
@@ -83,6 +83,7 @@ class PublishAdminMixin:
         """
         return not obj.concept
 
+    @admin.action(description=_("Publish selected %(verbose_name_plural)s"))
     def publish_selected(self, request, queryset):
         published = 0
         already_published = queryset.filter(concept=False).count()
@@ -129,8 +130,6 @@ class PublishAdminMixin:
 
     is_published.short_description = _("gepubliceerd")
     is_published.boolean = True
-
-    publish_selected.short_description = _("Publish selected objects")
 
 
 class SideEffectsMixin:
