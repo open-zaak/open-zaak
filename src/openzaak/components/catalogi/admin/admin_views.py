@@ -11,6 +11,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
+from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+
 from ..models import Catalogus
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
@@ -54,9 +56,12 @@ class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
             else:
                 try:
                     with transaction.atomic():
-                        import_zaaktype_for_catalogus(
-                            catalogus_pk, request.session["file_content"], {}, {}
-                        )
+                        with requests_cache_enabled(
+                            "import", backend=DjangoRequestsCache()
+                        ):
+                            import_zaaktype_for_catalogus(
+                                catalogus_pk, request.session["file_content"], {}, {}
+                            )
 
                     messages.add_message(
                         request, messages.SUCCESS, _("ZaakType successfully imported")
@@ -148,12 +153,13 @@ class CatalogusZaakTypeImportSelectView(PermissionRequiredMixin, TemplateView):
                             iotypen_uuid_mapping,
                         )
 
-                import_zaaktype_for_catalogus(
-                    kwargs["catalogus_pk"],
-                    request.session["file_content"],
-                    iotypen_uuid_mapping,
-                    besluittypen_uuid_mapping,
-                )
+                with requests_cache_enabled("import", backend=DjangoRequestsCache()):
+                    import_zaaktype_for_catalogus(
+                        kwargs["catalogus_pk"],
+                        request.session["file_content"],
+                        iotypen_uuid_mapping,
+                        besluittypen_uuid_mapping,
+                    )
 
             messages.add_message(
                 request, messages.SUCCESS, _("ZaakType successfully imported")
