@@ -64,7 +64,12 @@ def sync_autorisaties(
     # For this reason, since it's effectively deleted in terms of API, we might as well
     # hard-delete the applicatie completely.
     apps_to_delete = Applicatie.objects.filter(
-        heeft_alle_autorisaties=False, autorisaties__isnull=True, id__in=app_ids,
+        heeft_alle_autorisaties=False,
+        autorisaties__isnull=True,
+        # edge case via #1081 and #1080 - if there's a "blueprint", you don't want the
+        # entire application to vanish
+        autorisatie_specs__isnull=True,
+        id__in=app_ids,
     )
     logger.info("Deleting applications: %s", apps_to_delete)
     apps_to_delete.delete()
