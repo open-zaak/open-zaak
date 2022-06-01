@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from copy import copy
 from datetime import date
 
 from django.contrib.gis.geos import Point
@@ -387,6 +388,35 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             response.json()["deelzaken"], [f"http://testserver{deelzaak_url}"]
         )
 
+    def test_create_deelzaak_success(self, *mocks):
+        zaaktype2 = ZaakTypeFactory.create(concept=False)
+        zaaktype2_url = f"http://testserver{reverse(zaaktype2)}"
+        self.zaaktype.deelzaaktypen.add(zaaktype2)
+        hoofdzaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        autorisatie = copy(self.autorisatie)
+        autorisatie.pk = None
+        autorisatie.zaaktype = zaaktype2_url
+        autorisatie.save()
+        detail_url = reverse(hoofdzaak)
+
+        response = self.client.post(
+            reverse("zaak-list"),
+            {
+                "zaaktype": zaaktype2_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "hoofdzaak": f"http://testserver{detail_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 2)
+
     def test_zaak_betalingsindicatie_nvt(self):
         zaak = ZaakFactory.create(
             betalingsindicatie=BetalingsIndicatie.gedeeltelijk,
@@ -564,62 +594,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             response, "rol__betrokkeneIdentificatie__medewerker__identificatie"
         )
         self.assertEqual(error["code"], "max_length")
-
-
-class HoofdZaakTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    def test_create_deelzaak_missing_deelzaaktype_relation(self, *mocks):
-        zaaktype = ZaakTypeFactory.create(concept=False)
-        hoofdzaak = ZaakFactory.create(zaaktype=zaaktype)
-        detail_url = reverse(hoofdzaak)
-
-        zaaktype2 = ZaakTypeFactory.create(concept=False)
-        assert not zaaktype.deelzaaktypen.exists()
-
-        response = self.client.post(
-            reverse("zaak-list"),
-            {
-                "zaaktype": f"http://testserver{reverse(zaaktype2)}",
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                "hoofdzaak": f"http://testserver{detail_url}",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "invalid-deelzaaktype")
-
-    def test_create_deelzaak_success(self, *mocks):
-        zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype2 = ZaakTypeFactory.create(concept=False)
-        zaaktype.deelzaaktypen.add(zaaktype2)
-        hoofdzaak = ZaakFactory.create(zaaktype=zaaktype)
-        detail_url = reverse(hoofdzaak)
-
-        response = self.client.post(
-            reverse("zaak-list"),
-            {
-                "zaaktype": f"http://testserver{reverse(zaaktype2)}",
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                "hoofdzaak": f"http://testserver{detail_url}",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        self.assertEqual(Zaak.objects.count(), 2)
 
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
@@ -837,41 +811,6 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "not-published")
-
-    def test_validate_hoofdzaaktype_deelzaaktypen(self):
-        prefix = "https://externe.catalogus.nl/api/v1/"
-        catalogus = f"{prefix}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        zaaktype = f"{prefix}zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaaktype2 = f"{prefix}zaaktypen/d306c06e-db15-44a1-94e2-af39b5717c2e"
-        hoofdzaak = ZaakFactory.create(zaaktype=zaaktype)
-        detail_url = reverse(hoofdzaak)
-
-        zaaktype_response = get_zaaktype_response(catalogus, zaaktype)
-        zaaktype_response["deelzaaktypen"] = [zaaktype2]
-        zaaktype2_response = get_zaaktype_response(catalogus, zaaktype2)
-
-        with requests_mock.Mocker(real_http=True) as m:
-            m.get(zaaktype, json=zaaktype_response)
-            m.get(zaaktype2, json=zaaktype2_response)
-            # m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaaktype": zaaktype2,
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "hoofdzaak": f"http://testserver{detail_url}",
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-06-11",
-                    "startdatum": "2018-06-11",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-            self.assertEqual(Zaak.objects.count(), 2)
 
 
 class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):
