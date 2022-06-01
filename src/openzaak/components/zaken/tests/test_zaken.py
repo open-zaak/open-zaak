@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import unittest
+from copy import copy
 from datetime import date
 
 from django.contrib.gis.geos import Point
@@ -53,18 +53,6 @@ from .utils import (
 class ApiStrategyTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
-
-    @unittest.expectedFailure
-    def test_api_10_lazy_eager_loading(self):
-        raise NotImplementedError
-
-    @unittest.expectedFailure
-    def test_api_11_expand_nested_resources(self):
-        raise NotImplementedError
-
-    @unittest.expectedFailure
-    def test_api_12_subset_fields(self):
-        raise NotImplementedError
 
     def test_api_44_crs_headers(self):
         # We wijken bewust af - EPSG:4326 is de standaard projectie voor WGS84
@@ -235,7 +223,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.autorisatie.scopes = self.autorisatie.scopes + [SCOPEN_ZAKEN_HEROPENEN]
         self.autorisatie.save()
 
-        zaak = ZaakFactory.create(einddatum="2019-01-07", zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(einddatum=date(2019, 1, 7), zaaktype=self.zaaktype)
         StatusFactory.create(
             zaak=zaak,
             statustype=self.statustype2,
@@ -400,6 +388,35 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             response.json()["deelzaken"], [f"http://testserver{deelzaak_url}"]
         )
 
+    def test_create_deelzaak_success(self, *mocks):
+        zaaktype2 = ZaakTypeFactory.create(concept=False)
+        zaaktype2_url = f"http://testserver{reverse(zaaktype2)}"
+        self.zaaktype.deelzaaktypen.add(zaaktype2)
+        hoofdzaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        autorisatie = copy(self.autorisatie)
+        autorisatie.pk = None
+        autorisatie.zaaktype = zaaktype2_url
+        autorisatie.save()
+        detail_url = reverse(hoofdzaak)
+
+        response = self.client.post(
+            reverse("zaak-list"),
+            {
+                "zaaktype": zaaktype2_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "hoofdzaak": f"http://testserver{detail_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 2)
+
     def test_zaak_betalingsindicatie_nvt(self):
         zaak = ZaakFactory.create(
             betalingsindicatie=BetalingsIndicatie.gedeeltelijk,
@@ -537,6 +554,46 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(
             response.data["results"][0]["url"], f"http://testserver{reverse(zaak2)}",
         )
+
+    def test_filter_rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn_max_length(
+        self,
+    ):
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-01-01")
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-03-01")
+        url = reverse("zaak-list")
+
+        response = self.client.get(
+            url,
+            {"rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "0" * 10},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response, "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn"
+        )
+        self.assertEqual(error["code"], "max_length")
+
+    def test_filter_rol__betrokkeneIdentificatie__medewerker__identificatie_max_length(
+        self,
+    ):
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-01-01")
+        ZaakFactory.create(zaaktype=self.zaaktype, startdatum="2019-03-01")
+        url = reverse("zaak-list")
+
+        response = self.client.get(
+            url,
+            {"rol__betrokkeneIdentificatie__medewerker__identificatie": "0" * 25},
+            **ZAAK_READ_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(
+            response, "rol__betrokkeneIdentificatie__medewerker__identificatie"
+        )
+        self.assertEqual(error["code"], "max_length")
 
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):

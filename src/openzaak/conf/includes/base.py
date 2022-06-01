@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import datetime
 import os
 import warnings
@@ -174,6 +174,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
+    "openzaak.utils.middleware.DeprecationMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
     "axes.middleware.AxesMiddleware",
 ]

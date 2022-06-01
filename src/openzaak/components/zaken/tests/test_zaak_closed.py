@@ -109,7 +109,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
     def test_reopenzaak_allowed(self):
         zaak = ZaakFactory.create(
-            einddatum=timezone.now(),
+            einddatum=timezone.now().date(),
             archiefactiedatum="2020-01-01",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
             zaaktype=self.zaaktype,
@@ -137,7 +137,9 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(zaak.archiefnominatie)
 
     def test_reopenzaak_not_allowed(self):
-        zaak = ZaakFactory.create(einddatum=timezone.now(), zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(
+            einddatum=timezone.now().date(), zaaktype=self.zaaktype
+        )
         statustype = StatusTypeFactory.create(zaaktype=self.zaaktype)
         StatusTypeFactory.create(zaaktype=self.zaaktype)
         statustype_url = reverse(statustype)

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "Besluiten API",
-        "description": "Een API om een besluitregistratiecomponent (BRC) te benaderen.\n\nEen BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet\nnoodzakelijk. Omgekeerd kan het voorkomen dat in een INFORMATIEOBJECT meerdere\nbesluiten vastgelegd zijn. Vandaar de N:M-relatie naar INFORMATIEOBJECT. Een\nbesluit komt voort uit een zaak van de zaakbehandelende organisatie dan wel is\neen besluit van een andere organisatie dat het onderwerp (object) is van een\nzaak van de zaakbehandelende organisatie. BESLUIT heeft dan ook een optionele\nrelatie met de ZAAK waarvan het een uitkomst is.\n\nDe typering van BESLUITen is in de Catalogi API (ZTC) ondergebracht in de vorm\nvan BESLUITTYPEn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Documenten API *(optioneel)*\n* Zaken API *(optioneel)*\n* Autorisaties API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [jwt.io][JWT's] (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `besluiten`.\n\n**Main resource**\n\n`besluit`\n\n\n\n**Kenmerken**\n\n* `verantwoordelijke_organisatie`: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie die het besluit heeft vastgesteld.\n* `besluittype`: URL-referentie naar het BESLUITTYPE (in de Catalogi API).\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
+        "description": "Een API om een besluitregistratiecomponent (BRC) te benaderen.\n\nEen BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet\nnoodzakelijk. Omgekeerd kan het voorkomen dat in een INFORMATIEOBJECT meerdere\nbesluiten vastgelegd zijn. Vandaar de N:M-relatie naar INFORMATIEOBJECT. Een\nbesluit komt voort uit een zaak van de zaakbehandelende organisatie dan wel is\neen besluit van een andere organisatie dat het onderwerp (object) is van een\nzaak van de zaakbehandelende organisatie. BESLUIT heeft dan ook een optionele\nrelatie met de ZAAK waarvan het een uitkomst is.\n\nDe typering van BESLUITen is in de Catalogi API (ZTC) ondergebracht in de vorm\nvan BESLUITTYPEn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Documenten API *(optioneel)*\n* Zaken API *(optioneel)*\n* Autorisaties API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `besluiten`.\n\n**Main resource**\n\n`besluit`\n\n\n\n**Kenmerken**\n\n* `verantwoordelijke_organisatie`: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie die het besluit heeft vastgesteld.\n* `besluittype`: URL-referentie naar het BESLUITTYPE (in de Catalogi API).\n\n**Resources en acties**\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
         "contact": {
             "url": "https://www.maykinmedia.nl",
             "email": "support@maykinmedia.nl"
@@ -165,6 +165,16 @@
                 "summary": "Maak een BESLUIT aan.",
                 "description": "Indien geen identificatie gegeven is, dan wordt deze automatisch\ngegenereerd.\n\nEr wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- geldigheid `besluittype` URL - de resource moet opgevraagd kunnen\n  worden uit de Catalogi API en de vorm van een BESLUITTYPE hebben.\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -479,6 +489,16 @@
                 "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -566,6 +586,16 @@
                 "summary": "Werk een BESLUIT deels bij.",
                 "description": "Er wordt gevalideerd op:\n- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n- geldigheid `verantwoorlijkeOrganisatie` RSIN\n- het `besluittype` mag niet gewijzigd worden\n- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden\n  uit de Zaken API en de vorm van een ZAAK hebben.\n- `datum` in het verleden of nu\n- publicatie `besluittype` - `concept` moet `false` zijn",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -822,6 +852,16 @@
                 "summary": "Maak een BESLUIT-INFORMATIEOBJECT relatie aan.",
                 "description": "Registreer een INFORMATIEOBJECT bij een BESLUIT. Er worden twee types van\nrelaties met andere objecten gerealiseerd:\n\n**Er wordt gevalideerd op**\n- geldigheid `besluit` URL\n- geldigheid `informatieobject` URL\n- de combinatie `informatieobject` en `besluit` moet uniek zijn\n\n**Opmerkingen**\n- De `registratiedatum` wordt door het systeem op 'NU' gezet. De\n  `aardRelatie` wordt ook door het systeem gezet.\n- Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie\n  aangemaakt, echter zonder de relatie-informatie.",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -1339,7 +1379,7 @@
                 },
                 "bron": {
                     "title": "Bron",
-                    "description": "De naam van het component waar de wijziging in is gedaan.\n\nUitleg bij mogelijke waarden:\n\n* `ac` - Autorisaties API\n* `nrc` - Notificaties API\n* `zrc` - Zaken API\n* `ztc` - Catalogi API\n* `drc` - Documenten API\n* `brc` - Besluiten API",
+                    "description": "De naam van het component waar de wijziging in is gedaan.\n\nUitleg bij mogelijke waarden:\n\n* `ac` - Autorisaties API\n* `nrc` - Notificaties API\n* `zrc` - Zaken API\n* `ztc` - Catalogi API\n* `drc` - Documenten API\n* `brc` - Besluiten API\n* `cmc` - Contactmomenten API\n* `kc` - Klanten API\n* `vrc` - Verzoeken API",
                     "type": "string",
                     "enum": [
                         "ac",
@@ -1347,7 +1387,10 @@
                         "zrc",
                         "ztc",
                         "drc",
-                        "brc"
+                        "brc",
+                        "cmc",
+                        "kc",
+                        "vrc"
                     ]
                 },
                 "applicatieId": {
@@ -1629,5 +1672,15 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "besluiten",
+            "description": ""
+        },
+        {
+            "name": "besluitinformatieobjecten",
+            "description": ""
+        }
+    ]
 }

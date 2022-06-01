@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
 # Remove the reference - we don't have a single API version.
@@ -7,9 +7,9 @@ del API_VERSION  # noqa
 
 AUTORISATIES_API_VERSION = "1.0.0"
 BESLUITEN_API_VERSION = "1.0.1"
-CATALOGI_API_VERSION = "1.0.0"
+CATALOGI_API_VERSION = "1.1.0"
 DOCUMENTEN_API_VERSION = "1.0.1"
-ZAKEN_API_VERSION = "1.0.3"
+ZAKEN_API_VERSION = "1.1.2"
 
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 REST_FRAMEWORK["PAGE_SIZE"] = 100
@@ -64,30 +64,37 @@ REFERENTIELIJSTEN_API_SPEC = (
 )
 VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
 
-ztc_repo = "vng-Realisatie/gemma-zaaktypecatalogus"
-ztc_commit = "d52ff0a8138b577e4f4516b0bd957354d91fb97c"
+ztc_repo = "vng-Realisatie/catalogi-api"
+ztc_commit = "1.0.0.post5"
 ZTC_API_SPEC = (
     f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
 )
 
-drc_repo = "vng-Realisatie/gemma-documentregistratiecomponent"
-drc_commit = "7b3725282bfe694aee5b6dba6ae8bfb81cea0a5d"
+drc_repo = "vng-Realisatie/documenten-api"
+drc_commit = "1.0.1.post1"
 DRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
 )
 
-zrc_repo = "vng-Realisatie/gemma-zaakregistratiecomponent"
-zrc_commit = "d7c335084a1f25f92cbced253885de0f01896aa1"
+zrc_repo = "vng-Realisatie/zaken-api"
+zrc_commit = "1.0.3"
 ZRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
 )
 
-brc_repo = "vng-Realisatie/gemma-besluitregistratiecomponent"
-brc_commit = "bf69bf643ce0c9146eeb014adc940e06948a8cac"
+brc_repo = "vng-Realisatie/besluiten-api"
+brc_commit = "1.0.1.post0"
 BRC_API_SPEC = (
     f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
 )
 
+cmc_repo = "VNG-Realisatie/contactmomenten-api"
+cmc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
+CMC_API_SPEC = f"https://raw.githubusercontent.com/{cmc_repo}/{cmc_commit}/src/openapi.yaml"  # noqa
+
+vrc_repo = "VNG-Realisatie/verzoeken-api"
+vrc_commit = "57c83f6799df482f5c7fc70813d59264b9979619"
+VRC_API_SPEC = f"https://raw.githubusercontent.com/{vrc_repo}/{vrc_commit}/src/openapi.yaml"  # noqa
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 

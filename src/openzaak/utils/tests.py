@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import contextlib
 import hashlib
 import json
@@ -155,9 +155,6 @@ class AdminTestMixin:
     def tearDown(self) -> None:
         super().tearDown()
         self.client.logout()
-
-
-no_fetch = object()
 
 
 @contextlib.contextmanager

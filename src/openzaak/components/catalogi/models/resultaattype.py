@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import requests
 from relativedeltafield.utils import parse_relativedelta
+from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -15,10 +16,9 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
-from openzaak.utils.tests import no_fetch
 
 
-class ResultaatType(models.Model):
+class ResultaatType(ETagMixin, models.Model):
     """
     Het betreft de indeling of groepering van resultaten van zaken van hetzelfde
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', et cetera.
@@ -224,10 +224,7 @@ class ResultaatType(models.Model):
         """
         Save some derived fields into local object as a means of caching.
         """
-        if (
-            self.resultaattypeomschrijving
-            and self.resultaattypeomschrijving is not no_fetch
-        ):
+        if self.resultaattypeomschrijving:
             response = requests.get(self.resultaattypeomschrijving).json()
             self.omschrijving_generiek = response["omschrijving"]
 

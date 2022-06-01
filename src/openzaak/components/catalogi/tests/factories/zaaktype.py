@@ -59,6 +59,11 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ZaakType
 
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
+
     @factory.lazy_attribute
     def verlengingstermijn(obj):
         if not obj.verlenging_mogelijk:

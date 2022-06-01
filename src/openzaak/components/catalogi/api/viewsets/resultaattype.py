@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired
@@ -17,6 +18,7 @@ from ..serializers import ResultaatTypeSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
+@conditional_retrieve()
 class ResultaatTypeViewSet(
     CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
 ):

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
 
@@ -19,9 +19,11 @@ from ..models import (
     Status,
     Zaak,
     ZaakBesluit,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakObject,
+    ZaakVerzoek,
 )
 from .betrokkenen import (
     MedewerkerInline,
@@ -394,6 +396,34 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
 
 
+@admin.register(ZaakContactMoment)
+class ZaakContactMomentAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "contactmoment"]
+    list_select_related = ["zaak"]
+    search_fields = (
+        "uuid",
+        "zaak__identificatie",
+        "zaak__uuid",
+        "contactmoment",
+    )
+    raw_id_fields = ["zaak"]
+    viewset = "openzaak.components.zaken.api.viewsets.ZaakContactMomentViewSet"
+
+
+@admin.register(ZaakVerzoek)
+class ZaakVerzoekAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "verzoek"]
+    list_select_related = ["zaak"]
+    search_fields = (
+        "uuid",
+        "zaak__identificatie",
+        "zaak__uuid",
+        "verzoek",
+    )
+    raw_id_fields = ["zaak"]
+    viewset = "openzaak.components.zaken.api.viewsets.ZaakVerzoekViewSet"
+
+
 # inline classes for Zaak
 class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
@@ -449,6 +479,18 @@ class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakContactMomentInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakContactMoment
+    fields = ZaakContactMomentAdmin.list_display
+    fk_name = "zaak"
+
+
+class ZaakVerzoekInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakVerzoek
+    fields = ZaakVerzoekAdmin.list_display
+    fk_name = "zaak"
+
+
 class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
@@ -491,12 +533,14 @@ class ZaakAdmin(
         StatusInline,
         ZaakObjectInline,
         ZaakInformatieObjectInline,
-        KlantContactInline,
+        ZaakContactMomentInline,
+        ZaakVerzoekInline,
         ZaakEigenschapInline,
         RolInline,
         ResultaatInline,
         RelevanteZaakRelatieInline,
         ZaakBesluitInline,
+        KlantContactInline,
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"

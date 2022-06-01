@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import logging
 
 from django.db.models.base import ModelBase
@@ -20,7 +20,7 @@ def sync_zaakbesluit(
     sender: ModelBase, signal: ModelSignal, instance: Besluit, **kwargs
 ) -> None:
     """
-    Synchronize instances of ZaakBeslut with Besluit.
+    Synchronize instances of ZaakBesluit with Besluit.
 
     Business logic:
     * updates are not allowed

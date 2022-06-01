@@ -98,6 +98,17 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | datumStatusGezet | De datum waarop de ZAAK de status heeft verkregen. | string | ja | C​R​U​D |
 | statustoelichting | Een, voor de initiator van de zaak relevante, toelichting op de status van een zaak. | string | nee | C​R​U​D |
 
+## ZaakContactMoment
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakcontactmoment)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaak | URL-referentie naar de ZAAK. | string | ja | C​R​U​D |
+| contactmoment | URL-referentie naar het CONTACTMOMENT (in de CMC API) | string | ja | C​R​U​D |
+
 ## ZaakInformatieObject
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakinformatieobject)
@@ -168,6 +179,17 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | Attribuut | Omschrijving | Type | Verplicht | CRUD* |
 | --- | --- | --- | --- | --- |
 
+## ZaakVerzoek
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakverzoek)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaak | URL-referentie naar de ZAAK. | string | ja | C​R​U​D |
+| verzoek | URL-referentie naar het VERZOEK (in de Klantinteractie API) | string | ja | C​R​U​D |
+
 ## ZaakKenmerk
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakkenmerk)
@@ -233,6 +255,7 @@ Uitleg bij mogelijke waarden:
 * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats. | string | nee | C​R​U​D |
 | archiefactiedatum | De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg. | string | nee | C​R​U​D |
 | resultaat | URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| opdrachtgevendeOrganisatie | De krachtens publiekrecht ingestelde rechtspersoon dan wel ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling geeft. | string | nee | C​R​U​D |
 
 ## AuditTrail
 
@@ -250,7 +273,10 @@ Uitleg bij mogelijke waarden:
 * `zrc` - Zaken API
 * `ztc` - Catalogi API
 * `drc` - Documenten API
-* `brc` - Besluiten API | string | ja | C​R​U​D |
+* `brc` - Besluiten API
+* `cmc` - Contactmomenten API
+* `kc` - Klanten API
+* `vrc` - Verzoeken API | string | ja | C​R​U​D |
 | applicatieId | Unieke identificatie van de applicatie, binnen de organisatie. | string | nee | C​R​U​D |
 | applicatieWeergave | Vriendelijke naam van de applicatie. | string | nee | C​R​U​D |
 | gebruikersId | Unieke identificatie van de gebruiker die binnen de organisatie herleid kan worden naar een persoon. | string | nee | C​R​U​D |

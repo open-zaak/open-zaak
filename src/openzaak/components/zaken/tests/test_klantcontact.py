@@ -34,3 +34,15 @@ class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
 
         data = response.json()["results"]
         self.assertEqual(len(data), 2)
+
+    def test_deprecated(self):
+        url = reverse("klantcontact-list")
+
+        response = self.client.get(url)
+
+        self.assertIn("Warning", response)
+        msg = (
+            "Deze endpoint is verouderd en zal binnenkort uit dienst worden genomen. "
+            "Maak gebruik van de vervangende contactmomenten API."
+        )
+        self.assertEqual(response["Warning"], f'299 "http://testserver{url}" "{msg}"')

@@ -1,17 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
+from collections import OrderedDict
 
 from django.conf import settings
 
+from drf_yasg import openapi
 from rest_framework import status
-from vng_api_common.inspectors.view import AutoSchema as _AutoSchema, ResponseRef
+from vng_api_common.inspectors.view import (
+    AutoSchema as _AutoSchema,
+    ResponseRef,
+    response_header,
+)
 from vng_api_common.permissions import get_required_scopes
 from vng_api_common.views import ERROR_CONTENT_TYPE
 
+from .middleware import WARNING_HEADER
 from .permissions import AuthRequired
 
 logger = logging.getLogger(__name__)
+
+warning_header = response_header(
+    "Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren van functionaliteit.",
+    type=openapi.TYPE_STRING,
+)
 
 
 class use_ref:
@@ -39,7 +51,18 @@ class AutoSchema(_AutoSchema):
                 response_serializers[status_code] = ResponseRef(
                     self.components, str(status_code)
                 )
-        return super().get_response_schemas(response_serializers)
+
+        responses = super().get_response_schemas(response_serializers)
+
+        if not hasattr(self.view, "deprecation_message"):
+            return responses
+
+        for status_code, response in responses.items():
+            if not isinstance(response, ResponseRef):
+                response.setdefault("headers", OrderedDict())
+                response["headers"][WARNING_HEADER] = warning_header
+
+        return responses
 
     def get_security(self):
         """Return a list of security requirements for this operation.
@@ -66,7 +89,7 @@ class AutoSchema(_AutoSchema):
 
         required_scopes = []
         for perm in scope_permissions:
-            scopes = get_required_scopes(self.view)
+            scopes = get_required_scopes(None, self.view)
             if scopes is None:
                 continue
             required_scopes.append(scopes)
@@ -93,3 +116,7 @@ class AutoSchema(_AutoSchema):
             produces.remove(ERROR_CONTENT_TYPE)
 
         return produces
+
+    def is_deprecated(self):
+        deprecation_message = getattr(self.view, "deprecation_message", None)
+        return bool(deprecation_message) or super().is_deprecated()

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "Documenten API",
-        "description": "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\nIn een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een\nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens.\nINFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden\ngerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben.\n\nGEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT\n(buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd\nof gehandhaafd.\n\nDe typering van INFORMATIEOBJECTen is in de Catalogi API (ZTC) ondergebracht in\nde vorm van INFORMATIEOBJECTTYPEn.\n\n**Uploaden van bestanden**\n\nBinnen deze API bestaan een aantal endpoints die binaire data ontvangen, al\ndan niet base64-encoded. Webservers moeten op deze endpoints een minimale\nrequest body size van 4.0 GiB ondersteunen. Dit omvat de JSON van de\nmetadata EN de base64-encoded bestandsdata. Hou hierbij rekening met de\noverhead van base64, die ongeveer 33% bedraagt in worst-case scenario's. Dit\nbetekent dat bij een limiet van 4GB het bestand maximaal ongeveer 3GB groot\nmag zijn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n* Zaken API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [jwt.io][JWT's] (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `documenten`.\n\n**Main resource**\n\n`enkelvoudiginformatieobject`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.\n* `informatieobjecttype`: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.\n\n**Resources en acties**\n- `enkelvoudiginformatieobject`: create, update, destroy\n- `gebruiksrechten`: create, update, destroy\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
+        "description": "Een API om een documentregistratiecomponent (DRC) te benaderen.\n\nIn een documentregistratiecomponent worden INFORMATIEOBJECTen opgeslagen. Een\nINFORMATIEOBJECT is een digitaal document voorzien van meta-gegevens.\nINFORMATIEOBJECTen kunnen aan andere objecten zoals zaken en besluiten worden\ngerelateerd (maar dat hoeft niet) en kunnen gebruiksrechten hebben.\n\nGEBRUIKSRECHTEN leggen voorwaarden op aan het gebruik van het INFORMATIEOBJECT\n(buiten raadpleging). Deze GEBRUIKSRECHTEN worden niet door de API gevalideerd\nof gehandhaafd.\n\nDe typering van INFORMATIEOBJECTen is in de Catalogi API (ZTC) ondergebracht in\nde vorm van INFORMATIEOBJECTTYPEn.\n\n**Uploaden van bestanden**\n\nBinnen deze API bestaan een aantal endpoints die binaire data ontvangen, al\ndan niet base64-encoded. Webservers moeten op deze endpoints een minimale\nrequest body size van 4.0 GiB ondersteunen. Dit omvat de JSON van de\nmetadata EN de base64-encoded bestandsdata. Hou hierbij rekening met de\noverhead van base64, die ongeveer 33% bedraagt in worst-case scenario's. Dit\nbetekent dat bij een limiet van 4GB het bestand maximaal ongeveer 3GB groot\nmag zijn.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Autorisaties API *(optioneel)*\n* Zaken API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `documenten`.\n\n**Main resource**\n\n`enkelvoudiginformatieobject`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.\n* `informatieobjecttype`: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.\n\n**Resources en acties**\n- `enkelvoudiginformatieobject`: create, update, destroy\n- `gebruiksrechten`: create, update, destroy\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
         "contact": {
             "url": "https://www.maykinmedia.nl",
             "email": "support@maykinmedia.nl"
@@ -149,6 +149,16 @@
                 "summary": "Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.",
                 "description": "**Er wordt gevalideerd op**\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -490,6 +500,16 @@
                 "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n- status NIET `definitief`\n\n*TODO*\n- valideer immutable attributes",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -591,6 +611,16 @@
                 "summary": "Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.",
                 "description": "Dit cre\u00ebert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n\n**Er wordt gevalideerd op**\n- correcte `lock` waarde\n- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen\n  worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n- status NIET `definitief`\n\n*TODO*\n- valideer immutable attributes",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -864,6 +894,16 @@
                 "description": "Voert een \"checkout\" uit waardoor het (ENKELVOUDIG) INFORMATIEOBJECT\nvergrendeld wordt met een `lock` waarde. Alleen met deze waarde kan het\n(ENKELVOUDIG) INFORMATIEOBJECT bijgewerkt (`PUT`, `PATCH`) en weer\nontgrendeld worden.",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -946,6 +986,16 @@
                 "summary": "Ontgrendel een (ENKELVOUDIG) INFORMATIEOBJECT.",
                 "description": "Heft de \"checkout\" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT\nontgrendeld wordt.",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -1157,6 +1207,16 @@
                 "description": "Voeg GEBRUIKSRECHTen toe voor een INFORMATIEOBJECT.\n\n**Opmerkingen**\n- Het toevoegen van gebruiksrechten zorgt ervoor dat de\n  `indicatieGebruiksrecht` op het informatieobject op `true` gezet wordt.",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -1314,6 +1374,16 @@
                 "description": "Werk een GEBRUIKSRECHT in zijn geheel bij.",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -1401,6 +1471,16 @@
                 "summary": "Werk een GEBRUIKSRECHT relatie deels bij.",
                 "description": "Werk een GEBRUIKSRECHT relatie deels bij.",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -1658,6 +1738,16 @@
                 "description": "**LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**\n\nAndere API's, zoals de Zaken API en de Besluiten API, gebruiken dit\nendpoint bij het synchroniseren van relaties.\n\n**Er wordt gevalideerd op**\n- geldigheid `informatieobject` URL\n- de combinatie `informatieobject` en `object` moet uniek zijn\n- bestaan van `object` URL",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -1801,6 +1891,16 @@
                 "description": "Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een\nZAAK in de Zaken API, en een INFORMATIEOBJECT.",
                 "parameters": [
                     {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -1874,6 +1974,16 @@
                 "summary": "Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.",
                 "description": "Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een\nZAAK in de Zaken API, en een INFORMATIEOBJECT.",
                 "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
                     {
                         "name": "data",
                         "in": "body",
@@ -2610,7 +2720,7 @@
                 },
                 "bron": {
                     "title": "Bron",
-                    "description": "De naam van het component waar de wijziging in is gedaan.\n\nUitleg bij mogelijke waarden:\n\n* `ac` - Autorisaties API\n* `nrc` - Notificaties API\n* `zrc` - Zaken API\n* `ztc` - Catalogi API\n* `drc` - Documenten API\n* `brc` - Besluiten API",
+                    "description": "De naam van het component waar de wijziging in is gedaan.\n\nUitleg bij mogelijke waarden:\n\n* `ac` - Autorisaties API\n* `nrc` - Notificaties API\n* `zrc` - Zaken API\n* `ztc` - Catalogi API\n* `drc` - Documenten API\n* `brc` - Besluiten API\n* `cmc` - Contactmomenten API\n* `kc` - Klanten API\n* `vrc` - Verzoeken API",
                     "type": "string",
                     "enum": [
                         "ac",
@@ -2618,7 +2728,10 @@
                         "zrc",
                         "ztc",
                         "drc",
-                        "brc"
+                        "brc",
+                        "cmc",
+                        "kc",
+                        "vrc"
                     ]
                 },
                 "applicatieId": {
@@ -3164,5 +3277,19 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "enkelvoudiginformatieobjecten",
+            "description": ""
+        },
+        {
+            "name": "gebruiksrechten",
+            "description": ""
+        },
+        {
+            "name": "objectinformatieobjecten",
+            "description": "Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een\nZAAK in de Zaken API, en een INFORMATIEOBJECT."
+        }
+    ]
 }

@@ -159,7 +159,8 @@ class DateNotInFutureValidator:
 
     def __call__(self, value):
         now = timezone.now()
-        if type(value) == date:
+
+        if type(value) is date:  # noqa - datetime is subclass of date
             now = now.date()
 
         if value > now:

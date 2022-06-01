@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 import logging
 
 from django.conf import settings
@@ -34,7 +34,11 @@ from vng_api_common.validators import (
 )
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
-from openzaak.utils.api import create_remote_oio
+from openzaak.utils.api import (
+    create_remote_objectcontactmoment,
+    create_remote_objectverzoek,
+    create_remote_oio,
+)
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.validators import (
@@ -55,9 +59,11 @@ from ...models import (
     Status,
     Zaak,
     ZaakBesluit,
+    ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
     ZaakKenmerk,
+    ZaakVerzoek,
 )
 from ..validators import (
     CorrectZaaktypeValidator,
@@ -245,6 +251,7 @@ class ZaakSerializer(
             "archiefstatus",
             "archiefactiedatum",
             "resultaat",
+            "opdrachtgevende_organisatie",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -297,9 +304,10 @@ class ZaakSerializer(
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
         }
-        # Replace a default "unique together" constraint.
         validators = [
+            # Replace a default "unique together" constraint.
             UniekeIdentificatieValidator(),
+            HoofdZaaktypeRelationValidator(),
             ZaakArchiveIOsArchivedValidator(),
             HoofdZaaktypeRelationValidator(),
         ]
@@ -373,7 +381,20 @@ class GeoWithinSerializer(serializers.Serializer):
 
 
 class ZaakZoekSerializer(serializers.Serializer):
-    zaakgeometrie = GeoWithinSerializer(required=True)
+    zaakgeometrie = GeoWithinSerializer(required=False)
+    uuid__in = serializers.ListField(
+        child=serializers.UUIDField(),
+        required=False,
+        help_text=_("Array of unieke resource identifiers (UUID4)"),
+    )
+
+    def validate(self, attrs):
+        validated_attrs = super().validate(attrs)
+        if not validated_attrs:
+            raise serializers.ValidationError(
+                _("Search parameters must be specified"), code="empty_search_body"
+            )
+        return validated_attrs
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
@@ -804,3 +825,111 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     def create(self, validated_data):
         validated_data["zaak"] = self.context["parent_object"]
         return super().create(validated_data)
+
+
+class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakContactMoment
+        fields = ("url", "uuid", "zaak", "contactmoment")
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+            "contactmoment": {
+                "validators": [
+                    ResourceValidator(
+                        "ContactMoment", settings.CMC_API_SPEC, get_auth=get_auth
+                    )
+                ]
+            },
+        }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            zaakcontactmoment = super().create(validated_data)
+
+        # we now expect to be in autocommit mode, i.e. - the transaction before has been
+        # committed to the database as well. This makes it so that the remote
+        # Contactmomenten API can actually retrieve this ZaakContactmomenten we just
+        # created, to validate that we did indeed create the relation information on our
+        # end.
+
+        # we know that we got valid URLs in the initial data
+        contactmoment_url = self.initial_data["contactmoment"]
+        zaak_url = self.initial_data["zaak"]
+
+        # manual transaction management - contactmomenten API checks that the
+        # ZaakContactMoment exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the ZaakContactMoment creation.
+        try:
+            response = create_remote_objectcontactmoment(contactmoment_url, zaak_url)
+        except Exception as exception:
+            zaakcontactmoment.delete()
+            raise serializers.ValidationError(
+                {
+                    "contactmoment": _(
+                        "Could not create remote relation: {exception}"
+                    ).format(exception=exception)
+                },
+                code="pending-relations",
+            )
+        else:
+            zaakcontactmoment._objectcontactmoment = response["url"]
+            zaakcontactmoment.save()
+
+        return zaakcontactmoment
+
+
+class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakVerzoek
+        fields = ("url", "uuid", "zaak", "verzoek")
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+            "verzoek": {
+                "validators": [
+                    ResourceValidator(
+                        "Verzoek", settings.VRC_API_SPEC, get_auth=get_auth
+                    )
+                ]
+            },
+        }
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            zaakverzoek = super().create(validated_data)
+
+        # we now expect to be in autocommit mode, i.e. - the transaction before has been
+        # committed to the database as well. This makes it so that the remote
+        # Verzoeken API can actually retrieve this ZaakVerzoek we just
+        # created, to validate that we did indeed create the relation information on our
+        # end.
+
+        # we know that we got valid URLs in the initial data
+        verzoek_url = self.initial_data["verzoek"]
+        zaak_url = self.initial_data["zaak"]
+
+        # manual transaction management - verzoeken API checks that the
+        # ZaakVerzoek exists, so that transaction must be committed.
+        # If it fails in any other way, we need to handle that by rolling back
+        # the ZaakVerzoek creation.
+        try:
+            response = create_remote_objectverzoek(verzoek_url, zaak_url)
+        except Exception as exception:
+            zaakverzoek.delete()
+            raise serializers.ValidationError(
+                {
+                    "verzoek": _(
+                        "Could not create remote relation: {exception}"
+                    ).format(exception=exception)
+                },
+                code="pending-relations",
+            )
+        else:
+            zaakverzoek._objectverzoek = response["url"]
+            zaakverzoek.save()
+
+        return zaakverzoek

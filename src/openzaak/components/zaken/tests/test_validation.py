@@ -178,12 +178,9 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "vrl", oas_url=settings.REFERENTIELIJSTEN_API_SPEC)
             m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
-            m.get(
-                settings.REFERENTIELIJSTEN_API_SPEC,
-                json={},
-                headers={"X-OAS-Version": "3.0"},
-            )
+
             response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -388,6 +385,53 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "selectielijstklasse")
         self.assertEqual(validation_error["code"], "invalid-resource")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_validate_opdrachtgevende_organisatie_invalid(self, *mocks):
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": "https://example.com/foo/bar",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+                "opdrachtgevendeOrganisatie": "000",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "opdrachtgevendeOrganisatie")
+        self.assertEqual(validation_error["code"], "invalid-length")
+        self.assertEqual(validation_error["name"], "opdrachtgevendeOrganisatie")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch("vng_api_common.validators.fetcher")
+    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    def test_validate_opdrachtgevende_organisatie_valid(self, *mocks):
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+                "opdrachtgevendeOrganisatie": "123456782",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class ZaakUpdateValidation(JWTAuthMixin, APITestCase):

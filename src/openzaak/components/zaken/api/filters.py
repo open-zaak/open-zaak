@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2019 - 2022 Dimpact
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -8,7 +8,7 @@ from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_help_text
+from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
 
@@ -18,8 +18,10 @@ from ..models import (
     Rol,
     Status,
     Zaak,
+    ZaakContactMoment,
     ZaakInformatieObject,
     ZaakObject,
+    ZaakVerzoek,
 )
 
 
@@ -35,10 +37,16 @@ class ZaakFilter(FilterSet):
     rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="rol__natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
+        max_length=get_field_attribute(
+            "zaken.NatuurlijkPersoon", "inp_bsn", "max_length"
+        ),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
+        max_length=get_field_attribute(
+            "zaken.Medewerker", "identificatie", "max_length"
+        ),
     )
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = filters.CharFilter(
         field_name="rol__organisatorischeeenheid__identificatie",
@@ -178,3 +186,15 @@ class KlantContactFilter(FilterSet):
     class Meta:
         model = KlantContact
         fields = ("zaak",)
+
+
+class ZaakContactMomentFilter(FilterSet):
+    class Meta:
+        model = ZaakContactMoment
+        fields = ("zaak", "contactmoment")
+
+
+class ZaakVerzoekFilter(FilterSet):
+    class Meta:
+        model = ZaakVerzoek
+        fields = ("zaak", "verzoek")
