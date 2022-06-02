@@ -1,48 +1,58 @@
-.. _deployment_containers:
+.. _installation_ansible:
 
-============================
-Deploying on a single server
-============================
+=====================
+Install using Ansible
+=====================
 
-Open Zaak can be deployed on a single machine - either a dedicated server (DDS)
-or virtual private server (VPS). The required hardware can be rented from a
+If you're looking to deploy on Kubernetes, see the
+:ref:`install on Kubernetes using Ansible <installation_kubernetes_ansible>`
+documentation.
+
+Open Zaak can be deployed on a single machine like a dedicated server (DDS), virtual
+machine or virtual private server (VPS). The required hardware can be rented from a
 hosting provider or be provided in your environment. Please see
 :ref:`installation_hardware` to determine the hardware requirements.
 
 This documentation describes the architecture, prerequisites and how to deploy
-Open Zaak on a server. Additionally, it documents the possible configuration
+Open Zaak on such a server. Additionally, it documents the possible configuration
 options.
 
 .. note:: The default settings allow Open Zaak to be deployed to the same
    machine as Open Notificaties.
 
-Architecture
-============
+**Architecture**
 
-The application is deployed as Docker containers, of which the images are
+The application is deployed as Docker (or Podman) containers, of which the images are
 available on `Docker hub`_. Traffic is routed to the server, where the web
-server (nginx) handles SSL termination and proxies the requests to the
+server (nginx) handles TLS termination and proxies the requests to the
 application containers.
 
 Data is stored in a PostgreSQL database. By default, the database is installed
 on the same machine (running on the host), but you can make use of a hosted
-database (Google Cloud, AWS, Azure...). See the :ref:`containers_config_params`
-for more information.
+database (Google Cloud, AWS, Azure or your own infrastructure). See the
+:ref:`installation_ansible_config_params` for more information.
 
 Prerequisites
 =============
 
-Before you can deploy, you need:
+You will only need Ansible tooling and nothing more on your own machine:
 
-A server
---------
+* `Ansible`_
 
-Ensure you have a server with ``root`` privileges. We assume you can directly
-ssh to the machine as ``root`` user. If that's not the case, a user with
-``sudo`` will also work. Python 3 must be available on the server.
+.. _`Ansible`: https://www.ansible.com/
+
+Server preparation
+------------------
+
+You can configure the Ansible playbook to install relevant services, do it
+manually, or have these pre-installed. You will need:
+
+* a server with ``root`` privileges. We assume you can directly ssh to the machine as
+  ``root`` user. If that's not the case, a user with ``sudo`` will also work.
+  Python 3 must be available on the server.
 
 .. note:: Make sure there is enough space in ``/var/lib/docker``. You need at
-   least 8 GB to download all Docker containers. We recommend placing the Docker
+   least 8 GB to download all container images. We recommend placing the Docker
    folder wherever you also want to store your documents that are uploaded via
    the Documenten API.
 
@@ -53,36 +63,34 @@ for deployment.
 
 Currently the following OS flavours are supported:
 
-- Debian: buster (10, actively supported), stretch (9, actively supported), jessie (8)
-- Ubuntu: eoan (EOL), disco (EOL), cosmic (EOL), bionic (18.04 LTS). focal (20.04 LTS)
-  is not tested yet
+- Debian: bullseye (11), buster (10, actively supported), stretch (9)
+- Ubuntu: bionic (18.04 LTS) - focal (20.04 LTS) and jammy (22.04 LTS) are not tested
+  yet
 - SUSE Enterprise Linux: 15 (actively supported)
 - OpenSUSE: 15.1
-- Red Hat: 7, 8
-- CentOS: 7, 8 (actively supported)
+- Red Hat and CentOS: 7, 8
 
 .. _Ansible collection: https://github.com/open-zaak/ansible-collection
 
-.. _deployment_containers_tooling:
+.. _installation_ansible_tooling:
 
-A copy of the deployment configuration
---------------------------------------
+Obtain a copy of the deployment configuration
+---------------------------------------------
 
 You can either clone the https://github.com/open-zaak/open-zaak repository,
 or download and extract the latest ZIP:
 https://github.com/open-zaak/open-zaak/archive/main.zip
 
-Python and a Python virtualenv
-------------------------------
+**Python and a Python virtualenv**
 
-You will need to have at least Python 3.5 installed on your system. In the
-examples, we assume you have Python 3.6.
+You will need to have at least Python 3.7 installed on your system. In the
+examples, we assume you have Python 3.7.
 
 Create a virtualenv with:
 
 .. code-block:: shell
 
-    [user@laptop]$ python3.6 -m venv env/
+    [user@laptop]$ python3.7 -m venv env/
     [user@laptop]$ source env/bin/activate
 
 Make sure to install the deployment tooling. In your virtualenv, install the
@@ -106,6 +114,9 @@ Deployment is done with an Ansible playbook, performing the following steps:
 4. Setup Open Zaak with Docker
 5. Install and configure nginx as reverse proxy
 
+.. note:: Podman users should tweak the playbook and replace the appropriate docker
+   roles with their podman variants.
+
 Initial steps
 -------------
 
@@ -123,8 +134,7 @@ Navigate to the correct deployment directory:
 
 Create the ``vars/open-zaak.yml`` file - you can find an example in
 ``vars/open-zaak.yml.example``. Generate a secret key using the
-`Django secret key generator`_ and put the value between single
-quotes.
+`Django secret key generator`_ and put the value between single quotes.
 
 Configure the host by creating the ``hosts`` file from the example:
 
@@ -132,18 +142,20 @@ Configure the host by creating the ``hosts`` file from the example:
 
     (env) [user@laptop]$ cp hosts.example hosts
 
-In the `hosts` file, edit the ``open-zaak.gemeente.nl`` to point to your actual
+In the ``hosts`` file, edit the ``open-zaak.gemeente.nl`` to point to your actual
 domain name. You must make sure that the DNS entry for this domain points to the
 IP address of your server.
 
 .. warning:: It's important to use the correct domain name, as the SSL certificate
-   will be generated for this domain and only this domain will be whitelisted
-   by Open Zaak! If you are using a private DNS name, then no SSL certificate
+   will be generated for this domain and only this domain will be allow-listed
+   by Open Zaak!
+
+   If you are using a private DNS name, then no SSL certificate
    can be created via Letsencrypt - make sure to disable it by setting
    ``certbot_create_if_missing=false`` or ``openzaak_ssl=false`` if you don't
    plan on using HTTPS at all.
 
-.. _deployment_containers_playbook:
+.. _installation_ansible_playbook:
 
 Running the deployment
 ----------------------
@@ -162,12 +174,12 @@ Execute the playbook by running:
      * pass ``--ask-vault-pass`` flag to ``ansible-playbook``.
 
    * If you need to override any deployment variables (see
-     :ref:`containers_config_params`), you can pass variables to
+     :ref:`installation_ansible_config_params`), you can pass variables to
      ``ansible-playbook`` using the syntax:
      ``--extra-vars "some_var=some_value other_var=other_value"``.
 
-   * If you want to run the deployment from the same machine as where it will
-     run (ie. install to itself), you can pass ``--connection local`` to
+   * If you want to run the deployment from the same machine as where Open Zaak will
+     be running (ie. install to itself), you can pass ``--connection local`` to
      ``ansible-playbook``.
 
    * If you cannot connect as ``root`` to the target machine, you can pass
@@ -243,7 +255,7 @@ A superuser allows you to perform all administrative tasks.
 See the :ref:`installation_configuration` on how to configure Open Zaak
 post-installation.
 
-.. _containers_config_params:
+.. _installation_ansible_config_params:
 
 Configuration parameters
 ========================
@@ -307,13 +319,13 @@ default setup should be sufficient to get started though.
 To be able to work with Open Zaak, a couple of things have to be configured first,
 see :ref:`installation_configuration` for more details.
 
-.. _deployment_containers_updating:
+.. _installation_ansible_updating:
 
 Updating an Open Zaak installation
 ==================================
 
 Make sure you have the deployment tooling installed - see
-:ref:`the installation steps<deployment_containers_tooling>` for more details.
+:ref:`the installation steps<installation_ansible_tooling>` for more details.
 
 If you have an existing environment (from the installation), make sure to update it:
 
@@ -340,7 +352,7 @@ is synchronized with the git tag you're checking out.
     reading the :ref:`development_changelog`!
 
 Next, to perform the upgrade, you run the ``open-zaak.yml`` playbook just like with the
-installation in :ref:`deployment_containers_playbook`:
+installation in :ref:`installation_ansible_playbook`:
 
 .. code-block:: shell
 

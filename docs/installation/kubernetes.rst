@@ -1,10 +1,10 @@
-.. _deployment_kubernetes:
+.. _installation_kubernetes:
 
-=============================
-Deploying on Kubernetes (K8s)
-=============================
+=====================
+Install on Kubernetes
+=====================
 
-Open Zaak supports deploying on Kubernetes as a first-class citizen, embracing the
+Open Zaak supports deploying on Kubernetes (K8s) as a first-class citizen, embracing the
 `Cloud Native`_ principles.
 
 .. note::
@@ -14,18 +14,22 @@ Open Zaak supports deploying on Kubernetes as a first-class citizen, embracing t
 
 This documentation is aimed at DevOps engineers.
 
-Requirements
-============
+**Quick navigation**
+
+* :ref:`installation_kubernetes_helm`
+* :ref:`installation_kubernetes_ansible`
+
+**Requirements**
 
 We recommend deploying on `Haven`_-compliant clusters. The Open Zaak and Haven teams
-have coordinates the relevant infrastructure specification aspects.
+have coordinated the relevant infrastructure specification aspects.
 
 Don't panic if your cluster is not compliant (yet), as your cluster will likely still be
 capable of hosting Open Zaak.
 
-Features and their requirements:
+Features and their :ref:`requirements <installation_prerequisites>`:
 
-* A PostgreSQL database (10, 11 and 12 are actively tested in CI) with the following extensions:
+* A PostgreSQL database with the following extensions:
 
     - ``pg_trgm``
     - ``postgis``
@@ -37,8 +41,7 @@ Features and their requirements:
 * If you use the Documents API backed by the local file-system, you need a
   ``ReadWriteMany``-capable persistent volume solution, even with a single replica.
 
-Topology
-========
+**Topology**
 
 Traffic from the ingress will enter Open Zaak at one or multiple `NGINX`_
 reverse proxies. NGINX performs one of two possible tasks:
@@ -46,17 +49,45 @@ reverse proxies. NGINX performs one of two possible tasks:
 * pass the request to the Open Zaak application or
 * send the binary data of uploaded files to the client
 
-NGINX exists to serve uploaded files in a secure and performant way.
-
-All other requests are passed to the Open Zaak application containers.
+NGINX exists to serve uploaded files in a secure and performant way.  All other requests
+are passed to the Open Zaak application containers.
 
 The application containers communicate with a PostgreSQL database, which must be
 provisioned upfront. Additionally, Redis is used for caching purposes.
 
-.. _deployment_kubernetes_tooling:
+.. _installation_kubernetes_helm:
 
-Deployment tooling - Ansible
-============================
+Deploy using Helm
+=================
+
+If you're familiar with or prefer Helm_, there are community-provided Helm charts_
+for Open Zaak and Open Notificaties.
+
+.. note::
+
+   These charts are contributed by the community on a best-effort basis. The Technical
+   Steering Group takes no responsibility for the quality or up-to-date being of these
+   charts.
+
+Example:
+
+.. code-block:: bash
+
+    helm repo add open-zaak https://open-zaak.github.io/charts/
+    helm repo update
+
+    helm install open-zaak open-zaak/open-zaak \
+        --set "settings.allowedHosts=open-zaak.gemeente.nl" \
+        --set "ingress.enabled=true" \
+        --set "ingress.hosts={open-zaak.gemeente.nl}"
+
+.. _Helm: https://helm.sh
+.. _charts: https://github.com/open-zaak/charts
+
+.. _installation_kubernetes_ansible:
+
+Deploy using Ansible
+====================
 
 The Open Zaak organization maintains an Ansible_ collection which supports deploying
 on Kubernetes using the open_zaak_k8s_
@@ -137,18 +168,6 @@ To deploy Open Notificaties, some variables need to be set (in ``vars/open-notif
 * ``opennotificaties_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
   Make sure to put the value between single quotes!
 
-Deployment tooling - Helm
-=========================
-
-If you're familiar with or prefer Helm_, there are community-provided Helm charts_
-for Open Zaak and Open Notificaties.
-
-.. note::
-
-   These charts are contributed by the community on a best-effort basis. The Technical
-   Steering Group takes no responsibility for the quality or up-to-date being of these
-   charts.
-
 Next steps
 ==========
 
@@ -158,15 +177,20 @@ default setup should be sufficient to get started though.
 To be able to work with Open Zaak, a couple of things have to be configured first,
 see :ref:`installation_configuration` for more details.
 
-.. _deployment_kubernetes_updating:
+.. _installation_kubernetes_updating:
 
-Updating an Open Zaak installation - Ansible
-============================================
+Updating an Open Zaak installation using Ansible
+================================================
 
-Make sure you have the deployment tooling installed - see
-:ref:`deployment_kubernetes_tooling` for more details.
+.. warning::
 
-If you have an existing environment (from the installation), make sure to update it:
+    Make sure you are aware of possible breaking changes or manual interventions by
+    reading the :ref:`development_changelog`!
+
+Ensure you have the deployment tooling installed - see
+:ref:`installation_kubernetes_ansible` for more details.
+
+If you have an existing environment (from the installation), update it:
 
 .. code-block:: shell
 
@@ -185,14 +209,8 @@ If you have an existing environment (from the installation), make sure to update
 Open Zaak deployment code defines variables to specify the Docker image tag to use. This
 is synchronized with the git tag you're checking out.
 
-.. warning::
-
-    Make sure you are aware of possible breaking changes or manual interventions by
-    reading the :ref:`development_changelog`!
-
-
-Next, to perform the upgrade, you run the ``apps.yml`` playbook just like with the
-installation:
+Next, to perform the upgrade, you run the ``apps.yml`` playbook exactly like the
+initial installation:
 
 .. code-block:: shell
 
@@ -216,9 +234,5 @@ installation:
 .. _Cloud Native: https://www.cncf.io/about/who-we-are/
 .. _Haven: https://haven.commonground.nl/
 .. _NGINX: https://www.nginx.com/
-
 .. _Ansible: https://www.ansible.com/
 .. _open_zaak_k8s: https://github.com/open-zaak/ansible-collection/tree/main/roles/open_zaak_k8s
-
-.. _Helm: https://helm.sh
-.. _charts: https://github.com/open-zaak/charts

@@ -25,10 +25,10 @@ The update instructions are split per target environment.
 Updating on Kubernetes
 ----------------------
 
-See :ref:`deployment_kubernetes_updating` for the update instructions on Kubernetes.
+See :ref:`installation_kubernetes_updating` for the update instructions on Kubernetes.
 
 Updating a single server installation
 -------------------------------------
 
 See the steps on how to
-:ref:`update a single server installation<deployment_containers_updating>`.
+:ref:`update a single server installation<installation_ansible_updating>`.
