@@ -1,10 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import contextlib
-import hashlib
 import json
 import os
-import sys
 import uuid
 from datetime import date
 
@@ -24,7 +21,6 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import reverse
 from zds_client.compat import jwt_encode
-from zds_client.tests.mocks import MockClient
 
 from openzaak.accounts.models import User
 
@@ -155,29 +151,6 @@ class AdminTestMixin:
     def tearDown(self) -> None:
         super().tearDown()
         self.client.logout()
-
-
-@contextlib.contextmanager
-def mock_client(responses: dict):
-    try:
-        from django.test import override_settings
-    except ImportError as exc:
-        raise ImportError("You can only use this in a django context") from exc
-
-    try:
-        json_string = json.dumps(responses).encode("utf-8")
-        md5 = hashlib.md5(json_string).hexdigest()
-        name = f"MockClient{md5}"
-        # create the class
-        type(name, (MockClient,), {"responses": responses})
-        dotted_path = f"zds_client.tests.mocks.{name}"
-        with override_settings(ZGW_CONSUMERS_CLIENT_CLASS=dotted_path):
-            yield
-
-        # clean up
-        delattr(sys.modules["zds_client.tests.mocks"], name)
-    finally:
-        pass
 
 
 class MockSchemasMixin:
