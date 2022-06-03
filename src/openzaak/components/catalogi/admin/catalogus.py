@@ -145,12 +145,20 @@ class CatalogusAdmin(
         my_urls = [
             path(
                 "<path:catalogus_pk>/zaaktype/import/",
-                self.admin_site.admin_view(CatalogusZaakTypeImportUploadView.as_view()),
+                self.admin_site.admin_view(
+                    CatalogusZaakTypeImportUploadView.as_view(
+                        admin_site=self.admin_site
+                    )
+                ),
                 name="catalogi_catalogus_import_zaaktype",
             ),
             path(
                 "<path:catalogus_pk>/zaaktype/import/select",
-                self.admin_site.admin_view(CatalogusZaakTypeImportSelectView.as_view()),
+                self.admin_site.admin_view(
+                    CatalogusZaakTypeImportSelectView.as_view(
+                        admin_site=self.admin_site
+                    )
+                ),
                 name="catalogi_catalogus_import_zaaktype_select",
             ),
         ]

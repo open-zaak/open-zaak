@@ -24,7 +24,22 @@ from .utils import (
 )
 
 
-class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
+class AdminContextMixin:
+    """
+    Update custom admin views with all the context info
+    """
+
+    admin_site = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.admin_site.each_context(self.request))
+        return context
+
+
+class CatalogusZaakTypeImportUploadView(
+    AdminContextMixin, PermissionRequiredMixin, FormView
+):
     template_name = "admin/catalogi/import_zaaktype.html"
     form_class = ZaakTypeImportForm
     permission_required = "catalogi.add_zaaktype"
@@ -74,7 +89,9 @@ class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
         return TemplateResponse(request, self.template_name, context)
 
 
-class CatalogusZaakTypeImportSelectView(PermissionRequiredMixin, TemplateView):
+class CatalogusZaakTypeImportSelectView(
+    AdminContextMixin, PermissionRequiredMixin, TemplateView
+):
     template_name = "admin/catalogi/select_existing_typen.html"
     permission_required = "catalogi.add_zaaktype"
     raise_exception = True
