@@ -14,6 +14,7 @@ def mock_nrc_oas_get(m: Mocker) -> None:
     mock_service_oas_get(m, "nrc", oas_url=oas_url)
 
 
+# TODO: refactor to use zgw_consumers.test.mock_service_oas_get
 def mock_service_oas_get(
     m: Mocker, service: str, url: str = None, oas_url: str = None
 ) -> None:

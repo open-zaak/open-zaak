@@ -45,9 +45,9 @@ def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
         if isinstance(content, dict):
             content = content["results"]
 
-    for procestype_data in content:
-        if procestype_data["url"] == url:
-            m.get(url, json=procestype_data)
+    for record in content:
+        if record["url"] == url:
+            m.get(url, json=record)
             return
 
     raise MockException(f"{url} is not found in the file {file}")

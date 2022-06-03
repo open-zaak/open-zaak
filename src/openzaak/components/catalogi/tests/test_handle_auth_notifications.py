@@ -5,27 +5,29 @@ from unittest import skip
 
 from django.conf import settings
 
+import requests_mock
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.utils.tests import JWTAuthMixin, mock_client
+from openzaak.utils.tests import JWTAuthMixin
 
 
 @skip("Authorization component is internal. Webhooks are not used")
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def test_handle_create_auth(self):
+    @requests_mock.Mocker()
+    def test_handle_create_auth(self, m):
         config = AuthorizationsConfig.get_solo()
         uuid = _uuid.uuid4()
         applicatie_url = f"{config.api_root}applicaties/{uuid}"
         webhook_url = reverse("notificaties-webhook")
-
-        responses = {
-            applicatie_url: {
+        m.get(
+            applicatie_url,
+            json={
                 "client_ids": ["id1"],
                 "label": "Melding Openbare Ruimte consumer",
                 "heeftAlleAutorisaties": False,
@@ -40,8 +42,8 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
-            }
-        }
+            },
+        )
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,
@@ -51,8 +53,8 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             "aanmaakdatum": "2012-01-14T00:00:00Z",
             "kenmerken": {},
         }
-        with mock_client(responses):
-            response = self.client.post(webhook_url, data)
+
+        response = self.client.post(webhook_url, data)
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -62,7 +64,8 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(applicatie.uuid, uuid)
 
-    def test_handle_update_auth(self):
+    @requests_mock.Mocker()
+    def test_handle_update_auth(self, m):
         applicatie = Applicatie.objects.create(
             client_ids=["id1"], label="before", heeft_alle_autorisaties=True
         )
@@ -77,8 +80,9 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             "notificaties-webhook",
             kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"]},
         )
-        responses = {
-            applicatie_url: {
+        m.get(
+            applicatie_url,
+            json={
                 "client_ids": ["id1"],
                 "label": "after",
                 "heeftAlleAutorisaties": False,
@@ -93,8 +97,8 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
-            }
-        }
+            },
+        )
         data = {
             "kanaal": "autorisaties",
             "hoofdObject": applicatie_url,
@@ -105,8 +109,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
             "kenmerken": {},
         }
 
-        with mock_client(responses):
-            response = self.client.post(webhook_url, data)
+        response = self.client.post(webhook_url, data)
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data

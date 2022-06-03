@@ -20,7 +20,8 @@ from vng_api_common.tests import (
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.utils.tests import mock_client
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.selectielijst.tests import mock_oas_get
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -39,6 +40,7 @@ SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL = (
 RESULTAATTYPEOMSCHRIJVING_URL = "http://example.com/omschrijving/1"
 
 
+@override_settings(SOLO_CACHE=None)
 class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
@@ -51,6 +53,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
+        config = ReferentieLijstConfig.get_solo()
+        config.api_root = "http://example.com"
+        config.save()
         Service.objects.create(
             api_root="http://example.com/",
             api_type=APITypes.orc,
@@ -103,9 +108,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"
             )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
+            m.get(resultaattypeomschrijving, json={"omschrijving": "init"})
             resultaattype = ResultaatTypeFactory.create(
                 resultaattypeomschrijving=resultaattypeomschrijving
             )
@@ -173,7 +176,8 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_create_resultaattype(self, mock_shape, mock_fetch):
+    @requests_mock.Mocker()
+    def test_create_resultaattype(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
@@ -193,21 +197,18 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "registratie": "",
             },
         }
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
+        mock_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
-            }
-        }
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.post(self.list_url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -223,8 +224,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @requests_mock.Mocker()
     def test_create_resultaattype_brondatum_archiefprocedure_null(
-        self, mock_shape, mock_fetch
+        self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
@@ -238,21 +240,17 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             "archiefactietermijn": "P10Y",
             "brondatumArchiefprocedure": None,
         }
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
-            }
-        }
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.post(self.list_url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
@@ -283,8 +281,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @requests_mock.Mocker()
     def test_create_resultaattype_brondatum_archiefprocedure_null_with_vernietigen(
-        self, mock_shape, mock_fetch
+        self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
@@ -298,21 +297,17 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             "archiefactietermijn": "P10Y",
             "brondatumArchiefprocedure": None,
         }
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
-            }
-        }
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.post(self.list_url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -322,9 +317,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"
             )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
+            m.get(resultaattypeomschrijving, json={"omschrijving": "init"})
             resultaattype = ResultaatTypeFactory.create(
                 zaaktype=zaaktype,
                 resultaattypeomschrijving=resultaattypeomschrijving,
@@ -346,8 +339,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.oas.fetcher.fetch", return_value={})
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @requests_mock.Mocker()
     def test_create_resultaattype_fail_not_concept_zaaktype(
-        self, mock_shape, mock_fetch
+        self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
@@ -370,21 +364,17 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "registratie": "",
             },
         }
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
-            }
-        }
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.post(self.list_url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -438,23 +428,18 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             },
         }
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
+        with requests_mock.Mocker() as m:
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "bewaartermijn": "P5Y",
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                m.register_uri(
-                    "GET", SELECTIELIJSTKLASSE_URL, json={"bewaartermijn": "P5Y"}
-                )
-                response = self.client.post(self.list_url, data)
+            response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -487,20 +472,18 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             },
         }
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
+        with requests_mock.Mocker() as m:
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.put(resultaattype_url, data)
+            response = self.client.put(resultaattype_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["omschrijving"], "aangepast")
@@ -534,20 +517,18 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             },
         }
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
+        with requests_mock.Mocker() as m:
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.put(resultaattype_url, data)
+            response = self.client.put(resultaattype_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -585,20 +566,18 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             },
         }
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
+        with requests_mock.Mocker() as m:
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-                )
-                response = self.client.put(resultaattype_url, data)
+            response = self.client.put(resultaattype_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -611,9 +590,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"
             )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
+            m.get(resultaattypeomschrijving, json={"omschrijving": "init"})
             resultaattype = ResultaatTypeFactory.create(
                 zaaktype=zaaktype,
                 resultaattypeomschrijving=resultaattypeomschrijving,
@@ -657,15 +634,16 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(archiefnominatie="vernietigen")
         resultaattype_url = reverse(resultaattype)
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
+        with requests_mock.Mocker() as m:
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
 
-        with mock_client(responses):
             response = self.client.patch(resultaattype_url, {"zaaktype": zaaktype_url})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -682,9 +660,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
         resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
         with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", resultaattypeomschrijving_url, json={"omschrijving": "init"}
-            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "init"})
             resultaattype = ResultaatTypeFactory.create(
                 zaaktype=zaaktype,
                 resultaattypeomschrijving=resultaattypeomschrijving_url,
@@ -700,9 +676,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
             response = self.client.patch(resultaattype_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -826,36 +800,51 @@ class ResultaatTypePaginationTestCase(APITestCase):
         self.assertIsNone(response_data["next"])
 
 
+@override_settings(SOLO_CACHE=None)
 class ResultaatTypeValidationTests(APITestCase):
     list_url = reverse_lazy(ResultaatType)
-    RESPONSES = {
-        SELECTIELIJSTKLASSE_URL: {
-            "url": SELECTIELIJSTKLASSE_URL,
-            "procesType": PROCESTYPE_URL,
-            "procestermijn": "vast_te_leggen_datum",
-        },
-        SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL: {
-            "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
-            "procesType": PROCESTYPE_URL,
-            "procestermijn": Procestermijn.nihil,
-        },
-        SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL: {
-            "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL,
-            "procesType": PROCESTYPE_URL,
-            "procestermijn": Procestermijn.ingeschatte_bestaansduur_procesobject,
-        },
-    }
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
+        config = ReferentieLijstConfig.get_solo()
+        config.api_root = "http://example.com"
+        config.save()
         Service.objects.create(
             api_root="http://example.com/",
             api_type=APITypes.orc,
             auth_type=AuthTypes.no_auth,
             label="Selectielijst",
         )
+
+    def _setup_mock_responses(self, m):
+        mock_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": "vast_te_leggen_datum",
+            },
+        )
+        m.get(
+            SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            },
+        )
+        m.get(
+            SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.ingeschatte_bestaansduur_procesobject,
+            },
+        )
+        m.get(RESULTAATTYPEOMSCHRIJVING_URL, json={"omschrijving": "test"})
 
     def _get_selectielijstklasse_url(self, afleidingswijze):
         if afleidingswijze == Afleidingswijze.afgehandeld:
@@ -892,9 +881,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", resultaattypeomschrijving_url, json={"omschrijving": "test"}
-            )
+            m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
             response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -905,10 +892,6 @@ class ResultaatTypeValidationTests(APITestCase):
     def test_selectielijstklasse_invalid_resource(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-
-        responses = {
-            "http://example.com/resultaten/1234": {"some": "incorrect property"}
-        }
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -927,7 +910,13 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get(
+                "http://example.com/resultaten/1234",
+                json={"some": "incorrect property"},
+            )
+
             response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -945,14 +934,6 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": "http://somedifferentprocestypeurl.com/",
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
-
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -970,7 +951,17 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": "http://somedifferentprocestypeurl.com/",
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
+
             response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -987,15 +978,6 @@ class ResultaatTypeValidationTests(APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.nihil,
-            }
-        }
-
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1013,7 +995,16 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.nihil,
+                },
+            )
             response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1029,15 +1020,6 @@ class ResultaatTypeValidationTests(APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": "",
-            }
-        }
-
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1055,12 +1037,19 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", "https://garcia.org/", json={"omschrijving": "bla"}
-                )
-                response = self.client.post(self.list_url, data)
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get("https://garcia.org/", json={"omschrijving": "bla"})
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": "",
+                },
+            )
+
+            response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -1073,15 +1062,6 @@ class ResultaatTypeValidationTests(APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": Procestermijn.ingeschatte_bestaansduur_procesobject,
-            }
-        }
-
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1099,7 +1079,17 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": Procestermijn.ingeschatte_bestaansduur_procesobject,
+                },
+            )
+
             response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1115,15 +1105,6 @@ class ResultaatTypeValidationTests(APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-
-        responses = {
-            SELECTIELIJSTKLASSE_URL: {
-                "url": SELECTIELIJSTKLASSE_URL,
-                "procesType": PROCESTYPE_URL,
-                "procestermijn": "",
-            }
-        }
-
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1141,12 +1122,19 @@ class ResultaatTypeValidationTests(APITestCase):
             },
         }
 
-        with mock_client(responses):
-            with requests_mock.Mocker() as m:
-                m.register_uri(
-                    "GET", "https://garcia.org/", json={"omschrijving": "bla"}
-                )
-                response = self.client.post(self.list_url, data)
+        with requests_mock.Mocker() as m:
+            mock_oas_get(m)
+            m.get("https://garcia.org/", json={"omschrijving": "bla"})
+            m.get(
+                SELECTIELIJSTKLASSE_URL,
+                json={
+                    "url": SELECTIELIJSTKLASSE_URL,
+                    "procesType": PROCESTYPE_URL,
+                    "procestermijn": "",
+                },
+            )
+
+            response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -1177,13 +1165,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
                     Afleidingswijze.eigenschap,
@@ -1227,13 +1211,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
                     Afleidingswijze.eigenschap,
@@ -1277,13 +1257,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
                     Afleidingswijze.afgehandeld,
@@ -1326,13 +1302,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 ResultaatType.objects.get().delete()
@@ -1364,13 +1336,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
                     Afleidingswijze.zaakobject,
@@ -1413,13 +1381,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
                     Afleidingswijze.zaakobject,
@@ -1462,13 +1426,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.ander_datumkenmerk:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -1508,13 +1468,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.ander_datumkenmerk:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1554,13 +1510,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.termijn:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -1600,13 +1552,9 @@ class ResultaatTypeValidationTests(APITestCase):
                 }
 
                 with requests_mock.Mocker() as m:
-                    m.register_uri(
-                        "GET",
-                        RESULTAATTYPEOMSCHRIJVING_URL,
-                        json={"omschrijving": "test"},
-                    )
-                    with mock_client(self.RESPONSES):
-                        response = self.client.post(self.list_url, data)
+                    self._setup_mock_responses(m)
+
+                    response = self.client.post(self.list_url, data)
 
                 if afleidingswijze == Afleidingswijze.termijn:
                     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

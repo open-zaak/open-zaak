@@ -6,13 +6,14 @@ from datetime import date
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse as django_reverse
 
+import requests_mock
 from rest_framework import status
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
+from openzaak.selectielijst.tests import mock_oas_get
 from openzaak.utils import build_absolute_url
-from openzaak.utils.tests import mock_client
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
@@ -1547,16 +1548,13 @@ class ZaaktypeValidationTests(APITestCase):
         cls.url = get_operation_url("zaaktype_list")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    def test_selectielijstprocestype_invalid_resource(self):
+    @requests_mock.Mocker()
+    def test_selectielijstprocestype_invalid_resource(self, m):
+        mock_oas_get(m)
+        procestype_url = "https://example.com/procestypen/1234"
+        m.get(procestype_url, json={"some": "incorrect property"})
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
         besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
-
-        responses = {
-            "http://referentielijsten.nl/procestypen/1234": {
-                "some": "incorrect property"
-            }
-        }
-
         zaaktype_list_url = get_operation_url("zaaktype_list")
         data = {
             "identificatie": 0,
@@ -1587,11 +1585,10 @@ class ZaaktypeValidationTests(APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
-            "selectielijstProcestype": "http://referentielijsten.nl/procestypen/1234",
+            "selectielijstProcestype": procestype_url,
         }
 
-        with mock_client(responses):
-            response = self.client.post(zaaktype_list_url, data)
+        response = self.client.post(zaaktype_list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
