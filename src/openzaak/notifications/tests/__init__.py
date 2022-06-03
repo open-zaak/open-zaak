@@ -9,6 +9,7 @@ MOCK_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files
 NOTIFICATIES_API_SPEC = os.path.join(MOCK_FILES_DIR, "openapi.yaml")
 
 
+# TODO: convert to use zgw_consumsers.test.mock_service_oas_get
 def mock_oas_get(m: Mocker) -> None:
     oas_url = "https://notificaties-api.vng.cloud/api/v1/schema/openapi.yaml"
     with open(NOTIFICATIES_API_SPEC, "rb") as api_spec:

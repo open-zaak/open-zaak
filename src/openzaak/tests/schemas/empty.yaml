@@ -1,0 +1,7 @@
+# empty schema for mocking purposes
+openapi: 3.0.0
+info:
+  title: Empty schema for mocking purposes
+  description: ''
+paths: {}
+components: {}

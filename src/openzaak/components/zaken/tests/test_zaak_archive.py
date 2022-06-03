@@ -19,6 +19,7 @@ from vng_api_common.constants import (
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -30,7 +31,7 @@ from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response
 
 from .factories import (
     RelevanteZaakRelatieFactory,
@@ -481,8 +482,9 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertIsNone(zaak.archiefactiedatum)
 
+    @requests_mock.Mocker()
     def test_add_resultaat_on_zaak_with_remote_zaakobjecten_causes_archiefactiedatum_to_be_set(
-        self,
+        self, m
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
@@ -493,13 +495,15 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak_object2 = ZaakObjectFactory.create(
             zaak=zaak, object_type=zaak_object1.object_type
         )
-        for object in [zaak_object1.object, zaak_object2.object]:
+        for api_root in [zaak_object1.object, zaak_object2.object]:
             Service.objects.create(
                 api_type=APITypes.orc,
-                api_root=object,
+                api_root=api_root,
                 label="BAG",
                 auth_type=AuthTypes.no_auth,
             )
+            mock_service_oas_get(m, api_root, service="empty")
+
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
             archiefnominatie=Archiefnominatie.blijvend_bewaren,
@@ -509,10 +513,8 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             zaaktype=zaak.zaaktype,
         )
         resultaattype_url = reverse(resultaattype)
-        responses = {
-            zaak_object1.object: {"einddatum": isodatetime(2019, 1, 1)},
-            zaak_object2.object: {"einddatum": isodatetime(2022, 1, 1)},
-        }
+        m.get(zaak_object1.object, json={"einddatum": isodatetime(2019, 1, 1)})
+        m.get(zaak_object2.object, json={"einddatum": isodatetime(2022, 1, 1)})
 
         # add resultaat
         resultaat_create_url = get_operation_url("resultaat_create")
@@ -536,8 +538,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
-        with mock_client(responses):
-            response = self.client.post(status_create_url, data)
+        response = self.client.post(status_create_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 

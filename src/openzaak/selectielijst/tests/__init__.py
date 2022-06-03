@@ -19,6 +19,7 @@ def _get_base_url() -> str:
     return config.api_root
 
 
+# TODO: convert to use zgw_consumsers.test.mock_service_oas_get
 def mock_oas_get(m: Mocker) -> None:
     base_url = _get_base_url()
     oas_url = f"{base_url}schema/openapi.yaml"
