@@ -71,7 +71,10 @@ CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     "oidc": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    "import_requests": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "import_requests": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "import_requests",
+    },
 }
 
 REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
