@@ -119,6 +119,7 @@ class JWTAuthMixin:
 
 class ClearCachesMixin:
     def setUp(self):
+        super().setUp()
         self._clear_caches()
         self.addCleanup(self._clear_caches)
 

@@ -45,6 +45,7 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 
 class ExportCatalogiTests(TestCase):
     def setUp(self):
+        super().setUp()
         self.filepath = os.path.join(PATH, "export_test.zip")
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -178,6 +179,7 @@ class ImportCatalogiTests(TestCase):
         )
 
     def setUp(self):
+        super().setUp()
         self.filepath = os.path.join(PATH, "export_test.zip")
         self.addCleanup(
             lambda: os.remove(self.filepath) if os.path.exists(self.filepath) else None
