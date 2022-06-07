@@ -1083,11 +1083,15 @@ def get_zaak_and_zaaktype_data(
     ) -> Tuple[Optional[dict], Optional[dict]]:
         zaaktype = zaak.zaaktype
 
-        zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        zaaktype_url = make_absolute_uri(zaaktype_path)
+        if not isinstance(zaak, ProxyMixin):
+            zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+            zaaktype_url = make_absolute_uri(zaaktype_path)
 
-        zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        zaak_url = make_absolute_uri(zaak_path)
+            zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+            zaak_url = make_absolute_uri(zaak_path)
+        else:
+            zaaktype_url = zaak._initial_data["zaaktype"]
+            zaak_url = zaak._initial_data["url"]
 
         # Can't use the serializer, because we don't have access to the request
         # which is needed for the Hyperlink fields
