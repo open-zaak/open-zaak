@@ -260,9 +260,9 @@ jobs:
           retention-days: 1
 
   # TODO: only run if src files changed (i.e. -> exclude for docs)
-  api_testplatform:
+  api_testplatform_standard:
     runs-on: ubuntu-latest
-    name: ZGW API tests
+    name: ZGW API standard tests
     needs:
       - tests
       - docs
@@ -299,13 +299,55 @@ jobs:
       - name: Install dependencies
         run: npm install newman
       - name: Run postman tests
-        run: bin/postman_tests.sh
+        run: bin/postman_tests.sh ZGW_api_postman_tests.json
+
+  api_testplatform_oas:
+    runs-on: ubuntu-latest
+    name: ZGW API OAS tests
+    needs:
+      - tests
+      - docs
+      - docker
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16'
+      - name: Download built image
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+      - name: Determine tag/commit hash
+        id: vars
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name (if present at all)
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          echo ::set-output name=tag::${VERSION}
+      - name: Load image
+        run: |
+          docker image load -i image.tar
+          docker tag $IMAGE_NAME:${{ steps.vars.outputs.tag }} open-zaak_web
+      - name: Bring up services
+        run: docker-compose -f docker-compose.ci.yml up -d
+      - name: Install dependencies
+        run: npm install newman
+      - name: Run postman tests
+        run: bin/postman_tests.sh ZGW_OAS_tests.json
 
   publish:
     needs:
       - tests
       - docker
-      - api_testplatform
+      - api_testplatform_standard
+      - api_testplatform_oas
 
     name: Push Docker image
     runs-on: ubuntu-latest

@@ -3,7 +3,7 @@ var newman = require('newman');
 const args = require('minimist')(process.argv.slice(2))
 
 newman.run({
-    collection: require('../tests.json'),
+    collection: require(`../${args["filename"]}`),
     environment: {
         "name": "test_environment",
         "values": [
