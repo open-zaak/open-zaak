@@ -178,7 +178,7 @@ jobs:
 
       - name: Build frontend
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           npm run build --production
 
       - name: Run tests
