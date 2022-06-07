@@ -29,10 +29,11 @@ until [ "$status" = "200" ]; do
 done
 
 # Download and execute the ZGW postman tests
-wget https://raw.githubusercontent.com/VNG-Realisatie/gemma-postman-tests/stable/zgw-apis-1.1.0/ZGW_api_postman_tests.json -O tests.json
+wget https://raw.githubusercontent.com/VNG-Realisatie/gemma-postman-tests/stable/zgw-apis-1.1.0/$1 -O $1
 
 # Run the tests using the newman library for nodejs
 node bin/newman_tests.js \
+    --filename=$1 \
     --zrc_url=$openzaak_url/zaken/api/v1 \
     --drc_url=$openzaak_url/documenten/api/v1 \
     --ztc_url=$openzaak_url/catalogi/api/v1 \
