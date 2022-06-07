@@ -19,6 +19,7 @@ from openzaak.components.catalogi.models import (
     InformatieObjectType,
     ZaakType,
 )
+from openzaak.utils.admin import AdminContextMixin
 
 from .admin_serializers import CatalogusSerializer
 from .constants import RelatedTypeSelectionMethods
@@ -244,11 +245,11 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     return initial
 
 
-class AutorisatiesView(DetailView):
+class AutorisatiesView(AdminContextMixin, DetailView):
     model = Applicatie
     template_name = "admin/autorisaties/applicatie_autorisaties.html"
     pk_url_kwarg = "object_id"
-    # set these on the .as_viev(...) call
+    # set these on the .as_view(...) call
     admin_site = None
     model_admin = None
 
@@ -293,7 +294,6 @@ class AutorisatiesView(DetailView):
             "zaaktype_set", "informatieobjecttype_set", "besluittype_set",
         )
 
-        context.update(self.admin_site.each_context(self.request))
         context.update(
             {
                 "opts": Applicatie._meta,

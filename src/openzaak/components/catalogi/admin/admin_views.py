@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
-from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+from openzaak.utils.admin import AdminContextMixin
 
 from ..models import Catalogus
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
@@ -22,19 +22,6 @@ from .utils import (
     retrieve_besluittypen,
     retrieve_iotypen,
 )
-
-
-class AdminContextMixin:
-    """
-    Update custom admin views with all the context info
-    """
-
-    admin_site = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(self.admin_site.each_context(self.request))
-        return context
 
 
 class CatalogusZaakTypeImportUploadView(
@@ -71,12 +58,9 @@ class CatalogusZaakTypeImportUploadView(
             else:
                 try:
                     with transaction.atomic():
-                        with requests_cache_enabled(
-                            "import", backend=DjangoRequestsCache()
-                        ):
-                            import_zaaktype_for_catalogus(
-                                catalogus_pk, request.session["file_content"], {}, {}
-                            )
+                        import_zaaktype_for_catalogus(
+                            catalogus_pk, request.session["file_content"], {}, {}
+                        )
 
                     messages.add_message(
                         request, messages.SUCCESS, _("ZaakType successfully imported")
@@ -170,13 +154,12 @@ class CatalogusZaakTypeImportSelectView(
                             iotypen_uuid_mapping,
                         )
 
-                with requests_cache_enabled("import", backend=DjangoRequestsCache()):
-                    import_zaaktype_for_catalogus(
-                        kwargs["catalogus_pk"],
-                        request.session["file_content"],
-                        iotypen_uuid_mapping,
-                        besluittypen_uuid_mapping,
-                    )
+                import_zaaktype_for_catalogus(
+                    kwargs["catalogus_pk"],
+                    request.session["file_content"],
+                    iotypen_uuid_mapping,
+                    besluittypen_uuid_mapping,
+                )
 
             messages.add_message(
                 request, messages.SUCCESS, _("ZaakType successfully imported")

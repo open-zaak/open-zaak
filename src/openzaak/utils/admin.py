@@ -415,3 +415,16 @@ class CMISAdminMixin:
             return False
         else:
             return super().has_change_permission(request, obj)
+
+
+class AdminContextMixin:
+    """
+    Update custom admin views with all the context info
+    """
+
+    admin_site = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.admin_site.each_context(self.request))
+        return context
