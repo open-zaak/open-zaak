@@ -11,11 +11,12 @@ from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.documenten.query.cmis import get_zaak_and_zaaktype_data
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.components.zaken.tests.utils import get_zaak_response
 from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
 
 
-@tag("cmis")
-@override_settings(CMIS_ENABLED=True)
+@tag("external-urls", "cmis")
+@override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
@@ -61,3 +62,17 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
         for field in expected_zaaktype_fields:
             with self.subTest(field=field):
                 self.assertIn(field, zaaktype_data)
+
+    def test_format_external_zaak(self):
+        zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
+
+        self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
+        self.adapter.get(zaaktype, json=get_zaak_response(catalogus, zaaktype))
+
+        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak)
+
+        self.assertEqual(zaak_data["url"], zaak)
+        self.assertEqual(zaak_data["zaaktype"], zaaktype)
+        self.assertEqual(zaaktype_data["url"], zaaktype)
