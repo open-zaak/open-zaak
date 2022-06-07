@@ -4,12 +4,16 @@ from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import Permission
+from django.test import tag
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 import requests_mock
 from django_webtest import WebTest
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
+    VertrouwelijkheidsAanduiding,
+)
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.tests import (
@@ -536,3 +540,49 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
                 "Please specify those before publishing the zaaktype."
             )
             self.assertIn(error, errors["__all__"])
+
+    @tag("gh-1042")
+    def test_create_resultaattype_for_published_zaaktype_not_allowed(self, m):
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(
+            m,
+            "resultaattypeomschrijvingen",
+            (
+                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+            ),
+        )
+
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        response = self.app.get(reverse("admin:catalogi_resultaattype_add"))
+        response.form["omschrijving"] = "foo"
+        response.form["resultaattypeomschrijving"] = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
+        response.form[
+            "brondatum_archiefprocedure_afleidingswijze"
+        ] = BrondatumArchiefprocedureAfleidingswijze.afgehandeld
+        response.form["zaaktype"] = zaaktype.id
+        response = response.form.submit()
+
+        self.assertEqual(
+            response.context["adminform"].errors,
+            {
+                "zaaktype": [
+                    _(
+                        "Creating a relation to non-concept {resource} is forbidden"
+                    ).format(resource="zaaktype")
+                ]
+            },
+        )
+        self.assertEqual(ResultaatType.objects.count(), 0)
