@@ -2,9 +2,9 @@
 {% comment %} Copyright (C) 2021 Dimpact {% endcomment %}
 {% spaceless %}
 {% for subwidget in widget.subwidgets %}
-    {% include subwidget.template_name with widget=subwidget %}
     {% if forloop.last %}
         <strong> of </strong>
     {% endif %}
+    {% include subwidget.template_name with widget=subwidget %}
 {% endfor %}
 {% endspaceless %}
