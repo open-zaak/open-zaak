@@ -10,7 +10,7 @@ from vng_api_common.constants import RolOmschrijving
 from openzaak.accounts.tests.factories import SuperUserFactory
 
 from ...models import RolType
-from ..factories import ZaakTypeFactory
+from ..factories import RolTypeFactory, ZaakTypeFactory
 
 
 @tag("gh-1042")
@@ -47,3 +47,32 @@ class RolTypeAdminTests(WebTest):
             },
         )
         self.assertEqual(RolType.objects.count(), 0)
+
+    def test_update_roltype_published_zaaktype_fail_validation(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        roltype = RolTypeFactory.create()
+
+        response = self.app.get(
+            reverse("admin:catalogi_roltype_change", args=(roltype.pk,))
+        )
+
+        response.form["omschrijving"] = "foo"
+        response.form["omschrijving_generiek"] = RolOmschrijving.adviseur
+        response.form["zaaktype"] = zaaktype.id
+        response = response.form.submit()
+
+        self.assertEqual(
+            response.context["adminform"].errors,
+            {
+                "zaaktype": [
+                    _(
+                        "Creating a relation to non-concept {resource} is forbidden"
+                    ).format(resource="zaaktype")
+                ]
+            },
+        )
+        self.assertIn("zaaktype", response.form.fields)
+
+        roltype.refresh_from_db()
+
+        self.assertNotEqual(roltype.zaaktype, zaaktype)
