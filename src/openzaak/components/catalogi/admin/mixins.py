@@ -5,6 +5,7 @@ from urllib.parse import parse_qsl, quote as urlquote
 
 from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
+from django.contrib.admin.utils import flatten_fieldsets
 from django.core.exceptions import PermissionDenied
 from django.core.management import CommandError, call_command
 from django.http import HttpResponse, HttpResponseRedirect
@@ -414,7 +415,17 @@ class ReadOnlyPublishedParentMixin(ReadOnlyPublishedBaseMixin):
         if self.get_concept(obj):
             return super().has_change_permission(request, obj)
 
-        return False
+        # If the new ZaakType is published and the form is valid, the user should have
+        # read-only access. If the new ZaakType is published and the form is invalid,
+        # the permissions for the old ZaakType apply
+        fieldsets = self.get_fieldsets(request, obj)
+        ModelForm = self.get_form(
+            request, obj, change=False, fields=flatten_fieldsets(fieldsets)
+        )
+        form_validated = ModelForm(request.POST, request.FILES, instance=obj).is_valid()
+        if form_validated:
+            return False
+        return self.get_concept(self.model.objects.get(id=obj.id))
 
 
 class ReadOnlyPublishedZaaktypeMixin(ReadOnlyPublishedParentMixin):
