@@ -8,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
+from .validators import validate_zaaktype_concept
+
 
 class StatusType(ETagMixin, models.Model):
     """
@@ -34,6 +36,7 @@ class StatusType(ETagMixin, models.Model):
         help_text=_(
             "URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden."
         ),
+        validators=[validate_zaaktype_concept],
     )
 
     # attributes

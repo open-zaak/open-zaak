@@ -8,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import RolOmschrijving
 
+from .validators import validate_zaaktype_concept
+
 
 class RolType(ETagMixin, models.Model):
     """
@@ -53,6 +55,7 @@ class RolType(ETagMixin, models.Model):
         help_text=_(
             "URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn."
         ),
+        validators=[validate_zaaktype_concept],
     )
 
     class Meta:

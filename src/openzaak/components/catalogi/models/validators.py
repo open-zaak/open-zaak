@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from dataclasses import dataclass
+
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, _lazy_re_compile
 from django.utils.deconstruct import deconstructible
@@ -62,3 +65,23 @@ letters_numbers_underscores_spaces_validator = RegexValidator(
 
 def validate_letters_numbers_underscores_spaces(value):
     return letters_numbers_underscores_spaces_validator(value)
+
+
+@dataclass
+class ConceptStatusValidator:
+    app_name: str
+    model_name: str
+
+    def __call__(self, pk):
+        model = apps.get_model(self.app_name, self.model_name)
+        obj = model.objects.get(pk=pk)
+
+        if not obj.concept:
+            raise ValidationError(
+                _(
+                    "Creating a relation to non-concept {resource_name} is forbidden"
+                ).format(resource_name=self.model_name.lower())
+            )
+
+
+validate_zaaktype_concept = ConceptStatusValidator("catalogi", "ZaakType")

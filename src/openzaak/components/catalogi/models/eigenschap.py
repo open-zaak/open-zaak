@@ -11,7 +11,11 @@ from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 
 from ..constants import FormaatChoices
-from .validators import validate_kardinaliteit, validate_letters_numbers_underscores
+from .validators import (
+    validate_kardinaliteit,
+    validate_letters_numbers_underscores,
+    validate_zaaktype_concept,
+)
 
 
 class EigenschapSpecificatie(models.Model):
@@ -202,6 +206,7 @@ class Eigenschap(ETagMixin, models.Model):
             "URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is."
         ),
         on_delete=models.CASCADE,
+        validators=[validate_zaaktype_concept],
     )
 
     class Meta:
