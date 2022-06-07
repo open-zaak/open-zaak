@@ -15,7 +15,7 @@ import requests_mock
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.utils.tests import mock_client
+from openzaak.selectielijst.tests import mock_oas_get, mock_resource_get
 
 from ...models import (
     BesluitType,
@@ -45,6 +45,7 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 
 class ExportCatalogiTests(TestCase):
     def setUp(self):
+        super().setUp()
         self.filepath = os.path.join(PATH, "export_test.zip")
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -165,19 +166,22 @@ class ExportCatalogiTests(TestCase):
 
 @tag("catalogi-import")
 class ImportCatalogiTests(TestCase):
-    base = "https://selectielijst.example.nl/api/v1/"
+    base = "https://selectielijst.openzaak.nl/api/v1/"
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Service.objects.create(
-            api_type=APITypes.orc,
+        Service.objects.update_or_create(
             api_root=cls.base,
-            label="external selectielijst",
-            auth_type=AuthTypes.no_auth,
+            defaults=dict(
+                api_type=APITypes.orc,
+                label="external selectielijst",
+                auth_type=AuthTypes.no_auth,
+            ),
         )
 
     def setUp(self):
+        super().setUp()
         self.filepath = os.path.join(PATH, "export_test.zip")
         self.addCleanup(
             lambda: os.remove(self.filepath) if os.path.exists(self.filepath) else None
@@ -231,14 +235,16 @@ class ImportCatalogiTests(TestCase):
         )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @requests_mock.Mocker()
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_import_catalogus_with_relations(self, *mocks):
+    def test_import_catalogus_with_relations(self, m, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000")
         zaaktype = ZaakTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
@@ -254,23 +260,24 @@ class ImportCatalogiTests(TestCase):
         )
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
 
-        with requests_mock.Mocker() as m:
-            resultaattypeomschrijving = (
-                "https://example.com/resultaattypeomschrijving/1"
-            )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
-            resultaattype = ResultaatTypeFactory.create(
-                zaaktype=zaaktype,
-                omschrijving_generiek="bla",
-                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
-                brondatum_archiefprocedure_datumkenmerk="datum",
-                brondatum_archiefprocedure_registratie="bla",
-                brondatum_archiefprocedure_objecttype="besluit",
-                resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-            )
+        resultaattypeomschrijving = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
+        selectielijstklasse = (
+            f"{self.base}resultaten/d92e5a77-c523-4273-b8e0-c912115ef156"
+        )
+        mock_oas_get(m)
+        mock_resource_get(m, "procestypen", zaaktype.selectielijst_procestype)
+        mock_resource_get(m, "resultaattypeomschrijvingen", resultaattypeomschrijving)
+        mock_resource_get(m, "resultaten", selectielijstklasse)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            omschrijving_generiek="bla",
+            brondatum_archiefprocedure_afleidingswijze="afgehandeld",
+            resultaattypeomschrijving=resultaattypeomschrijving,
+            selectielijstklasse=selectielijstklasse,
+        )
         eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
@@ -300,30 +307,7 @@ class ImportCatalogiTests(TestCase):
 
         catalogus.delete()
 
-        responses = {
-            resultaattype.resultaattypeomschrijving: {
-                "url": resultaattype.resultaattypeomschrijving,
-                "omschrijving": "bla",
-                "definitie": "bla",
-                "opmerking": "adasdasd",
-            },
-            resultaattype.selectielijstklasse: {
-                "url": resultaattype.selectielijstklasse,
-                "procesType": zaaktype.selectielijst_procestype,
-                "nummer": 1,
-                "naam": "bla",
-                "herkomst": "adsad",
-                "waardering": "blijvend_bewaren",
-                "procestermijn": "P5Y",
-            },
-        }
-
-        with requests_mock.Mocker() as m:
-            m.get(resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"})
-            with mock_client(responses):
-                call_command(
-                    "import", import_file=self.filepath, generate_new_uuids=True
-                )
+        call_command("import", import_file=self.filepath, generate_new_uuids=True)
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -393,9 +377,10 @@ class ImportCatalogiTests(TestCase):
         self.assertEqual(zaaktype2.zaaktype_omschrijving, "test2")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @requests_mock.Mocker()
     @patch("vng_api_common.validators.fetcher")
     @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_import_request_caching(self, *mocks):
+    def test_import_request_caching(self, m, *mocks):
         """
         Assert that when running imports, external requests are cached to improve import performance
         """
@@ -406,27 +391,38 @@ class ImportCatalogiTests(TestCase):
             zaaktype_omschrijving="bla",
         )
 
-        resultaattypeomschrijving = "https://example.com/resultaattypeomschrijving/2"
+        resultaattypeomschrijving = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
+        mock_resource_get(m, "resultaattypeomschrijvingen", resultaattypeomschrijving)
         selectielijstklasse = (
             f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
+        m.get(
+            selectielijstklasse,
+            json={
+                "url": selectielijstklasse,
+                "procesType": zaaktype.selectielijst_procestype,
+                "nummer": 1,
+                "naam": "bla",
+                "herkomst": "adsad",
+                "waardering": "blijvend_bewaren",
+                "procestermijn": "P5Y",
+            },
+        )
 
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
-
-            # Create multiple resultaattypen with same `resultaattypeomschrijving`
-            resultaattypen = ResultaatTypeFactory.create_batch(
-                10,
-                zaaktype=zaaktype,
-                brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
-                brondatum_archiefprocedure_datumkenmerk="datum",
-                brondatum_archiefprocedure_registratie="bla",
-                brondatum_archiefprocedure_objecttype="besluit",
-                resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=selectielijstklasse,
-            )
+        # Create multiple resultaattypen with same `resultaattypeomschrijving`
+        resultaattypen = ResultaatTypeFactory.create_batch(
+            10,
+            zaaktype=zaaktype,
+            brondatum_archiefprocedure_afleidingswijze="ander_datumkenmerk",
+            brondatum_archiefprocedure_datumkenmerk="datum",
+            brondatum_archiefprocedure_registratie="bla",
+            brondatum_archiefprocedure_objecttype="besluit",
+            resultaattypeomschrijving=resultaattypeomschrijving,
+            selectielijstklasse=selectielijstklasse,
+        )
 
         Catalogus.objects.exclude(pk=catalogus.pk).delete()
 
@@ -444,38 +440,24 @@ class ImportCatalogiTests(TestCase):
 
         catalogus.delete()
 
-        responses = {
-            resultaattypeomschrijving: {
-                "url": resultaattypeomschrijving,
-                "omschrijving": "bla",
-                "definitie": "bla",
-                "opmerking": "adasdasd",
-            },
-            selectielijstklasse: {
-                "url": selectielijstklasse,
-                "procesType": zaaktype.selectielijst_procestype,
-                "nummer": 1,
-                "naam": "bla",
-                "herkomst": "adsad",
-                "waardering": "blijvend_bewaren",
-                "procestermijn": "P5Y",
-            },
-        }
+        m.reset()
 
-        with requests_mock.Mocker() as m:
-            m.get(resultaattypeomschrijving, json={"omschrijving": "bla"})
-            with mock_client(responses):
-                call_command(
-                    "import", import_file=self.filepath, generate_new_uuids=True
-                )
+        call_command("import", import_file=self.filepath, generate_new_uuids=True)
 
-            # Only one request to retrieve the `resultaattypeomschrijving`, due to caching
-            self.assertEqual(len(m.request_history), 1)
-            [resultaattypeomschrijving_request] = m.request_history
+        # Only two requests to retrieve the `selectielijstklasse` and
+        # `resultaattypeomschrijving`, due to caching
+        self.assertEqual(len(m.request_history), 2)
+        [
+            selectielijstklasse_request,
+            resultaattypeomschrijving_request,
+        ] = m.request_history
+
+        self.assertEqual(selectielijstklasse_request.method, "GET")
+        self.assertEqual(selectielijstklasse_request.url, selectielijstklasse)
 
         self.assertEqual(resultaattypeomschrijving_request.method, "GET")
         self.assertEqual(
-            resultaattypeomschrijving_request.url, resultaattypeomschrijving,
+            resultaattypeomschrijving_request.url, resultaattypeomschrijving
         )
 
         imported_catalogus = Catalogus.objects.get()
@@ -487,20 +469,27 @@ class ImportCatalogiTests(TestCase):
 
         # Run another import, the cache should be reset between imports
         imported_catalogus.delete()
-        with requests_mock.Mocker() as m:
-            m.get(resultaattypeomschrijving, json={"omschrijving": "bla"})
-            with mock_client(responses):
-                call_command(
-                    "import", import_file=self.filepath, generate_new_uuids=True
-                )
 
-            # Only one request to retrieve the `resultaattypeomschrijving`, due to caching
-            self.assertEqual(len(m.request_history), 1)
-            [resultaattypeomschrijving_request] = m.request_history
+        m.reset()
+
+        call_command("import", import_file=self.filepath, generate_new_uuids=True)
+
+        # Only two requests to retrieve the `selectielijstklasse` and
+        # `resultaattypeomschrijving`, due to caching
+        self.assertEqual(len(m.request_history), 2)
+        [
+            selectielijstklasse_request,
+            resultaattypeomschrijving_request,
+        ] = m.request_history
 
         self.assertEqual(resultaattypeomschrijving_request.method, "GET")
         self.assertEqual(
             resultaattypeomschrijving_request.url, resultaattypeomschrijving,
+        )
+
+        self.assertEqual(resultaattypeomschrijving_request.method, "GET")
+        self.assertEqual(
+            resultaattypeomschrijving_request.url, resultaattypeomschrijving
         )
 
     @patch(

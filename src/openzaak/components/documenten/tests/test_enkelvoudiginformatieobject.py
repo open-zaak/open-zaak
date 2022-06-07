@@ -16,7 +16,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.utils.tests import JWTAuthMixin, MockSchemasMixin
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -771,9 +771,19 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
 @tag("external-urls")
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+class InformatieobjectCreateExternalURLsTests(
+    MockSchemasMixin, JWTAuthMixin, APITestCase
+):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
+    mocker_attr = "requests_mock"
+
+    def setUp(self):
+        self.requests_mock = requests_mock.Mocker()
+        self.requests_mock.start()
+        self.addCleanup(self.requests_mock.stop)
+
+        super().setUp()
 
     def test_create_external_informatieobjecttype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
@@ -781,37 +791,32 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
             "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
+        self.requests_mock.get(
+            informatieobjecttype,
+            json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
+        )
+        self.requests_mock.get(
+            catalogus, json=get_catalogus_response(catalogus, informatieobjecttype),
+        )
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                informatieobjecttype,
-                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
-            )
-            m.register_uri(
-                "GET",
-                catalogus,
-                json=get_catalogus_response(catalogus, informatieobjecttype),
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "identificatie": "12345",
-                    "bronorganisatie": "159351741",
-                    "creatiedatum": "2018-06-27",
-                    "titel": "detailed summary",
-                    "auteur": "test_auteur",
-                    "formaat": "txt",
-                    "taal": "eng",
-                    "bestandsnaam": "dummy.txt",
-                    "inhoud": b64encode(b"some file content").decode("utf-8"),
-                    "link": "http://een.link",
-                    "beschrijving": "test_beschrijving",
-                    "informatieobjecttype": informatieobjecttype,
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                },
-            )
+        response = self.client.post(
+            self.list_url,
+            {
+                "identificatie": "12345",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": informatieobjecttype,
+                "vertrouwelijkheidaanduiding": "openbaar",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -842,27 +847,28 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+        self.requests_mock.get(
+            "http://example.com", status_code=200, text="<html></html>"
+        )
 
-            response = self.client.post(
-                self.list_url,
-                {
-                    "identificatie": "12345",
-                    "bronorganisatie": "159351741",
-                    "creatiedatum": "2018-06-27",
-                    "titel": "detailed summary",
-                    "auteur": "test_auteur",
-                    "formaat": "txt",
-                    "taal": "eng",
-                    "bestandsnaam": "dummy.txt",
-                    "inhoud": b64encode(b"some file content").decode("utf-8"),
-                    "link": "http://een.link",
-                    "beschrijving": "test_beschrijving",
-                    "informatieobjecttype": "http://example.com",
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                },
-            )
+        response = self.client.post(
+            self.list_url,
+            {
+                "identificatie": "12345",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": "http://example.com",
+                "vertrouwelijkheidaanduiding": "openbaar",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -875,37 +881,32 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
             "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
+        self.requests_mock.get(
+            informatieobjecttype,
+            json={"url": informatieobjecttype, "catalogus": catalogus,},
+        )
+        self.requests_mock.get(
+            catalogus, json=get_catalogus_response(catalogus, informatieobjecttype),
+        )
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                informatieobjecttype,
-                json={"url": informatieobjecttype, "catalogus": catalogus,},
-            )
-            m.register_uri(
-                "GET",
-                catalogus,
-                json=get_catalogus_response(catalogus, informatieobjecttype),
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "identificatie": "12345",
-                    "bronorganisatie": "159351741",
-                    "creatiedatum": "2018-06-27",
-                    "titel": "detailed summary",
-                    "auteur": "test_auteur",
-                    "formaat": "txt",
-                    "taal": "eng",
-                    "bestandsnaam": "dummy.txt",
-                    "inhoud": b64encode(b"some file content").decode("utf-8"),
-                    "link": "http://een.link",
-                    "beschrijving": "test_beschrijving",
-                    "informatieobjecttype": informatieobjecttype,
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                },
-            )
+        response = self.client.post(
+            self.list_url,
+            {
+                "identificatie": "12345",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": informatieobjecttype,
+                "vertrouwelijkheidaanduiding": "openbaar",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -923,34 +924,29 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         informatieobjecttype_data["concept"] = True
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET", informatieobjecttype, json=informatieobjecttype_data,
-            )
-            m.register_uri(
-                "GET",
-                catalogus,
-                json=get_catalogus_response(catalogus, informatieobjecttype),
-            )
+        self.requests_mock.get(informatieobjecttype, json=informatieobjecttype_data)
+        self.requests_mock.get(
+            catalogus, json=get_catalogus_response(catalogus, informatieobjecttype)
+        )
 
-            response = self.client.post(
-                self.list_url,
-                {
-                    "identificatie": "12345",
-                    "bronorganisatie": "159351741",
-                    "creatiedatum": "2018-06-27",
-                    "titel": "detailed summary",
-                    "auteur": "test_auteur",
-                    "formaat": "txt",
-                    "taal": "eng",
-                    "bestandsnaam": "dummy.txt",
-                    "inhoud": b64encode(b"some file content").decode("utf-8"),
-                    "link": "http://een.link",
-                    "beschrijving": "test_beschrijving",
-                    "informatieobjecttype": informatieobjecttype,
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                },
-            )
+        response = self.client.post(
+            self.list_url,
+            {
+                "identificatie": "12345",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-06-27",
+                "titel": "detailed summary",
+                "auteur": "test_auteur",
+                "formaat": "txt",
+                "taal": "eng",
+                "bestandsnaam": "dummy.txt",
+                "inhoud": b64encode(b"some file content").decode("utf-8"),
+                "link": "http://een.link",
+                "beschrijving": "test_beschrijving",
+                "informatieobjecttype": informatieobjecttype,
+                "vertrouwelijkheidaanduiding": "openbaar",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

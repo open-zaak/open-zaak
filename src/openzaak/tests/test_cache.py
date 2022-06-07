@@ -12,6 +12,7 @@ class DjangoCacheStorageTestCase(TestCase):
     """
 
     def setUp(self):
+        super().setUp()
         self.storage = DjangoCacheStorage(cache_name="import_requests")
 
     def test_setitem(self):

@@ -228,7 +228,7 @@ flake8==3.8.3
     # via -r requirements/test-tools.in
 freezegun==1.2.1
     # via -r requirements/test-tools.in
-gemma-zds-client==0.15.0
+gemma-zds-client==1.0.1
     # via
     #   -r requirements/base.txt
     #   vng-api-common

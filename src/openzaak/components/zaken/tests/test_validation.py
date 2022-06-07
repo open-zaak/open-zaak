@@ -35,7 +35,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response, mock_client
+from openzaak.utils.tests import JWTAuthMixin, get_eio_response
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject
@@ -72,17 +72,17 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             m.get("https://example.com/zrc/zaken/1234", status_code=404)
 
-        response = self.client.post(
-            url,
-            {
-                "zaaktype": "https://example.com/zrc/zaken/1234",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
+            response = self.client.post(
+                url,
+                {
+                    "zaaktype": "https://example.com/zrc/zaken/1234",
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-06-11",
+                    "startdatum": "2018-06-11",
+                },
+                **ZAAK_WRITE_KWARGS,
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -363,23 +363,23 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch("vng_api_common.validators.obj_has_shape", return_value=False)
-    def test_validate_selectielijstklasse_invalid_resource(self, mock_has_shape):
+    @requests_mock.Mocker()
+    def test_validate_selectielijstklasse_invalid_resource(self, m, mock_has_shape):
+        m.get("https://ztc.com/resultaten/1234", json={"some": "incorrect property"})
         url = reverse("zaak-list")
-        responses = {"https://ztc.com/resultaten/1234": {"some": "incorrect property"}}
 
-        with mock_client(responses):
-            response = self.client.post(
-                url,
-                {
-                    "selectielijstklasse": "https://ztc.com/resultaten/1234",
-                    "zaaktype": f"http://testserver{self.zaaktype_url}",
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-06-11",
-                    "startdatum": "2018-06-11",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
+        response = self.client.post(
+            url,
+            {
+                "selectielijstklasse": "https://ztc.com/resultaten/1234",
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1181,26 +1181,24 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    def test_create_zaakobject(self):
+    @requests_mock.Mocker()
+    def test_create_zaakobject(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         list_url = reverse("zaakobject-list")
-        responses = {
-            "http://some-api.com/objecten/1234": {
-                "url": "http://some-api.com/objecten/1234"
-            }
-        }
+        m.get(
+            "http://some-api.com/objecten/1234",
+            json={"url": "http://some-api.com/objecten/1234"},
+        )
 
-        with mock_client(responses):
-            response = self.client.post(
-                list_url,
-                {
-                    "zaak": zaak_url,
-                    "object": "http://some-api.com/objecten/1234",
-                    "objectType": "adres",
-                },
-            )
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "object": "http://some-api.com/objecten/1234",
+                "objectType": "adres",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 

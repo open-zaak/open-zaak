@@ -76,11 +76,6 @@ anyway, in alphabetical order.
 * ``drf-writable-nested==0.6.3`` sees regular maintenance and activity on Github, with
   high popularity.
 
-* ``gemma-zds-client==0.15.0`` originally developed by Maykin Media for the demo's of
-  the VNG standard, this package is now used by multiple municipalities. VNG has been
-  requested to transfer the package to Maykin Media. 1.0 has been released and we will
-  soon upgrade.
-
 * ``httplib2==0.20.4`` transitive dependency of the CMIS binding. Still maintained.
 
 * ``inflection==0.5.1`` transitive dependency of drf-yasg, which is quite a popular

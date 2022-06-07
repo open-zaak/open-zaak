@@ -19,6 +19,7 @@ def _get_base_url() -> str:
     return config.api_root
 
 
+# TODO: convert to use zgw_consumsers.test.mock_service_oas_get
 def mock_oas_get(m: Mocker) -> None:
     base_url = _get_base_url()
     oas_url = f"{base_url}schema/openapi.yaml"
@@ -44,9 +45,9 @@ def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
         if isinstance(content, dict):
             content = content["results"]
 
-    for procestype_data in content:
-        if procestype_data["url"] == url:
-            m.get(url, json=procestype_data)
+    for record in content:
+        if record["url"] == url:
+            m.get(url, json=record)
             return
 
     raise MockException(f"{url} is not found in the file {file}")

@@ -1,10 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import contextlib
-import hashlib
 import json
 import os
-import sys
 import uuid
 from datetime import date
 
@@ -23,8 +20,7 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import reverse
-from zds_client.compat import jwt_encode
-from zds_client.tests.mocks import MockClient
+from zds_client import ClientAuth
 
 from openzaak.accounts.models import User
 
@@ -35,23 +31,19 @@ def generate_jwt_auth(
     user_id="test_user_id",
     user_representation="Test User",
     **extra_claims,
-):
+) -> str:
     """
     Generate a JWT suitable for the second version of the AC-based auth.
     """
-    now = int(timezone.now().timestamp())
-    payload = {
-        # standard claims
-        "iss": "testsuite",
-        "iat": now,
-        # custom
-        "client_id": client_id,
-        "user_id": user_id,
-        "user_representation": user_representation,
-    }
-    payload.update(**extra_claims)
-    encoded = jwt_encode(payload, secret, algorithm="HS256")
-    return f"Bearer {encoded}"
+    auth = ClientAuth(
+        client_id,
+        secret,
+        user_id=user_id,
+        user_representation=user_representation,
+        iss="testsuite",
+        **extra_claims,
+    )
+    return auth.credentials()["Authorization"]
 
 
 class JWTAuthMixin:
@@ -127,6 +119,7 @@ class JWTAuthMixin:
 
 class ClearCachesMixin:
     def setUp(self):
+        super().setUp()
         self._clear_caches()
         self.addCleanup(self._clear_caches)
 
@@ -155,29 +148,6 @@ class AdminTestMixin:
     def tearDown(self) -> None:
         super().tearDown()
         self.client.logout()
-
-
-@contextlib.contextmanager
-def mock_client(responses: dict):
-    try:
-        from django.test import override_settings
-    except ImportError as exc:
-        raise ImportError("You can only use this in a django context") from exc
-
-    try:
-        json_string = json.dumps(responses).encode("utf-8")
-        md5 = hashlib.md5(json_string).hexdigest()
-        name = f"MockClient{md5}"
-        # create the class
-        type(name, (MockClient,), {"responses": responses})
-        dotted_path = f"zds_client.tests.mocks.{name}"
-        with override_settings(ZGW_CONSUMERS_CLIENT_CLASS=dotted_path):
-            yield
-
-        # clean up
-        delattr(sys.modules["zds_client.tests.mocks"], name)
-    finally:
-        pass
 
 
 class MockSchemasMixin:

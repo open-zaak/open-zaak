@@ -169,7 +169,7 @@ face==20.1.1
     # via glom
 faker==13.3.2
     # via zgw-consumers
-gemma-zds-client==0.15.0
+gemma-zds-client==1.0.1
     # via
     #   vng-api-common
     #   zgw-consumers
