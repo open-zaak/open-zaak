@@ -25,7 +25,7 @@ Prerequisites
 
 You will only need Docker tooling and nothing more:
 
-* `Docker Engine`_ (Desktop or Server)
+* `Docker Engine`_ (Desktop or Server, 18.09 or newer)
 * `Docker Compose`_ (sometimes comes bundled with Docker Engine)
 
 On Windows, we support WSL_ as a suitable a Linux-environment.
@@ -48,6 +48,14 @@ Getting started
 
 2. Start the docker containers with ``docker-compose``. If you want to run the
    containers in the background, add the ``-d`` option to the command below:
+
+   .. note:: the image build requires Docker BuildKit to be enabled - if this is not
+      the case, you will see permission errors. You enable this by setting two environment
+      variables:
+
+      .. code:: bash
+
+         export DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1
 
    .. code:: bash
 
