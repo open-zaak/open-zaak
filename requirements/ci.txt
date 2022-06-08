@@ -437,7 +437,7 @@ vng-api-common==1.7.8
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-waitress==2.1.1
+waitress==2.1.2
     # via webtest
 webencodings==0.5.1
     # via
