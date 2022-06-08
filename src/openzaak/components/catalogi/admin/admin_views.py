@@ -11,6 +11,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
+from openzaak.utils.admin import AdminContextMixin
+
 from ..models import Catalogus
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
@@ -22,7 +24,9 @@ from .utils import (
 )
 
 
-class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
+class CatalogusZaakTypeImportUploadView(
+    AdminContextMixin, PermissionRequiredMixin, FormView
+):
     template_name = "admin/catalogi/import_zaaktype.html"
     form_class = ZaakTypeImportForm
     permission_required = "catalogi.add_zaaktype"
@@ -69,7 +73,9 @@ class CatalogusZaakTypeImportUploadView(PermissionRequiredMixin, FormView):
         return TemplateResponse(request, self.template_name, context)
 
 
-class CatalogusZaakTypeImportSelectView(PermissionRequiredMixin, TemplateView):
+class CatalogusZaakTypeImportSelectView(
+    AdminContextMixin, PermissionRequiredMixin, TemplateView
+):
     template_name = "admin/catalogi/select_existing_typen.html"
     permission_required = "catalogi.add_zaaktype"
     raise_exception = True

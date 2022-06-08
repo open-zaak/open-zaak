@@ -99,7 +99,10 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
         },
     },
-    "import_requests": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "import_requests": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "import_requests",
+    },
 }
 
 #

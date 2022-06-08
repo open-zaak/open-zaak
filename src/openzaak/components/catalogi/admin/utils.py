@@ -11,6 +11,8 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
+from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+
 from ..api import serializers
 from ..models import BesluitType, Catalogus, InformatieObjectType
 
@@ -132,6 +134,7 @@ def construct_besluittypen(besluittypen, besluittype_form_data, iotypen_uuid_map
     return besluittypen_uuid_mapping
 
 
+@requests_cache_enabled("import", backend=DjangoRequestsCache())
 def import_zaaktype_for_catalogus(
     catalogus_pk, import_file_content, iotypen_uuid_mapping, besluittypen_uuid_mapping
 ):
