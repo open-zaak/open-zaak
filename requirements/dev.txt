@@ -236,7 +236,7 @@ docutils==0.17.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
-drc-cmis==1.3.0
+drc-cmis==1.3.1
     # via -r requirements/ci.txt
 drf-extra-fields==3.4.0
     # via -r requirements/ci.txt
@@ -265,6 +265,10 @@ flake8==3.8.3
     # via -r requirements/ci.txt
 freezegun==1.2.1
     # via -r requirements/ci.txt
+furl==2.1.3
+    # via
+    #   -r requirements/ci.txt
+    #   drc-cmis
 gemma-zds-client==1.0.1
     # via
     #   -r requirements/ci.txt
@@ -362,6 +366,10 @@ oauthlib==3.1.0
     # via requests-oauthlib
 openshift==0.11.2
     # via -r requirements/../deployment/requirements.in
+orderedmultidict==1.0.1
+    # via
+    #   -r requirements/ci.txt
+    #   furl
 oyaml==1.0
     # via
     #   -r requirements/ci.txt
@@ -382,7 +390,7 @@ pathspec==0.9.0
     #   black
 pep517==0.10.0
     # via pip-tools
-pip-tools==6.5.1
+pip-tools==6.6.2
     # via -r requirements/dev.in
 psycopg2==2.9.3
     # via -r requirements/ci.txt
@@ -516,11 +524,13 @@ six==1.16.0
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
+    #   furl
     #   google-auth
     #   isodate
     #   jsonschema
     #   kubernetes
     #   openshift
+    #   orderedmultidict
     #   pyopenssl
     #   python-dateutil
     #   requests-mock
