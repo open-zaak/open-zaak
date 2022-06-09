@@ -297,7 +297,7 @@ jobs:
       - name: Bring up services
         run: docker-compose -f docker-compose.ci.yml up -d
       - name: Install dependencies
-        run: npm install newman
+        run: npm install newman --legacy-peer-deps
       - name: Run postman tests
         run: bin/postman_tests.sh ZGW_api_postman_tests.json
 
@@ -338,7 +338,7 @@ jobs:
       - name: Bring up services
         run: docker-compose -f docker-compose.ci.yml up -d
       - name: Install dependencies
-        run: npm install newman
+        run: npm install newman --legacy-peer-deps
       - name: Run postman tests
         run: bin/postman_tests.sh ZGW_OAS_tests.json
 
