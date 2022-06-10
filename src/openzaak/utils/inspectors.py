@@ -58,11 +58,7 @@ def get_schema_ref(component: str, resource: str, current_component: str) -> str
     """
     schema_ref = f"#/components/schemas/{resource}"
     if current_component != component:
-        ref_url = (
-            "https://raw.githubusercontent.com/VNG-Realisatie"
-            "/{component}-api/{version}/src/openapi.yaml"
-            "{schema_ref}"
-        )
+        ref_url = f"{settings.COMPONENT_TO_API_SPEC_MAPPING[component]}{schema_ref}"
         return ref_url.format(
             component=component,
             version=API_VERSION_MAPPING[component],

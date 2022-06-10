@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from typing import List
+from typing import List, Type
 
 from django.utils.module_loading import import_string
 
 from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
+from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from drc_cmis.connections import use_cmis_connection_pool
 from rest_framework.serializers import (
@@ -25,19 +26,23 @@ from openzaak.utils.serializer_fields import (
 
 
 def get_component_name(serializer: Serializer) -> str:
-    return serializer.Meta.model._meta.label.split(".")[0]
+    return serializer.Meta.model._meta.app_label
 
 
 def get_resource_name(serializer: Serializer) -> str:
-    return serializer.Meta.model._meta.label.split(".")[1]
+    return serializer.Meta.model._meta.object_name
 
 
 def get_inclusion_key(serializer: Serializer) -> str:
-    return f"{get_component_name(serializer)}:{get_resource_name(serializer)}".lower()
+    component_label = get_component_name(serializer)
+    model_name = serializer.Meta.model._meta.model_name
+    return f"{component_label}:{model_name}"
 
 
 class InclusionLoader(_InclusionLoader):
-    nested_inclusions_use_parent = False
+    # When doing inclusions, this indicates whether or not the entire path should
+    # be used to include nested resources, e.g.: `?include=resource1.resource2` vs `?include=resource2`
+    nested_inclusions_use_complete_path = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,7 +64,7 @@ class InclusionLoader(_InclusionLoader):
             model_key = self.get_model_key(obj, inclusion_serializer)
 
             # In case of external resources
-            if hasattr(obj, "_initial_data"):
+            if issubclass(type(obj), ProxyMixin):
                 data = obj._initial_data
             else:
                 data = inclusion_serializer(
@@ -114,7 +119,7 @@ class InclusionLoader(_InclusionLoader):
             }
 
             nested_path = (
-                new_path[:-1] if self.nested_inclusions_use_parent else new_path
+                new_path if self.nested_inclusions_use_complete_path else new_path[:-1]
             )
             for entry in self._instance_inclusions(
                 nested_path,
@@ -172,6 +177,8 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
     """
 
     loader_class = InclusionLoader
+    response_results_key = "results"
+    response_data_key = "data"
 
     @use_cmis_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
@@ -192,12 +199,14 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
             and render_data
             and "count" in render_data
         ):
-            render_data["results"] = render_data.pop("data")
+            render_data[self.response_results_key] = render_data.pop(
+                self.response_data_key
+            )
 
         return render_data
 
 
-def get_include_resources(serializer_class: Serializer) -> List[tuple]:
+def get_include_resources(serializer_class: Type[Serializer]) -> List[tuple]:
     resources = []
     for opt in serializer_class.inclusion_serializers.values():
         sub_serializer = import_string(opt)

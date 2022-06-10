@@ -3068,7 +3068,9 @@ paths:
           type: string
       - name: include
         in: query
-        description: Haal details van gerelateerde resources direct op.
+        description: Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+          Indien de waarde '*' opgegeven is, dan worden alle mogelijke inclusions
+          opgenomen.
         required: false
         schema:
           type: string
@@ -3188,7 +3190,7 @@ paths:
                       catalogi:zaaktype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ZaakType
                       zaken:zaak:
                         type: array
                         items:
@@ -3208,15 +3210,15 @@ paths:
                       catalogi:statustype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/StatusType
                       catalogi:resultaattype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ResultaatType
                       catalogi:eigenschap:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/Eigenschap
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3438,7 +3440,7 @@ paths:
                       catalogi:zaaktype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ZaakType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ZaakType
                       zaken:zaak:
                         type: array
                         items:
@@ -3458,15 +3460,15 @@ paths:
                       catalogi:statustype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/StatusType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/StatusType
                       catalogi:resultaattype:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/ResultaatType
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ResultaatType
                       catalogi:eigenschap:
                         type: array
                         items:
-                          $ref: https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.0.0/src/openapi.yaml#/components/schemas/Eigenschap
+                          $ref: https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/Eigenschap
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -7926,7 +7928,9 @@ components:
           minLength: 1
         include:
           title: Include
-          description: 'Haal details van gerelateerde resources direct op.
+          description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+            Indien de waarde ''*'' opgegeven is, dan worden alle mogelijke inclusions
+            opgenomen.
 
 
             Uitleg bij mogelijke waarden:

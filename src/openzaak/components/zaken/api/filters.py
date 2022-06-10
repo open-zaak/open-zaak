@@ -104,7 +104,10 @@ class ZaakFilter(FilterSet):
 
     include = IncludeFilter(
         serializer_class=ZaakSerializer,
-        help_text=_("Haal details van gerelateerde resources direct op."),
+        help_text=_(
+            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
+            "Indien de waarde '*' opgegeven is, dan worden alle mogelijke inclusions opgenomen."
+        ),
     )
 
     class Meta:

@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-import json
-
 from django.test import tag
 
 import requests_mock
@@ -25,7 +23,7 @@ from .factories import (
 from .utils import ZAAK_READ_KWARGS, get_catalogus_response, get_zaaktype_response
 
 
-@tag("include")
+@tag("inclusions")
 class ZakenIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -54,20 +52,14 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        zaak_data = json.loads(
-            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
-        )
-        hoofdzaak_data = json.loads(
-            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )
-        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)
-        status_data = json.loads(self.client.get(reverse(zaak_status)).content)
-        resultaat_data = json.loads(self.client.get(reverse(resultaat)).content)
-        eigenschap_data = json.loads(
-            self.client.get(
-                reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
-            ).content
-        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        status_data = self.client.get(reverse(zaak_status)).json()
+        resultaat_data = self.client.get(reverse(resultaat)).json()
+        eigenschap_data = self.client.get(
+            reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        ).json()
 
         response = self.client.get(
             url,
@@ -78,7 +70,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
-        data = json.loads(response.content)
+        data = response.json()
 
         expected = {
             "zaken:zaak": [hoofdzaak_data],
@@ -90,7 +82,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
-        self.assertDictEqual(data["inclusions"], expected)
+        self.assertEqual(data["inclusions"], expected)
 
     def test_zaak_list_include_wildcard(self):
         """
@@ -130,48 +122,32 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        hoofdzaak_data = json.loads(
-            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )
-        hoofdzaak_status_data = json.loads(
-            self.client.get(reverse(hoofdzaak_status)).content
-        )
-        hoofdzaak_resultaat_data = json.loads(
-            self.client.get(reverse(hoofdzaak_resultaat)).content
-        )
-        hoofdzaak_zaakeigenschap_data = json.loads(
-            self.client.get(
-                reverse(hoofdzaak_eigenschap, kwargs={"zaak_uuid": hoofdzaak.uuid})
-            ).content
-        )
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
+        hoofdzaak_status_data = self.client.get(reverse(hoofdzaak_status)).json()
+        hoofdzaak_resultaat_data = self.client.get(reverse(hoofdzaak_resultaat)).json()
+        hoofdzaak_zaakeigenschap_data = self.client.get(
+            reverse(hoofdzaak_eigenschap, kwargs={"zaak_uuid": hoofdzaak.uuid})
+        ).json()
 
-        zaak_data = json.loads(
-            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
-        )
-        zaaktype_data = json.loads(self.client.get(reverse(self.zaaktype)).content)
-        status_data = json.loads(self.client.get(reverse(zaak_status)).content)
-        resultaat_data = json.loads(self.client.get(reverse(resultaat)).content)
-        zaakeigenschap_data = json.loads(
-            self.client.get(
-                reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
-            ).content
-        )
-        zaak_statustype_data = json.loads(
-            self.client.get(reverse(zaak_status.statustype)).content
-        )
-        zaak_resultaattype_data = json.loads(
-            self.client.get(reverse(resultaat.resultaattype)).content
-        )
-        zaak_eigenschap_data = json.loads(
-            self.client.get(reverse(eigenschap.eigenschap)).content
-        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        status_data = self.client.get(reverse(zaak_status)).json()
+        resultaat_data = self.client.get(reverse(resultaat)).json()
+        zaakeigenschap_data = self.client.get(
+            reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        ).json()
+        zaak_statustype_data = self.client.get(reverse(zaak_status.statustype)).json()
+        zaak_resultaattype_data = self.client.get(
+            reverse(resultaat.resultaattype)
+        ).json()
+        zaak_eigenschap_data = self.client.get(reverse(eigenschap.eigenschap)).json()
 
         response = self.client.get(url, {"include": "*"}, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
-        data = json.loads(response.content)
+        data = response.json()
 
         expected = {
             "zaken:zaak": [zaak_data, hoofdzaak_data],
@@ -189,7 +165,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
-        self.assertDictEqual(data["inclusions"], expected)
+        self.assertEqual(data["inclusions"], expected)
 
     def test_zaak_list_include_nested(self):
         """
@@ -202,16 +178,10 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        zaak_data = json.loads(
-            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
-        )
-        hoofdzaak_data = json.loads(
-            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )
-        resultaat_data = json.loads(self.client.get(reverse(resultaat1)).content)
-        resultaattype_data = json.loads(
-            self.client.get(reverse(resultaat1.resultaattype)).content
-        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
+        resultaat_data = self.client.get(reverse(resultaat1)).json()
+        resultaattype_data = self.client.get(reverse(resultaat1.resultaattype)).json()
 
         response = self.client.get(
             url,
@@ -224,11 +194,11 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
-        data = json.loads(response.content)
+        data = response.json()
 
         self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
-        self.assertDictEqual(
+        self.assertEqual(
             data["inclusions"],
             {
                 "zaken:zaak": [hoofdzaak_data],
@@ -238,7 +208,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         )
 
 
-@tag("external-urls", "include")
+@tag("external-urls", "inclusions")
 class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -254,19 +224,13 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
         zaak = ZaakFactory.create(zaaktype=zaaktype)
 
-        zaak_data = json.loads(
-            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
-        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
 
         url = reverse("zaak-list")
 
         with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", zaaktype, json=zaaktype_data,
-            )
-            m.register_uri(
-                "GET", catalogus, json=catalogus_data,
-            )
+            m.get(zaaktype, json=zaaktype_data)
+            m.get(catalogus, json=catalogus_data)
             response = self.client.get(
                 url, {"include": "zaaktype"}, **ZAAK_READ_KWARGS,
             )
@@ -274,11 +238,11 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
-        data = json.loads(response.content)
+        data = response.json()
 
         self.assertEqual(data["results"], [zaak_data])
         self.assertIn("inclusions", data)
-        self.assertDictEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
+        self.assertEqual(data["inclusions"], {"catalogi:zaaktype": [zaaktype_data]})
 
     def test_zaak_list_include_nested(self):
         """
@@ -292,22 +256,14 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
 
         url = reverse("zaak-list")
 
-        zaak_data = json.loads(
-            self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).content
-        )
-        hoofdzaak_data = json.loads(
-            self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).content
-        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
         catalogus_data = get_catalogus_response(catalogus, zaaktype)
         zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
 
         with requests_mock.Mocker() as m:
-            m.register_uri(
-                "GET", zaaktype, json=zaaktype_data,
-            )
-            m.register_uri(
-                "GET", catalogus, json=catalogus_data,
-            )
+            m.get(zaaktype, json=zaaktype_data)
+            m.get(catalogus, json=catalogus_data)
             response = self.client.get(
                 url, {"include": "hoofdzaak,hoofdzaak.zaaktype"}, **ZAAK_READ_KWARGS,
             )
@@ -315,11 +271,11 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # `response.data` does not generate the rendered response
-        data = json.loads(response.content)
+        data = response.json()
 
         self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
         self.assertIn("inclusions", data)
-        self.assertDictEqual(
+        self.assertEqual(
             data["inclusions"],
             {"zaken:zaak": [hoofdzaak_data], "catalogi:zaaktype": [zaaktype_data],},
         )
