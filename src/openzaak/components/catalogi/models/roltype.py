@@ -55,13 +55,15 @@ class RolType(ETagMixin, models.Model):
         help_text=_(
             "URL-referentie naar het ZAAKTYPE waar deze ROLTYPEn betrokken kunnen zijn."
         ),
-        validators=[validate_zaaktype_concept],
     )
 
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
         verbose_name = _("Roltype")
         verbose_name_plural = _("Roltypen")
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):
         return self.omschrijving

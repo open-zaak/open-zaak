@@ -206,13 +206,15 @@ class Eigenschap(ETagMixin, models.Model):
             "URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is."
         ),
         on_delete=models.CASCADE,
-        validators=[validate_zaaktype_concept],
     )
 
     class Meta:
         unique_together = ("zaaktype", "eigenschapnaam")
         verbose_name = _("Eigenschap")
         verbose_name_plural = _("Eigenschappen")
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):
         return self.eigenschapnaam

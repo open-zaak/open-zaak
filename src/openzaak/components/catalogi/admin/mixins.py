@@ -415,6 +415,9 @@ class ReadOnlyPublishedParentMixin(ReadOnlyPublishedBaseMixin):
         if self.get_concept(obj):
             return super().has_change_permission(request, obj)
 
+        if request.method == "GET":
+            return False
+
         # If the new ZaakType is published and the form is valid, the user should have
         # read-only access. If the new ZaakType is published and the form is invalid,
         # the permissions for the old ZaakType apply

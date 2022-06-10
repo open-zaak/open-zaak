@@ -73,6 +73,7 @@ def validate_letters_numbers_underscores_spaces(value):
 class ConceptStatusValidator:
     app_name: str
     model_name: str
+    field_name: str
 
     def __call__(self, instance_or_pk: Union[models.Model, int]):
         obj = instance_or_pk
@@ -82,10 +83,12 @@ class ConceptStatusValidator:
 
         if not obj.concept:
             raise ValidationError(
-                _(
-                    "Creating a relation to non-concept {resource_name} is forbidden"
-                ).format(resource_name=obj._meta.model_name)
+                {
+                    self.field_name: _(
+                        "Creating a relation to non-concept {resource_name} is forbidden"
+                    ).format(resource_name=obj._meta.model_name)
+                }
             )
 
 
-validate_zaaktype_concept = ConceptStatusValidator("catalogi", "ZaakType")
+validate_zaaktype_concept = ConceptStatusValidator("catalogi", "ZaakType", "zaaktype")

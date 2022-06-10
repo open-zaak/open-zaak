@@ -60,7 +60,6 @@ class ResultaatType(ETagMixin, models.Model):
             "URL-referentie naar het ZAAKTYPE van ZAAKen waarin resultaten van "
             "dit RESULTAATTYPE bereikt kunnen worden."
         ),
-        validators=[validate_zaaktype_concept],
     )
 
     # core data - used by ZRC to calculate archival-related dates
@@ -258,6 +257,9 @@ class ResultaatType(ETagMixin, models.Model):
             )
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):
         return f"{self.zaaktype} - {self.omschrijving}"

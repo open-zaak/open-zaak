@@ -36,7 +36,6 @@ class StatusType(ETagMixin, models.Model):
         help_text=_(
             "URL-referentie naar het ZAAKTYPE van ZAAKen waarin STATUSsen van dit STATUSTYPE bereikt kunnen worden."
         ),
-        validators=[validate_zaaktype_concept],
     )
 
     # attributes
@@ -94,6 +93,9 @@ class StatusType(ETagMixin, models.Model):
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
         ordering = ("zaaktype", "-statustypevolgnummer")
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def is_eindstatus(self):
         """
