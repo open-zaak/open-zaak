@@ -14,30 +14,22 @@ services:
     #   - RABBITMQ_DEFAULT_USER=guest
     #   - RABBITMQ_DEFAULT_PASS=guest
 
-  celery:
-    image: openzaak/open-notificaties
-    environment:
-      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$$0nry%j#1z2@%hq9+1doh1bl+86w)730}
-      - RABBITMQ_HOST=rabbitmq
-      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=amqp://guest:guest@rabbitmq:5672//
-      - CELERY_LOGLEVEL=DEBUG
-      - DB_HOST=db_notifications
-    command: /celery_worker.sh
-    depends_on:
-      - db_notifications
-      - rabbitmq
-
   notifications:
     image: openzaak/open-notificaties
-    environment:
+    environment: &notifications-env
       - DJANGO_SETTINGS_MODULE=nrc.conf.docker
       - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$$0nry%j#1z2@%hq9+1doh1bl+86w)730}
       - DB_HOST=db_notifications
       - IS_HTTPS=no
       - ALLOWED_HOSTS=*
+      - CACHE_DEFAULT=redis:6379/1
+      - CACHE_AXES=redis:6379/1
+      - RABBITMQ_HOST=rabbitmq
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-2}
       - DEBUG=yes
     volumes:
       - ./fixtures_notificaties:/app/fixtures
@@ -46,6 +38,16 @@ services:
     depends_on:
       - db_notifications
       - rabbitmq
+      - redis
+
+  celery:
+    image: openzaak/open-notificaties
+    environment: *notifications-env
+    command: /celery_worker.sh
+    depends_on:
+      - db_notifications
+      - rabbitmq
+      - redis
 
   db:
     image: mdillon/postgis
@@ -73,9 +75,10 @@ services:
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - IS_HTTPS=no
-      - ALLOWED_HOSTS=localhost
+      - ALLOWED_HOSTS=localhost,web
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
+      - SENDFILE_BACKEND=django_sendfile.backends.simple
       - DEBUG=yes
     volumes:
       - ./fixtures:/app/fixtures
