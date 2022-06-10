@@ -11,7 +11,11 @@ from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 
 from ..constants import FormaatChoices
-from .validators import validate_kardinaliteit, validate_letters_numbers_underscores
+from .validators import (
+    validate_kardinaliteit,
+    validate_letters_numbers_underscores,
+    validate_zaaktype_concept,
+)
 
 
 class EigenschapSpecificatie(models.Model):
@@ -208,6 +212,9 @@ class Eigenschap(ETagMixin, models.Model):
         unique_together = ("zaaktype", "eigenschapnaam")
         verbose_name = _("Eigenschap")
         verbose_name_plural = _("Eigenschappen")
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):
         return self.eigenschapnaam

@@ -8,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
+from .validators import validate_zaaktype_concept
+
 
 class StatusType(ETagMixin, models.Model):
     """
@@ -91,6 +93,9 @@ class StatusType(ETagMixin, models.Model):
         verbose_name = _("Statustype")
         verbose_name_plural = _("Statustypen")
         ordering = ("zaaktype", "-statustypevolgnummer")
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def is_eindstatus(self):
         """

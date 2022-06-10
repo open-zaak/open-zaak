@@ -17,6 +17,8 @@ from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
 
+from .validators import validate_zaaktype_concept
+
 
 class ResultaatType(ETagMixin, models.Model):
     """
@@ -255,6 +257,9 @@ class ResultaatType(ETagMixin, models.Model):
             )
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):
         return f"{self.zaaktype} - {self.omschrijving}"
