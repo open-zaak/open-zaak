@@ -80,7 +80,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: '12'
 
@@ -154,7 +154,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: '12'
 
@@ -270,7 +270,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
       - name: Download built image
@@ -311,7 +311,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
       - name: Download built image
