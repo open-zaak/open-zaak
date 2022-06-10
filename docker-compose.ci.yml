@@ -18,7 +18,7 @@ services:
     image: openzaak/open-notificaties
     environment:
       - DJANGO_SETTINGS_MODULE=nrc.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$0nry%j#1z2@%hq9+1doh1bl+86w)730}
+      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$$0nry%j#1z2@%hq9+1doh1bl+86w)730}
       - RABBITMQ_HOST=rabbitmq
       - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
@@ -34,7 +34,7 @@ services:
     image: openzaak/open-notificaties
     environment:
       - DJANGO_SETTINGS_MODULE=nrc.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$0nry%j#1z2@%hq9+1doh1bl+86w)730}
+      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$$0nry%j#1z2@%hq9+1doh1bl+86w)730}
       - DB_HOST=db_notifications
       - IS_HTTPS=no
       - ALLOWED_HOSTS=*
