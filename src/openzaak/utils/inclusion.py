@@ -8,7 +8,6 @@ from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from drc_cmis.connections import use_cmis_connection_pool
 from rest_framework.serializers import (
     BaseSerializer,
     HyperlinkedRelatedField,
@@ -19,6 +18,7 @@ from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer as _InclusionJSONRenderer,
 )
 
+from connection_pooling.connections import use_connection_pool
 from openzaak.utils.serializer_fields import (
     LooseFKHyperlinkedIdentityField,
     LooseFKHyperlinkedRelatedField,
@@ -180,7 +180,7 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
     response_results_key = "results"
     response_data_key = "data"
 
-    @use_cmis_connection_pool
+    @use_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
         # Only render inclusions for list operation
         if renderer_context["view"].action == "list":
