@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 from collections import OrderedDict
-from typing import Iterable
+from typing import Iterable, List
 
 from django.conf import settings
 
@@ -52,19 +52,15 @@ API_VERSION_MAPPING = {
 }
 
 
-def get_schema_ref(component: str, resource: str, current_component: str) -> str:
+# TODO API settings should have a list of supported API versions
+# see: https://github.com/open-zaak/open-zaak/pull/1138#discussion_r892398142
+def get_external_schema_refs(component: str, resource: str) -> List[str]:
     """
-    Constructs the schema reference for internal and external resources
+    Constructs the schema references for external resources
     """
     schema_ref = f"#/components/schemas/{resource}"
-    if current_component != component:
-        ref_url = f"{settings.COMPONENT_TO_API_SPEC_MAPPING[component]}{schema_ref}"
-        return ref_url.format(
-            component=component,
-            version=API_VERSION_MAPPING[component],
-            schema_ref=schema_ref,
-        )
-    return schema_ref
+    ref_url = f"{settings.COMPONENT_TO_API_SPEC_MAPPING[component]}{schema_ref}"
+    return [ref_url]
 
 
 class IncludeSerializerInspector(SerializerInspector):
@@ -72,12 +68,25 @@ class IncludeSerializerInspector(SerializerInspector):
         inclusion_props = OrderedDict()
         inclusion_opts = get_include_resources(serializer_class)
         for component, resource in inclusion_opts:
-            ref_url = get_schema_ref(
-                component, resource, get_component_name(serializer_class)
-            )
-            inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
-                type=openapi.TYPE_ARRAY, items=openapi.SwaggerDict(**{"$ref": ref_url}),
-            )
+            # If the compont the resource is present in is the component for which the
+            # schema is being generated, simply use an internal reference
+            if component == get_component_name(serializer_class):
+                ref_url = f"#/components/schemas/{resource}"
+                inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.SwaggerDict(**{"$ref": ref_url}),
+                )
+            else:
+                ref_urls = get_external_schema_refs(component, resource)
+                inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.SwaggerDict(
+                        oneOf=[
+                            openapi.SwaggerDict(**{"$ref": ref_url})
+                            for ref_url in ref_urls
+                        ]
+                    ),
+                )
         return inclusion_props
 
     def get_inclusion_responses(

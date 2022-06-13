@@ -2905,8 +2905,7 @@
                         "schema": {
                             "required": [
                                 "count",
-                                "results",
-                                "inclusions"
+                                "results"
                             ],
                             "type": "object",
                             "properties": {
@@ -4212,7 +4211,11 @@
                                         "catalogi:zaaktype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ZaakType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/ZaakType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "zaken:zaak": {
@@ -4242,19 +4245,31 @@
                                         "catalogi:statustype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/StatusType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/StatusType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "catalogi:resultaattype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ResultaatType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/ResultaatType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "catalogi:eigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/Eigenschap"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/Eigenschap"
+                                                    }
+                                                ]
                                             }
                                         }
                                     }
@@ -4507,7 +4522,8 @@
                         "schema": {
                             "required": [
                                 "count",
-                                "results"
+                                "results",
+                                "inclusions"
                             ],
                             "type": "object",
                             "properties": {
@@ -4536,7 +4552,11 @@
                                         "catalogi:zaaktype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ZaakType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/ZaakType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "zaken:zaak": {
@@ -4566,19 +4586,31 @@
                                         "catalogi:statustype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/StatusType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/StatusType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "catalogi:resultaattype": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/ResultaatType"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/ResultaatType"
+                                                    }
+                                                ]
                                             }
                                         },
                                         "catalogi:eigenschap": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "https://raw.githubusercontent.com/vng-Realisatie/gemma-zaaktypecatalogus/d52ff0a8138b577e4f4516b0bd957354d91fb97c/src/openapi.yaml#/components/schemas/Eigenschap"
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.0.0.post5/src/openapi.yaml#/components/schemas/Eigenschap"
+                                                    }
+                                                ]
                                             }
                                         }
                                     }
