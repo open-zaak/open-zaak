@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie,
+    Archiefstatus,
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
     RolOmschrijving,
@@ -482,6 +483,31 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNotNone(response.json()["zaakgeometrie"])
         zaak = Zaak.objects.get()
         self.assertIsNotNone(zaak.zaakgeometrie)
+
+    @tag("gh-1108")
+    def test_create_zaak_with_archived_archivation_status(self):
+        """
+        Regression test for creating a zaak with with an archivation status.
+
+        https://github.com/open-zaak/open-zaak/issues/1108
+        """
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "archiefstatus": Archiefstatus.gearchiveerd_procestermijn_onbekend,
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
