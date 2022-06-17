@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
+from typing import Optional
 
 from django.conf import settings
 from django.db import models
@@ -175,7 +176,7 @@ class ZaakArchiveIOsArchivedValidator:
     requires_context = True
 
     def __call__(self, attrs: dict, serializer: serializers.Serializer):
-        instance = serializer.instance
+        instance: Optional[Zaak] = serializer.instance
 
         default_archiefstatus = (
             instance.archiefstatus if instance else Archiefstatus.nog_te_archiveren
@@ -184,6 +185,10 @@ class ZaakArchiveIOsArchivedValidator:
 
         # no archiving status set -> nothing to do
         if archiefstatus == Archiefstatus.nog_te_archiveren:
+            return
+
+        # create of a zaak, there is no existing data to validate
+        if instance is None:
             return
 
         documents_not_archived_error = serializers.ValidationError(
@@ -207,7 +212,7 @@ class ZaakArchiveIOsArchivedValidator:
         self.validate_extra_attributes(attrs, instance)
 
     def validate_local_eios_archived(
-        self, attrs: dict, instance, error: serializers.ValidationError
+        self, attrs: dict, instance: Optional[Zaak], error: serializers.ValidationError
     ):
         # TODO: check remote ZIO.informatieobject
         # search for related informatieobjects with status != 'gearchiveerd'
@@ -228,7 +233,7 @@ class ZaakArchiveIOsArchivedValidator:
             raise error
 
     def validate_remote_eios_archived(
-        self, attrs: dict, instance, error: serializers.ValidationError
+        self, attrs: dict, instance: Optional[Zaak], error: serializers.ValidationError
     ):
         remote_zios = instance.zaakinformatieobject_set.exclude(
             _informatieobject_url=""
@@ -242,7 +247,7 @@ class ZaakArchiveIOsArchivedValidator:
             if zio.informatieobject.status != Statussen.gearchiveerd:
                 raise error
 
-    def validate_extra_attributes(self, attrs: dict, instance):
+    def validate_extra_attributes(self, attrs: dict, instance: Optional[Zaak]):
         for attr in ["archiefnominatie", "archiefactiedatum"]:
             if not attrs.get(attr, getattr(instance, attr) if instance else None):
                 raise serializers.ValidationError(
