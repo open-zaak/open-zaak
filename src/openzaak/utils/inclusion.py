@@ -19,10 +19,8 @@ from rest_framework_inclusions.renderer import (
 )
 
 from connection_pooling.connections import use_connection_pool
-from openzaak.utils.serializer_fields import (
-    LooseFKHyperlinkedIdentityField,
-    LooseFKHyperlinkedRelatedField,
-)
+
+from .serializer_fields import LooseFKHyperlinkedRelatedField
 
 
 def get_component_name(serializer: Type[Serializer]) -> str:
@@ -64,7 +62,7 @@ class InclusionLoader(_InclusionLoader):
             model_key = self.get_model_key(obj, inclusion_serializer)
 
             # In case of external resources
-            if issubclass(type(obj), ProxyMixin):
+            if isinstance(obj, ProxyMixin):
                 data = obj._initial_data
             else:
                 data = inclusion_serializer(
@@ -136,10 +134,8 @@ class InclusionLoader(_InclusionLoader):
             return []
 
         # Properly include loose fk fields
-        if (
-            isinstance(field, FKOrURLField)
-            or isinstance(field, LooseFKHyperlinkedRelatedField)
-            or isinstance(field, LooseFKHyperlinkedIdentityField)
+        if isinstance(field, FKOrURLField) or isinstance(
+            field, LooseFKHyperlinkedRelatedField
         ):
             return self._loose_fk_field_inclusions(
                 path, field, instance, inclusion_serializer
@@ -155,7 +151,7 @@ class InclusionLoader(_InclusionLoader):
     def _loose_fk_field_inclusions(self, path, field, instance, inclusion_serializer):
         value = field.get_attribute(instance)
         # In case it's an external resource
-        if isinstance(value, str) or issubclass(type(value), ProxyMixin):
+        if isinstance(value, str) or isinstance(value, ProxyMixin):
             if self._has_been_seen_external(value):
                 return
 
@@ -177,29 +173,11 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
     """
 
     loader_class = InclusionLoader
-    response_results_key = "results"
-    response_data_key = "data"
+    response_data_key = "results"
 
     @use_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return super().render(data, accepted_media_type, renderer_context)
-
-    def _render_inclusions(self, data, renderer_context):
-        render_data = super()._render_inclusions(data, renderer_context)
-
-        # Store serializer data in `results` for paginated lists, instead of `data`
-        # to prevent breaking changes
-        allowed_check = getattr(
-            renderer_context["view"], "include_allowed", lambda: True
-        )
-        skip_includes = not allowed_check()
-
-        if not skip_includes and render_data and "count" in render_data:
-            render_data[self.response_results_key] = render_data.pop(
-                self.response_data_key
-            )
-
-        return render_data
 
 
 def get_include_resources(serializer_class: Type[Serializer]) -> List[tuple]:

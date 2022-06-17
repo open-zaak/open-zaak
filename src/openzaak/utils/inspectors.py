@@ -9,9 +9,9 @@ from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector, SerializerInspector
+from furl import furl
 
-from openzaak.utils.inclusion import get_component_name, get_include_resources
-
+from .inclusion import get_component_name, get_include_resources
 from .serializer_fields import LengthHyperlinkedRelatedField
 
 logger = logging.getLogger(__name__)
@@ -58,9 +58,10 @@ def get_external_schema_refs(component: str, resource: str) -> List[str]:
     """
     Constructs the schema references for external resources
     """
-    schema_ref = f"#/components/schemas/{resource}"
-    ref_url = f"{settings.COMPONENT_TO_API_SPEC_MAPPING[component]}{schema_ref}"
-    return [ref_url]
+    url = furl(settings.COMPONENT_TO_API_SPEC_MAPPING[component])
+    schema_ref = f"/components/schemas/{resource}"
+    url.fragment.path = schema_ref
+    return [url.url]
 
 
 class IncludeSerializerInspector(SerializerInspector):

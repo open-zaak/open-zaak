@@ -44,7 +44,7 @@ COMMON_ERROR_RESPONSES = {
 
 class AutoSchema(_AutoSchema):
     def should_include(self):
-        if hasattr(self.view.serializer_class, "inclusion_serializers"):
+        if hasattr(self.view.get_serializer(), "inclusion_serializers"):
             return True
         return False
 
