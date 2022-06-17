@@ -274,6 +274,15 @@ class ZaakViewSet(
             qs = qs.prefetch_related(None)
         return qs
 
+    def include_allowed(self):
+        return self.action in ["list", "_zoek"]
+
+    def get_requested_inclusions(self, request):
+        # Pull include parameter from request body in case of _zoek operation
+        if request.method == "POST":
+            return ",".join(request.data.get("include", []))
+        return request.GET.get("include")
+
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):
         """

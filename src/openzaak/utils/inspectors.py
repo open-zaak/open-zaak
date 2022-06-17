@@ -92,6 +92,11 @@ class IncludeSerializerInspector(SerializerInspector):
     def get_inclusion_responses(
         self, renderer_classes: Iterable, response_schema: OrderedDict
     ) -> OrderedDict:
+        allowed_check = getattr(self.view, "include_allowed", lambda: True)
+        skip_includes = not allowed_check()
+        if skip_includes:
+            return response_schema
+
         for status, response in response_schema.items():
             if "schema" not in response:
                 continue

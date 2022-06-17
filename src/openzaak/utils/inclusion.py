@@ -155,12 +155,12 @@ class InclusionLoader(_InclusionLoader):
     def _loose_fk_field_inclusions(self, path, field, instance, inclusion_serializer):
         value = field.get_attribute(instance)
         # In case it's an external resource
-        if isinstance(value, str) or hasattr(value, "_initial_data"):
+        if isinstance(value, str) or issubclass(type(value), ProxyMixin):
             if self._has_been_seen_external(value):
                 return
 
             try:
-                yield getattr(instance, field.field_name)  # ._initial_data
+                yield getattr(instance, field.field_name)
             except FetchError:  # Something failed during fetching, ignore this instance
                 return []
         else:
@@ -182,23 +182,19 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
 
     @use_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        # Only render inclusions for list operation
-        if renderer_context["view"].action == "list":
-            return super().render(data, accepted_media_type, renderer_context)
-        return super(_InclusionJSONRenderer, self).render(
-            data, accepted_media_type, renderer_context
-        )
+        return super().render(data, accepted_media_type, renderer_context)
 
     def _render_inclusions(self, data, renderer_context):
         render_data = super()._render_inclusions(data, renderer_context)
 
         # Store serializer data in `results` for paginated lists, instead of `data`
         # to prevent breaking changes
-        if (
-            renderer_context["view"].action == "list"
-            and render_data
-            and "count" in render_data
-        ):
+        allowed_check = getattr(
+            renderer_context["view"], "include_allowed", lambda: True
+        )
+        skip_includes = not allowed_check()
+
+        if not skip_includes and render_data and "count" in render_data:
             render_data[self.response_results_key] = render_data.pop(
                 self.response_data_key
             )

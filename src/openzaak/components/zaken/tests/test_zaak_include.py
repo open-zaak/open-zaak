@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from django.contrib.gis.geos import Point
 from django.test import tag
 
 import requests_mock
@@ -14,13 +15,20 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
 from openzaak.tests.utils.auth import JWTAuthMixin
 
+from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import (
     ResultaatFactory,
     StatusFactory,
     ZaakEigenschapFactory,
     ZaakFactory,
 )
-from .utils import ZAAK_READ_KWARGS, get_catalogus_response, get_zaaktype_response
+from .utils import (
+    ZAAK_READ_KWARGS,
+    ZAAK_WRITE_KWARGS,
+    get_catalogus_response,
+    get_operation_url,
+    get_zaaktype_response,
+)
 
 
 @tag("inclusions")
@@ -81,6 +89,68 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         }
 
         self.assertEqual(data["results"], [zaak_data, hoofdzaak_data])
+        self.assertIn("inclusions", data)
+        self.assertEqual(data["inclusions"], expected)
+
+    def test_zaak_zoek_include(self):
+        """
+        Test if related resources that are in the local database can be included
+        """
+        hoofdzaak = ZaakFactory(zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            hoofdzaak=hoofdzaak,
+            zaakgeometrie=Point(4.887990, 52.377595),
+        )
+        zaak_status = StatusFactory(zaak=zaak)
+        resultaat = ResultaatFactory(zaak=zaak)
+        eigenschap = ZaakEigenschapFactory(zaak=zaak)
+
+        url = get_operation_url("zaak__zoek")
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        status_data = self.client.get(reverse(zaak_status)).json()
+        resultaat_data = self.client.get(reverse(resultaat)).json()
+        eigenschap_data = self.client.get(
+            reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        ).json()
+
+        response = self.client.post(
+            url,
+            {
+                "zaakgeometrie": {
+                    "within": {
+                        "type": "Polygon",
+                        "coordinates": [POLYGON_AMSTERDAM_CENTRUM],
+                    }
+                },
+                "include": [
+                    "hoofdzaak",
+                    "zaaktype",
+                    "status",
+                    "resultaat",
+                    "eigenschappen",
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # `response.data` does not generate the rendered response
+        data = response.json()
+
+        expected = {
+            "zaken:zaak": [hoofdzaak_data],
+            "catalogi:zaaktype": [zaaktype_data],
+            "zaken:resultaat": [resultaat_data],
+            "zaken:status": [status_data],
+            "zaken:zaakeigenschap": [eigenschap_data],
+        }
+
+        self.assertEqual(data["results"], [zaak_data])
         self.assertIn("inclusions", data)
         self.assertEqual(data["inclusions"], expected)
 
