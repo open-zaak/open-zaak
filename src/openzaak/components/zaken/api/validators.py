@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
+from typing import Optional
 
 from django.conf import settings
 from django.db import models
@@ -172,19 +173,22 @@ class ZaakArchiveIOsArchivedValidator:
     On archival of a zaak, validate that the related documents are archived.
     """
 
-    def set_context(self, serializer: serializers.Serializer):
-        self.instance = serializer.instance
+    requires_context = True
 
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer: serializers.Serializer):
+        instance: Optional[Zaak] = serializer.instance
+
         default_archiefstatus = (
-            self.instance.archiefstatus
-            if self.instance
-            else Archiefstatus.nog_te_archiveren
+            instance.archiefstatus if instance else Archiefstatus.nog_te_archiveren
         )
         archiefstatus = attrs.get("archiefstatus", default_archiefstatus)
 
         # no archiving status set -> nothing to do
         if archiefstatus == Archiefstatus.nog_te_archiveren:
+            return
+
+        # create of a zaak, there is no existing data to validate
+        if instance is None:
             return
 
         documents_not_archived_error = serializers.ValidationError(
@@ -199,18 +203,20 @@ class ZaakArchiveIOsArchivedValidator:
         )
 
         if not settings.CMIS_ENABLED:
-            self.validate_local_eios_archived(attrs, documents_not_archived_error)
-        self.validate_remote_eios_archived(attrs, documents_not_archived_error)
-        self.validate_extra_attributes(attrs)
+            self.validate_local_eios_archived(
+                attrs, instance, documents_not_archived_error
+            )
+        self.validate_remote_eios_archived(
+            attrs, instance, documents_not_archived_error
+        )
+        self.validate_extra_attributes(attrs, instance)
 
     def validate_local_eios_archived(
-        self, attrs: dict, error: serializers.ValidationError
+        self, attrs: dict, instance: Optional[Zaak], error: serializers.ValidationError
     ):
         # TODO: check remote ZIO.informatieobject
         # search for related informatieobjects with status != 'gearchiveerd'
-        canonical_ids = self.instance.zaakinformatieobject_set.values(
-            "_informatieobject_id"
-        )
+        canonical_ids = instance.zaakinformatieobject_set.values("_informatieobject_id")
         io_ids = (
             EnkelvoudigInformatieObjectCanonical.objects.filter(
                 id__in=Subquery(canonical_ids)
@@ -227,9 +233,9 @@ class ZaakArchiveIOsArchivedValidator:
             raise error
 
     def validate_remote_eios_archived(
-        self, attrs: dict, error: serializers.ValidationError
+        self, attrs: dict, instance: Optional[Zaak], error: serializers.ValidationError
     ):
-        remote_zios = self.instance.zaakinformatieobject_set.exclude(
+        remote_zios = instance.zaakinformatieobject_set.exclude(
             _informatieobject_url=""
         )
         # This is a very naive approach to load all the remote objects - it happens
@@ -241,11 +247,9 @@ class ZaakArchiveIOsArchivedValidator:
             if zio.informatieobject.status != Statussen.gearchiveerd:
                 raise error
 
-    def validate_extra_attributes(self, attrs: dict):
+    def validate_extra_attributes(self, attrs: dict, instance: Optional[Zaak]):
         for attr in ["archiefnominatie", "archiefactiedatum"]:
-            if not attrs.get(
-                attr, getattr(self.instance, attr) if self.instance else None
-            ):
+            if not attrs.get(attr, getattr(instance, attr) if instance else None):
                 raise serializers.ValidationError(
                     {
                         attr: _(
