@@ -25,15 +25,15 @@ from openzaak.utils.serializer_fields import (
 )
 
 
-def get_component_name(serializer: Serializer) -> str:
+def get_component_name(serializer: Type[Serializer]) -> str:
     return serializer.Meta.model._meta.app_label
 
 
-def get_resource_name(serializer: Serializer) -> str:
+def get_resource_name(serializer: Type[Serializer]) -> str:
     return serializer.Meta.model._meta.object_name
 
 
-def get_inclusion_key(serializer: Serializer) -> str:
+def get_inclusion_key(serializer: Type[Serializer]) -> str:
     component_label = get_component_name(serializer)
     model_name = serializer.Meta.model._meta.model_name
     return f"{component_label}:{model_name}"
@@ -212,7 +212,9 @@ def get_include_resources(serializer_class: Type[Serializer]) -> List[tuple]:
     return resources
 
 
-def get_include_options_for_serializer(serializer_class: Serializer) -> List[tuple]:
+def get_include_options_for_serializer(
+    serializer_class: Type[Serializer],
+) -> List[tuple]:
     choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
     choices.append(("*", "*",))
     return choices
