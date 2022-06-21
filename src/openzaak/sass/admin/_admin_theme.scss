@@ -134,6 +134,21 @@ div.breadcrumbs {
 }
 
 /**
+ * Footer
+ */
+ .version {
+   padding: 0 30px;
+   color: $color-secondary-dark;
+   font-size: smaller;
+ }
+
+ #footer {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+ }
+
+/**
  * Environment banner
  */
 .env {
