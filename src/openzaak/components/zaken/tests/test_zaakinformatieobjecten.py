@@ -257,7 +257,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype=f"http://openzaak.nl{reverse(zio_type.informatieobjecttype)}",
         )
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             mock_service_oas_get(m, APITypes.drc, base)
             m.get(document1, json=eio1_response)
             m.post(
@@ -543,7 +544,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             m.get(
                 document,
                 json={
@@ -707,7 +709,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
         )
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             m.get(self.document, json=eio_response)
             response = self.client.post(
                 self.list_url,
@@ -731,7 +734,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaaktype_data = get_zaaktype_response(catalogus, zaaktype)
         zaaktype_data["informatieobjecttypen"] = [informatieobjecttype]
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
             mock_service_oas_get(m, "drc", self.base)
             m.get(zaaktype, json=zaaktype_data)
             m.get(
@@ -765,7 +768,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(
                 informatieobjecttype,
@@ -797,7 +801,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             m.get(
                 informatieobjecttype,
                 json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
@@ -836,7 +841,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
         )
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(self.document, json=eio_response)
 
@@ -878,7 +884,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
             mock_service_oas_get(m, "drc", self.base)
             m.get(
                 self.document,
@@ -912,7 +918,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
             mock_service_oas_get(m, "drc", self.base)
             m.get(
                 self.document,

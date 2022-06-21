@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -15,6 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import VervalRedenen
@@ -212,15 +214,13 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         url = get_operation_url("besluit_create")
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                besluittype,
-                json=get_besluittype_response(catalogus, besluittype),
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            m.get(
+                besluittype, json=get_besluittype_response(catalogus, besluittype),
             )
 
-            m.register_uri(
-                "GET",
+            m.get(
                 catalogus,
                 json={
                     "url": catalogus,
@@ -305,9 +305,9 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         url = get_operation_url("besluit_create")
 
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            m.get(
                 besluittype,
                 json={
                     "url": besluittype,
@@ -319,8 +319,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
                     "concept": False,
                 },
             )
-            m.register_uri(
-                "GET",
+            m.get(
                 catalogus,
                 json={
                     "url": catalogus,

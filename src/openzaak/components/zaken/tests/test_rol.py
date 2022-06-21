@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -10,6 +11,7 @@ from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
+from openzaak.tests.utils import mock_service_oas_get
 from openzaak.utils.tests import JWTAuthMixin
 
 from ..constants import IndicatieMachtiging
@@ -490,7 +492,8 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = reverse(zaak)
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(roltype, json=get_roltype_response(roltype, zaaktype))
 
@@ -559,7 +562,8 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = reverse(zaak)
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(roltype, json={"url": roltype, "zaaktype": zaaktype})
 
@@ -588,7 +592,8 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory(zaaktype=zaaktype1)
         zaak_url = reverse(zaak)
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
             m.get(zaaktype1, json=get_zaaktype_response(catalogus, zaaktype1))
             m.get(zaaktype2, json=get_zaaktype_response(catalogus, zaaktype2))
             m.get(roltype, json=get_roltype_response(roltype, zaaktype2))

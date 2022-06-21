@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -348,7 +349,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype))
 
             response = self.client.post(
@@ -373,7 +375,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
 
             response = self.client.post(
@@ -401,7 +404,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = reverse(eio)
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
             m.get(
                 zaak,
                 json={
@@ -433,7 +437,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = reverse(eio)
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
             m.get(
                 besluit,
                 json={
@@ -468,7 +473,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             informatieobject=eio.canonical, besluit=besluit, object_type="besluit"
         )
 
-        with requests_mock.Mocker(real_http=True) as m:
+        with requests_mock.Mocker() as m:
+            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
 
             response = self.client.post(
