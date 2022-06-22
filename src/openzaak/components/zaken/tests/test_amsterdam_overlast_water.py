@@ -15,7 +15,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import Zaak
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url, utcdatetime

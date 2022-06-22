@@ -17,8 +17,12 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.tests.utils import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    mock_service_oas_get,
+    serialise_eio,
+)
 
 from ..models import Zaak, ZaakInformatieObject
 from .utils import ZAAK_WRITE_KWARGS

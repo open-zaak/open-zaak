@@ -29,8 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
 
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,

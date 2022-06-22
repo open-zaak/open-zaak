@@ -13,8 +13,12 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.tests.utils import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    mock_service_oas_get,
+    serialise_eio,
+)
 
 from ...zaken.tests.factories import ZaakFactory
 from ..models import Besluit, BesluitInformatieObject

@@ -12,8 +12,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_service_oas_get
 
 from ..models import (
     KlantContact,

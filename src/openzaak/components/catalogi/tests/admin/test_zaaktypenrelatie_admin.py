@@ -10,7 +10,7 @@ from vng_api_common.tests import reverse as _reverse
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.models import ZaakTypenRelatie
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin
 
 from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory

@@ -32,8 +32,11 @@ from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get as oz_mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils import (
+    JWTAuthMixin,
+    get_eio_response,
+    mock_service_oas_get as oz_mock_service_oas_get,
+)
 
 from .factories import (
     RelevanteZaakRelatieFactory,

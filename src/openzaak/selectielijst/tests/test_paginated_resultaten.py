@@ -7,7 +7,7 @@ from django.test import TestCase
 import requests_mock
 
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin
 
 from ..api import get_resultaten
 from ..models import ReferentieLijstConfig

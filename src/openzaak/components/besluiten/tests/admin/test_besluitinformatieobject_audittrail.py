@@ -11,7 +11,7 @@ from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 from ..utils import get_operation_url

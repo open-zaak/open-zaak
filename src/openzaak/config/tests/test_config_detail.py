@@ -4,8 +4,8 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
+from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.constants import COMPONENT_MAPPING
-from openzaak.utils.tests import AdminTestMixin
 
 from .factories import InternalServiceFactory
 

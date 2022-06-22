@@ -13,7 +13,7 @@ from django_webtest import WebTest
 from zgw_consumers.constants import NLXDirectories
 from zgw_consumers.models import NLXConfig
 
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..forms import get_nlx_choices
 

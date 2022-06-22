@@ -15,7 +15,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_list,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin
 
 from ..factories import (
     BesluitTypeFactory,

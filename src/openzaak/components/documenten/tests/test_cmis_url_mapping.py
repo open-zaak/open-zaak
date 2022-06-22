@@ -16,8 +16,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, mock_service_oas_get
 
 from ...zaken.tests.utils import get_zaak_response
 from ..models import EnkelvoudigInformatieObject, ObjectInformatieObject

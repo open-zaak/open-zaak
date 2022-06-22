@@ -5,8 +5,8 @@ from django.urls import reverse
 from django_webtest import WebTest
 from vng_api_common.constants import ComponentTypes
 
+from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.constants import COMPONENT_MAPPING
-from openzaak.utils.tests import AdminTestMixin
 
 from ..models import InternalService
 from .factories import InternalServiceFactory

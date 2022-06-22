@@ -20,7 +20,7 @@ from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..constants import VervalRedenen
 from .factories import BesluitFactory, BesluitInformatieObjectFactory

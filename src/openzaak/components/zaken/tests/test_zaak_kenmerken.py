@@ -28,8 +28,8 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils import parse_isodatetime
-from openzaak.utils.tests import JWTAuthMixin
 
 from ..models import Zaak
 from .factories import ZaakFactory

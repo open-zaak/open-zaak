@@ -19,8 +19,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaak_response,
     get_zaakbesluit_response,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
 
 from ..constants import VervalRedenen
 from ..models import Besluit

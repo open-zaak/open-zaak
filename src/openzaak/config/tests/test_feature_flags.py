@@ -16,7 +16,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.zaken.models import Zaak
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import FeatureFlags
 

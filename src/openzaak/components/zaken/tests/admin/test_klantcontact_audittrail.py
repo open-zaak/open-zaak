@@ -9,7 +9,7 @@ from django.urls import reverse
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import KlantContact
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..factories import KlantContactFactory, ZaakFactory
 from ..utils import get_operation_url

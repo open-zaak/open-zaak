@@ -11,8 +11,7 @@ from zgw_consumers.constants import APITypes
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, mock_service_oas_get
 
 from ...catalogi.tests.factories import ZaakTypeFactory
 from ..api.scopes import (

@@ -3,7 +3,7 @@
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory

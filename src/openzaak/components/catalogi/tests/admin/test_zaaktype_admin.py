@@ -22,8 +22,7 @@ from openzaak.selectielijst.tests import (
     mock_resource_list,
 )
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
-from openzaak.tests.utils import mock_nrc_oas_get
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
 
 from ...models import ZaakType
 from ..factories import (

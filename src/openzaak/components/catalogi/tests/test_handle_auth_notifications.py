@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 
 @skip("Authorization component is internal. Webhooks are not used")

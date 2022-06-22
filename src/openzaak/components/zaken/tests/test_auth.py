@@ -20,7 +20,7 @@ from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,

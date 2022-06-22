@@ -29,8 +29,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaak_response,
     get_zaaktype_response,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase, mock_service_oas_get
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory

@@ -9,8 +9,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import StatusTypeFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
 
 from .factories import ResultaatFactory, StatusFactory, ZaakFactory
 from .utils import (

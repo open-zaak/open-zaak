@@ -12,8 +12,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_service_oas_get
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory

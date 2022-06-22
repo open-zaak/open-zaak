@@ -5,8 +5,8 @@ from django.test import override_settings, tag
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.tests.utils import APICMISTestCase
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase
 
 from ...models import ZaakInformatieObject
 from ..factories import ZaakInformatieObjectFactory

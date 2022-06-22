@@ -9,7 +9,7 @@ from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import ResultaatTypeFactory
 from openzaak.components.zaken.models import Resultaat
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..factories import ResultaatFactory, ZaakFactory
 from ..utils import get_operation_url

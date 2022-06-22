@@ -7,7 +7,7 @@ from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.models import InternalService
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 
 class DisableTests(JWTAuthMixin, APITestCase):

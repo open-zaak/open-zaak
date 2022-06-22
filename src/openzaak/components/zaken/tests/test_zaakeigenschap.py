@@ -17,8 +17,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import EigenschapFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_service_oas_get
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory

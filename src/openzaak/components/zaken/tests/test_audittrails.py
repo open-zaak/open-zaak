@@ -21,7 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
 
 from ..models import Resultaat, Zaak, ZaakInformatieObject
 from .factories import RolFactory, ZaakFactory
