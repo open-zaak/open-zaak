@@ -18,11 +18,11 @@ def _get_base_url() -> str:
     return config.api_root
 
 
-def mock_selectielijst_oas_get(m: Mocker, service="selectielijst") -> None:
+def mock_selectielijst_oas_get(m: Mocker) -> None:
     base_url = _get_base_url()
-    mock_service_oas_get(m, url=base_url, service=service)
+    mock_service_oas_get(m, url=base_url, service="selectielijst")
     mock_service_oas_get(
-        m, url="", service=service, oas_url=settings.REFERENTIELIJSTEN_API_SPEC
+        m, url="", service="selectielijst", oas_url=settings.REFERENTIELIJSTEN_API_SPEC
     )
 
 

@@ -177,7 +177,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         with requests_mock.Mocker() as m:
-            mock_selectielijst_oas_get(m, service="vrl")
+            mock_selectielijst_oas_get(m)
             m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
 
             response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
