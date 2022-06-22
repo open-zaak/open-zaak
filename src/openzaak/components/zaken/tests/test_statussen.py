@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import StatusTypeFactory
-from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from .factories import ResultaatFactory, StatusFactory, ZaakFactory
 from .utils import (
@@ -84,7 +84,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://testserver{reverse(zaak)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(statustype, json=get_statustype_response(statustype, zaaktype))
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
 
@@ -112,7 +112,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(statustype, json=statustype_data)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(
@@ -182,7 +182,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://testserver{reverse(zaak)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 statustype,
                 json={

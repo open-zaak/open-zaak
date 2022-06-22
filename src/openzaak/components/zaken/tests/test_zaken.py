@@ -29,7 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -596,7 +596,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
 
@@ -659,7 +659,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 zaaktype,
                 json={
@@ -700,7 +700,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaaktype_data["concept"] = True
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=zaaktype_data)
             m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
 

@@ -17,7 +17,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import EigenschapFactory
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_ztc_oas_get
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory
@@ -122,7 +122,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(eigenschap, json=get_eigenschap_response(eigenschap, zaaktype))
 
@@ -183,7 +183,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(eigenschap, json={"url": eigenschap, "zaaktype": zaaktype})
 
@@ -212,7 +212,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype1, json=get_zaaktype_response(catalogus, zaaktype1))
             m.get(zaaktype2, json=get_zaaktype_response(catalogus, zaaktype2))
             m.get(eigenschap, json=get_eigenschap_response(eigenschap, zaaktype2))

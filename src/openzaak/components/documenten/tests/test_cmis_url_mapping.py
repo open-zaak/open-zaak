@@ -14,9 +14,10 @@ from rest_framework import status
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.tests import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 from ...zaken.tests.utils import get_zaak_response
 from ..models import EnkelvoudigInformatieObject, ObjectInformatieObject
@@ -248,7 +249,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
 
         mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
+            self.adapter, "https://externe.catalogus.nl/api/v1/", APITypes.zrc
         )
 
         self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
@@ -294,7 +295,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
 
         mock_service_oas_get(
-            self.adapter, APITypes.zrc, "https://externe.catalogus.nl/api/v1/"
+            self.adapter, "https://externe.catalogus.nl/api/v1/", APITypes.zrc
         )
 
         self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))

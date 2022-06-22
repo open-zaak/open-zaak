@@ -16,7 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -214,7 +214,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 besluittype, json=get_besluittype_response(catalogus, besluittype),
             )
@@ -305,7 +305,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 besluittype,
                 json={

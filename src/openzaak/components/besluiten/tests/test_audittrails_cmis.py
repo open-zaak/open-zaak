@@ -8,17 +8,13 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import (
-    APICMISTestCase,
-    JWTAuthMixin,
-    mock_service_oas_get,
-    serialise_eio,
-)
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ...zaken.tests.factories import ZaakFactory
 from ..models import Besluit, BesluitInformatieObject
@@ -61,9 +57,9 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             label="external besluiten",
             auth_type=AuthTypes.no_auth,
         )
-        mock_service_oas_get(self.adapter, APITypes.zrc, base_zaak)
-        mock_service_oas_get(self.adapter, APITypes.ztc, base_zaaktype)
-        mock_service_oas_get(self.adapter, APITypes.brc, base_besluit)
+        mock_service_oas_get(self.adapter, base_zaak, APITypes.zrc)
+        mock_service_oas_get(self.adapter, base_zaaktype, APITypes.ztc)
+        mock_service_oas_get(self.adapter, base_besluit, APITypes.brc)
 
         zaak = ZaakFactory.create(zaaktype__concept=False)
 

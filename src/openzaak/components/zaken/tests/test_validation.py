@@ -23,6 +23,7 @@ from vng_api_common.validators import (
     ResourceValidator,
     URLValidator,
 )
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
@@ -34,7 +35,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_ztc_oas_get
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject
@@ -177,7 +178,9 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "vrl", oas_url=settings.REFERENTIELIJSTEN_API_SPEC)
+            mock_service_oas_get(
+                m, url="", service="vrl", oas_url=settings.REFERENTIELIJSTEN_API_SPEC
+            )
             m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
 
             response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
@@ -598,7 +601,7 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
         hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 hoofdzaaktype,
                 json=get_zaaktype_response(catalogus, hoofdzaaktype, deelzaaktypen=[]),

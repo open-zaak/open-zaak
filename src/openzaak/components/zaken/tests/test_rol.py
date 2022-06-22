@@ -11,7 +11,7 @@ from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
-from openzaak.tests.utils import JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..constants import IndicatieMachtiging
 from ..models import (
@@ -492,7 +492,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(roltype, json=get_roltype_response(roltype, zaaktype))
 
@@ -562,7 +562,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(roltype, json={"url": roltype, "zaaktype": zaaktype})
 
@@ -592,7 +592,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(zaaktype1, json=get_zaaktype_response(catalogus, zaaktype1))
             m.get(zaaktype2, json=get_zaaktype_response(catalogus, zaaktype2))
             m.get(roltype, json=get_roltype_response(roltype, zaaktype2))

@@ -9,10 +9,9 @@ from django.test import TestCase
 import jwt
 import requests_mock
 from vng_api_common.notifications.models import NotificationsConfig
+from zgw_consumers import mock_service_oas_get
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
-
-from openzaak.tests.utils import mock_service_oas_get
 
 
 class RegisterKanaalTests(TestCase):
@@ -32,7 +31,8 @@ class RegisterKanaalTests(TestCase):
         config.save()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "nrc", url=svc.api_root)
+            # TODO: use openzaak.notifications.tests utility
+            mock_service_oas_get(m, url="", service="nrc", url=svc.api_root)
             m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
             m.post("https://open-notificaties.local/api/v1/kanaal", status_code=201)
 

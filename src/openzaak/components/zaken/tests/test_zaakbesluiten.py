@@ -12,7 +12,7 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_service_oas_get
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_brc_oas_get
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory
@@ -235,7 +235,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
+            mock_brc_oas_get(m)
             m.get(
                 self.besluit,
                 json=get_besluit_response(self.besluit, self.besluittype, zaak_url),
@@ -257,7 +257,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://testserver{reverse(zaak)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
+            mock_brc_oas_get(m)
             m.get(
                 self.besluit,
                 json=get_besluit_response(self.besluit, self.besluittype, zaak_url),

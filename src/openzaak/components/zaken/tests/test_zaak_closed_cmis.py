@@ -7,11 +7,12 @@ from drc_cmis.utils.convert import make_absolute_uri
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, mock_service_oas_get
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 from ...catalogi.tests.factories import ZaakTypeFactory
 from ..api.scopes import (
@@ -44,8 +45,8 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         super().setUpTestData()
 
     def _mock_zaak(self):
-        mock_service_oas_get(self.adapter, APITypes.zrc, self.base_zaak)
-        mock_service_oas_get(self.adapter, APITypes.ztc, self.base_zaaktype)
+        mock_service_oas_get(self.adapter, self.base_zaak, APITypes.zrc)
+        mock_service_oas_get(self.adapter, self.base_zaaktype, APITypes.ztc)
 
         self.adapter.get(
             make_absolute_uri(reverse(self.zaak)),

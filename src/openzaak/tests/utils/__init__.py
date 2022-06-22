@@ -7,13 +7,19 @@ from .cmis import APICMISTestCase, APICMISTransactionTestCase, serialise_eio
 from .mocks import (
     MockSchemasMixin,
     get_eio_response,
+    mock_brc_oas_get,
+    mock_drc_oas_get,
     mock_nrc_oas_get,
-    mock_service_oas_get,
+    mock_zrc_oas_get,
+    mock_ztc_oas_get,
 )
 
 __all__ = [
     # mocks
-    "mock_service_oas_get",
+    "mock_brc_oas_get",
+    "mock_drc_oas_get",
+    "mock_zrc_oas_get",
+    "mock_ztc_oas_get",
     "mock_nrc_oas_get",
     "MockSchemasMixin",
     "get_eio_response",
