@@ -5,7 +5,6 @@ import uuid
 from datetime import datetime
 from unittest.mock import patch
 
-from django.conf import settings
 from django.db import close_old_connections
 from django.test import override_settings, tag
 from django.utils import timezone

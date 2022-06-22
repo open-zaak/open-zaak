@@ -17,7 +17,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_oas_get
+from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
@@ -39,7 +39,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         """
         Check if notifications will be send when Besluit is created
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         client = mock_client.return_value
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
@@ -82,7 +82,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         """
         Check if notifications will be send when resultaat is deleted
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         client = mock_client.return_value
         besluit = BesluitFactory.create()
         besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
@@ -124,7 +124,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
     maxDiff = None
 
     def test_besluit_create_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -170,7 +170,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -205,7 +205,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self, m
     ):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -253,7 +253,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
         self, m
     ):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )

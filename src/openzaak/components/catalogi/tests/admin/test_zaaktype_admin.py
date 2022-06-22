@@ -17,9 +17,9 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
-    mock_oas_get,
     mock_resource_get,
     mock_resource_list,
+    mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
@@ -70,7 +70,7 @@ class ZaaktypeAdminTests(
         self.assertEqual(response.status_code, 200)
 
     def test_zaaktype_detail(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         zaaktype = ZaakTypeFactory.create()
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
@@ -87,7 +87,7 @@ class ZaaktypeAdminTests(
         """
         Test that the selectielijst procestype field is a dropdown.
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         zaaktype = ZaakTypeFactory.create()
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
@@ -108,7 +108,7 @@ class ZaaktypeAdminTests(
     def test_submit_zaaktype_required_fields(self, m):
         catalogus = CatalogusFactory.create()
         url = reverse("admin:catalogi_zaaktype_add")
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
         form = add_page.form
@@ -141,7 +141,7 @@ class ZaaktypeAdminTests(
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
     def test_create_new_version(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_nrc_oas_get(m)
         m.post(
@@ -226,7 +226,7 @@ class ZaaktypeAdminTests(
         )
 
     def test_create_new_version_fail_no_datum_einde_geldigheid(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
 
         zaaktype_ = ZaakTypeFactory.create(
@@ -251,7 +251,7 @@ class ZaaktypeAdminTests(
     def test_submit_zaaktype_validate_doorlooptijd_servicenorm(self, m):
         catalogus = CatalogusFactory.create()
         url = reverse("admin:catalogi_zaaktype_add")
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
         form = add_page.form
@@ -306,7 +306,7 @@ class ZaaktypeAdminTests(
         )
 
     def test_zaaktype_producten_of_diensten_empty_save(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         zaaktype = ZaakTypeFactory.create(producten_of_diensten=[])
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
@@ -388,7 +388,7 @@ class ZaaktypeAdminTests(
         the integrity (resultaattype selectielijstklasse must belong to
         zaaktype.selectielijst_procestype).
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -428,7 +428,7 @@ class ZaaktypeAdminTests(
 
     def test_selectielijst_selectielijstklasse_missing_client_configuration(self, m):
         # the form may not validate if the selectielijstklasse data cannot be retrieved
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -465,7 +465,7 @@ class ZaaktypeAdminTests(
             )
 
     def test_reset_selectielijst_configuration(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -523,7 +523,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
     @requests_mock.Mocker()
     def test_publish_selected_success(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -587,7 +587,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
     @requests_mock.Mocker()
     def test_publish_related_to_not_published(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -722,7 +722,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @tag("gh-1085")
     @requests_mock.Mocker()
     def test_publish_with_minimum_requirements(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"

@@ -10,9 +10,9 @@ from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.selectielijst.tests import (
-    mock_oas_get,
     mock_resource_get,
     mock_resource_list,
+    mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
@@ -48,7 +48,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_get(m, "procestypen", procestype_url)
 
         zaaktype = ZaakTypeFactory.create(
@@ -93,7 +93,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         """
         check that in case of published besluittype only "datum_einde_geldigheid" field is editable
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
 
         besluittype = BesluitTypeFactory.create(concept=False)
         url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
@@ -116,7 +116,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         """
         check that in case of published informatieobjecttype only "datum_einde_geldigheid" field is editable
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         url = reverse(
@@ -142,7 +142,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         """
         check that in case of published zaaktype, statustype page is readonly
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
 
         statustype = StatusTypeFactory.create(zaaktype__concept=False)
         url = reverse("admin:catalogi_statustype_change", args=(statustype.pk,))
@@ -160,7 +160,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         """
         check that in case of published zaaktype, zaaktypeinformatieobjecttype page is readonly
         """
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
 
         ztiot = ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype__concept=False, informatieobjecttype__concept=False
@@ -194,7 +194,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
 
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)

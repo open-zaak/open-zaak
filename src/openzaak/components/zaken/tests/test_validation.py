@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import override_settings, tag
 from django.utils.timezone import make_aware
 
@@ -23,7 +22,6 @@ from vng_api_common.validators import (
     ResourceValidator,
     URLValidator,
 )
-from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
@@ -35,6 +33,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_ztc_oas_get
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
@@ -178,9 +177,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(
-                m, url="", service="vrl", oas_url=settings.REFERENTIELIJSTEN_API_SPEC
-            )
+            mock_selectielijst_oas_get(m, service="vrl")
             m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
 
             response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)

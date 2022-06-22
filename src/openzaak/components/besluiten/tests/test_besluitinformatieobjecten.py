@@ -4,7 +4,6 @@ import concurrent.futures
 import uuid
 from unittest.mock import patch
 
-from django.conf import settings
 from django.db import close_old_connections
 from django.test import override_settings, tag
 

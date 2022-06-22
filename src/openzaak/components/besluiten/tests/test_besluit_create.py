@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock

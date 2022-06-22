@@ -6,7 +6,7 @@ from zgw_consumers.models import Service
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
 
-from . import mock_oas_get, mock_resource_list
+from . import mock_resource_list, mock_selectielijst_oas_get
 
 
 class SelectieLijstMixin:
@@ -37,7 +37,7 @@ class SelectieLijstMixin:
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        mock_oas_get(mocker)
+        mock_selectielijst_oas_get(mocker)
 
         mock_resource_list(mocker, "procestypen")
         mock_resource_list(mocker, "resultaten")

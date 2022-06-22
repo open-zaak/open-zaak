@@ -18,9 +18,9 @@ from vng_api_common.constants import (
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.tests import (
     _get_base_url,
-    mock_oas_get,
     mock_resource_get,
     mock_resource_list,
+    mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
@@ -54,7 +54,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -79,7 +79,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -107,7 +107,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -156,7 +156,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://referentielijsten-api.vng.cloud/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -181,7 +181,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
 
         selectielijstklasse_url = (
@@ -266,7 +266,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
 
         selectielijstklasse_url = (
@@ -367,7 +367,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
 
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -396,7 +396,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
 
     def test_resultaattype_detail_no_procestype(self, m):
         procestype_url = ""
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         resultaattype = ResultaatTypeFactory.create(
@@ -426,7 +426,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_get(m, "procestypen", procestype_url)
@@ -475,7 +475,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_list(m, "procestypen")
@@ -547,7 +547,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "resultaattypeomschrijvingen")
         mock_resource_list(m, "resultaten")
         mock_resource_list(m, "procestypen")

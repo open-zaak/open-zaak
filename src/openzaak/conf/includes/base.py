@@ -581,7 +581,6 @@ SENDFILE_URL = PRIVATE_MEDIA_URL
 #
 ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
     os.path.join(DJANGO_PROJECT_DIR, "tests", "schemas"),
-    # TODO: these only contain openapi.yaml -> rename to proper service name
     os.path.join(DJANGO_PROJECT_DIR, "selectielijst", "tests", "files"),
     os.path.join(DJANGO_PROJECT_DIR, "notifications", "tests", "files"),
 ]

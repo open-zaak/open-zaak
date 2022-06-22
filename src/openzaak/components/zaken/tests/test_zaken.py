@@ -3,7 +3,6 @@
 from copy import copy
 from datetime import date
 
-from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
 from django.utils import timezone

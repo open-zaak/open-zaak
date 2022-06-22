@@ -5,7 +5,6 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock

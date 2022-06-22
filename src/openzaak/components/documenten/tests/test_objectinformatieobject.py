@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -574,7 +573,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, url=self.zrc_service.api_root, "zrc")
+        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
@@ -597,7 +596,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, url=self.brc_service.api_root, "brc")
+        mock_service_oas_get(m, url=self.brc_service.api_root, service="brc")
         m.get(besluit, json=get_besluit_response(besluit, besluittype))
         m.get(
             "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
@@ -623,7 +622,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = reverse(oio)
 
         # set up mocks
-        mock_service_oas_get(m, url=self.zrc_service.api_root, "zrc")
+        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",

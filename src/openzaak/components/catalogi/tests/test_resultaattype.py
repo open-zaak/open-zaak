@@ -21,7 +21,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import mock_oas_get
+from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -197,7 +197,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "registratie": "",
             },
         }
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         m.get(
             SELECTIELIJSTKLASSE_URL,
             json={
@@ -819,7 +819,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
 
     def _setup_mock_responses(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         m.get(
             SELECTIELIJSTKLASSE_URL,
             json={
@@ -911,7 +911,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get(
                 "http://example.com/resultaten/1234",
                 json={"some": "incorrect property"},
@@ -952,7 +952,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get(
                 SELECTIELIJSTKLASSE_URL,
                 json={
@@ -996,7 +996,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get(
                 SELECTIELIJSTKLASSE_URL,
                 json={
@@ -1038,7 +1038,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get("https://garcia.org/", json={"omschrijving": "bla"})
             m.get(
                 SELECTIELIJSTKLASSE_URL,
@@ -1080,7 +1080,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get(
                 SELECTIELIJSTKLASSE_URL,
                 json={
@@ -1123,7 +1123,7 @@ class ResultaatTypeValidationTests(APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_oas_get(m)
+            mock_selectielijst_oas_get(m)
             m.get("https://garcia.org/", json={"omschrijving": "bla"})
             m.get(
                 SELECTIELIJSTKLASSE_URL,
