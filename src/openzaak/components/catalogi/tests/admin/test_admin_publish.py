@@ -12,13 +12,12 @@ from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
-    mock_oas_get,
     mock_resource_get,
     mock_resource_list,
+    mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import mock_nrc_oas_get
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
 
 from ..factories import (
     BesluitTypeFactory,
@@ -59,7 +58,7 @@ class ZaaktypeAdminTests(
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
         selectielijst_resultaat = (
@@ -177,7 +176,7 @@ class ZaaktypeAdminTests(
         self.assertIsNotNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
@@ -237,7 +236,7 @@ class ZaaktypeAdminTests(
         self.assertIsNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"

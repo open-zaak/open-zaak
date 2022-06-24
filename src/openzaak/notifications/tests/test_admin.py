@@ -15,7 +15,7 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 
 from ..models import FailedNotification
-from . import mock_notification_send, mock_oas_get
+from . import mock_notification_send, mock_nrc_oas_get
 from .factories import FailedNotificationFactory
 
 
@@ -47,7 +47,7 @@ class FailedNotificationAdminTests(NotificationServiceMixin, WebTest):
         self.assertEqual(response.status_code, 302)
 
     def test_resend_ok(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         mock_notification_send(m)
         notifs = FailedNotificationFactory.create_batch(3)
 
@@ -57,7 +57,7 @@ class FailedNotificationAdminTests(NotificationServiceMixin, WebTest):
         self.assertFalse(qs.exists())
 
     def test_skip_already_retried(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         mock_notification_send(m)
 
         fn1 = FailedNotificationFactory.create(retried_at=None)
@@ -72,7 +72,7 @@ class FailedNotificationAdminTests(NotificationServiceMixin, WebTest):
         """
         Test that one resend failing does not prevent others from being sent.
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
 
         calls = {"counter": 0}
 
@@ -102,7 +102,7 @@ class FailedNotificationAdminTests(NotificationServiceMixin, WebTest):
         """
         Test that one resend failing does not prevent others from being sent.
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
 
         calls = {"counter": 0}
 

@@ -17,7 +17,7 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 from .utils import get_operation_url

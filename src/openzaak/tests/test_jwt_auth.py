@@ -11,7 +11,7 @@ from vng_api_common.tests import reverse
 from openzaak.components.autorisaties.middleware import JWTAuth
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
 
 
 class JWTExpiredTests(JWTAuthMixin, APITestCase):

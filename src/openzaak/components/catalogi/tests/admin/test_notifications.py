@@ -10,13 +10,12 @@ from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.utils import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
-    mock_oas_get,
     mock_resource_get,
     mock_resource_list,
+    mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import mock_nrc_oas_get
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
 
 from ...models import ZaakType
 from ..factories import (
@@ -129,7 +128,7 @@ class NotificationAdminTests(
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
         mock_nrc_oas_get(m)
@@ -202,7 +201,7 @@ class NotificationAdminTests(
         self.assertFalse(m.called)
 
     def test_zaaktype_notify_on_create(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_nrc_oas_get(m)
         m.post(
@@ -243,7 +242,7 @@ class NotificationAdminTests(
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
         mock_nrc_oas_get(m)
@@ -278,7 +277,7 @@ class NotificationAdminTests(
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
         mock_nrc_oas_get(m)
@@ -312,7 +311,7 @@ class NotificationAdminTests(
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_resource_get(m, "procestypen", procestype_url)
         mock_nrc_oas_get(m)

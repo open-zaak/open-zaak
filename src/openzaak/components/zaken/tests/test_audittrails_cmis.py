@@ -9,6 +9,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
@@ -17,8 +18,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, serialise_eio
 
 from ..models import Zaak, ZaakInformatieObject
 from .utils import ZAAK_WRITE_KWARGS
@@ -54,8 +54,8 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             label="external zaaktypen",
             auth_type=AuthTypes.no_auth,
         )
-        mock_service_oas_get(self.adapter, APITypes.zrc, base_zaak)
-        mock_service_oas_get(self.adapter, APITypes.ztc, base_zaaktype)
+        mock_service_oas_get(self.adapter, base_zaak, APITypes.zrc)
+        mock_service_oas_get(self.adapter, base_zaaktype, APITypes.ztc)
 
         url = reverse(Zaak)
         zaaktype = ZaakTypeFactory.create(concept=False)

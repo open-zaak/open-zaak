@@ -10,7 +10,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.catalogi.tests.utils import (
     get_operation_url as get_catalogus_operation_url,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory

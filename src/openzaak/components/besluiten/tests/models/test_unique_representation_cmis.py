@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase
 
 from ...tests.factories import BesluitFactory, BesluitInformatieObjectFactory
 

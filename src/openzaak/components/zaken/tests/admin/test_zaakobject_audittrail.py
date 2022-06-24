@@ -6,7 +6,7 @@ from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import ZaakObject
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..factories import ZaakFactory, ZaakObjectFactory
 from ..utils import get_operation_url

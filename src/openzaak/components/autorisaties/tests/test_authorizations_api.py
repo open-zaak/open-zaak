@@ -7,7 +7,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from ..api.validators import UniqueClientIDValidator

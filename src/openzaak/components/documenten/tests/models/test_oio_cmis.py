@@ -13,8 +13,8 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
+from openzaak.tests.utils import APICMISTestCase
 from openzaak.utils.query import QueryBlocked
-from openzaak.utils.tests import APICMISTestCase
 
 from ...models import ObjectInformatieObject
 from ..factories import (

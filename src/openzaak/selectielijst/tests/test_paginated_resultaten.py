@@ -7,11 +7,11 @@ from django.test import TestCase
 import requests_mock
 
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.utils.tests import ClearCachesMixin
+from openzaak.tests.utils import ClearCachesMixin
 
 from ..api import get_resultaten
 from ..models import ReferentieLijstConfig
-from . import mock_oas_get
+from . import mock_selectielijst_oas_get
 
 
 @requests_mock.Mocker()
@@ -20,7 +20,7 @@ class SelectieLijstResultatenTests(
 ):
     def test_single_page(self, m):
         ReferentieLijstConfig.get_solo()
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         m.get(
             "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={"previous": None, "next": None, "count": 0, "results": []},
@@ -32,7 +32,7 @@ class SelectieLijstResultatenTests(
 
     def test_multiple_pages(self, m):
         ReferentieLijstConfig.get_solo()
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         base_url = "https://selectielijst.openzaak.nl/api/v1/resultaten"
         _results = [
             {"url": f"{base_url}/cc5ae4e3-a9e6-4386-bcee-46be4986a829", "nummer": 1},
@@ -73,7 +73,7 @@ class SelectieLijstResultatenTests(
 
     def test_filter_procestype(self, m):
         ReferentieLijstConfig.get_solo()
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         base_url = "https://selectielijst.openzaak.nl/api/v1/resultaten"
         query = urlencode({"procesType": "https://example.com"})
         m.get(

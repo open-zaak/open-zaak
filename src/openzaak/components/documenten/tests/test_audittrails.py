@@ -15,7 +15,7 @@ from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
 
 from ..models import (
     EnkelvoudigInformatieObject,

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -10,8 +9,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_zrc_oas_get
 
 from ..constants import AardZaakRelatie
 from ..models import Zaak
@@ -34,7 +32,7 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
+            mock_zrc_oas_get(m)
             m.get(zaak_external, json=get_zaak_response(zaak_external, zaaktype_url))
 
             response = self.client.post(
@@ -134,7 +132,7 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
+            mock_zrc_oas_get(m)
             m.get(zaak_external, json=zaak_data)
 
             response = self.client.post(

@@ -4,7 +4,7 @@ from datetime import date
 
 from django.test import override_settings, tag
 
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 

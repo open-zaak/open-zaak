@@ -12,7 +12,7 @@ from openzaak.components.documenten.query.cmis import get_zaak_and_zaaktype_data
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 
 @tag("external-urls", "cmis")

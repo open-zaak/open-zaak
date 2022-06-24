@@ -14,7 +14,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import (

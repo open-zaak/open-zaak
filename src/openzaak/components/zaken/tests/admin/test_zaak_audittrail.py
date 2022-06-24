@@ -7,7 +7,7 @@ from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.models import Zaak
-from openzaak.utils.tests import AdminTestMixin
+from openzaak.tests.utils import AdminTestMixin
 
 from ..factories import ZaakFactory
 from ..utils import get_operation_url

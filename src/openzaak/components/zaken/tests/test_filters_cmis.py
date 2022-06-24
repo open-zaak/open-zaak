@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 from rest_framework import status
 from vng_api_common.tests import reverse
 
-from openzaak.utils.tests import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import ZaakInformatieObject

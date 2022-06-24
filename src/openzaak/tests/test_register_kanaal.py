@@ -12,7 +12,7 @@ from vng_api_common.notifications.models import NotificationsConfig
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.tests.utils import mock_service_oas_get
+from openzaak.notifications.tests import mock_nrc_oas_get
 
 
 class RegisterKanaalTests(TestCase):
@@ -32,7 +32,7 @@ class RegisterKanaalTests(TestCase):
         config.save()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "nrc", url=svc.api_root)
+            mock_nrc_oas_get(m)
             m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
             m.post("https://open-notificaties.local/api/v1/kanaal", status_code=201)
 

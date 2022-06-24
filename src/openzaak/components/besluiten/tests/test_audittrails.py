@@ -16,7 +16,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory

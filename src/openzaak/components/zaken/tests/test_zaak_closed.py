@@ -29,7 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,

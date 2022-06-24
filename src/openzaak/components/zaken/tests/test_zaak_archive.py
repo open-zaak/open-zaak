@@ -5,7 +5,6 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -32,8 +31,7 @@ from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import mock_service_oas_get as oz_mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_zrc_oas_get
 
 from .factories import (
     RelevanteZaakRelatieFactory,
@@ -1072,7 +1070,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            oz_mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
+            mock_zrc_oas_get(m)
             m.get(zaak2, json=zaak2_data)
             m.get(zaak3, json=zaak3_data)
             response = self.client.post(

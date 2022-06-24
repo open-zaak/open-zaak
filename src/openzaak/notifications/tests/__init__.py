@@ -1,30 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import os
-
 from requests_mock import Mocker
-
-MOCK_FILES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "files",)
-
-NOTIFICATIES_API_SPEC = os.path.join(MOCK_FILES_DIR, "openapi.yaml")
+from zgw_consumers.test import mock_service_oas_get
 
 
-# TODO: convert to use zgw_consumsers.test.mock_service_oas_get
-def mock_oas_get(m: Mocker) -> None:
-    oas_url = "https://notificaties-api.vng.cloud/api/v1/schema/openapi.yaml"
-    with open(NOTIFICATIES_API_SPEC, "rb") as api_spec:
-        m.get(oas_url, content=api_spec.read())
+def _get_base_url() -> str:
+    from vng_api_common.notifications.models import NotificationsConfig
+
+    config = NotificationsConfig.get_solo()
+    base_url = config.api_root or "https://notificaties-api.vng.cloud/api/v1/"
+    if not base_url.endswith("/"):
+        base_url = f"{base_url}/"
+    return base_url
+
+
+def mock_nrc_oas_get(m: Mocker):
+    base_url = _get_base_url()
+    mock_service_oas_get(m, url=base_url, service="nrc")
 
 
 def mock_notification_send(m: Mocker, **kwargs) -> None:
-    endpoint = "https://notificaties-api.vng.cloud/api/v1/notificaties"
-    defaults = {
-        "status_code": 201,
-        "json": {"dummy": "json"},
-    }
-    defaults.update(**kwargs)
-
-    if "exc" in kwargs:
-        defaults = kwargs
-
-    m.post(endpoint, **defaults)
+    base_url = _get_base_url()
+    mock_kwargs = (
+        {"status_code": 201, "json": {"dummy": "json"}, **kwargs,}
+        if "exc" not in kwargs
+        else kwargs
+    )
+    m.post(f"{base_url}notificaties", **mock_kwargs)

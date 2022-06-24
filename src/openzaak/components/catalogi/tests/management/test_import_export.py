@@ -15,7 +15,7 @@ import requests_mock
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.selectielijst.tests import mock_oas_get, mock_resource_get
+from openzaak.selectielijst.tests import mock_resource_get, mock_selectielijst_oas_get
 
 from ...models import (
     BesluitType,
@@ -267,7 +267,7 @@ class ImportCatalogiTests(TestCase):
         selectielijstklasse = (
             f"{self.base}resultaten/d92e5a77-c523-4273-b8e0-c912115ef156"
         )
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         mock_resource_get(m, "procestypen", zaaktype.selectielijst_procestype)
         mock_resource_get(m, "resultaattypeomschrijvingen", resultaattypeomschrijving)
         mock_resource_get(m, "resultaten", selectielijstklasse)

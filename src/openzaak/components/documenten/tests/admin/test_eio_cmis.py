@@ -12,7 +12,7 @@ from rest_framework import status
 from vng_api_common import tests
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.tests import AdminTestMixin, APICMISTestCase
+from openzaak.tests.utils import AdminTestMixin, APICMISTestCase
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 

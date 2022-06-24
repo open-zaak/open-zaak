@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from .factories import StatusFactory, ZaakFactory
 from .utils import ZAAK_READ_KWARGS

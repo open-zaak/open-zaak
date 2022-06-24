@@ -4,7 +4,7 @@ import jwt
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from .utils import get_operation_url
 

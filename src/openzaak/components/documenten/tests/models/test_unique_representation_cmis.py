@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.utils.tests import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase
 
 from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory

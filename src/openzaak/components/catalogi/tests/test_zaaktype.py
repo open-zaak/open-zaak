@@ -12,7 +12,7 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
-from openzaak.selectielijst.tests import mock_oas_get
+from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
@@ -1550,7 +1550,7 @@ class ZaaktypeValidationTests(APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
     def test_selectielijstprocestype_invalid_resource(self, m):
-        mock_oas_get(m)
+        mock_selectielijst_oas_get(m)
         procestype_url = "https://example.com/procestypen/1234"
         m.get(procestype_url, json={"some": "incorrect property"})
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)

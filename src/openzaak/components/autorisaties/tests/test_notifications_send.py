@@ -14,10 +14,10 @@ from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_oas_get
+from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from .factories import ApplicatieFactory, AutorisatieFactory
@@ -36,7 +36,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         """
         Check if notifications will be send when applicaties is created
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         client = mock_client.return_value
         url = get_operation_url("applicatie_create")
 
@@ -70,7 +70,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
         """
         Check if notifications will be send when applicatie is updated
         """
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         client = mock_client.return_value
         autorisatie = AutorisatieFactory.create(
             applicatie__client_ids=["id1", "id2"],
@@ -110,7 +110,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
     maxDiff = None
 
     def test_applicatie_create_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -147,7 +147,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_applicatie_delete_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )

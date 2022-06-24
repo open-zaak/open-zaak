@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -16,8 +15,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -215,7 +213,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 besluittype, json=get_besluittype_response(catalogus, besluittype),
             )
@@ -306,7 +304,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "ztc", oas_url=settings.ZTC_API_SPEC)
+            mock_ztc_oas_get(m)
             m.get(
                 besluittype,
                 json={

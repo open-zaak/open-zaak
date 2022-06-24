@@ -9,7 +9,7 @@ from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import (

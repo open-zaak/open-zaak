@@ -10,10 +10,10 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils import JWTAuthMixin, get_eio_response
 
 from ..models import (
     KlantContact,
@@ -137,7 +137,7 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_zaak_delete_oio_removed(self, m):
-        mock_service_oas_get(m, APITypes.drc, self.base)
+        mock_service_oas_get(m, self.base, APITypes.drc)
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         eio_response = get_eio_response(
             document,

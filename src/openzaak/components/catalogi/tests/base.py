@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework.test import APITestCase as _APITestCase
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from .factories import CatalogusFactory
 from .utils import get_operation_url

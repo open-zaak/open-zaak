@@ -11,7 +11,7 @@ from vng_api_common.notifications.models import NotificationsConfig
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_oas_get
+from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 
@@ -29,7 +29,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
     maxDiff = None
 
     def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -77,7 +77,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
         self.assertEqual(failed.message, message)
 
     def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -111,7 +111,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
         self, m
     ):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -153,7 +153,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
     def test_informatieobjecttype_delete_fail_send_notification_create_db_entry(
         self, m
     ):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -185,7 +185,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
         self.assertEqual(failed.message, message)
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )
@@ -249,7 +249,7 @@ class FailedNotificationTests(NotificationServiceMixin, APITestCase):
         self.assertEqual(failed.message, message)
 
     def test_zaaktype_delete_fail_send_notification_create_db_entry(self, m):
-        mock_oas_get(m)
+        mock_nrc_oas_get(m)
         m.post(
             f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
         )

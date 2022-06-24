@@ -20,7 +20,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import KlantContact, Rol, Status, Zaak, ZaakObject
 from .factories import ZaakFactory

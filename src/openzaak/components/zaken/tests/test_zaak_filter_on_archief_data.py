@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import Archiefnominatie, Archiefstatus
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url

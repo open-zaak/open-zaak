@@ -10,8 +10,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
-
-from openzaak.tests.utils import mock_service_oas_get
+from zgw_consumers.test import mock_service_oas_get
 
 from ..models import ZaakContactMoment
 from .factories import ZaakContactMomentFactory, ZaakFactory
@@ -21,7 +20,7 @@ CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
 
 
 def mock_contactmomenten_oas_get(m, base: str):
-    mock_service_oas_get(m, "contactmomenten", url=base)
+    mock_service_oas_get(m, url=base, service="contactmomenten")
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")

@@ -3,7 +3,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory

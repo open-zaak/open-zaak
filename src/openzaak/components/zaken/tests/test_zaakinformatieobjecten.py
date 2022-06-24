@@ -5,7 +5,6 @@ import uuid
 from datetime import datetime
 from unittest.mock import patch
 
-from django.conf import settings
 from django.db import close_old_connections
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -19,6 +18,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -33,8 +33,7 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
     get_oio_response,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
 
 from ..models import Zaak, ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
@@ -258,8 +257,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
-            mock_service_oas_get(m, APITypes.drc, base)
+            mock_drc_oas_get(m)
+            mock_service_oas_get(m, base, "drc")
             m.get(document1, json=eio1_response)
             m.post(
                 "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -455,7 +454,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="zio-create"):
             with requests_mock.Mocker() as m:
-                mock_service_oas_get(m, APITypes.drc, self.base)
+                mock_service_oas_get(m, self.base, "drc")
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -545,7 +544,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
+            mock_drc_oas_get(m)
             m.get(
                 document,
                 json={
@@ -569,7 +568,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_update_zio_metadata(self, m):
-        mock_service_oas_get(m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC)
+        mock_drc_oas_get(m)
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
@@ -667,9 +666,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
             side_effect=mock_create_remote_oio,
         ):
             with requests_mock.Mocker() as m:
-                mock_service_oas_get(
-                    m, APITypes.drc, self.base, oas_url=settings.DRC_API_SPEC
-                )
+                mock_drc_oas_get(m)
                 m.get(document, json=eio_response)
 
                 response = self.client.post(
@@ -710,7 +707,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
+            mock_drc_oas_get(m)
             m.get(self.document, json=eio_response)
             response = self.client.post(
                 self.list_url,
@@ -735,7 +732,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaaktype_data["informatieobjecttypen"] = [informatieobjecttype]
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", self.base)
+            mock_service_oas_get(m, self.base, "drc")
             m.get(zaaktype, json=zaaktype_data)
             m.get(
                 informatieobjecttype,
@@ -769,7 +766,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
+            mock_drc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(
                 informatieobjecttype,
@@ -802,7 +799,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
+            mock_drc_oas_get(m)
             m.get(
                 informatieobjecttype,
                 json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
@@ -842,7 +839,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", oas_url=settings.DRC_API_SPEC)
+            mock_drc_oas_get(m)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
             m.get(self.document, json=eio_response)
 
@@ -885,7 +882,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", self.base)
+            mock_service_oas_get(m, self.base, "drc")
             m.get(
                 self.document,
                 json=get_eio_response(
@@ -919,7 +916,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "drc", self.base)
+            mock_service_oas_get(m, self.base, "drc")
             m.get(
                 self.document,
                 json=get_eio_response(

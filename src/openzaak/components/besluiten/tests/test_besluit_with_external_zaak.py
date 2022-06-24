@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -19,8 +20,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaak_response,
     get_zaakbesluit_response,
 )
-from openzaak.tests.utils import mock_service_oas_get
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -74,7 +74,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.post(f"{zaak}/besluiten", json=zaakbesluit_data, status_code=201)
 
@@ -118,7 +118,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.post(f"{zaak}/besluiten", status_code=404, text="Not Found")
 
@@ -157,7 +157,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluit_url = f"http://testserver{reverse(besluit)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
             m.get(zaak_new, json=get_zaak_response(zaak_new, zaaktype_url))
             m.delete(old_zaakbesluit_url, status_code=204)
@@ -201,7 +201,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluit_url = f"http://testserver{reverse(besluit)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
             m.get(zaak_new, json=get_zaak_response(zaak_new, zaaktype_url))
             m.delete(old_zaakbesluit_url, status_code=404, text="not found")
@@ -225,7 +225,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.delete(zaakbesluit_url, status_code=204)
 
@@ -252,7 +252,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, APITypes.zrc, self.base)
+            mock_service_oas_get(m, self.base, APITypes.zrc)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
             m.delete(zaakbesluit_url, status_code=404, text="Not found")
 

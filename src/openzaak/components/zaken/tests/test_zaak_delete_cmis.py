@@ -7,7 +7,7 @@ from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.utils.tests import APICMISTransactionTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTransactionTestCase, JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import (

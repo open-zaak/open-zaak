@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -17,6 +16,7 @@ from vng_api_common.tests import (
 )
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -28,7 +28,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import get_zaak_response
-from openzaak.tests.utils import mock_service_oas_get
+from openzaak.tests.utils import mock_brc_oas_get, mock_zrc_oas_get
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -350,7 +350,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_url = f"http://testserver{eio_path}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
+            mock_zrc_oas_get(m)
             m.get(zaak, json=get_zaak_response(zaak, zaaktype))
 
             response = self.client.post(
@@ -376,7 +376,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_url = f"http://testserver{eio_path}"
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
+            mock_brc_oas_get(m)
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
 
             response = self.client.post(
@@ -405,7 +405,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_url = reverse(eio)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "zrc", oas_url=settings.ZRC_API_SPEC)
+            mock_zrc_oas_get(m)
             m.get(
                 zaak,
                 json={
@@ -438,7 +438,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         eio_url = reverse(eio)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
+            mock_brc_oas_get(m)
             m.get(
                 besluit,
                 json={
@@ -474,7 +474,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, "brc", oas_url=settings.BRC_API_SPEC)
+            mock_brc_oas_get(m)
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
 
             response = self.client.post(
@@ -573,7 +573,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, "zrc", url=self.zrc_service.api_root)
+        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
@@ -596,7 +596,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, "brc", url=self.brc_service.api_root)
+        mock_service_oas_get(m, url=self.brc_service.api_root, service="brc")
         m.get(besluit, json=get_besluit_response(besluit, besluittype))
         m.get(
             "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
@@ -622,7 +622,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = reverse(oio)
 
         # set up mocks
-        mock_service_oas_get(m, "zrc", url=self.zrc_service.api_root)
+        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
