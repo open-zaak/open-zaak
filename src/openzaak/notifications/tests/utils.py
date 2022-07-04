@@ -19,7 +19,7 @@ LOGGING_SETTINGS = {
         },
     },
     "loggers": {
-        "vng_api_common.notifications.viewsets": {
+        "notifications_api_common.viewsets": {
             "handlers": ["failed_notification"],
             "level": "WARNING",
             "propagate": False,
@@ -36,7 +36,7 @@ LOGGING_SETTINGS = {
 class NotificationsConfigMixin:
     @staticmethod
     def _configure_notifications():
-        from vng_api_common.notifications.models import NotificationsConfig
+        from notifications_api_common.models import NotificationsConfig
         from zgw_consumers.constants import APITypes, AuthTypes
         from zgw_consumers.models import Service
 

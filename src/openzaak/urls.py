@@ -35,7 +35,7 @@ urlpatterns = [
     path("autorisaties/api/", include("openzaak.components.autorisaties.api.urls")),
     path("catalogi/api/", include("openzaak.components.catalogi.api.urls")),
     path("ref/", include("vng_api_common.urls")),
-    path("ref/", include("vng_api_common.notifications.urls")),
+    path("ref/", include("notifications_api_common.urls")),
     # auth backends
     path("oidc/", include("mozilla_django_oidc.urls")),
     # custom error documents for nginx

@@ -2,8 +2,8 @@
 # Copyright (C) 2020 Dimpact
 from django.core.management.base import BaseCommand, CommandError
 
-from vng_api_common.notifications.kanalen import Kanaal
-from vng_api_common.notifications.models import NotificationsConfig
+from notifications_api_common.kanalen import Kanaal
+from notifications_api_common.models import NotificationsConfig
 
 
 class Command(BaseCommand):

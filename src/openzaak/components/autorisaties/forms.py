@@ -9,14 +9,14 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.forms.fields import DynamicArrayField
+from notifications_api_common.constants import (
+    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
+    SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
+)
 from rest_framework import exceptions
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
-from vng_api_common.notifications.constants import (
-    SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
-    SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
-)
 from vng_api_common.scopes import SCOPE_REGISTRY
 from vng_api_common.validators import ResourceValidator
 

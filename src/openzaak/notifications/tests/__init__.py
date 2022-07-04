@@ -5,7 +5,7 @@ from zgw_consumers.test import mock_service_oas_get
 
 
 def _get_base_url() -> str:
-    from vng_api_common.notifications.models import NotificationsConfig
+    from notifications_api_common.models import NotificationsConfig
 
     config = NotificationsConfig.get_solo()
     base_url = config.api_root or "https://notificaties-api.vng.cloud/api/v1/"

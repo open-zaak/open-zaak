@@ -8,14 +8,14 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.crypto import get_random_string
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes
-from vng_api_common.models import APICredential, JWTSecret
-from vng_api_common.notifications.constants import (
+from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
-from vng_api_common.notifications.models import NotificationsConfig
+from notifications_api_common.models import NotificationsConfig
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.models import APICredential, JWTSecret
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 

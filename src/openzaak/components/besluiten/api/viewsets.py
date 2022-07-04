@@ -4,6 +4,11 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
+from notifications_api_common.viewsets import (
+    NotificationCreateMixin,
+    NotificationDestroyMixin,
+    NotificationViewSetMixin,
+)
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -12,11 +17,6 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailDestroyMixin,
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
-)
-from vng_api_common.notifications.viewsets import (
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-    NotificationViewSetMixin,
 )
 from vng_api_common.viewsets import CheckQueryParamsMixin
 

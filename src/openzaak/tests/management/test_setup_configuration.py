@@ -4,14 +4,14 @@ from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes
-from vng_api_common.models import APICredential, JWTSecret
-from vng_api_common.notifications.constants import (
+from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
-from vng_api_common.notifications.models import NotificationsConfig
+from notifications_api_common.models import NotificationsConfig
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.models import APICredential, JWTSecret
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 from openzaak.notifications.tests.utils import NotificationsConfigMixin

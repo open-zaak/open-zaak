@@ -9,6 +9,7 @@ from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -20,7 +21,6 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin

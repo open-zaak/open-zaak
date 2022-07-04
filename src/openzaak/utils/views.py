@@ -48,10 +48,10 @@ class ViewConfigView(_ViewConfigView):
 
 
 def _test_nrc_config() -> list:
-    if not apps.is_installed("vng_api_common.notifications"):
+    if not apps.is_installed("notifications_api_common"):
         return []
 
-    from vng_api_common.notifications.models import NotificationsConfig
+    from notifications_api_common.models import NotificationsConfig
 
     nrc_config = NotificationsConfig.get_solo()
 

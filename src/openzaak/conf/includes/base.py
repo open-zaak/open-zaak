@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
     "vng_api_common.notifications",
+    "notifications_api_common",
     "drf_yasg",
     "rest_framework",
     "rest_framework_gis",
@@ -370,7 +371,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "vng_api_common.notifications.viewsets": {
+        "notifications_api_common.viewsets": {
             "handlers": [
                 "failed_notification",  # always log this to the database!
                 *_root_handlers,

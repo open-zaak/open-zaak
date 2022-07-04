@@ -7,8 +7,8 @@ from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import override_settings
 
+from notifications_api_common.kanalen import Kanaal
 from rest_framework.test import APITestCase
-from vng_api_common.notifications.kanalen import Kanaal
 
 from ..models import Besluit
 
@@ -22,9 +22,7 @@ class CreateNotifKanaalTestCase(APITestCase):
         site.domain = "example.com"
         site.save()
 
-    @patch(
-        "vng_api_common.notifications.management.commands.register_kanaal.get_client"
-    )
+    @patch("notifications_api_common.management.commands.register_kanaal.get_client")
     def test_kanaal_create_with_name(self, mock_get_client):
         """
         Test is request to create kanaal is send with specified kanaal name
@@ -51,9 +49,7 @@ class CreateNotifKanaalTestCase(APITestCase):
             },
         )
 
-    @patch(
-        "vng_api_common.notifications.management.commands.register_kanaal.get_client"
-    )
+    @patch("notifications_api_common.management.commands.register_kanaal.get_client")
     @override_settings(NOTIFICATIONS_KANAAL="dummy-kanaal")
     def test_kanaal_create_without_name(self, mock_get_client):
         """
