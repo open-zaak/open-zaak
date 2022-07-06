@@ -370,7 +370,9 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_import")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a Catalogus"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "Catalogus", ""
+            ),
             response.text,
         )
         self.assertEqual(Catalogus.objects.count(), 1)

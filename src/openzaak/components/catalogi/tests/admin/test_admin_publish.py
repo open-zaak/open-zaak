@@ -225,7 +225,9 @@ class ZaaktypeAdminTests(
 
         # Check that the error is shown on the page
         error_message = response.html.find("li", {"class": "error"})
-        self.assertIn("should be published", error_message.text)
+        self.assertIn(
+            _("All related resources should be published"), error_message.text
+        )
 
         # Verify that the publish button is still visible and enabled.
         publish_button = response.html.find("input", {"name": "_publish"})
@@ -287,7 +289,9 @@ class ZaaktypeAdminTests(
 
         # Check that the error is shown on the page
         error_message = response.html.find("li", {"class": "error"})
-        self.assertIn("should be published", error_message.text)
+        self.assertIn(
+            _("All related resources should be published"), error_message.text
+        )
 
         # Verify that the publish button is still visible and enabled.
         publish_button = response.html.find("input", {"name": "_publish"})

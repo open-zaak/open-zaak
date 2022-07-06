@@ -3,6 +3,7 @@
 from datetime import timedelta
 
 from django.urls import reverse
+from django.utils.translation import ngettext_lazy
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
@@ -83,7 +84,10 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         behandeling = response.html.find(
             class_="field-doorlooptijd_behandeling"
         ).div.div
-        self.assertEqual(behandeling.text, "10 days")
+        self.assertEqual(
+            behandeling.text,
+            ngettext_lazy("{days} day", "{days} days", 10).format(days=10),
+        )
         producten_of_diensten = response.html.find(
             class_="field-producten_of_diensten"
         ).div.div
@@ -230,4 +234,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         archiefactietermijn = response.html.find(
             class_="field-archiefactietermijn"
         ).div.div
-        self.assertEqual(archiefactietermijn.text, "5 years")
+        self.assertEqual(
+            archiefactietermijn.text,
+            ngettext_lazy("{years} year", "{years} years", 5).format(years=5),
+        )

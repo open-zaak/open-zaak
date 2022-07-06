@@ -813,7 +813,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = form.submit("_import_zaaktype")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a ZaakType"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "ZaakType", ""
+            ),
             response.text,
         )
         self.assertEqual(ZaakType.objects.count(), 1)
@@ -858,7 +860,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = response.form.submit("_select")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a ZaakType"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "ZaakType", ""
+            ),
             response.text,
         )
         self.assertEqual(ZaakType.objects.count(), 1)
@@ -904,7 +908,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = response.form.submit("_select")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a BesluitType"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "BesluitType", ""
+            ),
             response.text,
         )
         self.assertEqual(BesluitType.objects.count(), 1)
@@ -955,7 +961,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = response.form.submit("_select")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a InformatieObjectType"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "InformatieObjectType", ""
+            ),
             response.text,
         )
         self.assertEqual(InformatieObjectType.objects.count(), 1)
@@ -1008,7 +1016,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = response.form.submit("_select")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a Eigenschap"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "Eigenschap", ""
+            ),
             response.text,
         )
         self.assertEqual(BesluitType.objects.count(), 0)
@@ -1057,7 +1067,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         response = form.submit("_import_zaaktype")
 
         self.assertIn(
-            _("A validation error occurred while deserializing a Eigenschap"),
+            _("A validation error occurred while deserializing a {}\n{}").format(
+                "Eigenschap", ""
+            ),
             response.text,
         )
         self.assertEqual(ZaakType.objects.count(), 0)
