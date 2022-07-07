@@ -6759,7 +6759,7 @@ components:
         zaakgeometrie:
           $ref: '#/components/schemas/GeoWithin'
         uuid__in:
-          description: Array of unieke resource identifiers (UUID4)
+          description: Lijst van unieke resource identifiers (UUID4)
           type: array
           items:
             type: string
