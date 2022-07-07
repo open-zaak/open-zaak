@@ -32,7 +32,7 @@ class EigenschapSerializer(
     NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
 ):
     specificatie = EigenschapSpecificatieSerializer(
-        source="specificatie_van_eigenschap", required=False,
+        source="specificatie_van_eigenschap"
     )
 
     class Meta:
@@ -49,3 +49,10 @@ class EigenschapSerializer(
                 queryset=Eigenschap.objects.all(), fields=["zaaktype", "naam"],
             ),
         ]
+
+    def _get_serializer_for_field(self, field, **kwargs):
+        # workaround for drf-writable-nested. it looks up the instance by PK, but we don't
+        # expose that in the serializer at all.
+        if field.field_name == "specificatie" and self.instance:
+            kwargs["instance"] = self.instance.specificatie_van_eigenschap
+        return super()._get_serializer_for_field(field, **kwargs)

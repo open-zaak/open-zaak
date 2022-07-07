@@ -168,6 +168,13 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "definitie": "test",
             "toelichting": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
         }
 
         response = self.client.post(eigenschap_list_url, data)
@@ -178,6 +185,31 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
         self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+        specificatie = eigenschap.specificatie_van_eigenschap
+        self.assertEqual(specificatie.groep, "test")
+        self.assertEqual(specificatie.formaat, "tekst")
+        self.assertEqual(specificatie.lengte, "5")
+        self.assertEqual(specificatie.kardinaliteit, "1")
+        self.assertEqual(specificatie.waardenverzameling, [])
+
+    def test_create_eigenschap_specificatie_required(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "aangepast",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "specificatie")
+        self.assertEqual(error["code"], "required")
 
     def test_create_eigenschap_duplicate(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -329,6 +361,13 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "definitie": "test",
             "toelichting": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
         }
 
         response = self.client.post(eigenschap_list_url, data)
@@ -363,7 +402,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_update_eigenschap(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        eigenschap = EigenschapFactory.create()
+        specificatie = EigenschapSpecificatieFactory.create()
+        eigenschap = EigenschapFactory.create(specificatie_van_eigenschap=specificatie)
         eigenschap_url = reverse(eigenschap)
 
         data = {
@@ -371,6 +411,13 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "definitie": "test",
             "toelichting": "",
             "zaaktype": zaaktype_url,
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
         }
 
         response = self.client.put(eigenschap_url, data)
@@ -380,6 +427,15 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         eigenschap.refresh_from_db()
         self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+        specificatie.refresh_from_db()
+        self.assertEqual(specificatie, eigenschap.specificatie_van_eigenschap)
+
+        self.assertEqual(specificatie.groep, "test")
+        self.assertEqual(specificatie.formaat, "tekst")
+        self.assertEqual(specificatie.lengte, "5")
+        self.assertEqual(specificatie.kardinaliteit, "1")
+        self.assertEqual(specificatie.waardenverzameling, [])
 
     def test_update_eigenschap_nested_spec(self):
         zaaktype = ZaakTypeFactory.create()
@@ -424,6 +480,13 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "definitie": "test",
             "toelichting": "",
             "zaaktype": zaaktype_url,
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
         }
 
         response = self.client.put(eigenschap_url, data)
@@ -444,6 +507,13 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "definitie": "test",
             "toelichting": "",
             "zaaktype": zaaktype_url,
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
         }
 
         response = self.client.put(eigenschap_url, data)
@@ -464,6 +534,33 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         eigenschap.refresh_from_db()
         self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+    def test_partial_update_eigenschap_specificatie(self):
+        eigenschap = EigenschapFactory.create(
+            specificatie_van_eigenschap__groep="original"
+        )
+        eigenschap_url = reverse(eigenschap)
+
+        data = {
+            "naam": "aangepast",
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "10",
+                "kardinaliteit": "1",
+            },
+        }
+
+        response = self.client.patch(eigenschap_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["naam"], "aangepast")
+
+        eigenschap.refresh_from_db()
+        self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
+
+        specificatie = eigenschap.specificatie_van_eigenschap
+        self.assertEqual(specificatie.groep, "test")
 
     def test_partial_update_eigenschap_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
