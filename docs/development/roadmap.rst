@@ -26,7 +26,43 @@ Feature implementation is the connection between the core group and the
 technical team. The core group may request features or consider the 
 requested (big) features from the Github issues.
 
-Current list is created from issue skimming on Github.
+**Upgrading to latest API standards**
+
+* Upgrade to Zaken API 1.3 (and 1.4 after July 2022)
+* Upgrade to Documenten API 1.1
+
+*Impact*
+
+- consumers can use the latest and greatest features
+- sizing: large
+
+**Improve domain-related robustness**
+
+(API) URLs/domains are not as stable as initially expected - especially when
+experimenting domains where the APIs are hosted tend to change (too) frequently.
+
+Additionally, when using NLX, the consumer URLs are managed on the consumer side and
+Open Zaak has no awareness of these URLs - implementing stable Open Zaak domain
+information without needing to rely on configuration/context is desired.
+
+*Impact*
+
+- Improve infrastructure flexibility / decoupling with infrastructure
+- Improve portability
+- Remove need for programmed data-migrations by providing controls to modify service
+  configuration in the admin
+- sizing: large
+
+**Notification robustness**
+
+Better tracking of notifications that are sent and received/missed + controls to
+guarantee at-least-once delivery.
+
+*Impact*
+
+- Better data integrity guarantees
+- Improve observability of complete solution
+- sizing: large
 
 **Post-installation configuration**
 
@@ -107,18 +143,6 @@ can stay closed by giving the option to use NLX.
 Documentation
 -------------
 
-**Provide documentation for the Ansible collection**
-
-The Ansible collection is really the heart of the deployment infrastructure/code and
-currently a magical black box. The collection itself should be documented, with target
-audiences: developers, devops, sysadmins.
-
-*Impact*
-
-- affects possible contributors
-- may provide a reference for service providers on how to correctly install OZ
-- sizing: medium
-
 **User manual: add selectielijst configuration**
 
 The user-interface for the configuration of selectielijsten must be included in the
@@ -184,29 +208,6 @@ service config and point to a particular service instead of storing the API root
 - affects new installation configuration
 - affects complexity of codebase (makes it less complex/confusing)
 - sizing: small
-
-**Include newer Postgres versions in CI**
-
-Currently Open Zaak is tested against Postgres 10, while 11 and 12 are out. A test
-matrix for all versions of Open Zaak seems appropriate.
-
-*Impact*
-
-- demonstrates compatibility
-- explicit support gives more possible target deploy platforms
-- sizing: small
-
-**Prepare update to Django 3.x**
-
-Recently Django 3.1 was released, after 3.0. Open Zaak is on Django 2.2 (LTS). We plan
-to jump from LTS to LTS - Django 3.2 (LTS) should be released around April 2021.
-
-*Impact*
-
-- security & future security
-- affects: developers, contributors, users (API clients), municipalities with a deployed
-  version
-- sizing: medium
 
 **Structurally check security updates**
 

@@ -5759,6 +5759,7 @@
             "required": [
                 "naam",
                 "definitie",
+                "specificatie",
                 "zaaktype"
             ],
             "type": "object",
@@ -6274,6 +6275,7 @@
                 "opschortingEnAanhoudingMogelijk",
                 "verlengingMogelijk",
                 "publicatieIndicatie",
+                "productenOfDiensten",
                 "referentieproces",
                 "catalogus",
                 "besluittypen",

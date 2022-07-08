@@ -1,8 +1,86 @@
 Changelog
 =========
 
-1.7.0 (2022-0?-??)
+1.7.0 (2022-07-08)
 ------------------
+
+Open Zaak 1.7.0 is a rather big feature release.
+
+The biggest changes are:
+
+* Updated Zaken API from 1.0.3 to 1.1.2
+* Updated Catalogi API from 1.0.0 to 1.1.1
+* Admin UI improvements
+
+**New features**
+
+* [#1109 and #1157] Implemented Zaken API 1.1.2 - please check the upstream VNG API standards for
+  more information
+* [#1109] Implemented Catalogi API 1.1.1 - please check the upstream VNG API standards
+  for more information
+* [#1145] the log level is now configurable through environment variables
+* [#1105 and #1182] Improved performance of catalogus imports
+* [#510] allow filtering zaaktypen on geldigheid and publish status
+* [#970] improved the handling of selectielijst in zaaktypen/resultaattypen - the admin
+  now protects you better from making invalid configurations
+* [#1030] The selectielijst procestypes are now refreshed when the selectielijst-year
+  is changed and the selectielijstklasse choices for a resultaattype are now updated
+  if the zaaktype is changed or set
+* [#1085] the admin now runs more extensive validation on zaaktype publish to prevent
+  misconfiguration:
+
+    - checks that there is at least one roltype
+    - checks that there is at least one resultaattype
+    - checks that there are at least two status types (initial + closing)
+* [#1119] the Open Zaak version number is now displayed in the in admin footer
+* [#1183] updated EN -> NL translations
+
+**Bugfixes**
+
+* [#1130] added missing error documents
+* [#1107] aligned admin validation of resultaattype-archiefprocedure with API validation
+* [#979] Prevent cascading deletes when deleting a zaaktype, which would delete related
+  zaken before
+* [#983] allow concept zaaktype updates with published documenttypes
+* [#981] allow null for eindeGeldigheid in Catalogi API
+* [#992] run deelzaaktype validation for zaak.hoofdzaak.zaaktype
+* [#1023] fixed zaak list returning duplicated zaken
+* [#1080] fixed displaying authorization (specs) if there are no related objects
+  (zaaktype/documenttype/besluittype) yet
+* [#1081] Added test to confirm autorisaties are deleted when documenttypes are deleted
+* [#1169] Ensure the selectielijst procestype year is derived and stored when importing
+  zaaktypen
+* [#1042] Fixed a number of bypasses that allowed you to edit published zaaktypen
+* [#1108] Fixed crash while validating document archival status on Zaak create
+
+**Documentation**
+
+* Documented the API parity policy - there are now procedures for adding experimental
+  features to Open Zaak
+* [#1001] restructurd deployment documentation
+* Documented buildkit requirement in docker-compose install
+* Updated documentation for which API versions Open Zaak implements
+
+**Project maintenance**
+
+* [#1129] Fixed the failing api-test.nl build
+* [#1136 and #1207] Bump to the latest security releases of Django
+* [#1139] Refactor ADFS/AAD usage to generic OIDC library
+* Update to Python 3.9
+* Improved test isolation in CI build
+* Replace set_context with new context system DRF (ongoing work)
+* Replace raw requests usage with Service wrapper
+* Remove some duplicated/bad patterns in test code
+* Upgraded PyJWT dependency
+* Upgraded frontend dependencies for security issues
+* Removed the zds-client library mocking utility usage
+* Cleaned up requests mock usage to prevent real HTTP calls from being made
+* Refactored API spec mocking in tests to remove duplication and custom code
+* API spec references for data validation are now pinned to release tags rather than
+  commit hashes
+* Reduced docker build context and image size
+* Upgraded to gemma-zds-client 1.0.1
+* [#1099] Added ZGW OAS tests to CI pipeline
 
 .. warning::
 

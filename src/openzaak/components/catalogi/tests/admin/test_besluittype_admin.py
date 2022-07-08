@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
+from django.utils.translation import ngettext_lazy
 
 from django_webtest import WebTest
 
@@ -217,7 +218,17 @@ class BesluitTypePublishAdminTests(WebTest):
         self.assertEqual(response.status_code, 302)
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(messages, ["1 object has been published successfully"])
+        self.assertEqual(
+            messages,
+            [
+                ngettext_lazy(
+                    "%d object has been published successfully",
+                    "%d objects has been published successfully",
+                    1,
+                )
+                % 1
+            ],
+        )
 
         besluittype1.refresh_from_db()
         self.assertFalse(besluittype1.concept)
@@ -237,7 +248,17 @@ class BesluitTypePublishAdminTests(WebTest):
         response = form.submit()
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(messages, ["1 object is already published"])
+        self.assertEqual(
+            messages,
+            [
+                ngettext_lazy(
+                    "%d object is already published",
+                    "%d objects are already published",
+                    1,
+                )
+                % 1
+            ],
+        )
 
         besluittype.refresh_from_db()
         self.assertFalse(besluittype.concept)

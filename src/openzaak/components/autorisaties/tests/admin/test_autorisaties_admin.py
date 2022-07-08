@@ -11,6 +11,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
 from django.test import TransactionTestCase, override_settings, tag
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -742,7 +743,7 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
         self.assertEqual(Autorisatie.objects.count(), 0)
         self.assertEqual(
             response.context_data["formset"]._non_form_errors[0],
-            "zaaktypen may not have overlapping scopes.",
+            _("{field} may not have overlapping scopes.").format(field="zaaktypen"),
         )
 
     def test_add_autorisatie_overlap_without_types(self):
@@ -764,7 +765,7 @@ class ManageAutorisatiesAdmin(NotificationServiceMixin, TransactionTestCase):
         self.assertEqual(Autorisatie.objects.count(), 0)
         self.assertEqual(
             response.context_data["formset"]._non_form_errors[0],
-            "Scopes in ztc may not be duplicated.",
+            _("Scopes in {component} may not be duplicated.").format(component="ztc"),
         )
 
     @tag("gh-1080")

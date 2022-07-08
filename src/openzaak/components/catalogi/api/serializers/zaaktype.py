@@ -180,6 +180,7 @@ class ZaakTypeSerializer(
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},
+            "producten_of_diensten": {"required": True},
             "selectielijst_procestype": {
                 "validators": [
                     ResourceValidator("ProcesType", settings.REFERENTIELIJSTEN_API_SPEC)

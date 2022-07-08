@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext, ugettext_lazy as _
+from django.utils.translation import gettext, ngettext_lazy, ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
@@ -243,9 +243,11 @@ class ZaaktypeAdminTests(
         post_response = form.submit("_addversion")
 
         error_message = post_response.html.find(class_="errorlist")
-        self.assertIn(
-            "datum_einde_geldigheid is required if the new version is being created",
+        self.assertEqual(
             error_message.text,
+            gettext(
+                "datum_einde_geldigheid is required if the new version is being created"
+            ),
         )
 
     def test_submit_zaaktype_validate_doorlooptijd_servicenorm(self, m):
@@ -560,7 +562,17 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertEqual(response.status_code, 302)
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(messages, ["1 object has been published successfully"])
+        self.assertEqual(
+            messages,
+            [
+                ngettext_lazy(
+                    "%d object has been published successfully",
+                    "%d objects has been published successfully",
+                    1,
+                )
+                % 1
+            ],
+        )
 
         zaaktype1.refresh_from_db()
         self.assertFalse(zaaktype1.concept)
@@ -580,7 +592,17 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         response = form.submit()
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(messages, ["1 object is already published"])
+        self.assertEqual(
+            messages,
+            [
+                ngettext_lazy(
+                    "%d object is already published",
+                    "%d objects are already published",
+                    1,
+                )
+                % 1
+            ],
+        )
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -626,7 +648,11 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertEqual(
             messages,
             [
-                f"{zaaktype} can't be published: All related resources should be published"
+                _("%(obj)s can't be published: %(error)s")
+                % {
+                    "obj": zaaktype,
+                    "error": _("All related resources should be published"),
+                }
             ],
         )
 

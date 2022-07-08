@@ -4519,6 +4519,7 @@ components:
       required:
       - naam
       - definitie
+      - specificatie
       - zaaktype
       type: object
       properties:
@@ -5155,6 +5156,7 @@ components:
       - opschortingEnAanhoudingMogelijk
       - verlengingMogelijk
       - publicatieIndicatie
+      - productenOfDiensten
       - referentieproces
       - catalogus
       - besluittypen
