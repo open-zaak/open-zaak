@@ -3072,28 +3072,32 @@ paths:
           opgenomen.
         required: false
         schema:
-          type: string
-          enum:
-          - zaaktype
-          - hoofdzaak
-          - deelzaken
-          - eigenschappen
-          - status
-          - resultaat
-          - hoofdzaak.zaaktype
-          - hoofdzaak.status
-          - hoofdzaak.status.statustype
-          - hoofdzaak.resultaat
-          - hoofdzaak.resultaat.resultaattype
-          - deelzaken.zaaktype
-          - deelzaken.status
-          - deelzaken.status.statustype
-          - deelzaken.resultaat
-          - deelzaken.resultaat.resultaattype
-          - eigenschappen.eigenschap
-          - status.statustype
-          - resultaat.resultaattype
-          - '*'
+          type: array
+          items:
+            type: string
+            enum:
+            - zaaktype
+            - hoofdzaak
+            - deelzaken
+            - eigenschappen
+            - status
+            - resultaat
+            - hoofdzaak.zaaktype
+            - hoofdzaak.status
+            - hoofdzaak.status.statustype
+            - hoofdzaak.resultaat
+            - hoofdzaak.resultaat.resultaattype
+            - deelzaken.zaaktype
+            - deelzaken.status
+            - deelzaken.status.statustype
+            - deelzaken.resultaat
+            - deelzaken.resultaat.resultaattype
+            - eigenschappen.eigenschap
+            - status.statustype
+            - resultaat.resultaattype
+            - '*'
+        style: form
+        explode: false
       - name: ordering
         in: query
         description: Het veld waarop de resultaten geordend worden.

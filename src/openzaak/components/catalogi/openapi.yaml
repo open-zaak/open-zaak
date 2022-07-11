@@ -6608,7 +6608,6 @@ components:
               bij ZAAKen van dit ZAAKTYPE.
             type: string
             format: uri
-            nullable: true
           uniqueItems: true
         gerelateerdeZaaktypen:
           description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit

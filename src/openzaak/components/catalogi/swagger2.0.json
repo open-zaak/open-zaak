@@ -7990,8 +7990,7 @@
                     "items": {
                         "description": "De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.",
                         "type": "string",
-                        "format": "uri",
-                        "x-nullable": true
+                        "format": "uri"
                     },
                     "uniqueItems": true
                 },
