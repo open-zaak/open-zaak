@@ -371,3 +371,17 @@ class ZaakTypeAdmin(
             return res
 
         return super().render_readonly(field, result_repr, value)
+
+    def _create_formsets(self, request, obj, change):
+        """
+        Required for https://github.com/open-zaak/open-zaak/issues/1211
+
+        When attempting to add a new version, all validation for all formsets is ran,
+        causing the `ConceptStatusValidator` to be triggered as well. This validation
+        will fail, because the `ZaakType` always has `concept=False` when a new version
+        is being added
+        """
+        formsets, inline_instances = super()._create_formsets(request, obj, change)
+        if "_addversion" in request.POST:
+            return [], []
+        return formsets, inline_instances

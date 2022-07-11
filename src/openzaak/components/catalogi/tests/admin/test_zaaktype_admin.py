@@ -154,6 +154,7 @@ class ZaaktypeAdminTests(
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype="",
+            concept=False,
         )
         # reverse fk relations
         statustype_old = StatusTypeFactory.create(zaaktype=zaaktype_old)
