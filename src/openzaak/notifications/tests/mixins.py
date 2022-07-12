@@ -5,7 +5,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 
-class NotificationServiceMixin:
+class NotificationsConfigMixin:
     def setUp(self):
         super().setUp()
 

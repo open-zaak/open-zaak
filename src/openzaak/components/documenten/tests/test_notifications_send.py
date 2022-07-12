@@ -9,7 +9,6 @@ from django.test import override_settings
 import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
-from notifications_api_common.models import NotificationsConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -19,8 +18,11 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_nrc_oas_get
-from openzaak.notifications.tests.mixins import NotificationServiceMixin
-from openzaak.notifications.tests.utils import LOGGING_SETTINGS
+from openzaak.notifications.tests.utils import (
+    LOGGING_SETTINGS,
+    NotificationsConfigMixin,
+    get_notifications_api_root,
+)
 from openzaak.tests.utils import JWTAuthMixin
 
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
@@ -30,9 +32,15 @@ from .utils import get_operation_url
 @requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
-class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
+class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls._configure_notifications()
 
     @patch("zds_client.Client.from_url")
     def test_send_notif_create_enkelvoudiginformatieobject(self, m, mock_client):
@@ -84,15 +92,19 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
 @requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
-class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCase):
+class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls._configure_notifications()
+
     def test_eio_create_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(
-            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
-        )
+        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
         url = get_operation_url("enkelvoudiginformatieobject_create")
 
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -144,9 +156,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
     def test_eio_delete_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(
-            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
-        )
+        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)
 
@@ -178,9 +188,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
     def test_gebruiksrechten_create_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(
-            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
-        )
+        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
         url = get_operation_url("gebruiksrechten_create")
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -221,9 +229,7 @@ class FailedNotificationTests(NotificationServiceMixin, JWTAuthMixin, APITestCas
 
     def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(
-            f"{NotificationsConfig.get_solo().api_root}notificaties", status_code=403
-        )
+        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
         gebruiksrechten = GebruiksrechtenFactory.create()
 
         url = reverse(gebruiksrechten)

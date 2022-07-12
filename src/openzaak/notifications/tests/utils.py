@@ -35,13 +35,13 @@ LOGGING_SETTINGS = {
 
 class NotificationsConfigMixin:
     @staticmethod
-    def _configure_notifications():
+    def _configure_notifications(api_root=None):
         from notifications_api_common.models import NotificationsConfig
         from zgw_consumers.constants import APITypes, AuthTypes
         from zgw_consumers.models import Service
 
         svc, _ = Service.objects.update_or_create(
-            api_root="https://notificaties-api.vng.cloud/api/v1/",
+            api_root=api_root or "https://notificaties-api.vng.cloud/api/v1/",
             defaults=dict(
                 label="NRC",
                 api_type=APITypes.nrc,
@@ -51,5 +51,11 @@ class NotificationsConfigMixin:
             ),
         )
         config = NotificationsConfig.get_solo()
-        config.api_root = svc.api_root
+        config.notifications_api_service = svc
         config.save()
+
+
+def get_notifications_api_root() -> str:
+    from notifications_api_common.models import NotificationsConfig
+
+    return NotificationsConfig.get_solo().notifications_api_service.api_root

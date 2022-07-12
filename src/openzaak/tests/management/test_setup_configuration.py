@@ -12,6 +12,8 @@ from notifications_api_common.models import NotificationsConfig
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import APICredential, JWTSecret
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.service import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 from openzaak.notifications.tests.utils import NotificationsConfigMixin
@@ -39,8 +41,14 @@ class SetupConfigurationTests(NotificationsConfigMixin, TestCase):
         self.assertEqual(site.domain, openzaak_domain)
         self.assertEqual(site.name, f"Open Zaak {municipality}")
 
+        service = Service.objects.get(api_type=APITypes.nrc)
+        self.assertEqual(service.api_root, nrc_root)
+        self.assertEqual(service.auth_type, AuthTypes.zgw)
+        self.assertEqual(service.user_id, "open-zaak")
+        self.assertEqual(service.user_representation, "Open Zaak")
+
         notif_config = NotificationsConfig.get_solo()
-        self.assertEqual(notif_config.api_root, nrc_root)
+        self.assertEqual(notif_config.notifications_api_service, service)
 
         api_credential = APICredential.objects.get()
         self.assertEqual(api_credential.api_root, nrc_root)

@@ -14,8 +14,10 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests.mixins import NotificationServiceMixin
-from openzaak.notifications.tests.utils import LOGGING_SETTINGS
+from openzaak.notifications.tests.utils import (
+    LOGGING_SETTINGS,
+    NotificationsConfigMixin,
+)
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -25,9 +27,15 @@ from .utils import get_operation_url
 @require_cmis
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
-class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
+class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls._configure_notifications()
 
     def test_send_notif_delete_besluitinformatieobject(self):
         """
@@ -78,7 +86,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase)
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 class FailedNotificationCMISTests(
-    NotificationServiceMixin, JWTAuthMixin, APICMISTestCase
+    NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -90,6 +98,8 @@ class FailedNotificationCMISTests(
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+
+        cls._configure_notifications()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self,

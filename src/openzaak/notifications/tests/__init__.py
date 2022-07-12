@@ -8,7 +8,10 @@ def _get_base_url() -> str:
     from notifications_api_common.models import NotificationsConfig
 
     config = NotificationsConfig.get_solo()
-    base_url = config.api_root or "https://notificaties-api.vng.cloud/api/v1/"
+    base_url = (
+        getattr(config.notifications_api_service, "api_root", "")
+        or "https://notificaties-api.vng.cloud/api/v1/"
+    )
     if not base_url.endswith("/"):
         base_url = f"{base_url}/"
     return base_url

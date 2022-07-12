@@ -8,29 +8,19 @@ from django.test import TestCase
 
 import jwt
 import requests_mock
-from notifications_api_common.models import NotificationsConfig
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
 from openzaak.notifications.tests import mock_nrc_oas_get
+from openzaak.notifications.tests.utils import NotificationsConfigMixin
 
 
-class RegisterKanaalTests(TestCase):
+class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        super().setUpTestData()
+
+        cls._configure_notifications(api_root="https://open-notificaties.local/api/v1/")
+
     def test_correct_credentials_used(self):
-        svc, _ = Service.objects.update_or_create(
-            api_root="https://open-notificaties.local/api/v1/",
-            defaults=dict(
-                label="NRC",
-                api_type=APITypes.nrc,
-                client_id="some-client-id",
-                secret="some-secret",
-                auth_type=AuthTypes.zgw,
-            ),
-        )
-        config = NotificationsConfig.get_solo()
-        config.api_root = svc.api_root
-        config.save()
-
         with requests_mock.Mocker() as m:
             mock_nrc_oas_get(m)
             m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
