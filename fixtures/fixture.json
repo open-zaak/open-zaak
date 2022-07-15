@@ -62,10 +62,10 @@
         }
     },
     {
-        "model": "notifications.notificationsconfig",
+        "model": "notifications_api_common.notificationsconfig",
         "pk": 1,
         "fields": {
-            "api_root": "http://notifications:8000/api/v1/"
+            "notifications_api_service": 2
         }
     },
     {
