@@ -300,6 +300,9 @@ jobs:
         run: npm install newman --legacy-peer-deps
       - name: Run postman tests
         run: bin/postman_tests.sh ZGW_api_postman_tests.json
+      - name: Show docker logs
+        if: ${{ failure() }}
+        run: docker-compose -f docker-compose.ci.yml logs
 
   api_testplatform_oas:
     runs-on: ubuntu-latest
@@ -341,6 +344,9 @@ jobs:
         run: npm install newman --legacy-peer-deps
       - name: Run postman tests
         run: bin/postman_tests.sh ZGW_OAS_tests.json
+      - name: Show docker logs
+        if: ${{ failure() }}
+        run: docker-compose -f docker-compose.ci.yml logs
 
   publish:
     needs:
