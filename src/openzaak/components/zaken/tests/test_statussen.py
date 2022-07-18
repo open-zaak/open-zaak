@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from datetime import datetime
+
 from django.test import override_settings, tag
+from django.utils import timezone
 
 import requests_mock
 from rest_framework import status
@@ -12,6 +15,7 @@ from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from .factories import ResultaatFactory, StatusFactory, ZaakFactory
 from .utils import (
+    ZAAK_READ_KWARGS,
     get_operation_url,
     get_resultaattype_response,
     get_statustype_response,
@@ -66,6 +70,32 @@ class StatusTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "zaak")
         self.assertIsNotNone(error)
         self.assertEqual(error["code"], "invalid")
+
+    def test_current_status_correctly_ordered(self):
+        """
+        Assert that the most recent status is reported as current status.
+
+        Regression test for #1213.
+        """
+        zaak = ZaakFactory.create()
+        # lower PK, but more recent date
+        status1 = StatusFactory.create(
+            zaak=zaak,
+            datum_status_gezet=timezone.make_aware(datetime(2022, 7, 18, 10, 0, 0)),
+        )
+        # higher pk, but older date
+        StatusFactory.create(
+            zaak=zaak,
+            datum_status_gezet=timezone.make_aware(datetime(2022, 7, 18, 8, 0, 0)),
+        )
+        detail_endpoint = reverse(zaak)
+
+        response = self.client.get(detail_endpoint, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["status"], f"http://testserver{reverse(status1)}"
+        )
 
 
 @tag("external-urls")
