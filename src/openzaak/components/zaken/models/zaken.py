@@ -351,6 +351,14 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
 
     @property
     def current_status_uuid(self):
+        # .first() is used instead of .last because:
+        #
+        # * the viewset prefetches the statuses for each zaak and orders them
+        #   descending on datum_status_gezet
+        # * using .last() calls .reverse, which invalidates the prefetch cache.
+        #
+        # The Status.Meta is also set to order by descending datum_status_gezet so that
+        # this code works correctly even when not doing prefetches.
         status = self.status_set.first()
         return status.uuid if status else None
 
@@ -454,6 +462,7 @@ class Status(ETagMixin, models.Model):
         verbose_name = "status"
         verbose_name_plural = "statussen"
         unique_together = ("zaak", "datum_status_gezet")
+        ordering = ("-datum_status_gezet",)  # most recent first
 
     def __str__(self):
         return "Status op {}".format(self.datum_status_gezet)
