@@ -654,7 +654,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator("Eigenschap", settings.ZTC_API_SPEC),
-                    IsImmutableValidator(),
+                    LooseFkIsImmutableValidator(),
                 ],
             },
         }

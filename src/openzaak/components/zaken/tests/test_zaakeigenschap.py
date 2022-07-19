@@ -20,9 +20,10 @@ from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_ztc_oas_g
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory
-from .utils import get_eigenschap_response, get_operation_url, get_zaaktype_response
+from .utils import get_eigenschap_response, get_zaaktype_response
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -31,8 +32,8 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         eigenschap = EigenschapFactory.create(
             eigenschapnaam="foobar", zaaktype=zaak.zaaktype
         )
-        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        zaak_url = reverse(zaak)
         eigenschap_url = reverse(eigenschap)
         data = {
             "zaak": zaak_url,
@@ -46,9 +47,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         response_data = response.json()
         zaakeigenschap = ZaakEigenschap.objects.get()
         self.assertEqual(zaakeigenschap.zaak, zaak)
-        detail_url = get_operation_url(
-            "zaakeigenschap_read", zaak_uuid=zaak.uuid, uuid=zaakeigenschap.uuid
-        )
+        detail_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid})
         self.assertEqual(
             response_data,
             {
@@ -64,7 +63,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_lees_eigenschappen(self):
         zaak = ZaakFactory.create()
         ZaakEigenschapFactory.create_batch(3, zaak=zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -87,8 +86,8 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_create_zaakeigenschap_not_in_zaaktypen_fails(self):
         zaak = ZaakFactory.create()
         eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
-        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        zaak_url = reverse(zaak)
         eigenschap_url = reverse(eigenschap)
         data = {
             "zaak": zaak_url,
@@ -105,6 +104,144 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
+    def test_zaak_eigenschappen_update(self):
+        zaak = ZaakFactory.create()
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaak_url = reverse(zaak)
+
+        zaakeigenschap_data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "eigenschap": f"http://testserver{reverse(zaakeigenschap.eigenschap)}",
+            "waarde": "This is a changed value",
+        }
+
+        response = self.client.put(zaakeigenschap_url, data=zaakeigenschap_data)
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        zaakeigenschap.refresh_from_db()
+
+        self.assertEqual("This is a changed value", zaakeigenschap.waarde)
+
+    def test_zaak_eigenschappen_partial_update(self):
+        zaak = ZaakFactory.create()
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaak_url = reverse("zaak-detail", kwargs={"version": 1, "uuid": zaak.uuid},)
+
+        zaakeigenschap_data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "eigenschap": f"http://testserver{reverse(zaakeigenschap.eigenschap)}",
+            "waarde": "This is a changed value",
+        }
+
+        response = self.client.patch(zaakeigenschap_url, data=zaakeigenschap_data)
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        zaakeigenschap.refresh_from_db()
+
+        self.assertEqual("This is a changed value", zaakeigenschap.waarde)
+
+    def test_zaak_eigenschappen_partial_update_without_eigenschap(self):
+        zaak = ZaakFactory.create()
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+
+        zaakeigenschap_data = {
+            "waarde": "This is a changed value",
+        }
+
+        response = self.client.patch(zaakeigenschap_url, data=zaakeigenschap_data)
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        zaakeigenschap.refresh_from_db()
+
+        self.assertEqual("This is a changed value", zaakeigenschap.waarde)
+
+    def test_cannot_change_eigenschap(self):
+        zaak = ZaakFactory.create()
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaak_url = reverse("zaak-detail", kwargs={"version": 1, "uuid": zaak.uuid},)
+
+        eigenschap = EigenschapFactory()
+
+        zaakeigenschap_data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "This is a changed value",
+        }
+
+        response = self.client.patch(zaakeigenschap_url, data=zaakeigenschap_data)
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        invalid_params = response.json()["invalidParams"]
+
+        self.assertEqual(1, len(invalid_params))
+
+        self.assertEqual("eigenschap", invalid_params[0]["name"])
+        self.assertEqual("wijzigen-niet-toegelaten", invalid_params[0]["code"])
+
+    def test_cannot_change_zaak(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(zaaktype=zaak1.zaaktype)
+        eigenschap = EigenschapFactory(zaaktype=zaak1.zaaktype)
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak1, eigenschap=eigenschap, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak1.uuid},)
+        zaak2_url = reverse(zaak2)
+
+        zaakeigenschap_data = {
+            "zaak": f"http://openzaak.nl{zaak2_url}",
+            "eigenschap": f"http://openzaak.nl{reverse(eigenschap)}",
+            "waarde": "This is a changed value",
+        }
+
+        response = self.client.patch(
+            zaakeigenschap_url, data=zaakeigenschap_data, HTTP_HOST="openzaak.nl"
+        )
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        invalid_params = response.json()["invalidParams"]
+
+        self.assertEqual(1, len(invalid_params))
+        self.assertIn("zaak", invalid_params[0]["name"])
+        self.assertEqual("wijzigen-niet-toegelaten", invalid_params[0]["code"])
+
+    def test_delete(self):
+        zaak = ZaakFactory.create()
+        zaakeigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak, waarde="This is a value"
+        )
+
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+
+        self.assertEqual(1, ZaakEigenschap.objects.all().count())
+
+        response = self.client.delete(zaakeigenschap_url)
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(0, ZaakEigenschap.objects.all().count())
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
@@ -118,7 +255,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         zaak = ZaakFactory(zaaktype=zaaktype)
         zaak_url = reverse(zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
@@ -139,7 +276,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def test_create_external_eigenschap_fail_bad_url(self):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(
             url, {"zaak": zaak_url, "eigenschap": "abcd", "waarde": "overlast_water",},
@@ -155,7 +292,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def test_create_external_eigenschap_fail_not_json_url(self):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com", status_code=200, text="<html></html>")
@@ -179,7 +316,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         zaak = ZaakFactory(zaaktype=zaaktype)
         zaak_url = reverse(zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
@@ -208,7 +345,7 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         zaak = ZaakFactory(zaaktype=zaaktype1)
         zaak_url = reverse(zaak)
-        url = get_operation_url("zaakeigenschap_list", zaak_uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
@@ -250,7 +387,7 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_zaakeigenschap_list_jwt_expired(self):
         zaak = ZaakFactory.create()
-        url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.get(url)
 
@@ -260,11 +397,8 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
     @override_settings(JWT_EXPIRY=60 * 60)
     @freeze_time("2019-01-01T13:00:00")
     def test_zaakeigenschap_detail_jwt_expired(self):
-        eigenschap = ZaakEigenschapFactory.create()
-        url = reverse(
-            "zaakeigenschap-detail",
-            kwargs={"zaak_uuid": eigenschap.zaak.uuid, "uuid": eigenschap.uuid},
-        )
+        zaakeigenschap = ZaakEigenschapFactory.create()
+        url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaakeigenschap.zaak.uuid},)
 
         response = self.client.get(url)
 
@@ -276,8 +410,8 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
     def test_zaakeigenschap_create_jwt_expired(self):
         zaak = ZaakFactory.create()
         eigenschap = EigenschapFactory.create(eigenschapnaam="foobar")
-        url = get_operation_url("zaakeigenschap_create", zaak_uuid=zaak.uuid)
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        zaak_url = reverse(zaak)
         eigenschap_url = reverse(eigenschap)
         data = {
             "zaak": zaak_url,
