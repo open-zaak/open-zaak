@@ -614,12 +614,11 @@ class ZaakInformatieObjectViewSet(
 
 @conditional_retrieve()
 class ZaakEigenschapViewSet(
-    NotificationCreateMixin,
+    NotificationViewSetMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
     ClosedZaakMixin,
-    mixins.CreateModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van ZAAKEIGENSCHAPpen
@@ -638,6 +637,21 @@ class ZaakEigenschapViewSet(
     Een specifieke ZAAKEIGENSCHAP opvragen.
 
     Een specifieke ZAAKEIGENSCHAP opvragen.
+
+    update:
+    Werk een ZAAKEIGENSCHAP in zijn geheel bij.
+
+    **Er wordt gevalideerd op**
+    - Alleen de WAARDE mag gewijzigd worden
+
+    partial_update:
+    Werk een ZAAKEIGENSCHAP deels bij.
+
+    **Er wordt gevalideerd op**
+    - Alleen de WAARDE mag gewijzigd worden
+
+    destroy:
+    Verwijder een ZAAKEIGENSCHAP.
     """
 
     queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").order_by(
@@ -650,11 +664,19 @@ class ZaakEigenschapViewSet(
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "partial_update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     }
     parent_retrieve_kwargs = {"zaak_uuid": "uuid"}
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    def initialize_request(self, request, *args, **kwargs):
+        # workaround for drf-nested-viewset injecting the URL kwarg into request.data
+        return super(viewsets.ModelViewSet, self).initialize_request(
+            request, *args, **kwargs
+        )
 
     def get_queryset(self):
         if not self.kwargs:  # this happens during schema generation, and causes crashes
