@@ -1,5 +1,7 @@
 # Core python libraries
 dictdiffer # Used to show diffs for audittrails in admin
+jq
+jsonschema
 markdown  # used to render some markdown in code to html
 psycopg2
 python-dateutil

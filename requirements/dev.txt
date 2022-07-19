@@ -338,8 +338,12 @@ josepy==1.13.0
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc
-jsonschema==3.2.0
-    # via kubernetes-validate
+jq==1.2.2
+    # via -r requirements/ci.txt
+jsonschema==4.7.2
+    # via
+    #   -r requirements/ci.txt
+    #   kubernetes-validate
 kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
@@ -433,8 +437,10 @@ pyparsing==3.0.7
     #   -r requirements/ci.txt
     #   httplib2
     #   packaging
-pyrsistent==0.17.3
-    # via jsonschema
+pyrsistent==0.18.1
+    # via
+    #   -r requirements/ci.txt
+    #   jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/ci.txt
@@ -527,7 +533,6 @@ six==1.16.0
     #   furl
     #   google-auth
     #   isodate
-    #   jsonschema
     #   kubernetes
     #   openshift
     #   orderedmultidict
