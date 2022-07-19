@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "title": "Zaken API",
-        "description": "Een API om een zaakregistratiecomponent (ZRC) te benaderen.\n\nDe ZAAK is het kernobject in deze API, waaraan verschillende andere\nresources gerelateerd zijn. De Zaken API werkt samen met andere API's voor\nZaakgericht werken om tot volledige functionaliteit te komen.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Documenten API *(optioneel)*\n* Besluiten API *(optioneel)*\n* Autorisaties API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `zaken`.\n\n**Main resource**\n\n`zaak`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef\n* `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n- `status`: create\n- `zaakobject`: create\n- `zaakinformatieobject`: create\n- `zaakeigenschap`: create, update, destroy\n- `klantcontact`: create\n- `rol`: create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n- `zaakcontactmoment`: create\n- `zaakverzoek`: create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
+        "description": "Een API om een zaakregistratiecomponent (ZRC) te benaderen.\n\nDe ZAAK is het kernobject in deze API, waaraan verschillende andere\nresources gerelateerd zijn. De Zaken API werkt samen met andere API's voor\nZaakgericht werken om tot volledige functionaliteit te komen.\n\n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Catalogi API\n* Notificaties API\n* Documenten API *(optioneel)*\n* Besluiten API *(optioneel)*\n* Autorisaties API *(optioneel)*\n\n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\nDe tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\nheader:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"<client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal de lengte van\nde overeenkomstige velden in de audit trail resources is (zie rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op het kanaal `zaken`.\n\n**Main resource**\n\n`zaak`\n\n\n\n**Kenmerken**\n\n* `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef\n* `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is.\n\n**Resources en acties**\n- `zaak`: create, update, destroy\n- `status`: create\n- `zaakobject`: create, update, destroy\n- `zaakinformatieobject`: create\n- `zaakeigenschap`: create, update, destroy\n- `klantcontact`: create\n- `rol`: create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`: create\n- `zaakcontactmoment`: create\n- `zaakverzoek`: create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n* [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n* [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n",
         "contact": {
             "url": "https://www.maykinmedia.nl",
             "email": "support@maykinmedia.nl"
@@ -2977,7 +2977,7 @@
             "post": {
                 "operationId": "zaakobject_create",
                 "summary": "Maak een ZAAKOBJECT aan.",
-                "description": "Maak een ZAAKOBJECT aan.",
+                "description": "Maak een ZAAKOBJECT aan.\n\n**Er wordt gevalideerd op**\n- Indien de `object` URL opgegeveven is, dan moet deze een geldige response\n  (HTTP 200) geven.\n- Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de\n  `objectType` discriminator.",
                 "parameters": [
                     {
                         "name": "Content-Type",
@@ -3137,6 +3137,233 @@
                     {
                         "JWT-Claims": [
                             "zaken.lezen"
+                        ]
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "zaakobject_update",
+                "summary": "Werk een ZAAKOBJECT in zijn geheel bij.",
+                "description": "**Er wordt gevalideerd op**\n\n- De attributen `zaak`, `object` en `objectType` mogen niet gewijzigd worden.\n- Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de\n  `objectType` discriminator.",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ZaakObject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ZaakObject"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/responses/404"
+                    },
+                    "406": {
+                        "$ref": "#/responses/406"
+                    },
+                    "409": {
+                        "$ref": "#/responses/409"
+                    },
+                    "410": {
+                        "$ref": "#/responses/410"
+                    },
+                    "415": {
+                        "$ref": "#/responses/415"
+                    },
+                    "429": {
+                        "$ref": "#/responses/429"
+                    },
+                    "500": {
+                        "$ref": "#/responses/500"
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zaakobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
+                        ]
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "zaakobject_partial_update",
+                "summary": "Werk een ZAAKOBJECT deels bij.",
+                "description": "**Er wordt gevalideerd op**\n\n- De attributen `zaak`, `object` en `objectType` mogen niet gewijzigd worden.\n- Indien opgegeven, dan wordt `objectIdentificatie` gevalideerd tegen de\n  `objectType` discriminator.",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "application/json"
+                        ]
+                    },
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ZaakObject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ZaakObject"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/responses/404"
+                    },
+                    "406": {
+                        "$ref": "#/responses/406"
+                    },
+                    "409": {
+                        "$ref": "#/responses/409"
+                    },
+                    "410": {
+                        "$ref": "#/responses/410"
+                    },
+                    "415": {
+                        "$ref": "#/responses/415"
+                    },
+                    "429": {
+                        "$ref": "#/responses/429"
+                    },
+                    "500": {
+                        "$ref": "#/responses/500"
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zaakobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken)"
+                        ]
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "zaakobject_delete",
+                "summary": "Verwijder een ZAAKOBJECT.",
+                "description": "Verbreek de relatie tussen een ZAAK en een OBJECT door de ZAAKOBJECT resource te\nverwijderen.",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/responses/404"
+                    },
+                    "406": {
+                        "$ref": "#/responses/406"
+                    },
+                    "409": {
+                        "$ref": "#/responses/409"
+                    },
+                    "410": {
+                        "$ref": "#/responses/410"
+                    },
+                    "415": {
+                        "$ref": "#/responses/415"
+                    },
+                    "429": {
+                        "$ref": "#/responses/429"
+                    },
+                    "500": {
+                        "$ref": "#/responses/500"
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "zaakobjecten"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "(zaken.bijwerken | zaken.geforceerd-bijwerken | zaken.verwijderen)"
                         ]
                     }
                 ]

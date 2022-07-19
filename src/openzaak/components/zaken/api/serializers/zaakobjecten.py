@@ -7,7 +7,7 @@ from rest_framework import serializers
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
-from vng_api_common.validators import URLValidator
+from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.utils.auth import get_auth
 
@@ -100,11 +100,12 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
             "object": {
                 "required": False,
-                "validators": [URLValidator(get_auth=get_auth)],
+                "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
             },
+            "object_type": {"validators": [IsImmutableValidator()],},
         }
 
     def __init__(self, *args, **kwargs):
@@ -115,6 +116,11 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)
+
+        # for update don't validate fields, cause most of them are immutable
+        if self.instance:
+            return validated_attrs
+
         object = validated_attrs.get("object", None)
         object_identificatie = validated_attrs.get("object_identificatie", None)
 
@@ -147,6 +153,13 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
         return validated_attrs
 
+    def to_internal_value(self, data):
+        # add object_type to data for PATCH
+        if self.instance and "object_type" not in data:
+            data["object_type"] = self.instance.object_type
+
+        return super().to_internal_value(data)
+
     @transaction.atomic
     def create(self, validated_data):
         group_data = validated_data.pop("object_identificatie", None)
@@ -155,6 +168,23 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         if group_data:
             group_serializer = self.discriminator.mapping[validated_data["object_type"]]
             serializer = group_serializer.get_fields()["object_identificatie"]
+            group_data["zaakobject"] = zaakobject
+            serializer.create(group_data)
+
+        return zaakobject
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        group_data = validated_data.pop("object_identificatie", None)
+        zaakobject = super().update(instance, validated_data)
+
+        if group_data:
+            group_serializer = self.discriminator.mapping[instance.object_type]
+            serializer = group_serializer.get_fields()["object_identificatie"]
+            # remove the previous data
+            model = serializer.Meta.model
+            model.objects.filter(zaakobject=zaakobject).delete()
+
             group_data["zaakobject"] = zaakobject
             serializer.create(group_data)
 
