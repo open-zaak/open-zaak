@@ -51,7 +51,7 @@ rechten te geven. Merk op dat dit bijna altijd betekent dat een applicatie meer 
 nodig is!
 
 Zorg ervoor dat je minstens één combinatie van *Client ID* en *Secret*
-`genereert <https://passwordsgenerator.net/>`_. De applicatie heeft deze gegevens nodig
+`genereert <https://passwords-generator.org//>`_. De applicatie heeft deze gegevens nodig
 om tokens te kunnen genereren - communiceer deze dus op een veilige manier naar de
 beheerder van de (taak)applicatie.
 
