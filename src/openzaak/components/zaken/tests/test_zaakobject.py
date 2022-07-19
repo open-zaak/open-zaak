@@ -66,6 +66,7 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
                 "objectType": ZaakobjectTypes.besluit,
                 "objectTypeOverige": "",
                 "relatieomschrijving": "",
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -200,6 +201,7 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
                     "huisnummertoevoeging": "",
                     "postcode": "",
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -353,6 +355,7 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -445,6 +448,7 @@ class ZaakObjectMedewerkerTestCase(JWTAuthMixin, APITestCase):
                     "voorletters": "J",
                     "voorvoegselAchternaam": "van",
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -555,6 +559,7 @@ class ZaakObjectTerreinGebouwdObjectTestCase(JWTAuthMixin, APITestCase):
                         "ogoLocatieAanduiding": "test",
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -695,6 +700,7 @@ class ZaakObjectWozObjectTestCase(JWTAuthMixin, APITestCase):
                         "locatieOmschrijving": "test",
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -844,6 +850,7 @@ class ZaakObjectWozDeelobjectTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -952,6 +959,7 @@ class ZaakObjectWozWaardeTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -1084,6 +1092,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
                         },
                     },
                 },
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -1178,6 +1187,7 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
                 "objectType": ZaakobjectTypes.overige,
                 "objectTypeOverige": "",
                 "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+                "objectTypeOverigeDefinitie": None,
             },
         )
 
@@ -1379,3 +1389,280 @@ class ZaakObjectBagPandTests(JWTAuthMixin, APITestCase):
             "http://outway.nlx:8443/kadaster/bag/panden/0344100000011708?geldigOp=2020-03-04",
         )
         self.assertNotIn("X-Api-Key", m.last_request.headers)
+
+
+@tag("objecttype-overige-definitie")
+@requests_mock.Mocker()
+class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    OBJECT_TYPE = {
+        "url": "https://objecttypes.example.com/api/objecttypes/foo",
+        "version": 123,
+        "jsonSchema": {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "$id": "http://gemeente.nl/beleidsveld.json",
+            "type": "object",
+            "title": "Beleidsvelden",
+            "description": "Beleidsvelden in gebruik binnen de gemeente",
+            "default": {},
+            "examples": [{"name": "Burgerzaken"},],
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "$id": "#/properties/name",
+                    "type": "string",
+                    "title": "The name schema",
+                    "default": "",
+                    "examples": ["Burgerzaken"],
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "description": "The name identifying each beleidsveld.",
+                },
+            },
+            "additionalProperties": False,
+        },
+    }
+
+    def test_create_zaakobject_overig_explicit_schema(self, m):
+        """
+        Assert that external object type definitions can be referenced.
+        """
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo", json=self.OBJECT_TYPE
+        )
+        m.get(
+            object_url,
+            json={
+                "url": object_url,
+                "type": "https://objecttypes.example.com/api/objecttypes/foo",
+                "record": {"data": {"name": "Asiel en Migratie",}},
+            },
+        )
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.json())
+
+        zaakobject = ZaakObject.objects.get()
+        self.assertEqual(zaakobject.object, object_url)
+        self.assertEqual(
+            zaakobject.object_type_overige_definitie,
+            {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "object_data": ".record.data",
+            },
+        )
+
+    def test_invalid_schema_reference(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo", json=self.OBJECT_TYPE
+        )
+        m.get(
+            object_url,
+            json={
+                "url": object_url,
+                "type": "https://objecttypes.example.com/api/objecttypes/foo",
+                "record": {"data": {"name": "Asiel en Migratie",}},
+            },
+        )
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".invalid",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+
+    def test_not_json_objecttype(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo",
+            text="<DOCTYPE html><html><head></head><body></body></html>",
+        )
+        m.get(
+            object_url,
+            json={
+                "url": object_url,
+                "type": "https://objecttypes.example.com/api/objecttypes/foo",
+                "record": {"data": {"name": "Asiel en Migratie",}},
+            },
+        )
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+
+    def test_unexpected_objecttype_response(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get("https://objecttypes.example.com/api/objecttypes/foo", json="foo")
+        m.get(
+            object_url,
+            json={
+                "url": object_url,
+                "type": "https://objecttypes.example.com/api/objecttypes/foo",
+                "record": {"data": {"name": "Asiel en Migratie",}},
+            },
+        )
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+
+    def test_invalid_object_url_passed(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo", json=self.OBJECT_TYPE
+        )
+        m.get(
+            object_url,
+            json={
+                "url": object_url,
+                "type": "https://objecttypes.example.com/api/objecttypes/foo",
+                "record": {"data": {"invalidKey": "should not validate",}},
+            },
+        )
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+
+    def test_invalid_object_data_returned(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo", json=self.OBJECT_TYPE
+        )
+        m.get(object_url, json="foo")
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
+
+    def test_not_json_object(self, m):
+        object_url = "https://objects.example.com/api/objects/1234"
+        m.get(
+            "https://objecttypes.example.com/api/objecttypes/foo", json=self.OBJECT_TYPE
+        )
+        m.get(object_url, text="<DOCTYPE html><html><head></head><body></body></html>")
+
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "object": object_url,
+            "objectType": ZaakobjectTypes.overige,
+            "objectTypeOverigeDefinitie": {
+                "url": "https://objecttypes.example.com/api/objecttypes/foo",
+                # https://stedolan.github.io/jq/ format
+                "schema": ".jsonSchema",
+                "objectData": ".record.data",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.json()
+        )
