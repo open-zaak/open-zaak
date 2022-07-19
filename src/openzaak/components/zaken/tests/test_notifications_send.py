@@ -43,6 +43,7 @@ from ..models import Zaak
 from .factories import (
     ResultaatFactory,
     RolFactory,
+    ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
@@ -137,6 +138,39 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
                     "zaaktype": f"http://testserver{zaaktype_url}",
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+            },
+        )
+
+    @patch("zds_client.Client.from_url")
+    def test_send_notif_update_zaak_eigenschap(self, m, mock_client):
+        """
+        Check if notifications will be send when zaak-eigenschap is updated
+        """
+        mock_nrc_oas_get(m)
+        client = mock_client.return_value
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        zaakeigenschap = ZaakEigenschapFactory.create(zaak=zaak, waarde="old")
+        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(zaakeigenschap_url, data={"waarde": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        client.create.assert_called_once_with(
+            "notificaties",
+            {
+                "kanaal": "zaken",
+                "hoofdObject": f"http://testserver{zaak_url}",
+                "resource": "zaakeigenschap",
+                "resourceUrl": f"http://testserver{zaakeigenschap_url}",
+                "actie": "partial_update",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
