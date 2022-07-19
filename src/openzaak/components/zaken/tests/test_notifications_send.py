@@ -46,6 +46,7 @@ from .factories import (
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
 )
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
@@ -166,6 +167,39 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APITestCase):
                 "hoofdObject": f"http://testserver{zaak_url}",
                 "resource": "zaakeigenschap",
                 "resourceUrl": f"http://testserver{zaakeigenschap_url}",
+                "actie": "partial_update",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+            },
+        )
+
+    @patch("zds_client.Client.from_url")
+    def test_send_notif_update_zaakobject(self, m, mock_client):
+        """
+        Check if notifications will be send when zaakobject is updated
+        """
+        mock_nrc_oas_get(m)
+        client = mock_client.return_value
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        zaakobject = ZaakObjectFactory.create(zaak=zaak, relatieomschrijving="old")
+        zaakobject_url = reverse(zaakobject)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(zaakobject_url, {"relatieomschrijving": "new"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        client.create.assert_called_once_with(
+            "notificaties",
+            {
+                "kanaal": "zaken",
+                "hoofdObject": f"http://testserver{zaak_url}",
+                "resource": "zaakobject",
+                "resourceUrl": f"http://testserver{zaakobject_url}",
                 "actie": "partial_update",
                 "aanmaakdatum": "2012-01-14T00:00:00Z",
                 "kenmerken": {
