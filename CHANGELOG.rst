@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.7.1 (2022-07-19)
+------------------
+
+Open Zaak 1.7.1 fixes some bugs discovered in 1.7.0
+
+* [#1211] Fixed not being able to create a new version of a published zaaktype
+* [#1213] Made the ordering for zaak.status explicit
+
 1.7.0 (2022-07-08)
 ------------------
 
