@@ -20,6 +20,7 @@ from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+from zgw_consumers.models import Service
 
 from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -787,18 +788,22 @@ class ObjectInformatieObjectCMISQuerySet(
 
         related_zaak_url = data.get("zaak")
         related_besluit_url = data.get("besluit")
+        related_verzoek_url = data.get("verzoek")
 
-        if related_zaak_url is not None and related_besluit_url is not None:
+        related_objects = [related_zaak_url, related_besluit_url, related_verzoek_url]
+        num_empty_relations = related_objects.count(None)
+
+        if len(related_objects) - num_empty_relations > 1:
             raise IntegrityError(
-                "ObjectInformatie object cannot have both Zaak and Besluit relation"
+                "ObjectInformatie object can only have one Zaak/Besluit/Verzoek relation"
             )
-        elif related_zaak_url is None and related_besluit_url is None:
+        elif len(related_objects) == num_empty_relations:
             raise IntegrityError(
                 "ObjectInformatie object needs to have either a Zaak or Besluit relation"
             )
 
         zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(
-            related_zaak_url, related_besluit_url
+            related_zaak_url, related_besluit_url, related_verzoek_url,
         )
 
         cmis_oio = self.cmis_client.create_oio(
@@ -1014,6 +1019,7 @@ def cmis_oio_to_django(cmis_oio):
         informatieobject=canonical,
         zaak=cmis_oio.zaak,
         besluit=cmis_oio.besluit,
+        verzoek=cmis_oio.verzoek,
         object_type=cmis_oio.object_type,
     )
 
@@ -1082,7 +1088,7 @@ def modify_value_in_dictionary(existing_value, new_value):
 
 
 def get_zaak_and_zaaktype_data(
-    zaak_url: str = None, besluit_url: str = None
+    zaak_url: str = None, besluit_url: str = None, verzoek_url: str = None,
 ) -> Tuple[Optional[dict], Optional[dict]]:
     loader = AuthorizedRequestsLoader()
 
@@ -1127,7 +1133,20 @@ def get_zaak_and_zaaktype_data(
 
         if zaak:
             return format_zaak_and_zaaktype_data(zaak)
-
+    elif verzoek_url:
+        client = Service.get_client(verzoek_url)
+        objectverzoeken = client.list("objectverzoek", {"verzoek": verzoek_url})
+        zaakverzoeken = [
+            objectverzoek
+            for objectverzoek in objectverzoeken
+            if objectverzoek["objectType"] == "zaak"
+        ]
+        if zaakverzoeken:
+            # FIXME what if there is more than one objectverzoek? Is this even possible?
+            # See: https://github.com/VNG-Realisatie/gemma-zaken/issues/2071
+            zaak_url = objectverzoeken[0]["object"]
+            zaak = loader.load(url=zaak_url, model=Zaak)
+            return format_zaak_and_zaaktype_data(zaak)
     else:
         zaak = loader.load(url=zaak_url, model=Zaak)
         return format_zaak_and_zaaktype_data(zaak)

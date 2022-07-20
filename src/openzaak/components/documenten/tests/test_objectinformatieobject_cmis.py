@@ -10,7 +10,6 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
 from furl import furl
 from rest_framework import status
-from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import (
     JWTAuthMixin,
     get_validation_errors,
@@ -37,6 +36,7 @@ from openzaak.components.zaken.tests.utils import (
 )
 from openzaak.tests.utils import APICMISTestCase, require_cmis
 
+from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
@@ -223,7 +223,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         content = {
             "informatieobject": f"http://testserver{eio_url}",
             "object": f"http://testserver{zaak_url}",
-            "objectType": ObjectTypes.zaak,
+            "objectType": ObjectInformatieObjectTypes.zaak,
         }
 
         # Send to the API

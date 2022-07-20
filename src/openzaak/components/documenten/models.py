@@ -14,7 +14,6 @@ from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
-from vng_api_common.constants import ObjectTypes
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
@@ -25,7 +24,12 @@ from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
-from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+from .constants import (
+    ChecksumAlgoritmes,
+    ObjectInformatieObjectTypes,
+    OndertekeningSoorten,
+    Statussen,
+)
 from .managers import (
     AdapterManager,
     GebruiksrechtenAdapterManager,
@@ -733,7 +737,7 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
     object_type = models.CharField(
         "objecttype",
         max_length=100,
-        choices=ObjectTypes.choices,
+        choices=ObjectInformatieObjectTypes.choices,
         help_text="Het type van het gerelateerde OBJECT.",
     )
 
@@ -752,6 +756,8 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
         fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
     )
 
+    verzoek = models.URLField(_("extern verzoek"), blank=True, max_length=1000)
+
     objects = ObjectInformatieObjectAdapterManager()
 
     class Meta:
@@ -763,16 +769,26 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
                 check=Q(
                     Q(_zaak_url="", _zaak__isnull=False)
                     | Q(~Q(_zaak_url=""), _zaak__isnull=True),
-                    object_type=ObjectTypes.zaak,
+                    object_type=ObjectInformatieObjectTypes.zaak,
                     _besluit__isnull=True,
                     _besluit_url="",
+                    verzoek="",
                 )
                 | Q(
                     Q(_besluit_url="", _besluit__isnull=False)
                     | Q(~Q(_besluit_url=""), _besluit__isnull=True),
-                    object_type=ObjectTypes.besluit,
+                    object_type=ObjectInformatieObjectTypes.besluit,
                     _zaak__isnull=True,
                     _zaak_url="",
+                    verzoek="",
+                )
+                | Q(
+                    ~Q(verzoek=""),
+                    object_type=ObjectInformatieObjectTypes.verzoek,
+                    _zaak__isnull=True,
+                    _zaak_url="",
+                    _besluit__isnull=True,
+                    _besluit_url="",
                 ),
                 name="check_type",
             ),

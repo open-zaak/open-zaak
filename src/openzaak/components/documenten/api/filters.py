@@ -81,6 +81,9 @@ class ObjectFilter(FkOrUrlFieldFilter):
             self.field_name = "besluit"
         elif check_path(value, "zaken"):
             self.field_name = "zaak"
+        elif check_path(value, "verzoeken"):
+            # `verzoek` is simply a URLField
+            return qs.filter(verzoek=value)
         else:
             logger.debug(
                 "Could not determine object type for URL %s, "

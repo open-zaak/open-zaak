@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile, File
 from django.db import transaction
+from django.db.models import URLField
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,12 +25,13 @@ from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
+from vng_api_common.validators import ResourceValidator
 
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
@@ -40,7 +42,12 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
-from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+from ..constants import (
+    ChecksumAlgoritmes,
+    ObjectInformatieObjectTypes,
+    OndertekeningSoorten,
+    Statussen,
+)
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -837,6 +844,15 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
         return ret
 
 
+class CustomFKOrURLField(FKOrURLField):
+    def get_attribute(self, instance):
+        model_field = self._get_model_and_field()[1]
+        if isinstance(model_field, URLField):
+            return getattr(instance, model_field.name)
+
+        return super().get_attribute(instance)
+
+
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
@@ -846,7 +862,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = FKOrURLField(
+    object = CustomFKOrURLField(
         max_length=1000,
         min_length=1,
         help_text=_(
@@ -866,21 +882,26 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        value_display_mapping = add_choice_values_help_text(ObjectTypes)
+        value_display_mapping = add_choice_values_help_text(ObjectInformatieObjectTypes)
         self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
     def set_object_properties(self, object_type: str) -> None:
         object_field = self.fields["object"]
 
-        if object_type == ObjectTypes.besluit:
+        if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
             object_field.validators.append(
                 LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
             )
-        elif object_type == ObjectTypes.zaak:
+        elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"
             object_field.validators.append(
                 LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+            )
+        elif object_type == ObjectInformatieObjectTypes.verzoek:
+            object_field.source = "verzoek"
+            object_field.validators.append(
+                ResourceValidator("Verzoek", settings.VRC_API_SPEC)
             )
 
     def to_internal_value(self, data):
