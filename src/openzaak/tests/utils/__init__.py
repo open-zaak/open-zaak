@@ -15,6 +15,7 @@ from .mocks import (
     mock_brc_oas_get,
     mock_drc_oas_get,
     mock_nrc_oas_get,
+    mock_vrc_oas_get,
     mock_zrc_oas_get,
     mock_ztc_oas_get,
 )
@@ -25,6 +26,7 @@ __all__ = [
     "mock_drc_oas_get",
     "mock_zrc_oas_get",
     "mock_ztc_oas_get",
+    "mock_vrc_oas_get",
     "mock_nrc_oas_get",
     "MockSchemasMixin",
     "get_eio_response",
