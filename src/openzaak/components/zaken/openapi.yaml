@@ -31,7 +31,8 @@ info:
     - `status`: create\n- `zaakobject`: create, update, destroy\n- `zaakinformatieobject`:\
     \ create\n- `zaakeigenschap`: create, update, destroy\n- `klantcontact`: create\n\
     - `rol`: create, destroy\n- `resultaat`: create, update, destroy\n- `zaakbesluit`:\
-    \ create\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    \ create\n- `zaakcontactmoment`: create\n- `zaakverzoek`: create\n\n\n**Handige\
+    \ links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -4193,7 +4194,6 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
-<<<<<<< HEAD
     head:
       operationId: zaakeigenschap_headers
       summary: De headers voor een specifiek(e) ZAAKEIGENSCHAP opvragen
@@ -4217,7 +4217,26 @@ paths:
             value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
         schema:
           type: string
-=======
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - zaken
+      security:
+      - JWT-Claims:
+        - zaken.lezen
     put:
       operationId: zaakeigenschap_update
       summary: Werk een ZAAKEIGENSCHAP in zijn geheel bij.
@@ -4225,21 +4244,21 @@ paths:
 
 
         - Alleen de WAARDE mag gewijzigd worden'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakEigenschap'
->>>>>>> 4672bae4... :memo: Updated Schema
       responses:
         '200':
           description: OK
           headers:
-<<<<<<< HEAD
-            ETag:
-              description: De ETag berekend op de response body JSON. Indien twee
-                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
-                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
-              schema:
-                type: string
-=======
             API-version:
               schema:
                 type: string
@@ -4281,6 +4300,15 @@ paths:
 
 
         - Alleen de WAARDE mag gewijzigd worden'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
       requestBody:
         $ref: '#/components/requestBodies/ZaakEigenschap'
       responses:
@@ -4328,14 +4356,11 @@ paths:
         '204':
           description: No content
           headers:
->>>>>>> 4672bae4... :memo: Updated Schema
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
-<<<<<<< HEAD
-=======
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -4354,16 +4379,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
->>>>>>> 4672bae4... :memo: Updated Schema
       tags:
       - zaken
       security:
       - JWT-Claims:
-<<<<<<< HEAD
-        - zaken.lezen
-=======
         - (zaken.bijwerken | zaken.geforceerd-bijwerken)
->>>>>>> 4672bae4... :memo: Updated Schema
     parameters:
     - name: uuid
       in: path
