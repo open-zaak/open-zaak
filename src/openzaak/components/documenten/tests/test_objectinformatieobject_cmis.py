@@ -8,6 +8,7 @@ from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
+from furl import furl
 from rest_framework import status
 from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import (
@@ -21,13 +22,17 @@ from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
-from openzaak.components.besluiten.tests.utils import get_besluit_response
+from openzaak.components.besluiten.tests.utils import (
+    get_besluit_response,
+    get_besluitinformatieobject_response,
+)
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.utils import (
     get_zaak_response,
+    get_zaakinformatieobject_response,
     get_zaaktype_response,
 )
 from openzaak.tests.utils import APICMISTestCase
@@ -438,6 +443,13 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
+        zio_url = furl(self.zrc_service.api_root) / "zaakinformatieobjecten"
+        zio_url.set({"informatieobject": eio_url, "zaak": self.zaak})
+
+        # Remote relation exists
+        self.adapter.get(
+            zio_url.url, json=[get_zaakinformatieobject_response(eio_url, self.zaak)]
+        )
         response = self.client.post(
             self.list_url,
             {"object": self.zaak, "informatieobject": eio_url, "objectType": "zaak",},
@@ -449,6 +461,37 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(oio.get_informatieobject_url(), eio_url)
 
         self.assertEqual(oio.object, self.zaak)
+
+    def test_create_external_zaak_inconsistent_relation(self):
+        """
+        Regression test for https://github.com/open-zaak/open-zaak/issues/1227
+        """
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        # The test
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        zio_url = furl(self.zrc_service.api_root) / "zaakinformatieobjecten"
+        zio_url.set({"informatieobject": eio_url, "zaak": self.zaak})
+
+        # Remote relation does not exist
+        self.adapter.get(zio_url.url, json=[])
+        response = self.client.post(
+            self.list_url,
+            {"object": self.zaak, "informatieobject": eio_url, "objectType": "zaak",},
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_create_external_besluit(self):
         self.adapter.get(
@@ -465,6 +508,15 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
+        bio_url = furl(self.brc_service.api_root) / "besluitinformatieobjecten"
+        bio_url.set({"informatieobject": eio_url, "besluit": self.besluit})
+
+        # Remote relation exists
+        self.adapter.get(
+            bio_url.url,
+            json=[get_besluitinformatieobject_response(eio_url, self.besluit)],
+        )
+
         response = self.client.post(
             self.list_url,
             {
@@ -480,6 +532,46 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(oio.get_informatieobject_url(), eio_url)
         self.assertEqual(oio.object, self.besluit)
+
+    def test_create_external_besluit_inconsistent_relation(self):
+        """
+        Regression test for https://github.com/open-zaak/open-zaak/issues/1227
+        """
+        self.adapter.get(
+            self.besluit,
+            json=get_besluit_response(self.besluit, self.besluittype, self.zaak),
+        )
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        # The test
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        bio_url = furl(self.brc_service.api_root) / "besluitinformatieobjecten"
+        bio_url.set({"informatieobject": eio_url, "besluit": self.besluit})
+
+        # Remote relation exists
+        self.adapter.get(bio_url.url, json=[])
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "object": self.besluit,
+                "informatieobject": eio_url,
+                "objectType": "besluit",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_create_external_zaak_fail_invalid_schema(self):
         zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
