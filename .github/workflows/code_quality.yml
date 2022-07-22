@@ -7,9 +7,11 @@ on:
       - main
     paths:
       - '**.py'
+      - '**.yml'
   pull_request:
     paths:
       - '**.py'
+      - '**.yml'
   workflow_dispatch:
 
 jobs:
@@ -68,3 +70,42 @@ jobs:
         run: pip install -r requirements/ci.txt
       - name: Run check
         run: ./bin/check_spdx.py src
+
+  migrations:
+    name: Check for model changes not present in the migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:12-2.5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # Needed because the postgres container does not provide a healthcheck
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install system packages
+        run: |
+          sudo apt-get update \
+          && sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            gdal-bin
+
+      - name: Install dependencies
+        run: pip install -r requirements/ci.txt
+
+      - name: Check for missing migrations
+        run: src/manage.py makemigrations --check --dry-run
+        env:
+          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+          SECRET_KEY: dummy
+          DB_USER: postgres
+          DB_NAME: postgres
+          DB_PASSWORD: ''
