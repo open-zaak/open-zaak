@@ -144,3 +144,46 @@ class RemoteRelationValidator:
         # if there are ZIOS returned, this means the source relation was not destroyed
         # yet
         return len(zios) > 0
+
+
+class CreateRemoteRelationValidator:
+    message = _(
+        "The canonical remote relation does not exist, this relation cannot be created."
+    )
+    code = "inconsistent-relation"
+
+    def __init__(self, request=None):
+        self.request = request
+
+    def __call__(self, document, object, object_type):
+        object_url = object._loose_fk_data["url"]
+
+        if settings.CMIS_ENABLED:
+            document_url = document
+        else:
+            default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+            document_url = build_absolute_url(
+                document.latest_version.get_absolute_api_url(version=default_version),
+                request=self.request,
+            )
+
+        # obtain a client for the remote API. this should exist, otherwise loose-fk
+        # would not have been able to load this resource :-)
+        client = Service.get_client(object_url)
+        assert client is not None, f"Could not retrieve client for object {object_url}"
+
+        try:
+            remote_relations = client.list(
+                f"{object_type}informatieobject",
+                query_params={
+                    "informatieobject": document_url,
+                    object_type: object_url,
+                },
+            )
+        except ClientError as exc:
+            raise serializers.ValidationError(
+                exc.args[0], code="relation-lookup-error"
+            ) from exc
+
+        if not len(remote_relations):
+            raise serializers.ValidationError(self.message, self.code)
