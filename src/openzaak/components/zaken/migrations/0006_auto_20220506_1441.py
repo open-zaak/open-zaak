@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("catalogi", "0010_auto_20210628_0848"),
         ("documenten", "0006_alter_enkelvoudiginformatieobject__informatieobjecttype"),
-        ("zaken", "0005_auto_20220310_2216"),
+        ("zaken", "0006_zaakobject_object_type_overige_definitie"),
     ]
 
     operations = [
