@@ -122,6 +122,16 @@ def get_zaakbesluit_response(zaak: str) -> dict:
     }
 
 
+def get_zaakinformatieobject_response(informatieobject: str, zaak: str) -> dict:
+    zio_uuid = str(uuid.uuid4())
+    return {
+        "url": f"http://testserver/api/v1/zaakinformatieobjecten/{zio_uuid}",
+        "uuid": zio_uuid,
+        "informatieobject": informatieobject,
+        "zaak": zaak,
+    }
+
+
 def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
     return {
         "url": resultaattype,
