@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
 
 from django.conf import settings
 
@@ -45,4 +46,14 @@ def get_besluit_response(besluit: str, besluittype: str, zaak: str = "") -> dict
         "ingangsdatum": "2019-11-18",
         "vervalreden": "",
         "vervalredenWeergave": "",
+    }
+
+
+def get_besluitinformatieobject_response(informatieobject: str, besluit: str) -> dict:
+    bio_uuid = str(uuid.uuid4())
+    return {
+        "url": f"http://testserver/api/v1/besluitinformatieobjecten/{bio_uuid}",
+        "uuid": bio_uuid,
+        "informatieobject": informatieobject,
+        "besluit": besluit,
     }

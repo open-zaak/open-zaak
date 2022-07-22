@@ -58,7 +58,7 @@ from .serializers import (
     ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
 )
-from .validators import RemoteRelationValidator
+from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = openapi.Parameter(
@@ -502,10 +502,21 @@ class ObjectInformatieObjectViewSet(
     }
 
     def perform_create(self, serializer):
+        informatieobject = serializer.validated_data["informatieobject"]
         object = serializer.validated_data["object"]
+        object_type = serializer.validated_data["object_type"]
 
         # external object
         if isinstance(object, ProxyMixin):
+            # Validate that the remote relation exists
+            validator = CreateRemoteRelationValidator(request=self.request)
+            try:
+                validator(informatieobject, object, object_type)
+            except ValidationError as exc:
+                raise ValidationError(
+                    {api_settings.NON_FIELD_ERRORS_KEY: exc}, code=exc.detail[0].code
+                ) from exc
+
             super().perform_create(serializer)
             return
         # object was already created by BIO/ZIO creation,

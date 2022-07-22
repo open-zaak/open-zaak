@@ -2,9 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 import requests_mock
+from furl import furl
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ObjectTypes
@@ -22,12 +24,18 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
-from openzaak.components.besluiten.tests.utils import get_besluit_response
+from openzaak.components.besluiten.tests.utils import (
+    get_besluit_response,
+    get_besluitinformatieobject_response,
+)
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.utils import get_zaak_response
+from openzaak.components.zaken.tests.utils import (
+    get_zaak_response,
+    get_zaakinformatieobject_response,
+)
 from openzaak.tests.utils import mock_brc_oas_get, mock_zrc_oas_get
 
 from ..models import ObjectInformatieObject
@@ -39,6 +47,13 @@ from .factories import EnkelvoudigInformatieObjectFactory
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
+
+    def setUp(self):
+        super().setUp()
+
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
 
     def test_create_with_objecttype_zaak(self):
         zaak = ZaakFactory.create()
@@ -342,16 +357,26 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_external_zaak(self):
-        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak = (
+            furl(self.zrc_service.api_root)
+            / "zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        ).url
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
+        zio_url = furl(self.zrc_service.api_root) / "zaakinformatieobjecten"
+        zio_url.set({"informatieobject": eio_url, "zaak": zaak})
+
         with requests_mock.Mocker() as m:
             mock_zrc_oas_get(m)
+            mock_zrc_oas_get(
+                m, oas_url=(furl(self.zrc_service.api_root) / "schema/openapi.yaml").url
+            )  # Mock OAS for external zaken API
             m.get(zaak, json=get_zaak_response(zaak, zaaktype))
+            m.get(zio_url.url, json=[get_zaakinformatieobject_response(eio_url, zaak)])
 
             response = self.client.post(
                 self.list_url,
@@ -367,17 +392,66 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             self.assertEqual(oio.informatieobject, eio.canonical)
             self.assertEqual(oio.object, zaak)
 
+    def test_create_external_zaak_inconsistent_relation(self):
+        """
+        Regression test for https://github.com/open-zaak/open-zaak/issues/1227
+        """
+        zaak = (
+            furl(self.zrc_service.api_root)
+            / "zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        ).url
+        zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        zio_url = furl(self.zrc_service.api_root) / "zaakinformatieobjecten"
+        zio_url.set({"informatieobject": eio_url, "zaak": zaak})
+
+        with requests_mock.Mocker() as m:
+            mock_zrc_oas_get(m)
+            mock_zrc_oas_get(
+                m, oas_url=(furl(self.zrc_service.api_root) / "schema/openapi.yaml").url
+            )  # Mock OAS for external zaken API
+            m.get(zaak, json=get_zaak_response(zaak, zaaktype))
+            m.get(zio_url.url, json=[])
+
+            response = self.client.post(
+                self.list_url,
+                {"object": zaak, "informatieobject": eio_url, "objectType": "zaak",},
+            )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
+
     def test_create_external_besluit(self):
-        besluit = "https://externe.catalogus.nl/api/v1/besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluit = (
+            furl(self.brc_service.api_root)
+            / "besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        ).url
         besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = f"http://testserver{eio_path}"
 
+        bio_url = furl(self.brc_service.api_root) / "besluitinformatieobjecten"
+        bio_url.set({"informatieobject": eio_url, "besluit": besluit})
+
         with requests_mock.Mocker() as m:
             mock_brc_oas_get(m)
+            mock_brc_oas_get(
+                m, oas_url=(furl(self.brc_service.api_root) / "schema/openapi.yaml").url
+            )  # Mock OAS for external besluiten API
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
+            m.get(
+                bio_url.url,
+                json=[get_besluitinformatieobject_response(eio_url, besluit)],
+            )
 
             response = self.client.post(
                 self.list_url,
@@ -396,6 +470,45 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(oio.informatieobject, eio.canonical)
             self.assertEqual(oio.object, besluit)
+
+    def test_create_external_besluit_inconsistent_relation(self):
+        besluit = (
+            furl(self.brc_service.api_root)
+            / "besluiten/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        ).url
+        besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        bio_url = furl(self.brc_service.api_root) / "besluitinformatieobjecten"
+        bio_url.set({"informatieobject": eio_url, "besluit": besluit})
+
+        with requests_mock.Mocker() as m:
+            mock_brc_oas_get(m)
+            mock_brc_oas_get(
+                m, oas_url=(furl(self.brc_service.api_root) / "schema/openapi.yaml").url
+            )  # Mock OAS for external besluiten API
+            m.get(besluit, json=get_besluit_response(besluit, besluittype))
+            m.get(
+                bio_url.url, json=[],
+            )
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "object": besluit,
+                    "informatieobject": eio_url,
+                    "objectType": "besluit",
+                },
+            )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_create_external_zaak_fail_invalid_schema(self):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
