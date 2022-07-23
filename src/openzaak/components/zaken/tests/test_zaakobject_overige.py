@@ -10,7 +10,7 @@ from vng_api_common.constants import ZaakobjectTypes
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import get_operation_url
-from openzaak.utils.tests import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("objecttype-overige-definitie")
