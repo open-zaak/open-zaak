@@ -33,9 +33,10 @@ src/manage.py dumpdata \
     mozilla_django_oidc_db.OpenIDConnectConfig \
     drc_cmis.CMISConfig \
     authorizations.Applicatie \
+    autorisaties.AutorisatieSpec \
     config.FeatureFlags \
     notifications.NotificationsConfig \
     notifications.Subscription \
-    selectielijst.ReferentieLijstConfig \
+    selectielijst.ReferentieLijstConfig
 
 echo "The configuration dump can be found in: $output_dir"
