@@ -45,7 +45,15 @@
                         "in": "query",
                         "description": "Multiple values may be separated by commas.",
                         "required": false,
-                        "type": "string"
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     },
                     {
                         "name": "page",
@@ -238,7 +246,15 @@
                         "in": "query",
                         "description": "Geef het client ID op waarvoor je de applicatie wil opvragen.",
                         "required": true,
-                        "type": "string"
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     }
                 ],
                 "responses": {

@@ -2756,7 +2756,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: archiefactiedatum
         in: query
         description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
@@ -2801,7 +2805,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: startdatum
         in: query
         description: De datum waarop met de uitvoering van de zaak is gestart
@@ -7159,10 +7167,11 @@ components:
           - blijvend_bewaren
           - vernietigen
         archiefnominatie__in:
-          title: Archiefnominatie  in
           description: Multiple values may be separated by commas.
-          type: string
-          minLength: 1
+          type: array
+          items:
+            type: string
+            nullable: true
         archiefactiedatum:
           title: Archiefactiedatum
           description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
@@ -7215,10 +7224,11 @@ components:
           - gearchiveerd_procestermijn_onbekend
           - overgedragen
         archiefstatus__in:
-          title: Archiefstatus  in
           description: Multiple values may be separated by commas.
-          type: string
-          minLength: 1
+          type: array
+          items:
+            type: string
+            nullable: true
         startdatum:
           title: Startdatum
           description: De datum waarop met de uitvoering van de zaak is gestart
