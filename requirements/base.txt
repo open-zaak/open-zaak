@@ -12,6 +12,7 @@ attrs==21.4.0
     # via
     #   cattrs
     #   glom
+    #   jsonschema
     #   requests-cache
 bleach==4.1.0
     # via -r requirements/base.in
@@ -201,6 +202,10 @@ jinja2==3.0.3
     # via coreschema
 josepy==1.13.0
     # via mozilla-django-oidc
+jq==1.2.2
+    # via -r requirements/base.in
+jsonschema==4.7.2
+    # via -r requirements/base.in
 markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
@@ -235,6 +240,8 @@ pyparsing==3.0.7
     # via
     #   httplib2
     #   packaging
+pyrsistent==0.18.1
+    # via jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in

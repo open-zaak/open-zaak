@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import json
+import logging
 from datetime import date
-from typing import Optional
+from typing import Iterable, Optional
 
 from django.conf import settings
 from django.db import models
@@ -9,10 +11,13 @@ from django.db.models import Max, Subquery
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+import jq
+import jsonschema
 from rest_framework import serializers
 from vng_api_common.constants import Archiefstatus
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
+    URLValidator,
 )
 
 from openzaak.components.documenten.constants import Statussen
@@ -20,9 +25,12 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..models import Zaak
+
+logger = logging.getLogger(__name__)
 
 
 class RolOccurenceValidator:
@@ -347,3 +355,137 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
         for zio in remote_zios:
             if zio.informatieobject.indicatie_gebruiksrecht is None:
                 raise serializers.ValidationError(self.message, self.code)
+
+
+class EitherFieldRequiredValidator:
+    default_message = _("One of %(fields)s must be provided")
+    default_code = "invalid"
+    requires_context = True
+
+    def __init__(
+        self,
+        fields: Iterable[str],
+        message: str = "",
+        code: str = "",
+        skip_for_updates=False,
+    ):
+        self.fields = fields
+        self.message = (message or self.default_message) % {"fields": ", ".join(fields)}
+        self.code = code or self.default_code
+        self.skip_for_updates = skip_for_updates
+
+    def __call__(self, attrs: dict, serializer):
+        if self.skip_for_updates and serializer.instance:
+            return
+
+        values = [attrs.get(field, None) for field in self.fields]
+        if not any(values):
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
+class JQExpressionValidator:
+    message = _("This is not a valid jq expression.")
+    code = "invalid"
+
+    def __call__(self, value: str):
+        try:
+            jq.compile(value)
+        except ValueError:
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
+class ObjectTypeOverigeDefinitieValidator:
+    code = "invalid"
+
+    def __call__(self, attrs: dict):
+        object_type_overige_definitie: Optional[dict] = attrs.get(
+            "object_type_overige_definitie"
+        )
+        object_url: str = attrs.get("object", "")
+
+        if not object_type_overige_definitie:
+            return
+
+        # object type overige definitie can only be used with object URL reference
+        if object_type_overige_definitie and not object_url:
+            raise serializers.ValidationError(
+                {
+                    "object_url": _(
+                        "Indien je `objectTypeOverigeDefinitie` gebruikt, dan moet je "
+                        "een OBJECT url opgeven."
+                    )
+                },
+                code="required",
+            )
+
+        if attrs.get("object_identificatie"):
+            logger.warning(
+                "Both object URL and objectIdentificatie supplied, clearing the latter."
+            )
+            attrs["object_identificatie"] = None
+
+        # now validate the schema
+        url_validator = URLValidator(get_auth=get_auth)
+
+        response = url_validator(object_type_overige_definitie["url"])
+        try:
+            object_type = response.json()
+        except json.JSONDecodeError:
+            raise serializers.ValidationError(
+                {
+                    "objectTypeOverigeDefinitie.url": _(
+                        "The endpoint did not return valid JSON."
+                    )
+                },
+                code="invalid",
+            )
+
+        schema_jq = jq.compile(object_type_overige_definitie["schema"])
+        record_data_jq = jq.compile(object_type_overige_definitie["object_data"])
+
+        try:
+            json_schema_definition = schema_jq.input(object_type).first()
+        except ValueError:
+            json_schema_definition = None
+
+        if not json_schema_definition:
+            raise serializers.ValidationError(
+                {
+                    "objectTypeOverigeDefinitie.schema": _(
+                        "No schema was found at the specified path."
+                    )
+                },
+                code="invalid",
+            )
+
+        # validate the object
+        object_response = url_validator(object_url)
+        try:
+            object_resource = object_response.json()
+        except json.JSONDecodeError:
+            raise serializers.ValidationError(
+                {"object": _("The endpoint did not return valid JSON.")}, code="invalid"
+            )
+
+        try:
+            object_data = record_data_jq.input(object_resource).first()
+        except ValueError:
+            object_data = None
+        if object_data is None:
+            raise serializers.ValidationError(
+                {
+                    "objectTypeOverigeDefinitie.objectData": _(
+                        "No data was found at the specified path."
+                    )
+                },
+                code="invalid",
+            )
+
+        # validate the schema
+        try:
+            jsonschema.validate(instance=object_data, schema=json_schema_definition)
+        except jsonschema.ValidationError:
+            raise serializers.ValidationError(
+                {"object": _("The object data does not match the specified schema.")},
+                code="invalid-schema",
+            )

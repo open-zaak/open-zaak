@@ -674,6 +674,13 @@ class ZaakObject(models.Model):
         help_text="Beschrijft het type OBJECT als `objectType` de waarde "
         '"overige" heeft.',
     )
+    object_type_overige_definitie = models.JSONField(
+        _("definitie object type overige"),
+        blank=True,
+        null=True,
+        help_text="Verwijzing naar het schema van het type OBJECT als `objectType` de "
+        'waarde "overige" heeft.',
+    )
 
     objects = ZaakRelatedQuerySet.as_manager()
 

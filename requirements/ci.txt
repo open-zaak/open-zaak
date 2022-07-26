@@ -19,6 +19,7 @@ attrs==21.4.0
     #   black
     #   cattrs
     #   glom
+    #   jsonschema
     #   requests-cache
 beautifulsoup4==4.10.0
     # via webtest
@@ -286,6 +287,10 @@ josepy==1.13.0
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc
+jq==1.2.2
+    # via -r requirements/base.txt
+jsonschema==4.7.2
+    # via -r requirements/base.txt
 markdown==3.3.6
     # via -r requirements/base.txt
 markupsafe==2.1.1
@@ -342,6 +347,10 @@ pyparsing==3.0.7
     #   -r requirements/base.txt
     #   httplib2
     #   packaging
+pyrsistent==0.18.1
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.txt
