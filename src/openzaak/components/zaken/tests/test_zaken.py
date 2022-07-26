@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from copy import copy
 from datetime import date
+from urllib.parse import urlencode
 
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
@@ -508,6 +509,37 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    # @override_settings(ALLOWED_HOSTS=["testserver.com", "testserver"])
+    def test_filter_on_multiple_zaaktypen(self):
+        self.applicatie.heeft_alle_autorisaties = True
+        self.applicatie.save()
+
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create()
+        ZaakFactory.create()
+
+        zaak_list_url = reverse(Zaak)
+
+        zaaktype1_url = f"http://openzaak.nl{reverse(zaak1.zaaktype)}"
+        zaaktype2_url = f"http://openzaak.nl{reverse(zaak2.zaaktype)}"
+
+        querystring = urlencode(
+            {"zaaktype__in": ",".join([zaaktype1_url, zaaktype2_url])}, safe=","
+        )
+
+        response = self.client.get(
+            f"{zaak_list_url}?{querystring}",
+            HTTP_HOST="openzaak.nl",
+            **ZAAK_WRITE_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 2)
+        self.assertTrue(data[0]["url"].endswith(str(zaak2.uuid)))
+        self.assertTrue(data[1]["url"].endswith(str(zaak1.uuid)))
 
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
