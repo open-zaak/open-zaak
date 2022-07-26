@@ -2741,6 +2741,17 @@ paths:
         schema:
           type: string
           format: uri
+      - name: zaaktype__in
+        in: query
+        description: Multiple values may be separated by commas.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          format: uri
+        style: form
+        explode: false
       - name: archiefnominatie
         in: query
         description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
@@ -7148,6 +7159,12 @@ components:
           description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           type: string
           minLength: 1
+        zaaktype__in:
+          description: Multiple values may be separated by commas.
+          type: array
+          items:
+            type: string
+            nullable: true
         archiefnominatie:
           title: Archiefnominatie
           description: 'Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde

@@ -58,7 +58,7 @@ class ZaakFilter(FilterSet):
         fields = {
             "identificatie": ["exact"],
             "bronorganisatie": ["exact"],
-            "zaaktype": ["exact"],
+            "zaaktype": ["exact", "in"],
             "archiefnominatie": ["exact", "in"],
             "archiefactiedatum": ["exact", "lt", "gt"],
             "archiefstatus": ["exact", "in"],
