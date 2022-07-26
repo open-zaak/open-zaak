@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.7.2 (2022-07-26)
+------------------
+
+Fixed some issues discovered when upgrading from 1.6 or older
+
+* [#1227] Added missing OIO relation validation when using remote resources
+* [#1213] Add missing migration for Status.Meta changes
+* Fixed issue in migration order
+
 1.7.1 (2022-07-19)
 ------------------
 
