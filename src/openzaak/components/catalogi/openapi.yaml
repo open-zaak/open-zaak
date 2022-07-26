@@ -556,7 +556,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: rsin
         in: query
         description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
@@ -569,7 +573,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -3455,7 +3463,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: status
         in: query
         description: 'filter objects depending on their concept status:

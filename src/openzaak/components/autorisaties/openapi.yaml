@@ -65,7 +65,11 @@ paths:
         description: Multiple values may be separated by commas.
         required: false
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -207,7 +211,11 @@ paths:
         description: Geef het client ID op waarvoor je de applicatie wil opvragen.
         required: true
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       responses:
         '200':
           description: OK

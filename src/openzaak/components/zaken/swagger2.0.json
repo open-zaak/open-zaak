@@ -3757,7 +3757,15 @@
                         "in": "query",
                         "description": "Multiple values may be separated by commas.",
                         "required": false,
-                        "type": "string"
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     },
                     {
                         "name": "archiefactiedatum",
@@ -3798,7 +3806,15 @@
                         "in": "query",
                         "description": "Multiple values may be separated by commas.",
                         "required": false,
-                        "type": "string"
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     },
                     {
                         "name": "startdatum",
@@ -8886,10 +8902,12 @@
                     ]
                 },
                 "archiefnominatie__in": {
-                    "title": "Archiefnominatie  in",
                     "description": "Multiple values may be separated by commas.",
-                    "type": "string",
-                    "minLength": 1
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "x-nullable": true
+                    }
                 },
                 "archiefactiedatum": {
                     "title": "Archiefactiedatum",
@@ -8921,10 +8939,12 @@
                     ]
                 },
                 "archiefstatus__in": {
-                    "title": "Archiefstatus  in",
                     "description": "Multiple values may be separated by commas.",
-                    "type": "string",
-                    "minLength": 1
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "x-nullable": true
+                    }
                 },
                 "startdatum": {
                     "title": "Startdatum",
