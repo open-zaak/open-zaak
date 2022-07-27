@@ -298,7 +298,7 @@ mozilla-django-oidc==2.0.0
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.10.0
+mozilla-django-oidc-db==0.10.1
     # via -r requirements/base.txt
 orderedmultidict==1.0.1
     # via
