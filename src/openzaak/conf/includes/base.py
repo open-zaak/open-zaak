@@ -430,6 +430,12 @@ SILENCED_SYSTEM_CHECKS = [
     "debug_toolbar.W006",
 ]
 
+
+#
+# Increase number of parameters for GET/POST requests
+#
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 #
 # Custom settings
 #
