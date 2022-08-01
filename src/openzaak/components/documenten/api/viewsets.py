@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
@@ -28,6 +29,7 @@ from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
 from ..models import (
+    BestandsDeel,
     EnkelvoudigInformatieObject,
     Gebruiksrechten,
     ObjectInformatieObject,
@@ -40,6 +42,7 @@ from .filters import (
     ObjectInformatieObjectFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
+from .mixins import UpdateWithoutPartialMixin
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
 from .scopes import (
@@ -51,6 +54,8 @@ from .scopes import (
     SCOPE_DOCUMENTEN_LOCK,
 )
 from .serializers import (
+    BestandsDeelSerializer,
+    EnkelvoudigInformatieObjectCreateLockSerializer,
     EnkelvoudigInformatieObjectSerializer,
     EnkelvoudigInformatieObjectWithLockSerializer,
     GebruiksrechtenSerializer,
@@ -243,6 +248,8 @@ class EnkelvoudigInformatieObjectViewSet(
         """
         if getattr(self, "action", None) in ["update", "partial_update"]:
             return EnkelvoudigInformatieObjectWithLockSerializer
+        elif self.action == "create":
+            return EnkelvoudigInformatieObjectCreateLockSerializer
         return super().get_serializer_class()
 
     @swagger_auto_schema(
@@ -312,7 +319,6 @@ class EnkelvoudigInformatieObjectViewSet(
     def unlock(self, request, *args, **kwargs):
         eio = self.get_object()
         eio_data = self.get_serializer(eio).data
-        canonical = eio.canonical
 
         # check if it's a force unlock by administrator
         force_unlock = False
@@ -325,7 +331,7 @@ class EnkelvoudigInformatieObjectViewSet(
             force_unlock = True
 
         unlock_serializer = UnlockEnkelvoudigInformatieObjectSerializer(
-            canonical,
+            eio,
             data=request.data,
             context={
                 "request": request,
@@ -555,3 +561,20 @@ class ObjectInformatieObjectViewSet(
 
         if isinstance(instance.object, ProxyMixin):
             super().perform_destroy(instance)
+
+
+class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
+    """
+    update:
+    Upload een bestandsdeel
+    """
+
+    queryset = BestandsDeel.objects.all()
+    serializer_class = BestandsDeelSerializer
+    lookup_field = "uuid"
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = (InformationObjectAuthRequired,)
+    permission_main_object = "informatieobject"
+    required_scopes = {
+        "update": SCOPE_DOCUMENTEN_BIJWERKEN,
+    }

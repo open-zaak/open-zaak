@@ -651,3 +651,9 @@ VNG_COMPONENTS_BRANCH = "stable/1.0.x"
 
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")
+
+# settings for uploading large files
+MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
+CHUNK_SIZE = 4 * 2 ** 30  # 4 GB
+READ_CHUNK = 6 * 2 ** 20  # 6 MB
+DEFAULT_EXTENSION = "bin"

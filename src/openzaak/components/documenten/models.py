@@ -250,6 +250,16 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
+    @property
+    def complete_upload(self) -> bool:
+        empty_parts = self.bestandsdelen.filter(inhoud="")
+        return empty_parts.count() == 0
+
+    @property
+    def empty_bestandsdelen(self) -> bool:
+        empty_parts = self.bestandsdelen.filter(inhoud="")
+        return empty_parts.count() == self.bestandsdelen.count()
+
     def save(self, *args, **kwargs) -> None:
         if settings.CMIS_ENABLED:
             return
@@ -321,6 +331,11 @@ class EnkelvoudigInformatieObject(
         ),
     )
 
+    bestandsomvang = models.PositiveIntegerField(
+        _("bestandsomvang"),
+        null=True,
+        help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
+    )
     inhoud = PrivateMediaFileField(
         upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis
     )
@@ -395,16 +410,6 @@ class EnkelvoudigInformatieObject(
     def __init__(self, *args, **kwargs):
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
-
-    @property
-    def bestandsomvang(self):
-        if not self._bestandsomvang:
-            self._bestandsomvang = self.inhoud.size
-        return self._bestandsomvang
-
-    @bestandsomvang.setter
-    def bestandsomvang(self, value):
-        self._bestandsomvang = value
 
     @property
     def locked(self) -> bool:
@@ -496,6 +501,85 @@ class EnkelvoudigInformatieObject(
             return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
         else:
             return self.canonical.gebruiksrechten_set.exists()
+
+
+class BestandsDeel(models.Model):
+    uuid = models.UUIDField(
+        unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
+    informatieobject = models.ForeignKey(
+        "EnkelvoudigInformatieObjectCanonical",
+        on_delete=models.CASCADE,
+        related_name="bestandsdelen",
+    )
+    volgnummer = models.PositiveIntegerField(
+        help_text=_("Een volgnummer dat de volgorde van de bestandsdelen aangeeft.")
+    )
+    omvang = models.PositiveIntegerField(
+        help_text=_("De grootte van dit specifieke bestandsdeel.")
+    )
+    inhoud = PrivateMediaFileField(
+        upload_to="part-uploads/%Y/%m/",
+        blank=True,
+        help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
+    )
+
+    class Meta:
+        verbose_name = "bestands deel"
+        verbose_name_plural = "bestands delen"
+        unique_together = ("informatieobject", "volgnummer")
+
+    def unique_representation(self):
+        if settings.CMIS_ENABLED:
+            informatieobject = self.get_informatieobject()
+        else:
+            informatieobject = self.informatieobject.latest_version
+        return f"({informatieobject.unique_representation()}) - {self.volgnummer}"
+
+    def save(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            super().save(*args, **kwargs)
+
+    def get_url(self):
+        bestandsdeel_path = reverse(
+            "bestandsdeel-detail", kwargs={"version": "1", "uuid": self.uuid},
+        )
+        return make_absolute_uri(bestandsdeel_path)
+
+    def delete(self, *args, **kwargs):
+        if not settings.CMIS_ENABLED:
+            super().delete(*args, **kwargs)
+        else:
+            self.cmis_client.delete_content_object(
+                self.uuid, object_type="bestandsdeel"
+            )
+
+    def get_informatieobject(self, permission_main_object=None):
+        """
+        For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
+        """
+        if settings.CMIS_ENABLED:
+            eio_url = self.get_informatieobject_url()
+            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
+            eio_uuid = eio_url.split("/")[-1]
+            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        elif permission_main_object:
+            return getattr(self, permission_main_object).latest_version
+        else:
+            return self.informatieobject.latest_version
+
+    def get_informatieobject_url(self):
+        """
+        Retrieves the EnkelvoudigInformatieObject url from Alfresco
+        """
+        cmis_oio = self.cmis_client.get_content_object(
+            self.uuid, object_type="bestandsdeel"
+        )
+        return cmis_oio.informatieobject
+
+    @property
+    def voltooid(self) -> bool:
+        return bool(self.inhoud.name)
 
 
 class Gebruiksrechten(models.Model, CMISClientMixin):

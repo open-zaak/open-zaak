@@ -34,6 +34,113 @@
         }
     ],
     "paths": {
+        "/bestandsdelen/{uuid}": {
+            "put": {
+                "operationId": "bestandsdeel_update",
+                "description": "Upload een bestandsdeel",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "description": "Content type van de verzoekinhoud.",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "multipart/form-data",
+                            "application/x-www-form-urlencoded"
+                        ]
+                    },
+                    {
+                        "name": "inhoud",
+                        "in": "formData",
+                        "description": "De (binaire) bestandsinhoud van dit specifieke bestandsdeel.",
+                        "required": false,
+                        "type": "file"
+                    },
+                    {
+                        "name": "lock",
+                        "in": "formData",
+                        "description": "Hash string, which represents id of the lock of related informatieobject",
+                        "required": true,
+                        "type": "string",
+                        "minLength": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/BestandsDeel"
+                        },
+                        "headers": {
+                            "API-version": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/responses/404"
+                    },
+                    "406": {
+                        "$ref": "#/responses/406"
+                    },
+                    "409": {
+                        "$ref": "#/responses/409"
+                    },
+                    "410": {
+                        "$ref": "#/responses/410"
+                    },
+                    "415": {
+                        "$ref": "#/responses/415"
+                    },
+                    "429": {
+                        "$ref": "#/responses/429"
+                    },
+                    "500": {
+                        "$ref": "#/responses/500"
+                    }
+                },
+                "consumes": [
+                    "multipart/form-data",
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bestandsdelen"
+                ],
+                "security": [
+                    {
+                        "JWT-Claims": [
+                            "documenten.bijwerken"
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "uuid",
+                    "in": "path",
+                    "description": "Unieke resource identifier (UUID4)",
+                    "required": true,
+                    "type": "string",
+                    "format": "uuid"
+                }
+            ]
+        },
         "/enkelvoudiginformatieobjecten": {
             "get": {
                 "operationId": "enkelvoudiginformatieobject_list",
@@ -164,7 +271,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/EnkelvoudigInformatieObjectData"
+                            "$ref": "#/definitions/EnkelvoudigInformatieObjectCreateLockData"
                         }
                     },
                     {
@@ -186,7 +293,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/EnkelvoudigInformatieObjectData"
+                            "$ref": "#/definitions/EnkelvoudigInformatieObjectCreateLockData"
                         },
                         "headers": {
                             "API-version": {
@@ -2125,86 +2232,9 @@
         }
     },
     "definitions": {
-        "Ondertekening": {
-            "description": "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter vaststelling' heeft.",
+        "BestandsDeel": {
             "required": [
-                "soort",
-                "datum"
-            ],
-            "type": "object",
-            "properties": {
-                "soort": {
-                    "title": "Ondertekeningsoort",
-                    "description": "Aanduiding van de wijze van ondertekening van het INFORMATIEOBJECT\n\nUitleg bij mogelijke waarden:\n\n* `analoog` - Analoog\n* `digitaal` - Digitaal\n* `pki` - PKI",
-                    "type": "string",
-                    "enum": [
-                        "analoog",
-                        "digitaal",
-                        "pki"
-                    ]
-                },
-                "datum": {
-                    "title": "Ondertekeningdatum",
-                    "description": "De datum waarop de ondertekening van het INFORMATIEOBJECT heeft plaatsgevonden.",
-                    "type": "string",
-                    "format": "date"
-                }
-            },
-            "x-nullable": true
-        },
-        "Integriteit": {
-            "description": "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand.",
-            "required": [
-                "algoritme",
-                "waarde",
-                "datum"
-            ],
-            "type": "object",
-            "properties": {
-                "algoritme": {
-                    "title": "Algoritme",
-                    "description": "Aanduiding van algoritme, gebruikt om de checksum te maken.\n\nUitleg bij mogelijke waarden:\n\n* `crc_16` - CRC-16\n* `crc_32` - CRC-32\n* `crc_64` - CRC-64\n* `fletcher_4` - Fletcher-4\n* `fletcher_8` - Fletcher-8\n* `fletcher_16` - Fletcher-16\n* `fletcher_32` - Fletcher-32\n* `hmac` - HMAC\n* `md5` - MD5\n* `sha_1` - SHA-1\n* `sha_256` - SHA-256\n* `sha_512` - SHA-512\n* `sha_3` - SHA-3",
-                    "type": "string",
-                    "enum": [
-                        "crc_16",
-                        "crc_32",
-                        "crc_64",
-                        "fletcher_4",
-                        "fletcher_8",
-                        "fletcher_16",
-                        "fletcher_32",
-                        "hmac",
-                        "md5",
-                        "sha_1",
-                        "sha_256",
-                        "sha_512",
-                        "sha_3"
-                    ]
-                },
-                "waarde": {
-                    "title": "Waarde",
-                    "description": "De waarde van de checksum.",
-                    "type": "string",
-                    "maxLength": 128,
-                    "minLength": 1
-                },
-                "datum": {
-                    "title": "Datum",
-                    "description": "Datum waarop de checksum is gemaakt.",
-                    "type": "string",
-                    "format": "date"
-                }
-            },
-            "x-nullable": true
-        },
-        "EnkelvoudigInformatieObject": {
-            "required": [
-                "bronorganisatie",
-                "creatiedatum",
-                "titel",
-                "auteur",
-                "taal",
-                "informatieobjecttype"
+                "lock"
             ],
             "type": "object",
             "properties": {
@@ -2217,163 +2247,36 @@
                     "maxLength": 1000,
                     "minLength": 1
                 },
-                "identificatie": {
-                    "title": "Identificatie",
-                    "description": "Een binnen een gegeven context ondubbelzinnige referentie naar het INFORMATIEOBJECT.",
-                    "type": "string",
-                    "maxLength": 40
-                },
-                "bronorganisatie": {
-                    "title": "Bronorganisatie",
-                    "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
-                    "type": "string",
-                    "maxLength": 9,
-                    "minLength": 1
-                },
-                "creatiedatum": {
-                    "title": "Creatiedatum",
-                    "description": "Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.",
-                    "type": "string",
-                    "format": "date"
-                },
-                "titel": {
-                    "title": "Titel",
-                    "description": "De naam waaronder het INFORMATIEOBJECT formeel bekend is.",
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1
-                },
-                "vertrouwelijkheidaanduiding": {
-                    "title": "Vertrouwelijkheidaanduiding",
-                    "description": "Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.\n\nUitleg bij mogelijke waarden:\n\n* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim",
-                    "type": "string",
-                    "enum": [
-                        "openbaar",
-                        "beperkt_openbaar",
-                        "intern",
-                        "zaakvertrouwelijk",
-                        "vertrouwelijk",
-                        "confidentieel",
-                        "geheim",
-                        "zeer_geheim"
-                    ]
-                },
-                "auteur": {
-                    "title": "Auteur",
-                    "description": "De persoon of organisatie die in de eerste plaats verantwoordelijk is voor het cre\u00ebren van de inhoud van het INFORMATIEOBJECT.",
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1
-                },
-                "status": {
-                    "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
-                    "type": "string",
-                    "enum": [
-                        "in_bewerking",
-                        "ter_vaststelling",
-                        "definitief",
-                        "gearchiveerd"
-                    ]
-                },
-                "formaat": {
-                    "title": "Formaat",
-                    "description": "Het \"Media Type\" (voorheen \"MIME type\") voor de wijze waaropde inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand. Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml",
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "taal": {
-                    "title": "Taal",
-                    "description": "Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html",
-                    "type": "string",
-                    "maxLength": 3,
-                    "minLength": 3
-                },
-                "versie": {
-                    "title": "Versie",
-                    "description": "Het (automatische) versienummer van het INFORMATIEOBJECT. Deze begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.",
+                "volgnummer": {
+                    "title": "Volgnummer",
+                    "description": "Een volgnummer dat de volgorde van de bestandsdelen aangeeft.",
                     "type": "integer",
                     "readOnly": true
                 },
-                "beginRegistratie": {
-                    "title": "Begin registratie",
-                    "description": "Een datumtijd in ISO8601 formaat waarop deze versie van het INFORMATIEOBJECT is aangemaakt of gewijzigd.",
-                    "type": "string",
-                    "format": "date-time",
+                "omvang": {
+                    "title": "Omvang",
+                    "description": "De grootte van dit specifieke bestandsdeel.",
+                    "type": "integer",
                     "readOnly": true
-                },
-                "bestandsnaam": {
-                    "title": "Bestandsnaam",
-                    "description": "De naam van het fysieke bestand waarin de inhoud van het informatieobject is vastgelegd, inclusief extensie.",
-                    "type": "string",
-                    "maxLength": 255
                 },
                 "inhoud": {
                     "title": "Inhoud",
-                    "description": "Download URL van de binaire inhoud.",
+                    "description": "De (binaire) bestandsinhoud van dit specifieke bestandsdeel.",
                     "type": "string",
-                    "format": "uri",
-                    "readOnly": true
-                },
-                "bestandsomvang": {
-                    "title": "Bestandsomvang",
-                    "description": "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.",
-                    "type": "integer",
                     "readOnly": true,
-                    "minimum": 0
+                    "format": "uri"
                 },
-                "link": {
-                    "title": "Link",
-                    "description": "De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen is.",
-                    "type": "string",
-                    "format": "uri",
-                    "maxLength": 200
-                },
-                "beschrijving": {
-                    "title": "Beschrijving",
-                    "description": "Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.",
-                    "type": "string",
-                    "maxLength": 1000
-                },
-                "ontvangstdatum": {
-                    "title": "Ontvangstdatum",
-                    "description": "De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.",
-                    "type": "string",
-                    "format": "date",
-                    "x-nullable": true
-                },
-                "verzenddatum": {
-                    "title": "Verzenddatum",
-                    "description": "De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.",
-                    "type": "string",
-                    "format": "date",
-                    "x-nullable": true
-                },
-                "indicatieGebruiksrecht": {
-                    "title": "Indicatie gebruiksrecht",
-                    "description": "Indicatie of er beperkingen gelden aangaande het gebruik van het informatieobject anders dan raadpleging. Dit veld mag `null` zijn om aan te geven dat de indicatie nog niet bekend is. Als de indicatie gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen via de GEBRUIKSRECHTen resource.",
-                    "type": "boolean",
-                    "x-nullable": true
-                },
-                "ondertekening": {
-                    "$ref": "#/definitions/Ondertekening"
-                },
-                "integriteit": {
-                    "$ref": "#/definitions/Integriteit"
-                },
-                "informatieobjecttype": {
-                    "title": "Informatieobjecttype",
-                    "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
-                    "type": "string",
-                    "format": "uri",
-                    "maxLength": 200,
-                    "minLength": 1
-                },
-                "locked": {
-                    "title": "geblokkeerd",
-                    "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
+                "voltooid": {
+                    "title": "Voltooid",
+                    "description": "Indicatie of dit bestandsdeel volledig is geupload. Dat wil zeggen: het aantal bytes dat staat genoemd bij grootte is daadwerkelijk ontvangen.",
                     "type": "boolean",
                     "readOnly": true
+                },
+                "lock": {
+                    "title": "Lock",
+                    "description": "Hash string, which represents id of the lock of related informatieobject",
+                    "type": "string",
+                    "minLength": 1
                 }
             }
         },
@@ -2504,14 +2407,275 @@
                 }
             }
         },
-        "EnkelvoudigInformatieObjectData": {
+        "Ondertekening": {
+            "description": "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter vaststelling' heeft.",
+            "required": [
+                "soort",
+                "datum"
+            ],
+            "type": "object",
+            "properties": {
+                "soort": {
+                    "title": "Ondertekeningsoort",
+                    "description": "Aanduiding van de wijze van ondertekening van het INFORMATIEOBJECT\n\nUitleg bij mogelijke waarden:\n\n* `analoog` - Analoog\n* `digitaal` - Digitaal\n* `pki` - PKI",
+                    "type": "string",
+                    "enum": [
+                        "analoog",
+                        "digitaal",
+                        "pki"
+                    ]
+                },
+                "datum": {
+                    "title": "Ondertekeningdatum",
+                    "description": "De datum waarop de ondertekening van het INFORMATIEOBJECT heeft plaatsgevonden.",
+                    "type": "string",
+                    "format": "date"
+                }
+            },
+            "x-nullable": true
+        },
+        "Integriteit": {
+            "description": "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand.",
+            "required": [
+                "algoritme",
+                "waarde",
+                "datum"
+            ],
+            "type": "object",
+            "properties": {
+                "algoritme": {
+                    "title": "Algoritme",
+                    "description": "Aanduiding van algoritme, gebruikt om de checksum te maken.\n\nUitleg bij mogelijke waarden:\n\n* `crc_16` - CRC-16\n* `crc_32` - CRC-32\n* `crc_64` - CRC-64\n* `fletcher_4` - Fletcher-4\n* `fletcher_8` - Fletcher-8\n* `fletcher_16` - Fletcher-16\n* `fletcher_32` - Fletcher-32\n* `hmac` - HMAC\n* `md5` - MD5\n* `sha_1` - SHA-1\n* `sha_256` - SHA-256\n* `sha_512` - SHA-512\n* `sha_3` - SHA-3",
+                    "type": "string",
+                    "enum": [
+                        "crc_16",
+                        "crc_32",
+                        "crc_64",
+                        "fletcher_4",
+                        "fletcher_8",
+                        "fletcher_16",
+                        "fletcher_32",
+                        "hmac",
+                        "md5",
+                        "sha_1",
+                        "sha_256",
+                        "sha_512",
+                        "sha_3"
+                    ]
+                },
+                "waarde": {
+                    "title": "Waarde",
+                    "description": "De waarde van de checksum.",
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "datum": {
+                    "title": "Datum",
+                    "description": "Datum waarop de checksum is gemaakt.",
+                    "type": "string",
+                    "format": "date"
+                }
+            },
+            "x-nullable": true
+        },
+        "EnkelvoudigInformatieObject": {
             "required": [
                 "bronorganisatie",
                 "creatiedatum",
                 "titel",
                 "auteur",
                 "taal",
-                "inhoud",
+                "bestandsomvang",
+                "informatieobjecttype"
+            ],
+            "type": "object",
+            "properties": {
+                "url": {
+                    "title": "Url",
+                    "description": "URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true,
+                    "maxLength": 1000,
+                    "minLength": 1
+                },
+                "identificatie": {
+                    "title": "Identificatie",
+                    "description": "Een binnen een gegeven context ondubbelzinnige referentie naar het INFORMATIEOBJECT.",
+                    "type": "string",
+                    "maxLength": 40
+                },
+                "bronorganisatie": {
+                    "title": "Bronorganisatie",
+                    "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
+                    "type": "string",
+                    "maxLength": 9,
+                    "minLength": 1
+                },
+                "creatiedatum": {
+                    "title": "Creatiedatum",
+                    "description": "Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.",
+                    "type": "string",
+                    "format": "date"
+                },
+                "titel": {
+                    "title": "Titel",
+                    "description": "De naam waaronder het INFORMATIEOBJECT formeel bekend is.",
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "vertrouwelijkheidaanduiding": {
+                    "title": "Vertrouwelijkheidaanduiding",
+                    "description": "Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.\n\nUitleg bij mogelijke waarden:\n\n* `openbaar` - Openbaar\n* `beperkt_openbaar` - Beperkt openbaar\n* `intern` - Intern\n* `zaakvertrouwelijk` - Zaakvertrouwelijk\n* `vertrouwelijk` - Vertrouwelijk\n* `confidentieel` - Confidentieel\n* `geheim` - Geheim\n* `zeer_geheim` - Zeer geheim",
+                    "type": "string",
+                    "enum": [
+                        "openbaar",
+                        "beperkt_openbaar",
+                        "intern",
+                        "zaakvertrouwelijk",
+                        "vertrouwelijk",
+                        "confidentieel",
+                        "geheim",
+                        "zeer_geheim"
+                    ]
+                },
+                "auteur": {
+                    "title": "Auteur",
+                    "description": "De persoon of organisatie die in de eerste plaats verantwoordelijk is voor het cre\u00ebren van de inhoud van het INFORMATIEOBJECT.",
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "status": {
+                    "title": "Status",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
+                    "type": "string",
+                    "enum": [
+                        "in_bewerking",
+                        "ter_vaststelling",
+                        "definitief",
+                        "gearchiveerd"
+                    ]
+                },
+                "formaat": {
+                    "title": "Formaat",
+                    "description": "Het \"Media Type\" (voorheen \"MIME type\") voor de wijze waaropde inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand. Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "taal": {
+                    "title": "Taal",
+                    "description": "Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html",
+                    "type": "string",
+                    "maxLength": 3,
+                    "minLength": 3
+                },
+                "versie": {
+                    "title": "Versie",
+                    "description": "Het (automatische) versienummer van het INFORMATIEOBJECT. Deze begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.",
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "beginRegistratie": {
+                    "title": "Begin registratie",
+                    "description": "Een datumtijd in ISO8601 formaat waarop deze versie van het INFORMATIEOBJECT is aangemaakt of gewijzigd.",
+                    "type": "string",
+                    "format": "date-time",
+                    "readOnly": true
+                },
+                "bestandsnaam": {
+                    "title": "Bestandsnaam",
+                    "description": "De naam van het fysieke bestand waarin de inhoud van het informatieobject is vastgelegd, inclusief extensie.",
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "inhoud": {
+                    "title": "Inhoud",
+                    "description": "Download URL van de binaire inhoud.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true,
+                    "x-nullable": true
+                },
+                "bestandsomvang": {
+                    "title": "Bestandsomvang",
+                    "description": "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.",
+                    "type": "integer",
+                    "minimum": 0,
+                    "x-nullable": true
+                },
+                "link": {
+                    "title": "Link",
+                    "description": "De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen is.",
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 200
+                },
+                "beschrijving": {
+                    "title": "Beschrijving",
+                    "description": "Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.",
+                    "type": "string",
+                    "maxLength": 1000
+                },
+                "ontvangstdatum": {
+                    "title": "Ontvangstdatum",
+                    "description": "De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "verzenddatum": {
+                    "title": "Verzenddatum",
+                    "description": "De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "indicatieGebruiksrecht": {
+                    "title": "Indicatie gebruiksrecht",
+                    "description": "Indicatie of er beperkingen gelden aangaande het gebruik van het informatieobject anders dan raadpleging. Dit veld mag `null` zijn om aan te geven dat de indicatie nog niet bekend is. Als de indicatie gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen via de GEBRUIKSRECHTen resource.",
+                    "type": "boolean",
+                    "x-nullable": true
+                },
+                "ondertekening": {
+                    "$ref": "#/definitions/Ondertekening"
+                },
+                "integriteit": {
+                    "$ref": "#/definitions/Integriteit"
+                },
+                "informatieobjecttype": {
+                    "title": "Informatieobjecttype",
+                    "description": "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "locked": {
+                    "title": "geblokkeerd",
+                    "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
+                    "type": "boolean",
+                    "readOnly": true
+                },
+                "bestandsdelen": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BestandsDeel"
+                    },
+                    "readOnly": true
+                }
+            }
+        },
+        "EnkelvoudigInformatieObjectCreateLockData": {
+            "required": [
+                "bronorganisatie",
+                "creatiedatum",
+                "titel",
+                "auteur",
+                "taal",
+                "bestandsomvang",
                 "informatieobjecttype"
             ],
             "type": "object",
@@ -2620,14 +2784,15 @@
                     "title": "Inhoud",
                     "description": "Binaire inhoud, in base64 ge\u00ebncodeerd.",
                     "type": "string",
-                    "format": "bytes"
+                    "format": "bytes",
+                    "x-nullable": true
                 },
                 "bestandsomvang": {
                     "title": "Bestandsomvang",
                     "description": "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.",
                     "type": "integer",
-                    "readOnly": true,
-                    "minimum": 0
+                    "minimum": 0,
+                    "x-nullable": true
                 },
                 "link": {
                     "title": "Link",
@@ -2681,6 +2846,20 @@
                     "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
                     "type": "boolean",
                     "readOnly": true
+                },
+                "bestandsdelen": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BestandsDeel"
+                    },
+                    "readOnly": true
+                },
+                "lock": {
+                    "title": "Lock",
+                    "description": "Lock id generated if the large file is created and should be used while updating the document. Documents with base64 encoded files are created without lock",
+                    "type": "string",
+                    "readOnly": true,
+                    "minLength": 1
                 }
             }
         },
@@ -2832,7 +3011,7 @@
                 "titel",
                 "auteur",
                 "taal",
-                "inhoud",
+                "bestandsomvang",
                 "informatieobjecttype",
                 "lock"
             ],
@@ -2942,14 +3121,15 @@
                     "title": "Inhoud",
                     "description": "Binaire inhoud, in base64 ge\u00ebncodeerd.",
                     "type": "string",
-                    "format": "bytes"
+                    "format": "bytes",
+                    "x-nullable": true
                 },
                 "bestandsomvang": {
                     "title": "Bestandsomvang",
                     "description": "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.",
                     "type": "integer",
-                    "readOnly": true,
-                    "minimum": 0
+                    "minimum": 0,
+                    "x-nullable": true
                 },
                 "link": {
                     "title": "Link",
@@ -3002,6 +3182,13 @@
                     "title": "geblokkeerd",
                     "description": "Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden.",
                     "type": "boolean",
+                    "readOnly": true
+                },
+                "bestandsdelen": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BestandsDeel"
+                    },
                     "readOnly": true
                 },
                 "lock": {
