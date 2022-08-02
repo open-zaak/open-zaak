@@ -2486,7 +2486,6 @@
                 "titel",
                 "auteur",
                 "taal",
-                "bestandsomvang",
                 "informatieobjecttype"
             ],
             "type": "object",
@@ -2675,7 +2674,6 @@
                 "titel",
                 "auteur",
                 "taal",
-                "bestandsomvang",
                 "informatieobjecttype"
             ],
             "type": "object",
@@ -3011,7 +3009,6 @@
                 "titel",
                 "auteur",
                 "taal",
-                "bestandsomvang",
                 "informatieobjecttype",
                 "lock"
             ],

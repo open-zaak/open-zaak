@@ -261,6 +261,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     bestandsomvang = serializers.IntegerField(
         # source="bestandsomvang",
         allow_null=True,
+        required=False,
         min_value=0,
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
     )
@@ -387,6 +388,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if self.instance is None:  # create
             if (
                 valid_attrs.get("inhoud") is not None
+                and "bestandsomvang" in valid_attrs
                 and valid_attrs["inhoud"].size != valid_attrs["bestandsomvang"]
             ):
                 raise serializers.ValidationError(

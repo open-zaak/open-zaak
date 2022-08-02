@@ -2070,7 +2070,6 @@ components:
       - titel
       - auteur
       - taal
-      - bestandsomvang
       - informatieobjecttype
       type: object
       properties:
@@ -2297,7 +2296,6 @@ components:
       - titel
       - auteur
       - taal
-      - bestandsomvang
       - informatieobjecttype
       type: object
       properties:
@@ -2692,7 +2690,6 @@ components:
       - titel
       - auteur
       - taal
-      - bestandsomvang
       - informatieobjecttype
       - lock
       type: object
