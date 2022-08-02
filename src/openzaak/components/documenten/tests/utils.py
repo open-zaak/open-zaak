@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 
+from math import ceil
 from typing import Dict, Union
 
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
 
@@ -55,3 +57,12 @@ def get_catalogus_response(catalogus: str, informatieobjecttype: str) -> dict:
         "zaaktypen": [],
         "besluittypen": [],
     }
+
+
+def split_file(file_obj, chunk_size) -> list:
+    result = []
+    count = ceil(file_obj.size / chunk_size)
+    for i in range(count):
+        result.append(SimpleUploadedFile(f"file_{i}.txt", file_obj.read(chunk_size)))
+
+    return result
