@@ -95,7 +95,7 @@ class CMISStorage(Storage):
 
     def size(self, uuid_version: str) -> int:
         cmis_doc = self._get_cmis_doc(uuid_version)
-        return cmis_doc.contentStreamLength
+        return cmis_doc.bestandsomvang
 
     def url(self, uuid_version: str) -> str:
         # TODO create a custom link to support content URLs with SOAP

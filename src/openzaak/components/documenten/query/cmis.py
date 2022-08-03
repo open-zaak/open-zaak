@@ -948,6 +948,7 @@ def cmis_doc_to_django_model(
         begin_registratie=cmis_doc.begin_registratie,
         beschrijving=cmis_doc.beschrijving,
         bestandsnaam=cmis_doc.bestandsnaam,
+        bestandsomvang=cmis_doc.bestandsomvang,
         bronorganisatie=cmis_doc.bronorganisatie,
         creatiedatum=cmis_doc.creatiedatum,
         formaat=cmis_doc.formaat,
@@ -968,8 +969,6 @@ def cmis_doc_to_django_model(
         vertrouwelijkheidaanduiding=cmis_doc.vertrouwelijkheidaanduiding,
         verzenddatum=cmis_doc.verzenddatum,
     )
-
-    document.bestandsomvang = cmis_doc.contentStreamLength
 
     return document
 

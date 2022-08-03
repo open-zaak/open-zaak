@@ -102,6 +102,9 @@ class AnyBase64File(Base64FileField):
         except ValueError:
             return None
 
+        if not file.file.size:
+            return None
+
         assert (
             self.view_name
         ), "You must pass the `view_name` kwarg for private media fields"
@@ -484,59 +487,48 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return ret
 
     def update(self, instance, validated_data):
-        # """
-        # Instead of updating an existing EnkelvoudigInformatieObject,
-        # create a new EnkelvoudigInformatieObject with the same
-        # EnkelvoudigInformatieObjectCanonical
-        # """
-        # instance.integriteit = validated_data.pop("integriteit", None)
-        # instance.ondertekening = validated_data.pop("ondertekening", None)
-
-        # validated_data_field_names = validated_data.keys()
-        # for field in instance._meta.get_fields():
-        #     if field.name not in validated_data_field_names:
-        #         validated_data[field.name] = getattr(instance, field.name)
-
-        # validated_data["pk"] = None
-        # validated_data["versie"] += 1
-
-        # # Remove the lock from the data from which a new
-        # # EnkelvoudigInformatieObject will be created, because lock is not a
-        # # part of that model
-        # if not settings.CMIS_ENABLED:
-        #     validated_data.pop("lock")
-
-        # validated_data["_request"] = self.context.get("request")
-        # return super().create(validated_data)
-
         """
         Instead of updating an existing EnkelvoudigInformatieObject,
         create a new EnkelvoudigInformatieObject with the same
         EnkelvoudigInformatieObjectCanonical
         """
-        integriteit = validated_data.pop("integriteit", None)
-        ondertekening = validated_data.pop("ondertekening", None)
+        instance.integriteit = validated_data.pop("integriteit", None)
+        instance.ondertekening = validated_data.pop("ondertekening", None)
 
-        eio = super().update(instance, validated_data)
-        eio.integriteit = integriteit
-        eio.ondertekening = ondertekening
-        eio.save()
+        validated_data_field_names = validated_data.keys()
+        for field in instance._meta.get_fields():
+            if field.name not in validated_data_field_names:
+                validated_data[field.name] = getattr(instance, field.name)
+
+        validated_data["pk"] = None
+        validated_data["versie"] += 1
 
         # each update - delete previous part files
-        if eio.canonical.bestandsdelen.exists():
-            for part in eio.canonical.bestandsdelen.all():
+        if instance.canonical.bestandsdelen.exists():
+            for part in instance.canonical.bestandsdelen.all():
                 part.inhoud.delete()
                 part.delete()
 
         # large file process
-        if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-            self._create_bestandsdeel(eio.bestandsomvang, eio.canonical)
+        if (
+            not instance.inhoud
+            and instance.bestandsomvang
+            and instance.bestandsomvang > 0
+        ):
+            self._create_bestandsdeel(instance.bestandsomvang, instance.canonical)
 
         # create empty file if size == 0
-        if eio.bestandsomvang == 0 and not eio.inhoud:
-            eio.inhoud.save("empty_file", ContentFile(""))
+        if instance.bestandsomvang == 0 and not instance.inhoud:
+            instance.inhoud.save("empty_file", ContentFile(""))
 
-        return eio
+        # Remove the lock from the data from which a new
+        # EnkelvoudigInformatieObject will be created, because lock is not a
+        # part of that model
+        if not settings.CMIS_ENABLED:
+            validated_data.pop("lock")
+
+        validated_data["_request"] = self.context.get("request")
+        return super().create(validated_data)
 
 
 class EnkelvoudigInformatieObjectWithLockSerializer(
@@ -646,10 +638,13 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         self.instance.save()
 
         # create new version of document
-        eio = self.instance.latest_version
-        eio.pk = None
-        eio.versie = eio.versie + 1
-        eio.save()
+        # if settings.CMIS_ENABLED:
+        #     eio = EnkelvoudigInformatieObject.objects.filter(uuid=self.context["uuid"]).order_by("-versie").first()
+        # else:
+        #     eio = self.instance.latest_version
+        #     eio.pk = None
+        #     eio.versie = eio.versie + 1
+        #     eio.save()
 
         return self.instance
 

@@ -86,7 +86,9 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         data = response.json()
-        eio = EnkelvoudigInformatieObject.objects.get()
+        eio = EnkelvoudigInformatieObject.objects.get(
+            identificatie=content["identificatie"]
+        )
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio.uuid
         )
@@ -135,7 +137,9 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         data = response.json()
-        eio = EnkelvoudigInformatieObject.objects.get()
+        eio = EnkelvoudigInformatieObject.objects.get(
+            identificatie=content["identificatie"]
+        )
 
         self.assertEqual(data["inhoud"], None)
         self.assertEqual(eio.bestandsomvang, None)
@@ -175,18 +179,15 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         data = response.json()
-        eio = EnkelvoudigInformatieObject.objects.get()
+        eio = EnkelvoudigInformatieObject.objects.get(
+            identificatie=content["identificatie"]
+        )
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio.uuid
         )
 
         self.assertEqual(eio.bestandsomvang, 0)
-        self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=1")
-
-        file_response = self.client.get(file_url)
-
-        self.assertEqual(file_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(file_response.getvalue(), b"")
+        self.assertEqual(data["inhoud"], None)
 
     def test_create_without_size(self):
         """
@@ -259,7 +260,11 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-        eio_new = eio.canonical.latest_version
+        eio_new = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio_new.uuid
         )
@@ -268,6 +273,8 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(eio_new.titel, "another summary")
         self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
+        self.assertEqual(eio_new.bestandsomvang, 4)
+        self.assertEqual(eio.bestandsomvang, eio_new.bestandsomvang)
 
     def test_update_eio_file(self):
         """
@@ -306,7 +313,11 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-        eio_new = eio.canonical.latest_version
+        eio_new = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio_new.uuid
         )
@@ -346,7 +357,11 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-        eio_new = eio.canonical.latest_version
+        eio_new = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
 
         self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
         self.assertEqual(eio_new.bestandsomvang, None)
@@ -464,7 +479,11 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-        eio_new = eio.canonical.latest_version
+        eio_new = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio_new.uuid
         )
@@ -472,6 +491,8 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
         self.assertEqual(eio_new.inhoud.file.read(), b"aaaaa")
+        self.assertEqual(eio_new.bestandsomvang, 5)
+        self.assertNotEqual(eio.bestandsomvang, eio_new.bestandsomvang)
 
 
 @temp_private_root()
