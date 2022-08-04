@@ -12,9 +12,11 @@ from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import UntilTodayValidator
+from zgw_consumers.models import Service, ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
+from openzaak.utils.fields import FkOrServiceUrlField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -43,15 +45,28 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         "organisatie die het besluit heeft vastgesteld.",
         db_index=True,
     )
-
-    _besluittype_url = models.URLField(
-        _("extern besluittype"),
+    _besluittype_base_url = models.ForeignKey(
+        Service,
+        null=True,
         blank=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern BESLUITTYPE (in een andere Catalogi API)."
-        ),
+        on_delete=models.PROTECT,
+        help_text="Basis deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
+    _besluittype_relative_url = models.CharField(
+        _("besluittype relative url"),
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
+    )
+    _besluittype_service_url = ServiceUrlField(
+        base_field="_besluittype_base_url",
+        relative_field="_besluittype_relative_url",
+        blank=True,
+        null=True,
+        help_text="URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
+    )
+
     _besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.PROTECT,
@@ -59,9 +74,9 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
     )
-    besluittype = FkOrURLField(
+    besluittype = FkOrServiceUrlField(
         fk_field="_besluittype",
-        url_field="_besluittype_url",
+        url_field="_besluittype_service_url",
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
