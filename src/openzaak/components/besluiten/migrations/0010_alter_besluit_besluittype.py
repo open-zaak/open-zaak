@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                         blank=False,
                         fk_field="_besluittype",
                         null=False,
-                        url_field="_besluittype_service_url",
+                        url_field="_besluittype_url",
                     ),
                 ),
             ]

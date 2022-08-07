@@ -3,12 +3,18 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
+from rest_framework import serializers
+
 
 class UtilsConfig(AppConfig):
     name = "openzaak.utils"
 
     def ready(self):
-        from . import checks  # noqa
+        from . import checks, fields, serializer_fields  # noqa
         from .signals import update_admin_index
 
         post_migrate.connect(update_admin_index, sender=self)
+
+        # register FKOrServiceUrlField drf field
+        mapping = serializers.ModelSerializer.serializer_field_mapping
+        mapping[fields.FkOrServiceUrlField] = serializer_fields.FKOrServiceUrlField

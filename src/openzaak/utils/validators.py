@@ -20,9 +20,10 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.config.models import FeatureFlags
 
 from ..loaders import AuthorizedRequestsLoader
+from .serializer_fields import FKOrServiceUrlValidator
 
 
-class PublishValidator(FKOrURLValidator):
+class PublishValidator(FKOrServiceUrlValidator):
     publish_code = "not-published"
     publish_message = _("The resource is not published.")
 
@@ -50,7 +51,7 @@ class PublishValidator(FKOrURLValidator):
             )
 
 
-class LooseFkIsImmutableValidator(FKOrURLValidator):
+class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
     """
     Valideer dat de waarde van het FkOrUrlField niet wijzigt bij een update actie.
     """
@@ -106,7 +107,7 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
             )
 
 
-class LooseFkResourceValidator(FKOrURLValidator):
+class LooseFkResourceValidator(FKOrServiceUrlValidator):
     resource_message = _(
         "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
     )

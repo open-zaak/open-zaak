@@ -59,7 +59,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         help_text="Relatief deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
-    _besluittype_service_url = ServiceUrlField(
+    _besluittype_url = ServiceUrlField(
         base_field="_besluittype_base_url",
         relative_field="_besluittype_relative_url",
         blank=True,
@@ -76,7 +76,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
     )
     besluittype = FkOrServiceUrlField(
         fk_field="_besluittype",
-        url_field="_besluittype_service_url",
+        url_field="_besluittype_url",
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
