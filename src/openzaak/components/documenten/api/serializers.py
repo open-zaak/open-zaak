@@ -492,8 +492,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         create a new EnkelvoudigInformatieObject with the same
         EnkelvoudigInformatieObjectCanonical
         """
-        instance.integriteit = validated_data.pop("integriteit", None)
-        instance.ondertekening = validated_data.pop("ondertekening", None)
+        integriteit = validated_data.pop("integriteit", None)
+        ondertekening = validated_data.pop("ondertekening", None)
 
         validated_data_field_names = validated_data.keys()
         for field in instance._meta.get_fields():
@@ -502,6 +502,19 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         validated_data["pk"] = None
         validated_data["versie"] += 1
+
+        # Remove the lock from the data from which a new
+        # EnkelvoudigInformatieObject will be created, because lock is not a
+        # part of that model
+        if not settings.CMIS_ENABLED:
+            validated_data.pop("lock")
+
+        validated_data["_request"] = self.context.get("request")
+
+        instance = super().create(validated_data)
+        instance.integriteit = integriteit
+        instance.ondertekening = ondertekening
+        instance.save()
 
         # each update - delete previous part files
         if instance.canonical.bestandsdelen.exists():
@@ -521,14 +534,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if instance.bestandsomvang == 0 and not instance.inhoud:
             instance.inhoud.save("empty_file", ContentFile(""))
 
-        # Remove the lock from the data from which a new
-        # EnkelvoudigInformatieObject will be created, because lock is not a
-        # part of that model
-        if not settings.CMIS_ENABLED:
-            validated_data.pop("lock")
-
-        validated_data["_request"] = self.context.get("request")
-        return super().create(validated_data)
+        return instance
 
 
 class EnkelvoudigInformatieObjectWithLockSerializer(
