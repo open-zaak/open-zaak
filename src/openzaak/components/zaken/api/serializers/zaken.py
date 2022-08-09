@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import logging
+from typing import Optional
 
 from django.conf import settings
 from django.db import transaction
@@ -100,6 +101,12 @@ class VerlengingSerializer(GegevensGroepSerializer):
         model = Zaak
         gegevensgroep = "verlenging"
         extra_kwargs = {"reden": {"label": _("Reden")}, "duur": {"label": _("Duur")}}
+
+    def to_representation(self, instance) -> Optional[dict]:
+        # if no duration is set -> the entire group is empty
+        if not instance["duur"]:
+            return None
+        return super().to_representation(instance)
 
 
 class OpschortingSerializer(GegevensGroepSerializer):
