@@ -82,7 +82,7 @@ deprecated==1.2.13
     #   redis
 dictdiffer==0.9.0
     # via -r requirements/base.txt
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements/base.txt
     #   django-admin-index
@@ -169,7 +169,7 @@ django-rest-framework-condition==0.1.1
     # via
     #   -r requirements/base.txt
     #   vng-api-common
-django-sendfile2==0.6.1
+django-sendfile2==0.7.0
     # via
     #   -r requirements/base.txt
     #   django-privates

@@ -49,7 +49,7 @@ deprecated==1.2.13
     # via redis
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements/base.in
     #   django-admin-index
@@ -128,7 +128,7 @@ django-relativedelta==1.1.2
     #   zgw-consumers
 django-rest-framework-condition==0.1.1
     # via vng-api-common
-django-sendfile2==0.6.1
+django-sendfile2==0.7.0
     # via django-privates
 django-sniplates==0.7.0
     # via -r requirements/base.in
