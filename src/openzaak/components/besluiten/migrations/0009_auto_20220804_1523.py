@@ -7,7 +7,7 @@ import openzaak.utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("besluiten", "0008_fill_besluittype_service_url"),
+        ("besluiten", "0008_fill_besluit_service_urls"),
     ]
 
     operations = [
@@ -35,4 +35,5 @@ class Migration(migrations.Migration):
                 name="_besluittype_or__besluittype_base_url_filled",
             ),
         ),
+        migrations.RemoveField(model_name="besluit", name="_zaak_url"),
     ]

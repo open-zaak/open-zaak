@@ -32,7 +32,7 @@ from .utils import get_operation_url
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    base = "https://externe.catalogus.nl/api/v1/"
+    base = "https://externe.zaken.nl/api/v1/"
 
     @classmethod
     def setUpClass(cls):

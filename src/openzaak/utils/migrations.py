@@ -1,11 +1,13 @@
-# SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2022 Dimpact
-from django.db import migrations
 from urllib.parse import urlsplit, urlunsplit
+
 from django.db.models.functions import Length
 
 
 def get_service(model, url: str):
+    """
+    copy-paste from zgw_consumers.Service.get_service method, which can't be used
+    during migrations
+    """
     split_url = urlsplit(url)
     scheme_and_domain = urlunsplit(split_url[:2] + ("", "", ""))
 
@@ -23,23 +25,19 @@ def get_service(model, url: str):
     return None
 
 
-def fill_service_url(apps, schema_editor):
-    Besluit = apps.get_model("besluiten", "Besluit")
+def fill_service_urls(
+    apps, model, url_field: str, service_base_field: str, service_relative_field: str
+):
+    """
+    helper function to migrate from UrlField to ServiceUrlField
+    """
     Service = apps.get_model("zgw_consumers", "Service")
 
-    for besluit in Besluit.objects.exclude(_besluittype_url=""):
-        url = besluit._besluittype_url
+    for instance in model.objects.exclude(**{url_field: ""}):
+        url = getattr(instance, url_field)
         service = get_service(Service, url)
         relative_url = url[len(service.api_root) :]
 
-        besluit._besluittype_base_url = service
-        besluit._besluittype_relative_url = relative_url
-        besluit.save()
-
-
-class Migration(migrations.Migration):
-    dependencies = [
-        ("besluiten", "0007_auto_20220804_1522"),
-    ]
-
-    operations = [migrations.RunPython(fill_service_url, migrations.RunPython.noop)]
+        setattr(instance, service_base_field, service)
+        setattr(instance, service_relative_field, relative_url)
+        instance.save()

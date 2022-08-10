@@ -24,6 +24,13 @@ class Migration(migrations.Migration):
                         url_field="_besluittype_url",
                     ),
                 ),
+                migrations.AlterField(
+                    model_name="besluit",
+                    name="zaak",
+                    field=openzaak.utils.fields.FkOrServiceUrlField(
+                        blank=True, fk_field="_zaak", null=True, url_field="_zaak_url"
+                    ),
+                ),
             ]
         )
     ]

@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
                 help_text="Basis deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
+                related_name="besluit_besluittypen",
                 to="zgw_consumers.service",
             ),
         ),
@@ -32,6 +33,29 @@ class Migration(migrations.Migration):
                 max_length=200,
                 null=True,
                 verbose_name="besluittype relative url",
+            ),
+        ),
+        migrations.AddField(
+            model_name="besluit",
+            name="_zaak_base_url",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="besluit_zaken",
+                to="zgw_consumers.service",
+            ),
+        ),
+        migrations.AddField(
+            model_name="besluit",
+            name="_zaak_relative_url",
+            field=models.CharField(
+                blank=True,
+                help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+                max_length=200,
+                null=True,
+                verbose_name="zaak relative url",
             ),
         ),
     ]

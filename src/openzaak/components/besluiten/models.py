@@ -50,6 +50,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
         on_delete=models.PROTECT,
+        related_name="besluit_besluittypen",
         help_text="Basis deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
     _besluittype_relative_url = models.CharField(
@@ -80,12 +81,29 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
-    _zaak_url = models.URLField(
-        _("externe zaak"),
+    _zaak_base_url = models.ForeignKey(
+        Service,
+        null=True,
         blank=True,
-        max_length=1000,
+        on_delete=models.PROTECT,
+        related_name="besluit_zaken",
+        help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+    )
+    _zaak_relative_url = models.CharField(
+        _("zaak relative url"),
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+    )
+    _zaak_url = ServiceUrlField(
+        base_field="_zaak_base_url",
+        relative_field="_zaak_relative_url",
+        blank=True,
+        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
+
     _zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
@@ -93,7 +111,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         blank=True,  # een besluit kan niet bij een zaak horen
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
-    zaak = FkOrURLField(
+    zaak = FkOrServiceUrlField(
         fk_field="_zaak",
         url_field="_zaak_url",
         blank=True,
