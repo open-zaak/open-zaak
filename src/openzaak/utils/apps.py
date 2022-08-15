@@ -10,7 +10,7 @@ class UtilsConfig(AppConfig):
     name = "openzaak.utils"
 
     def ready(self):
-        from . import checks, fields, serializer_fields  # noqa
+        from . import checks, fields, lookups, serializer_fields  # noqa
         from .signals import update_admin_index
 
         post_migrate.connect(update_admin_index, sender=self)
