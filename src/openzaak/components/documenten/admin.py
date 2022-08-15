@@ -288,6 +288,12 @@ class EnkelvoudigInformatieObjectAdmin(
 
 @admin.register(BestandsDeel)
 class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
-    list_display = ("__str__", "informatieobject", "volgnummer", "voltooid")
+    list_display = (
+        "__str__",
+        "informatieobject",
+        "volgnummer",
+        "voltooid",
+        "datetime_created",
+    )
     list_filter = ("informatieobject",)
     private_media_fields = ("inhoud",)
