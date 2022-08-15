@@ -40,20 +40,20 @@ class Migration(migrations.Migration):
             model_name="besluitinformatieobject",
             name="unique_besluit_and_external_document",
         ),
-        # migrations.AddConstraint(
-        #     model_name="besluitinformatieobject",
-        #     constraint=models.UniqueConstraint(
-        #         condition=models.Q(
-        #             ("_informatieobject_relative_url__isnull", True), _negated=True
-        #         ),
-        #         fields=(
-        #             "besluit",
-        #             "_informatieobject_base_url",
-        #             "_informatieobject_relative_url",
-        #         ),
-        #         name="unique_besluit_and_external_document",
-        #     ),
-        # ),
+        migrations.AddConstraint(
+            model_name="besluitinformatieobject",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(
+                    ("_informatieobject_relative_url__isnull", True), _negated=True
+                ),
+                fields=(
+                    "besluit",
+                    "_informatieobject_base_url",
+                    "_informatieobject_relative_url",
+                ),
+                name="unique_besluit_and_external_document",
+            ),
+        ),
         migrations.RemoveConstraint(
             model_name="besluitinformatieobject",
             name="besluiten_besluitinformatieobject__informatieobject_or__informatieobject_url_filled",
