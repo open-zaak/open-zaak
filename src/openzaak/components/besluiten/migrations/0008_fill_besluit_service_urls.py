@@ -6,6 +6,8 @@ from openzaak.utils.migrations import fill_service_urls
 
 def fill_besluiten_service_urls(apps, schema_editor):
     Besluit = apps.get_model("besluiten", "Besluit")
+    BesluitInformatieObject = apps.get_model("besluiten", "BesluitInformatieObject")
+
     fill_service_urls(
         apps,
         Besluit,
@@ -19,6 +21,13 @@ def fill_besluiten_service_urls(apps, schema_editor):
         url_field="_besluittype_url",
         service_base_field="_besluittype_base_url",
         service_relative_field="_besluittype_relative_url",
+    )
+    fill_service_urls(
+        apps,
+        BesluitInformatieObject,
+        url_field="_informatieobject_url",
+        service_base_field="_informatieobject_base_url",
+        service_relative_field="_informatieobject_relative_url",
     )
 
 

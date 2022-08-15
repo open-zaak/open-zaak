@@ -7,7 +7,6 @@ from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
@@ -257,10 +256,25 @@ class BesluitInformatieObject(models.Model):
     besluit = models.ForeignKey(
         Besluit, on_delete=models.CASCADE, help_text="URL-referentie naar het BESLUIT."
     )
-
-    _informatieobject_url = models.URLField(
-        _("External informatieobject"),
+    _informatieobject_base_url = models.ForeignKey(
+        Service,
+        null=True,
         blank=True,
+        on_delete=models.PROTECT,
+        help_text="Basis deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_relative_url = models.CharField(
+        _("informatieobject relative url"),
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_url = ServiceUrlField(
+        base_field="_informatieobject_base_url",
+        relative_field="_informatieobject_relative_url",
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_("URL to the informatieobject in an external API"),
     )
@@ -272,7 +286,7 @@ class BesluitInformatieObject(models.Model):
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
         "API) waarin (een deel van) het besluit beschreven is.",
     )
-    informatieobject = FkOrURLField(
+    informatieobject = FkOrServiceUrlField(
         fk_field="_informatieobject",
         url_field="_informatieobject_url",
         loader=EIOLoader(),
@@ -295,8 +309,12 @@ class BesluitInformatieObject(models.Model):
         unique_together = ("besluit", "_informatieobject")
         constraints = [
             models.UniqueConstraint(
-                fields=["besluit", "_informatieobject_url"],
-                condition=~models.Q(_informatieobject_url=""),
+                fields=[
+                    "besluit",
+                    "_informatieobject_base_url",
+                    "_informatieobject_relative_url",
+                ],
+                condition=~models.Q(_informatieobject_relative_url__isnull=True),
                 name="unique_besluit_and_external_document",
             )
         ]

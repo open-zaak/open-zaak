@@ -23,7 +23,7 @@ class BesluitInformatieObjectForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
-            "_informatieobject_url"
+            "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een informatieobject opgeven: "
@@ -38,15 +38,25 @@ class BesluitInformatieObjectAdmin(
     AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
     form = BesluitInformatieObjectForm
-    list_display = ("besluit", "_informatieobject", "_informatieobject_url")
+    list_display = (
+        "besluit",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
+    )
     list_filter = ("besluit",)
     search_fields = (
         "besluit__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",
-        "_informatieobject_url",
+        "_informatieobject_relative_url",
     )
-    ordering = ("besluit", "_informatieobject", "_informatieobject_url")
-    raw_id_fields = ("besluit", "_informatieobject")
+    ordering = (
+        "besluit",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
+    )
+    raw_id_fields = ("besluit", "_informatieobject", "_informatieobject_base_url")
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
@@ -66,7 +76,7 @@ class BesluitForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_besluittype_url") and not cleaned_data.get(
+        if not cleaned_data.get("_besluittype_base_url") and not cleaned_data.get(
             "_besluittype"
         ):
             raise forms.ValidationError(
@@ -91,7 +101,7 @@ class BesluitAdmin(
         "uuid",
     )
     ordering = ("datum", "identificatie")
-    raw_id_fields = ("_besluittype", "_zaak")
+    raw_id_fields = ("_besluittype", "_zaak", "_besluittype_base_url", "_zaak_base_url")
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
 

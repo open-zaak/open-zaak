@@ -9,8 +9,10 @@ from rest_framework.reverse import reverse
 from ..constants import ObjectInformatieObjectTypes
 from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
 
+from openzaak.utils.serializer_fields import FKOrServiceUrlField
 
-class EnkelvoudigInformatieObjectField(FKOrURLField):
+
+class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
     """
     Custom field to construct the url for models that have a ForeignKey to
     `EnkelvoudigInformatieObject`

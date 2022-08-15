@@ -36,4 +36,48 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RemoveField(model_name="besluit", name="_zaak_url"),
+        migrations.RemoveConstraint(
+            model_name="besluitinformatieobject",
+            name="unique_besluit_and_external_document",
+        ),
+        # migrations.AddConstraint(
+        #     model_name="besluitinformatieobject",
+        #     constraint=models.UniqueConstraint(
+        #         condition=models.Q(
+        #             ("_informatieobject_relative_url__isnull", True), _negated=True
+        #         ),
+        #         fields=(
+        #             "besluit",
+        #             "_informatieobject_base_url",
+        #             "_informatieobject_relative_url",
+        #         ),
+        #         name="unique_besluit_and_external_document",
+        #     ),
+        # ),
+        migrations.RemoveConstraint(
+            model_name="besluitinformatieobject",
+            name="besluiten_besluitinformatieobject__informatieobject_or__informatieobject_url_filled",
+        ),
+        migrations.RemoveField(
+            model_name="besluitinformatieobject", name="_informatieobject_url",
+        ),
+        migrations.AddConstraint(
+            model_name="besluitinformatieobject",
+            constraint=models.CheckConstraint(
+                check=models.Q(
+                    models.Q(
+                        models.Q(("_informatieobject__isnull", True), _negated=True),
+                        ("_informatieobject_base_url__isnull", True),
+                    ),
+                    models.Q(
+                        ("_informatieobject__isnull", True),
+                        models.Q(
+                            ("_informatieobject_base_url__isnull", True), _negated=True
+                        ),
+                    ),
+                    _connector="OR",
+                ),
+                name="_informatieobject_or__informatieobject_base_url_filled",
+            ),
+        ),
     ]

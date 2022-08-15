@@ -31,6 +31,16 @@ class Migration(migrations.Migration):
                         blank=True, fk_field="_zaak", null=True, url_field="_zaak_url"
                     ),
                 ),
+                migrations.AlterField(
+                    model_name="besluitinformatieobject",
+                    name="informatieobject",
+                    field=openzaak.utils.fields.FkOrServiceUrlField(
+                        blank=False,
+                        fk_field="_informatieobject",
+                        null=False,
+                        url_field="_informatieobject_url",
+                    ),
+                ),
             ]
         )
     ]

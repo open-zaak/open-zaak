@@ -58,4 +58,26 @@ class Migration(migrations.Migration):
                 verbose_name="zaak relative url",
             ),
         ),
+        migrations.AddField(
+            model_name="besluitinformatieobject",
+            name="_informatieobject_base_url",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Basis deel van URL-referentie naar de externe API",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="zgw_consumers.service",
+            ),
+        ),
+        migrations.AddField(
+            model_name="besluitinformatieobject",
+            name="_informatieobject_relative_url",
+            field=models.CharField(
+                blank=True,
+                help_text="Relatief deel van URL-referentie naar de externe API",
+                max_length=500,
+                null=True,
+                verbose_name="informatieobject relative url",
+            ),
+        ),
     ]
