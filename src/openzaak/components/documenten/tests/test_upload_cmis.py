@@ -24,14 +24,16 @@ from ..api.scopes import (
     SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
     SCOPE_DOCUMENTEN_LOCK,
 )
-from ..models import EnkelvoudigInformatieObject
+from ..models import BestandsDeel, EnkelvoudigInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 from .mixins import MockValidationsMixin
 from .utils import get_operation_url, split_file
 
 
 @temp_private_root()
-@override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+@override_settings(
+    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", CMIS_ENABLED=True
+)
 class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     scopes = [
@@ -501,7 +503,11 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
 
 @temp_private_root()
-@override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", CHUNK_SIZE=10)
+@override_settings(
+    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200",
+    CHUNK_SIZE=10,
+    CMIS_ENABLED=True,
+)
 class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     scopes = [
@@ -544,9 +550,9 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        self.eio = EnkelvoudigInformatieObject.objects.get(
-            uuid=response.data["url"].split("/")[-1]
-        )
+        eio_uuid = response.data["url"].split("/")[-1]
+
+        self.eio = EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
         self.canonical = self.eio.canonical
         data = response.json()
 
@@ -555,11 +561,14 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         )
         self.assertEqual(self.eio.titel, "detailed summary")
         self.assertEqual(self.eio.inhoud, "")
-        self.assertEqual(self.canonical.bestandsdelen.count(), 2)
+
+        bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=eio_uuid)
+
+        self.assertEqual(bestandsdelen.count(), 2)
         self.assertEqual(data["locked"], True)
         self.assertEqual(data["lock"], self.canonical.lock)
 
-        self.bestandsdelen = self.canonical.bestandsdelen.order_by("volgnummer").all()
+        self.bestandsdelen = bestandsdelen.order_by("volgnummer").all()
 
         for part in self.bestandsdelen:
             self.assertEqual(part.voltooid, False)
@@ -573,7 +582,6 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         part_files = split_file(self.file_content, settings.CHUNK_SIZE)
         for part in self.bestandsdelen:
             part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
-
             response = self.client.put(
                 part_url,
                 {"inhoud": part_files.pop(0), "lock": self.canonical.lock},
@@ -598,12 +606,16 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-        self.canonical.refresh_from_db()
-        self.eio.refresh_from_db()
+        bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid)
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
 
-        self.assertEqual(self.canonical.bestandsdelen.count(), 0)
-        self.assertNotEqual(self.eio.inhoud.path, "")
-        self.assertEqual(self.eio.inhoud.size, self.file_content.size)
+        self.assertEqual(bestandsdelen.count(), 0)
+        self.assertEqual(new_version.inhoud.read(), b"filecontentstring")
+        self.assertEqual(new_version.inhoud.size, self.file_content.size)
 
     def _download_file(self):
         file_url = get_operation_url(
@@ -780,6 +792,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         )
 
         error = get_validation_errors(response, "nonFieldErrors")
+
         self.assertEqual(error["code"], "incomplete-upload")
 
     def test_unlock_not_finish_upload_force(self):
@@ -823,11 +836,15 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.eio.refresh_from_db()
-        self.canonical.refresh_from_db()
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid)
 
-        self.assertEqual(self.eio.bestandsomvang, None)
-        self.assertEqual(self.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(new_version.bestandsomvang, None)
+        self.assertEqual(bestandsdelen.count(), 0)
 
     def test_update_metadata_without_upload(self):
         """
@@ -853,8 +870,14 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         data = response.json()
-        new_version = self.eio.canonical.latest_version
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid)
 
+        self.assertEqual(bestandsdelen.count(), 2)
         self.assertIsNone(data["inhoud"])  # the link to download is None
         self.assertEqual(len(data["bestandsdelen"]), 2)
         self.assertEqual(new_version.beschrijving, "beschrijving2")
@@ -898,11 +921,20 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.canonical.refresh_from_db()
-        part_new = self.canonical.bestandsdelen.order_by("volgnummer").first()
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        self.canonical = new_version.canonical
+        bestandsdelen = BestandsDeel.objects.filter(
+            informatieobject_uuid=self.eio.uuid
+        ).order_by("volgnummer")
+        empty_bestandsdelen = bestandsdelen.filter(inhoud="")
+        part_new = bestandsdelen.first()
 
-        self.assertEqual(self.canonical.bestandsdelen.count(), 2)
-        self.assertEqual(self.canonical.empty_bestandsdelen, True)
+        self.assertEqual(bestandsdelen.count(), 2)
+        self.assertEqual(bestandsdelen.count(), empty_bestandsdelen.count())
         self.assertEqual(part_new.voltooid, False)
 
     def test_update_metadata_set_size(self):
@@ -929,11 +961,16 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         data = response.json()
-        self.canonical.refresh_from_db()
-        new_version = self.canonical.latest_version
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        self.canonical = new_version.canonical
+        bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid)
 
         self.assertEqual(new_version.bestandsomvang, 45)
-        self.assertEqual(self.canonical.bestandsdelen.count(), 5)
+        self.assertEqual(bestandsdelen.count(), 5)
         self.assertEqual(data["inhoud"], None)
 
     def test_update_metadata_set_size_zero(self):
@@ -961,19 +998,16 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         data = response.json()
-        self.canonical.refresh_from_db()
-        new_version = self.canonical.latest_version
-        # file_url = get_operation_url(
-        #     "enkelvoudiginformatieobject_download", uuid=new_version.uuid
-        # )
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        self.canonical = new_version.canonical
 
         self.assertEqual(new_version.bestandsomvang, 0)
         self.assertEqual(self.canonical.bestandsdelen.count(), 0)
         self.assertEqual(data["inhoud"], None)
-
-        # TODO: not sure why this was present in the original test, I would expect
-        # `inhoud` to be empty, because the file is empty as well
-        # self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=1")
 
     def test_update_metadata_set_size_null(self):
         """
@@ -999,8 +1033,12 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         data = response.json()
-        self.canonical.refresh_from_db()
-        new_version = self.canonical.latest_version
+        new_version = (
+            EnkelvoudigInformatieObject.objects.filter(uuid=self.eio.uuid)
+            .order_by("-versie")
+            .first()
+        )
+        self.canonical = new_version.canonical
 
         self.assertEqual(new_version.bestandsomvang, None)
         self.assertEqual(self.canonical.bestandsdelen.count(), 0)
