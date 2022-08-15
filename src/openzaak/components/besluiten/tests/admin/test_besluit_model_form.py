@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.besluiten.admin import BesluitForm
 
 
@@ -17,19 +20,20 @@ class TestBesluitForm(TestCase):
         except forms.ValidationError:
             self.fail("Exception was raised in clean function when it should not have")
 
-    def test_besluit_form_clean_does_not_throw_exception_if_besluittype_url_is_given(
+    def test_besluit_form_clean_does_not_throw_exception_if_besluittype_base_url_is_given(
         self,
     ):
+        service = Service.objects.create(
+            api_root="http://example.org/catalogi/", api_type=APITypes.ztc
+        )
         form = BesluitForm()
-        form.cleaned_data = {
-            "_besluittype_url": "https://testserver",
-        }
+        form.cleaned_data = {"_besluittype_base_url": service.id}
         try:
             form.clean()
         except forms.ValidationError:
             self.fail("Exception was raised in clean function when it should not have")
 
-    def test_besluit_form_clean_throws_exception_if_besluittype_and_besluittype_url_are_not_given(
+    def test_besluit_form_clean_throws_exception_if_besluittype_and_besluittype_base_url_are_not_given(
         self,
     ):
         form = BesluitForm()

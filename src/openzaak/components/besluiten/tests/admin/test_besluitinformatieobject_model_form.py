@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.besluiten.admin import BesluitInformatieObjectForm
 
 
@@ -22,10 +25,11 @@ class TestBesluitInformatieObjectForm(TestCase):
     def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_url_is_given(
         self,
     ):
+        service = Service.objects.create(
+            api_root="http://example.org/catalogi/", api_type=APITypes.drc
+        )
         form = BesluitInformatieObjectForm()
-        form.cleaned_data = {
-            "_informatieobject_url": "https://testserver",
-        }
+        form.cleaned_data = {"_informatieobject_base_url": service.id}
         try:
             form.clean()
         except forms.ValidationError:

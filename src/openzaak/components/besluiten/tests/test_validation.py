@@ -257,6 +257,9 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_informatieobject_invalid(self):
+        Service.objects.create(
+            api_type=APITypes.drc, api_root="https://foo.bar/",
+        )
         besluit = BesluitFactory.create()
         besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
         url = reverse("besluitinformatieobject-list")
