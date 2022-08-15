@@ -939,7 +939,8 @@ def cmis_doc_to_django_model(
 
     # Setting up a local file with the content of the cmis document
     # Replacing the alfresco version (decimal) with the custom version label
-    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}"
+    is_empty = not bool(cmis_doc.get_content_stream().getvalue())
+    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}" if not is_empty else ""
     content_file = CMISStorageFile(uuid_version=uuid_with_version)
 
     document = EnkelvoudigInformatieObject(

@@ -511,6 +511,17 @@ class BestandsDeel(models.Model):
         "EnkelvoudigInformatieObjectCanonical",
         on_delete=models.CASCADE,
         related_name="bestandsdelen",
+        null=True,
+        blank=True,
+    )
+    informatieobject_uuid = models.UUIDField(
+        verbose_name=_("EnkelvoudigInformatieObject UUID"),
+        help_text=_(
+            "De unieke identifier van het gerelateerde EnkelvoudigInformatieObject in het "
+            "achterliggende Document Management Systeem."
+        ),
+        blank=True,
+        null=True,
     )
     volgnummer = models.PositiveIntegerField(
         help_text=_("Een volgnummer dat de volgorde van de bestandsdelen aangeeft.")
@@ -530,52 +541,22 @@ class BestandsDeel(models.Model):
         unique_together = ("informatieobject", "volgnummer")
 
     def unique_representation(self):
-        if settings.CMIS_ENABLED:
-            informatieobject = self.get_informatieobject()
-        else:
-            informatieobject = self.informatieobject.latest_version
+        informatieobject = self.informatieobject.latest_version
         return f"({informatieobject.unique_representation()}) - {self.volgnummer}"
-
-    def save(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            super().save(*args, **kwargs)
-
-    def get_url(self):
-        bestandsdeel_path = reverse(
-            "bestandsdeel-detail", kwargs={"version": "1", "uuid": self.uuid},
-        )
-        return make_absolute_uri(bestandsdeel_path)
-
-    def delete(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            super().delete(*args, **kwargs)
-        else:
-            self.cmis_client.delete_content_object(
-                self.uuid, object_type="bestandsdeel"
-            )
 
     def get_informatieobject(self, permission_main_object=None):
         """
         For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
         """
         if settings.CMIS_ENABLED:
-            eio_url = self.get_informatieobject_url()
-            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
-            eio_uuid = eio_url.split("/")[-1]
-            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
-        elif permission_main_object:
-            return getattr(self, permission_main_object).latest_version
+            eio_uuid = self.informatieobject_uuid
+            return (
+                EnkelvoudigInformatieObject.objects.filter(uuid=eio_uuid)
+                .order_by("-versie")
+                .first()
+            )
         else:
             return self.informatieobject.latest_version
-
-    def get_informatieobject_url(self):
-        """
-        Retrieves the EnkelvoudigInformatieObject url from Alfresco
-        """
-        cmis_oio = self.cmis_client.get_content_object(
-            self.uuid, object_type="bestandsdeel"
-        )
-        return cmis_oio.informatieobject
 
     @property
     def voltooid(self) -> bool:

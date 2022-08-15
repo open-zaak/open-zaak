@@ -8,6 +8,7 @@ import math
 import os.path
 import uuid
 from base64 import b64decode
+from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -236,7 +237,18 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
                     code="file-size",
                 )
 
-        if lock != self.instance.informatieobject.lock:
+        incorrect_lock = False
+        if settings.CMIS_ENABLED:
+            informatieobject = EnkelvoudigInformatieObject.objects.filter(
+                uuid=self.instance.informatieobject_uuid
+            ).first()
+            if lock != informatieobject.canonical.lock:
+                incorrect_lock = True
+        else:
+            if lock != self.instance.informatieobject.lock:
+                incorrect_lock = True
+
+        if incorrect_lock:
             raise serializers.ValidationError(
                 _("Lock id is not correct"), code="incorrect-lock-id"
             )
@@ -295,9 +307,20 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "mogen er aanpassingen gemaakt worden."
         ),
     )
-    bestandsdelen = BestandsDeelSerializer(
-        source="canonical.bestandsdelen", many=True, read_only=True
-    )
+    bestandsdelen = serializers.SerializerMethodField()
+
+    def get_bestandsdelen(self, obj):
+        """
+        Since canonicals are not stored in the database for CMIS, the BestandsDelen must
+        be retrieved by using the UUID
+        """
+        if settings.CMIS_ENABLED:
+            bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=obj.uuid)
+        else:
+            bestandsdelen = obj.canonical.bestandsdelen
+        return BestandsDeelSerializer(
+            bestandsdelen, many=True, context={"request": self.context["request"]}
+        ).data
 
     class Meta:
         model = EnkelvoudigInformatieObject
@@ -413,14 +436,22 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         return valid_attrs
 
-    def _create_bestandsdeel(self, full_size, canonical):
+    def _create_bestandsdeel(
+        self,
+        full_size,
+        canonical: Optional[EnkelvoudigInformatieObjectCanonical] = None,
+        eio_uuid: Optional[str] = None,
+    ):
         """add chunk urls"""
+        kwargs = (
+            {"informatieobject": canonical}
+            if canonical
+            else {"informatieobject_uuid": eio_uuid}
+        )
         parts = math.ceil(full_size / settings.CHUNK_SIZE)
         for i in range(parts):
             chunk_size = min(settings.CHUNK_SIZE, full_size)
-            BestandsDeel.objects.create(
-                informatieobject=canonical, omvang=chunk_size, volgnummer=i + 1
-            )
+            BestandsDeel.objects.create(omvang=chunk_size, volgnummer=i + 1, **kwargs)
             full_size -= chunk_size
 
     @transaction.atomic
@@ -457,7 +488,13 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         eio = super().create(validated_data)
 
-        if not settings.CMIS_ENABLED:
+        if settings.CMIS_ENABLED:
+            # large file process
+            if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
+                self._create_bestandsdeel(
+                    validated_data["bestandsomvang"], eio_uuid=eio.uuid
+                )
+        else:
             # The serialiser .create() method does not support nested data, so these have to be added separately
             eio.integriteit = integriteit
             eio.ondertekening = ondertekening
@@ -465,7 +502,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
             # large file process
             if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-                self._create_bestandsdeel(validated_data["bestandsomvang"], canonical)
+                self._create_bestandsdeel(
+                    validated_data["bestandsomvang"], canonical=canonical
+                )
 
             # create empty file if size == 0
             if eio.bestandsomvang == 0:
@@ -510,17 +549,26 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             validated_data.pop("lock")
 
         validated_data["_request"] = self.context.get("request")
-
         instance = super().create(validated_data)
-        instance.integriteit = integriteit
-        instance.ondertekening = ondertekening
-        instance.save()
 
-        # each update - delete previous part files
-        if instance.canonical.bestandsdelen.exists():
-            for part in instance.canonical.bestandsdelen.all():
+        if settings.CMIS_ENABLED:
+            # each update - delete previous part files
+            bestandsdelen = BestandsDeel.objects.filter(
+                informatieobject_uuid=instance.uuid
+            )
+            for part in bestandsdelen:
                 part.inhoud.delete()
                 part.delete()
+        else:
+            instance.integriteit = integriteit
+            instance.ondertekening = ondertekening
+            instance.save()
+
+            # each update - delete previous part files
+            if instance.canonical.bestandsdelen.exists():
+                for part in instance.canonical.bestandsdelen.all():
+                    part.inhoud.delete()
+                    part.delete()
 
         # large file process
         if (
@@ -528,10 +576,20 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             and instance.bestandsomvang
             and instance.bestandsomvang > 0
         ):
-            self._create_bestandsdeel(instance.bestandsomvang, instance.canonical)
+            if settings.CMIS_ENABLED:
+                self._create_bestandsdeel(
+                    validated_data["bestandsomvang"], eio_uuid=instance.uuid
+                )
+            else:
+                self._create_bestandsdeel(instance.bestandsomvang, instance.canonical)
 
         # create empty file if size == 0
-        if instance.bestandsomvang == 0 and not instance.inhoud:
+        # if not settings.CMIS_ENABLED and not instance.bestandsomvang and not validated_data["inhoud"]:
+        if (
+            not settings.CMIS_ENABLED
+            and instance.bestandsomvang == 0
+            and not instance.inhoud
+        ):
             instance.inhoud.save("empty_file", ContentFile(""))
 
         return instance
@@ -612,8 +670,11 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
 
         # lock document if it is a large file upload
         if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-            eio.canonical.lock = uuid.uuid4().hex
-            eio.canonical.save()
+            if settings.CMIS_ENABLED:
+                eio.canonical.lock_document(eio.uuid)
+            else:
+                eio.canonical.lock = uuid.uuid4().hex
+                eio.canonical.save()
         return eio
 
 
@@ -679,16 +740,22 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
                 _("Lock id is not correct"), code="incorrect-lock-id"
             )
 
-        if (
-            not self.instance.canonical.complete_upload
-            and not self.instance.canonical.empty_bestandsdelen
-        ):
+        if settings.CMIS_ENABLED:
+            all_parts = BestandsDeel.objects.filter(
+                informatieobject_uuid=self.instance.uuid
+            )
+            empty_parts = all_parts.filter(inhoud="")
+            complete_upload = empty_parts.count() == 0
+            empty_bestandsdelen = empty_parts.count() == all_parts.count()
+        else:
+            complete_upload = self.instance.canonical.complete_upload
+            empty_bestandsdelen = self.instance.canonical.empty_bestandsdelen
+
+        if not complete_upload and not empty_bestandsdelen:
             raise serializers.ValidationError(
                 _("Upload of part files is not complete"), code="incomplete-upload"
             )
-        is_empty = (
-            self.instance.canonical.empty_bestandsdelen and not self.instance.inhoud
-        )
+        is_empty = empty_bestandsdelen and not self.instance.inhoud
         if is_empty and self.instance.bestandsomvang > 0:
             raise serializers.ValidationError(
                 _("Either file should be upload or the file size = 0"), code="file-size"
@@ -704,11 +771,22 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         self.instance.canonical.save()
 
         # merge files and clean bestandsdelen
-        if self.instance.canonical.empty_bestandsdelen:
+        if settings.CMIS_ENABLED:
+            bestandsdelen = BestandsDeel.objects.filter(
+                informatieobject_uuid=self.instance.uuid
+            ).order_by("volgnummer")
+            empty_parts = bestandsdelen.filter(inhoud="")
+            complete_upload = empty_parts.count() == 0
+            empty_bestandsdelen = empty_parts.count() == bestandsdelen.count()
+        else:
+            bestandsdelen = self.instance.canonical.bestandsdelen.order_by("volgnummer")
+            complete_upload = self.instance.canonical.complete_upload
+            empty_bestandsdelen = self.instance.canonical.empty_bestandsdelen
+
+        if empty_bestandsdelen:
             return self.instance
 
-        bestandsdelen = self.instance.canonical.bestandsdelen.order_by("volgnummer")
-        if self.instance.canonical.complete_upload:
+        if complete_upload:
             part_files = [p.inhoud.file for p in bestandsdelen]
             # create the name of target file using the storage backend to the serializer
             name = create_filename(self.instance.bestandsnaam)
@@ -720,7 +798,11 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             target_file = merge_files(part_files, file_dir, file_name)
             # save full file to the instance FileField
             with open(target_file) as file_obj:
-                self.instance.inhoud.save(file_name, File(file_obj))
+                if settings.CMIS_ENABLED:
+                    self.instance.inhoud = File(file_obj, name=file_name)
+                    self.instance.save()
+                else:
+                    self.instance.inhoud.save(file_name, File(file_obj))
         else:
             self.instance.bestandsomvang = None
             self.instance.save()

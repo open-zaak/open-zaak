@@ -25,7 +25,10 @@ class CMISStorageFile(File):
         :param uuid_version: A semi-colon-separated combination of the uuid and the document version,
         e.g. b09fac1f-f295-4b44-a94b-97126edec2f3;1.1
         """
-        self.file = io.BytesIO()
+        if uuid_version:
+            self.file = io.BytesIO()
+        else:
+            self.file = None
         self.name = uuid_version
         self._is_read = False
         self._storage = CMISStorage()
