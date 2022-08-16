@@ -1,6 +1,9 @@
+import logging
 from urllib.parse import urlsplit, urlunsplit
 
 from django.db.models.functions import Length
+
+logger = logging.getLogger(__name__)
 
 
 def get_service(model, url: str):
@@ -26,10 +29,17 @@ def get_service(model, url: str):
 
 
 def fill_service_urls(
-    apps, model, url_field: str, service_base_field: str, service_relative_field: str
+    apps,
+    model,
+    url_field: str,
+    service_base_field: str,
+    service_relative_field: str,
+    fake_etag: bool = False,
 ):
     """
     helper function to migrate from UrlField to ServiceUrlField
+
+    :param fake_etag: workaround to migrate ETagMixin models
     """
     Service = apps.get_model("zgw_consumers", "Service")
     cache_get_service = {}
@@ -47,4 +57,10 @@ def fill_service_urls(
 
         setattr(instance, service_base_field, service)
         setattr(instance, service_relative_field, relative_url)
+
+        if fake_etag and not hasattr(instance, "calculate_etag_value"):
+            instance.calculate_etag_value = lambda: None
+
         instance.save()
+
+    logger.info("%s service urls are migrated", model.__name__)

@@ -68,7 +68,7 @@ class StatusForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_statustype") and not cleaned_data.get(
-            "_statustype_url"
+            "_statustype_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een statustype opgeven: "
@@ -92,7 +92,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
-    raw_id_fields = ("zaak", "_statustype")
+    raw_id_fields = ("zaak", "_statustype", "_statustype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
 
 
@@ -171,7 +171,7 @@ class ZaakEigenschapForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
-            "_eigenschap_url"
+            "_eigenschap_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een eigenschap opgeven: "
@@ -183,7 +183,13 @@ class ZaakEigenschapForm(forms.ModelForm):
 
 @admin.register(ZaakEigenschap)
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    list_display = ("zaak", "_eigenschap", "_eigenschap_url", "waarde")
+    list_display = (
+        "zaak",
+        "_eigenschap",
+        "_eigenschap_base_url",
+        "_eigenschap_relative_url",
+        "waarde",
+    )
     list_select_related = ("zaak",)
     list_filter = ("_naam",)
     search_fields = (
@@ -193,7 +199,12 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
         "zaak__uuid",
     )
     form = ZaakEigenschapForm
-    ordering = ("zaak", "_eigenschap", "_eigenschap_url")
+    ordering = (
+        "zaak",
+        "_eigenschap",
+        "_eigenschap_base_url",
+        "_eigenschap_relative_url",
+    )
     raw_id_fields = ("zaak", "_eigenschap")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
@@ -207,7 +218,7 @@ class ZaakInformatieObjectForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
-            "_informatieobject_url"
+            "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een informatieobject opgeven: "
@@ -222,7 +233,8 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
     list_display = (
         "zaak",
         "_informatieobject",
-        "_informatieobject_url",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
         "registratiedatum",
         "titel",
         "beschrijving",
@@ -235,12 +247,17 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "zaak__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",
         "_informatieobject__enkelvoudiginformatieobject__identificatie",
-        "_informatieobject_url",
+        "_informatieobject_relative_url",
     )
     form = ZaakInformatieObjectForm
     date_hierarchy = "registratiedatum"
-    ordering = ("zaak", "_informatieobject", "_informatieobject_url")
-    raw_id_fields = ("zaak", "_informatieobject")
+    ordering = (
+        "zaak",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
+    )
+    raw_id_fields = ("zaak", "_informatieobject", "_informatieobject_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
 
 
@@ -253,7 +270,7 @@ class ResultaatForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
-            "_resultaattype_url"
+            "_resultaattype_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een resultaattype opgeven: "
@@ -271,13 +288,13 @@ class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "uuid",
         "toelichting",
         "_resultaattype__uuid",
-        "_resultaattype_url",
+        "_resultaattype_relative_url",
         "zaak__identificatie",
         "zaak__uuid",
     )
     form = ResultaatForm
     ordering = ("zaak",)
-    raw_id_fields = ("zaak", "_resultaattype")
+    raw_id_fields = ("zaak", "_resultaattype", "_resultaattype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
 
 
@@ -289,7 +306,9 @@ class RolForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_roltype") and not cleaned_data.get("_roltype_url"):
+        if not cleaned_data.get("_roltype") and not cleaned_data.get(
+            "_roltype_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een roltype opgeven: "
                 "selecteer een roltype uit de catalogus of vul een externe URL in."
@@ -314,7 +333,7 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = RolForm
     date_hierarchy = "registratiedatum"
     ordering = ("registratiedatum", "betrokkene")
-    raw_id_fields = ("zaak", "_roltype")
+    raw_id_fields = ("zaak", "_roltype", "_roltype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
     inlines = [
         NatuurlijkPersoonInline,
@@ -334,7 +353,7 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_relevant_zaak") and not cleaned_data.get(
-            "_relevant_zaak_url"
+            "_relevant_zaak_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een relevante zaak opgeven: "
@@ -346,18 +365,29 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
 
 @admin.register(RelevanteZaakRelatie)
 class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
-    list_display = ("zaak", "_relevant_zaak", "_relevant_zaak_url", "aard_relatie")
+    list_display = (
+        "zaak",
+        "_relevant_zaak",
+        "_relevant_zaak_base_url",
+        "_relevant_zaak_relative_url",
+        "aard_relatie",
+    )
     list_filter = ("aard_relatie",)
     search_fields = (
         "zaak__uuid",
         "zaak__identificatie",
         "_relevant_zaak__uuid",
         "_relevant_zaak__identificatie",
-        "_relevant_zaak_url",
+        "_relevant_zaak_relative_url",
     )
     form = RelevanteZaakRelatieForm
-    ordering = ("zaak", "_relevant_zaak", "_relevant_zaak_url")
-    raw_id_fields = ("zaak", "_relevant_zaak")
+    ordering = (
+        "zaak",
+        "_relevant_zaak",
+        "_relevant_zaak_base_url",
+        "_relevant_zaak_relative_url",
+    )
+    raw_id_fields = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
     list_select_related = ("zaak", "_relevant_zaak")
 
 
@@ -369,7 +399,9 @@ class ZaakBesluitForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_besluit") and not cleaned_data.get("_besluit_url"):
+        if not cleaned_data.get("_besluit") and not cleaned_data.get(
+            "_besluit_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
                 "selecteer een besluit of vul een externe URL in."
@@ -380,7 +412,7 @@ class ZaakBesluitForm(forms.ModelForm):
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    list_display = ("zaak", "_besluit", "_besluit_url")
+    list_display = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
     list_select_related = ("zaak", "_besluit")
     search_fields = (
         "uuid",
@@ -388,11 +420,11 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__identificatie",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_url",
+        "_besluit_relative_url",
     )
     form = ZaakBesluitForm
-    ordering = ("zaak", "_besluit", "_besluit_url")
-    raw_id_fields = ("zaak", "_besluit")
+    ordering = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
+    raw_id_fields = ("zaak", "_besluit", "_besluit_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
 
 
@@ -499,7 +531,9 @@ class ZaakForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_zaaktype") and not cleaned_data.get("_zaaktype_url"):
+        if not cleaned_data.get("_zaaktype") and not cleaned_data.get(
+            "_zaaktype_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een zaaktype opgeven: "
                 "selecteer een zaaktype of vul een externe URL in."
@@ -522,7 +556,7 @@ class ZaakAdmin(
     search_fields = (
         "identificatie",
         "uuid",
-        "_zaaktype_url",
+        "_zaaktype_relative_url",
         "_zaaktype__identificatie",
     )
     form = ZaakForm
@@ -542,7 +576,7 @@ class ZaakAdmin(
         ZaakBesluitInline,
         KlantContactInline,
     ]
-    raw_id_fields = ("_zaaktype", "hoofdzaak")
+    raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
 
     def get_object_actions(self, obj):
