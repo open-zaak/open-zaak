@@ -60,7 +60,7 @@ class FkOrServiceUrlField(FkOrURLField):
     """ supports zgw_comnsumers.ServiceUrlField as 'url_field' """
 
     def _add_check_constraint(
-        self, options, name="{fk_field}_or_{url_base_field}_filled"
+        self, options, name="{prefix}{fk_field}_or_{url_base_field}_filled"
     ) -> None:
         """
         Create the DB constraints and add them if they're not present yet.
@@ -80,8 +80,13 @@ class FkOrServiceUrlField(FkOrURLField):
         empty_fk_field = models.Q(**{f"{self.fk_field}__isnull": True})
         fk_filled = ~empty_fk_field & empty_url_base_field
         url_filled = empty_fk_field & ~empty_url_base_field
+
         constraint = models.CheckConstraint(
-            name=name.format(fk_field=self.fk_field, url_base_field=url_base_field),
+            name=name.format(
+                prefix=f"{options.app_label}_{options.model_name}_",
+                fk_field=self.fk_field,
+                url_base_field=url_base_field,
+            ),
             check=fk_filled | url_filled,
         )
         options.constraints.append(constraint)
