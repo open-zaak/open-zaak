@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import uuid as _uuid
+from urllib.parse import urljoin
 
 from django.apps import apps
 from django.db import models
@@ -209,7 +210,8 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         # self._previous_zaak = self.zaak
 
         self._previous_zaak = self._zaak
-        self._previous_zaak_url = self._zaak_url
+        self._previous_zaak_base_url_id = self._zaak_base_url_id
+        self._previous_zaak_relative_url = self._zaak_relative_url
 
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
@@ -228,11 +230,13 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         if self._previous_zaak:
             return self._previous_zaak
 
-        if self._previous_zaak_url:
+        if self._previous_zaak_base_url_id:
             remote_model = apps.get_model("zaken", "Zaak")
-            return AuthorizedRequestsLoader().load(
-                url=self._previous_zaak_url, model=remote_model
+            url = urljoin(
+                Service.objects.get(id=self._previous_zaak_base_url_id).api_root,
+                self._previous_zaak_relative_url,
             )
+            return AuthorizedRequestsLoader().load(url=url, model=remote_model)
 
         return None
 
