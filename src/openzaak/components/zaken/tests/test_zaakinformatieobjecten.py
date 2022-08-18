@@ -520,13 +520,18 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
     def test_create_zio_fail_not_json(self):
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root="http://example.com/",
+            auth_type=AuthTypes.no_auth,
+        )
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
         list_url = reverse(ZaakInformatieObject)
-        data = {"zaak": zaak_url, "informatieobject": "http://example.com"}
+        data = {"zaak": zaak_url, "informatieobject": "http://example.com/"}
 
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", text="<html></html>")
+            m.get("http://example.com/", text="<html></html>")
             response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

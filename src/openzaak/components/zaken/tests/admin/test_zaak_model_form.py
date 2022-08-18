@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import ZaakForm
 
 
@@ -18,9 +21,13 @@ class TestZaakForm(TestCase):
             self.fail("Exception was raised in clean function when it should not have")
 
     def test_zaak_form_clean_does_not_throw_exception_if_zaaktype_url_is_given(self):
+        ztc_service = Service.objects.create(
+            api_type=APITypes.ztc, api_root="https://external.catalogi.nl/api/v1/",
+        )
         form = ZaakForm()
         form.cleaned_data = {
-            "_zaaktype_url": "https://testserver",
+            "_zaaktype_base_url": ztc_service.id,
+            "_zaaktype_relative_url": "zaaktypen/1",
         }
         try:
             form.clean()

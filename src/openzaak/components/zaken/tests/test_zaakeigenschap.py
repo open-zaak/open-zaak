@@ -14,6 +14,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import EigenschapFactory
 from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_ztc_oas_get
@@ -248,6 +250,14 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_create_external_eigenschap(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -290,18 +300,19 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_eigenschap_fail_not_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
         url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 url,
                 {
                     "zaak": zaak_url,
-                    "eigenschap": "http://example.com",
+                    "eigenschap": "http://example.com/",
                     "waarde": "overlast_water",
                 },
             )
@@ -366,6 +377,23 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_create_external_eigenschap_fail_unknown_service(self):
+        zaak = ZaakFactory()
+        zaak_url = reverse(zaak)
+        url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": zaak_url,
+                "eigenschap": "https://other-externe.catalogus.nl/api/v1/eigenschappen/1",
+                "waarde": "overlast_water",
+            },
+        )
+
+        error = get_validation_errors(response, "eigenschap")
+        self.assertEqual(error["code"], "unknown-service")
 
 
 class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):

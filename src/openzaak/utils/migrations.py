@@ -63,4 +63,4 @@ def fill_service_urls(
 
         instance.save()
 
-    logger.info("%s service urls are migrated", model.__name__)
+    logger.debug("%s service urls are migrated", model.__name__)

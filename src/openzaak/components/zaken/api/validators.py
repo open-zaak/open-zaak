@@ -243,8 +243,8 @@ class ZaakArchiveIOsArchivedValidator:
     def validate_remote_eios_archived(
         self, attrs: dict, instance: Optional[Zaak], error: serializers.ValidationError
     ):
-        remote_zios = instance.zaakinformatieobject_set.exclude(
-            _informatieobject_url=""
+        remote_zios = instance.zaakinformatieobject_set.filter(
+            _informatieobject_base_url__isnull=False
         )
         # This is a very naive approach to load all the remote objects - it happens
         # sequentially, while futures.concurrent _could_ be used. Let's see first
@@ -299,7 +299,9 @@ class EndStatusIOsUnlockedValidator:
         if local_zios.exclude(_informatieobject__lock="").exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
-        remote_zios = zaak.zaakinformatieobject_set.exclude(_informatieobject_url="")
+        remote_zios = zaak.zaakinformatieobject_set.filter(
+            _informatieobject_base_url__isnull=False
+        )
         for zio in remote_zios:
             if zio.informatieobject.locked:
                 raise serializers.ValidationError(self.message, code=self.code)
@@ -351,7 +353,9 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
             raise serializers.ValidationError(self.message, self.code)
 
     def validate_remote_eios_indicatie_set(self, zaak: Zaak):
-        remote_zios = zaak.zaakinformatieobject_set.exclude(_informatieobject_url="")
+        remote_zios = zaak.zaakinformatieobject_set.filter(
+            _informatieobject_base_url__isnull=False
+        )
         for zio in remote_zios:
             if zio.informatieobject.indicatie_gebruiksrecht is None:
                 raise serializers.ValidationError(self.message, self.code)

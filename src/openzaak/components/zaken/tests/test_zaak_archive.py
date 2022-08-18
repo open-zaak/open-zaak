@@ -997,6 +997,15 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(api_root="https://external.nl/", api_type=APITypes.ztc)
+        Service.objects.create(
+            api_root="http://testserver.com/catalogi/", api_type=APITypes.ztc
+        )
+
     @requests_mock.Mocker()
     def test_cannot_set_archiefstatus_when_not_all_documents_are_gearchiveerd(self, m):
         REMOTE_DOCUMENT = "https://external.nl/documenten/123"

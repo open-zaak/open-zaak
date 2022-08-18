@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_zrc_oas_get
@@ -23,6 +25,17 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(Zaak)
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.zaken.nl/api/v1/", api_type=APITypes.zrc
+        )
+        Service.objects.create(
+            api_root="http://testserver.com/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_create_external_relevante_andere_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -83,11 +96,12 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_relevante_zaak_fail_no_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.zrc)
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
 
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 self.list_url,
@@ -100,7 +114,7 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "relevanteAndereZaken": [
                         {
-                            "url": " http://example.com",
+                            "url": " http://example.com/",
                             "aardRelatie": AardZaakRelatie.vervolg,
                         }
                     ],
@@ -156,6 +170,37 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "relevanteAndereZaken.0.url")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_relevante_zaak_fail_unknown_service(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": zaaktype_url,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "relevanteAndereZaken": [
+                    {
+                        "url": "https://other-externe.zaken.nl/api/v1/zaken/1",
+                        "aardRelatie": AardZaakRelatie.vervolg,
+                    }
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "relevanteAndereZaken.0.url")
+        self.assertEqual(error["code"], "unknown-service")
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])

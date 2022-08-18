@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import RolForm
 
 
@@ -18,9 +21,13 @@ class TestRolForm(TestCase):
             self.fail("Exception was raised in clean function when it should not have")
 
     def test_rol_form_clean_does_not_throw_exception_if_roltype_url_is_given(self):
+        ztc_service = Service.objects.create(
+            api_type=APITypes.ztc, api_root="https://external.catalogi.nl/api/v1/",
+        )
         form = RolForm()
         form.cleaned_data = {
-            "_roltype_url": "https://testserver",
+            "_roltype_base_url": ztc_service.id,
+            "_roltype_relative_url": "roltypen/1",
         }
         try:
             form.clean()

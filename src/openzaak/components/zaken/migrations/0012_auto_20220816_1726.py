@@ -45,6 +45,9 @@ class Migration(migrations.Migration):
             model_name="zaakinformatieobject",
             name="zaken_zaakinformatieobject__informatieobject_or__informatieobject_url_filled",
         ),
+        migrations.RemoveConstraint(
+            model_name="zaakbesluit", name="unique_zaak_and_besluit",
+        ),
         migrations.RemoveField(
             model_name="relevantezaakrelatie", name="_relevant_zaak_url",
         ),
@@ -211,6 +214,14 @@ class Migration(migrations.Migration):
                     _connector="OR",
                 ),
                 name="zaken_zaakinformatieobject__informatieobject_or__informatieobject_base_url_filled",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="zaakbesluit",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("_besluit_base_url__isnull", False)),
+                fields=("zaak", "_besluit_base_url", "_besluit_relative_url"),
+                name="unique_zaak_and_besluit",
             ),
         ),
     ]

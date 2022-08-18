@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import ZaakInformatieObjectForm
 
 
@@ -22,9 +25,13 @@ class TestZaakInformatieObjectForm(TestCase):
     def test_zaakinformatieobject_form_clean_does_not_throw_exception_if_informatieobject_url_is_given(
         self,
     ):
+        drc_service = Service.objects.create(
+            api_type=APITypes.ztc, api_root="https://external.documenten.nl/api/v1/",
+        )
         form = ZaakInformatieObjectForm()
         form.cleaned_data = {
-            "_informatieobject_url": "https://testserver",
+            "_informatieobject_base_url": drc_service.id,
+            "_informatieobject_relative_url": "io/1",
         }
         try:
             form.clean()

@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import ZaakEigenschapForm
 
 
@@ -22,9 +25,13 @@ class TestZaakEigenschapForm(TestCase):
     def test_zaakeigenschap_form_clean_does_not_throw_exception_if_eigenschap_url_is_given(
         self,
     ):
+        ztc_service = Service.objects.create(
+            api_type=APITypes.ztc, api_root="https://external.catalogi.nl/api/v1/",
+        )
         form = ZaakEigenschapForm()
         form.cleaned_data = {
-            "_eigenschap_url": "https://testserver",
+            "_eigenschap_base_url": ztc_service.id,
+            "_eigenschap_relative_url": "eigenschappen/1",
         }
         try:
             form.clean()

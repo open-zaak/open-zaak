@@ -22,6 +22,8 @@ from vng_api_common.validators import (
     ResourceValidator,
     URLValidator,
 )
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
@@ -61,6 +63,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
@@ -94,12 +97,12 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         url = reverse("zaak-list")
 
         with requests_mock.Mocker() as m:
-            m.get("https://example.com", status_code=200, text="<html></html>")
+            m.get("https://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 url,
                 {
-                    "zaaktype": "https://example.com",
+                    "zaaktype": "https://example.com/",
                     "bronorganisatie": "517439943",
                     "verantwoordelijkeOrganisatie": "517439943",
                     "registratiedatum": "2018-06-11",
@@ -594,6 +597,9 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
         Assert that the zaatkype allowed deelzaaktypen is validated.
         """
         # set up zaaktypen
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
@@ -634,6 +640,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_informatieobject_invalid(self):
+        Service.objects.create(api_root="https://drc.nl/", api_type=APITypes.drc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -814,6 +821,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(api_root="https://external.nl/", api_type=APITypes.ztc)
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)
@@ -849,6 +857,9 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_bad_url(self):
+        Service.objects.create(
+            api_root="https://ander.statustype.nl/", api_type=APITypes.ztc
+        )
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse("status-list")
@@ -869,18 +880,19 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_invalid_resource(self):
+        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse("status-list")
 
         with requests_mock.Mocker() as m:
-            m.get("https://example.com", status_code=200, text="<html></html>")
+            m.get("https://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 list_url,
                 {
                     "zaak": zaak_url,
-                    "statustype": "https://example.com",
+                    "statustype": "https://example.com/",
                     "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
                 },
             )
@@ -1007,6 +1019,14 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 class ResultaatValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_not_allowed_to_change_resultaattype(self):
         resultaat = ResultaatFactory.create()
         url = reverse(resultaat)
@@ -1029,7 +1049,10 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(
             list_url,
-            {"zaak": zaak_url, "resultaattype": "https://ander.statustype.nl/foo/bar"},
+            {
+                "zaak": zaak_url,
+                "resultaattype": "https://externe.catalogus.nl/api/v1/foo/bar",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1039,15 +1062,16 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_invalid_resource(self):
+        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         list_url = reverse("resultaat-list")
 
         with requests_mock.Mocker() as m:
-            m.get("https://example.com", status_code=200, text="<html></html>")
+            m.get("https://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
-                list_url, {"zaak": zaak_url, "resultaattype": "https://example.com"}
+                list_url, {"zaak": zaak_url, "resultaattype": "https://example.com/"}
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -1154,19 +1178,20 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_eigenschap_invalid_resource(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
         list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 list_url,
                 {
                     "zaak": zaak_url,
-                    "eigenschap": "http://example.com",
+                    "eigenschap": "http://example.com/",
                     "waarde": "test",
                 },
             )
@@ -1234,6 +1259,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(api_root="https://external.nl/", api_type=APITypes.drc)
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)

@@ -21,6 +21,8 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -616,6 +618,14 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = get_operation_url("zaak_create")
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_create_external_zaaktype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -660,12 +670,13 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_zaaktype_fail_not_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
             response = self.client.post(
                 self.list_url,
                 {
-                    "zaaktype": "http://example.com",
+                    "zaaktype": "http://example.com/",
                     "bronorganisatie": "517439943",
                     "verantwoordelijkeOrganisatie": "517439943",
                     "registratiedatum": "2018-12-24",
@@ -747,6 +758,24 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "not-published")
+
+    def test_create_external_zaaktype_fail_unknown_service(self):
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": "https://other-externe.catalogus.nl/api/v1/zaaktypen/1",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "unknown-service")
 
 
 class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):

@@ -6,6 +6,8 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
@@ -18,6 +20,14 @@ from .utils import get_operation_url, get_resultaattype_response, get_zaaktype_r
 class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = get_operation_url("resultaat_create")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_create_external_resultaattype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
@@ -69,14 +79,16 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
 
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 self.list_url,
                 {
                     "zaak": f"http://testserver{zaak_url}",
-                    "resultaattype": "http://example.com",
+                    "resultaattype": "http://example.com/",
                     "toelichting": "some desc",
                 },
             )
@@ -149,3 +161,19 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_create_external_resultaattype_fail_unknown_resource(self):
+        zaak = ZaakFactory()
+        zaak_url = reverse(zaak)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "resultaattype": "https://other-externe.catalogus.nl/api/v1/resultaattypen/1",
+                "toelichting": "some desc",
+            },
+        )
+
+        error = get_validation_errors(response, "resultaattype")
+        self.assertEqual(error["code"], "unknown-service")

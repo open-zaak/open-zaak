@@ -9,6 +9,8 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import StatusTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
@@ -104,6 +106,14 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = get_operation_url("status_create")
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_create_external_statustype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -180,6 +190,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_statustype_fail_not_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = f"http://testserver{reverse(zaak)}"
 
@@ -190,7 +201,7 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
                 self.list_url,
                 {
                     "zaak": zaak_url,
-                    "statustype": "http://example.com",
+                    "statustype": "http://example.com/",
                     "datumStatusGezet": "2018-10-18T20:00:00Z",
                 },
             )
@@ -236,3 +247,26 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "statustype")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_statustype_fail_unknown_service(self):
+        zaak = ZaakFactory.create()
+        zaak_url = f"http://testserver{reverse(zaak)}"
+
+        with requests_mock.Mocker() as m:
+            m.get("http://example.com", status_code=200, text="<html></html>")
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaak": zaak_url,
+                    "statustype": "https://other-externe.catalogus.nl/api/v1/statustypen/1",
+                    "datumStatusGezet": "2018-10-18T20:00:00Z",
+                },
+            )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "statustype")
+        self.assertEqual(error["code"], "unknown-service")

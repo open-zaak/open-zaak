@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import ZaakBesluitForm
 
 
@@ -20,9 +23,13 @@ class TestZaakBesluitForm(TestCase):
     def test_zaakbesluit_form_clean_does_not_throw_exception_if_besluit_url_is_given(
         self,
     ):
+        brc_service = Service.objects.create(
+            api_type=APITypes.brc, api_root="https://external.besluiten.nl/api/v1/",
+        )
         form = ZaakBesluitForm()
         form.cleaned_data = {
-            "_besluit_url": "https://testserver",
+            "_besluit_base_url": brc_service.id,
+            "_besluit_relative_url": "besluiten/1",
         }
         try:
             form.clean()

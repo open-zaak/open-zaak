@@ -12,7 +12,6 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.fields import FkOrURLField
 from django_loose_fk.loaders import FetchError
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
@@ -1143,8 +1142,8 @@ class ZaakBesluit(models.Model):
         unique_together = ("zaak", "_besluit")
         constraints = [
             models.UniqueConstraint(
-                fields=["zaak", "_besluit_url"],
-                condition=~models.Q(_besluit_url=""),
+                fields=["zaak", "_besluit_base_url", "_besluit_relative_url"],
+                condition=models.Q(_besluit_base_url__isnull=False),
                 name="unique_zaak_and_besluit",
             )
         ]

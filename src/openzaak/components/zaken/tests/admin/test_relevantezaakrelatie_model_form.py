@@ -3,6 +3,9 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.zaken.admin import RelevanteZaakRelatieForm
 
 
@@ -22,9 +25,13 @@ class TestRelevanteZaakRelatieForm(TestCase):
     def test_relevantezaakrelatie_form_clean_does_not_throw_exception_if_relevant_zaak_url_is_given(
         self,
     ):
+        zrc_service = Service.objects.create(
+            api_type=APITypes.zrc, api_root="https://external.zaken.nl/api/v1/",
+        )
         form = RelevanteZaakRelatieForm()
         form.cleaned_data = {
-            "_relevant_zaak_url": "https://testserver",
+            "_relevant_zaak_base_url": zrc_service.id,
+            "_relevant_zaak_relative_url": "zaken/1",
         }
         try:
             form.clean()
