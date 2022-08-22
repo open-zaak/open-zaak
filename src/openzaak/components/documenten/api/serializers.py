@@ -763,14 +763,21 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return valid_attrs
 
     def save(self, **kwargs):
+        # merge files and clean bestandsdelen
+
+        # Because it is a large file upload, the document is immediately locked after
+        # creation. This means that attempting to save the merged inhoud causes CMIS
+        # exceptions (because the document is already locked and thus checked out)
+        # If we do not force unlocking, CMIS will complain about the bestandsomvang not
+        # being the same as the actual file size
+        force_unlock = True if settings.CMIS_ENABLED else self.context["force_unlock"]
         self.instance.canonical.unlock_document(
             doc_uuid=self.context["uuid"],
             lock=self.context["request"].data.get("lock"),
-            force_unlock=self.context["force_unlock"],
+            force_unlock=force_unlock,
         )
         self.instance.canonical.save()
 
-        # merge files and clean bestandsdelen
         if settings.CMIS_ENABLED:
             bestandsdelen = BestandsDeel.objects.filter(
                 informatieobject_uuid=self.instance.uuid
