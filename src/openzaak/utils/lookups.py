@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2022 Dimpact
 from typing import Tuple
 
 from django.db.models.lookups import Exact as _Exact
