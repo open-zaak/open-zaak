@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.utils.representation import smart_repr
