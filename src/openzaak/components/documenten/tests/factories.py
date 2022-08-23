@@ -44,6 +44,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     formaat = "some formaat"
     taal = "nld"
     inhoud = factory.django.FileField(data=b"some data", filename="file.bin")
+    bestandsomvang = factory.LazyAttribute(lambda o: len(o.inhoud.read()))
     informatieobjecttype = factory.SubFactory(InformatieObjectTypeFactory)
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
 

@@ -114,6 +114,7 @@ class EioAdminInlineTests(WebTest):
         ] = informatieobjecttype.id
         form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
         form["enkelvoudiginformatieobject_set-0-inhoud"] = (file.name,)
+        form["enkelvoudiginformatieobject_set-0-bestandsomvang"] = 12
         form["enkelvoudiginformatieobject_set-0-versie"] = "1"
         form.submit()
 

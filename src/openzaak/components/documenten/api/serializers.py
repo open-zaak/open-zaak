@@ -423,6 +423,13 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     ),
                     code="file-size",
                 )
+
+            # If `bestandsomvang` is not explicitly defined, derive it from the `inhoud`
+            if (
+                valid_attrs.get("inhoud") is not None
+                and "bestandsomvang" not in valid_attrs
+            ):
+                valid_attrs["bestandsomvang"] = valid_attrs["inhoud"].size
         else:  # update
             inhoud = valid_attrs.get("inhoud", self.instance.inhoud)
             bestandsomvang = valid_attrs.get(
@@ -676,6 +683,15 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
                 eio.canonical.lock = uuid.uuid4().hex
                 eio.canonical.save()
         return eio
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # For some reason the tests do not expect this to be here?
+        if not data.get("lock"):
+            data.pop("lock")
+
+        return data
 
 
 class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
