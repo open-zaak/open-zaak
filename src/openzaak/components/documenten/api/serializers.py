@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
+from drf_yasg.utils import swagger_serializer_method
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
@@ -309,11 +310,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     )
     bestandsdelen = serializers.SerializerMethodField()
 
+    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
+    # be retrieved by using the UUID
+    @swagger_serializer_method(serializer_or_field=BestandsDeelSerializer(many=True))
     def get_bestandsdelen(self, obj):
-        """
-        Since canonicals are not stored in the database for CMIS, the BestandsDelen must
-        be retrieved by using the UUID
-        """
         if settings.CMIS_ENABLED:
             bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=obj.uuid)
         else:
