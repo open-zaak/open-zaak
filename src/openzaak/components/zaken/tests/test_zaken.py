@@ -509,6 +509,32 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    @tag("gh-1228")
+    def test_correct_zaak_verlenging_when_empty(self):
+        zaak = ZaakFactory.create(
+            verlenging_reden="", verlenging_duur=None, zaaktype=self.zaaktype
+        )
+        detail_url = reverse(zaak)
+
+        response = self.client.get(detail_url, **ZAAK_READ_KWARGS)
+
+        self.assertIsNone(response.json()["verlenging"])
+
+    @tag("gh-1228")
+    def test_correct_zaak_verlenging_when_set(self):
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            verlenging_reden="Een reden",
+            verlenging_duur=relativedelta(days=5),
+        )
+        detail_url = reverse(zaak)
+
+        response = self.client.get(detail_url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(
+            response.json()["verlenging"], {"reden": "Een reden", "duur": "P5D"}
+        )
+
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
 
