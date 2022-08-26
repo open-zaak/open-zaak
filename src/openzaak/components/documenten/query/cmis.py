@@ -937,10 +937,16 @@ def cmis_doc_to_django_model(
     # Ensuring the charfields are not null and dates are in the correct format
     cmis_doc = format_fields(cmis_doc, EnkelvoudigInformatieObject._meta.get_fields())
 
+    file_is_empty = not bool(cmis_doc.get_content_stream().getvalue())
+    no_file = False
+    if cmis_doc.bestandsomvang is None:
+        no_file = True
+    elif file_is_empty and cmis_doc.bestandsomvang:
+        no_file = True
+
     # Setting up a local file with the content of the cmis document
     # Replacing the alfresco version (decimal) with the custom version label
-    is_empty = not bool(cmis_doc.get_content_stream().getvalue())
-    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}" if not is_empty else ""
+    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}" if not no_file else ""
     content_file = CMISStorageFile(uuid_version=uuid_with_version)
 
     document = EnkelvoudigInformatieObject(

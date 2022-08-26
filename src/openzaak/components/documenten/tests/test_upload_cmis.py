@@ -26,15 +26,12 @@ from ..api.scopes import (
 )
 from ..models import BestandsDeel, EnkelvoudigInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
-from .mixins import MockValidationsMixin
 from .utils import get_operation_url, split_file
 
 
 @temp_private_root()
-@override_settings(
-    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", CMIS_ENABLED=True
-)
-class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
+@override_settings(CMIS_ENABLED=True)
+class SmallFileUpload(JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     scopes = [
         SCOPE_DOCUMENTEN_LOCK,
@@ -56,6 +53,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_create_eio(self):
         """
         Test the create process of the documents with base64 files
+
         Input:
         * inhoud - base64 encoded file
         * bestandsomvang > 0 - file size related to the inhoud
@@ -107,6 +105,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_create_without_file(self):
         """
         Test the create process of the document metadata without a file
+
         Input:
         * inhoud - None
         * bestandsomvang - None
@@ -149,6 +148,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_create_empty_file(self):
         """
         Test the create process of the document with empty file
+
         Input:
         * inhoud - None
         * bestandsomvang - 0
@@ -184,16 +184,22 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObject.objects.get(
             identificatie=content["identificatie"]
         )
-        # file_url = get_operation_url(
-        #     "enkelvoudiginformatieobject_download", uuid=eio.uuid
-        # )
+        file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+        full_file_url = f"http://testserver{file_url}?versie=1"
 
         self.assertEqual(eio.bestandsomvang, 0)
-        self.assertEqual(data["inhoud"], None)
+        self.assertEqual(data["inhoud"], full_file_url)
+
+        file_response = self.client.get(full_file_url)
+
+        self.assertEqual(file_response.getvalue(), b"")
 
     def test_create_without_size(self):
         """
         Test the create process of the documents with base64 files
+
         Input:
         * inhoud - base64 encoded file
         * bestandsomvang - None
@@ -232,6 +238,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_eio_metadata(self):
         """
         Test the update process of the document metadata
+
         Input:
         * lock document
         * updated fields don't include bestandsomvang and inhoud
@@ -279,13 +286,14 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(eio_old.versie, 1)
         self.assertEqual(eio_old.titel, "some titel")
-        self.assertEqual(eio_old.bestandsomvang, eio_new.bestandsomvang)
+        self.assertEqual(eio_old.bestandsomvang, 4)
         self.assertEqual(eio_old.canonical.bestandsdelen.count(), 0)
         self.assertEqual(eio_old.inhoud.read(), b"1234")
 
     def test_update_eio_file(self):
         """
         Test the update process of the document file
+
         Input:
         * lock document
         * update inhoud with another base64 encoded file
@@ -336,6 +344,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_eio_file_set_empty(self):
         """
         Test the delete the file from the document
+
         Input:
         * lock document
         * update inhoud - None
@@ -377,6 +386,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_eio_only_size(self):
         """
         Test the update process of the size metadata
+
         Input:
         * lock document
         * update bestandsomvang with positive integer
@@ -407,6 +417,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_eio_only_file_without_size(self):
         """
         Test the update process of the file without changing file size
+
         Input:
         * lock document
         * update inhoud with another base64 encoded file
@@ -443,6 +454,7 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_eio_put(self):
         """
         Test the full update process of the document
+
         Input:
         * lock document
         * update inhoud with another base64 encoded file
@@ -504,11 +516,9 @@ class SmallFileUpload(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
 @temp_private_root()
 @override_settings(
-    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200",
-    CHUNK_SIZE=10,
-    CMIS_ENABLED=True,
+    DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
 )
-class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
+class LargeFileAPITests(JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     scopes = [
         SCOPE_DOCUMENTEN_LOCK,
@@ -550,6 +560,8 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+        self.assertEqual(response.data["inhoud"], None)
+
         eio_uuid = response.data["url"].split("/")[-1]
 
         self.eio = EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
@@ -573,13 +585,18 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         for part in self.bestandsdelen:
             self.assertEqual(part.voltooid, False)
             self.assertEqual(part.inhoud, "")
-        self.assertEqual(self.bestandsdelen[0].omvang, settings.CHUNK_SIZE)
         self.assertEqual(
-            self.bestandsdelen[1].omvang, self.file_content.size - settings.CHUNK_SIZE
+            self.bestandsdelen[0].omvang, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )
+        self.assertEqual(
+            self.bestandsdelen[1].omvang,
+            self.file_content.size - settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE,
         )
 
     def _upload_part_files(self):
-        part_files = split_file(self.file_content, settings.CHUNK_SIZE)
+        part_files = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )
         for part in self.bestandsdelen:
             part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
             response = self.client.put(
@@ -685,7 +702,9 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
 
         # upload part file
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
-        part_file = split_file(self.file_content, settings.CHUNK_SIZE)[0]
+        part_file = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )[0]
 
         response = self.client.put(
             part_url,
@@ -707,14 +726,16 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         * lock
 
         Expected result:
-        * the repeated upload of the same file is permiitted. Voltooid = True
+        * the repeated upload of the same file is permitted. Voltooid = True
         """
         self._create_metadata()
         self._upload_part_files()
 
         # upload one of parts again
         self.file_content.seek(0)
-        part_files = split_file(self.file_content, settings.CHUNK_SIZE)
+        part_files = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )
         part = self.bestandsdelen[0]
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
@@ -734,6 +755,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_unlock_without_uploading(self):
         """
         Test the unlock of the document with no part files uploaded
+
         Input:
         * bestandsomvang of the document > 0
         * bestandsdelen objects are created but not uploaded
@@ -758,6 +780,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_unlock_not_finish_upload(self):
         """
         Test the unlock of the document with not all part files uploaded
+
         Input:
         * bestandsomvang of the document > 0
         * bestandsdelen objects are created, some of them are uploaded
@@ -768,7 +791,9 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self._create_metadata()
 
         # unload 1 part of file
-        part_file = split_file(self.file_content, settings.CHUNK_SIZE)[0]
+        part_file = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )[0]
         part = self.bestandsdelen[0]
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
@@ -798,6 +823,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_unlock_not_finish_upload_force(self):
         """
         Test the unlock of the document with not all part files uploaded
+
         Input:
         * bestandsomvang of the document > 0
         * bestandsdelen objects are created, some of them are uploaded
@@ -815,7 +841,9 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self._create_metadata()
 
         # unload 1 part of file
-        part_file = split_file(self.file_content, settings.CHUNK_SIZE)[0]
+        part_file = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )[0]
         part = self.bestandsdelen[0]
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
@@ -849,6 +877,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_metadata_without_upload(self):
         """
         Test the update process of the document metadata
+
         Input:
         * updated fields don't include bestandsomvang and inhoud
 
@@ -885,6 +914,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_metadata_after_unfinished_upload(self):
         """
         Test the update process of the document metadata with some of part files uploaded
+
         Input:
         * updated fields don't include bestandsomvang and inhoud
 
@@ -895,7 +925,9 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
         self._create_metadata()
 
         # unload 1 part of file
-        part_file = split_file(self.file_content, settings.CHUNK_SIZE)[0]
+        part_file = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )[0]
         part = self.bestandsdelen[0]
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
@@ -940,6 +972,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_metadata_set_size(self):
         """
         Test the update process of the file size with some of part files uploaded
+
         Input:
         * bestandsomvang > 0
 
@@ -976,6 +1009,7 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
     def test_update_metadata_set_size_zero(self):
         """
         Test the update process of the file size = 0
+
         Input:
         * bestandsomvang = 0
 
@@ -1004,14 +1038,18 @@ class LargeFileAPITests(MockValidationsMixin, JWTAuthMixin, APITestCase):
             .first()
         )
         self.canonical = new_version.canonical
+        file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=new_version.uuid
+        )
 
         self.assertEqual(new_version.bestandsomvang, 0)
         self.assertEqual(self.canonical.bestandsdelen.count(), 0)
-        self.assertEqual(data["inhoud"], None)
+        self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
 
     def test_update_metadata_set_size_null(self):
         """
         Test the remove of file from the document
+
         Input:
         * bestandsomvang = None
 

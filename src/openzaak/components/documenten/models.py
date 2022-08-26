@@ -412,6 +412,15 @@ class EnkelvoudigInformatieObject(
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
 
+    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
+    # be retrieved by using the UUID
+    def get_bestandsdelen(self):
+        if settings.CMIS_ENABLED:
+            bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.uuid)
+        else:
+            bestandsdelen = self.canonical.bestandsdelen
+        return bestandsdelen
+
     @property
     def locked(self) -> bool:
         if self.pk or self.canonical is not None:
@@ -559,6 +568,10 @@ class BestandsDeel(models.Model):
             )
         else:
             return self.informatieobject.latest_version
+
+    def get_current_lock_value(self) -> str:
+        informatieobject = self.get_informatieobject()
+        return informatieobject.canonical.lock
 
     @property
     def voltooid(self) -> bool:

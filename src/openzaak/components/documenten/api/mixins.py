@@ -3,7 +3,7 @@
 from rest_framework.response import Response
 
 
-class UpdateWithoutPartialMixin(object):
+class UpdateWithoutPartialMixin:
     """
     based on DRF mixin but without partial_update
     """

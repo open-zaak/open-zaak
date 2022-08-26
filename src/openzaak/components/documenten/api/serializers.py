@@ -5,9 +5,9 @@ Serializers of the Document Registratie Component REST API
 """
 import binascii
 import math
-import os.path
 import uuid
 from base64 import b64decode
+from pathlib import Path
 from typing import Optional
 
 from django.conf import settings
@@ -20,7 +20,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
-from drf_yasg.utils import swagger_serializer_method
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
@@ -33,6 +32,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
     IsImmutableValidator,
     LooseFkIsImmutableValidator,
@@ -102,9 +102,6 @@ class AnyBase64File(Base64FileField):
         try:
             file.file
         except ValueError:
-            return None
-
-        if not file.file.size:
             return None
 
         assert (
@@ -232,24 +229,14 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
             if inhoud.size != self.instance.omvang:
                 raise serializers.ValidationError(
                     _(
-                        "Het aangeleverde bestand heeft een afwijkende bestandsgrootte (volgens het `grootte`-veld)."
+                        "Het aangeleverde bestand heeft een afwijkende bestandsgrootte (volgens het `omvang`-veld)."
                         "Verwachting: {expected}b, ontvangen: {received}b"
                     ).format(expected=self.instance.omvang, received=inhoud.size),
                     code="file-size",
                 )
 
-        incorrect_lock = False
-        if settings.CMIS_ENABLED:
-            informatieobject = EnkelvoudigInformatieObject.objects.filter(
-                uuid=self.instance.informatieobject_uuid
-            ).first()
-            if lock != informatieobject.canonical.lock:
-                incorrect_lock = True
-        else:
-            if lock != self.instance.informatieobject.lock:
-                incorrect_lock = True
-
-        if incorrect_lock:
+        current_lock = self.instance.get_current_lock_value()
+        if lock != current_lock:
             raise serializers.ValidationError(
                 _("Lock id is not correct"), code="incorrect-lock-id"
             )
@@ -308,19 +295,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "mogen er aanpassingen gemaakt worden."
         ),
     )
-    bestandsdelen = serializers.SerializerMethodField()
-
-    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
-    # be retrieved by using the UUID
-    @swagger_serializer_method(serializer_or_field=BestandsDeelSerializer(many=True))
-    def get_bestandsdelen(self, obj):
-        if settings.CMIS_ENABLED:
-            bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=obj.uuid)
-        else:
-            bestandsdelen = obj.canonical.bestandsdelen
-        return BestandsDeelSerializer(
-            bestandsdelen, many=True, context={"request": self.context["request"]}
-        ).data
+    bestandsdelen = BestandsDeelSerializer(
+        many=True, source="get_bestandsdelen", read_only=True,
+    )
 
     class Meta:
         model = EnkelvoudigInformatieObject
@@ -431,9 +408,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             ):
                 valid_attrs["bestandsomvang"] = valid_attrs["inhoud"].size
         else:  # update
-            inhoud = valid_attrs.get("inhoud", self.instance.inhoud)
-            bestandsomvang = valid_attrs.get(
-                "bestandsomvang", self.instance.bestandsomvang
+            inhoud = get_from_serializer_data_or_instance("inhoud", valid_attrs, self)
+            bestandsomvang = get_from_serializer_data_or_instance(
+                "bestandsomvang", valid_attrs, self
             )
             if inhoud and inhoud.size != bestandsomvang:
                 raise serializers.ValidationError(
@@ -455,9 +432,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             if canonical
             else {"informatieobject_uuid": eio_uuid}
         )
-        parts = math.ceil(full_size / settings.CHUNK_SIZE)
+        parts = math.ceil(full_size / settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE)
         for i in range(parts):
-            chunk_size = min(settings.CHUNK_SIZE, full_size)
+            chunk_size = min(settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE, full_size)
             BestandsDeel.objects.create(omvang=chunk_size, volgnummer=i + 1, **kwargs)
             full_size -= chunk_size
 
@@ -591,7 +568,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 self._create_bestandsdeel(instance.bestandsomvang, instance.canonical)
 
         # create empty file if size == 0
-        # if not settings.CMIS_ENABLED and not instance.bestandsomvang and not validated_data["inhoud"]:
         if (
             not settings.CMIS_ENABLED
             and instance.bestandsomvang == 0
@@ -719,16 +695,6 @@ class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         # with a context containing the request and the url parameter uuid.
         self.instance.lock_document(doc_uuid=self.context["uuid"])
         self.instance.save()
-
-        # create new version of document
-        # if settings.CMIS_ENABLED:
-        #     eio = EnkelvoudigInformatieObject.objects.filter(uuid=self.context["uuid"]).order_by("-versie").first()
-        # else:
-        #     eio = self.instance.latest_version
-        #     eio.pk = None
-        #     eio.versie = eio.versie + 1
-        #     eio.save()
-
         return self.instance
 
 
@@ -815,9 +781,9 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             name = create_filename(self.instance.bestandsnaam)
             file_field = self.instance._meta.get_field("inhoud")
             rel_path = file_field.generate_filename(self.instance, name)
-            file_name = os.path.basename(rel_path)
+            file_name = Path(rel_path).name
             # merge files
-            file_dir = os.path.join(settings.PRIVATE_MEDIA_ROOT, file_name)
+            file_dir = Path(settings.PRIVATE_MEDIA_ROOT) / file_name
             target_file = merge_files(part_files, file_dir, file_name)
             # save full file to the instance FileField
             with open(target_file) as file_obj:

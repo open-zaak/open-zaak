@@ -445,6 +445,9 @@ ENVIRONMENT_SHOWN_IN_ADMIN = True
 
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
+DOCUMENTEN_UPLOAD_CHUNK_SIZE = 4 * 2 ** 30  # 4 GB
+DOCUMENTEN_UPLOAD_READ_CHUNK = 6 * 2 ** 20  # 6 MB
+DOCUMENTEN_UPLOAD_DEFAULT_EXTENSION = "bin"
 
 # urls for OAS3 specifications
 SPEC_URL = {
@@ -651,9 +654,3 @@ VNG_COMPONENTS_BRANCH = "stable/1.0.x"
 
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")
-
-# settings for uploading large files
-MIN_UPLOAD_SIZE = int(os.getenv("MIN_UPLOAD_SIZE", 4 * 2 ** 30))
-CHUNK_SIZE = 4 * 2 ** 30  # 4 GB
-READ_CHUNK = 6 * 2 ** 20  # 6 MB
-DEFAULT_EXTENSION = "bin"

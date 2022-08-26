@@ -6,6 +6,7 @@ from datetime import date
 from io import BytesIO
 
 from django.conf import settings
+from django.core.files import File
 from django.test import override_settings, tag
 from django.utils import timezone
 
@@ -618,7 +619,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
 
     def test_eio_update_content(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
-            inhoud=BytesIO(b"Content before update"),
+            inhoud=File(BytesIO(b"Content before update"), name="filename"),
             informatieobjecttype__concept=False,
         )
 
