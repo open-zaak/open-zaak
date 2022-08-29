@@ -550,6 +550,9 @@ class BestandsDeel(models.Model):
         verbose_name = "bestands deel"
         verbose_name_plural = "bestands delen"
         unique_together = ("informatieobject", "volgnummer")
+        constraints = [
+            models.CheckConstraint(check=Q(omvang__gt=0), name="check_omvang",),
+        ]
 
     def unique_representation(self):
         informatieobject = self.informatieobject.latest_version
