@@ -19,7 +19,7 @@ def rewrite_file_size(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documenten", "0007_bestandsdeel"),
+        ("documenten", "0008_enkelvoudiginformatieobject_bestandsomvang"),
     ]
 
     operations = [

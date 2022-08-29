@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documenten", "0009_enkelvoudiginformatieobject_bestandsomvang"),
+        ("documenten", "0009_auto_20220727_1517"),
     ]
 
     operations = [
