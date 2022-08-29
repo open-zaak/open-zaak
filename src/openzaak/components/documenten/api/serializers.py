@@ -540,19 +540,13 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             bestandsdelen = BestandsDeel.objects.filter(
                 informatieobject_uuid=instance.uuid
             )
-            for part in bestandsdelen:
-                part.inhoud.delete()
-                part.delete()
+            bestandsdelen.wipe()
         else:
             instance.integriteit = integriteit
             instance.ondertekening = ondertekening
             instance.save()
 
-            # each update - delete previous part files
-            if instance.canonical.bestandsdelen.exists():
-                for part in instance.canonical.bestandsdelen.all():
-                    part.inhoud.delete()
-                    part.delete()
+            instance.canonical.bestandsdelen.all().wipe()
 
         # large file process
         if (
@@ -788,9 +782,8 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             self.instance.save()
 
         # delete part files
-        for part in bestandsdelen:
-            part.inhoud.delete()
-            part.delete()
+        bestandsdelen.wipe()
+
         return self.instance
 
 

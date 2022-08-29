@@ -126,3 +126,10 @@ class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQu
 
 class DjangoQuerySet(InformatieobjectQuerySet):
     pass
+
+
+class BestandsDeelQuerySet(models.QuerySet):
+    def wipe(self):
+        for part in self:
+            part.inhoud.delete()
+            part.delete()

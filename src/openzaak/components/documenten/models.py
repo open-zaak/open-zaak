@@ -29,6 +29,7 @@ from ..zaken.models import ZaakInformatieObject
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from .managers import (
     AdapterManager,
+    BestandsDelenManager,
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
@@ -545,6 +546,8 @@ class BestandsDeel(models.Model):
         help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
     )
     datetime_created = models.DateTimeField(_("datetime created"), default=timezone.now)
+
+    objects = BestandsDelenManager()
 
     class Meta:
         verbose_name = "bestands deel"

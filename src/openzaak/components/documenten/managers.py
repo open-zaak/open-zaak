@@ -9,6 +9,7 @@ from .query.cmis import (
     ObjectInformatieObjectCMISQuerySet,
 )
 from .query.django import (
+    BestandsDeelQuerySet,
     DjangoQuerySet,
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
@@ -51,3 +52,8 @@ class ObjectInformatieObjectAdapterManager(models.Manager):
 
     def delete_for(self, relation):
         return self.get_queryset().delete_for(relation)
+
+
+class BestandsDelenManager(models.Manager):
+    def get_queryset(self):
+        return BestandsDeelQuerySet(model=self.model, using=self._db, hints=self._hints)
