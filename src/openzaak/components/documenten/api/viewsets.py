@@ -567,6 +567,7 @@ class ObjectInformatieObjectViewSet(
 class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     """
     update:
+
     Upload een bestandsdeel
     """
 

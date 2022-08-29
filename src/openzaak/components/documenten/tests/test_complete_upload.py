@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from io import BytesIO
+
+from django.core.files import File
+
 from rest_framework.test import APITestCase
 
 from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
@@ -32,7 +36,14 @@ class UploadTestCase(APITestCase):
 
         self.assertTrue(part.voltooid)
 
-    def test_complete_part_false(self):
+    def test_complete_part_false_no_file_uploaded(self):
         part = BestandsDeelFactory.create(inhoud=None, omvang=9)
+
+        self.assertFalse(part.voltooid)
+
+    def test_complete_part_false_file_size_mismatch(self):
+        part = BestandsDeelFactory.create(
+            inhoud=File(BytesIO(b"12345678"), name="somefile"), omvang=9
+        )
 
         self.assertFalse(part.voltooid)

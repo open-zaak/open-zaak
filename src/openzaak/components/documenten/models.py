@@ -578,7 +578,10 @@ class BestandsDeel(models.Model):
 
     @property
     def voltooid(self) -> bool:
-        return bool(self.inhoud.name)
+        if not bool(self.inhoud.name):
+            return False
+
+        return self.inhoud.size == self.omvang
 
 
 class Gebruiksrechten(models.Model, CMISClientMixin):
