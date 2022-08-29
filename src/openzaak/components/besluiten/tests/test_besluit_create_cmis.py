@@ -8,6 +8,8 @@ from django.test import override_settings
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import TypeCheckMixin, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -31,6 +33,9 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

@@ -35,6 +35,9 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

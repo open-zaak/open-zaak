@@ -10,6 +10,8 @@ from rest_framework import status
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
@@ -30,6 +32,14 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
 
     @freeze_time("2018-09-19T12:25:19+0200")
     def test_create(self):
@@ -225,6 +235,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_informatieobject(self):
+        Service.objects.create(
+            api_root="http://example.com/documenten/", api_type=APITypes.drc
+        )
         # Create two ZIOs
         eio1 = EnkelvoudigInformatieObjectFactory.create()
         eio1_url = f"http://example.com{reverse(eio1)}"
@@ -388,6 +401,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(expected_representation, zio_representation)
 
     def test_delete_document_unrelated_to_zaak(self):
+        Service.objects.create(
+            api_root="http://openzaak.nl/documenten/", api_type=APITypes.drc
+        )
         # Create a document related to a zaak
         eio_related = EnkelvoudigInformatieObjectFactory.create()
         eio_related_url = f"http://openzaak.nl{reverse(eio_related)}"

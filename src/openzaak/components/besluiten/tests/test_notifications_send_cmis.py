@@ -9,6 +9,8 @@ from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -34,6 +36,9 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         Check if notifications will be send when besluitinformatieobject is deleted
         """
 
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
@@ -87,6 +92,9 @@ class FailedNotificationCMISTests(
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

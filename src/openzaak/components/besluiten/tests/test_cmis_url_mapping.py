@@ -10,6 +10,8 @@ from drc_cmis.utils.convert import make_absolute_uri
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -26,7 +28,7 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 @override_settings(
     CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,
 )
-@skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
+@skipIf(os.getenv("CMIS_BINDING") != " ", "WEBSERVICE binding specific tests")
 class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
@@ -63,6 +65,9 @@ class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_delete_no_url_mapping(self):
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
 

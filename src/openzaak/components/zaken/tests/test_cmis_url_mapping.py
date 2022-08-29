@@ -9,6 +9,8 @@ from drc_cmis.models import UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
@@ -73,6 +75,9 @@ class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_delete_no_url_mapping(self):
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
 

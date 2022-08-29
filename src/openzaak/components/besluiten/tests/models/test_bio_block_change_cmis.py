@@ -4,6 +4,9 @@ import uuid
 
 from django.test import override_settings
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -19,6 +22,9 @@ from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 class BlockChangeCMISTestCase(APICMISTestCase):
     def setUp(self) -> None:
         super().setUp()
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         eio = EnkelvoudigInformatieObjectFactory.create(identificatie="12345")
         eio_url = eio.get_url()
         self.bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)

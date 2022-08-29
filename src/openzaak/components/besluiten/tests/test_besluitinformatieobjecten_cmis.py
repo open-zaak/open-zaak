@@ -6,6 +6,8 @@ from django.test import override_settings
 from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -28,6 +30,9 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
@@ -132,6 +137,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
     def test_filter_by_informatieobject(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.drc)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://example.com{reverse(io)}"
 

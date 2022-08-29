@@ -51,6 +51,9 @@ class US349TestCase(JWTAuthMixin, APICMISTransactionTestCase):
                 auth_type=AuthTypes.no_auth,
             ),
         )
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
 
         cls.setUpTestData()
 
