@@ -515,8 +515,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         create a new EnkelvoudigInformatieObject with the same
         EnkelvoudigInformatieObjectCanonical
         """
-        integriteit = validated_data.pop("integriteit", None)
-        ondertekening = validated_data.pop("ondertekening", None)
+        integriteit = (
+            validated_data.pop("integriteit", {}) or {}
+        )  # integriteit and ondertekening can also be set to None
+        ondertekening = validated_data.pop("ondertekening", {}) or {}
 
         validated_data_field_names = validated_data.keys()
         for field in instance._meta.get_fields():
@@ -526,10 +528,16 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         validated_data["pk"] = None
         validated_data["versie"] += 1
 
-        # Remove the lock from the data from which a new
-        # EnkelvoudigInformatieObject will be created, because lock is not a
-        # part of that model
-        if not settings.CMIS_ENABLED:
+        if settings.CMIS_ENABLED:
+            # The fields integriteit and ondertekening are of "GegevensGroepType", so they need to be
+            # flattened before sending to the DMS
+            flat_integriteit = flatten_gegevens_groep(integriteit, "integriteit")
+            flat_ondertekening = flatten_gegevens_groep(ondertekening, "ondertekening")
+            validated_data.update(**flat_integriteit, **flat_ondertekening)
+        else:
+            # Remove the lock from the data from which a new
+            # EnkelvoudigInformatieObject will be created, because lock is not a
+            # part of that model
             validated_data.pop("lock")
 
         validated_data["_request"] = self.context.get("request")
@@ -540,13 +548,15 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             bestandsdelen = BestandsDeel.objects.filter(
                 informatieobject_uuid=instance.uuid
             )
-            bestandsdelen.wipe()
         else:
+            # The serialiser .create() method does not support nested data, so these have to be added separately
             instance.integriteit = integriteit
             instance.ondertekening = ondertekening
             instance.save()
 
-            instance.canonical.bestandsdelen.all().wipe()
+            bestandsdelen = instance.canonical.bestandsdelen.all()
+
+        bestandsdelen.wipe()
 
         # large file process
         if (

@@ -967,6 +967,8 @@ def cmis_doc_to_django_model(
         integriteit_algoritme=cmis_doc.integriteit_algoritme,
         integriteit_datum=cmis_doc.integriteit_datum,
         integriteit_waarde=cmis_doc.integriteit_waarde,
+        ondertekening_soort=cmis_doc.ondertekening_soort,
+        ondertekening_datum=cmis_doc.ondertekening_datum,
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,

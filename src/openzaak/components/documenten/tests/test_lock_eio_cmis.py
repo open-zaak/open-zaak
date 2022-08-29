@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 import uuid
 from base64 import b64encode
+from datetime import date
 
 from django.test import override_settings
 
@@ -73,7 +74,17 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
         response_update = self.client.patch(
-            update_url, {"titel": "changed", "lock": response_lock.data["lock"]}
+            update_url,
+            {
+                "titel": "changed",
+                "lock": response_lock.data["lock"],
+                "integriteit": {
+                    "algoritme": "sha_256",
+                    "waarde": "1234",
+                    "datum": "2022-01-01",
+                },
+                "ondertekening": {"soort": "analoog", "datum": "2022-01-01"},
+            },
         )
 
         self.assertEqual(
@@ -85,6 +96,13 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
 
         eio = eios[1]
         self.assertEqual(eio.titel, "changed")
+        self.assertEqual(
+            eio.integriteit,
+            {"algoritme": "sha_256", "waarde": "1234", "datum": date(2022, 1, 1)},
+        )
+        self.assertEqual(
+            eio.ondertekening, {"soort": "analoog", "datum": date(2022, 1, 1)},
+        )
 
     def test_update_fail_unlocked_doc(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
