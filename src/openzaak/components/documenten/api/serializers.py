@@ -660,15 +660,6 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
                 eio.canonical.save()
         return eio
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
-        # For some reason the tests do not expect this to be here?
-        if not data.get("lock"):
-            data.pop("lock")
-
-        return data
-
 
 class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
     """

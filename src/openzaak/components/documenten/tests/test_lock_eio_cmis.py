@@ -146,7 +146,6 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertNotIn("lock", response.data)
 
 
 @require_cmis

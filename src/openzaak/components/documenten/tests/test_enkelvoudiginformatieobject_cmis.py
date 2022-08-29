@@ -112,6 +112,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
                 "indicatieGebruiksrecht": None,
                 "status": "",
                 "locked": False,
+                "lock": "",
             }
         )
 

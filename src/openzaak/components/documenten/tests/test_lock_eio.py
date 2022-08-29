@@ -141,7 +141,6 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertNotIn("lock", response.data)
 
 
 class EioUnlockAPITests(JWTAuthMixin, APITestCase):
