@@ -74,7 +74,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         if (
             object_type == ObjectInformatieObjectTypes.zaak
             and not cleaned_data.get("_zaak")
-            and not cleaned_data.get("_zaak_url")
+            and not cleaned_data.get("_zaak_base_url")
         ):
             raise forms.ValidationError(
                 "Je moet een zaak opgeven: "
@@ -84,7 +84,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         if (
             object_type == ObjectInformatieObjectTypes.besluit
             and not cleaned_data.get("_besluit")
-            and not cleaned_data.get("_besluit_url")
+            and not cleaned_data.get("_besluit_base_url")
         ):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
@@ -115,10 +115,10 @@ class ObjectInformatieObjectAdmin(
         "informatieobject__enkelvoudiginformatieobject__identificatie",
         "_zaak__uuid",
         "_zaak__identificatie",
-        "_zaak_url",
+        "_zaak_relative_url",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_url",
+        "_besluit_relative_url",
         "verzoek",
     )
     ordering = ("informatieobject",)
@@ -232,7 +232,13 @@ class EnkelvoudigInformatieObjectAdmin(
         ),
         (
             _("Typering"),
-            {"fields": ("_informatieobjecttype_url", "_informatieobjecttype",)},
+            {
+                "fields": (
+                    "_informatieobjecttype_base_url",
+                    "_informatieobjecttype_relative_url",
+                    "_informatieobjecttype",
+                )
+            },
         ),
         (
             _("Documentgegevens"),

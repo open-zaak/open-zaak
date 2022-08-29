@@ -10,7 +10,6 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.fields import FkOrURLField
 from drc_cmis.utils import exceptions
 from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
@@ -20,8 +19,9 @@ from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
+from zgw_consumers.models import Service, ServiceUrlField
 
-from openzaak.utils.fields import AliasField
+from openzaak.utils.fields import AliasField, FkOrServiceUrlField
 from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
@@ -175,9 +175,26 @@ class InformatieObject(models.Model):
         ),
     )
 
-    _informatieobjecttype_url = models.URLField(
-        _("extern informatieobjecttype"),
+    _informatieobjecttype_base_url = models.ForeignKey(
+        Service,
+        null=True,
         blank=True,
+        on_delete=models.PROTECT,
+        help_text="Basis deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
+    )
+    _informatieobjecttype_relative_url = models.CharField(
+        _("informatieobjecttype relative url"),
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
+    )
+    _informatieobjecttype_url = ServiceUrlField(
+        base_field="_informatieobjecttype_base_url",
+        relative_field="_informatieobjecttype_relative_url",
+        verbose_name=_("extern informatieobjecttype"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_(
             "URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API)."
@@ -192,7 +209,7 @@ class InformatieObject(models.Model):
         null=True,
         blank=True,
     )
-    informatieobjecttype = FkOrURLField(
+    informatieobjecttype = FkOrServiceUrlField(
         fk_field="_informatieobjecttype",
         url_field="_informatieobjecttype_url",
         help_text="URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
@@ -748,22 +765,70 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
     # relations to the possible other objects
     _object_url = models.URLField(_("extern object"), blank=True, max_length=1000)
-    _zaak = models.ForeignKey(
-        "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
-    )
-    _besluit = models.ForeignKey(
-        "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
-    )
-    zaak = FkOrURLField(
-        fk_field="_zaak", url_field="_object_url", blank=True, null=True,
-    )
-    besluit = FkOrURLField(
-        fk_field="_besluit", url_field="_object_url", blank=True, null=True,
-    )
     verzoek = AliasField(
         _object_url,
         allow_write_when=lambda instance: instance.object_type
         == ObjectInformatieObjectTypes.verzoek,
+    )
+
+    _zaak_base_url = models.ForeignKey(
+        Service,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="oio_zaken",
+        help_text="Basis deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
+    )
+    _zaak_relative_url = models.CharField(
+        _("zaak relative url"),
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
+    )
+    _zaak_url = ServiceUrlField(
+        base_field="_zaak_base_url",
+        relative_field="_zaak_relative_url",
+        verbose_name=_("extern zaak"),
+        blank=True,
+        null=True,
+        max_length=1000,
+    )
+    _zaak = models.ForeignKey(
+        "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
+    )
+    zaak = FkOrServiceUrlField(
+        fk_field="_zaak", url_field="_zaak_url", blank=True, null=True,
+    )
+
+    _besluit_base_url = models.ForeignKey(
+        Service,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="oio_besluiten",
+        help_text="Basis deel van URL-referentie naar extern BESLUIT (in een andere Besluiten API).",
+    )
+    _besluit_relative_url = models.CharField(
+        _("besluit relative url"),
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern BESLUIT (in een andere Besluiten API).",
+    )
+    _besluit_url = ServiceUrlField(
+        base_field="_besluit_base_url",
+        relative_field="_besluit_relative_url",
+        verbose_name=_("extern besluit"),
+        blank=True,
+        null=True,
+        max_length=1000,
+    )
+    _besluit = models.ForeignKey(
+        "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
+    )
+    besluit = FkOrServiceUrlField(
+        fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
     )
 
     objects = ObjectInformatieObjectAdapterManager()

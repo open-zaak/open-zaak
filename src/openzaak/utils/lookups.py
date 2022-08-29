@@ -110,7 +110,9 @@ class Exact(_Exact):
         # combine
         params = rhs_params
 
-        if isinstance(self.rhs, str):
+        if isinstance(self.rhs, str) or (
+            isinstance(self.rhs, list) and len(self.rhs) == 2
+        ):
             # dealing with a remote composite URL
             sql = f"{base_lhs_sql} {rhs_sql} AND {relative_lhs_sql} {rhs_sql}"
         else:
