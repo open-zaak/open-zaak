@@ -56,7 +56,9 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.all().count(), 0)
+        self.assertEqual(
+            EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid).count(), 0
+        )
         self.assertFalse(Gebruiksrechten.objects.all().exists())
 
     def test_delete_document_fail_exising_relations_besluit(self):
