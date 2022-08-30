@@ -79,7 +79,7 @@ django==3.2.15
     #   mozilla-django-oidc-db
     #   vng-api-common
     #   zgw-consumers
-django-admin-index==2.0.0
+django-admin-index==2.0.2
     # via -r requirements/base.in
 django-auth-adfs==1.6.1
     # via django-auth-adfs-db
