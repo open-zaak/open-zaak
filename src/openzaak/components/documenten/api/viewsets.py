@@ -28,6 +28,7 @@ from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExc
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
+from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -81,6 +82,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 )
 
 
+@cmis_conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -345,6 +347,7 @@ class EnkelvoudigInformatieObjectViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@cmis_conditional_retrieve()
 class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -440,6 +443,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
     permission_classes = (AuthRequired,)
 
 
+@cmis_conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,

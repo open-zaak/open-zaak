@@ -26,6 +26,7 @@ from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
+from .caching import CMISETagMixin
 from .constants import (
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
@@ -281,7 +282,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
 
 
 class EnkelvoudigInformatieObject(
-    AuditTrailMixin, APIMixin, InformatieObject, CMISClientMixin
+    CMISETagMixin, AuditTrailMixin, APIMixin, InformatieObject, CMISClientMixin
 ):
     """
     Stores the content of a specific version of an
@@ -597,7 +598,7 @@ class BestandsDeel(models.Model):
         return self.inhoud.size == self.omvang
 
 
-class Gebruiksrechten(models.Model, CMISClientMixin):
+class Gebruiksrechten(CMISETagMixin, models.Model, CMISClientMixin):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -638,6 +639,8 @@ class Gebruiksrechten(models.Model, CMISClientMixin):
         verbose_name_plural = _("gebruiksrechten informatieobject")
 
     def __str__(self):
+        if settings.CMIS_ENABLED:
+            return "(virtual gebruiksrechten instance)"
         return str(self.informatieobject.latest_version)
 
     @transaction.atomic
@@ -725,7 +728,7 @@ class Gebruiksrechten(models.Model, CMISClientMixin):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(models.Model, CMISClientMixin):
+class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
