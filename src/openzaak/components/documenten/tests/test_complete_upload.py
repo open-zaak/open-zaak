@@ -6,6 +6,8 @@ from django.core.files import File
 
 from rest_framework.test import APITestCase
 
+from openzaak.components.documenten.models import BestandsDeel
+
 from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
 
 
@@ -18,7 +20,9 @@ class UploadTestCase(APITestCase):
         canonical = eio.canonical
         BestandsDeelFactory.create(informatieobject=canonical)
 
-        self.assertTrue(canonical.complete_upload)
+        self.assertTrue(
+            BestandsDeel.objects.filter(informatieobject=canonical).complete_upload
+        )
 
     def test_complete_upload_false(self):
         eio = EnkelvoudigInformatieObjectFactory(
@@ -29,7 +33,9 @@ class UploadTestCase(APITestCase):
         BestandsDeelFactory.create(informatieobject=canonical)
         BestandsDeelFactory.create(informatieobject=canonical, inhoud=None, omvang=9)
 
-        self.assertFalse(canonical.complete_upload)
+        self.assertFalse(
+            BestandsDeel.objects.filter(informatieobject=canonical).complete_upload
+        )
 
     def test_complete_part_true(self):
         part = BestandsDeelFactory.create()

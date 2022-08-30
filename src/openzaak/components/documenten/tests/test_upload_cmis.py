@@ -962,11 +962,10 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         bestandsdelen = BestandsDeel.objects.filter(
             informatieobject_uuid=self.eio.uuid
         ).order_by("volgnummer")
-        empty_bestandsdelen = bestandsdelen.filter(inhoud="")
         part_new = bestandsdelen.first()
 
         self.assertEqual(bestandsdelen.count(), 2)
-        self.assertEqual(bestandsdelen.count(), empty_bestandsdelen.count())
+        self.assertTrue(bestandsdelen.empty_bestandsdelen)
         self.assertEqual(part_new.voltooid, False)
 
     def test_update_metadata_set_size(self):

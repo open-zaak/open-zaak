@@ -133,3 +133,13 @@ class BestandsDeelQuerySet(models.QuerySet):
         for part in self:
             part.inhoud.delete()
             part.delete()
+
+    @property
+    def complete_upload(self) -> bool:
+        empty_parts = self.filter(inhoud="")
+        return not empty_parts.exists()
+
+    @property
+    def empty_bestandsdelen(self) -> bool:
+        empty_parts = self.filter(inhoud="")
+        return empty_parts.count() == self.count()

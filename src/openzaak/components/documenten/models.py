@@ -252,16 +252,6 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
-    @property
-    def complete_upload(self) -> bool:
-        empty_parts = self.bestandsdelen.filter(inhoud="")
-        return empty_parts.count() == 0
-
-    @property
-    def empty_bestandsdelen(self) -> bool:
-        empty_parts = self.bestandsdelen.filter(inhoud="")
-        return empty_parts.count() == self.bestandsdelen.count()
-
     def save(self, *args, **kwargs) -> None:
         if settings.CMIS_ENABLED:
             return

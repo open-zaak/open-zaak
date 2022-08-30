@@ -473,26 +473,24 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         eio = super().create(validated_data)
 
         if settings.CMIS_ENABLED:
-            # large file process
-            if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-                self._create_bestandsdeel(
-                    validated_data["bestandsomvang"], eio_uuid=eio.uuid
-                )
+            create_bestandsdeel_kwargs = {"eio_uuid": eio.uuid}
         else:
             # The serialiser .create() method does not support nested data, so these have to be added separately
             eio.integriteit = integriteit
             eio.ondertekening = ondertekening
             eio.save()
 
-            # large file process
-            if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-                self._create_bestandsdeel(
-                    validated_data["bestandsomvang"], canonical=canonical
-                )
+            create_bestandsdeel_kwargs = {"canonical": canonical}
 
             # create empty file if size == 0
             if eio.bestandsomvang == 0:
                 eio.inhoud.save("empty_file", ContentFile(""))
+
+        # large file process
+        if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
+            self._create_bestandsdeel(
+                validated_data["bestandsomvang"], **create_bestandsdeel_kwargs
+            )
 
         return eio
 
@@ -558,18 +556,20 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         bestandsdelen.wipe()
 
+        if settings.CMIS_ENABLED:
+            create_bestandsdeel_kwargs = {"eio_uuid": instance.uuid}
+        else:
+            create_bestandsdeel_kwargs = {"canonical": instance.canonical}
+
         # large file process
         if (
             not instance.inhoud
             and instance.bestandsomvang
             and instance.bestandsomvang > 0
         ):
-            if settings.CMIS_ENABLED:
-                self._create_bestandsdeel(
-                    validated_data["bestandsomvang"], eio_uuid=instance.uuid
-                )
-            else:
-                self._create_bestandsdeel(instance.bestandsomvang, instance.canonical)
+            self._create_bestandsdeel(
+                instance.bestandsomvang, **create_bestandsdeel_kwargs
+            )
 
         # create empty file if size == 0
         if (
@@ -721,12 +721,11 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             all_parts = BestandsDeel.objects.filter(
                 informatieobject_uuid=self.instance.uuid
             )
-            empty_parts = all_parts.filter(inhoud="")
-            complete_upload = empty_parts.count() == 0
-            empty_bestandsdelen = empty_parts.count() == all_parts.count()
         else:
-            complete_upload = self.instance.canonical.complete_upload
-            empty_bestandsdelen = self.instance.canonical.empty_bestandsdelen
+            all_parts = self.instance.canonical.bestandsdelen.all()
+
+        complete_upload = all_parts.complete_upload
+        empty_bestandsdelen = all_parts.empty_bestandsdelen
 
         if not complete_upload and not empty_bestandsdelen:
             raise serializers.ValidationError(
@@ -759,13 +758,11 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             bestandsdelen = BestandsDeel.objects.filter(
                 informatieobject_uuid=self.instance.uuid
             ).order_by("volgnummer")
-            empty_parts = bestandsdelen.filter(inhoud="")
-            complete_upload = empty_parts.count() == 0
-            empty_bestandsdelen = empty_parts.count() == bestandsdelen.count()
         else:
             bestandsdelen = self.instance.canonical.bestandsdelen.order_by("volgnummer")
-            complete_upload = self.instance.canonical.complete_upload
-            empty_bestandsdelen = self.instance.canonical.empty_bestandsdelen
+
+        complete_upload = bestandsdelen.complete_upload
+        empty_bestandsdelen = bestandsdelen.empty_bestandsdelen
 
         if empty_bestandsdelen:
             return self.instance

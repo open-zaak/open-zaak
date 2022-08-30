@@ -937,7 +937,7 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         part_new = self.canonical.bestandsdelen.order_by("volgnummer").first()
 
         self.assertEqual(self.canonical.bestandsdelen.count(), 2)
-        self.assertEqual(self.canonical.empty_bestandsdelen, True)
+        self.assertEqual(self.canonical.bestandsdelen.all().empty_bestandsdelen, True)
         self.assertEqual(part_new.voltooid, False)
 
     def test_update_metadata_set_size(self):
