@@ -775,15 +775,15 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             rel_path = file_field.generate_filename(self.instance, name)
             file_name = Path(rel_path).name
             # merge files
-            file_dir = Path(settings.PRIVATE_MEDIA_ROOT) / file_name
+            file_dir = Path(settings.PRIVATE_MEDIA_ROOT)
             target_file = merge_files(part_files, file_dir, file_name)
             # save full file to the instance FileField
             with open(target_file) as file_obj:
-                if settings.CMIS_ENABLED:
-                    self.instance.inhoud = File(file_obj, name=file_name)
-                    self.instance.save()
-                else:
-                    self.instance.inhoud.save(file_name, File(file_obj))
+                self.instance.inhoud = File(file_obj, name=file_name)
+                self.instance.save()
+
+            # Remove the merged file
+            target_file.unlink()
         else:
             self.instance.bestandsomvang = None
             self.instance.save()
