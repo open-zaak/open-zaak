@@ -12,6 +12,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -49,6 +51,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], code)
 
     def test_validate_informatieobjecttype_invalid(self):
+        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
         url = reverse("enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -62,14 +65,15 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_validate_informatieobjecttype_invalid_resource(self, m):
-        m.get("https://example.com", text="<html><head></head><body></body></html>")
+        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        m.get("https://example.com/", text="<html><head></head><body></body></html>")
         url = reverse("enkelvoudiginformatieobject-list")
 
         with requests_mock.Mocker() as m:
-            m.get("https://example.com", status_code=200, text="<html></html>")
+            m.get("https://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
-                url, {"informatieobjecttype": "https://example.com"}
+                url, {"informatieobjecttype": "https://example.com/"}
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

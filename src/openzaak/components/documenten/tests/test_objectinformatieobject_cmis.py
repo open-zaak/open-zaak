@@ -53,6 +53,14 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
+
     def test_retrieve_multiple_oios(self):
         zaak = ZaakFactory.create()
 
@@ -325,6 +333,9 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

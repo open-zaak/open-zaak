@@ -11,6 +11,8 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
@@ -35,6 +37,9 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
         self.assertForbidden(url, method="post")
 
     def test_cannot_read_without_correct_scope(self):
+        Service.objects.create(
+            api_root="http://testserver.nl/documenten/", api_type=APITypes.drc
+        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory.create(informatieobject=eio_url)

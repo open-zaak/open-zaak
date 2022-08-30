@@ -14,6 +14,8 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -430,6 +432,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         """
         Assert that destroying is not possible when there are relations.
         """
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = eio.get_url()
