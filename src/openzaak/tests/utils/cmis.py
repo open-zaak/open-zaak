@@ -15,6 +15,8 @@ from rest_framework.test import APITestCase, APITransactionTestCase
 
 from .mocks import MockSchemasMixin, get_eio_response
 
+ALFRESCO_BASE_URL = "http://localhost:8082/alfresco/"
+
 
 class CMISMixin(MockSchemasMixin):
     @classmethod
@@ -29,7 +31,7 @@ class CMISMixin(MockSchemasMixin):
         binding = os.getenv("CMIS_BINDING")
         if binding == "WEBSERVICE":
             config = CMISConfig.get_solo()
-            config.client_url = "http://localhost:8082/alfresco/cmisws"
+            config.client_url = f"{ALFRESCO_BASE_URL}cmisws"
             config.binding = "WEBSERVICE"
             config.other_folder_path = "/DRC/"
             config.zaak_folder_path = "/ZRC/{{ zaaktype }}/{{ zaak }}"
@@ -41,7 +43,9 @@ class CMISMixin(MockSchemasMixin):
             config.save()
         elif binding == "BROWSER":
             config = CMISConfig.get_solo()
-            config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
+            config.client_url = (
+                f"{ALFRESCO_BASE_URL}api/-default-/public/cmis/versions/1.1/browser"
+            )
             config.binding = "BROWSER"
             config.other_folder_path = "/DRC/"
             config.zaak_folder_path = "/ZRC/{{ zaaktype }}/{{ zaak }}/"
