@@ -4,7 +4,7 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -13,7 +13,7 @@ from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -23,7 +23,7 @@ from ..models import (
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2019-01-01")
 @override_settings(CMIS_ENABLED=True)
 class AuditTrailTests(JWTAuthMixin, APICMISTestCase):

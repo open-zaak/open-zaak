@@ -5,7 +5,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 from datetime import date
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import Archiefnominatie, Archiefstatus
@@ -14,7 +14,7 @@ from vng_api_common.tests import reverse
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
@@ -22,7 +22,7 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
 

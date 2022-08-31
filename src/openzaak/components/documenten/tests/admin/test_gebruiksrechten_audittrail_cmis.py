@@ -3,19 +3,19 @@
 import uuid
 from datetime import date, time
 
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.urls import reverse
 
 from rest_framework import status
 from vng_api_common import tests
 
-from openzaak.tests.utils import AdminTestMixin, APICMISTestCase
+from openzaak.tests.utils import AdminTestMixin, APICMISTestCase, require_cmis
 
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 from ..utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

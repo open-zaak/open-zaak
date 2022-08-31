@@ -3,7 +3,7 @@
 import os
 from unittest import skipIf
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from drc_cmis.models import UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
@@ -18,10 +18,10 @@ from openzaak.components.besluiten.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(
     CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,

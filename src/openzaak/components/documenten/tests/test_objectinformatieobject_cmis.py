@@ -35,13 +35,14 @@ from openzaak.components.zaken.tests.utils import (
     get_zaakinformatieobject_response,
     get_zaaktype_response,
 )
-from openzaak.tests.utils import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase, require_cmis
 
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
-@tag("oio", "cmis")
+@tag("oio")
+@require_cmis
 @override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
 class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -312,7 +313,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
@@ -358,7 +359,8 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "remote-relation-exists")
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

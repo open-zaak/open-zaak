@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import (
@@ -21,14 +21,14 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..models import ZaakInformatieObject
 from .factories import ResultaatFactory, ZaakFactory, ZaakInformatieObjectFactory
 from .utils import isodatetime
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
@@ -82,7 +82,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(validation_error["code"], IsImmutableValidator.code)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     """
@@ -107,7 +107,7 @@ class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

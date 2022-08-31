@@ -6,7 +6,7 @@ import uuid
 from base64 import b64encode
 from unittest import skipIf
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
@@ -17,14 +17,14 @@ from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...zaken.tests.utils import get_zaak_response
 from ..models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(
     CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,

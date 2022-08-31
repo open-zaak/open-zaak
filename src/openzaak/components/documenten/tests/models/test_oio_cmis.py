@@ -13,7 +13,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase, require_cmis
 from openzaak.utils.query import QueryBlocked
 
 from ...models import ObjectInformatieObject
@@ -23,7 +23,8 @@ from ..factories import (
 )
 
 
-@tag("oio", "cmis")
+@tag("oio")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class OIOCMISTests(APICMISTestCase, TestCase):
     def setUp(self) -> None:
@@ -85,7 +86,7 @@ class OIOCMISTests(APICMISTestCase, TestCase):
         self.assertEqual(ObjectInformatieObject.objects.count(), 0)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BlockChangeTestCase(APICMISTestCase, TestCase):
     def setUp(self) -> None:

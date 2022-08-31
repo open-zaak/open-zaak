@@ -14,7 +14,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...zaken.tests.factories import ZaakFactory
 from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
@@ -26,7 +26,7 @@ BESLUITTYPE_EXTERNAL = (
 )
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
     def test_cannot_read_without_correct_scope(self):
@@ -48,7 +48,7 @@ class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
                 self.assertForbidden(url, method="get")
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
 
@@ -126,7 +126,8 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
         )
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
@@ -195,7 +196,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]

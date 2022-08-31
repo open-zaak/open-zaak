@@ -3,7 +3,7 @@
 from unittest import skip
 
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
@@ -18,7 +18,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 from .utils import get_operation_url
@@ -26,7 +26,7 @@ from .utils import get_operation_url
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 @freeze_time("2019-01-01T12:00:00Z")
 class FailedNotificationCMISTests(

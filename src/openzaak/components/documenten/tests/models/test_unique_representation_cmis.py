@@ -5,13 +5,13 @@ from django.test import override_settings, tag
 from vng_api_common.tests import reverse
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase, require_cmis
 
 from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
 class UniqueRepresentationTestCase(APICMISTestCase):
     def test_eio(self):

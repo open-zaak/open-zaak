@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
@@ -9,12 +9,17 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, serialise_eio
+from openzaak.tests.utils import (
+    APICMISTestCase,
+    JWTAuthMixin,
+    require_cmis,
+    serialise_eio,
+)
 
 from .factories import BesluitFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
 

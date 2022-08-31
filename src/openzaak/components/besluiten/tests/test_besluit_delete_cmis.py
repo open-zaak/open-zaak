@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import Besluit, BesluitInformatieObject
@@ -12,7 +12,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
 

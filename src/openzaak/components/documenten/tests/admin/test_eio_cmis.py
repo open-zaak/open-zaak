@@ -12,12 +12,12 @@ from rest_framework import status
 from vng_api_common import tests
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import AdminTestMixin, APICMISTestCase
+from openzaak.tests.utils import AdminTestMixin, APICMISTestCase, require_cmis
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.tests.utils import APICMISTransactionTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTransactionTestCase, JWTAuthMixin, require_cmis
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..models import (
@@ -33,7 +33,7 @@ from .factories import (
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US349TestCase(JWTAuthMixin, APICMISTransactionTestCase):
     heeft_alle_autorisaties = True

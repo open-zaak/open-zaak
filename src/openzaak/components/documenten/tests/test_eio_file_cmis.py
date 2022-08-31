@@ -7,14 +7,14 @@ import base64
 from datetime import date
 from urllib.parse import urlparse
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..models import EnkelvoudigInformatieObject
 from .factories import (
@@ -24,7 +24,7 @@ from .factories import (
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US39TestCase(JWTAuthMixin, APICMISTestCase):
 

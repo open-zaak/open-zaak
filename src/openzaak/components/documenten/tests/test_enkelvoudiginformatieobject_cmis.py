@@ -16,7 +16,7 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
@@ -27,7 +27,7 @@ from .utils import (
 )
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
@@ -512,7 +512,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
@@ -798,7 +798,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(response_download.getvalue(), b"inhoud1")
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
@@ -830,7 +830,8 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APICMISTestCas
         self.assertIsNone(response_data["next"])
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
