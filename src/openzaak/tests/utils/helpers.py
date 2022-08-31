@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+import functools
 import socket
 
 
+@functools.cache
 def can_connect(hostname: str):
     # adapted from https://stackoverflow.com/a/28752285
     hostname, port = hostname.split(":")
