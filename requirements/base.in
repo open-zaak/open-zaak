@@ -15,7 +15,6 @@ bleach
 
 # Framework libraries
 django
-django-auth-adfs-db
 django-axes
 django-choices
 django-cors-headers
