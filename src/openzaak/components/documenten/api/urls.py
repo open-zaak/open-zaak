@@ -9,6 +9,7 @@ from vng_api_common.schema import SchemaView as _SchemaView
 
 from ..api.schema import info
 from .viewsets import (
+    BestandsDeelViewSet,
     EnkelvoudigInformatieObjectAuditTrailViewSet,
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
@@ -24,6 +25,7 @@ router.register(
 )
 router.register("gebruiksrechten", GebruiksrechtenViewSet)
 router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
+router.register("bestandsdelen", BestandsDeelViewSet)
 
 
 # set the path to schema file

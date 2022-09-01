@@ -19,7 +19,7 @@
         "titel": "drc:document__titel",
         "bestandsnaam": "drc:document__bestandsnaam",
         "formaat": "drc:document__formaat",
-        "bestandsomvang": "cmis:contentStreamLength",
+        "bestandsomvang": "drc:document__bestandsomvang",
         "versie": "drc:document__versie",
         "beschrijving": "drc:document__beschrijving",
         "verzenddatum": "drc:document__verzenddatum",
@@ -48,7 +48,8 @@
         "object_type": "drc:oio__object_type",
         "besluit": "drc:oio__besluit",
         "zaak": "drc:oio__zaak",
-        "informatieobject": "drc:oio__informatieobject"
+        "informatieobject": "drc:oio__informatieobject",
+        "verzoek": "drc:oio__verzoek"
     },
     "GEBRUIKSRECHTEN_MAP": {
         "object_type_id": "cmis:objectTypeId",

@@ -596,8 +596,8 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         updated = 0
         seen = set()
 
-        if kwargs.get("inhoud") == "":
-            kwargs["inhoud"] = None
+        if not (inhoud := kwargs.get("inhoud")):
+            inhoud = None
 
         for django_doc in docs_to_update:
             # skip over duplicate canonicals!
@@ -612,7 +612,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
                 drc_uuid=django_doc.uuid,
                 lock=canonical_obj.lock,
                 data=kwargs,
-                content=kwargs.get("inhoud"),
+                content=inhoud,
             )
             canonical_obj.unlock_document(
                 doc_uuid=django_doc.uuid, lock=canonical_obj.lock
@@ -937,9 +937,16 @@ def cmis_doc_to_django_model(
     # Ensuring the charfields are not null and dates are in the correct format
     cmis_doc = format_fields(cmis_doc, EnkelvoudigInformatieObject._meta.get_fields())
 
+    file_is_empty = not bool(cmis_doc.get_content_stream().getvalue())
+    no_file = False
+    if cmis_doc.bestandsomvang is None:
+        no_file = True
+    elif file_is_empty and cmis_doc.bestandsomvang:
+        no_file = True
+
     # Setting up a local file with the content of the cmis document
     # Replacing the alfresco version (decimal) with the custom version label
-    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}"
+    uuid_with_version = f"{cmis_doc.uuid};{cmis_doc.versie}" if not no_file else ""
     content_file = CMISStorageFile(uuid_version=uuid_with_version)
 
     document = EnkelvoudigInformatieObject(
@@ -948,6 +955,7 @@ def cmis_doc_to_django_model(
         begin_registratie=cmis_doc.begin_registratie,
         beschrijving=cmis_doc.beschrijving,
         bestandsnaam=cmis_doc.bestandsnaam,
+        bestandsomvang=cmis_doc.bestandsomvang,
         bronorganisatie=cmis_doc.bronorganisatie,
         creatiedatum=cmis_doc.creatiedatum,
         formaat=cmis_doc.formaat,
@@ -959,6 +967,8 @@ def cmis_doc_to_django_model(
         integriteit_algoritme=cmis_doc.integriteit_algoritme,
         integriteit_datum=cmis_doc.integriteit_datum,
         integriteit_waarde=cmis_doc.integriteit_waarde,
+        ondertekening_soort=cmis_doc.ondertekening_soort,
+        ondertekening_datum=cmis_doc.ondertekening_datum,
         link=cmis_doc.link,
         ontvangstdatum=cmis_doc.ontvangstdatum,
         status=cmis_doc.status,
@@ -968,8 +978,6 @@ def cmis_doc_to_django_model(
         vertrouwelijkheidaanduiding=cmis_doc.vertrouwelijkheidaanduiding,
         verzenddatum=cmis_doc.verzenddatum,
     )
-
-    document.bestandsomvang = cmis_doc.contentStreamLength
 
     return document
 

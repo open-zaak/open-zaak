@@ -6,6 +6,7 @@ from datetime import date
 from io import BytesIO
 
 from django.conf import settings
+from django.core.files import File
 from django.test import override_settings, tag
 from django.utils import timezone
 
@@ -101,6 +102,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
                 "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
                     "+00:00", "Z"
                 ),
+                "bestandsdelen": [],
                 "vertrouwelijkheidaanduiding": "openbaar",
                 "bestandsomvang": stored_object.inhoud.size,
                 "integriteit": {"algoritme": "", "waarde": "", "datum": None},
@@ -110,6 +112,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
                 "indicatieGebruiksrecht": None,
                 "status": "",
                 "locked": False,
+                "lock": "",
             }
         )
 
@@ -267,6 +270,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "url": f"http://testserver{detail_url}",
             "identificatie": str(test_object.identificatie),
             "bronorganisatie": test_object.bronorganisatie,
+            "bestandsdelen": [],
             "creatiedatum": "2018-06-27",
             "titel": "some titel",
             "auteur": "some auteur",
@@ -539,6 +543,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
             {
                 "beschrijving": "beschrijving2",
                 "inhoud": b64encode(b"aaaaa"),
+                "bestandsomvang": 5,
                 "lock": lock,
             }
         )
@@ -615,7 +620,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
 
     def test_eio_update_content(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
-            inhoud=BytesIO(b"Content before update"),
+            inhoud=File(BytesIO(b"Content before update"), name="filename"),
             informatieobjecttype__concept=False,
         )
 
@@ -630,7 +635,11 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
         lock = lock_response.data["lock"]
         eio_data.update(
-            {"inhoud": b64encode(b"Content after update"), "lock": lock,}
+            {
+                "inhoud": b64encode(b"Content after update"),
+                "bestandsomvang": 20,
+                "lock": lock,
+            }
         )
 
         del eio_data["integriteit"]

@@ -20,6 +20,7 @@ from openzaak.utils.admin import (
 
 from .api import viewsets
 from .models import (
+    BestandsDeel,
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
@@ -283,3 +284,16 @@ class EnkelvoudigInformatieObjectAdmin(
             link_to_related_objects(Gebruiksrechten, obj.canonical),
             link_to_related_objects(ObjectInformatieObject, obj.canonical),
         )
+
+
+@admin.register(BestandsDeel)
+class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "informatieobject",
+        "volgnummer",
+        "voltooid",
+        "datetime_created",
+    )
+    list_filter = ("informatieobject",)
+    private_media_fields = ("inhoud",)

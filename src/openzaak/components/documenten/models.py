@@ -31,7 +31,7 @@ from .managers import (
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
-from .query.django import InformatieobjectQuerySet
+from .query.django import BestandsDeelQuerySet, InformatieobjectQuerySet
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
@@ -321,6 +321,11 @@ class EnkelvoudigInformatieObject(
         ),
     )
 
+    bestandsomvang = models.PositiveIntegerField(
+        _("bestandsomvang"),
+        null=True,
+        help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
+    )
     inhoud = PrivateMediaFileField(
         upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis
     )
@@ -396,15 +401,14 @@ class EnkelvoudigInformatieObject(
         kwargs.pop("_request", None)  # see hacky workaround in EIOSerializer.create
         super().__init__(*args, **kwargs)
 
-    @property
-    def bestandsomvang(self):
-        if not self._bestandsomvang:
-            self._bestandsomvang = self.inhoud.size
-        return self._bestandsomvang
-
-    @bestandsomvang.setter
-    def bestandsomvang(self, value):
-        self._bestandsomvang = value
+    # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
+    # be retrieved by using the UUID
+    def get_bestandsdelen(self):
+        if settings.CMIS_ENABLED:
+            bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.uuid)
+        else:
+            bestandsdelen = self.canonical.bestandsdelen
+        return bestandsdelen
 
     @property
     def locked(self) -> bool:
@@ -496,6 +500,95 @@ class EnkelvoudigInformatieObject(
             return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
         else:
             return self.canonical.gebruiksrechten_set.exists()
+
+
+class BestandsDeel(models.Model):
+    uuid = models.UUIDField(
+        unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
+    informatieobject = models.ForeignKey(
+        "EnkelvoudigInformatieObjectCanonical",
+        on_delete=models.CASCADE,
+        related_name="bestandsdelen",
+        null=True,
+        blank=True,
+    )
+    informatieobject_uuid = models.UUIDField(
+        verbose_name=_("EnkelvoudigInformatieObject UUID"),
+        help_text=_(
+            "De unieke identifier van het gerelateerde EnkelvoudigInformatieObject in het "
+            "achterliggende Document Management Systeem."
+        ),
+        blank=True,
+        null=True,
+    )
+    volgnummer = models.PositiveIntegerField(
+        help_text=_("Een volgnummer dat de volgorde van de bestandsdelen aangeeft.")
+    )
+    omvang = models.PositiveIntegerField(
+        help_text=_("De grootte van dit specifieke bestandsdeel.")
+    )
+    inhoud = PrivateMediaFileField(
+        upload_to="part-uploads/%Y/%m/",
+        blank=True,
+        help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
+    )
+    datetime_created = models.DateTimeField(_("datetime created"), auto_now_add=True)
+
+    objects = BestandsDeelQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = "bestandsdeel"
+        verbose_name_plural = "bestandsdelen"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("informatieobject", "volgnummer"),
+                condition=Q(informatieobject__isnull=False),
+                name="unique_informatieobject_fk_and_volgnummer",
+            ),
+            models.UniqueConstraint(
+                fields=("informatieobject_uuid", "volgnummer"),
+                condition=Q(informatieobject_uuid__isnull=False),
+                name="unique_informatieobject_uuid_and_volgnummer",
+            ),
+            models.CheckConstraint(check=Q(omvang__gt=0), name="check_omvang",),
+            models.CheckConstraint(
+                check=Q(
+                    informatieobject__isnull=True, informatieobject_uuid__isnull=False
+                )
+                | Q(informatieobject__isnull=False, informatieobject_uuid__isnull=True),
+                name="informatieobject_fk_or_informatieobject_mutex",
+            ),
+        ]
+
+    def unique_representation(self):
+        informatieobject = self.informatieobject.latest_version
+        return f"({informatieobject.unique_representation()}) - {self.volgnummer}"
+
+    def get_informatieobject(self, permission_main_object=None):
+        """
+        For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
+        """
+        if settings.CMIS_ENABLED:
+            eio_uuid = self.informatieobject_uuid
+            return (
+                EnkelvoudigInformatieObject.objects.filter(uuid=eio_uuid)
+                .order_by("-versie")
+                .first()
+            )
+        else:
+            return self.informatieobject.latest_version
+
+    def get_current_lock_value(self) -> str:
+        informatieobject = self.get_informatieobject()
+        return informatieobject.canonical.lock
+
+    @property
+    def voltooid(self) -> bool:
+        if not bool(self.inhoud.name):
+            return False
+
+        return self.inhoud.size == self.omvang
 
 
 class Gebruiksrechten(models.Model, CMISClientMixin):

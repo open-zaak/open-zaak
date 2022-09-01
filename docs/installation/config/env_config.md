@@ -90,7 +90,16 @@ on Docker, since `localhost` is contained within the container:
   `487`.
 
 * `MIN_UPLOAD_SIZE`: the max allowed size of POST bodies, in bytes. Defaults to
-  4GB. Note that you should also configure your web server to allow this.
+  4GiB. Note that you should also configure your web server to allow this.
+
+* `DOCUMENTEN_UPLOAD_CHUNK_SIZE`: chunk size in bytes for large file uploads -
+  determines the size for a single upload chunk. Defaults to the value of
+  `MIN_UPLOAD_SIZE`. Note that making this larger than `MIN_UPLOAD_SIZE` breaks large
+  file uploads.
+
+* `DOCUMENTEN_UPLOAD_READ_CHUNK`: chunk size in bytes for large file uploads - when
+  merging upload chunks, this determines the number of bytes read to copy to the
+  destination file. Defaults to 6 MiB.
 
 * `SENDFILE_BACKEND`: which backend to use for authorization-secured upload
   downloads. Defaults to `sendfile.backends.nginx`. See

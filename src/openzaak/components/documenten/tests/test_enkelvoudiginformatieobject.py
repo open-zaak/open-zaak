@@ -97,6 +97,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "url": f"http://testserver{expected_url}",
                 "inhoud": f"http://testserver{expected_file_url}?versie=1",
                 "versie": 1,
+                "bestandsdelen": [],
                 "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
                     "+00:00", "Z"
                 ),
@@ -109,6 +110,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "indicatieGebruiksrecht": None,
                 "status": "",
                 "locked": False,
+                "lock": "",
             }
         )
 
@@ -231,6 +233,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "url": f"http://testserver{detail_url}",
             "identificatie": str(test_object.identificatie),
             "bronorganisatie": test_object.bronorganisatie,
+            "bestandsdelen": [],
             "creatiedatum": "2018-06-27",
             "titel": "some titel",
             "auteur": "some auteur",
@@ -515,6 +518,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             {
                 "beschrijving": "beschrijving2",
                 "inhoud": b64encode(b"aaaaa"),
+                "bestandsomvang": 5,
                 "lock": lock,
             }
         )

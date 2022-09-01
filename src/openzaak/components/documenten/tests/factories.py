@@ -21,6 +21,8 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 
+from ..models import BestandsDeel
+
 
 class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -44,6 +46,7 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     formaat = "some formaat"
     taal = "nld"
     inhoud = factory.django.FileField(data=b"some data", filename="file.bin")
+    bestandsomvang = factory.LazyAttribute(lambda o: o.inhoud.size)
     informatieobjecttype = factory.SubFactory(InformatieObjectTypeFactory)
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
 
@@ -79,3 +82,24 @@ class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "documenten.Gebruiksrechten"
+
+
+class BestandsDeelFactory(factory.django.DjangoModelFactory):
+    informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
+    inhoud = factory.django.FileField(data=b"some data", filename="file_part.bin")
+    omvang = factory.LazyAttribute(lambda o: o.inhoud.size)
+
+    class Meta:
+        model = "documenten.BestandsDeel"
+
+    @factory.lazy_attribute
+    def volgnummer(self) -> int:
+        # note that you need to use create to get an accurate count of other created
+        # instances.
+        io_uuid = getattr(self, "informatieobject_uuid", None)
+        existing_bestandsdelen = (
+            BestandsDeel.objects.filter(informatieobject_uuid=io_uuid)
+            if io_uuid
+            else self.informatieobject.bestandsdelen
+        )
+        return existing_bestandsdelen.count() + 1
