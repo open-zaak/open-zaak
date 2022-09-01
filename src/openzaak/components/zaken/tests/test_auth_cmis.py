@@ -14,7 +14,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN
@@ -22,7 +22,7 @@ from ..models import ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
@@ -75,7 +75,8 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN]

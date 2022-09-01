@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from datetime import datetime
 
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -17,14 +17,14 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...documenten.models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from ..models import Zaak, ZaakInformatieObject
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 

@@ -3,7 +3,7 @@
 import uuid
 from base64 import b64encode
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
@@ -11,14 +11,14 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..api.scopes import SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
 
@@ -149,7 +149,7 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertNotIn("lock", response.data)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EioUnlockAPITests(JWTAuthMixin, APICMISTestCase):
 

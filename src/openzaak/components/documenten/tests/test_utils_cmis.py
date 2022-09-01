@@ -12,10 +12,11 @@ from openzaak.components.documenten.query.cmis import get_zaak_and_zaaktype_data
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
 

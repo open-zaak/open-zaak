@@ -3,7 +3,7 @@
 import json
 
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
@@ -16,13 +16,13 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationServiceMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase):
@@ -72,7 +72,7 @@ class SendNotifTestCase(NotificationServiceMixin, JWTAuthMixin, APICMISTestCase)
             self.assertEqual(value, notificatie_request[key])
 
 
-@tag("cmis")
+@require_cmis
 @freeze_time("2019-01-01T12:00:00Z")
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True

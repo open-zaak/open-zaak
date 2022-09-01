@@ -12,7 +12,7 @@ from zgw_consumers.test import mock_service_oas_get
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...catalogi.tests.factories import ZaakTypeFactory
 from ..api.scopes import (
@@ -25,7 +25,8 @@ from .assertions import CRUDAssertions
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
-@tag("closed-zaak", "cmis")
+@tag("closed-zaak")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ClosedZaakRelatedDataNotAllowedCMISTests(
     JWTAuthMixin, CRUDAssertions, APICMISTestCase
@@ -94,7 +95,8 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         self.assertDestroyBlocked(zio_url)
 
 
-@tag("closed-zaak", "cmis")
+@tag("closed-zaak")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ClosedZaakRelatedDataAllowedCMISTests(
     JWTAuthMixin, CRUDAssertions, APICMISTestCase

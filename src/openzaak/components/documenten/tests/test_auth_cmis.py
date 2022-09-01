@@ -21,7 +21,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import ObjectInformatieObject
@@ -30,7 +30,7 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
     def test_cannot_create_io_without_correct_scope(self):
@@ -58,7 +58,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
                 self.assertForbidden(url, method="get")
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -162,7 +162,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response_data), 4)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
@@ -260,7 +260,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
@@ -383,7 +383,8 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -516,7 +517,8 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
 
-@tag("external-urls", "cmis")
+@tag("external-urls")
+@require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
 class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]

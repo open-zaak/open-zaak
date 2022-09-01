@@ -4,7 +4,7 @@
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
 from django.conf import settings
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
@@ -12,14 +12,14 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US349TestCase(JWTAuthMixin, APICMISTestCase):
     @classmethod

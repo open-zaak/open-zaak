@@ -2,10 +2,13 @@
 # Copyright (C) 2022 Dimpact
 import json
 import os
+from unittest import skipIf
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import serializers
+from django.test import tag
 
 import requests_mock
 from djangorestframework_camel_case.util import camelize
@@ -13,7 +16,26 @@ from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework.test import APITestCase, APITransactionTestCase
 
+from .helpers import can_connect
 from .mocks import MockSchemasMixin, get_eio_response
+
+ALFRESCO_BASE_URL = "http://localhost:8082/alfresco/"
+
+
+def require_cmis(method_or_class):
+    """
+    Decorates a test case or method as a CMIS test case.
+
+    * if the CMIS host is not available, the test(s) will be skipped
+    * the test(s) is/are tagged so you can easily run _only_ the CMIS tests
+    """
+    parsed = urlparse(ALFRESCO_BASE_URL)
+    cmis_available = can_connect(parsed.netloc)
+    possibly_skipped = skipIf(not cmis_available, "CMIS host is not available")(
+        method_or_class
+    )
+    tagged = tag("cmis")(possibly_skipped)
+    return tagged
 
 
 class CMISMixin(MockSchemasMixin):
@@ -29,7 +51,7 @@ class CMISMixin(MockSchemasMixin):
         binding = os.getenv("CMIS_BINDING")
         if binding == "WEBSERVICE":
             config = CMISConfig.get_solo()
-            config.client_url = "http://localhost:8082/alfresco/cmisws"
+            config.client_url = f"{ALFRESCO_BASE_URL}cmisws"
             config.binding = "WEBSERVICE"
             config.other_folder_path = "/DRC/"
             config.zaak_folder_path = "/ZRC/{{ zaaktype }}/{{ zaak }}"
@@ -41,7 +63,9 @@ class CMISMixin(MockSchemasMixin):
             config.save()
         elif binding == "BROWSER":
             config = CMISConfig.get_solo()
-            config.client_url = "http://localhost:8082/alfresco/api/-default-/public/cmis/versions/1.1/browser"
+            config.client_url = (
+                f"{ALFRESCO_BASE_URL}api/-default-/public/cmis/versions/1.1/browser"
+            )
             config.binding = "BROWSER"
             config.other_folder_path = "/DRC/"
             config.zaak_folder_path = "/ZRC/{{ zaaktype }}/{{ zaak }}/"

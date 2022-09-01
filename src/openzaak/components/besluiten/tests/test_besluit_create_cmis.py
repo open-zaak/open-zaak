@@ -3,7 +3,7 @@
 from datetime import date
 
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -13,7 +13,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...zaken.tests.factories import ZaakFactory
 from ..constants import VervalRedenen
@@ -22,7 +22,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 

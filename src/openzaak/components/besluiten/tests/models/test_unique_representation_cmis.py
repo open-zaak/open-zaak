@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import APICMISTestCase
+from openzaak.tests.utils import APICMISTestCase, require_cmis
 
 from ...tests.factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
-@tag("cmis")
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class UniqueRepresentationTestCMISCase(APICMISTestCase):
     def test_besluitinformatieobject(self):

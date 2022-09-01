@@ -3,7 +3,12 @@
 from .admin import AdminTestMixin
 from .auth import JWTAuthMixin, generate_jwt_auth
 from .cache import ClearCachesMixin
-from .cmis import APICMISTestCase, APICMISTransactionTestCase, serialise_eio
+from .cmis import (
+    APICMISTestCase,
+    APICMISTransactionTestCase,
+    require_cmis,
+    serialise_eio,
+)
 from .mocks import (
     MockSchemasMixin,
     get_eio_response,
@@ -34,4 +39,5 @@ __all__ = [
     "APICMISTestCase",
     "APICMISTransactionTestCase",
     "serialise_eio",
+    "require_cmis",
 ]

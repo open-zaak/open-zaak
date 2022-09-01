@@ -11,7 +11,6 @@ Note that you should have the CI docker-compose running with the mock endpoints,
 uses the self-signed certificates.
 """
 import os
-import socket
 from unittest import TestCase, skipIf
 
 from django.conf import settings
@@ -19,23 +18,12 @@ from django.conf import settings
 import requests
 
 from openzaak.setup import EXTRA_CERTS_ENVVAR, load_self_signed_certs
+from openzaak.tests.utils.helpers import can_connect
 
 CERTS_DIR = os.path.join(settings.BASE_DIR, "docker", "certs")
 
 HOST = "localhost:9001"
 PUBLIC_INTERNET_HOST = "github.com:443"
-
-
-def can_connect(hostname: str):
-    # adapted from https://stackoverflow.com/a/28752285
-    hostname, port = hostname.split(":")
-    try:
-        host = socket.gethostbyname(hostname)
-        s = socket.create_connection((host, port), 2)
-        s.close()
-        return True
-    except Exception:
-        return False
 
 
 class SelfSignedCertificateTests(TestCase):
