@@ -1,6 +1,20 @@
 Changelog
 =========
 
+1.7.3 (2022-09-01)
+------------------
+
+Bugfix release
+
+* [#1233] Fixed a crash when using single-sign on via OpenID Connect
+* Fixed docker-compose setup (thanks Bart Jeukendrup)
+* Bumped django and django-sendfile2 to latest security patches
+* Applied workaround for large catalogus export crashes
+* [#1228] Made response data for empty Zaak.verlenging uniform - now always
+  returns ``null`` if there is no extension
+* [#1247, #1248] Fixed datepicker calendar being hidden behind another layer in the UI
+* [#1198] Fixed ``ordering`` parameter in ``zaak__zoek`` POST body not being respected
+
 1.7.2 (2022-07-26)
 ------------------
 

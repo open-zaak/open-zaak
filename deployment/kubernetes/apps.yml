@@ -14,7 +14,7 @@
   roles:
     - role: open_zaak_k8s
       vars:  # these override vars_files
-        openzaak_version: openzaak_version: '1.7.2'
+        openzaak_version: openzaak_version: '1.7.3'
         openzaak_db_host: "{{ db.privateIp }}"
         openzaak_db_port: "{{ db.port }}"
       tags:
