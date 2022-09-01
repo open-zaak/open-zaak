@@ -146,7 +146,7 @@ djangorestframework-camel-case==1.2.0
     #   vng-api-common
 djangorestframework-gis==0.18
     # via -r requirements/base.in
-drc-cmis==1.5.0
+drc-cmis==1.5.1
     # via -r requirements/base.in
 drf-extra-fields==3.4.0
     # via -r requirements/base.in

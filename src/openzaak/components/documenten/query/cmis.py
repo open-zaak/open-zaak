@@ -596,8 +596,8 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         updated = 0
         seen = set()
 
-        if kwargs.get("inhoud") == "":
-            kwargs["inhoud"] = None
+        if not (inhoud := kwargs.get("inhoud")):
+            inhoud = None
 
         for django_doc in docs_to_update:
             # skip over duplicate canonicals!
@@ -612,7 +612,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
                 drc_uuid=django_doc.uuid,
                 lock=canonical_obj.lock,
                 data=kwargs,
-                content=kwargs.get("inhoud"),
+                content=inhoud,
             )
             canonical_obj.unlock_document(
                 doc_uuid=django_doc.uuid, lock=canonical_obj.lock

@@ -262,7 +262,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         allow_null=True,
     )
     bestandsomvang = serializers.IntegerField(
-        # source="bestandsomvang",
         allow_null=True,
         required=False,
         min_value=0,
@@ -778,7 +777,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
             file_dir = Path(settings.PRIVATE_MEDIA_ROOT)
             target_file = merge_files(part_files, file_dir, file_name)
             # save full file to the instance FileField
-            with open(target_file) as file_obj:
+            with open(target_file, "rb") as file_obj:
                 self.instance.inhoud = File(file_obj, name=file_name)
                 self.instance.save()
 
