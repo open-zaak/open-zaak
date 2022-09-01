@@ -1,6 +1,44 @@
 Changelog
 =========
 
+1.8.0 (2022-09-??)
+------------------
+
+.. warning::
+
+   Manual intervention required for ADFS/AAD users.
+
+   In Open Zaak 1.7.x we replaced the ADFS/Azure AD integration with the generic OIDC
+   integration. If you are upgrading from an older version, you must first upgrade to
+   the 1.7.x release series before upgrading to 1.8, and follow the manual intervention
+   steps in the 1.7 release notes.
+
+   After upgrading to 1.8, you can clean up the ADFS database entries by executing the
+   ``bin/uninstall_adfs.sh`` script on your infrastructure.
+
+   .. tabs::
+
+     .. group-tab:: single-server
+
+       .. code-block:: bash
+
+           docker exec openzaak-0 ./bin/uninstall_adfs.sh
+
+     .. group-tab:: Kubernetes
+
+       .. code-block:: bash
+
+           $ kubectl get pods
+           NAME                        READY   STATUS    RESTARTS   AGE
+           cache-79455b996-jxk9r       1/1     Running   0          2d9h
+           nginx-8579d9dfbd-gdtbf      1/1     Running   0          2d9h
+           nginx-8579d9dfbd-wz6wn      1/1     Running   0          2d9h
+           openzaak-7b696c8fd5-hchbq   1/1     Running   0          2d9h
+           openzaak-7b696c8fd5-kz2pb   1/1     Running   0          2d9h
+
+           $ kubectl exec openzaak-7b696c8fd5-hchbq -- ./bin/uninstall_adfs.sh
+
+
 1.7.2 (2022-07-26)
 ------------------
 
