@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path, re_path
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
 
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
@@ -37,16 +37,6 @@ urlpatterns = [
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("vng_api_common.notifications.urls")),
     # auth backends
-    # See #1139 - the ADFS backend is phasing out. We provide redirects to give users time
-    # to update their redirect URIs on the ADFS side.
-    path(
-        "adfs/callback",
-        RedirectView.as_view(
-            permanent=True,
-            query_string=True,
-            pattern_name="oidc_authentication_callback",
-        ),
-    ),
     path("oidc/", include("mozilla_django_oidc.urls")),
     # custom error documents for nginx
     path(

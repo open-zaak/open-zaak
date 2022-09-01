@@ -72,7 +72,6 @@ coverage==6.3.2
 cryptography==3.4.8
     # via
     #   -r requirements/base.txt
-    #   django-auth-adfs
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
@@ -86,8 +85,6 @@ django==3.2.15
     # via
     #   -r requirements/base.txt
     #   django-admin-index
-    #   django-auth-adfs
-    #   django-auth-adfs-db
     #   django-axes
     #   django-choices
     #   django-cors-headers
@@ -113,12 +110,6 @@ django==3.2.15
     #   vng-api-common
     #   zgw-consumers
 django-admin-index==2.0.2
-    # via -r requirements/base.txt
-django-auth-adfs==1.6.1
-    # via
-    #   -r requirements/base.txt
-    #   django-auth-adfs-db
-django-auth-adfs-db==0.3.0
     # via -r requirements/base.txt
 django-axes==5.31.0
     # via -r requirements/base.txt
@@ -178,7 +169,6 @@ django-sniplates==0.7.0
 django-solo==2.0.0
     # via
     #   -r requirements/base.txt
-    #   django-auth-adfs-db
     #   drc-cmis
     #   mozilla-django-oidc-db
     #   vng-api-common
@@ -334,7 +324,6 @@ pyflakes==2.2.0
 pyjwt==2.4.0
     # via
     #   -r requirements/base.txt
-    #   django-auth-adfs
     #   gemma-zds-client
     #   vng-api-common
 pyopenssl==21.0.0
@@ -383,7 +372,6 @@ requests==2.27.1
     # via
     #   -r requirements/base.txt
     #   coreapi
-    #   django-auth-adfs
     #   gemma-zds-client
     #   mozilla-django-oidc
     #   requests-cache

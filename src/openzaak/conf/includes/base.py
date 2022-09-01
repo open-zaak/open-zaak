@@ -126,8 +126,6 @@ INSTALLED_APPS = [
     # 'django.contrib.humanize',
     # External applications.
     "axes",
-    "django_auth_adfs",
-    "django_auth_adfs_db",
     "django_filters",
     "django_db_logger",
     "corsheaders",
@@ -499,11 +497,6 @@ NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we
 # 3RD PARTY LIBRARY SETTINGS #
 #                            #
 ##############################
-
-#
-# AUTH-ADFS
-#
-AUTH_ADFS = {"SETTINGS_CLASS": "django_auth_adfs_db.settings.Settings"}
 
 #
 # DJANGO-AXES
