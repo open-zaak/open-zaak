@@ -6,8 +6,10 @@ gemeente zodat ik weet wat er speelt of dat een melding al gedaan is.
 
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/42
 """
+from datetime import date
+
 from django.contrib.gis.geos import Point
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -119,3 +121,35 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "empty_search_body")
+
+    @tag("gh-1198")
+    def test_zoek_ordering(self):
+        url = get_operation_url("zaak__zoek")
+        zaak1 = ZaakFactory.create(startdatum=date(2022, 9, 1))
+        zaak2 = ZaakFactory.create(startdatum=date(2021, 11, 14))
+        body = {
+            "uuid__in": [zaak1.uuid, zaak2.uuid],
+            "ordering": "-startdatum",
+        }
+
+        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.json()["results"]
+        self.assertEqual(results[0]["identificatie"], zaak1.identificatie)
+        self.assertEqual(results[1]["identificatie"], zaak2.identificatie)
+
+    @tag("gh-1198")
+    def test_zoek_filter_backend_fields(self):
+        url = get_operation_url("zaak__zoek")
+        ZaakFactory.create(startdatum=date(2022, 9, 1))
+        zaak2 = ZaakFactory.create(startdatum=date(2022, 9, 1))
+        body = {"identificatie": zaak2.identificatie}
+
+        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.json()["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["identificatie"], zaak2.identificatie)
