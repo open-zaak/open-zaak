@@ -538,11 +538,27 @@ class BestandsDeel(models.Model):
     objects = BestandsDeelQuerySet.as_manager()
 
     class Meta:
-        verbose_name = "bestands deel"
-        verbose_name_plural = "bestands delen"
-        unique_together = ("informatieobject", "volgnummer")
+        verbose_name = "bestandsdeel"
+        verbose_name_plural = "bestandsdelen"
         constraints = [
+            models.UniqueConstraint(
+                fields=("informatieobject", "volgnummer"),
+                condition=Q(informatieobject__isnull=False),
+                name="unique_informatieobject_fk_and_volgnummer",
+            ),
+            models.UniqueConstraint(
+                fields=("informatieobject_uuid", "volgnummer"),
+                condition=Q(informatieobject_uuid__isnull=False),
+                name="unique_informatieobject_uuid_and_volgnummer",
+            ),
             models.CheckConstraint(check=Q(omvang__gt=0), name="check_omvang",),
+            models.CheckConstraint(
+                check=Q(
+                    informatieobject__isnull=True, informatieobject_uuid__isnull=False
+                )
+                | Q(informatieobject__isnull=False, informatieobject_uuid__isnull=True),
+                name="informatieobject_fk_or_informatieobject_mutex",
+            ),
         ]
 
     def unique_representation(self):
