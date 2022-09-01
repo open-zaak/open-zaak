@@ -445,8 +445,12 @@ ENVIRONMENT_SHOWN_IN_ADMIN = True
 
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
-DOCUMENTEN_UPLOAD_CHUNK_SIZE = 4 * 2 ** 30  # 4 GB
-DOCUMENTEN_UPLOAD_READ_CHUNK = 6 * 2 ** 20  # 6 MB
+# default to the MIN_UPLOAD_SIZE, as that is typically the maximum post body size configured
+# in the webserver
+DOCUMENTEN_UPLOAD_CHUNK_SIZE = config("DOCUMENTEN_UPLOAD_CHUNK_SIZE", MIN_UPLOAD_SIZE)
+DOCUMENTEN_UPLOAD_READ_CHUNK = config(
+    "DOCUMENTEN_UPLOAD_READ_CHUNK", 6 * 2 ** 20
+)  # 6 MB default
 DOCUMENTEN_UPLOAD_DEFAULT_EXTENSION = "bin"
 
 # urls for OAS3 specifications
