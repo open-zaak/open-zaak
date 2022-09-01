@@ -8,10 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
@@ -40,6 +39,7 @@ from openzaak.utils.api import (
     delete_remote_oio,
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.filters import SearchOrderingFilter
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
@@ -235,7 +235,7 @@ class ZaakViewSet(
     )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
-    filter_backends = (Backend, OrderingFilter)
+    filter_backends = (Backend, SearchOrderingFilter)
     filterset_class = ZaakFilter
     ordering_fields = ("startdatum",)
     lookup_field = "uuid"
@@ -262,6 +262,12 @@ class ZaakViewSet(
         Zoeken/filteren gaat normaal via de `list` operatie, deze is echter
         niet geschikt voor geo-zoekopdrachten.
         """
+        if not request.data:
+            err = serializers.ErrorDetail(
+                _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
+
         search_input = self.get_search_input()
         queryset = self.filter_queryset(self.get_queryset())
 
