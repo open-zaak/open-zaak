@@ -9,12 +9,11 @@ from django.test import override_settings
 
 from privates.test import temp_private_root
 from rest_framework import status
-from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
@@ -29,9 +28,10 @@ from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import get_operation_url, split_file
 
 
+@require_cmis
 @temp_private_root()
 @override_settings(CMIS_ENABLED=True)
-class SmallFileUpload(JWTAuthMixin, APITestCase):
+class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
     component = ComponentTypes.drc
     scopes = [
         SCOPE_DOCUMENTEN_LOCK,
@@ -514,11 +514,12 @@ class SmallFileUpload(JWTAuthMixin, APITestCase):
         self.assertNotEqual(eio.bestandsomvang, eio_new.bestandsomvang)
 
 
+@require_cmis
 @temp_private_root()
 @override_settings(
     DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
 )
-class LargeFileAPITests(JWTAuthMixin, APITestCase):
+class LargeFileAPITests(JWTAuthMixin, APICMISTestCase):
     component = ComponentTypes.drc
     scopes = [
         SCOPE_DOCUMENTEN_LOCK,

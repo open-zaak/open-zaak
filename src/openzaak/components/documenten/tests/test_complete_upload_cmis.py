@@ -5,17 +5,17 @@ from io import BytesIO
 from django.core.files import File
 from django.test import override_settings
 
-from rest_framework.test import APITestCase
-
 from openzaak.components.documenten.models import BestandsDeel
+from openzaak.tests.utils import APICMISTestCase, require_cmis
 
 from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
 
 
+@require_cmis
 @override_settings(
     DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
 )
-class UploadTestCase(APITestCase):
+class UploadTestCase(APICMISTestCase):
     def test_complete_upload_true(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         BestandsDeelFactory.create(
