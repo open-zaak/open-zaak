@@ -28,11 +28,10 @@ from ..zaken.models import ZaakInformatieObject
 from .constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
 from .managers import (
     AdapterManager,
-    BestandsDelenManager,
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
-from .query.django import InformatieobjectQuerySet
+from .query.django import BestandsDeelQuerySet, InformatieobjectQuerySet
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
@@ -536,7 +535,7 @@ class BestandsDeel(models.Model):
     )
     datetime_created = models.DateTimeField(_("datetime created"), auto_now_add=True)
 
-    objects = BestandsDelenManager()
+    objects = BestandsDeelQuerySet.as_manager()
 
     class Meta:
         verbose_name = "bestands deel"
