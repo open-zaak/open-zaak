@@ -7,7 +7,6 @@ from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
@@ -535,7 +534,7 @@ class BestandsDeel(models.Model):
         blank=True,
         help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
     )
-    datetime_created = models.DateTimeField(_("datetime created"), default=timezone.now)
+    datetime_created = models.DateTimeField(_("datetime created"), auto_now_add=True)
 
     objects = BestandsDelenManager()
 
