@@ -13,7 +13,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFacto
 class UniqueRepresentationTestCase(APITestCase):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
-            bronorganisatie=730924658,
+            bronorganisatie="730924658",
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
 
@@ -24,7 +24,7 @@ class UniqueRepresentationTestCase(APITestCase):
 
     def test_gebruiksrechten(self):
         gebruiksrechten = GebruiksrechtenFactory(
-            informatieobject__latest_version__bronorganisatie=730924658,
+            informatieobject__latest_version__bronorganisatie="730924658",
             informatieobject__latest_version__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
             omschrijving_voorwaarden="some conditions",
         )
@@ -38,7 +38,7 @@ class UniqueRepresentationTestCase(APITestCase):
     def test_oio(self):
         zaak = ZaakFactory.create(identificatie="12345")
         eio = EnkelvoudigInformatieObjectFactory.create(
-            bronorganisatie=730924658,
+            bronorganisatie="730924658",
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
         )
 
@@ -49,4 +49,24 @@ class UniqueRepresentationTestCase(APITestCase):
         self.assertEqual(
             oio.unique_representation(),
             "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - 12345",
+        )
+
+    @tag("oio", "external-urls")
+    def test_oio_with_verzoek(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            bronorganisatie="730924658",
+            identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+        )
+
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=eio.canonical,
+            verzoek="https://extern.vrc.nl/api/v1/verzoeken/123",
+            object_type="verzoek",
+        )
+
+        # not a model we can generate a representation for -> take the last fragment
+        # of the API URL
+        self.assertEqual(
+            oio.unique_representation(),
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - 123",
         )

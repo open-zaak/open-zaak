@@ -14,11 +14,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile, File
 from django.db import transaction
-from django.db.models import URLField
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -58,6 +56,7 @@ from ..models import (
 from ..query.cmis import flatten_gegevens_groep
 from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
+from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
     InformatieObjectUniqueValidator,
@@ -844,15 +843,6 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
         return ret
 
 
-class CustomFKOrURLField(FKOrURLField):
-    def get_attribute(self, instance):
-        model_field = self._get_model_and_field()[1]
-        if isinstance(model_field, URLField):
-            return getattr(instance, model_field.name)
-
-        return super().get_attribute(instance)
-
-
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
@@ -862,7 +852,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = CustomFKOrURLField(
+    object = OnlyRemoteOrFKOrURLField(
         max_length=1000,
         min_length=1,
         help_text=_(

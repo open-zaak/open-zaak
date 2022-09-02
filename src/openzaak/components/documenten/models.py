@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import uuid as _uuid
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models, transaction
@@ -20,6 +21,7 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 
+from openzaak.utils.fields import AliasField
 from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
@@ -742,21 +744,24 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
     )
 
     # relations to the possible other objects
-    _zaak_url = models.URLField(_("extern zaak"), blank=True, max_length=1000)
+    _object_url = models.URLField(_("extern object"), blank=True, max_length=1000)
     _zaak = models.ForeignKey(
         "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
     )
-    zaak = FkOrURLField(fk_field="_zaak", url_field="_zaak_url", blank=True, null=True,)
-
-    _besluit_url = models.URLField(_("extern besluit"), blank=True, max_length=1000)
     _besluit = models.ForeignKey(
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
-    besluit = FkOrURLField(
-        fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
+    zaak = FkOrURLField(
+        fk_field="_zaak", url_field="_object_url", blank=True, null=True,
     )
-
-    verzoek = models.URLField(_("extern verzoek"), blank=True, max_length=1000)
+    besluit = FkOrURLField(
+        fk_field="_besluit", url_field="_object_url", blank=True, null=True,
+    )
+    verzoek = AliasField(
+        _object_url,
+        allow_write_when=lambda instance: instance.object_type
+        == ObjectInformatieObjectTypes.verzoek,
+    )
 
     objects = ObjectInformatieObjectAdapterManager()
 
@@ -765,48 +770,44 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
         verbose_name_plural = _("objectinformatieobjecten")
         # check that only one loose-fk field (fk or url) is filled
         constraints = [
+            # mutual exclusive check on zaak fk, besluit fk or object url
             models.CheckConstraint(
-                check=Q(
-                    Q(_zaak_url="", _zaak__isnull=False)
-                    | Q(~Q(_zaak_url=""), _zaak__isnull=True),
-                    object_type=ObjectInformatieObjectTypes.zaak,
-                    _besluit__isnull=True,
-                    _besluit_url="",
-                    verzoek="",
-                )
-                | Q(
-                    Q(_besluit_url="", _besluit__isnull=False)
-                    | Q(~Q(_besluit_url=""), _besluit__isnull=True),
-                    object_type=ObjectInformatieObjectTypes.besluit,
-                    _zaak__isnull=True,
-                    _zaak_url="",
-                    verzoek="",
-                )
-                | Q(
-                    ~Q(verzoek=""),
-                    object_type=ObjectInformatieObjectTypes.verzoek,
-                    _zaak__isnull=True,
-                    _zaak_url="",
-                    _besluit__isnull=True,
-                    _besluit_url="",
+                check=(
+                    Q(_object_url="", _zaak__isnull=False, _besluit__isnull=True)
+                    | Q(_object_url="", _zaak__isnull=True, _besluit__isnull=False)
+                    | Q(~Q(_object_url=""), _zaak__isnull=True, _besluit__isnull=True)
                 ),
-                name="check_type",
+                name="object_reference_fields_mutex",
             ),
+            # correct field filled, depending on object type
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        Q(_zaak__isnull=False) | ~Q(_object_url=""),
+                        object_type=ObjectInformatieObjectTypes.zaak,
+                    )
+                    | Q(
+                        Q(_besluit__isnull=False) | ~Q(_object_url=""),
+                        object_type=ObjectInformatieObjectTypes.besluit,
+                    )
+                    | Q(
+                        ~Q(_object_url=""),
+                        object_type=ObjectInformatieObjectTypes.verzoek,
+                    )
+                ),
+                name="correct_field_set_for_object_type",
+            ),
+            # unique constraints - combination of document and object may only occur once
             models.UniqueConstraint(
                 fields=("informatieobject", "_zaak"), name="unique_io_zaak_local"
-            ),
-            models.UniqueConstraint(
-                fields=("informatieobject", "_zaak_url"),
-                name="unique_io_zaak_external",
-                condition=~Q(_zaak_url=""),
             ),
             models.UniqueConstraint(
                 fields=("informatieobject", "_besluit"), name="unique_io_besluit_local"
             ),
             models.UniqueConstraint(
-                fields=("informatieobject", "_besluit_url"),
-                name="unique_io_besluit_external",
-                condition=~Q(_besluit_url=""),
+                fields=("informatieobject", "_object_url"),
+                name="unique_io_object_external",
+                condition=~Q(_object_url=""),
             ),
         ]
 
@@ -824,7 +825,12 @@ class ObjectInformatieObject(models.Model, CMISClientMixin):
             informatieobject = self.get_informatieobject()
         else:
             informatieobject = self.informatieobject.latest_version
-        io_id = self.object.identificatie
+        if self.object_type == ObjectInformatieObjectTypes.verzoek:
+            # string
+            parsed = urlparse(self.object)
+            io_id = parsed.path.rsplit("/", 1)[-1]
+        else:
+            io_id = self.object.identificatie
         return f"({informatieobject.unique_representation()}) - {io_id}"
 
     def save(self, *args, **kwargs):

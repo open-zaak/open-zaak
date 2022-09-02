@@ -29,6 +29,7 @@ from openzaak.utils.mixins import CMISClientMixin
 from ...besluiten.models import Besluit
 from ...catalogi.models.informatieobjecttype import InformatieObjectType
 from ...zaken.models import Zaak
+from ..api.utils import check_path
 from ..utils import Cmisdoc, CMISStorageFile
 from .django import (
     InformatieobjectQuerySet,
@@ -764,7 +765,7 @@ class ObjectInformatieObjectCMISQuerySet(
             split_key[0] = split_key[0].strip("_")
             if len(split_key) > 1 and split_key[1] not in ["exact", "in"]:
                 raise NotImplementedError(
-                    "Fields lookups other than exact are not implemented yet."
+                    "Fields lookups other than exact/in are not implemented yet."
                 )
 
             # If the value is a queryset, extract the objects
@@ -776,8 +777,19 @@ class ObjectInformatieObjectCMISQuerySet(
 
             if split_key[0] in ["besluit", "zaak"]:
                 converted_data[split_key[0]] = make_absolute_uri(reverse(value))
-            elif split_key[0] in ["besluit_url", "zaak_url"]:
-                converted_data[split_key[0].split("_")[0]] = value
+            elif split_key[0] == "object_url":
+                # figure out the API resource from the value
+                # TODO - this is ugly, there has to be a better way. Unfortunately,
+                # we have no guarantee that `object_type` is present, so we have to
+                # guess from the resource URL
+                cmis_attr = ""
+                if check_path(value, "besluiten"):
+                    cmis_attr = "besluit"
+                elif check_path(value, "zaken"):
+                    cmis_attr = "zaak"
+                elif check_path(value, "verzoeken"):
+                    cmis_attr = "verzoek"
+                converted_data[cmis_attr] = value
             else:
                 converted_data[split_key[0]] = value
 
@@ -799,7 +811,7 @@ class ObjectInformatieObjectCMISQuerySet(
             )
         elif len(related_objects) == num_empty_relations:
             raise IntegrityError(
-                "ObjectInformatie object needs to have either a Zaak or Besluit relation"
+                "ObjectInformatie object needs to have either a Zaak, Besluit or Verzoek relation"
             )
 
         zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(
@@ -1014,13 +1026,16 @@ def cmis_oio_to_django(cmis_oio):
 
     canonical = EnkelvoudigInformatieObjectCanonical()
 
+    # only pass the kwarg that is relevant for the object_type (either zaak/besluit/verzooek)
+    object_kwargs = {
+        cmis_oio.object_type: getattr(cmis_oio, cmis_oio.object_type),
+    }
+
     django_oio = ObjectInformatieObject(
         uuid=uuid.UUID(cmis_oio.uuid),
         informatieobject=canonical,
-        zaak=cmis_oio.zaak,
-        besluit=cmis_oio.besluit,
-        verzoek=cmis_oio.verzoek,
         object_type=cmis_oio.object_type,
+        **object_kwargs,
     )
 
     return django_oio

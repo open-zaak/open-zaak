@@ -53,14 +53,18 @@ class InformatieObjectUniqueValidator:
     message = _("The fields object and informatieobject must make a unique set.")
     code = "unique"
 
-    def __call__(self, context: OrderedDict):
-        # The context contains the keys: informatieobject (eio), object_type (whether it is a relation with zaak,
-        # besluit or verzoek) and 'object' (the actual zaak, besluit or verzoek). The 'object' key needs to be replaced
-        # with 'zaak', 'besluit' or 'verzoek' as there is no 'object' attribute in the objectinformatieobject model.
-        object = context.pop("object")
-        context.update({context["object_type"]: object})
+    def __call__(self, attrs: OrderedDict):
+        # The attrs contain the keys:
+        # * 'informatieobject' (eio)
+        # * 'object_type' (whether it is a relation with zaak, besluit or verzoek)
+        # * 'object' (the actual zaak, besluit or verzoek)
+        #
+        # The 'object' key needs to be replaced with 'zaak', 'besluit' or 'verzoek' as
+        # there is no 'object' attribute in the objectinformatieobject model.
+        object = attrs.pop("object")
+        attrs.update({attrs["object_type"]: object})
 
-        oios = ObjectInformatieObject.objects.filter(**context).exists()
+        oios = ObjectInformatieObject.objects.filter(**attrs).exists()
 
         if oios:
             raise serializers.ValidationError(detail=self.message, code=self.code)
@@ -159,10 +163,7 @@ class CreateRemoteRelationValidator:
         self.request = request
 
     def __call__(self, document, object, object_type):
-        if isinstance(object, str):
-            object_url = object
-        else:
-            object_url = object._loose_fk_data["url"]
+        object_url = object if isinstance(object, str) else object._loose_fk_data["url"]
 
         if settings.CMIS_ENABLED:
             document_url = document
