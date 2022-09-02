@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse_lazy
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.components.documenten.query.cmis import get_zaak_and_zaaktype_data
+from openzaak.components.documenten.query.cmis import get_related_data_for_oio_create
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
@@ -33,7 +33,7 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
         zaak = ZaakFactory.create()
         zaak_url = make_absolute_uri(reverse(zaak))
 
-        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak_url)
+        zaak_data, zaaktype_data, _ = get_related_data_for_oio_create("zaak", zaak_url)
 
         expected_zaak_fields = ["url", "identificatie", "bronorganisatie", "zaaktype"]
         expected_zaaktype_fields = ["url", "identificatie", "omschrijving"]
@@ -51,7 +51,7 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
         BesluitFactory.create(zaak=zaak)
         zaak_url = make_absolute_uri(reverse(zaak))
 
-        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak_url)
+        zaak_data, zaaktype_data, _ = get_related_data_for_oio_create("zaak", zaak_url)
 
         expected_zaak_fields = ["url", "identificatie", "bronorganisatie", "zaaktype"]
         expected_zaaktype_fields = ["url", "identificatie", "omschrijving"]
@@ -72,7 +72,7 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
         self.adapter.get(zaak, json=get_zaak_response(zaak, zaaktype))
         self.adapter.get(zaaktype, json=get_zaak_response(catalogus, zaaktype))
 
-        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(zaak)
+        zaak_data, zaaktype_data, _ = get_related_data_for_oio_create("zaak", zaak)
 
         self.assertEqual(zaak_data["url"], zaak)
         self.assertEqual(zaak_data["zaaktype"], zaaktype)

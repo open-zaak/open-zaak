@@ -22,6 +22,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.models import Service
 
+from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.mixins import CMISClientMixin
@@ -814,12 +815,15 @@ class ObjectInformatieObjectCMISQuerySet(
                 "ObjectInformatie object needs to have either a Zaak, Besluit or Verzoek relation"
             )
 
-        zaak_data, zaaktype_data = get_zaak_and_zaaktype_data(
-            related_zaak_url, related_besluit_url, related_verzoek_url,
+        object_type = data["object_type"]
+        zaak_data, zaaktype_data, other_data = get_related_data_for_oio_create(
+            object_type, data[object_type]
         )
-
         cmis_oio = self.cmis_client.create_oio(
-            oio_data=data, zaak_data=zaak_data, zaaktype_data=zaaktype_data
+            oio_data=data,
+            zaak_data=zaak_data,
+            zaaktype_data=zaaktype_data,
+            other_data=other_data,
         )
         django_oio = cmis_oio_to_django(cmis_oio)
         return django_oio
@@ -1102,71 +1106,61 @@ def modify_value_in_dictionary(existing_value, new_value):
     return existing_value
 
 
-def get_zaak_and_zaaktype_data(
-    zaak_url: str = None, besluit_url: str = None, verzoek_url: str = None,
-) -> Tuple[Optional[dict], Optional[dict]]:
+def _format_zaak_and_zaaktype_data(zaak: Zaak) -> Tuple[dict, dict]:
+    zaaktype = zaak.zaaktype
+
+    if not isinstance(zaak, ProxyMixin):
+        zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = make_absolute_uri(zaaktype_path)
+
+        zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = make_absolute_uri(zaak_path)
+    else:
+        zaaktype_url = zaak._initial_data["zaaktype"]
+        zaak_url = zaak._initial_data["url"]
+
+    # Can't use the serializer, because we don't have access to the request
+    # which is needed for the Hyperlink fields
+    zaak_data = {
+        "url": zaak_url,
+        "identificatie": zaak.identificatie,
+        "omschrijving": zaak.omschrijving,
+        "bronorganisatie": zaak.bronorganisatie,
+        "zaaktype": zaaktype_url,
+    }
+
+    # The omschrijving is used by the CMIS-adapter only to give the zaaktype folder a name
+    zaaktype_data = {
+        "url": zaaktype_url,
+        "identificatie": zaaktype.identificatie,
+        "omschrijving": slugify(zaaktype.zaaktype_omschrijving),
+    }
+    return zaak_data, zaaktype_data
+
+
+def get_related_data_for_oio_create(
+    object_type: str, object_url: str
+) -> Tuple[Optional[dict], Optional[dict], Optional[dict]]:
     loader = AuthorizedRequestsLoader()
 
-    def format_zaak_and_zaaktype_data(
-        zaak: Zaak,
-    ) -> Tuple[Optional[dict], Optional[dict]]:
-        zaaktype = zaak.zaaktype
+    if object_type == ObjectInformatieObjectTypes.besluit:
+        besluit = loader.load(url=object_url, model=Besluit)
+        if not (zaak := besluit.zaak):
+            return None, None, None
+        return (*_format_zaak_and_zaaktype_data(zaak), None)
 
-        if not isinstance(zaak, ProxyMixin):
-            zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-            zaaktype_url = make_absolute_uri(zaaktype_path)
+    if object_type == ObjectInformatieObjectTypes.zaak:
+        zaak = loader.load(url=object_url, model=Zaak)
+        return (*_format_zaak_and_zaaktype_data(zaak), None)
 
-            zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-            zaak_url = make_absolute_uri(zaak_path)
-        else:
-            zaaktype_url = zaak._initial_data["zaaktype"]
-            zaak_url = zaak._initial_data["url"]
+    if object_type == ObjectInformatieObjectTypes.verzoek:
+        client = Service.get_client(object_url)
+        if client is None:
+            return None, None, None
+        other_data = client.retrieve("verzoek", url=object_url)
+        return None, None, other_data
 
-        # Can't use the serializer, because we don't have access to the request
-        # which is needed for the Hyperlink fields
-        zaak_data = {
-            "url": zaak_url,
-            "identificatie": zaak.identificatie,
-            "omschrijving": zaak.omschrijving,
-            "bronorganisatie": zaak.bronorganisatie,
-            "zaaktype": zaaktype_url,
-        }
-
-        # The omschrijving is used by the CMIS-adapter only to give the zaaktype folder a name
-        zaaktype_data = {
-            "url": zaaktype_url,
-            "identificatie": zaaktype.identificatie,
-            "omschrijving": slugify(zaaktype.zaaktype_omschrijving),
-        }
-
-        return zaak_data, zaaktype_data
-
-    # Retrieve zaak and zaaktype data
-    if besluit_url:
-        besluit = loader.load(url=besluit_url, model=Besluit)
-        zaak = besluit.zaak
-
-        if zaak:
-            return format_zaak_and_zaaktype_data(zaak)
-    elif verzoek_url:
-        client = Service.get_client(verzoek_url)
-        objectverzoeken = client.list("objectverzoek", {"verzoek": verzoek_url})
-        zaakverzoeken = [
-            objectverzoek
-            for objectverzoek in objectverzoeken
-            if objectverzoek["objectType"] == "zaak"
-        ]
-        if zaakverzoeken:
-            # FIXME what if there is more than one objectverzoek? Is this even possible?
-            # See: https://github.com/VNG-Realisatie/gemma-zaken/issues/2071
-            zaak_url = objectverzoeken[0]["object"]
-            zaak = loader.load(url=zaak_url, model=Zaak)
-            return format_zaak_and_zaaktype_data(zaak)
-    else:
-        zaak = loader.load(url=zaak_url, model=Zaak)
-        return format_zaak_and_zaaktype_data(zaak)
-
-    return None, None
+    return None, None, None
 
 
 def flatten_gegevens_groep(group_details: dict, group_name: str) -> dict:

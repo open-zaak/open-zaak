@@ -68,7 +68,7 @@ class UniqueRepresentationTestCase(APICMISTestCase):
 
         oio = ObjectInformatieObject.objects.create(
             informatieobject=eio_url,
-            verzoek="https://extern.vrc.nl/api/v1/verzoeken/123",
+            verzoek="http://example.com/api/v1/verzoeken/123",
             object_type="verzoek",
         )
 
