@@ -6,7 +6,6 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
-from vng_api_common.constants import ObjectTypes
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -19,6 +18,7 @@ from openzaak.utils.admin import (
 )
 
 from .api import viewsets
+from .constants import ObjectInformatieObjectTypes
 from .models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -72,7 +72,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         object_type = cleaned_data.get("object_type")
 
         if (
-            object_type == ObjectTypes.zaak
+            object_type == ObjectInformatieObjectTypes.zaak
             and not cleaned_data.get("_zaak")
             and not cleaned_data.get("_zaak_url")
         ):
@@ -82,13 +82,20 @@ class ObjectInformatieObjectForm(forms.ModelForm):
             )
 
         if (
-            object_type == ObjectTypes.besluit
+            object_type == ObjectInformatieObjectTypes.besluit
             and not cleaned_data.get("_besluit")
             and not cleaned_data.get("_besluit_url")
         ):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
                 "selecteer een besluittype of vul een externe URL in."
+            )
+
+        if object_type == ObjectInformatieObjectTypes.verzoek and not cleaned_data.get(
+            "verzoek"
+        ):
+            raise forms.ValidationError(
+                "Je moet een verzoek opgeven: vul een externe URL in."
             )
 
         return cleaned_data
@@ -112,6 +119,7 @@ class ObjectInformatieObjectAdmin(
         "_besluit__uuid",
         "_besluit__identificatie",
         "_besluit_url",
+        "verzoek",
     )
     ordering = ("informatieobject",)
     raw_id_fields = ("informatieobject", "_zaak", "_besluit")

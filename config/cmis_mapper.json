@@ -45,10 +45,10 @@
     "OBJECTINFORMATIEOBJECT_MAP": {
         "object_type_id": "cmis:objectTypeId",
         "uuid": "drc:oio__uuid",
+        "informatieobject": "drc:oio__informatieobject",
         "object_type": "drc:oio__object_type",
         "besluit": "drc:oio__besluit",
         "zaak": "drc:oio__zaak",
-        "informatieobject": "drc:oio__informatieobject",
         "verzoek": "drc:oio__verzoek"
     },
     "GEBRUIKSRECHTEN_MAP": {

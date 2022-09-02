@@ -8,11 +8,7 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import (
-    ComponentTypes,
-    ObjectTypes,
-    VertrouwelijkheidsAanduiding,
-)
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -23,6 +19,7 @@ from openzaak.components.zaken.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
@@ -260,7 +257,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -269,7 +268,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -277,7 +278,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         ObjectInformatieObject.objects.create(
-            informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio3.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -297,7 +300,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -306,7 +311,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -314,7 +321,9 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
         oio3 = ObjectInformatieObject.objects.create(
-            informatieobject=eio3.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio3.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         with self.subTest(
@@ -405,7 +414,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         )
 
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -414,7 +425,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -434,7 +447,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -443,7 +458,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         url1 = reverse(oio1)
@@ -458,7 +475,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
+class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
@@ -516,7 +533,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -526,7 +545,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
         )
 
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -546,7 +567,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -555,7 +578,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
         url1 = reverse(oio1)
         url2 = reverse(oio2)

@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
-import re
-import uuid
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +17,7 @@ from ..models import (
     Gebruiksrechten,
     ObjectInformatieObject,
 )
+from .utils import check_path
 
 logger = logging.getLogger(__name__)
 
@@ -53,25 +51,6 @@ class GebruiksrechtenFilter(FilterSet):
         }
 
 
-def check_path(url, resource):
-    # get_viewset_for_path can't be used since the external url can contain different subpathes
-    path = urlparse(url).path
-    # check general structure
-    pattern = r".*/{}/(.+)".format(resource)
-    match = re.match(pattern, path)
-    if not match:
-        return False
-
-    # check uuid
-    resource_id = match.group(1)
-    try:
-        uuid.UUID(resource_id)
-    except ValueError:
-        return False
-
-    return True
-
-
 class ObjectFilter(FkOrUrlFieldFilter):
     def filter(self, qs, value):
         if not value:
@@ -81,6 +60,9 @@ class ObjectFilter(FkOrUrlFieldFilter):
             self.field_name = "besluit"
         elif check_path(value, "zaken"):
             self.field_name = "zaak"
+        elif check_path(value, "verzoeken"):
+            # `verzoek` is simply a URLField (alias to _object_url)
+            return qs.filter(verzoek=value)
         else:
             logger.debug(
                 "Could not determine object type for URL %s, "

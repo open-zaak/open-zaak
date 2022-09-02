@@ -7,12 +7,13 @@ from django.conf import settings
 from django.db import models
 
 from django_loose_fk.virtual_models import ProxyMixin
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
 
+from ..constants import ObjectInformatieObjectTypes
 from ..typing import IORelation
 
 
@@ -92,14 +93,18 @@ class InformatieobjectRelatedQuerySet(
 class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQuerySet):
 
     RELATIONS = {
-        BesluitInformatieObject: ObjectTypes.besluit,
-        ZaakInformatieObject: ObjectTypes.zaak,
+        BesluitInformatieObject: ObjectInformatieObjectTypes.besluit,
+        ZaakInformatieObject: ObjectInformatieObjectTypes.zaak,
     }
 
     def create_from(self, relation: IORelation) -> [models.Model, None]:
         if isinstance(relation.informatieobject, ProxyMixin):
             return None
 
+        # VerzoekInformatieObjecten are not present here, because Open Zaak does not
+        # implements Verzoeken API and therefore only supports external `Verzoek`en.
+        # Thus this code will never be triggered for `ObjectInformatieObject`en with
+        # `object_type=verzoek`
         object_type = self.RELATIONS[type(relation)]
         relation_field = {f"_{object_type}": getattr(relation, object_type)}
         return self.create(

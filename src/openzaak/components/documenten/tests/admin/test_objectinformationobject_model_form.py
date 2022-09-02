@@ -3,9 +3,9 @@
 from django import forms
 from django.test import TestCase
 
-from vng_api_common.constants import ObjectTypes
-
 from openzaak.components.documenten.admin import ObjectInformatieObjectForm
+
+from ...constants import ObjectInformatieObjectTypes
 
 
 class TestObjectInformatieObjectForm(TestCase):
@@ -13,7 +13,10 @@ class TestObjectInformatieObjectForm(TestCase):
         self,
     ):
         form = ObjectInformatieObjectForm()
-        form.cleaned_data = {"object_type": ObjectTypes.zaak, "_zaak": 1}
+        form.cleaned_data = {
+            "object_type": ObjectInformatieObjectTypes.zaak,
+            "_zaak": 1,
+        }
         try:
             form.clean()
         except forms.ValidationError:
@@ -24,7 +27,7 @@ class TestObjectInformatieObjectForm(TestCase):
     ):
         form = ObjectInformatieObjectForm()
         form.cleaned_data = {
-            "object_type": ObjectTypes.zaak,
+            "object_type": ObjectInformatieObjectTypes.zaak,
             "_zaak_url": "https://testserver",
         }
         try:
@@ -36,7 +39,7 @@ class TestObjectInformatieObjectForm(TestCase):
         self,
     ):
         form = ObjectInformatieObjectForm()
-        form.cleaned_data = {"object_type": ObjectTypes.zaak}
+        form.cleaned_data = {"object_type": ObjectInformatieObjectTypes.zaak}
         with self.assertRaises(forms.ValidationError):
             form.clean()
 
@@ -44,7 +47,10 @@ class TestObjectInformatieObjectForm(TestCase):
         self,
     ):
         form = ObjectInformatieObjectForm()
-        form.cleaned_data = {"object_type": ObjectTypes.besluit, "_besluit": 1}
+        form.cleaned_data = {
+            "object_type": ObjectInformatieObjectTypes.besluit,
+            "_besluit": 1,
+        }
         try:
             form.clean()
         except forms.ValidationError:
@@ -55,7 +61,7 @@ class TestObjectInformatieObjectForm(TestCase):
     ):
         form = ObjectInformatieObjectForm()
         form.cleaned_data = {
-            "object_type": ObjectTypes.besluit,
+            "object_type": ObjectInformatieObjectTypes.besluit,
             "_besluit_url": "https://testserver",
         }
         try:
@@ -67,6 +73,6 @@ class TestObjectInformatieObjectForm(TestCase):
         self,
     ):
         form = ObjectInformatieObjectForm()
-        form.cleaned_data = {"object_type": ObjectTypes.besluit}
+        form.cleaned_data = {"object_type": ObjectInformatieObjectTypes.besluit}
         with self.assertRaises(forms.ValidationError):
             form.clean()

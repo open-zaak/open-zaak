@@ -3,6 +3,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from djchoices import ChoiceItem, DjangoChoices
+from vng_api_common import constants
 
 
 class Statussen(DjangoChoices):
@@ -59,3 +60,9 @@ class OndertekeningSoorten(DjangoChoices):
     digitaal = ChoiceItem("digitaal", _("Digitaal"))
     pki = ChoiceItem("pki", _("PKI"))
     # TODO: more...
+
+
+class ObjectInformatieObjectTypes(DjangoChoices):
+    besluit = constants.BESLUIT_CHOICE
+    zaak = constants.ZAAK_CHOICE
+    verzoek = constants.VERZOEK_CHOICE

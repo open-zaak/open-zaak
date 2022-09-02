@@ -10,7 +10,6 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from drc_cmis.utils.convert import make_absolute_uri
 from furl import furl
 from rest_framework import status
-from vng_api_common.constants import ObjectTypes
 from vng_api_common.tests import (
     JWTAuthMixin,
     get_validation_errors,
@@ -35,8 +34,14 @@ from openzaak.components.zaken.tests.utils import (
     get_zaakinformatieobject_response,
     get_zaaktype_response,
 )
+from openzaak.contrib.verzoeken.tests.utils import (
+    get_verzoek_response,
+    get_verzoekinformatieobject_response,
+    get_verzoekobject_response,
+)
 from openzaak.tests.utils import APICMISTestCase, require_cmis
 
+from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory
 
@@ -223,7 +228,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         content = {
             "informatieobject": f"http://testserver{eio_url}",
             "object": f"http://testserver{zaak_url}",
-            "objectType": ObjectTypes.zaak,
+            "objectType": ObjectInformatieObjectTypes.zaak,
         }
 
         # Send to the API
@@ -373,6 +378,9 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
     zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
     catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"
+    verzoek = (
+        "https://extern.vrc.nl/api/v1/verzoeken/3d1b8a4a-0c7b-4519-bedb-d3da15e070d6"
+    )
 
     @classmethod
     def setUpClass(cls):
@@ -401,6 +409,14 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             client_id="test",
             secret="test",
         )
+        cls.vrc_service = Service.objects.create(
+            label="Remote Verzoeken API",
+            api_type=APITypes.vrc,
+            api_root="https://extern.vrc.nl/api/v1/",
+            auth_type=AuthTypes.zgw,
+            client_id="test",
+            secret="test",
+        )
 
         config = CMISConfig.get_solo()
 
@@ -420,6 +436,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
                 short_pattern="https://xbrc.nl",
                 config=config,
             )
+            UrlMapping.objects.create(
+                long_pattern="https://extern.vrc.nl",
+                short_pattern="https://xvrc.nl",
+                config=config,
+            )
 
     def setUp(self):
         super().setUp()
@@ -432,6 +453,9 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         )
         mock_service_oas_get(
             self.adapter, "https://extern.brc.nl/api/v1/", APITypes.brc
+        )
+        mock_service_oas_get(
+            self.adapter, "https://extern.vrc.nl/api/v1/", APITypes.vrc
         )
 
     def test_create_external_zaak(self):
@@ -575,6 +599,96 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "inconsistent-relation")
 
+    def test_create_external_verzoek(self):
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        self.adapter.get(self.verzoek, json=get_verzoek_response(self.verzoek))
+        objectverzoeken_url = (furl(self.vrc_service.api_root) / "objectverzoeken").set(
+            {"verzoek": self.verzoek}
+        )
+        self.adapter.get(
+            objectverzoeken_url.url,
+            json=[get_verzoekobject_response(self.verzoek, self.zaak, "zaak")],
+        )
+
+        # The test
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        vio_url = furl(self.vrc_service.api_root) / "verzoekinformatieobjecten"
+        vio_url.set({"informatieobject": eio_url, "verzoek": self.verzoek})
+
+        # Remote relation exists
+        self.adapter.get(
+            vio_url.url,
+            json=[
+                get_verzoekinformatieobject_response(
+                    informatieobject=eio_url, verzoek=self.verzoek
+                )
+            ],
+        )
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "object": self.verzoek,
+                "informatieobject": eio_url,
+                "objectType": "verzoek",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        oio = ObjectInformatieObject.objects.get()
+        self.assertEqual(oio.get_informatieobject_url(), eio_url)
+        self.assertEqual(oio.object, self.verzoek)
+
+    def test_create_external_verzoek_inconsistent_relation(self):
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        self.adapter.get(self.verzoek, json=get_verzoek_response(self.verzoek))
+        objectverzoeken_url = (furl(self.vrc_service.api_root) / "objectverzoeken").set(
+            {"verzoek": self.verzoek}
+        )
+        self.adapter.get(
+            objectverzoeken_url.url,
+            json=[get_verzoekobject_response(self.verzoek, self.zaak, "zaak")],
+        )
+
+        # The test
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_path = reverse(eio)
+        eio_url = f"http://testserver{eio_path}"
+
+        vio_url = furl(self.vrc_service.api_root) / "verzoekinformatieobjecten"
+        vio_url.set({"informatieobject": eio_url, "verzoek": self.verzoek})
+
+        # Remote relation exists
+        self.adapter.get(vio_url.url, json=[])
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "object": self.verzoek,
+                "informatieobject": eio_url,
+                "objectType": "verzoek",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "inconsistent-relation")
+
     def test_create_external_zaak_fail_invalid_schema(self):
         zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -630,6 +744,30 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
                 "object": besluit,
                 "informatieobject": f"http://testserver{eio_url}",
                 "objectType": "besluit",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "object")
+        self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_verzoek_fail_invalid_schema(self):
+        verzoek = "https://extern.vrc.nl/api/v1/verzoeken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = reverse(eio)
+
+        self.adapter.get(
+            verzoek, json={"url": verzoek, "identificatie": "VERZOEK-2019-0000000001",},
+        )
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "object": verzoek,
+                "informatieobject": f"http://testserver{eio_url}",
+                "objectType": "verzoek",
             },
         )
 
@@ -723,6 +861,39 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(data["object"], self.besluit)
         self.assertEqual(data["informatieobject"], f"http://testserver{reverse(eio)}")
 
+    def test_read_external_verzoek(self):
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        self.adapter.get(self.verzoek, json=get_verzoek_response(self.verzoek))
+        objectverzoeken_url = (furl(self.vrc_service.api_root) / "objectverzoeken").set(
+            {"verzoek": self.verzoek}
+        )
+        self.adapter.get(
+            objectverzoeken_url.url,
+            json=[get_verzoekobject_response(self.verzoek, self.zaak, "zaak")],
+        )
+
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=f"http://testserver{reverse(eio)}",
+            verzoek=self.verzoek,
+            object_type="verzoek",
+        )
+
+        url = reverse(oio)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["object"], self.verzoek)
+        self.assertEqual(data["informatieobject"], f"http://testserver{reverse(eio)}")
+
     def test_list_filter_by_external_zaak(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
@@ -809,6 +980,59 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["object"], besluit2)
 
+    def test_list_filter_by_external_verzoek(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+
+        verzoek1 = (
+            furl(self.vrc_service.api_root)
+            / "verzoeken/1da8482e-80b0-499c-ba91-3d3924f6536c"
+        ).url
+        verzoek2 = (
+            furl(self.vrc_service.api_root)
+            / "verzoeken/5a4831d8-408d-441e-9a5f-b710eaf46359"
+        ).url
+
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        self.adapter.get(verzoek1, json=get_verzoek_response(verzoek1))
+        objectverzoeken_url1 = (
+            furl(self.vrc_service.api_root) / "objectverzoeken"
+        ).set({"verzoek": verzoek1})
+        self.adapter.get(
+            objectverzoeken_url1.url,
+            json=[get_verzoekobject_response(verzoek1, self.zaak, "zaak")],
+        )
+        self.adapter.get(verzoek2, json=get_verzoek_response(verzoek2))
+        objectverzoeken_url2 = (
+            furl(self.vrc_service.api_root) / "objectverzoeken"
+        ).set({"verzoek": verzoek2})
+        self.adapter.get(
+            objectverzoeken_url2.url,
+            json=[get_verzoekobject_response(verzoek2, self.zaak, "zaak")],
+        )
+
+        ObjectInformatieObject.objects.create(
+            informatieobject=f"http://testserver{reverse(eio)}",
+            verzoek=verzoek1,
+            object_type="verzoek",
+        )
+        ObjectInformatieObject.objects.create(
+            informatieobject=f"http://testserver{reverse(eio)}",
+            verzoek=verzoek2,
+            object_type="verzoek",
+        )
+
+        url = reverse(ObjectInformatieObject)
+
+        response = self.client.get(url, {"object": verzoek2})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["object"], verzoek2)
+
     def test_destroy_oio_with_external_zaak(self):
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
         self.adapter.get(
@@ -858,6 +1082,39 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.adapter.get(
             "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
             f"?besluit={self.besluit}&informatieobject={eio_url}",
+            json=[],
+        )
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ObjectInformatieObject.objects.count(), 0)
+
+    def test_destroy_oio_with_external_verzoek(self):
+        self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))
+        self.adapter.get(
+            self.zaaktype, json=get_zaak_response(self.catalogus, self.zaaktype)
+        )
+
+        self.adapter.get(self.verzoek, json=get_verzoek_response(self.verzoek))
+        objectverzoeken_url = (furl(self.vrc_service.api_root) / "objectverzoeken").set(
+            {"verzoek": self.verzoek}
+        )
+        self.adapter.get(
+            objectverzoeken_url.url,
+            json=[get_verzoekobject_response(self.verzoek, self.zaak, "zaak")],
+        )
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio_url = f"http://testserver{reverse(eio)}"
+        oio = ObjectInformatieObject.objects.create(
+            informatieobject=eio_url, verzoek=self.verzoek, object_type="verzoek",
+        )
+        url = reverse(oio)
+
+        self.adapter.get(
+            (furl(self.vrc_service.api_root) / "verzoekinformatieobjecten")
+            .set({"informatieobject": eio_url, "verzoek": self.verzoek})
+            .url,
             json=[],
         )
 

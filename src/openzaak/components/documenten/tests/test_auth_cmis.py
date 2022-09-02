@@ -9,11 +9,7 @@ from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
-from vng_api_common.constants import (
-    ComponentTypes,
-    ObjectTypes,
-    VertrouwelijkheidsAanduiding,
-)
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -24,6 +20,7 @@ from openzaak.components.zaken.tests.factories import (
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
 
@@ -296,7 +293,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio1_url = f"http://testserver{reverse(eio1)}"
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -306,7 +305,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2_url = f"http://testserver{reverse(eio2)}"
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -315,7 +316,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio3_url = f"http://testserver{reverse(eio3)}"
         oio3 = ObjectInformatieObject.objects.create(
-            informatieobject=eio3_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio3_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         with self.subTest(
@@ -351,7 +354,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio1_url = f"http://testserver{reverse(eio1)}"
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -361,7 +366,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2_url = f"http://testserver{reverse(eio2)}"
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -370,7 +377,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
         )
         eio3_url = f"http://testserver{reverse(eio3)}"
         ObjectInformatieObject.objects.create(
-            informatieobject=eio3_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio3_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -462,7 +471,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         eio1_url = f"http://testserver{reverse(eio1)}"
 
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -472,7 +483,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2_url = f"http://testserver{reverse(eio2)}"
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -494,7 +507,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         eio1_url = f"http://testserver{reverse(eio1)}"
 
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -504,7 +519,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2_url = f"http://testserver{reverse(eio2)}"
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         url1 = reverse(oio1)
@@ -520,7 +537,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 @tag("external-urls")
 @require_cmis
 @override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
-class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
+class ExternalInformatieObjectInformatieObjectTypescopeTests(
+    JWTAuthMixin, APICMISTestCase
+):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
@@ -589,7 +608,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
         eio1_url = f"http://testserver{reverse(eio1)}"
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -600,7 +621,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
         eio2_url = f"http://testserver{reverse(eio2)}"
         ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         response = self.client.get(url)
@@ -621,7 +644,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
         eio1_url = f"http://testserver{reverse(eio1)}"
         oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio1_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
 
         # must not show up
@@ -631,7 +656,9 @@ class ExternalInformatieobjecttypeScopeTests(JWTAuthMixin, APICMISTestCase):
         )
         eio2_url = f"http://testserver{reverse(eio2)}"
         oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2_url, zaak=zaak, object_type=ObjectTypes.zaak
+            informatieobject=eio2_url,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
         )
         url1 = reverse(oio1)
         url2 = reverse(oio2)

@@ -9,7 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
-from vng_api_common.constants import ObjectTypes
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
@@ -18,6 +17,7 @@ from zgw_consumers.models import Service
 
 from openzaak.utils import build_absolute_url
 
+from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from ..validators import validate_status
 
@@ -53,14 +53,18 @@ class InformatieObjectUniqueValidator:
     message = _("The fields object and informatieobject must make a unique set.")
     code = "unique"
 
-    def __call__(self, context: OrderedDict):
-        # The context contains the keys: informatieobject (eio), object_type (whether it is a relation with zaak or
-        # besluit) and 'object' (the actual zaak or besluit). The 'object' key needs to be replaced with 'zaak'
-        # or 'besluit' as there is no 'object' attribute in the objectinformatieobject model.
-        zaak_or_besluit_object = context.pop("object")
-        context.update({context["object_type"]: zaak_or_besluit_object})
+    def __call__(self, attrs: OrderedDict):
+        # The attrs contain the keys:
+        # * 'informatieobject' (eio)
+        # * 'object_type' (whether it is a relation with zaak, besluit or verzoek)
+        # * 'object' (the actual zaak, besluit or verzoek)
+        #
+        # The 'object' key needs to be replaced with 'zaak', 'besluit' or 'verzoek' as
+        # there is no 'object' attribute in the objectinformatieobject model.
+        object = attrs.pop("object")
+        attrs.update({attrs["object_type"]: object})
 
-        oios = ObjectInformatieObject.objects.filter(**context).exists()
+        oios = ObjectInformatieObject.objects.filter(**attrs).exists()
 
         if oios:
             raise serializers.ValidationError(detail=self.message, code=self.code)
@@ -89,7 +93,7 @@ class RemoteRelationValidator:
 
     def __call__(self, oio: ObjectInformatieObject):
         # external object
-        if isinstance(oio.object, ProxyMixin):
+        if isinstance(oio.object, ProxyMixin) or isinstance(oio.object, str):
             invalid = self._check_remote(oio)
         else:
             invalid = self._check_local(oio)
@@ -103,14 +107,17 @@ class RemoteRelationValidator:
     @staticmethod
     def _check_local(oio: ObjectInformatieObject) -> bool:
         method_map = {
-            ObjectTypes.zaak: "does_zaakinformatieobject_exist",
-            ObjectTypes.besluit: "does_besluitinformatieobject_exist",
+            ObjectInformatieObjectTypes.zaak: "does_zaakinformatieobject_exist",
+            ObjectInformatieObjectTypes.besluit: "does_besluitinformatieobject_exist",
         }
         check_method = getattr(oio, method_map[oio.object_type])
         return check_method()
 
     def _check_remote(self, oio: ObjectInformatieObject) -> bool:
-        object_url = oio.object._loose_fk_data["url"]
+        if isinstance(oio.object, str):
+            object_url = oio.object
+        else:
+            object_url = oio.object._loose_fk_data["url"]
 
         if settings.CMIS_ENABLED:
             document_url = oio.get_informatieobject_url()
@@ -156,7 +163,7 @@ class CreateRemoteRelationValidator:
         self.request = request
 
     def __call__(self, document, object, object_type):
-        object_url = object._loose_fk_data["url"]
+        object_url = object if isinstance(object, str) else object._loose_fk_data["url"]
 
         if settings.CMIS_ENABLED:
             document_url = document

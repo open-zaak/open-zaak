@@ -17,19 +17,19 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from vng_api_common.constants import ObjectTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
+from vng_api_common.validators import ResourceValidator
 
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
@@ -40,7 +40,12 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
-from ..constants import ChecksumAlgoritmes, OndertekeningSoorten, Statussen
+from ..constants import (
+    ChecksumAlgoritmes,
+    ObjectInformatieObjectTypes,
+    OndertekeningSoorten,
+    Statussen,
+)
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -51,6 +56,7 @@ from ..models import (
 from ..query.cmis import flatten_gegevens_groep
 from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
+from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
     InformatieObjectUniqueValidator,
@@ -846,7 +852,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "documenten.ObjectInformatieObject", "informatieobject"
         ),
     )
-    object = FKOrURLField(
+    object = OnlyRemoteOrFKOrURLField(
         max_length=1000,
         min_length=1,
         help_text=_(
@@ -866,21 +872,26 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        value_display_mapping = add_choice_values_help_text(ObjectTypes)
+        value_display_mapping = add_choice_values_help_text(ObjectInformatieObjectTypes)
         self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
 
     def set_object_properties(self, object_type: str) -> None:
         object_field = self.fields["object"]
 
-        if object_type == ObjectTypes.besluit:
+        if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
             object_field.validators.append(
                 LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
             )
-        elif object_type == ObjectTypes.zaak:
+        elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"
             object_field.validators.append(
                 LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+            )
+        elif object_type == ObjectInformatieObjectTypes.verzoek:
+            object_field.source = "verzoek"
+            object_field.validators.append(
+                ResourceValidator("Verzoek", settings.VRC_API_SPEC)
             )
 
     def to_internal_value(self, data):
