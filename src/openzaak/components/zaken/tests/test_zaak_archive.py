@@ -1003,6 +1003,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         Service.objects.create(api_root="https://external.nl/", api_type=APITypes.ztc)
         Service.objects.create(
+            api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
             api_root="http://testserver.com/catalogi/", api_type=APITypes.ztc
         )
 

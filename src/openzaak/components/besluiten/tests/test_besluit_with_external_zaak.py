@@ -38,11 +38,14 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        cls.zaken_service = Service.objects.create(
             api_type=APITypes.zrc,
             api_root=cls.base,
             label="external zaken",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
         )
 
     def _create_besluit(self, zaak: str) -> Besluit:
@@ -169,7 +172,10 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         besluit.refresh_from_db()
 
-        self.assertEqual(besluit._previous_zaak_url, zaak_old)
+        self.assertEqual(besluit._previous_zaak_base_url_id, self.zaken_service.id)
+        self.assertEqual(
+            besluit._previous_zaak_relative_url, zaak_old[len(self.base) :]
+        )
         self.assertEqual(besluit._zaak_url, zaak_new)
         self.assertEqual(besluit._zaakbesluit_url, zaakbesluit_new_data["url"])
 

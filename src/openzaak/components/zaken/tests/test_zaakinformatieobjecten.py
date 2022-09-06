@@ -241,6 +241,10 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
+        )
+
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
@@ -438,6 +442,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/",
+        )
 
     def test_relate_external_document(self):
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
@@ -625,6 +632,9 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
                 auth_type=AuthTypes.no_auth,
             ),
         )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/",
+        )
 
         cls.setUpTestData()
 
@@ -700,6 +710,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
         )
 
     def test_zaaktype_internal_iotype_internal_fail(self):
@@ -880,6 +893,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.drc, api_root="http://openzaak.nl/catalogi/api/v1/",
         )
 
     def test_destroy_with_external_informatieobject(self):

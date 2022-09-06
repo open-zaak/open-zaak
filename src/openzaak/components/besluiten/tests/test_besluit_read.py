@@ -124,6 +124,9 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         )
 
         Service.objects.create(api_type=APITypes.zrc, api_root=zaken_api)
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
+        )
         besluit = Besluit.objects.create(
             verantwoordelijke_organisatie="853162402",
             identificatie="ext",

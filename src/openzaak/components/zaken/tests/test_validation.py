@@ -1260,6 +1260,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
         Service.objects.create(api_root="https://external.nl/", api_type=APITypes.drc)
+        Service.objects.create(
+            api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
+        )
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)

@@ -219,6 +219,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_bio_external_document(self):
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        )
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
@@ -317,6 +320,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_bio_fail_invalid_schema(self):
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        )
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
@@ -384,6 +390,9 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
         )
 
     @tag("gh-819")
@@ -453,6 +462,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
+        Service.objects.create(api_type=APITypes.ztc, api_root="http://openbesluit.nl/")
 
     def test_besluittype_internal_iotype_internal_fail(self):
         besluit = BesluitFactory.create()
@@ -490,6 +500,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker() as m:
             mock_drc_oas_get(m)
+            mock_drc_oas_get(m, oas_url=f"{self.base}schema/openapi.yaml?v=3")
             m.get(besluittype, json=besluittype_data)
             m.get(
                 informatieobjecttype,
@@ -632,6 +643,12 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
         )
 
     def test_destroy_with_external_informatieobject(self):
