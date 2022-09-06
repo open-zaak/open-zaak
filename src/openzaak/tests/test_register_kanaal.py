@@ -26,7 +26,7 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
             m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
             m.post("https://open-notificaties.local/api/v1/kanaal", status_code=201)
 
-            call_command("register_kanaal", kanaal="zaken")
+            call_command("register_kanalen", kanalen=["zaken"])
 
             # check for auth in the calls
             for request in m.request_history[1:]:
