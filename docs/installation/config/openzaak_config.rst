@@ -81,7 +81,7 @@ Open Zaak
    d. Click **Opslaan en opnieuw bewerken**.
    e. Click **Beheer autorisaties**.
    f. Select first Component **Autorisaties API** and scope **autorisaties.lezen**.
-   g. Select second Component **Notificaties API** and scope **notificaties.consumeren**.
+   g. Select second Component **Notificaties API** and scope **notificaties.consumeren and notificaties.publiceren**.
    h. Click **Opslaan**
 
 4. Finally, Open Notificaties will check if Open Zaak is allowed to send
