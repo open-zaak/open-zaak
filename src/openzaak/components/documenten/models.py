@@ -764,71 +764,46 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
     )
 
     # relations to the possible other objects
-    _object_url = models.URLField(_("extern object"), blank=True, max_length=1000)
+    _object_base_url = models.ForeignKey(
+        Service,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        help_text="Basis deel van URL-referentie naar extern API.",
+    )
+    _object_relative_url = models.CharField(
+        _("besluit relative url"),
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern API.",
+    )
+    _object_url = ServiceUrlField(
+        base_field="_object_base_url",
+        relative_field="_object_relative_url",
+        verbose_name=_("extern object"),
+        blank=True,
+        null=True,
+        max_length=1000,
+    )
     verzoek = AliasField(
         _object_url,
         allow_write_when=lambda instance: instance.object_type
         == ObjectInformatieObjectTypes.verzoek,
     )
 
-    _zaak_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        related_name="oio_zaken",
-        help_text="Basis deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
-    )
-    _zaak_relative_url = models.CharField(
-        _("zaak relative url"),
-        max_length=200,
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
-    )
-    _zaak_url = ServiceUrlField(
-        base_field="_zaak_base_url",
-        relative_field="_zaak_relative_url",
-        verbose_name=_("extern zaak"),
-        blank=True,
-        null=True,
-        max_length=1000,
-    )
     _zaak = models.ForeignKey(
         "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
     )
     zaak = FkOrServiceUrlField(
-        fk_field="_zaak", url_field="_zaak_url", blank=True, null=True,
+        fk_field="_zaak", url_field="_object_url", blank=True, null=True,
     )
 
-    _besluit_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        related_name="oio_besluiten",
-        help_text="Basis deel van URL-referentie naar extern BESLUIT (in een andere Besluiten API).",
-    )
-    _besluit_relative_url = models.CharField(
-        _("besluit relative url"),
-        max_length=200,
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern BESLUIT (in een andere Besluiten API).",
-    )
-    _besluit_url = ServiceUrlField(
-        base_field="_besluit_base_url",
-        relative_field="_besluit_relative_url",
-        verbose_name=_("extern besluit"),
-        blank=True,
-        null=True,
-        max_length=1000,
-    )
     _besluit = models.ForeignKey(
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
     besluit = FkOrServiceUrlField(
-        fk_field="_besluit", url_field="_besluit_url", blank=True, null=True,
+        fk_field="_besluit", url_field="_object_url", blank=True, null=True,
     )
 
     objects = ObjectInformatieObjectAdapterManager()
@@ -841,9 +816,21 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
             # mutual exclusive check on zaak fk, besluit fk or object url
             models.CheckConstraint(
                 check=(
-                    Q(_object_url="", _zaak__isnull=False, _besluit__isnull=True)
-                    | Q(_object_url="", _zaak__isnull=True, _besluit__isnull=False)
-                    | Q(~Q(_object_url=""), _zaak__isnull=True, _besluit__isnull=True)
+                    Q(
+                        _object_base_url__isnull=True,
+                        _zaak__isnull=False,
+                        _besluit__isnull=True,
+                    )
+                    | Q(
+                        _object_base_url__isnull=True,
+                        _zaak__isnull=True,
+                        _besluit__isnull=False,
+                    )
+                    | Q(
+                        _object_base_url__isnull=False,
+                        _zaak__isnull=True,
+                        _besluit__isnull=True,
+                    )
                 ),
                 name="object_reference_fields_mutex",
             ),
@@ -851,15 +838,15 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
             models.CheckConstraint(
                 check=(
                     Q(
-                        Q(_zaak__isnull=False) | ~Q(_object_url=""),
+                        Q(_zaak__isnull=False) | Q(_object_base_url__isnull=False),
                         object_type=ObjectInformatieObjectTypes.zaak,
                     )
                     | Q(
-                        Q(_besluit__isnull=False) | ~Q(_object_url=""),
+                        Q(_besluit__isnull=False) | Q(_object_base_url__isnull=False),
                         object_type=ObjectInformatieObjectTypes.besluit,
                     )
                     | Q(
-                        ~Q(_object_url=""),
+                        Q(_object_base_url__isnull=False),
                         object_type=ObjectInformatieObjectTypes.verzoek,
                     )
                 ),
@@ -873,9 +860,9 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
                 fields=("informatieobject", "_besluit"), name="unique_io_besluit_local"
             ),
             models.UniqueConstraint(
-                fields=("informatieobject", "_object_url"),
+                fields=("informatieobject", "_object_base_url", "_object_relative_url"),
                 name="unique_io_object_external",
-                condition=~Q(_object_url=""),
+                condition=Q(_object_base_url__isnull=False),
             ),
         ]
 

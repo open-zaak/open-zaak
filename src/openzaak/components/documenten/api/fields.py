@@ -6,10 +6,10 @@ from django_loose_fk.drf import FKOrURLField
 from rest_framework.fields import empty
 from rest_framework.reverse import reverse
 
+from openzaak.utils.serializer_fields import FKOrServiceUrlField
+
 from ..constants import ObjectInformatieObjectTypes
 from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
-
-from openzaak.utils.serializer_fields import FKOrServiceUrlField
 
 
 class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):

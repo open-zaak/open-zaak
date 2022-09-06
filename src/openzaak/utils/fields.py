@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Callable
-
-from typing import List
+from typing import Callable, List
 
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core import checks
@@ -28,7 +26,7 @@ class AliasField(models.Field):
         source_field: models.Field,
         allow_write_when: Callable = lambda i: True,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.source_field = source_field
