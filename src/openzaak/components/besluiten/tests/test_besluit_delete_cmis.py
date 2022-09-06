@@ -25,7 +25,13 @@ class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
         Deleting a Besluit causes all related objects to be deleted as well.
         """
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()

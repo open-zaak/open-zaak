@@ -35,6 +35,20 @@ class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
+        )
+
     def test_create_no_url_mapping(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -75,9 +89,6 @@ class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_delete_no_url_mapping(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
 

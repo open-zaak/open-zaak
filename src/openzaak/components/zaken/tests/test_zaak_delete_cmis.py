@@ -52,9 +52,14 @@ class US349TestCase(JWTAuthMixin, APICMISTransactionTestCase):
             ),
         )
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
         )
-
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
+        )
         cls.setUpTestData()
 
     def test_delete_zaak_cascades_properly(self):

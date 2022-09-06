@@ -4,6 +4,8 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
@@ -15,6 +17,14 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenFilterTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_filter_by_invalid_url(self):
         response = self.client.get(

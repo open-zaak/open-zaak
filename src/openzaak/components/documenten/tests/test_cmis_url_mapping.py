@@ -33,6 +33,14 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_create_document_no_url_mapping(self):
         # Remove all available mappings
         UrlMapping.objects.all().delete()

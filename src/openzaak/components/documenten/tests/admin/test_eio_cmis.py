@@ -10,6 +10,8 @@ from django.urls import reverse
 
 from rest_framework import status
 from vng_api_common import tests
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import AdminTestMixin, APICMISTestCase, require_cmis
@@ -21,6 +23,14 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_create_eio_is_forbidden_when_cmis_enabled(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

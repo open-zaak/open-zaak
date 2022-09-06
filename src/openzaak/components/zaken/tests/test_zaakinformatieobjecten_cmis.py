@@ -38,7 +38,13 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
     @freeze_time("2018-09-19T12:25:19+0200")

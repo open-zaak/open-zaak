@@ -8,6 +8,8 @@ from django.urls import reverse
 
 from rest_framework import status
 from vng_api_common import tests
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.tests.utils import AdminTestMixin, APICMISTestCase, require_cmis
 
@@ -19,6 +21,14 @@ from ..utils import get_operation_url
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_create_gebruiksrechten_is_forbidden_when_cmis_enabled(self):
         informatieobject = EnkelvoudigInformatieObjectFactory.create()

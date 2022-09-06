@@ -35,7 +35,13 @@ class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
     def test_can_set_archiefstatus_when_all_documents_are_gearchiveerd(self):

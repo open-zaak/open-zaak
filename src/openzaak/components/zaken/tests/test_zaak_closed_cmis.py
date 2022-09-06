@@ -43,7 +43,13 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
     @classmethod
     def setUpTestData(cls):
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
         cls.zaaktype = ZaakTypeFactory.create()
@@ -122,7 +128,13 @@ class ClosedZaakRelatedDataAllowedCMISTests(
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
         site = Site.objects.get_current()
         site.domain = "testserver"

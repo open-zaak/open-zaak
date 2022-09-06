@@ -19,10 +19,21 @@ from .factories import BesluitInformatieObjectFactory
 class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
-    def test_validate_unknown_query_params(self):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
         )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
+        )
+
+    def test_validate_unknown_query_params(self):
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
@@ -37,9 +48,6 @@ class BesluitInformatieObjectCMISAPIFilterTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         BesluitInformatieObjectFactory.create(informatieobject=eio_url)

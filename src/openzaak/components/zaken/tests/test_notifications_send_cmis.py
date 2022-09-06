@@ -42,7 +42,13 @@ class FailedNotificationCMISTests(
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):

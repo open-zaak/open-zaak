@@ -33,7 +33,13 @@ BESLUITTYPE_EXTERNAL = (
 class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
     def test_cannot_read_without_correct_scope(self):
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
@@ -63,7 +69,13 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         cls.besluittype = BesluitTypeFactory.create()
         super().setUpTestData()
@@ -144,7 +156,13 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc
@@ -223,7 +241,13 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc

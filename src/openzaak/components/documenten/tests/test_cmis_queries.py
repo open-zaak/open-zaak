@@ -3,6 +3,9 @@
 from django.contrib.sites.models import Site
 from django.test import override_settings
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.tests.utils import APICMISTestCase, require_cmis
 
 from ..models import EnkelvoudigInformatieObject
@@ -19,6 +22,10 @@ class QueryTests(APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

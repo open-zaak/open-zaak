@@ -37,7 +37,13 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         """
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
@@ -93,7 +99,13 @@ class FailedNotificationCMISTests(
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
         )
         site = Site.objects.get_current()
         site.domain = "testserver"

@@ -4,6 +4,8 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -26,6 +28,9 @@ class BesluitInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_validate_no_informatieobjecttype_besluittype_relation(self):
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
         besluit_url = reverse(besluit)

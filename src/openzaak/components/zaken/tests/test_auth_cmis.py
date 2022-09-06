@@ -35,7 +35,13 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         super().setUpTestData()
 
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
     def test_list_zaakinformatieobject_limited_to_authorized_zaken(self):
@@ -99,7 +105,13 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
             auth_type=AuthTypes.no_auth,
         )
         Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
+        )
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 
         if settings.CMIS_URL_MAPPING_ENABLED:

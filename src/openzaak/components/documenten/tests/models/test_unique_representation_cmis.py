@@ -3,6 +3,8 @@
 from django.test import override_settings, tag
 
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import APICMISTestCase, require_cmis
@@ -14,6 +16,17 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISF
 @require_cmis
 @override_settings(CMIS_ENABLED=True, ALLOWED_HOSTS=["testserver", "example.com"])
 class UniqueRepresentationTestCase(APICMISTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
+        )
+
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(
             bronorganisatie="730924658",

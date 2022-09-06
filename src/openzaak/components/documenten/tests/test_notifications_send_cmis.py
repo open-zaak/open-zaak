@@ -11,6 +11,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -84,6 +86,14 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_eio_create_fail_send_notification_create_db_entry(self):
         url = get_operation_url("enkelvoudiginformatieobject_create")
