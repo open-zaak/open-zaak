@@ -23,7 +23,7 @@ Open Zaak exposes several :ref:`API's<api_index>` to store and retrieve data:
 The `Notificaties API`_ is required for Open Zaak to work but is available as
 a separate package, `Open Notificaties`_.
 
-.. _`Notificaties API`: https://vng-realisatie.github.io/gemma-zaken/standaard/notificaties/index
+.. _`Notificaties API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/notificaties/
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
 
 **Open Zaak** is based on the `API reference implementations by VNG Realisatie`_

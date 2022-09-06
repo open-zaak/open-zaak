@@ -34,7 +34,7 @@ info:
     \ `informatieobjecttypen`.\n\n**Main resource**\n\n`informatieobjecttype`\n\n\n\
     \n**Kenmerken**\n\n* `catalogus`: URL-referentie naar de CATALOGUS waartoe dit\
     \ INFORMATIEOBJECTTYPE behoort.\n\n**Resources en acties**\n- `informatieobjecttype`:\
-    \ create, update, destroy\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    \ create, update, destroy\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/content/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
