@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
+from notifications_api_common.settings import *  # noqa
 from sentry_sdk.integrations import django, redis
 
 from ...utils.monitoring import filter_sensitive_data

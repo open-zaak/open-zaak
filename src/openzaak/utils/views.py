@@ -59,8 +59,16 @@ def _test_nrc_config() -> list:
 
     has_nrc_auth = nrc_client.auth is not None
 
+    if not nrc_config.notifications_api_service:
+        checks = [((_("NRC"), _("Missing"), False))]
+        return checks
+
     checks = [
-        (_("NRC"), nrc_config.api_root, nrc_config.api_root.endswith("/")),
+        (
+            _("NRC"),
+            nrc_config.notifications_api_service.api_root,
+            nrc_config.notifications_api_service.api_root.endswith("/"),
+        ),
         (
             _("Credentials for NRC"),
             _("Configured") if has_nrc_auth else _("Missing"),

@@ -23,7 +23,7 @@ class CreateNotifKanaalTestCase(APITestCase):
         site.domain = "example.com"
         site.save()
 
-    @patch("notifications_api_common.management.commands.register_kanaal.get_client")
+    @patch("notifications_api_common.models.NotificationsConfig.get_client")
     def test_kanaal_create_with_name(self, mock_get_client):
         """
         Test is request to create kanaal is send with specified kanaal name
@@ -50,7 +50,7 @@ class CreateNotifKanaalTestCase(APITestCase):
             },
         )
 
-    @patch("notifications_api_common.management.commands.register_kanaal.get_client")
+    @patch("notifications_api_common.models.NotificationsConfig.get_client")
     @override_settings(NOTIFICATIONS_KANAAL="dummy-kanaal")
     def test_kanaal_create_without_name(self, mock_get_client):
         """
