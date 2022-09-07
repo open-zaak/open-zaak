@@ -20,7 +20,21 @@ class DurationField(RelativeDeltaField):
         return super().formfield(form_class=form_class, **kwargs)
 
 
-class AliasField(models.Field):
+class AliasMixin:
+    def contribute_to_class(self, cls, name, private_only=False):
+        super().contribute_to_class(cls, name, private_only=True)
+        setattr(cls, name, self)
+
+    def __get__(self, instance, instance_type=None):
+        return getattr(instance, self.source_field.name)
+
+    def __set__(self, instance, value):
+        if not self.allow_write_when(instance):
+            return
+        setattr(instance, self.source_field.name, value)
+
+
+class AliasField(AliasMixin, models.Field):
     def __init__(
         self,
         source_field: models.Field,
@@ -36,17 +50,22 @@ class AliasField(models.Field):
         super().set_attributes_from_name(name)
         self.column = self.source_field.column
 
-    def contribute_to_class(self, cls, name, private_only=False):
-        super().contribute_to_class(cls, name, private_only=True)
-        setattr(cls, name, self)
 
-    def __get__(self, instance, instance_type=None):
-        return getattr(instance, self.source_field.name)
+class AliasServiceUrlField(AliasMixin, ServiceUrlField):
+    def __init__(
+        self,
+        source_field: ServiceUrlField,
+        allow_write_when: Callable = lambda i: True,
+        **kwargs,
+    ):
+        self.source_field = source_field
+        self.allow_write_when = allow_write_when
 
-    def __set__(self, instance, value):
-        if not self.allow_write_when(instance):
-            return
-        setattr(instance, self.source_field.name, value)
+        super().__init__(
+            base_field=source_field.base_field,
+            relative_field=source_field.relative_field,
+            **kwargs,
+        )
 
 
 # register the override, as the upstream RelativeDeltaField registers its own admin

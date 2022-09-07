@@ -21,7 +21,7 @@ from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zgw_consumers.models import Service, ServiceUrlField
 
-from openzaak.utils.fields import AliasField, FkOrServiceUrlField
+from openzaak.utils.fields import AliasServiceUrlField, FkOrServiceUrlField
 from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
@@ -786,8 +786,8 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         null=True,
         max_length=1000,
     )
-    verzoek = AliasField(
-        _object_url,
+    verzoek = AliasServiceUrlField(
+        source_field=_object_url,
         allow_write_when=lambda instance: instance.object_type
         == ObjectInformatieObjectTypes.verzoek,
     )
