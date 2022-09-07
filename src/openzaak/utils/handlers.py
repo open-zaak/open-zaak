@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2022 Dimpact
 from django.db import models
 
 from django_loose_fk.virtual_models import FKHandler
