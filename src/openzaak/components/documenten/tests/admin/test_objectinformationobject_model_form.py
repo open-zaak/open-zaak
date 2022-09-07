@@ -3,7 +3,6 @@
 from django import forms
 from django.test import TestCase
 
-from vng_api_common.constants import ObjectTypes
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
