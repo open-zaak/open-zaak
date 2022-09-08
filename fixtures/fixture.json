@@ -201,5 +201,23 @@
             "user_id": "openzaak",
             "user_representation": "OpenZaak"
         }
+    },
+    {
+        "model": "zgw_consumers.service",
+        "pk": 8,
+        "fields": {
+            "label": "mock url",
+            "api_type": "orc",
+            "api_root": "http://mock-endpoints.local/",
+            "client_id": "",
+            "secret": "",
+            "auth_type": "no_auth",
+            "header_key": "",
+            "header_value": "",
+            "oas": "http://mock-endpoints.local/schema/openapi.yaml",
+            "nlx": "",
+            "user_id": "mock",
+            "user_representation": "mock"
+        }
     }
 ]
