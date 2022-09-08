@@ -28,10 +28,21 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 @override_settings(
     CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,
 )
-@skipIf(os.getenv("CMIS_BINDING") != " ", "WEBSERVICE binding specific tests")
+@skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
 class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
+        Service.objects.create(
+            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
+        )
 
     def test_create_no_url_mapping(self):
         io = EnkelvoudigInformatieObjectFactory.create(

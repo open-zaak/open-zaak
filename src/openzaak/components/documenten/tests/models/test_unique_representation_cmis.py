@@ -2,12 +2,14 @@
 # Copyright (C) 2020 Dimpact
 from django.test import override_settings, tag
 
+import requests_mock
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import APICMISTestCase, require_cmis
+from openzaak.contrib.verzoeken.tests.utils import get_verzoek_response
+from openzaak.tests.utils import APICMISTestCase, mock_vrc_oas_get, require_cmis
 
 from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
@@ -72,7 +74,17 @@ class UniqueRepresentationTestCase(APICMISTestCase):
         )
 
     @tag("oio", "external-urls")
-    def test_oio_with_verzoek(self):
+    @requests_mock.Mocker(real_http=True)
+    def test_oio_with_verzoek(self, m):
+        vrs_base = "http://example.com/api/v1/"
+        verzoek = f"{vrs_base}verzoeken/123"
+
+        # set up mocks
+        mock_vrc_oas_get(m, oas_url=f"{vrs_base}schema/openapi.yaml?v=3")
+        m.get(verzoek, json=get_verzoek_response(verzoek))
+
+        # set up model objects
+        Service.objects.create(api_root=vrs_base, api_type=APITypes.vrc)
         eio = EnkelvoudigInformatieObjectFactory.create(
             bronorganisatie="730924658",
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
@@ -80,9 +92,7 @@ class UniqueRepresentationTestCase(APICMISTestCase):
         eio_url = f"http://testserver{reverse(eio)}"
 
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio_url,
-            verzoek="http://example.com/api/v1/verzoeken/123",
-            object_type="verzoek",
+            informatieobject=eio_url, verzoek=verzoek, object_type="verzoek",
         )
 
         # not a model we can generate a representation for -> take the last fragment
