@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "privates",
     "django_better_admin_arrayfield",
     "django_loose_fk",
+    "simple_certmanager",
     "zgw_consumers",
     "drc_cmis",
     "mozilla_django_oidc",
