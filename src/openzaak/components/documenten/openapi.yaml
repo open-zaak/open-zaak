@@ -39,7 +39,7 @@ info:
     \ Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd\
     \ is.\n\n**Resources en acties**\n- `enkelvoudiginformatieobject`: create, update,\
     \ destroy\n- `gebruiksrechten`: create, update, destroy\n\n\n**Handige links**\n\
-    \n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/content/standaard/)\n\
+    \n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -3013,8 +3013,11 @@ components:
 
             * `besluit` - Besluit
 
-            * `zaak` - Zaak'
+            * `zaak` - Zaak
+
+            * `verzoek` - Verzoek'
           type: string
           enum:
           - besluit
           - zaak
+          - verzoek

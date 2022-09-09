@@ -136,7 +136,8 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 Uitleg bij mogelijke waarden:
 
 * `besluit` - Besluit
-* `zaak` - Zaak | string | ja | C​R​U​D |
+* `zaak` - Zaak
+* `verzoek` - Verzoek | string | ja | C​R​U​D |
 
 
 * Create, Read, Update, Delete
