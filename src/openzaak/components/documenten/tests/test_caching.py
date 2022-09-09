@@ -14,6 +14,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 
+from ..caching import get_etag_cache_key, set_etag
 from .utils import get_documenten_spec
 
 
@@ -40,13 +41,18 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         self.assertIn("head", endpoint)
 
     def test_conditional_get_304(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(with_etag=True)
-        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f'"{eio._etag}"')
+        eio = EnkelvoudigInformatieObjectFactory.create()
+
+        key = get_etag_cache_key(eio)
+        _etag = eio.calculate_etag_value()
+        set_etag(key, _etag)
+
+        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f'"{_etag}"')
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(with_etag=True)
+        eio = EnkelvoudigInformatieObjectFactory.create()
 
         response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH='"not-an-md5"')
 
@@ -82,10 +88,11 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         oio = ObjectInformatieObject.objects.get()
 
         # Manually set the ETag, since there is no OIO factory
-        oio._etag = oio.calculate_etag_value()
-        oio.save(update_fields=["_etag"])
+        key = get_etag_cache_key(oio)
+        _etag = oio.calculate_etag_value()
+        set_etag(key, _etag)
 
-        response = self.client.get(reverse(oio), HTTP_IF_NONE_MATCH=f'"{oio._etag}"')
+        response = self.client.get(reverse(oio), HTTP_IF_NONE_MATCH=f'"{_etag}"')
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
@@ -94,8 +101,9 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         oio = ObjectInformatieObject.objects.get()
 
         # Manually set the ETag, since there is no OIO factory
-        oio._etag = oio.calculate_etag_value()
-        oio.save(update_fields=["_etag"])
+        key = get_etag_cache_key(oio)
+        _etag = oio.calculate_etag_value()
+        set_etag(key, _etag)
 
         response = self.client.get(reverse(oio), HTTP_IF_NONE_MATCH='"not-an-md5"')
 
@@ -125,15 +133,24 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertIn("head", endpoint)
 
     def test_conditional_get_304(self):
-        gebruiksrecht = GebruiksrechtenFactory.create(with_etag=True)
+        gebruiksrecht = GebruiksrechtenFactory.create()
+
+        key = get_etag_cache_key(gebruiksrecht)
+        _etag = gebruiksrecht.calculate_etag_value()
+        set_etag(key, _etag)
+
         response = self.client.get(
-            reverse(gebruiksrecht), HTTP_IF_NONE_MATCH=f'"{gebruiksrecht._etag}"'
+            reverse(gebruiksrecht), HTTP_IF_NONE_MATCH=f'"{_etag}"'
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
-        gebruiksrecht = GebruiksrechtenFactory.create(with_etag=True)
+        gebruiksrecht = GebruiksrechtenFactory.create()
+
+        key = get_etag_cache_key(gebruiksrecht)
+        _etag = gebruiksrecht.calculate_etag_value()
+        set_etag(key, _etag)
 
         response = self.client.get(
             reverse(gebruiksrecht), HTTP_IF_NONE_MATCH='"not-an-md5"'
@@ -161,11 +178,14 @@ class EnkelvoudigInformatieObjectCacheTransactionTests(
         Because changes are made to the informatieobject, a code 200 should be
         returned
         """
-        eio = EnkelvoudigInformatieObjectFactory.create(titel="bla", with_etag=True)
-        etag = eio._etag
+        eio = EnkelvoudigInformatieObjectFactory.create(titel="bla")
+
+        key = get_etag_cache_key(eio)
+        _etag = eio.calculate_etag_value()
+        set_etag(key, _etag)
 
         eio.titel = "aangepast"
         eio.save()
 
-        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f"{etag}")
+        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f"{_etag}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

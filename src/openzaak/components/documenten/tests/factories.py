@@ -53,11 +53,6 @@ class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
 
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
-
     @classmethod
     def create(cls, **kwargs):
         # for DRC-CMIS, we pass in a request object containing the correct host.
@@ -74,11 +69,6 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "documenten.Gebruiksrechten"
 
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
-
     @factory.lazy_attribute
     def startdatum(self):
         return datetime.datetime.combine(
@@ -92,11 +82,6 @@ class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "documenten.Gebruiksrechten"
-
-    class Params:
-        with_etag = factory.Trait(
-            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
-        )
 
 
 class BestandsDeelFactory(factory.django.DjangoModelFactory):
