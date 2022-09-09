@@ -20,7 +20,6 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
-from vng_api_common.caching import conditional_retrieve
 from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -29,6 +28,7 @@ from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExc
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
+from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -82,7 +82,7 @@ REGISTRATIE_QUERY_PARAM = openapi.Parameter(
 )
 
 
-@conditional_retrieve()
+@cmis_conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -347,7 +347,7 @@ class EnkelvoudigInformatieObjectViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@conditional_retrieve()
+@cmis_conditional_retrieve()
 class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -443,7 +443,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
     permission_classes = (AuthRequired,)
 
 
-@conditional_retrieve()
+@cmis_conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
