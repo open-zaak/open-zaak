@@ -25,14 +25,14 @@ API                     Specification version(s)
 `Autorisaties API`_     `1.0.0 <https://autorisaties-api.vng.cloud/api/v1/schema/>`__
 ======================  ==========================================
 
-.. _`Zaken API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/zaken/
-.. _`Documenten API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/documenten/
-.. _`Catalogi API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/catalogi/
-.. _`Besluiten API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/besluiten/
-.. _`Autorisaties API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/autorisaties/
+.. _`Zaken API`: https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/
+.. _`Documenten API`: https://vng-realisatie.github.io/gemma-zaken/standaard/documenten/
+.. _`Catalogi API`: https://vng-realisatie.github.io/gemma-zaken/standaard/catalogi/
+.. _`Besluiten API`: https://vng-realisatie.github.io/gemma-zaken/standaard/besluiten/
+.. _`Autorisaties API`: https://vng-realisatie.github.io/gemma-zaken/standaard/autorisaties/
 
 In addition, Open Zaak requires access to a `Notificaties API`_. Open Zaak uses
 `Open Notificaties`_ by default.
 
-.. _`Notificaties API`: https://vng-realisatie.github.io/gemma-zaken/content/standaard/notificaties/
+.. _`Notificaties API`: https://vng-realisatie.github.io/gemma-zaken/standaard/notificaties/
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
