@@ -17,6 +17,7 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -280,6 +281,19 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         help_text=_(
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
+    )
+    informatieobjecttype = FKOrURLField(
+        lookup_field="uuid",
+        max_length=200,
+        min_length=1,
+        help_text=_(
+            "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
+        ),
+        validators=[
+            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_SPEC),
+            LooseFkIsImmutableValidator(),
+            PublishValidator(),
+        ],
     )
     # TODO: validator!
     ondertekening = OndertekeningSerializer(

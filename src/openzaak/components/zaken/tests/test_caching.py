@@ -8,7 +8,8 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
-from vng_api_common.tests.schema import get_spec
+
+from openzaak.tests.utils import get_spec
 
 from .factories import (
     ResultaatFactory,
@@ -19,10 +20,6 @@ from .factories import (
     ZaakInformatieObjectFactory,
 )
 from .utils import ZAAK_READ_KWARGS
-
-
-def get_zaken_spec():
-    return get_spec("src/openzaak/components/zaken/openapi.yaml")
 
 
 class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
@@ -41,7 +38,7 @@ class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(zaak), **ZAAK_READ_KWARGS)
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/zaken/{uuid}"]
 
@@ -105,7 +102,7 @@ class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(status_))
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/statussen/{uuid}"]
 
@@ -147,7 +144,7 @@ class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(zaakinformatieobject))
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/zaakinformatieobjecten/{uuid}"]
 
@@ -188,7 +185,7 @@ class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         )
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/zaken/{zaak_uuid}/zaakeigenschappen/{uuid}"]
 
@@ -231,7 +228,7 @@ class RolCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(rol))
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/rollen/{uuid}"]
 
@@ -268,7 +265,7 @@ class ResultaatCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(resultaat))
 
     def test_head_in_apischema(self):
-        spec = get_zaken_spec()
+        spec = get_spec("zaken")
 
         endpoint = spec["paths"]["/resultaten/{uuid}"]
 

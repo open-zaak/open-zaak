@@ -19,6 +19,7 @@ from .mocks import (
     mock_zrc_oas_get,
     mock_ztc_oas_get,
 )
+from .oas import get_spec
 
 __all__ = [
     # mocks
@@ -42,4 +43,6 @@ __all__ = [
     "APICMISTransactionTestCase",
     "serialise_eio",
     "require_cmis",
+    # oas
+    "get_spec",
 ]

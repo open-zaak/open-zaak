@@ -97,6 +97,7 @@ class CMISMixin(MockSchemasMixin):
         self.adapter.start()
 
         self.addCleanup(self._cleanup_alfresco)
+        self.addCleanup(self.adapter.stop)
 
         # testserver vs. example.com
         Site.objects.clear_cache()
@@ -107,7 +108,6 @@ class CMISMixin(MockSchemasMixin):
         # Removes the created documents from alfresco
         client = get_cmis_client()
         client.delete_cmis_folders_in_base()
-        self.adapter.stop()
 
 
 class APICMISTestCase(CMISMixin, APITestCase):
