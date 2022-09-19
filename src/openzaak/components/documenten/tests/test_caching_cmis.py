@@ -6,22 +6,27 @@ Test that the caching mechanisms are in place.
 from django.test import override_settings
 
 from rest_framework import status
-from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.tests.factories import (
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.tests.utils import (
+    APICMISTestCase,
+    APICMISTransactionTestCase,
+    get_spec,
+    require_cmis,
+)
+
+from ..caching import get_etag_cache_key, set_etag
+from ..models import ObjectInformatieObject
+from ..tests.factories import (
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenCMISFactory,
 )
-from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-
-from ..caching import get_etag_cache_key, set_etag
-from .utils import get_documenten_spec
 
 
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
-class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_eio_get_cache_header(self):
@@ -37,7 +42,7 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         self.assertHeadHasETag(reverse(eio))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/enkelvoudiginformatieobjecten/{uuid}"]
 
@@ -66,8 +71,9 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
-class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_oio_get_cache_header(self):
@@ -92,7 +98,7 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(oio))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/objectinformatieobjecten/{uuid}"]
 
@@ -131,8 +137,9 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
-class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_gebruiksrecht_get_cache_header(self):
@@ -152,7 +159,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(gebruiksrecht))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/gebruiksrechten/{uuid}"]
 
@@ -189,9 +196,10 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCacheTransactionTests(
-    JWTAuthMixin, APITransactionTestCase
+    JWTAuthMixin, APICMISTransactionTestCase
 ):
     heeft_alle_autorisaties = True
 

@@ -48,9 +48,6 @@ class CMISETagMixin:
         set_etag(get_etag_cache_key(self), etag)
         return etag
 
-    class Meta:
-        abstract = True
-
 
 def cmis_conditional_retrieve(
     action="retrieve", etag_field="_etag", extra_depends_on: Optional[Set[str]] = None,

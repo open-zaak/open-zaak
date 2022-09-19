@@ -19,8 +19,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
-
-from .utils import get_catalogi_spec
+from openzaak.tests.utils import get_spec
 
 
 class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
@@ -39,7 +38,7 @@ class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(besluittype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/besluittypen/{uuid}"]
 
@@ -121,7 +120,7 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(catalogus))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/catalogussen/{uuid}"]
 
@@ -203,7 +202,7 @@ class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(eigenschap))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/eigenschappen/{uuid}"]
 
@@ -285,7 +284,7 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(informatieobjecttype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/informatieobjecttypen/{uuid}"]
 
@@ -374,7 +373,7 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(resultaattype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/resultaattypen/{uuid}"]
 
@@ -462,7 +461,7 @@ class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(roltype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/roltypen/{uuid}"]
 
@@ -542,7 +541,7 @@ class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(statustype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/statustypen/{uuid}"]
 
@@ -624,7 +623,7 @@ class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(zaakinformatieobjecttype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/zaaktype-informatieobjecttypen/{uuid}"]
 
@@ -721,7 +720,7 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(zaaktype))
 
     def test_head_in_apischema(self):
-        spec = get_catalogi_spec()
+        spec = get_spec("catalogi")
 
         endpoint = spec["paths"]["/zaaktypen/{uuid}"]
 

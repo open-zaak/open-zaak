@@ -96,8 +96,6 @@ class CMISMixin(MockSchemasMixin):
         self.adapter = requests_mock.Mocker(real_http=True)
         self.adapter.start()
 
-        self._cleanup_alfresco()
-
         self.addCleanup(self._cleanup_alfresco)
         self.addCleanup(self.adapter.stop)
 

@@ -7,15 +7,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 
-from openzaak.components.documenten.models import ObjectInformatieObject
-from openzaak.components.documenten.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-    GebruiksrechtenFactory,
-)
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.tests.utils import get_spec
 
 from ..caching import get_etag_cache_key, set_etag
-from .utils import get_documenten_spec
+from ..models import ObjectInformatieObject
+from ..tests.factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
 class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
@@ -34,7 +31,7 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         self.assertHeadHasETag(reverse(eio))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/enkelvoudiginformatieobjecten/{uuid}"]
 
@@ -77,7 +74,7 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(oio))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/objectinformatieobjecten/{uuid}"]
 
@@ -126,7 +123,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertHeadHasETag(reverse(gebruiksrecht))
 
     def test_head_in_apischema(self):
-        spec = get_documenten_spec()
+        spec = get_spec("documenten")
 
         endpoint = spec["paths"]["/gebruiksrechten/{uuid}"]
 
