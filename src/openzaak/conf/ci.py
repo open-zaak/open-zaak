@@ -12,6 +12,7 @@ from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
+os.environ.setdefault("NOTIFICATIONS_DISABLED", "yes")
 
 from .includes.base import *  # noqa isort:skip
 
@@ -34,11 +35,6 @@ ENVIRONMENT = "CI"
 # Django-axes
 #
 AXES_BEHIND_REVERSE_PROXY = False
-
-#
-# Open Zaak specific settings
-#
-NOTIFICATIONS_DISABLED = True
 
 #
 # Warning output

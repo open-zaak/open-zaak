@@ -592,6 +592,11 @@ ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
 ]
 
 #
+# VNG-API-COMMON
+#
+NOTIFICATIONS_DISABLED = config("NOTIFICATIONS_DISABLED", default=False)
+
+#
 # DJANGO-LOOSE-FK -- handle internal and external API resources
 #
 DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
