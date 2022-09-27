@@ -149,6 +149,9 @@ on Docker, since `localhost` is contained within the container:
     Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
     variable should be used with care to prevent unwanted side-effects.
 
+* `NOTIFICATIONS_DISABLED`: if this variable is set to `true`, `yes` or `1`, the notification mechanism will be
+    disabled. Defaults to `False`.
+
 ### Initial superuser creation
 
 A clean installation of Open Zaak comes without pre-installed or pre-configured admin
