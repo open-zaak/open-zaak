@@ -816,3 +816,58 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
+
+    @tag("gh-1264")
+    @override_settings(NOTIFICATIONS_DISABLED=True)
+    @requests_mock.Mocker()
+    def test_save_published_zaaktype(self, m):
+        """ Regressiontest where a user is not able to save a published zaaktype """
+
+        # from test_publish_with_minimum_requirements
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        procestype = "https://selectielijst.openzaak.nl/api/v1/procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+        zaaktype = ZaakTypeFactory.create(
+            concept=False,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(procestype),
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "procestypen", url=procestype)
+
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+        for operation in ["_save", "_addanother", "_continue", "_addversion"]:
+            with self.subTest(operation=operation):
+                change_page.form["datum_einde_geldigheid"] = "2020-01-01"
+                response = change_page.form.submit(operation)
+                zaaktype.refresh_from_db()
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(zaaktype.datum_einde_geldigheid, date(2020, 1, 1))
+
+                zaaktype.datum_einde_geldigheid = None
+                zaaktype.save()
+
+        change_page.form["datum_einde_geldigheid"] = "2020-01-01"
+        response = change_page.form.submit("_export")
+        zaaktype.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, "application/zip")
+        self.assertEqual(zaaktype.datum_einde_geldigheid, date(2020, 1, 1))
