@@ -382,6 +382,13 @@ class ZaakTypeAdmin(
         is being added
         """
         formsets, inline_instances = super()._create_formsets(request, obj, change)
-        if "_addversion" in request.POST:
-            return [], []
+        for operation in [
+            "_save",
+            "_addanother",
+            "_continue",
+            "_addversion",
+            "_export",
+        ]:
+            if operation in request.POST:
+                return [], []
         return formsets, inline_instances
