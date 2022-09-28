@@ -624,7 +624,7 @@ class Rol(ETagMixin, models.Model):
 
     def unique_representation(self):
         if self.betrokkene == "":
-            return f"({self.zaak.unique_representation()}) - {self.roltoelichting}"
+            return f"({self.zaak.unique_representation()}) - {self.uuid}"
 
         betrokkene = (
             self.betrokkene.rstrip("/")
