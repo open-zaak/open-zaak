@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.7.4 (2022-09-28)
+------------------
+
+Bugfix release
+
+* [#1264] Fixed updating/saving published zaaktypen via admin (for real now)
+* Fixed excessively long unique representation for ``Rol`` resource in some cases,
+  causing crashes due to audittrail saving.
+
 1.7.3 (2022-09-01)
 ------------------
 
