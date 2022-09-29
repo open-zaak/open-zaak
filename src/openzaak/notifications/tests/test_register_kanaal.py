@@ -6,15 +6,15 @@ Test the correct invocations for registering notification channels.
 from io import StringIO
 from unittest.mock import call, patch
 
+from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from django.contrib.sites.models import Site
-
-from openzaak.components.zaken.models import Zaak
 
 import jwt
 import requests_mock
 from notifications_api_common.kanalen import KANAAL_REGISTRY, Kanaal
+
+from openzaak.components.zaken.models import Zaak
 
 from . import mock_nrc_oas_get
 from .mixins import NotificationsConfigMixin

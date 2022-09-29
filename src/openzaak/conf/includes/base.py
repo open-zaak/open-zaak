@@ -661,7 +661,5 @@ CMIS_MAPPER_FILE = config(
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
 
-VNG_COMPONENTS_BRANCH = "stable/1.0.x"
-
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")
