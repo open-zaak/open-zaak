@@ -96,15 +96,19 @@ django==3.2.15
     #   django-privates
     #   django-redis
     #   django-relativedelta
+    #   django-rest-framework-condition
     #   django-sendfile2
     #   django-sniplates
     #   django-solo
     #   djangorestframework
     #   drc-cmis
     #   drf-extra-fields
+    #   drf-nested-routers
     #   drf-yasg
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
+    #   notifications-api-common
+    #   vng-api-common
     #   zgw-consumers
 django-admin-index==2.0.2
     # via -r requirements/base.txt
@@ -118,6 +122,7 @@ django-choices==1.7.2
     # via
     #   -r requirements/base.txt
     #   drc-cmis
+    #   vng-api-common
     #   zgw-consumers
 django-cors-headers==3.11.0
     # via -r requirements/base.txt
@@ -129,6 +134,7 @@ django-filter==21.1
     # via
     #   -r requirements/base.txt
     #   django-loose-fk
+    #   vng-api-common
 django-ipware==4.0.2
     # via
     #   -r requirements/base.txt
@@ -151,6 +157,10 @@ django-relativedelta==1.1.2
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
+django-rest-framework-condition==0.1.1
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 django-sendfile2==0.7.0
     # via
     #   -r requirements/base.txt
@@ -162,6 +172,8 @@ django-solo==2.0.0
     #   -r requirements/base.txt
     #   drc-cmis
     #   mozilla-django-oidc-db
+    #   notifications-api-common
+    #   vng-api-common
     #   zgw-consumers
 django-webtest==1.9.10
     # via -r requirements/test-tools.in
@@ -171,19 +183,31 @@ djangorestframework==3.12.4
     #   django-loose-fk
     #   djangorestframework-gis
     #   drf-extra-fields
+    #   drf-nested-routers
     #   drf-yasg
+    #   notifications-api-common
+    #   vng-api-common
 djangorestframework-camel-case==1.2.0
-    # via -r requirements/base.txt
+    # via
+    #   -r requirements/base.txt
+    #   notifications-api-common
+    #   vng-api-common
 djangorestframework-gis==0.18
     # via -r requirements/base.txt
 drc-cmis==1.6.0
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt
+drf-nested-routers==0.93.4
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 drf-writable-nested==0.6.3
     # via -r requirements/base.txt
 drf-yasg==1.20.0
-    # via -r requirements/base.txt
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 face==20.1.1
     # via
     #   -r requirements/base.txt
@@ -206,6 +230,8 @@ furl==2.1.3
 gemma-zds-client==1.0.1
     # via
     #   -r requirements/base.txt
+    #   notifications-api-common
+    #   vng-api-common
     #   zgw-consumers
 glom==22.1.0
     # via
@@ -229,11 +255,19 @@ inflection==0.5.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
+iso-639==0.4.5
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 iso8601==1.0.2
     # via
     #   -r requirements/base.txt
     #   cmislib-maykin
     #   drc-cmis
+isodate==0.6.1
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 isort==5.0.7
     # via -r requirements/test-tools.in
 itypes==1.2.0
@@ -266,10 +300,18 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.txt
+notifications-api-common==0.1.0
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 orderedmultidict==1.0.1
     # via
     #   -r requirements/base.txt
     #   furl
+oyaml==1.0
+    # via
+    #   -r requirements/base.txt
+    #   vng-api-common
 packaging==21.3
     # via
     #   -r requirements/base.txt
@@ -292,6 +334,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements/base.txt
     #   gemma-zds-client
+    #   vng-api-common
 pyopenssl==21.0.0
     # via
     #   -r requirements/base.txt
@@ -326,6 +369,8 @@ pyyaml==6.0
     # via
     #   -r requirements/base.txt
     #   gemma-zds-client
+    #   oyaml
+    #   vng-api-common
 redis==4.1.4
     # via
     #   -r requirements/base.txt
@@ -340,6 +385,7 @@ requests==2.27.1
     #   mozilla-django-oidc
     #   requests-cache
     #   requests-mock
+    #   vng-api-common
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.txt
@@ -368,6 +414,7 @@ six==1.16.0
     #   django-choices
     #   django-db-logger
     #   furl
+    #   isodate
     #   orderedmultidict
     #   pyopenssl
     #   python-dateutil
@@ -402,7 +449,7 @@ urllib3==1.26.9
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/base.txt
-vng_api_common @ git+https://github.com/VNG-Realisatie/vng-api-common@feature/notifications-api-common
+vng-api-common==1.9.0
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -421,7 +468,9 @@ wrapt==1.14.0
     #   -r requirements/base.txt
     #   deprecated
 zgw-consumers==0.19.0
-    # via -r requirements/base.txt
+    # via
+    #   -r requirements/base.txt
+    #   notifications-api-common
 zipp==3.8.0
     # via
     #   -r requirements/base.txt

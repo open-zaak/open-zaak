@@ -3,7 +3,6 @@ FROM python:3.9-slim-bullseye AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         pkg-config \
-        git \
         build-essential \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
