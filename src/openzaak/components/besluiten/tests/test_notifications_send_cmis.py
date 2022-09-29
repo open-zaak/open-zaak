@@ -14,10 +14,8 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests.utils import (
-    LOGGING_SETTINGS,
-    NotificationsConfigMixin,
-)
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -30,12 +28,6 @@ from .utils import get_operation_url
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
 
     def test_send_notif_delete_besluitinformatieobject(self):
         """
@@ -98,8 +90,6 @@ class FailedNotificationCMISTests(
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-
-        cls._configure_notifications()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self,

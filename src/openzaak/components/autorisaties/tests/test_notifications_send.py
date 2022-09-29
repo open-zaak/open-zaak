@@ -13,12 +13,9 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_nrc_oas_get
-from openzaak.notifications.tests.utils import (
-    LOGGING_SETTINGS,
-    NotificationsConfigMixin,
-    get_notifications_api_root,
-)
+from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
@@ -32,12 +29,6 @@ from .utils import get_operation_url
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
     component = ComponentTypes.ac
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
 
     @patch("zds_client.Client.from_url")
     def test_send_notif_create_application(self, m, mock_client):
@@ -117,15 +108,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
-
     def test_applicatie_create_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         url = get_operation_url("applicatie_create")
 
         data = {
@@ -160,7 +145,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_applicatie_delete_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         applicatie = ApplicatieFactory.create(heeft_alle_autorisaties=True)
         url = reverse(applicatie)
 

@@ -10,7 +10,7 @@ from django.test import override_settings
 from notifications_api_common.kanalen import KANAAL_REGISTRY, Kanaal
 from rest_framework.test import APITestCase
 
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 from ..models import Besluit
 
@@ -23,8 +23,6 @@ class CreateNotifKanaalTestCase(NotificationsConfigMixin, APITestCase):
         site = Site.objects.get_current()
         site.domain = "example.com"
         site.save()
-
-        cls._configure_notifications()
 
         kanaal = Kanaal(label="dummy-kanaal", main_resource=Besluit)
         cls.addClassCleanup(lambda: KANAAL_REGISTRY.remove(kanaal))

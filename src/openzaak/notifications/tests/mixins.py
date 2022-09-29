@@ -1,22 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from notifications_api_common.models import NotificationsConfig
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 
 class NotificationsConfigMixin:
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
-        config = NotificationsConfig.get_solo()
-        Service.objects.update_or_create(
-            api_root=config.api_root,
+        cls._configure_notifications()
+
+    @staticmethod
+    def _configure_notifications(api_root=None):
+        svc, _ = Service.objects.update_or_create(
+            api_root=api_root or "https://notificaties-api.vng.cloud/api/v1/",
             defaults=dict(
+                label="Notifications API",
                 api_type=APITypes.nrc,
-                client_id="test",
-                secret="test",
-                user_id="test",
-                user_representation="Test",
+                client_id="some-client-id",
+                secret="some-secret",
+                auth_type=AuthTypes.zgw,
             ),
         )
+        config = NotificationsConfig.get_solo()
+        config.notifications_api_service = svc
+        config.save()

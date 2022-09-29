@@ -12,7 +12,7 @@ import requests_mock
 from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 from ..models import FailedNotification
 from . import mock_notification_send, mock_nrc_oas_get
@@ -23,10 +23,10 @@ from .factories import FailedNotificationFactory
 class FailedNotificationAdminTests(NotificationsConfigMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
+        super().setUpTestData()
 
+        cls.user = SuperUserFactory.create()
         cls.url = reverse("admin:notifications_log_failednotification_changelist")
-        cls._configure_notifications()
 
     def setUp(self):
         super().setUp()

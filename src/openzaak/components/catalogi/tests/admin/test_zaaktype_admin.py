@@ -14,7 +14,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import (
     mock_resource_get,
@@ -53,8 +53,6 @@ class ZaaktypeAdminTests(
         selectielijst_config = ReferentieLijstConfig.get_solo()
         selectielijst_config.allowed_years = [2017, 2020]
         selectielijst_config.save()
-
-        cls._configure_notifications()
 
     def setUp(self):
         super().setUp()

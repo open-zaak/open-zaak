@@ -10,7 +10,7 @@ import jwt
 import requests_mock
 
 from openzaak.notifications.tests import mock_nrc_oas_get
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
 class RegisterKanaalTests(NotificationsConfigMixin, TestCase):

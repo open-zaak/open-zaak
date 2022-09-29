@@ -31,5 +31,5 @@ Available commands
     setup.
 
 ``register_kanalen``
-    Registers notifications channels with the notifications API if it doesn't exist
-    yet. Channels must exist before Open Zaak can publish notifications to them.
+    Registers notification channels with the notifications API that don't exist yet.
+    Channels must exist before Open Zaak can publish notifications to them.

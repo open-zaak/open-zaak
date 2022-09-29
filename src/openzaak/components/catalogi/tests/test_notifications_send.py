@@ -10,12 +10,9 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_nrc_oas_get
-from openzaak.notifications.tests.utils import (
-    LOGGING_SETTINGS,
-    NotificationsConfigMixin,
-    get_notifications_api_root,
-)
+from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase
@@ -30,15 +27,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
-
     def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         url = get_operation_url("besluittype_create")
 
         data = {
@@ -84,7 +75,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
 
     def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         besluittype = BesluitTypeFactory.create()
         url = reverse(besluittype)
 
@@ -116,7 +107,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self, m
     ):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         url = get_operation_url("informatieobjecttype_create")
 
         data = {
@@ -156,7 +147,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self, m
     ):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         iotype = InformatieObjectTypeFactory.create()
         url = reverse(iotype)
 
@@ -186,7 +177,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         url = get_operation_url("zaaktype_create")
 
         data = {
@@ -248,7 +239,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
 
     def test_zaaktype_delete_fail_send_notification_create_db_entry(self, m):
         mock_nrc_oas_get(m)
-        m.post(f"{get_notifications_api_root()}notificaties", status_code=403)
+        mock_notification_send(m, status_code=403)
         zaaktype = ZaakTypeFactory.create()
         url = reverse(zaaktype)
 

@@ -27,7 +27,7 @@ from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_nrc_oas_get
 from openzaak.utils import build_absolute_url
 

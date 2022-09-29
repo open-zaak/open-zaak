@@ -13,15 +13,14 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import APICredential, JWTSecret
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.service import Service
+from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
 class SetupConfigurationTests(NotificationsConfigMixin, TestCase):
     def test_setup_configuration(self):
-        self._configure_notifications()
         openzaak_domain = "open-zaak.utrecht.nl"
         nrc_root = "https://open-notificaties.utrecht.nl/api/v1/"
         municipality = "Utrecht"

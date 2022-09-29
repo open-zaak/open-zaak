@@ -15,10 +15,8 @@ from vng_api_common.tests import reverse
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests.utils import (
-    LOGGING_SETTINGS,
-    NotificationsConfigMixin,
-)
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFactory
@@ -31,12 +29,6 @@ from .utils import get_operation_url
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
 
     @patch("zds_client.Client.from_url")
     def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
@@ -92,12 +84,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
 
     def test_eio_create_fail_send_notification_create_db_entry(self):
         url = get_operation_url("enkelvoudiginformatieobject_create")

@@ -17,7 +17,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from .factories import ZaakFactory, ZaakInformatieObjectFactory
@@ -34,12 +34,6 @@ class FailedNotificationCMISTests(
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls._configure_notifications()
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
         site = Site.objects.get_current()
