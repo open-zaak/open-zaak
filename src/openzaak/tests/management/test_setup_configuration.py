@@ -4,22 +4,23 @@ from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes
-from vng_api_common.models import APICredential, JWTSecret
-from vng_api_common.notifications.constants import (
+from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
-from vng_api_common.notifications.models import NotificationsConfig
+from notifications_api_common.models import NotificationsConfig
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.models import APICredential, JWTSecret
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
-from openzaak.notifications.tests.utils import NotificationsConfigMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
 class SetupConfigurationTests(NotificationsConfigMixin, TestCase):
     def test_setup_configuration(self):
-        self._configure_notifications()
         openzaak_domain = "open-zaak.utrecht.nl"
         nrc_root = "https://open-notificaties.utrecht.nl/api/v1/"
         municipality = "Utrecht"
@@ -39,8 +40,14 @@ class SetupConfigurationTests(NotificationsConfigMixin, TestCase):
         self.assertEqual(site.domain, openzaak_domain)
         self.assertEqual(site.name, f"Open Zaak {municipality}")
 
+        service = Service.objects.get(api_type=APITypes.nrc)
+        self.assertEqual(service.api_root, nrc_root)
+        self.assertEqual(service.auth_type, AuthTypes.zgw)
+        self.assertEqual(service.user_id, "open-zaak")
+        self.assertEqual(service.user_representation, "Open Zaak")
+
         notif_config = NotificationsConfig.get_solo()
-        self.assertEqual(notif_config.api_root, nrc_root)
+        self.assertEqual(notif_config.notifications_api_service, service)
 
         api_credential = APICredential.objects.get()
         self.assertEqual(api_credential.api_root, nrc_root)

@@ -8,14 +8,14 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.crypto import get_random_string
 
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes
-from vng_api_common.models import APICredential, JWTSecret
-from vng_api_common.notifications.constants import (
+from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
-from vng_api_common.notifications.models import NotificationsConfig
+from notifications_api_common.models import NotificationsConfig
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import ComponentTypes
+from vng_api_common.models import APICredential, JWTSecret
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
@@ -81,11 +81,6 @@ class Command(BaseCommand):
             # https://open-zaak.readthedocs.io/en/latest/installation/configuration.html#open-zaak
 
             # Step 1
-            notif_config = NotificationsConfig.get_solo()
-            notif_config.api_root = notifications_api_root
-            notif_config.save()
-
-            # Step 2
             service = Service.objects.filter(api_type=APITypes.nrc).first()
             assert service is not None, "Service should have been created by migrations"
             service.api_root = notifications_api_root
@@ -97,6 +92,11 @@ class Command(BaseCommand):
             service.user_id = "open-zaak"
             service.user_representation = "Open Zaak"
             service.save()
+
+            # Step 2
+            notif_config = NotificationsConfig.get_solo()
+            notif_config.notifications_api_service = service
+            notif_config.save()
 
             # Step 3
             if not APICredential.objects.filter(

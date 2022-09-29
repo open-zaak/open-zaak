@@ -30,6 +30,6 @@ Available commands
     After configuring the Notificaties API, send a test nofification to verify the
     setup.
 
-``register_kanaal``
-    Registers a notifications channel with the notifications API if it doesn't exist
-    yet. Channels must exist before Open Zaak can publish notifications to them.
+``register_kanalen``
+    Registers notification channels with the notifications API that don't exist yet.
+    Channels must exist before Open Zaak can publish notifications to them.

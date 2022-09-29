@@ -131,6 +131,7 @@ django==3.2.15
     #   drf-yasg
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
+    #   notifications-api-common
     #   vng-api-common
     #   zgw-consumers
 django-admin-index==2.0.2
@@ -201,6 +202,7 @@ django-solo==2.0.0
     #   -r requirements/ci.txt
     #   drc-cmis
     #   mozilla-django-oidc-db
+    #   notifications-api-common
     #   vng-api-common
     #   zgw-consumers
 django-webtest==1.9.10
@@ -213,10 +215,12 @@ djangorestframework==3.12.4
     #   drf-extra-fields
     #   drf-nested-routers
     #   drf-yasg
+    #   notifications-api-common
     #   vng-api-common
 djangorestframework-camel-case==1.2.0
     # via
     #   -r requirements/ci.txt
+    #   notifications-api-common
     #   vng-api-common
 djangorestframework-gis==0.18
     # via -r requirements/ci.txt
@@ -230,7 +234,7 @@ drc-cmis==1.6.0
     # via -r requirements/ci.txt
 drf-extra-fields==3.4.0
     # via -r requirements/ci.txt
-drf-nested-routers==0.93.3
+drf-nested-routers==0.93.4
     # via
     #   -r requirements/ci.txt
     #   vng-api-common
@@ -262,6 +266,7 @@ furl==2.1.3
 gemma-zds-client==1.0.1
     # via
     #   -r requirements/ci.txt
+    #   notifications-api-common
     #   vng-api-common
     #   zgw-consumers
 gitdb==4.0.5
@@ -356,6 +361,10 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/ci.txt
+notifications-api-common==0.1.0
+    # via
+    #   -r requirements/ci.txt
+    #   vng-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
 openshift==0.11.2
@@ -596,7 +605,7 @@ urllib3==1.26.9
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/ci.txt
-vng-api-common==1.8.0
+vng-api-common==1.9.0
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
@@ -627,7 +636,9 @@ wrapt==1.14.0
     #   -r requirements/ci.txt
     #   deprecated
 zgw-consumers==0.19.0
-    # via -r requirements/ci.txt
+    # via
+    #   -r requirements/ci.txt
+    #   notifications-api-common
 zipp==3.8.0
     # via
     #   -r requirements/ci.txt

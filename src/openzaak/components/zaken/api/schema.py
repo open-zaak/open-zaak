@@ -3,7 +3,7 @@
 from django.conf import settings
 
 from drf_yasg import openapi
-from vng_api_common.notifications.utils import notification_documentation
+from notifications_api_common.utils import notification_documentation
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
 

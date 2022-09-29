@@ -1,0 +1,58 @@
+{% extends "vng_api_common/master.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
+{% load markup_tags %}
+
+{% block content %}
+
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Kanalen</h1>
+  </div>
+
+  <div class="container">
+
+    <p>
+      Kanalen worden typisch per component gedefinieerd. Producers versturen
+      berichten op bepaalde kanalen, consumers ontvangen deze. Consumers
+      abonneren zich via een notificatiecomponent (zoals
+      {{ 'https://notificaties-api.vng.cloud/api/v1/schema/'|urlize }}) op berichten.
+    </p>
+
+    <p>
+      Hieronder staan de kanalen beschreven die door deze component gebruikt
+      worden, met de kenmerken bij elk bericht.
+    </p>
+
+    <p>
+      De architectuur van de notificaties staat beschreven op
+      {{ 'https://zaakgerichtwerken.vng.cloud/themas/achtergronddocumentatie/notificaties'|urlize }}.
+    </p>
+
+    {% for kanaal in kanalen %}
+      <a name="#{{ kanaal.label }}"></a>
+      <h2>{{ kanaal.label|title }}</h2>
+
+      <p><strong>Kanaal</strong></p>
+      <p>
+        <code>{{ kanaal.label }}</code>
+      </p>
+
+      <p>
+        {{ kanaal.description|default:""|urlize|apply_markup:"markdown" }}
+      </p>
+
+      <p><strong>Resources en acties</strong></p>
+
+      <ul>
+        {% for resource, actions in kanaal.get_usage %}
+          <li>
+            <code>{{ resource }}</code>:
+            {{ actions|join:", " }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+
+  </div>
+
+{% endblock content %}

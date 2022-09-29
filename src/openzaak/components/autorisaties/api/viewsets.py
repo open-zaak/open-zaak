@@ -3,12 +3,12 @@
 import logging
 
 from drf_yasg.utils import swagger_auto_schema
+from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.authorizations.models import Applicatie
-from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from ._schema_overrides import ApplicatieConsumerAutoSchema

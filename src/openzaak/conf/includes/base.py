@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
+from notifications_api_common.settings import *  # noqa
 from sentry_sdk.integrations import django, redis
 
 from ...utils.monitoring import filter_sensitive_data
@@ -134,6 +135,7 @@ INSTALLED_APPS = [
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
     "vng_api_common.notifications",
+    "notifications_api_common",
     "drf_yasg",
     "rest_framework",
     "rest_framework_gis",
@@ -370,7 +372,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "vng_api_common.notifications.viewsets": {
+        "notifications_api_common.viewsets": {
             "handlers": [
                 "failed_notification",  # always log this to the database!
                 *_root_handlers,
@@ -592,7 +594,7 @@ ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
 ]
 
 #
-# VNG-API-COMMON
+# NOTIFICATIONS-API-COMMON
 #
 NOTIFICATIONS_DISABLED = config("NOTIFICATIONS_DISABLED", default=False)
 
@@ -658,8 +660,6 @@ CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE", default=os.path.join(BASE_DIR, "config", "cmis_mapper.json")
 )
 CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
-
-VNG_COMPONENTS_BRANCH = "stable/1.0.x"
 
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")

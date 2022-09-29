@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from drf_yasg.utils import no_body, swagger_auto_schema
+from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from vng_api_common.caching import conditional_retrieve
-from vng_api_common.notifications.viewsets import NotificationViewSetMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.permissions import AuthRequired

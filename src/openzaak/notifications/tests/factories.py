@@ -7,7 +7,7 @@ import factory.fuzzy
 
 
 class FailedNotificationFactory(factory.django.DjangoModelFactory):
-    logger_name = "vng_api_common.notifications.viewsets"
+    logger_name = "notifications_api_common.viewsets"
     level = logging.WARNING
     msg = "Failed to send notification"
     status_code = factory.fuzzy.FuzzyChoice([200, 201, 204])

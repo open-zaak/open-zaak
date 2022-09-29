@@ -211,13 +211,7 @@ Register the required channels:
 
 .. code-block:: bash
 
-    $ python src/manage.py register_kanaal zaken
-    $ python src/manage.py register_kanaal documenten
-    $ python src/manage.py register_kanaal besluiten
-    $ python src/manage.py register_kanaal autorisaties
-    $ python src/manage.py register_kanaal zaaktypen
-    $ python src/manage.py register_kanaal informatieobjecttypen
-    $ python src/manage.py register_kanaal besluittypen
+    $ python src/manage.py register_kanalen
 
 Create an API token
 ===================

@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2022 Dimpact
+from django.urls import include, path
+
+from .views import ComponentIndexView
+
+urlpatterns = [
+    # autorisaties
+    path(
+        "autorisaties/",
+        ComponentIndexView.as_view(component="autorisaties"),
+        name="index-autorisaties",
+    ),
+    path("autorisaties/api/", include("openzaak.components.autorisaties.api.urls")),
+    # besluiten
+    path(
+        "besluiten/",
+        ComponentIndexView.as_view(component="besluiten"),
+        name="index-besluiten",
+    ),
+    path("besluiten/api/", include("openzaak.components.besluiten.api.urls")),
+    # catalogi
+    path(
+        "catalogi/",
+        ComponentIndexView.as_view(component="catalogi", github_ref="stable/1.1.x"),
+        name="index-catalogi",
+    ),
+    path("catalogi/api/", include("openzaak.components.catalogi.api.urls")),
+    # documenten
+    path(
+        "documenten/",
+        ComponentIndexView.as_view(component="documenten", github_ref="stable/1.1.x"),
+        name="index-documenten",
+    ),
+    path("documenten/api/", include("openzaak.components.documenten.api.urls")),
+    # zaken
+    path(
+        "zaken/",
+        ComponentIndexView.as_view(component="zaken", github_ref="stable/1.2.x"),
+        name="index-zaken",
+    ),
+    path("zaken/api/", include("openzaak.components.zaken.api.urls")),
+]

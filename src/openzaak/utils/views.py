@@ -48,10 +48,10 @@ class ViewConfigView(_ViewConfigView):
 
 
 def _test_nrc_config() -> list:
-    if not apps.is_installed("vng_api_common.notifications"):
+    if not apps.is_installed("notifications_api_common"):
         return []
 
-    from vng_api_common.notifications.models import NotificationsConfig
+    from notifications_api_common.models import NotificationsConfig
 
     nrc_config = NotificationsConfig.get_solo()
 
@@ -59,8 +59,16 @@ def _test_nrc_config() -> list:
 
     has_nrc_auth = nrc_client.auth is not None
 
+    if not nrc_config.notifications_api_service:
+        checks = [((_("NRC"), _("Missing"), False))]
+        return checks
+
     checks = [
-        (_("NRC"), nrc_config.api_root, nrc_config.api_root.endswith("/")),
+        (
+            _("NRC"),
+            nrc_config.notifications_api_service.api_root,
+            nrc_config.notifications_api_service.api_root.endswith("/"),
+        ),
         (
             _("Credentials for NRC"),
             _("Configured") if has_nrc_auth else _("Missing"),
