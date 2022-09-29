@@ -1,24 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2020 Dimpact
+"""
+Test the correct invocations for registering notification channels.
+"""
 from io import StringIO
 from unittest.mock import call, patch
 
-from django.contrib.sites.models import Site
 from django.core.management import call_command
-from django.test import override_settings
+from django.test import TestCase, override_settings
+from django.contrib.sites.models import Site
 
+from openzaak.components.zaken.models import Zaak
+
+import jwt
+import requests_mock
 from notifications_api_common.kanalen import KANAAL_REGISTRY, Kanaal
-from rest_framework.test import APITestCase
 
-from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-
-from ..models import Zaak
+from . import mock_nrc_oas_get
+from .mixins import NotificationsConfigMixin
 
 
 @override_settings(IS_HTTPS=True)
-class CreateNotifKanaalTestCase(NotificationsConfigMixin, APITestCase):
+class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         super().setUpTestData()
 
         site = Site.objects.get_current()
@@ -27,6 +32,26 @@ class CreateNotifKanaalTestCase(NotificationsConfigMixin, APITestCase):
 
         kanaal = Kanaal(label="dummy-kanaal", main_resource=Zaak)
         cls.addClassCleanup(lambda: KANAAL_REGISTRY.remove(kanaal))
+
+        cls._configure_notifications(api_root="https://open-notificaties.local/api/v1/")
+
+    def test_correct_credentials_used(self):
+        with requests_mock.Mocker() as m:
+            mock_nrc_oas_get(m)
+            m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
+            m.post("https://open-notificaties.local/api/v1/kanaal", status_code=201)
+
+            call_command("register_kanalen", kanalen=["zaken"])
+
+            # check for auth in the calls
+            for request in m.request_history[1:]:
+                with self.subTest(method=request.method, url=request.url):
+                    self.assertIn("Authorization", request.headers)
+                    token = request.headers["Authorization"].split(" ")[1]
+                    try:
+                        jwt.decode(token, key="some-secret", algorithms=["HS256"])
+                    except Exception as exc:
+                        self.fail("Not a vaid JWT in Authorization header: %s" % exc)
 
     @patch("notifications_api_common.models.NotificationsConfig.get_client")
     def test_kanaal_create_with_name(self, mock_get_client):
