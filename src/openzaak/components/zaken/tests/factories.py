@@ -23,11 +23,12 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
 )
+from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
 from ..constants import AardZaakRelatie
 
 
-class ZaakFactory(factory.django.DjangoModelFactory):
+class ZaakFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
     vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
         choices=VertrouwelijkheidsAanduiding.values
@@ -63,7 +64,9 @@ class RelevanteZaakRelatieFactory(factory.django.DjangoModelFactory):
         model = "zaken.RelevanteZaakRelatie"
 
 
-class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
+class ZaakInformatieObjectFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+):
     zaak = factory.SubFactory(ZaakFactory)
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 
@@ -76,7 +79,9 @@ class ZaakInformatieObjectFactory(factory.django.DjangoModelFactory):
         )
 
 
-class ZaakEigenschapFactory(factory.django.DjangoModelFactory):
+class ZaakEigenschapFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+):
     zaak = factory.SubFactory(ZaakFactory)
     eigenschap = factory.SubFactory(
         EigenschapFactory, zaaktype=factory.SelfAttribute("..zaak.zaaktype")
@@ -110,7 +115,7 @@ class WozWaardeFactory(factory.django.DjangoModelFactory):
         model = "zaken.WozWaarde"
 
 
-class RolFactory(factory.django.DjangoModelFactory):
+class RolFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     betrokkene = factory.Faker("url")
     betrokkene_type = factory.fuzzy.FuzzyChoice(RolTypes.values)
@@ -127,7 +132,7 @@ class RolFactory(factory.django.DjangoModelFactory):
         )
 
 
-class StatusFactory(factory.django.DjangoModelFactory):
+class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     statustype = factory.SubFactory(StatusTypeFactory)
     datum_status_gezet = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
@@ -141,7 +146,7 @@ class StatusFactory(factory.django.DjangoModelFactory):
         )
 
 
-class ResultaatFactory(factory.django.DjangoModelFactory):
+class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     resultaattype = factory.SubFactory(
         ResultaatTypeFactory, zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
