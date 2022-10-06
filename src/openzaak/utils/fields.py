@@ -74,7 +74,9 @@ FORMFIELD_FOR_DBFIELD_DEFAULTS[DurationField] = {"form_class": RelativeDeltaForm
 
 
 class FkOrServiceUrlField(FkOrURLField):
-    """ supports zgw_comnsumers.ServiceUrlField as 'url_field' """
+    """
+    Support :class:`zgw_consumers.ServiceUrlField` as 'url_field'
+    """
 
     def _add_check_constraint(
         self, options, name="{prefix}{fk_field}_or_{url_base_field}_filled"

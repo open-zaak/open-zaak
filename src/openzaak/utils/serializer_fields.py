@@ -56,10 +56,10 @@ class FKOrServiceUrlValidator(FKOrURLValidator):
         try:
             super().__call__(url, serializer_field)
 
-        except ValueError:
+        except ValueError as exc:
             raise serializers.ValidationError(
                 _("The service for this url is unknown"), code="unknown-service"
-            )
+            ) from exc
 
 
 class FKOrServiceUrlField(FKOrURLField):

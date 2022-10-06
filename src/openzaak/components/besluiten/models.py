@@ -51,7 +51,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         blank=True,
         on_delete=models.PROTECT,
         related_name="besluit_besluittypen",
-        help_text="Basis deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
+        help_text="Basisdeel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
     _besluittype_relative_url = models.CharField(
         _("besluittype relative url"),
@@ -86,7 +86,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
         on_delete=models.PROTECT,
-        related_name="besluit_zaken",
+        related_name="+",
         help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
     )
     _zaak_relative_url = models.CharField(
@@ -318,7 +318,7 @@ class BesluitInformatieObject(models.Model):
                     "_informatieobject_base_url",
                     "_informatieobject_relative_url",
                 ],
-                condition=~models.Q(_informatieobject_relative_url__isnull=True),
+                condition=models.Q(_informatieobject_relative_url__isnull=False),
                 name="unique_besluit_and_external_document",
             )
         ]
