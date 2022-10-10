@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2022 Dimpact
 from furl import furl
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
