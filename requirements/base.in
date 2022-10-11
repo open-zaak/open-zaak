@@ -42,6 +42,7 @@ djangorestframework-camel-case~=1.2.0
 drf-yasg
 drf-writable-nested
 commonground-api-common
+git+https://github.com/maykinmedia/notifications-api-common.git@feature/retry-notifs#egg=notifications-api-common
 humanize
 drc-cmis
 

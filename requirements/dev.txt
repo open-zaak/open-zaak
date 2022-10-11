@@ -401,7 +401,7 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/ci.txt
-notifications-api-common==0.1.0
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@feature/retry-notifs
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
