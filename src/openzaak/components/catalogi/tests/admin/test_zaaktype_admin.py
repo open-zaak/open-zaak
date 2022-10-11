@@ -11,6 +11,7 @@ import requests_mock
 from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -137,9 +138,14 @@ class ZaaktypeAdminTests(
         self.assertEqual(zaaktype.verantwoordingsrelatie, [])
         self.assertEqual(zaaktype.producten_of_diensten, [])
 
+    @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
-    def test_create_new_version(self, m):
+    @patch(
+        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+        side_effect=mock_notify,
+    )
+    def test_create_new_version(self, m, mock_notif):
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_nrc_oas_get(m)

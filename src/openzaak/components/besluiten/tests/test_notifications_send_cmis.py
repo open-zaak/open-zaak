@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 import json
+from unittest.mock import patch
 
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from rest_framework import status
 from vng_api_common.tests import reverse
 
@@ -22,14 +24,19 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
+@tag("notifications")
 @require_cmis
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    def test_send_notif_delete_besluitinformatieobject(self):
+    def test_send_notif_delete_besluitinformatieobject(self, mock_notif):
         """
         Check if notifications will be send when besluitinformatieobject is deleted
         """
@@ -72,10 +79,15 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
             self.assertEqual(value, notificatie_request[key])
 
 
+@tag("notifications")
 @require_cmis
 @freeze_time("2019-01-01T12:00:00Z")
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
+)
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
 )
 class FailedNotificationCMISTests(
     NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase
@@ -92,7 +104,7 @@ class FailedNotificationCMISTests(
         site.save()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
-        self,
+        self, mock_notif
     ):
         url = get_operation_url("besluitinformatieobject_create")
 
@@ -137,7 +149,7 @@ class FailedNotificationCMISTests(
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
-        self,
+        self, mock_notif
     ):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()

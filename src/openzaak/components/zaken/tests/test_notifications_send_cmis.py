@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from unittest import skip
+from unittest.mock import patch
 
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from rest_framework import status
 from vng_api_common.tests import reverse
 
@@ -26,16 +28,23 @@ from .utils import get_operation_url
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
+@tag("notifications")
 @require_cmis
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
 @freeze_time("2019-01-01T12:00:00Z")
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class FailedNotificationCMISTests(
     NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
+    def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
+        self, mock_notif
+    ):
         site = Site.objects.get_current()
         url = get_operation_url("zaakinformatieobject_create")
 
@@ -83,7 +92,9 @@ class FailedNotificationCMISTests(
         self.assertEqual(failed.message, message)
 
     @skip(reason="Standard does not prescribe ZIO destroy notifications.")
-    def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(self):
+    def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(
+        self, mock_notif
+    ):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = f"http://testserver{reverse(io)}"
 

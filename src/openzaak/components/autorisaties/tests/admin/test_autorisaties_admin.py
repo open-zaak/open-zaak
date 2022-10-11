@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 import requests_mock
 from django_webtest import WebTest
 from furl import furl
+from notifications_api_common.tests.utils import mock_notify
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from zgw_consumers.test import generate_oas_component
@@ -502,9 +503,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(m.called)
 
+    @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
-    def test_changes_send_notifications(self, m):
+    @patch(
+        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+        side_effect=mock_notify,
+    )
+    def test_changes_send_notifications(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -576,9 +582,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         url = m.last_request.json()["hoofdObject"]
         self.assertEqual(furl(url).netloc, "openzaak.example.com")
 
+    @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
-    def test_new_zt_all_current_and_future_send_notifications(self, m):
+    @patch(
+        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+        side_effect=mock_notify,
+    )
+    def test_new_zt_all_current_and_future_send_notifications(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -621,9 +632,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 url = m.last_request.json()["hoofdObject"]
                 self.assertEqual(furl(url).netloc, "openzaak.example.com")
 
+
+    @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
     @requests_mock.Mocker()
-    def test_notification_body_current_and_future(self, m):
+    @patch(
+        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+        side_effect=mock_notify,
+    )
+    def test_notification_body_current_and_future(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201

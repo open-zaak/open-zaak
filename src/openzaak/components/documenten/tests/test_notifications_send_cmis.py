@@ -4,10 +4,11 @@ import base64
 import uuid
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -25,15 +26,22 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 from .utils import get_operation_url
 
 
+@tag("notifications")
 @require_cmis
 @freeze_time("2012-01-14")
 @override_settings(NOTIFICATIONS_DISABLED=False)
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_enkelvoudiginformatieobject(self, mock_client):
+    def test_send_notif_create_enkelvoudiginformatieobject(
+        self, mock_client, mock_notif
+    ):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
@@ -78,11 +86,16 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         )
 
 
+@tag("notifications")
 @require_cmis
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
 @freeze_time("2019-01-01T12:00:00Z")
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
@@ -95,7 +108,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
 
-    def test_eio_create_fail_send_notification_create_db_entry(self):
+    def test_eio_create_fail_send_notification_create_db_entry(self, mock_notif):
         url = get_operation_url("enkelvoudiginformatieobject_create")
 
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -145,7 +158,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_eio_delete_fail_send_notification_create_db_entry(self):
+    def test_eio_delete_fail_send_notification_create_db_entry(self, mock_notif):
         eio = EnkelvoudigInformatieObjectFactory.create()
         url = reverse(eio)
 
@@ -175,7 +188,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_gebruiksrechten_create_fail_send_notification_create_db_entry(self):
+    def test_gebruiksrechten_create_fail_send_notification_create_db_entry(
+        self, mock_notif
+    ):
         url = get_operation_url("gebruiksrechten_create")
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -214,7 +229,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(self):
+    def test_gebruiksrechten_delete_fail_send_notification_create_db_entry(
+        self, mock_notif
+    ):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory(informatieobject=eio_url)

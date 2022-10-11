@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import override_settings
+from unittest.mock import patch
+
+from django.test import override_settings, tag
 from django.urls import reverse
 
 import requests_mock
 from django_webtest import WebTest
+from notifications_api_common.tests.utils import mock_notify
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -26,8 +29,13 @@ from ..factories import (
 )
 
 
+@tag("notifications")
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @requests_mock.Mocker()
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class NotificationAdminTests(
     NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
 ):
@@ -49,7 +57,7 @@ class NotificationAdminTests(
 
         self.app.set_user(self.user)
 
-    def test_informatieobjecttype_notify_on_create(self, m):
+    def test_informatieobjecttype_notify_on_create(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -73,7 +81,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_informatieobjecttype_notify_on_change(self, m):
+    def test_informatieobjecttype_notify_on_change(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -99,7 +107,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_no_informatieobjecttype_notify_on_no_change(self, m):
+    def test_no_informatieobjecttype_notify_on_no_change(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -121,7 +129,7 @@ class NotificationAdminTests(
 
         self.assertFalse(m.called)
 
-    def test_besluittype_notify_on_create(self, m):
+    def test_besluittype_notify_on_create(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
@@ -160,7 +168,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_besluit_notify_on_change(self, m):
+    def test_besluit_notify_on_change(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -181,7 +189,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_besluit_no_notify_on_no_change(self, m):
+    def test_besluit_no_notify_on_no_change(self, m, mock_notif):
         mock_nrc_oas_get(m)
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
@@ -198,7 +206,7 @@ class NotificationAdminTests(
 
         self.assertFalse(m.called)
 
-    def test_zaaktype_notify_on_create(self, m):
+    def test_zaaktype_notify_on_create(self, m, mock_notif):
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         mock_nrc_oas_get(m)
@@ -235,7 +243,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_zaaktype_notify_on_change(self, m):
+    def test_zaaktype_notify_on_change(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
@@ -270,7 +278,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_zaaktype_no_notify_on_no_change(self, m):
+    def test_zaaktype_no_notify_on_no_change(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
@@ -304,7 +312,7 @@ class NotificationAdminTests(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
         )
 
-    def test_zaaktype_notify_correct_resource_url_on_new_version(self, m):
+    def test_zaaktype_notify_correct_resource_url_on_new_version(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"

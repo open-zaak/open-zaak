@@ -2,11 +2,12 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
@@ -26,15 +27,20 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_operation_url
 
 
+@tag("notifications")
 @requests_mock.Mocker()
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False)
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_create_besluit(self, m, mock_client):
+    def test_send_notif_create_besluit(self, m, mock_client, mock_notif):
         """
         Check if notifications will be send when Besluit is created
         """
@@ -77,7 +83,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @patch("zds_client.Client.from_url")
-    def test_send_notif_delete_resultaat(self, m, mock_client):
+    def test_send_notif_delete_resultaat(self, m, mock_client, mock_notif):
         """
         Check if notifications will be send when resultaat is deleted
         """
@@ -113,16 +119,21 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
 
+@tag("notifications")
 @requests_mock.Mocker()
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=False
 )
 @freeze_time("2019-01-01T12:00:00Z")
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_besluit_create_fail_send_notification_create_db_entry(self, m):
+    def test_besluit_create_fail_send_notification_create_db_entry(self, m, mock_notif):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         besluittype = BesluitTypeFactory.create(concept=False)
@@ -166,7 +177,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_besluit_delete_fail_send_notification_create_db_entry(self, m):
+    def test_besluit_delete_fail_send_notification_create_db_entry(self, m, mock_notif):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         besluit = BesluitFactory.create()
@@ -198,7 +209,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
-        self, m
+        self, m, mock_notif
     ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
@@ -244,7 +255,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
-        self, m
+        self, m, mock_notif
     ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)

@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings
+from unittest.mock import patch
+
+from django.test import override_settings, tag
 
 import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
+from notifications_api_common.tests.utils import mock_notify
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -20,14 +23,21 @@ from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakType
 from .utils import get_operation_url
 
 
+@tag("notifications")
 @requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
+@patch(
+    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+    side_effect=mock_notify,
+)
 class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_besluittype_create_fail_send_notification_create_db_entry(self, m):
+    def test_besluittype_create_fail_send_notification_create_db_entry(
+        self, m, mock_notif
+    ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         url = get_operation_url("besluittype_create")
@@ -73,7 +83,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
+    def test_besluittype_delete_fail_send_notification_create_db_entry(
+        self, m, mock_notif
+    ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         besluittype = BesluitTypeFactory.create()
@@ -104,7 +116,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self.assertEqual(failed.message, message)
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
-        self, m
+        self, m, mock_notif
     ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
@@ -144,7 +156,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self.assertEqual(failed.message, message)
 
     def test_informatieobjecttype_delete_fail_send_notification_create_db_entry(
-        self, m
+        self, m, mock_notif
     ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
@@ -175,7 +187,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
+    def test_zaaktype_create_fail_send_notification_create_db_entry(
+        self, m, mock_notif
+    ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         url = get_operation_url("zaaktype_create")
@@ -237,7 +251,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
-    def test_zaaktype_delete_fail_send_notification_create_db_entry(self, m):
+    def test_zaaktype_delete_fail_send_notification_create_db_entry(
+        self, m, mock_notif
+    ):
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=403)
         zaaktype = ZaakTypeFactory.create()

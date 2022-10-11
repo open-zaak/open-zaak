@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from unittest.mock import patch
+
 from django.contrib.auth.models import Permission
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -7,6 +9,7 @@ from django.utils.translation import gettext as _
 
 import requests_mock
 from django_webtest import WebTest
+from notifications_api_common.tests.utils import mock_notify
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -51,8 +54,13 @@ class ZaaktypeAdminTests(
 
         self.app.set_user(self.user)
 
+    @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    def test_publish_zaaktype(self, m):
+    @patch(
+        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
+        side_effect=mock_notify,
+    )
+    def test_publish_zaaktype(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
