@@ -8,6 +8,7 @@ import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.tests.utils import mock_notify
+from notifications_api_common.viewsets import NotificationException
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -57,8 +58,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "beginGeldigheid": "2019-01-01",
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -91,8 +93,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         besluittype = BesluitTypeFactory.create()
         url = reverse(besluittype)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -129,8 +132,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "beginGeldigheid": "2019-01-01",
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -163,8 +167,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         iotype = InformatieObjectTypeFactory.create()
         url = reverse(iotype)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -225,8 +230,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "versiedatum": "2018-01-01",
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -259,8 +265,9 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create()
         url = reverse(zaaktype)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 

@@ -8,6 +8,7 @@ import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.tests.utils import mock_notify
+from notifications_api_common.viewsets import NotificationException
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
@@ -150,8 +151,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "vervalreden": VervalRedenen.tijdelijk,
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -183,8 +185,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         besluit = BesluitFactory.create()
         url = reverse(besluit)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -227,8 +230,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "besluit": f"http://testserver{besluit_url}",
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -262,8 +266,9 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         bio = BesluitInformatieObjectFactory.create()
         url = reverse(bio)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 

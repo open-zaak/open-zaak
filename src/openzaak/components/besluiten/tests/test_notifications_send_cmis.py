@@ -9,6 +9,7 @@ from django.test import override_settings, tag
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.tests.utils import mock_notify
+from notifications_api_common.viewsets import NotificationException
 from rest_framework import status
 from vng_api_common.tests import reverse
 
@@ -46,8 +47,10 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         bio_path = reverse(bio)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(bio_path)
+        # Has to be caught, because the task is not being run async
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(bio_path)
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -121,8 +124,10 @@ class FailedNotificationCMISTests(
             "besluit": f"http://testserver{besluit_url}",
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        # Has to be caught, because the task is not being run async
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -157,8 +162,10 @@ class FailedNotificationCMISTests(
         bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         url = reverse(bio)
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.delete(url)
+        # Has to be caught, because the task is not being run async
+        with self.assertRaises(NotificationException):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
