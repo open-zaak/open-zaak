@@ -36,12 +36,14 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
         cls._configure_notifications(api_root="https://open-notificaties.local/api/v1/")
 
     def test_correct_credentials_used(self):
+        stdout = StringIO()
+
         with requests_mock.Mocker() as m:
             mock_nrc_oas_get(m)
             m.get("https://open-notificaties.local/api/v1/kanaal?naam=zaken", json=[])
             m.post("https://open-notificaties.local/api/v1/kanaal", status_code=201)
 
-            call_command("register_kanalen", kanalen=["zaken"])
+            call_command("register_kanalen", kanalen=["zaken"], stdout=stdout)
 
             # check for auth in the calls
             for request in m.request_history[1:]:
