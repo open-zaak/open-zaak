@@ -1,11 +1,17 @@
 .. _installation_configuration:
 
-=======================
-Open Zaak configuration
-=======================
+===============================
+Open Zaak configuration (admin)
+===============================
 
 Before you can work with Open Zaak after installation, a few settings need to be
 configured first.
+
+.. note::
+
+    This document describes the manual configuration via the admin. You can perform
+    most of this configuration via the :ref:`command line <installation_configuration_cli>`,
+    which is both faster and less error prone.
 
 .. _installation_configuration_sites:
 
@@ -16,6 +22,11 @@ In the admin, under **Configuratie > Websites**, make sure to change the existin
 ``Site`` to the domain under which Open Zaak will be deployed (see
 :ref:`the manual<manual_configuration>` for more information).
 
+.. note:: Due to a cache-bug in the underlying framework, you need to restart all
+   replicas for this change to take effect everywhere.
+
+.. _installation_configuration_notificaties_api:
+
 Configure Notificaties API
 ==========================
 
@@ -25,7 +36,7 @@ using Open Notificaties to make a complete setup.
 There are 2 things to keep in mind:
 
 1. Open Zaak offers an Autorisaties API and thus the Open Zaak Autorisaties API
-   must be consulted to check for **autorisations**.
+   must be consulted by the Notificaties API to check for **autorisations**.
 2. Each component handles **authentication** themselves and thus we need to store
    the Client IDs and secrets in each component that wants to communicate with
    eachother.
@@ -33,59 +44,71 @@ There are 2 things to keep in mind:
 Open Zaak
 ---------
 
-1. Configure the Notificaties API endpoint (so Open Zaak knows where to send
-   notifications to):
+The configuration steps below need to be performed in Open Zaak itself.
 
-   a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
-   b. Fill out the form:
+**Open Zaak consuming the Notificaties API**
 
-      - **API root**: *The URL to the Notificaties API. For example:*
-        ``https://open-notificaties.gemeente.local/api/v1/``.
-
-   c. Click **Opslaan**.
-
-2. Configure the credentials for the Notificaties API (so Open Zaak can access
+1. Configure the credentials for the Notificaties API (so Open Zaak can access
    the Notificaties API):
 
    a. Navigate to **API Autorisaties > Services**
-   b. Click **Service toevoegen**.
+   b. Select Click **Service toevoegen** (or select the notifications service if
+      it already exists).
    c. Fill out the form:
 
       - **Label**: *For example:* ``Open Notificaties``
       - **Type**: Select the option: ``NRC (Notifications)``
-      - **API root url**: *Same URL as used in step 1b.*
+      - **API root url**: the full URL to the Notificaties API root, e.g.
+        ``https://notificaties.gemeente.local/api/v1/``
 
-      - **Client ID**: *For example:* ``open-zaak``
+      - **Client ID**: An existing Client ID for the notifications service, or create
+        one and configure the same value in Open Notificaties - *For example:* ``open-zaak``
       - **Secret**: *Some random string. You will need this later on!*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
-      - **OAS**: URL that points to the OAS, same URL as used in step 1b with ``/schema/openapi.yaml`` added to it
-        *for example:* ``https://open-notificaties.gemeente.local/api/v1/schema/openapi.yaml``
+      - **OAS url**: URL that points to the OpenAPI specification. This is typically
+        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
+        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Zaak``
 
    d. Click **Opslaan**.
 
-3. Since Open Zaak also manages the authorizations via the Autorisaties API, we
-   need to give Open Notificaties access to this API (so Open Notificaties can
-   see who's authorised to send notifications):
+2. Next, configure Open Zaak to use this service for the Notificaties API:
+
+   a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
+   b. Select the service from the previous step in the **Notifications api service**
+      dropdown.
+   c. Click **Opslaan**.
+
+
+**The Notificaties API consumes Open Zaak's Autorisaties API**
+
+Open Notificaties checks the authorizations of its consumers by querying an
+Autorisaties API, which Open Zaak provides. Open Notificaties therefor is also a client
+of Open Zaak.
+
+When Open Zaak publishes a notification, the Notifications API checks that Open Zaak is
+allowed to do this, via the Autorisaties API. Open Zaak must exist as an application in
+this API with the correct permissions.
+
+1. Configure the Notificaties API access to the Autorisaties API:
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
    c. Fill out the form:
 
       - **Label**: *For example:* ``Open Notificaties``
-
       - **Client ID**: *For example:* ``open-notificaties``
       - **Secret**: *Some random string. You will need this later on!*
 
    d. Click **Opslaan en opnieuw bewerken**.
    e. Click **Beheer autorisaties**.
-   f. Select first Component **Autorisaties API** and scope **autorisaties.lezen**.
-   g. Select second Component **Notificaties API** and scope **notificaties.consumeren and notificaties.publiceren**.
+   f. Select first **Component** *Autorisaties API* and scope *autorisaties.lezen*.
+   g. Select second **Component** *Notificaties API* and scopes
+      *notificaties.consumeren* and *notificaties.publiceren*.
    h. Click **Opslaan**
 
-4. Finally, Open Notificaties will check if Open Zaak is allowed to send
-   notifications (so we need to authorise Open Zaak for this):
+2. Finally, create an application with the correct permissions for Open Zaak itself:
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
@@ -93,19 +116,21 @@ Open Zaak
 
       - **Label**: *For example:* ``Open Zaak``
 
-      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
-      - **Secret**: *The same Secret as given in Open Zaak step 2c*
+      - **Client ID**: *The same Client ID as given in Open Zaak consuming the
+        Notificaties API, step 1c*
+      - **Secret**: *The same Secret as given in Open Zaak consuming the
+        Notificaties API, step 1c*
 
    d. Click **Opslaan en opnieuw bewerken**.
    e. Click **Beheer autorisaties**.
-   f. Select component **Notificaties API** and scopes
-      **notificaties.consumeren** and **notificaties.publiceren**.
+   f. Select **Component** *Notificaties API* and scopes
+      *notificaties.consumeren* and *notificaties.publiceren*.
    g. Click **Opslaan**
 
 Currently, Open Zaak does not require any webhook subscriptions. It will however
 send notifications on various API actions.
 
-We're not there yet! We need to configure Open Notificaties as well!
+We're not there yet! We need to configure Open Notificaties too.
 
 Open Notificaties
 -----------------
@@ -211,7 +236,7 @@ Register the required channels:
 
 .. code-block:: bash
 
-    $ python src/manage.py register_kanalen
+    python src/manage.py register_kanalen
 
 Create an API token
 ===================

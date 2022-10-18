@@ -24,7 +24,11 @@ Available commands
     set up correctly (any of the ``EMAIL_*`` envvars)!
 
 ``setup_configuration``
-    A CLI alternative to the point-and-click configuration in the admin interface.
+    A CLI alternative to the point-and-click
+    :ref:`configuration <installation_configuration>` in the admin interface.
+
+    This command is idempotent and can be run as part of your CI/CD workflow if desired.
+    Please check the command documentation for more details.
 
 ``send_test_notification``
     After configuring the Notificaties API, send a test nofification to verify the
