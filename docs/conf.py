@@ -83,6 +83,7 @@ linkcheck_ignore = [
     r"http://localhost:\d+/",
     r"http://127\.0\.0\.1:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
+    r"https://docs.oasis-open.org/*",
 ]
 
 sphinx_tabs_valid_builders = ["linkcheck"]
