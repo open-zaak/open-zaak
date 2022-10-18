@@ -9,11 +9,10 @@ from django.urls import reverse_lazy
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
 from notifications_api_common.settings import *  # noqa
-from sentry_sdk.integrations import django, redis
 
 from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
-from .environ import config
+from .environ import config, get_sentry_integrations
 from .plugins import PLUGIN_INSTALLED_APPS
 
 # Build paths inside the project, so further paths can be defined relative to
@@ -616,11 +615,6 @@ DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
 #
 SENTRY_DSN = config("SENTRY_DSN", None)
 
-SENTRY_SDK_INTEGRATIONS = [
-    django.DjangoIntegration(),
-    redis.RedisIntegration(),
-]
-
 if SENTRY_DSN:
     SENTRY_CONFIG = {
         "dsn": SENTRY_DSN,
@@ -630,10 +624,16 @@ if SENTRY_DSN:
 
     sentry_sdk.init(
         **SENTRY_CONFIG,
-        integrations=SENTRY_SDK_INTEGRATIONS,
+        integrations=get_sentry_integrations(),
         send_default_pii=True,
         before_send=filter_sensitive_data,
     )
+
+#
+# CELERY
+#
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", "amqp://127.0.0.1:5672//")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
 
 #
 # DJANGO-ADMIN-INDEX

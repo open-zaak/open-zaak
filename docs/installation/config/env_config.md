@@ -198,6 +198,22 @@ non-exhaustive list of options you may need with Open Zaak.
   within this timeout, then uWSGI will error out. This has been observed with certain
   CMIS implementations causing slow requests where 60s is not sufficient.
 
+### Celery
+
+* `CELERY_BROKER_URL`: the URL of the broker that will be used to actually send the notifications (default: `amqp://127.0.0.1:5672//`).
+
+* `CELERY_RESULT_BACKEND`: the backend where the results of tasks will be stored (default: `redis://localhost:6379/1`)
+
+* `NOTIFICATION_DELIVERY_MAX_RETRIES`: the maximum number of retries Celery will do if sending a notification failed.
+
+* `NOTIFICATION_DELIVERY_RETRY_BACKOFF`: a boolean or a number. If this option is set to
+  `True`, autoretries will be delayed following the rules of exponential backoff. If
+  this option is set to a number, it is used as a delay factor.
+
+* `NOTIFICATION_DELIVERY_RETRY_BACKOFF_MAX`: an integer, specifying number of seconds.
+  If ``retry_backoff`` is enabled, this option will set a maximum delay in seconds
+  between task autoretries. By default, this option is set to 48 seconds.
+
 ### Cross-Origin-Resource-Sharing
 
 The following parameters control the CORS policy.

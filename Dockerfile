@@ -69,6 +69,7 @@ VOLUME ["/app/log", "/app/media", "/app/private-media"]
 # copy backend build deps
 COPY --from=build /usr/local/lib/python3.9 /usr/local/lib/python3.9
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
+COPY --from=build /usr/local/bin/celery /usr/local/bin/celery
 
 COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
 COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/js
@@ -76,6 +77,7 @@ COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/
 # Stage 3.2 - Copy source code
 COPY ./config /app/config
 COPY ./src /app/src
+COPY ./bin/celery_worker.sh /celery_worker.sh
 
 RUN groupadd -g 1000 openzaak \
     && useradd -M -u 1000 -g 1000 openzaak \
