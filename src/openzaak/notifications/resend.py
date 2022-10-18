@@ -38,6 +38,7 @@ def resend_notification(notification: FailedNotification) -> None:
             extra={
                 "notification_msg": notification.message,
                 "status_code": notification.status_code,
+                "final_try": True,
             },
         )
         raise ResendFailure from error
