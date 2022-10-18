@@ -10,8 +10,6 @@ from drc_cmis.utils.convert import make_absolute_uri
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -32,17 +30,6 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
 
     def test_create_no_url_mapping(self):
         io = EnkelvoudigInformatieObjectFactory.create(
@@ -76,9 +63,6 @@ class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_delete_no_url_mapping(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
-        )
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = io.get_url()
 

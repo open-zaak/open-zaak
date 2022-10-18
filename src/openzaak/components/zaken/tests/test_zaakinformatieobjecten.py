@@ -241,14 +241,13 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
-        )
 
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
-        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak = ZaakFactory.create(
+            zaaktype=zio_type.zaaktype, local_host="http://openzaak.nl"
+        )
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
 
         eio1_response = get_eio_response(
@@ -442,9 +441,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/",
-        )
 
     def test_relate_external_document(self):
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
@@ -631,9 +627,6 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
                 label="external documents",
                 auth_type=AuthTypes.no_auth,
             ),
-        )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/",
         )
 
         cls.setUpTestData()

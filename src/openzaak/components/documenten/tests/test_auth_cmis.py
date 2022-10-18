@@ -11,8 +11,6 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
@@ -37,15 +35,6 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
         self.assertForbidden(url, method="post")
 
     def test_cannot_read_without_correct_scope(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         gebruiksrechten = GebruiksrechtenCMISFactory.create(informatieobject=eio_url)
@@ -75,9 +64,6 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -183,9 +169,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -284,12 +267,6 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
 
         site = Site.objects.get_current()
@@ -425,15 +402,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
 
         site = Site.objects.get_current()
@@ -581,15 +549,6 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

@@ -391,16 +391,15 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
-        )
 
     @tag("gh-819")
     def test_bio_visibility_outside_transaction(self):
         self.setUpTestData()
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
-        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit = BesluitFactory.create(
+            besluittype__concept=False, local_host="http://openzaak.nl/"
+        )
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
@@ -644,12 +643,6 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
-        )
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
-        )
 
     def test_destroy_with_external_informatieobject(self):
         oio = f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"
@@ -667,7 +660,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=204)
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
+                local_host="http://openzaak.nl",
             )
             bio_url = reverse(bio)
 
@@ -701,7 +696,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=404, text="Not found")
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
+                local_host="http://openzaak.nl",
             )
             bio_url = reverse(bio)
 

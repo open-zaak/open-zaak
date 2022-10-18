@@ -597,9 +597,6 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
         Assert that the zaatkype allowed deelzaaktypen is validated.
         """
         # set up zaaktypen
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
@@ -1019,14 +1016,6 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 class ResultaatValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
     def test_not_allowed_to_change_resultaattype(self):
         resultaat = ResultaatFactory.create()
         url = reverse(resultaat)
@@ -1043,6 +1032,9 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_bad_url(self):
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         list_url = reverse("resultaat-list")
@@ -1259,7 +1251,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(api_root="https://external.nl/", api_type=APITypes.drc)
         Service.objects.create(
             api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
         )

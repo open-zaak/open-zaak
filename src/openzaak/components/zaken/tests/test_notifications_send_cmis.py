@@ -9,8 +9,6 @@ from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
@@ -36,20 +34,6 @@ class FailedNotificationCMISTests(
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(self):
         site = Site.objects.get_current()

@@ -9,8 +9,6 @@ from django.test import override_settings
 from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -27,19 +25,6 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()

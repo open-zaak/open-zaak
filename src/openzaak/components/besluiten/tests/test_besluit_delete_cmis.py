@@ -3,8 +3,6 @@
 from django.test import override_settings
 
 from rest_framework import status
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
@@ -24,15 +22,6 @@ class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
         """
         Deleting a Besluit causes all related objects to be deleted as well.
         """
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
         besluit = BesluitFactory.create()
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()

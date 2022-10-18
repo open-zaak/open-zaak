@@ -440,12 +440,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         """
         Assert that destroying is not possible when there are relations.
         """
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_path = reverse(eio)
         eio_url = eio.get_url()
@@ -537,14 +531,6 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
 
     def test_eio_update(self):
         import os
@@ -836,14 +822,6 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
 
     def test_pagination_default(self):
         """

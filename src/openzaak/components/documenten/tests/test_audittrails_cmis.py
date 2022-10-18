@@ -36,15 +36,10 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
+    def _create_enkelvoudiginformatieobject(self, **HEADERS):
         Service.objects.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
-
-    def _create_enkelvoudiginformatieobject(self, **HEADERS):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {

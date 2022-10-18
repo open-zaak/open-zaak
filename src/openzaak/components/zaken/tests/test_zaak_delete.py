@@ -134,9 +134,6 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
 
     @requests_mock.Mocker()
     def test_zaak_delete_oio_removed(self, m):

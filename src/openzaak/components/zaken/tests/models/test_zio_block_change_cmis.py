@@ -2,9 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from django.test import override_settings
 
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
-
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -21,15 +18,6 @@ class BlockChangeCMISTestCase(APICMISTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
         self.zio = ZaakInformatieObjectFactory.create(informatieobject=eio_url)

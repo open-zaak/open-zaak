@@ -237,9 +237,6 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc
         )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
 
     def test_create(self):
         zaak = ZaakFactory.create()

@@ -10,8 +10,6 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -35,20 +33,6 @@ from .utils import isodatetime
 class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
 
     def test_informatieobject_create(self):
         site = Site.objects.get_current()
@@ -108,15 +92,6 @@ class FilterValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_validate_zaakinformatieobject_unknown_query_params(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         for counter in range(2):
             eio = EnkelvoudigInformatieObjectFactory.create()
             eio_url = eio.get_url()
@@ -141,15 +116,6 @@ class StatusValidationCMISTests(JWTAuthMixin, APICMISTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         cls.zaaktype = ZaakTypeFactory.create()
         StatusTypeFactory.create(zaaktype=cls.zaaktype)
         statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)

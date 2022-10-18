@@ -55,7 +55,9 @@ class ZaakFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory)
         )
 
 
-class RelevanteZaakRelatieFactory(factory.django.DjangoModelFactory):
+class RelevanteZaakRelatieFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+):
     zaak = factory.SubFactory(ZaakFactory)
     url = factory.SubFactory(ZaakFactory)
     aard_relatie = AardZaakRelatie.vervolg

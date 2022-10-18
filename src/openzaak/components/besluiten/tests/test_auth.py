@@ -9,8 +9,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -22,9 +20,8 @@ from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 from ..models import BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
-CATALOGI_API_EXTERNAL = "https://externe.catalogus.nl/api/v1/"
 BESLUITTYPE_EXTERNAL = (
-    f"{CATALOGI_API_EXTERNAL}besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
+    "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
 )
 
 
@@ -188,7 +185,6 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.besluittype = BesluitTypeFactory.create()
-        Service.objects.create(api_type=APITypes.ztc, api_root=CATALOGI_API_EXTERNAL)
         super().setUpTestData()
 
     def test_besluit_list(self):
@@ -267,9 +263,6 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     component = ComponentTypes.brc
 
     def test_besluit_list(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://externe.catalogus.nl/api/v1/"
-        )
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create(
             besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
@@ -286,9 +279,6 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(results[0]["besluittype"], self.besluittype)
 
     def test_besluit_retrieve(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://externe.catalogus.nl/api/v1/"
-        )
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create(
             besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
@@ -303,9 +293,6 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://externe.catalogus.nl/api/v1/"
-        )
         url = reverse(BesluitInformatieObject)
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(
@@ -328,9 +315,6 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     def test_bio_retrieve(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://externe.catalogus.nl/api/v1/"
-        )
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype
         )

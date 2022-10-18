@@ -33,15 +33,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
+        Service.objects.create(api_root="http://testserver/", api_type=APITypes.orc)
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

@@ -27,14 +27,6 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-
     def test_lock_success(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         canonical = eio.canonical
@@ -151,6 +143,9 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_create_ignores_lock(self):
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")
@@ -185,10 +180,6 @@ class EioUnlockAPITests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
         super().setUpTestData()
 

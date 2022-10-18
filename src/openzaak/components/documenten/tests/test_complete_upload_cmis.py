@@ -5,9 +5,6 @@ from io import BytesIO
 from django.core.files import File
 from django.test import override_settings
 
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
-
 from openzaak.components.documenten.models import BestandsDeel
 from openzaak.tests.utils import APICMISTestCase, require_cmis
 
@@ -19,14 +16,6 @@ from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
     DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
 )
 class UploadTestCase(APICMISTestCase):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-
     def test_complete_upload_true(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
         BestandsDeelFactory.create(

@@ -2,9 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from django.test import override_settings
 
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
-
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -17,15 +14,6 @@ from ...tests.factories import BesluitFactory, BesluitInformatieObjectFactory
 @override_settings(CMIS_ENABLED=True)
 class UniqueRepresentationTestCMISCase(APICMISTestCase):
     def test_besluitinformatieobject(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create(identificatie="12345")
         eio_url = eio.get_url()
         bio = BesluitInformatieObjectFactory(

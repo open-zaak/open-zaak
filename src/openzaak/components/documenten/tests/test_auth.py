@@ -10,8 +10,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
@@ -366,10 +364,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         site.save()
         super().setUpTestData()
 
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
@@ -486,14 +480,6 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
 
     def setUp(self):
         site = Site.objects.get_current()

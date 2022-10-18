@@ -24,15 +24,10 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
+    def test_create_eio_is_forbidden_when_cmis_enabled(self):
         Service.objects.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
-
-    def test_create_eio_is_forbidden_when_cmis_enabled(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = tests.reverse(informatieobjecttype)
 

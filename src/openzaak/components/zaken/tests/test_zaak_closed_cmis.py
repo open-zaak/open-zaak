@@ -7,7 +7,6 @@ from drc_cmis.utils.convert import make_absolute_uri
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.documenten.tests.factories import (
@@ -42,16 +41,6 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-
         cls.zaaktype = ZaakTypeFactory.create()
         cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype, closed=True)
         super().setUpTestData()
@@ -127,15 +116,6 @@ class ClosedZaakRelatedDataAllowedCMISTests(
 
         super().setUpTestData()
 
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

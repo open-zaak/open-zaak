@@ -53,23 +53,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-
     def test_retrieve_multiple_oios(self):
         zaak = ZaakFactory.create()
 
@@ -259,9 +242,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "inconsistent-relation")
 
     def test_filter_eio(self):
-        Service.objects.create(
-            api_root="http://example.com/documenten/api/v1/", api_type=APITypes.zrc
-        )
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_2 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
@@ -280,12 +260,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     def test_filter_zaak(self):
         # Needed because the zaak URL is used as a query parameter,
         # and using "testserver" as domain name gives an invalid URL.
-        Service.objects.create(
-            api_root="http://example.com/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://example.com/zaken/api/v1/", api_type=APITypes.zrc
-        )
         site = Site.objects.get_current()
         site.domain = "example.com"
         site.save()
@@ -311,12 +285,6 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     def test_filter_besluit(self):
         # Needed because the besluit URL is used as a query parameter,
         # and using "testserver" as domain name gives an invalid URL.
-        Service.objects.create(
-            api_root="http://example.com/documenten/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="http://example.com/besluiten/api/v1/", api_type=APITypes.brc
-        )
         site = Site.objects.get_current()
         site.domain = "example.com"
         site.save()
@@ -357,18 +325,6 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
@@ -435,9 +391,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             api_root="https://externe.catalogus.nl/api/v1/",
             label="external zaken",
             auth_type=AuthTypes.no_auth,
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
 
         cls.zrc_service = Service.objects.create(

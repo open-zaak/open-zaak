@@ -5,14 +5,11 @@ from django.test.utils import override_settings, tag
 import requests_mock
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..models import Besluit
 from .factories import BesluitFactory
 from .utils import get_besluittype_response
 
@@ -77,9 +74,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
                 "besluittypen": [besluittype],
             },
         )
-        Service.objects.create(api_type=APITypes.ztc, api_root=catalogi_api)
-
-        besluit = Besluit.objects.create(
+        besluit = BesluitFactory.create(
             verantwoordelijke_organisatie="853162402",
             identificatie="ext",
             besluittype=besluittype,
@@ -122,12 +117,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         m.get(
             zaak, json=get_zaak_response(zaak, zaaktype_url),
         )
-
-        Service.objects.create(api_type=APITypes.zrc, api_root=zaken_api)
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
-        )
-        besluit = Besluit.objects.create(
+        besluit = BesluitFactory.create(
             verantwoordelijke_organisatie="853162402",
             identificatie="ext",
             besluittype=besluittype,

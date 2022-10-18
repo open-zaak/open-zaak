@@ -32,18 +32,13 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-
     def test_create_enkelvoudiginformatieobject(self):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")
@@ -106,6 +101,9 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_create_enkelvoudiginformatieobject_without_identificatie(self):
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")

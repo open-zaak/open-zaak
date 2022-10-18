@@ -9,8 +9,6 @@ from drc_cmis.models import UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
@@ -34,20 +32,6 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
 
     def test_create_no_url_mapping(self):
         zaak = ZaakFactory.create()

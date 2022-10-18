@@ -4,8 +4,6 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.tests import reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
@@ -20,15 +18,6 @@ class ZaakInformatieObjectFilterCMISTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_by_valid_url_object_does_not_exist(self):
-        Service.objects.create(
-            api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
 

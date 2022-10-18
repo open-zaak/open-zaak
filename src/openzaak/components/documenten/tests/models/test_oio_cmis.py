@@ -4,8 +4,6 @@ from django.db import IntegrityError
 from django.test import TestCase, override_settings, tag
 
 from vng_api_common.tests import reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -32,18 +30,6 @@ class OIOCMISTests(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        Service.objects.create(
-            api_root="http://openzaak.nl/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        Service.objects.create(
-            api_root="http://testserver/besluiten/api/v1/", api_type=APITypes.brc
-        )
         self.eio = EnkelvoudigInformatieObjectFactory.create()
         self.eio_url = f"http://openzaak.nl{reverse(self.eio)}"
 
@@ -106,15 +92,6 @@ class BlockChangeTestCase(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        Service.objects.create(
-            api_root="http://openzaak.nl/documenten/api/v1/", api_type=APITypes.drc
-        )
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
-        Service.objects.create(
-            api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
-        )
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"
 
