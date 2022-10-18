@@ -26,4 +26,5 @@ class NotificationsConfigMixin:
         )
         config = NotificationsConfig.get_solo()
         config.notifications_api_service = svc
+        config.notification_delivery_max_retries = 0
         config.save()
