@@ -69,9 +69,9 @@ services:
       - 9000:80
       - 9001:443
 
-  web:
+  celery-openzaak:
     build: .
-    environment:
+    environment: &openzaak-env
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - IS_HTTPS=no
@@ -80,9 +80,26 @@ services:
       - CACHE_AXES=redis:6379/0
       - SENDFILE_BACKEND=django_sendfile.backends.simple
       - DEBUG=yes
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
+    command: /celery_worker.sh
+    volumes:
+      - ./fixtures:/app/fixtures
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+
+  web:
+    build: .
+    environment: *openzaak-env
     volumes:
       - ./fixtures:/app/fixtures
     ports:
       - 8000:8000
     depends_on:
       - db
+      - rabbitmq
+      - redis
