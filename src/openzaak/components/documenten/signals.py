@@ -36,10 +36,6 @@ def sync_oio(
     * creating a BIO or ZIO creates the OIO
     * deleting a BIO or ZIO deletes the OIO
     """
-    # don't log for migration internals
-    if sender.__name__ != "Migration":
-        logger.debug("Received signal %r, from sender %r", signal, sender)
-
     # we only support BIO/ZIO signals
     if sender not in [BesluitInformatieObject, ZaakInformatieObject]:
         return
