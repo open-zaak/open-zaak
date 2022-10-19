@@ -30,11 +30,11 @@
             ],
             [
                 "zgw_consumers",
-                "service"
+                "certificate"
             ],
             [
                 "zgw_consumers",
-                "certificate"
+                "service"
             ]
         ]
     }
@@ -55,10 +55,6 @@
                 "featureflags"
             ],
             [
-                "zgw_consumers",
-                "nlxconfig"
-            ],
-            [
                 "drc_cmis",
                 "cmisconfig"
             ],
@@ -67,11 +63,11 @@
                 "openidconnectconfig"
             ],
             [
-                "notifications",
+                "notifications_api_common",
                 "notificationsconfig"
             ],
             [
-                "notifications",
+                "notifications_api_common",
                 "subscription"
             ],
             [
@@ -81,6 +77,10 @@
             [
                 "sites",
                 "site"
+            ],
+            [
+                "zgw_consumers",
+                "nlxconfig"
             ]
         ]
     }
@@ -211,8 +211,7 @@
         "name": "Slack (kanaal #open-zaak)",
         "link": "https://samenorganiseren.slack.com/"
     }
-}
-,
+},
 {
     "model": "admin_index.applink",
     "fields": {
