@@ -30,7 +30,7 @@ from zgw_consumers.models import Service, ServiceUrlField
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
-from openzaak.utils.fields import DurationField, FkOrServiceUrlField
+from openzaak.utils.fields import DurationField, FkOrServiceUrlField, RelativeURLField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -121,9 +121,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
     )
-    _zaaktype_relative_url = models.CharField(
+    _zaaktype_relative_url = RelativeURLField(
         _("zaaktype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
@@ -403,9 +402,8 @@ class RelevanteZaakRelatie(models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
     )
-    _relevant_zaak_relative_url = models.CharField(
+    _relevant_zaak_relative_url = RelativeURLField(
         _("relevant zaak relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
@@ -465,9 +463,8 @@ class Status(ETagMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
     )
-    _statustype_relative_url = models.CharField(
+    _statustype_relative_url = RelativeURLField(
         _("statustype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
@@ -543,9 +540,8 @@ class Resultaat(ETagMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
     )
-    _resultaattype_relative_url = models.CharField(
+    _resultaattype_relative_url = RelativeURLField(
         _("resultaattype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
@@ -628,9 +624,8 @@ class Rol(ETagMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
     )
-    _roltype_relative_url = models.CharField(
+    _roltype_relative_url = RelativeURLField(
         _("roltype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
@@ -823,9 +818,8 @@ class ZaakEigenschap(ETagMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
     )
-    _eigenschap_relative_url = models.CharField(
+    _eigenschap_relative_url = RelativeURLField(
         _("eigenschap relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
@@ -913,9 +907,8 @@ class ZaakInformatieObject(ETagMixin, models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar de externe API",
     )
-    _informatieobject_relative_url = models.CharField(
+    _informatieobject_relative_url = RelativeURLField(
         _("informatieobject relative url"),
-        max_length=500,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar de externe API",
@@ -1103,9 +1096,8 @@ class ZaakBesluit(models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
     )
-    _besluit_relative_url = models.CharField(
+    _besluit_relative_url = RelativeURLField(
         _("besluit relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",

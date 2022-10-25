@@ -16,7 +16,7 @@ from zgw_consumers.models import Service, ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
-from openzaak.utils.fields import FkOrServiceUrlField
+from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -50,12 +50,11 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
         on_delete=models.PROTECT,
-        related_name="besluit_besluittypen",
+        related_name="+",
         help_text="Basisdeel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
-    _besluittype_relative_url = models.CharField(
+    _besluittype_relative_url = RelativeURLField(
         _("besluittype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
@@ -89,9 +88,8 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         related_name="+",
         help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
     )
-    _zaak_relative_url = models.CharField(
+    _zaak_relative_url = RelativeURLField(
         _("zaak relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
@@ -267,9 +265,8 @@ class BesluitInformatieObject(models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar de externe API",
     )
-    _informatieobject_relative_url = models.CharField(
+    _informatieobject_relative_url = RelativeURLField(
         _("informatieobject relative url"),
-        max_length=500,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar de externe API",

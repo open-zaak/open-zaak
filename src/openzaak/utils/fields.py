@@ -3,8 +3,9 @@
 from typing import Callable, List
 
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
-from django.core import checks
+from django.core import checks, exceptions
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
 from relativedeltafield import RelativeDeltaField
@@ -135,3 +136,20 @@ class FkOrServiceUrlField(FkOrURLField):
             )
 
         return errors
+
+
+def validate_relative_url(value):
+    message = _("Enter a valid relative URL.")
+
+    if value.startswith("https://", "http://", "fps://", "ftps://", "/"):
+        raise exceptions.ValidationError(
+            message, code="invalid", params={"value": value}
+        )
+
+
+class RelativeURLField(models.CharField):
+    default_validators = [validate_relative_url]
+
+    def __init__(self, verbose_name=None, name=None, **kwargs):
+        kwargs.setdefault("max_length", 1000)
+        super().__init__(verbose_name, name, **kwargs)

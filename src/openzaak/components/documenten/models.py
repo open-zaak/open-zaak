@@ -21,7 +21,11 @@ from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zgw_consumers.models import Service, ServiceUrlField
 
-from openzaak.utils.fields import AliasServiceUrlField, FkOrServiceUrlField
+from openzaak.utils.fields import (
+    AliasServiceUrlField,
+    FkOrServiceUrlField,
+    RelativeURLField,
+)
 from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
@@ -182,9 +186,8 @@ class InformatieObject(models.Model):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
     )
-    _informatieobjecttype_relative_url = models.CharField(
+    _informatieobjecttype_relative_url = RelativeURLField(
         _("informatieobjecttype relative url"),
-        max_length=200,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
@@ -771,9 +774,8 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         on_delete=models.PROTECT,
         help_text="Basis deel van URL-referentie naar extern API.",
     )
-    _object_relative_url = models.CharField(
+    _object_relative_url = RelativeURLField(
         _("besluit relative url"),
-        max_length=1000,
         blank=True,
         null=True,
         help_text="Relatief deel van URL-referentie naar extern API.",
