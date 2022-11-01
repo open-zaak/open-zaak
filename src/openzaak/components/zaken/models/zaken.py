@@ -26,11 +26,16 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
-from zgw_consumers.models import Service, ServiceUrlField
+from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
-from openzaak.utils.fields import DurationField, FkOrServiceUrlField, RelativeURLField
+from openzaak.utils.fields import (
+    DurationField,
+    FkOrServiceUrlField,
+    RelativeURLField,
+    ServiceFkField,
+)
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -114,11 +119,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         max_length=1000, blank=True, help_text="Een toelichting op de zaak."
     )
 
-    _zaaktype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _zaaktype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
     )
     _zaaktype_relative_url = RelativeURLField(
@@ -395,11 +396,7 @@ class RelevanteZaakRelatie(models.Model):
         Zaak, on_delete=models.CASCADE, related_name="relevante_andere_zaken"
     )
 
-    _relevant_zaak_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _relevant_zaak_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
     )
     _relevant_zaak_relative_url = RelativeURLField(
@@ -456,11 +453,7 @@ class Status(ETagMixin, models.Model):
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
 
-    _statustype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _statustype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
     )
     _statustype_relative_url = RelativeURLField(
@@ -533,11 +526,7 @@ class Resultaat(ETagMixin, models.Model):
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
 
-    _resultaattype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _resultaattype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
     )
     _resultaattype_relative_url = RelativeURLField(
@@ -617,11 +606,7 @@ class Rol(ETagMixin, models.Model):
         db_index=True,
     )
 
-    _roltype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _roltype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
     )
     _roltype_relative_url = RelativeURLField(
@@ -811,11 +796,7 @@ class ZaakEigenschap(ETagMixin, models.Model):
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
 
-    _eigenschap_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _eigenschap_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
     )
     _eigenschap_relative_url = RelativeURLField(
@@ -900,11 +881,7 @@ class ZaakInformatieObject(ETagMixin, models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-    _informatieobject_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _informatieobject_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar de externe API",
     )
     _informatieobject_relative_url = RelativeURLField(
@@ -1089,11 +1066,7 @@ class ZaakBesluit(models.Model):
         Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
     )
 
-    _besluit_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _besluit_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
     )
     _besluit_relative_url = RelativeURLField(

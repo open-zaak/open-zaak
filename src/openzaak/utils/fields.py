@@ -148,8 +148,27 @@ def validate_relative_url(value):
 
 
 class RelativeURLField(models.CharField):
+    """
+    Model field for relative urls with build-in regex validator
+    """
+
     default_validators = [validate_relative_url]
 
     def __init__(self, verbose_name=None, name=None, **kwargs):
         kwargs.setdefault("max_length", 1000)
         super().__init__(verbose_name, name, **kwargs)
+
+
+class ServiceFkField(models.ForeignKey):
+    """
+    FK to Service model field
+    """
+
+    def __init__(self, **kwargs):
+        kwargs["to"] = "zgw_consumers.Service"
+        kwargs.setdefault("on_delete", models.PROTECT)
+        kwargs.setdefault("related_name", "+")  # no reverse relations by default
+        kwargs.setdefault("null", True)
+        kwargs.setdefault("blank", True)
+
+        super().__init__(**kwargs)

@@ -22,4 +22,4 @@ class UtilsConfig(AppConfig):
         mapping[fields.FkOrServiceUrlField] = serializer_fields.FKOrServiceUrlField
 
         # register FkServiceHandler django-loose-fk handler
-        HANDLERS[models.ForeignKey] = handlers.FkServiceHandler
+        HANDLERS[fields.ServiceFkField] = handlers.FkServiceHandler

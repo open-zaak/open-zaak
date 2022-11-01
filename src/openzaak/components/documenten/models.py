@@ -19,12 +19,13 @@ from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
-from zgw_consumers.models import Service, ServiceUrlField
+from zgw_consumers.models import ServiceUrlField
 
 from openzaak.utils.fields import (
     AliasServiceUrlField,
     FkOrServiceUrlField,
     RelativeURLField,
+    ServiceFkField,
 )
 from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
 
@@ -179,11 +180,7 @@ class InformatieObject(models.Model):
         ),
     )
 
-    _informatieobjecttype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _informatieobjecttype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
     )
     _informatieobjecttype_relative_url = RelativeURLField(
@@ -767,11 +764,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
     )
 
     # relations to the possible other objects
-    _object_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _object_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern API.",
     )
     _object_relative_url = RelativeURLField(

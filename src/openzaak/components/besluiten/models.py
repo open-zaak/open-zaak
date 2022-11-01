@@ -16,7 +16,7 @@ from zgw_consumers.models import Service, ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
-from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField
+from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -45,12 +45,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         "organisatie die het besluit heeft vastgesteld.",
         db_index=True,
     )
-    _besluittype_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        related_name="+",
+    _besluittype_base_url = ServiceFkField(
         help_text="Basisdeel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
     _besluittype_relative_url = RelativeURLField(
@@ -80,12 +75,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
-    _zaak_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-        related_name="+",
+    _zaak_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
     )
     _zaak_relative_url = RelativeURLField(
@@ -258,11 +248,7 @@ class BesluitInformatieObject(models.Model):
     besluit = models.ForeignKey(
         Besluit, on_delete=models.CASCADE, help_text="URL-referentie naar het BESLUIT."
     )
-    _informatieobject_base_url = models.ForeignKey(
-        Service,
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
+    _informatieobject_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar de externe API",
     )
     _informatieobject_relative_url = RelativeURLField(
