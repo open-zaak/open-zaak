@@ -81,7 +81,7 @@ class StatusForm(forms.ModelForm):
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
-    list_select_related = ("zaak",)
+    list_select_related = ("zaak", "_statustype", "_statustype_base_url")
     list_filter = ("datum_status_gezet",)
     search_fields = (
         "uuid",
@@ -190,7 +190,7 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
         "_eigenschap_relative_url",
         "waarde",
     )
-    list_select_related = ("zaak",)
+    list_select_related = ("zaak", "_eigenschap", "_eigenschap_base_url")
     list_filter = ("_naam",)
     search_fields = (
         "uuid",
@@ -205,7 +205,7 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
         "_eigenschap_base_url",
         "_eigenschap_relative_url",
     )
-    raw_id_fields = ("zaak", "_eigenschap")
+    raw_id_fields = ("zaak", "_eigenschap", "_eigenschap_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 
@@ -239,7 +239,7 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "titel",
         "beschrijving",
     )
-    list_select_related = ("zaak", "_informatieobject")
+    list_select_related = ("zaak", "_informatieobject", "_informatieobject_base_url")
     list_filter = ("aard_relatie",)
     search_fields = (
         "uuid",
@@ -283,7 +283,7 @@ class ResultaatForm(forms.ModelForm):
 @admin.register(Resultaat)
 class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "toelichting")
-    list_select_related = ("zaak", "_resultaattype")
+    list_select_related = ("zaak", "_resultaattype", "_resultaattype_base_url")
     search_fields = (
         "uuid",
         "toelichting",
@@ -320,7 +320,7 @@ class RolForm(forms.ModelForm):
 @admin.register(Rol)
 class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "betrokkene", "betrokkene_type")
-    list_select_related = ("zaak",)
+    list_select_related = ("zaak", "_roltype", "_roltype_base_url")
     list_filter = ("betrokkene_type", "indicatie_machtiging", "registratiedatum")
     search_fields = (
         "uuid",
@@ -388,7 +388,7 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
         "_relevant_zaak_relative_url",
     )
     raw_id_fields = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
-    list_select_related = ("zaak", "_relevant_zaak")
+    list_select_related = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
 
 
 class ZaakBesluitForm(forms.ModelForm):
@@ -413,7 +413,7 @@ class ZaakBesluitForm(forms.ModelForm):
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
-    list_select_related = ("zaak", "_besluit")
+    list_select_related = ("zaak", "_besluit", "_besluit_base_url")
     search_fields = (
         "uuid",
         "zaak__uuid",
@@ -553,6 +553,7 @@ class ZaakAdmin(
         "einddatum",
         "archiefstatus",
     )
+    list_select_related = ("_zaaktype", "_zaaktype_base_url")
     search_fields = (
         "identificatie",
         "uuid",

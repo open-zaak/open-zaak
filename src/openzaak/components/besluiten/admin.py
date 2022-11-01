@@ -45,6 +45,7 @@ class BesluitInformatieObjectAdmin(
         "_informatieobject_relative_url",
     )
     list_filter = ("besluit",)
+    list_select_related = ("besluit", "_informatieobject", "_informatieobject_base_url")
     search_fields = (
         "besluit__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",

@@ -108,7 +108,7 @@ class ObjectInformatieObjectAdmin(
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
-    list_select_related = ("informatieobject", "_zaak", "_besluit")
+    list_select_related = ("informatieobject", "_zaak", "_besluit", "_object_base_url")
     search_fields = (
         "uuid",
         "informatieobject__enkelvoudiginformatieobject__uuid",
@@ -122,7 +122,7 @@ class ObjectInformatieObjectAdmin(
         "verzoek",
     )
     ordering = ("informatieobject",)
-    raw_id_fields = ("informatieobject", "_zaak", "_besluit")
+    raw_id_fields = ("informatieobject", "_zaak", "_besluit", "_object_base_url")
     viewset = viewsets.ObjectInformatieObject
 
     def get_object_display(self, obj):
@@ -210,7 +210,11 @@ class EnkelvoudigInformatieObjectAdmin(
     search_fields = ("identificatie", "uuid")
     ordering = ("-begin_registratie",)
     date_hierarchy = "creatiedatum"
-    raw_id_fields = ("canonical", "_informatieobjecttype")
+    raw_id_fields = (
+        "canonical",
+        "_informatieobjecttype",
+        "_informatieobjecttype_base_url",
+    )
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
