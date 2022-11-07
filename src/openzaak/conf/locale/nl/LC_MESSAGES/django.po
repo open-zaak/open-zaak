@@ -3586,7 +3586,7 @@ msgstr "gefaalde notificatie"
 
 #: src/openzaak/notifications/models.py:35
 msgid "failed notifications"
-msgstr "gefaalde notificatieS"
+msgstr "gefaalde notificaties"
 
 #: src/openzaak/selectielijst/models.py:14
 msgid "Selectielijstconfiguratie"
