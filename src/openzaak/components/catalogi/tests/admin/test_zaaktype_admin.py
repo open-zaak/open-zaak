@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext, ngettext_lazy, ugettext_lazy as _
 
 import requests_mock
+from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from freezegun import freeze_time
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -871,3 +872,88 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, "application/zip")
         self.assertEqual(zaaktype.datum_einde_geldigheid, date(2020, 1, 1))
+
+    @tag("gh-1275")
+    @override_settings(NOTIFICATIONS_DISABLED=True)
+    @requests_mock.Mocker()
+    def test_save_published_zaaktype_with_verlenging_mogelijk(self, m):
+        """ Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging """
+
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        procestype = "https://selectielijst.openzaak.nl/api/v1/procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(procestype),
+            verlenging_mogelijk=True,
+            verlengingstermijn=relativedelta(days=42),
+            doorlooptijd_behandeling=relativedelta(days=42),
+            servicenorm_behandeling=relativedelta(days=42),
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "procestypen", url=procestype)
+
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+        response = change_page.form.submit("_publish").follow()
+        zaaktype.refresh_from_db()
+        self.assertNotContains(
+            response,
+            "'verlengingstermijn' must be set if 'verlenging_mogelijk' is set.",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(zaaktype.concept, False)
+
+    @override_settings(NOTIFICATIONS_DISABLED=True)
+    @requests_mock.Mocker()
+    def test_published_zaaktype_with_empty_durations(self, m):
+        """ Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging """
+
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        procestype = "https://selectielijst.openzaak.nl/api/v1/procestypen/cdb46f05-0750-4d83-8025-31e20408ed21"
+        zaaktype = ZaakTypeFactory.create(
+            concept=False,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            selectielijst_procestype=(procestype),
+            doorlooptijd_behandeling=relativedelta(),
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/65a0a7ab-0906-49bd-924f-f261f990b50f"
+        )
+        mock_resource_get(m, "procestypen", url=procestype)
+
+        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        change_page = self.app.get(admin_url)
+        self.assertNotContains(change_page, "relativedelta")
+        self.assertEqual(zaaktype.doorlooptijd_behandeling, relativedelta())
+        self.assertEqual(zaaktype.servicenorm_behandeling, None)
