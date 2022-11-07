@@ -15,6 +15,8 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 
+from dateutil.relativedelta import relativedelta
+
 from openzaak.utils.admin import ExtraContextAdminMixin
 
 from ..api.viewsets import (
@@ -389,6 +391,9 @@ class ReadOnlyPublishedBaseMixin:
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     def render_readonly(self, field, result_repr, value):
+        if isinstance(value, relativedelta) and not value:
+            return self.get_empty_value_display()
+
         # override method to customize formatting
         return result_repr
 

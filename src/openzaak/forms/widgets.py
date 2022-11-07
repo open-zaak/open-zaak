@@ -39,24 +39,29 @@ class SplitRelativeDeltaWidget(forms.Widget):
         return id_
 
     def value_from_datadict(self, data, files, name) -> str:
-        value_from_datadict = forms.NumberInput().value_from_datadict
+        # In case the value was directly injected into the form data, e.g. if validation
+        # happens on the backend, simply take that value
+        if name in data and isinstance(data[name], relativedelta):
+            duration = data[name]
+        else:
+            value_from_datadict = forms.NumberInput().value_from_datadict
 
-        years = value_from_datadict(data, files, f"{name}_years")
-        months = value_from_datadict(data, files, f"{name}_months")
-        days = value_from_datadict(data, files, f"{name}_days")
-        hours = value_from_datadict(data, files, f"{name}_hours")
-        minutes = value_from_datadict(data, files, f"{name}_minutes")
-        seconds = value_from_datadict(data, files, f"{name}_seconds")
-        microseconds = value_from_datadict(data, files, f"{name}_microseconds")
-        duration = relativedelta(
-            years=int(years or 0),
-            months=int(months or 0),
-            days=int(days or 0),
-            hours=int(hours or 0),
-            minutes=int(minutes or 0),
-            seconds=int(seconds or 0),
-            microseconds=int(microseconds or 0),
-        )
+            years = value_from_datadict(data, files, f"{name}_years")
+            months = value_from_datadict(data, files, f"{name}_months")
+            days = value_from_datadict(data, files, f"{name}_days")
+            hours = value_from_datadict(data, files, f"{name}_hours")
+            minutes = value_from_datadict(data, files, f"{name}_minutes")
+            seconds = value_from_datadict(data, files, f"{name}_seconds")
+            microseconds = value_from_datadict(data, files, f"{name}_microseconds")
+            duration = relativedelta(
+                years=int(years or 0),
+                months=int(months or 0),
+                days=int(days or 0),
+                hours=int(hours or 0),
+                minutes=int(minutes or 0),
+                seconds=int(seconds or 0),
+                microseconds=int(microseconds or 0),
+            )
         return format_relativedelta(duration)
 
     def get_context(self, name, value: Union[relativedelta, str], attrs=None):
