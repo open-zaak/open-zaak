@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpRequest
 
 import dateutil.parser
+from furl import furl
 
 default_app_config = "openzaak.utils.apps.UtilsConfig"
 
@@ -32,5 +33,7 @@ def build_absolute_url(path: str, request: Optional[HttpRequest] = None) -> str:
         )
         domain = Site.objects.get_current().domain
 
-    protocol = "https" if settings.IS_HTTPS else "http"
-    return f"{protocol}://{domain}{path}"
+    _furl = furl(
+        scheme="https" if settings.IS_HTTPS else "http", netloc=domain, path=path,
+    )
+    return _furl.url
