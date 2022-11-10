@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.8.0 (2022-09-??)
+1.8.0 (2022-12-??)
 ------------------
 
 .. warning::
@@ -37,6 +37,15 @@ Changelog
            openzaak-7b696c8fd5-kz2pb   1/1     Running   0          2d9h
 
            $ kubectl exec openzaak-7b696c8fd5-hchbq -- ./bin/uninstall_adfs.sh
+
+
+1.7.5 (2022-11-10)
+------------------
+
+Bugfix release for zaaktype admin
+
+* [#1275] Fixed duration fields not being saved when publishing zaaktypen
+* [#1275] Fixed displaying 'empty' duration fields in a human-friendly way
 
 1.7.4 (2022-09-28)
 ------------------
