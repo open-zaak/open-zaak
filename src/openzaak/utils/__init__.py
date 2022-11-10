@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import warnings
 from datetime import datetime
 from typing import Optional
 
@@ -24,6 +25,11 @@ def build_absolute_url(path: str, request: Optional[HttpRequest] = None) -> str:
     if settings.OPENZAAK_DOMAIN:
         domain = settings.OPENZAAK_DOMAIN
     else:
+        warnings.warn(
+            "Deriving the domain from the Site configuration will soon be deprecated, "
+            "please migrate to the OPENZAAK_DOMAIN setting.",
+            PendingDeprecationWarning,
+        )
         domain = Site.objects.get_current().domain
 
     protocol = "https" if settings.IS_HTTPS else "http"
