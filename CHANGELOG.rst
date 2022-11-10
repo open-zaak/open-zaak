@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.7.5 (2022-11-10)
+------------------
+
+Bugfix release for zaaktype admin
+
+* [#1275] Fixed duration fields not being saved when publishing zaaktypen
+* [#1275] Fixed displaying 'empty' duration fields in a human-friendly way
+
 1.7.4 (2022-09-28)
 ------------------
 
