@@ -33,6 +33,14 @@ on Docker, since `localhost` is contained within the container:
 
 ### Optional
 
+* `ENVIRONMENT`: An identifier for the environment, displayed in the admin depending on
+  the settings module used and included in the error monitoring (see `SENTRY_DSN`).
+  The default is set according to `DJANGO_SETTINGS_MODULE`. Good examples values are:
+
+  * `production`
+  * `test`
+  * `ACME public`
+
 * `SITE_ID`: defaults to `1`. The database ID of the site object. You usually
   won't have to touch this.
 

@@ -6,9 +6,13 @@ Production environment settings module.
 Tweaks the base settings so that caching mechanisms are used where possible,
 and HTTPS is leveraged where possible to further secure things.
 """
+import os
+
+os.environ.setdefault("ENVIRONMENT", "production")
+
 from .includes.base import *  # noqa
-from .includes.base import _django_handlers
-from .includes.environ import config
+from .includes.base import _django_handlers  # noqa
+from .includes.environ import config  # noqa
 
 conn_max_age = config("DB_CONN_MAX_AGE", cast=float, default=None)
 for db_config in DATABASES.values():
@@ -51,5 +55,4 @@ if subpath and subpath != "/":
 #
 # Custom settings overrides
 #
-ENVIRONMENT = "production"
 ENVIRONMENT_SHOWN_IN_ADMIN = False

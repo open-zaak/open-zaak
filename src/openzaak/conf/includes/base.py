@@ -442,7 +442,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 PROJECT_NAME = "Open Zaak"
 SITE_TITLE = "API dashboard"
 
-ENVIRONMENT = None
+ENVIRONMENT = config("ENVIRONMENT", "")
 ENVIRONMENT_SHOWN_IN_ADMIN = True
 
 # settings for uploading large files
@@ -617,6 +617,7 @@ if SENTRY_DSN:
     SENTRY_CONFIG = {
         "dsn": SENTRY_DSN,
         "release": RELEASE or "RELEASE not set",
+        "environment": ENVIRONMENT,
     }
 
     sentry_sdk.init(
