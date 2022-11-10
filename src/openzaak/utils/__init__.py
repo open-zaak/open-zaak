@@ -21,6 +21,10 @@ def build_absolute_url(path: str, request: Optional[HttpRequest] = None) -> str:
     if request is not None:
         return request.build_absolute_uri(path)
 
-    domain = Site.objects.get_current().domain
+    if settings.OPENZAAK_DOMAIN:
+        domain = settings.OPENZAAK_DOMAIN
+    else:
+        domain = Site.objects.get_current().domain
+
     protocol = "https" if settings.IS_HTTPS else "http"
     return f"{protocol}://{domain}{path}"

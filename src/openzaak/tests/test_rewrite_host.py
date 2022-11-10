@@ -3,8 +3,10 @@
 from unittest.mock import patch
 
 from django.http import HttpResponse
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import path
+
+from openzaak.utils import build_absolute_url
 
 
 def test_view(request):
@@ -42,7 +44,9 @@ class RewriteHostTests(TestCase):
 
         self.assertEqual(response.content, b"testserver")
 
-    @override_settings(OPENZAAK_REWRITE_HOST=False)
+    @override_settings(
+        OPENZAAK_DOMAIN="openzaak.example.com", OPENZAAK_REWRITE_HOST=False
+    )
     def test_setting_not_empty_but_rewrite_disabled(self):
         response = self.client.get("")
 
@@ -66,3 +70,13 @@ class RewriteHostTests(TestCase):
         response = self.client.get("", HTTP_X_FORWARDED_HOST="upstream.proxy")
 
         self.assertEqual(response.content, b"kekw")
+
+
+class BuildAbsoluteUrlTests(SimpleTestCase):
+    @override_settings(
+        OPENZAAK_DOMAIN="oz.example.com", IS_HTTPS=True,
+    )
+    def test_build_absolute_url_uses_setting(self):
+        abs_url = build_absolute_url("/foo")
+
+        self.assertEqual(abs_url, "https://oz.example.com/foo")
