@@ -24,6 +24,42 @@ WARNING_HEADER = "Warning"
 DEPRECATION_WARNING_CODE = 299
 
 
+class OverrideHostMiddleware:
+    """
+    When enabled, override the raw request host information.
+
+    This is useful to build fully qualified canonical URLs where multiple (trusted)
+    domains/URLs are valid entrypoints to Open Zaak, e.g. when accessing Open Zaak
+    through an NLX outway.
+
+    The host information on the request is rewritten so that `get_host()` returns the
+    value from the settings.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if settings.OPENZAAK_REWRITE_HOST and settings.OPENZAAK_DOMAIN:
+            # keep track of the original host
+            assert not hasattr(
+                request, "_raw_host"
+            ), "You are overwriting an existing attribute!"
+
+            if settings.USE_X_FORWARDED_HOST:
+                logger.warning(
+                    "Ignoring X-Forwarded-Host because OPENZAAK_DOMAIN is set."
+                )
+                del request.META["HTTP_X_FORWARDED_HOST"]
+
+            # for logging/debugging purposes: track the original host
+            request._raw_host = request._get_raw_host()
+            request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
+            # overwrite with our own host information
+            request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
+        return self.get_response(request)
+
+
 class LogHeadersMiddleware:
     def __init__(self, get_response=None):
         self.get_response = get_response
