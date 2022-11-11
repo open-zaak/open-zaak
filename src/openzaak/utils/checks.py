@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.checks import Error, Warning, register
 from django.forms import ModelForm
 
+from furl.furl import furl
+
 
 def get_subclasses(cls):
     for subclass in cls.__subclasses__():
@@ -74,6 +76,35 @@ def check_missing_init_files(app_configs, **kwargs):
                 'Directory "%s" does not contain an `__init__.py` file' % dirpath,
                 hint="Consider adding this module to make sure tests are picked up",
                 id="utils.W001",
+            )
+        )
+
+    return errors
+
+
+@register
+def check_openzaak_domain(app_configs, **kwargs):
+    if not settings.OPENZAAK_DOMAIN:
+        return []
+
+    errors = []
+
+    try:
+        parsed = furl(netloc=settings.OPENZAAK_DOMAIN)
+    except ValueError:
+        invalid_netloc = True
+    else:
+        invalid_netloc = (
+            parsed.scheme or parsed.path or parsed.username or parsed.password
+        )
+
+    if invalid_netloc:
+        errors.append(
+            Error(
+                "The OPENZAAK_DOMAIN setting is invalid, it must be a valid DNS name "
+                "with an optional port according to the pattern HOST[:PORT].",
+                hint="Do not include scheme or path components.",
+                id="openzaak.settings.E001",
             )
         )
 

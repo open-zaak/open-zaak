@@ -6,7 +6,9 @@ from django.http import HttpResponse
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import path
 
+from openzaak.conf.includes.base import ALLOWED_HOSTS, OPENZAAK_DOMAIN
 from openzaak.utils import build_absolute_url
+from openzaak.utils.checks import check_openzaak_domain
 
 
 def test_view(request):
@@ -80,3 +82,49 @@ class BuildAbsoluteUrlTests(SimpleTestCase):
         abs_url = build_absolute_url("/foo")
 
         self.assertEqual(abs_url, "https://oz.example.com/foo")
+
+
+@override_settings(
+    OPENZAAK_DOMAIN="oz.example.com",
+    OPENZAAK_REWRITE_HOST=True,
+    ALLOWED_HOSTS=["*"],
+    USE_X_FORWARDED_HOST=False,
+)
+class SystemCheckTests(SimpleTestCase):
+    def test_valid_configuration(self):
+        errors = check_openzaak_domain(None)
+
+        self.assertEqual(len(errors), 0)
+
+    def test_invalid_pattern_used(self):
+        invalid = (
+            "http://oz.example.com",
+            "https://oz.example.com",
+            "oz.example.com/some-path",
+            "user:pw@oz.example.com",
+            "oz.example.com:badport",
+        )
+        for bad_pattern in invalid:
+            with self.subTest(value=bad_pattern):
+                with override_settings(OPENZAAK_DOMAIN=bad_pattern):
+                    errors = check_openzaak_domain(None)
+
+                    self.assertEqual(len(errors), 1)
+                    self.assertEqual(errors[0].id, "openzaak.settings.E001")
+
+    def test_valid_pattern_used(self):
+        valid = (
+            "oz.example.com",
+            "oz.example.com:8443",
+            "localhost:8000",
+            "oz.namespace.svc.local",
+            "192.168.1.1",
+            "192.168.1.1:9000",
+        )
+
+        for valid_pattern in valid:
+            with self.subTest(value=valid_pattern):
+                with override_settings(OPENZAAK_DOMAIN=valid_pattern):
+                    errors = check_openzaak_domain(None)
+
+                    self.assertEqual(len(errors), 0)
