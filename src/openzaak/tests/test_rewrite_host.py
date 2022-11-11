@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import path
 
-from openzaak.conf.includes.base import ALLOWED_HOSTS, OPENZAAK_DOMAIN
 from openzaak.utils import build_absolute_url
 from openzaak.utils.checks import check_openzaak_domain
 
@@ -135,3 +134,36 @@ class SystemCheckTests(SimpleTestCase):
 
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0].id, "openzaak.settings.W001")
+
+    def test_domain_not_in_allowed_hosts(self):
+        invalid = (
+            ["testserver"],
+            ["example.com"],
+            ["localhost", "other"],
+        )
+        for bad_config in invalid:
+            with self.subTest(ALLOWED_HOSTS=bad_config):
+                with override_settings(ALLOWED_HOSTS=bad_config):
+                    errors = check_openzaak_domain(None)
+
+                    self.assertEqual(len(errors), 1)
+                    self.assertEqual(errors[0].id, "openzaak.settings.E002")
+
+                with override_settings(OPENZAAK_REWRITE_HOST=False):
+                    errors = check_openzaak_domain(None)
+
+                self.assertEqual(len(errors), 0)
+
+    def test_valid_allowed_hosts(self):
+        valid = (
+            ["oz.example.com", "oz.example.com:443"],
+            [".example.com", ".example.com:8443"],
+            ["foo", "*"],
+        )
+
+        for good_config in valid:
+            with self.subTest(ALLOWED_HOSTS=good_config):
+                with override_settings(ALLOWED_HOSTS=good_config):
+                    errors = check_openzaak_domain(None)
+
+                    self.assertEqual(len(errors), 0)

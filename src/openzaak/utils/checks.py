@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from django.core.checks import Error, Warning, register
 from django.forms import ModelForm
+from django.http.request import validate_host
 
 from furl.furl import furl
 
@@ -108,12 +109,26 @@ def check_openzaak_domain(app_configs, **kwargs):
             )
         )
 
-    if settings.OPENZAAK_DOMAIN and settings.USE_X_FORWARDED_HOST:
+    else:  # check against ALLOWED_HOSTS
+        host = parsed.host.lower()
+        if settings.OPENZAAK_REWRITE_HOST and not validate_host(
+            host, settings.ALLOWED_HOSTS
+        ):
+            errors.append(
+                Error(
+                    f"The OPENZAAK_DOMAIN host ({host}) is not present in the "
+                    "ALLOWED_HOSTS setting.",
+                    hint=f"Add {host} to the ALLOWED_HOSTS setting.",
+                    id="openzaak.settings.E002",
+                )
+            )
+
+    if settings.OPENZAAK_REWRITE_HOST and settings.USE_X_FORWARDED_HOST:
         errors.append(
             Warning(
-                "Setting OPENZAAK_DOMAIN together with USE_X_FORWARDED_HOST causes "
+                "Setting OPENZAAK_REWRITE_HOST together with USE_X_FORWARDED_HOST causes "
                 "the X-Forwarded-Host header to be ignored.",
-                hint="Disable USE_X_FORWARDED_HOST or OPENZAAK_DOMAIN",
+                hint="Disable USE_X_FORWARDED_HOST or OPENZAAK_REWRITE_HOST",
                 id="openzaak.settings.W001",
             )
         )

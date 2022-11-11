@@ -446,7 +446,6 @@ SITE_TITLE = "API dashboard"
 
 # if specified, this replaces the host information in the requests, and it is used
 # to build absolute URLs.
-# TODO: add system check that OPENZAAK_DOMAIN is in ALLOWED_HOSTS
 OPENZAAK_DOMAIN = config("OPENZAAK_DOMAIN", "")
 OPENZAAK_REWRITE_HOST = config("OPENZAAK_REWRITE_HOST", False)
 
