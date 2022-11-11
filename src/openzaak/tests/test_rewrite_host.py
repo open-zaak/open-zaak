@@ -128,3 +128,10 @@ class SystemCheckTests(SimpleTestCase):
                     errors = check_openzaak_domain(None)
 
                     self.assertEqual(len(errors), 0)
+
+    @override_settings(USE_X_FORWARDED_HOST=True)
+    def test_cannot_be_used_with_use_x_forwarded_host(self):
+        errors = check_openzaak_domain(None)
+
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].id, "openzaak.settings.W001")

@@ -108,4 +108,14 @@ def check_openzaak_domain(app_configs, **kwargs):
             )
         )
 
+    if settings.OPENZAAK_DOMAIN and settings.USE_X_FORWARDED_HOST:
+        errors.append(
+            Warning(
+                "Setting OPENZAAK_DOMAIN together with USE_X_FORWARDED_HOST causes "
+                "the X-Forwarded-Host header to be ignored.",
+                hint="Disable USE_X_FORWARDED_HOST or OPENZAAK_DOMAIN",
+                id="openzaak.settings.W001",
+            )
+        )
+
     return errors
