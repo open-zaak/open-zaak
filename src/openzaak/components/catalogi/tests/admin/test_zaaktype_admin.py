@@ -506,6 +506,85 @@ class ZaaktypeAdminTests(
         resultaat = zaaktype.resultaattypen.get()
         self.assertEqual(resultaat.selectielijstklasse, "")
 
+    @tag("gh-1281")
+    def test_default_selectielijst_year_regression(self, m):
+        selectielijst_config = ReferentieLijstConfig.get_solo()
+        selectielijst_config.default_year = 2017
+        selectielijst_config.save()
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(
+            m,
+            resource="procestypen",
+            query_map={
+                "procestypen": {"jaar": 2017},
+                "procestypen_2020": {"jaar": 2020},
+            },
+        )
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+
+        # add a zaaktype
+        add_page = self.app.get(url)
+        form = add_page.form
+        form["catalogus"].value = str(catalogus.id)
+        form["zaaktype_omschrijving"] = "Test"
+        form["doel"] = "Test"
+        form["aanleiding"] = "Test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["vertrouwelijkheidaanduiding"].select("zaakvertrouwelijk")
+        form["handeling_initiator"] = "Test"
+        form["onderwerp"] = "Test"
+        form["handeling_behandelaar"] = "Test"
+        form["doorlooptijd_behandeling_years"] = "0"
+        form["doorlooptijd_behandeling_months"] = "1"
+        form["doorlooptijd_behandeling_days"] = "0"
+        form["referentieproces_naam"] = "Test"
+        form["datum_begin_geldigheid"] = "14-11-2022"
+
+        # use non-default value
+        form["selectielijst_procestype_jaar"].select("2020")
+
+        # replace options with 2020 options, as the Javascript would do
+        form["selectielijst_procestype"].options = [
+            (
+                "https://selectielijst.openzaak.nl/api/v1/procestypen/"
+                "aa8aa2fd-b9c6-4e34-9a6c-58a677f60ea0",
+                False,
+                "Instellen en inrichten organisatie",
+            ),
+            (
+                "https://selectielijst.openzaak.nl/api/v1/procestypen/"
+                "f4603775-5a08-4829-85c8-28017dfeee1f",
+                False,
+                "Voorzieningen verstrekken",
+            ),
+        ]
+        form["selectielijst_procestype"].select(
+            "https://selectielijst.openzaak.nl/api/v1/procestypen/"
+            "f4603775-5a08-4829-85c8-28017dfeee1f"
+        )
+
+        response = form.submit("_continue")
+        self.assertEqual(response.status_code, 302)
+
+        detail_page = response.follow()
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
+        self.assertEqual(
+            detail_page.form["selectielijst_procestype_jaar"].value, "2020"
+        )
+        label = next(
+            label
+            for opt, _, label in detail_page.form["selectielijst_procestype"].options
+            if opt == detail_page.form["selectielijst_procestype"].value
+        )
+        self.assertEqual(label, "8 - Voorzieningen verstrekken")
+        self.assertEqual(
+            detail_page.form["selectielijst_procestype"].value,
+            "https://selectielijst.openzaak.nl/api/v1/procestypen/"
+            "f4603775-5a08-4829-85c8-28017dfeee1f",
+        )
+
 
 class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @classmethod

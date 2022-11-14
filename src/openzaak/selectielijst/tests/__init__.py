@@ -2,9 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 from pathlib import Path
+from typing import Optional
 
 from django.conf import settings
 
+from furl import furl
 from requests_mock import Mocker, MockException
 from zgw_consumers.test import mock_service_oas_get
 
@@ -26,11 +28,22 @@ def mock_selectielijst_oas_get(m: Mocker) -> None:
     )
 
 
-def mock_resource_list(m: Mocker, resource: str) -> None:
-    url = f"{_get_base_url()}{resource}"
-    file = MOCK_FILES_DIR / f"{resource}.json"
-    with open(file, "rb") as response_data:
-        m.get(url, content=response_data.read())
+def mock_resource_list(
+    m: Mocker, resource: str, query_map: Optional[dict] = None
+) -> None:
+    base_url = _get_base_url()
+    if not query_map:
+        url = f"{base_url}{resource}"
+        file = MOCK_FILES_DIR / f"{resource}.json"
+        with open(file, "rb") as response_data:
+            m.get(url, content=response_data.read())
+    else:
+        for filename, query in query_map.items():
+            url = furl(f"{base_url}{resource}")
+            url.set(query)
+            file = MOCK_FILES_DIR / f"{filename}.json"
+            with open(file, "rb") as response_data:
+                m.get(str(url), content=response_data.read())
 
 
 def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
