@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django import forms
 from django.contrib import admin
+from django.db.models import CharField, F
+from django.db.models.functions import Concat
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -49,7 +51,7 @@ class BesluitInformatieObjectAdmin(
     search_fields = (
         "besluit__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",
-        "_informatieobject_relative_url",
+        "informatieobject_url",
     )
     ordering = (
         "besluit",
@@ -61,6 +63,19 @@ class BesluitInformatieObjectAdmin(
     viewset = (
         "openzaak.components.besluiten.api.viewsets.BesluitInformatieObjectViewSet"
     )
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            informatieobject_url=Concat(
+                F("_informatieobject_base_url__api_root"),
+                F("_informatieobject_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class BesluitInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):

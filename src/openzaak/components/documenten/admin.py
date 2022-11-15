@@ -3,6 +3,8 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import CharField, F
+from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
@@ -115,10 +117,9 @@ class ObjectInformatieObjectAdmin(
         "informatieobject__enkelvoudiginformatieobject__identificatie",
         "_zaak__uuid",
         "_zaak__identificatie",
-        "_zaak_relative_url",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_relative_url",
+        "object_url",
         "verzoek",
     )
     ordering = ("informatieobject",)
@@ -126,9 +127,22 @@ class ObjectInformatieObjectAdmin(
     viewset = viewsets.ObjectInformatieObject
 
     def get_object_display(self, obj):
-        return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
+        return obj._zaak or obj._besluit or obj._object_url
 
     get_object_display.short_description = "object"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            object_url=Concat(
+                F("_object_base_url__api_root"),
+                F("_object_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):

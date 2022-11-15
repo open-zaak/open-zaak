@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
+from django.db.models import CharField, F
+from django.db.models.functions import Concat
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -247,7 +249,7 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "zaak__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",
         "_informatieobject__enkelvoudiginformatieobject__identificatie",
-        "_informatieobject_relative_url",
+        "informatieobject_url",
     )
     form = ZaakInformatieObjectForm
     date_hierarchy = "registratiedatum"
@@ -259,6 +261,19 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
     )
     raw_id_fields = ("zaak", "_informatieobject", "_informatieobject_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            informatieobject_url=Concat(
+                F("_informatieobject_base_url__api_root"),
+                F("_informatieobject_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class ResultaatForm(forms.ModelForm):
@@ -288,7 +303,7 @@ class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "uuid",
         "toelichting",
         "_resultaattype__uuid",
-        "_resultaattype_relative_url",
+        "resultaattype_url",
         "zaak__identificatie",
         "zaak__uuid",
     )
@@ -296,6 +311,19 @@ class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     ordering = ("zaak",)
     raw_id_fields = ("zaak", "_resultaattype", "_resultaattype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            resultaattype_url=Concat(
+                F("_resultaattype_base_url__api_root"),
+                F("_resultaattype_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class RolForm(forms.ModelForm):
@@ -378,7 +406,7 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
         "zaak__identificatie",
         "_relevant_zaak__uuid",
         "_relevant_zaak__identificatie",
-        "_relevant_zaak_relative_url",
+        "relevant_zaak_url",
     )
     form = RelevanteZaakRelatieForm
     ordering = (
@@ -389,6 +417,19 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
     )
     raw_id_fields = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
     list_select_related = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            relevant_zaak_url=Concat(
+                F("_relevant_zaak_base_url__api_root"),
+                F("_relevant_zaak_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class ZaakBesluitForm(forms.ModelForm):
@@ -420,12 +461,25 @@ class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__identificatie",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_relative_url",
+        "besluit_url",
     )
     form = ZaakBesluitForm
     ordering = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
     raw_id_fields = ("zaak", "_besluit", "_besluit_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            besluit_url=Concat(
+                F("_besluit_base_url__api_root"),
+                F("_besluit_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 @admin.register(ZaakContactMoment)
@@ -557,7 +611,7 @@ class ZaakAdmin(
     search_fields = (
         "identificatie",
         "uuid",
-        "_zaaktype_relative_url",
+        "zaaktype_url",
         "_zaaktype__identificatie",
     )
     form = ZaakForm
@@ -591,4 +645,17 @@ class ZaakAdmin(
             link_to_related_objects(KlantContact, obj),
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
+        )
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            zaaktype_url=Concat(
+                F("_zaaktype_base_url__api_root"),
+                F("_zaaktype_relative_url"),
+                output_field=CharField(),
+            )
         )
