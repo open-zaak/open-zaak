@@ -172,10 +172,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         besluit.refresh_from_db()
 
-        self.assertEqual(besluit._previous_zaak_base_url_id, self.zaken_service.id)
-        self.assertEqual(
-            besluit._previous_zaak_relative_url, zaak_old[len(self.base) :]
-        )
+        self.assertEqual(besluit._previous_zaak_url, zaak_old)
         self.assertEqual(besluit._zaak_url, zaak_new)
         self.assertEqual(besluit._zaakbesluit_url, zaakbesluit_new_data["url"])
 
