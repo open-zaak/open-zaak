@@ -15,6 +15,7 @@ os.environ.setdefault(
 )
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("RELEASE", "dev")
+os.environ.setdefault("ENVIRONMENT", "development")
 
 os.environ.setdefault("DB_NAME", "openzaak")
 os.environ.setdefault("DB_USER", "openzaak")
@@ -49,11 +50,6 @@ LOGGING["loggers"].update(
 
 if not LOG_QUERIES:
     LOGGING["loggers"]["django.db.backends"]["handlers"] = ["django"]
-
-#
-# Custom settings
-#
-ENVIRONMENT = "development"
 
 #
 # Library settings

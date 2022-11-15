@@ -8,12 +8,7 @@ os.environ.setdefault("DB_USER", "postgres")
 os.environ.setdefault("DB_PASSWORD", "")
 os.environ.setdefault("DB_CONN_MAX_AGE", "60")
 
+os.environ.setdefault("ENVIRONMENT", "docker")
 os.environ.setdefault("LOG_STDOUT", "yes")
 
 from .production import *  # noqa isort:skip
-
-#
-# Custom settings
-#
-
-ENVIRONMENT = "docker"
