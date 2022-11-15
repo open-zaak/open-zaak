@@ -207,8 +207,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     base = "https://external.documenten.nl/api/v1/"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         cls.drc_service = Service.objects.create(
             api_type=APITypes.drc,

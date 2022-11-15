@@ -35,8 +35,8 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     base = "https://externe.zaken.nl/api/v1/"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         cls.zaken_service = Service.objects.create(
             api_type=APITypes.zrc,
