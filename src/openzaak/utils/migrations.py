@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 import logging
+import re
 from urllib.parse import urlsplit, urlunsplit
 
 from django.db.models.functions import Length
+
+from zgw_consumers.constants import APITypes
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +33,25 @@ def get_service(model, url: str):
     return None
 
 
+def calculate_api_root(url: str) -> str:
+    """
+    guess apI_root based on following logic:
+    * if url has /api/v{0-9}: api_root = prefix + that part
+    * if url has "/" - include prefix + that part
+    * otherwise include the whole string
+    """
+    patterns = [
+        r"(.+/api/v\d+/).+",
+        r"(\w+://.+\.\w+/).*",
+    ]
+    for pattern in patterns:
+        match = re.match(pattern, url)
+        if match:
+            return match.group(1)
+
+    return url
+
+
 def fill_service_urls(
     apps,
     model,
@@ -53,7 +75,20 @@ def fill_service_urls(
             service = cache_get_service[url]
         else:
             service = get_service(Service, url)
-            cache_get_service[url] = service
+            if not service:
+                # create service to avoid breakage
+                service = Service.objects.create(
+                    label="FIXME",
+                    api_root=calculate_api_root(url),
+                    api_type=APITypes.orc,
+                )
+                cache_get_service[url] = service
+                logger.warning(
+                    "Service was not found for url %s in object %s. Service %s was created automatically.",
+                    url,
+                    instance,
+                    service,
+                )
 
         relative_url = url[len(service.api_root) :]
 
