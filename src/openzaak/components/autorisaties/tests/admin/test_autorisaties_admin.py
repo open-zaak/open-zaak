@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
+from furl import furl
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
@@ -514,6 +515,45 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(m.called)
 
+    @override_settings(
+        NOTIFICATIONS_DISABLED=False,
+        OPENZAAK_DOMAIN="openzaak.example.com",
+        OPENZAAK_REWRITE_HOST=True,
+        ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
+    )
+    @requests_mock.Mocker()
+    def test_changes_send_notifications_with_openzaak_domain_setting(self, m):
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
+        zt = ZaakTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen", "zaken.bijwerken"],  # modified
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zt.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        url = m.last_request.json()["hoofdObject"]
+        self.assertEqual(furl(url).netloc, "openzaak.example.com")
+
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_new_zt_all_current_and_future_send_notifications(self, m):
@@ -543,6 +583,18 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
         ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
+
+        with self.subTest("OPENZAAK_DOMAIN setting"):
+            with override_settings(
+                OPENZAAK_DOMAIN="openzaak.example.com",
+                ALLOWED_HOSTS=["openzaak.example.com", "testserver"],
+            ):
+                with self.captureOnCommitCallbacks(execute=True):
+                    with self.captureOnCommitCallbacks(execute=True):
+                        ZaakTypeFactory.create()
+
+                url = m.last_request.json()["hoofdObject"]
+                self.assertEqual(furl(url).netloc, "openzaak.example.com")
 
     @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
     @requests_mock.Mocker()
