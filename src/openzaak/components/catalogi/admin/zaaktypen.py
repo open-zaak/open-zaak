@@ -312,7 +312,14 @@ class ZaakTypeAdmin(
             referentielijst_config = ReferentieLijstConfig.get_solo()
             config_default = referentielijst_config.default_year
 
-            if "object_id" in request.resolver_match.kwargs:
+            # try to get the value from the POST data, if this is not suitable, fall
+            # back to the config default
+            if "selectielijst_procestype_jaar" in request.POST:
+                try:
+                    procestype_jaar = int(request.POST["selectielijst_procestype_jaar"])
+                except ValueError:
+                    procestype_jaar = config_default
+            elif "object_id" in request.resolver_match.kwargs:
                 obj = ZaakType.objects.get(
                     id=str(request.resolver_match.kwargs["object_id"])
                 )
