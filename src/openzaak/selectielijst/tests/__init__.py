@@ -31,6 +31,21 @@ def mock_selectielijst_oas_get(m: Mocker) -> None:
 def mock_resource_list(
     m: Mocker, resource: str, query_map: Optional[dict] = None
 ) -> None:
+    """
+    Mock retrieving a list of resources.
+
+    :arg resources: last bit of the endpoint, used in building the URL to mock and
+      JSON-file to load with mock response data.
+    :arg query_map: An optional mapping of filename to querystring parameters. If
+      provided, query-string specific matchers are set up with the specified JSON data
+      from the provided file name.
+
+    Example::
+
+        >>> mock_resource_list(m, "procestypen", {"procestypen-2017": {"jaar": 2017}})
+        # will mock the endpoint ending with ``/procestypen?jaar=2017`` with the data
+        # from ``procestypen-2017.json``.
+    """
     base_url = _get_base_url()
     if not query_map:
         url = f"{base_url}{resource}"
