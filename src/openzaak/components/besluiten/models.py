@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import uuid as _uuid
-from urllib.parse import urljoin
 
 from django.apps import apps
 from django.db import models
@@ -12,7 +11,7 @@ from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import UntilTodayValidator
-from zgw_consumers.models import Service, ServiceUrlField
+from zgw_consumers.models import ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
