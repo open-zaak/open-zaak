@@ -5,6 +5,7 @@ from typing import Callable, List
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core import checks, exceptions
 from django.db import models
+from django.db.models.base import Options
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
@@ -67,6 +68,16 @@ class AliasServiceUrlField(AliasMixin, ServiceUrlField):
             relative_field=source_field.relative_field,
             **kwargs,
         )
+
+    def _add_check_constraint(
+        self,
+        options: Options,
+        name: str = "{prefix}{base_field}_and_{relative_field}_filled",
+    ) -> None:
+        """
+        No constraint for Alias fields
+        """
+        return
 
 
 # register the override, as the upstream RelativeDeltaField registers its own admin
