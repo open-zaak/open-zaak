@@ -323,8 +323,10 @@ webencodings==0.5.1
     # via bleach
 wrapt==1.14.0
     # via deprecated
-zgw-consumers==0.21.2
-    # via -r requirements/base.in
+zgw-consumers==0.23.1
+    # via
+    #   -r requirements/base.in
+    #   notifications-api-common
 zipp==3.8.0
     # via importlib-metadata
 

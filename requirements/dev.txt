@@ -642,8 +642,10 @@ wrapt==1.14.0
     # via
     #   -r requirements/ci.txt
     #   deprecated
-zgw-consumers==0.21.2
-    # via -r requirements/ci.txt
+zgw-consumers==0.23.1
+    # via
+    #   -r requirements/ci.txt
+    #   notifications-api-common
 zipp==3.8.0
     # via
     #   -r requirements/ci.txt
