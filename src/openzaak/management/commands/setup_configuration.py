@@ -81,11 +81,12 @@ class Command(BaseCommand):
         parser.add_argument(
             "-d",
             "--domain",
-            default="",
+            default=settings.OPENZAAK_DOMAIN,
             type=domain_only_netloc,
             help=(
                 "Domain/host of the Open Zaak instance. E.g. 'open-zaak.example.com:4443', "
-                "without the 'https://...' prefix."
+                "without the 'https://...' prefix. The default value is taken from the "
+                "OPENZAAK_DOMAIN setting."
             ),
         )
 
@@ -234,7 +235,7 @@ class Command(BaseCommand):
             if not domain:
                 self.write_info(
                     "The domain is used to construct fully qualified (resource) URLs "
-                    "to be retrieved by other services."
+                    "to be retrieved by other services if OPENZAAK_DOMAIN is not set."
                 )
                 current_domain = Site.objects.get_current().domain
                 message = f"Domain (leave blank to use '{current_domain}'): "
