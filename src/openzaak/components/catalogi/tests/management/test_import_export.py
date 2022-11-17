@@ -163,6 +163,33 @@ class ExportCatalogiTests(TestCase):
         with zipfile.ZipFile(self.filepath, "r") as f:
             self.assertEqual(f.namelist(), ["Catalogus.json"])
 
+    @override_settings(
+        ALLOWED_HOSTS=["openzaak.example.com", "testserver"],
+        OPENZAAK_DOMAIN="openzaak.example.com:8443",
+        IS_HTTPS=True,
+    )
+    def test_export_respects_openzaak_domain_setting(self):
+        catalogus = CatalogusFactory.create(
+            rsin="000000000",
+            domein="TEST",
+            contactpersoon_beheer_naam="bla",
+            contactpersoon_beheer_telefoonnummer="0612345678",
+            contactpersoon_beheer_emailadres="test@test.nl",
+        )
+
+        call_command(
+            "export",
+            archive_name=self.filepath,
+            resource=["Catalogus"],
+            ids=[[catalogus.id]],
+        )
+
+        with zipfile.ZipFile(self.filepath, "r") as f:
+            self.assertEqual(f.namelist(), ["Catalogus.json"])
+            data = json.loads(f.read("Catalogus.json"))[0]
+
+        self.assertTrue(data["url"].startswith("https://openzaak.example.com:8443/"))
+
 
 @tag("catalogi-import")
 class ImportCatalogiTests(TestCase):
