@@ -35,7 +35,7 @@ def get_service(model, url: str):
 
 def calculate_api_root(url: str) -> str:
     """
-    guess apI_root based on following logic:
+    guess api_root based on following logic:
     * if url has /api/v{0-9}: api_root = prefix + that part
     * if url has "/" - include prefix + that part
     * otherwise include the whole string
