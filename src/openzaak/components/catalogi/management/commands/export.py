@@ -5,15 +5,16 @@ import json
 import zipfile
 
 from django.apps import apps
-from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand, CommandError
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework.test import APIRequestFactory
+from rest_framework.request import Request
 from rest_framework.versioning import URLPathVersioning
 
-from openzaak.components.catalogi.api import serializers
+from openzaak.utils import build_fake_request
+
+from ...api import serializers
 
 
 class Command(BaseCommand):
@@ -59,9 +60,7 @@ class Command(BaseCommand):
                 _("The number of resources supplied does not match the number of IDs")
             )
 
-        factory = APIRequestFactory()
-        server_name = Site.objects.get_current().domain
-        request = factory.get("/", SERVER_NAME=server_name)
+        request = Request(build_fake_request())
         setattr(request, "versioning_scheme", URLPathVersioning())
         setattr(request, "version", "1")
 
