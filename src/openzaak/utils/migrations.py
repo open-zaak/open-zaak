@@ -42,7 +42,7 @@ def calculate_api_root(url: str) -> str:
     """
     patterns = [
         r"(.+/api/v\d+/).+",
-        r"(\w+://.+\.\w+/).*",
+        r"(https?://.+\.\w+/).*",
     ]
     for pattern in patterns:
         match = re.match(pattern, url)
