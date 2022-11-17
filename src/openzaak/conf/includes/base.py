@@ -593,6 +593,7 @@ ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
     os.path.join(DJANGO_PROJECT_DIR, "selectielijst", "tests", "files"),
     os.path.join(DJANGO_PROJECT_DIR, "notifications", "tests", "files"),
 ]
+ZGW_CONSUMERS_CLIENT_CLASS = "openzaak.client.OpenZaakClient"
 
 #
 # NOTIFICATIONS-API-COMMON
