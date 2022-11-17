@@ -25,6 +25,10 @@ In the admin, under **Configuratie > Websites**, make sure to change the existin
 .. note:: Due to a cache-bug in the underlying framework, you need to restart all
    replicas for this change to take effect everywhere.
 
+.. note:: The deprecation process for this domain configuration has started in favour of
+   the ``OPENZAAK_DOMAIN`` setting. Some libraries still rely on this though, so it
+   still needs to be provided.
+
 .. _installation_configuration_notificaties_api:
 
 Configure Notificaties API

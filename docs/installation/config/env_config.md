@@ -67,10 +67,20 @@ on Docker, since `localhost` is contained within the container:
 * `DB_CONN_MAX_AGE`: maximum age of a database connection, in seconds. This reduces
   overhead of connecting to the database server for every request. Defaults to `60`.
 
+* `OPENZAAK_DOMAIN`: a `[host]:[port]` or `[host]` value indicating the canonical domain
+  where Open Zaak is hosted/deployed, e.g. `openzaak.example.com:8443`. This value is
+  used (together with `IS_HTTPS`) when fully qualified URLs need to be constructed
+  without HTTP request context available. Defaults to empty string.
+
 * `USE_X_FORWARDED_HOST`: whether to grab the domain/host from the `X-Forwarded-Host`
   header or not. This header is typically set by reverse proxies (such as nginx,
   traefik, Apache...). Default `False` - this is a header that can be spoofed and you
   need to ensure you control it before enabling this.
+
+* `OPENZAAK_REWRITE_HOST`: whether to rewrite the request host of all incoming requests
+  with the value of `OPENZAAK_DOMAIN`, discarding the original `Host` header or headers
+  set by reverse proxies. Useful if you provide the services only via the NLX network,
+  for example. Defaults to `False` and conflicts with `USE_X_FORWARDED_HOST`.
 
 * `NUM_PROXIES`: the number of reverse proxies in front of Open Zaak, as an integer.
   This is used to determine the actual client IP adres. Defaults to 1, however on
