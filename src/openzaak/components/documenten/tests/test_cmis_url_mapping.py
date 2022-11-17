@@ -37,9 +37,6 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         # Remove all available mappings
         UrlMapping.objects.all().delete()
 
-        Service.objects.create(
-            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
-        )
         iot = InformatieObjectTypeFactory.create(concept=False)
         iot_url = f"http://testserver{reverse(iot)}"
 
