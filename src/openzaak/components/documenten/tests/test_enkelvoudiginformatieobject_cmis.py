@@ -14,6 +14,8 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -35,6 +37,14 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
 
     def test_list(self):
         EnkelvoudigInformatieObjectFactory.create_batch(4)
@@ -846,6 +856,14 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_create_external_informatieobjecttype(self):
         config = CMISConfig.get_solo()
 
@@ -921,6 +939,8 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+
         response = self.client.post(
             self.list_url,
             {
@@ -935,7 +955,7 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
                 "inhoud": b64encode(b"some file content").decode("utf-8"),
                 "link": "http://een.link",
                 "beschrijving": "test_beschrijving",
-                "informatieobjecttype": "http://example.com",
+                "informatieobjecttype": "http://example.com/",
                 "vertrouwelijkheidaanduiding": "openbaar",
             },
         )

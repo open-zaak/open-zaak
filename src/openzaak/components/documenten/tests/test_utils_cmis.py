@@ -6,6 +6,8 @@ from django.test import override_settings, tag
 from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework.reverse import reverse_lazy
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.documenten.query.cmis import get_related_data_for_oio_create
@@ -65,6 +67,9 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
                 self.assertIn(field, zaaktype_data)
 
     def test_format_external_zaak(self):
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/", api_type=APITypes.ztc
+        )
         zaak = "https://extern.zrc.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/5c4c492b-3548-4258-b17f-0e2e31dcfe25"

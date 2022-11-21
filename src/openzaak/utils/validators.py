@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLValidator
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.utils.representation import smart_repr
@@ -20,9 +19,10 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.config.models import FeatureFlags
 
 from ..loaders import AuthorizedRequestsLoader
+from .serializer_fields import FKOrServiceUrlValidator
 
 
-class PublishValidator(FKOrURLValidator):
+class PublishValidator(FKOrServiceUrlValidator):
     publish_code = "not-published"
     publish_message = _("The resource is not published.")
 
@@ -50,7 +50,7 @@ class PublishValidator(FKOrURLValidator):
             )
 
 
-class LooseFkIsImmutableValidator(FKOrURLValidator):
+class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
     """
     Valideer dat de waarde van het FkOrUrlField niet wijzigt bij een update actie.
     """
@@ -106,7 +106,7 @@ class LooseFkIsImmutableValidator(FKOrURLValidator):
             )
 
 
-class LooseFkResourceValidator(FKOrURLValidator):
+class LooseFkResourceValidator(FKOrServiceUrlValidator):
     resource_message = _(
         "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
     )

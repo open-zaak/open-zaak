@@ -12,7 +12,6 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.fields import FkOrURLField
 from django_loose_fk.loaders import FetchError
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
@@ -27,10 +26,16 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
+from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
-from openzaak.utils.fields import DurationField
+from openzaak.utils.fields import (
+    DurationField,
+    FkOrServiceUrlField,
+    RelativeURLField,
+    ServiceFkField,
+)
 from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -114,8 +119,20 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         max_length=1000, blank=True, help_text="Een toelichting op de zaak."
     )
 
-    _zaaktype_url = models.URLField(
-        _("extern zaaktype"),
+    _zaaktype_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
+    )
+    _zaaktype_relative_url = RelativeURLField(
+        _("zaaktype relative url"),
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
+    )
+    _zaaktype_url = ServiceUrlField(
+        base_field="_zaaktype_base_url",
+        relative_field="_zaaktype_relative_url",
+        verbose_name=_("extern zaaktype"),
+        null=True,
         blank=True,
         max_length=1000,
         help_text=_(
@@ -129,7 +146,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
     )
-    zaaktype = FkOrURLField(
+    zaaktype = FkOrServiceUrlField(
         fk_field="_zaaktype",
         url_field="_zaaktype_url",
         help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
@@ -379,9 +396,21 @@ class RelevanteZaakRelatie(models.Model):
         Zaak, on_delete=models.CASCADE, related_name="relevante_andere_zaken"
     )
 
-    _relevant_zaak_url = models.URLField(
-        _("externe relevante zaak"),
+    _relevant_zaak_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
+    )
+    _relevant_zaak_relative_url = RelativeURLField(
+        _("relevant zaak relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern ZAAK (in een andere Zaken API).",
+    )
+    _relevant_zaak_url = ServiceUrlField(
+        base_field="_relevant_zaak_base_url",
+        relative_field="_relevant_zaak_relative_url",
+        verbose_name=_("externe relevante zaak"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_("URL-referentie naar extern ZAAK (in een andere zaken API)"),
     )
@@ -393,7 +422,7 @@ class RelevanteZaakRelatie(models.Model):
         null=True,
         blank=True,
     )
-    url = FkOrURLField(
+    url = FkOrServiceUrlField(
         fk_field="_relevant_zaak",
         url_field="_relevant_zaak_url",
         help_text=_("URL-referentie naar de ZAAK."),
@@ -424,9 +453,21 @@ class Status(ETagMixin, models.Model):
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
 
-    _statustype_url = models.URLField(
-        _("extern statustype"),
+    _statustype_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
+    )
+    _statustype_relative_url = RelativeURLField(
+        _("statustype relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
+    )
+    _statustype_url = ServiceUrlField(
+        base_field="_statustype_base_url",
+        relative_field="_statustype_relative_url",
+        verbose_name=_("extern statustype"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_(
             "URL-referentie naar extern STATUSTYPE (in een andere Catalogi API)."
@@ -439,7 +480,7 @@ class Status(ETagMixin, models.Model):
         null=True,
         blank=True,
     )
-    statustype = FkOrURLField(
+    statustype = FkOrServiceUrlField(
         fk_field="_statustype",
         url_field="_statustype_url",
         help_text=_("URL-referentie naar het STATUSTYPE (in de Catalogi API)."),
@@ -485,9 +526,21 @@ class Resultaat(ETagMixin, models.Model):
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
 
-    _resultaattype_url = models.URLField(
-        _("extern resultaattype"),
+    _resultaattype_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
+    )
+    _resultaattype_relative_url = RelativeURLField(
+        _("resultaattype relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
+    )
+    _resultaattype_url = ServiceUrlField(
+        base_field="_resultaattype_base_url",
+        relative_field="_resultaattype_relative_url",
+        verbose_name=_("extern resultaattype"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_(
             "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
@@ -500,7 +553,7 @@ class Resultaat(ETagMixin, models.Model):
         null=True,
         blank=True,
     )
-    resultaattype = FkOrURLField(
+    resultaattype = FkOrServiceUrlField(
         fk_field="_resultaattype",
         url_field="_resultaattype_url",
         help_text=_("URL-referentie naar het RESULTAATTYPE (in de Catalogi API)."),
@@ -553,9 +606,21 @@ class Rol(ETagMixin, models.Model):
         db_index=True,
     )
 
-    _roltype_url = models.URLField(
-        _("extern roltype"),
+    _roltype_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
+    )
+    _roltype_relative_url = RelativeURLField(
+        _("roltype relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
+    )
+    _roltype_url = ServiceUrlField(
+        base_field="_roltype_base_url",
+        relative_field="_roltype_relative_url",
+        verbose_name=_("extern roltype"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_("URL-referentie naar extern ROLTYPE (in een andere Catalogi API)."),
     )
@@ -566,7 +631,7 @@ class Rol(ETagMixin, models.Model):
         null=True,
         blank=True,
     )
-    roltype = FkOrURLField(
+    roltype = FkOrServiceUrlField(
         fk_field="_roltype",
         url_field="_roltype_url",
         help_text=_("URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK."),
@@ -730,9 +795,22 @@ class ZaakEigenschap(ETagMixin, models.Model):
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
-    _eigenschap_url = models.URLField(
-        _("externe eigenschap"),
+
+    _eigenschap_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
+    )
+    _eigenschap_relative_url = RelativeURLField(
+        _("eigenschap relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
+    )
+    _eigenschap_url = ServiceUrlField(
+        base_field="_eigenschap_base_url",
+        relative_field="_eigenschap_relative_url",
+        verbose_name=_("externe eigenschap"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_(
             "URL-referentie naar externe EIGENSCHAP (in een andere Catalogi API)."
@@ -745,7 +823,7 @@ class ZaakEigenschap(ETagMixin, models.Model):
         null=True,
         blank=True,
     )
-    eigenschap = FkOrURLField(
+    eigenschap = FkOrServiceUrlField(
         fk_field="_eigenschap",
         url_field="_eigenschap_url",
         help_text=_("URL-referentie naar de EIGENSCHAP (in de Catalogi API)."),
@@ -803,9 +881,21 @@ class ZaakInformatieObject(ETagMixin, models.Model):
     zaak = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-    _informatieobject_url = models.URLField(
-        _("External informatieobject"),
+    _informatieobject_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_relative_url = RelativeURLField(
+        _("informatieobject relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_url = ServiceUrlField(
+        base_field="_informatieobject_base_url",
+        relative_field="_informatieobject_relative_url",
+        verbose_name=_("External informatieobject"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_("URL to the informatieobject in an external API"),
     )
@@ -817,7 +907,7 @@ class ZaakInformatieObject(ETagMixin, models.Model):
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar "
         "ook de relatieinformatie opgevraagd kan worden.",
     )
-    informatieobject = FkOrURLField(
+    informatieobject = FkOrServiceUrlField(
         fk_field="_informatieobject",
         url_field="_informatieobject_url",
         loader=EIOLoader(),
@@ -865,8 +955,12 @@ class ZaakInformatieObject(ETagMixin, models.Model):
         unique_together = ("zaak", "_informatieobject")
         constraints = [
             models.UniqueConstraint(
-                fields=["zaak", "_informatieobject_url"],
-                condition=~models.Q(_informatieobject_url=""),
+                fields=[
+                    "zaak",
+                    "_informatieobject_base_url",
+                    "_informatieobject_relative_url",
+                ],
+                condition=~models.Q(_informatieobject_relative_url__isnull=True),
                 name="unique_zaak_and_external_document",
             )
         ]
@@ -972,9 +1066,21 @@ class ZaakBesluit(models.Model):
         Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
     )
 
-    _besluit_url = models.URLField(
-        _("extern besluit"),
+    _besluit_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
+    )
+    _besluit_relative_url = RelativeURLField(
+        _("besluit relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar externe BESLUIT (in een andere Besluiten API).",
+    )
+    _besluit_url = ServiceUrlField(
+        base_field="_besluit_base_url",
+        relative_field="_besluit_relative_url",
+        verbose_name=_("extern besluit"),
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_(
             "URL-referentie naar extern BESLUIT (in een andere Besluiten API)."
@@ -987,7 +1093,7 @@ class ZaakBesluit(models.Model):
         null=True,
         blank=True,
     )
-    besluit = FkOrURLField(
+    besluit = FkOrServiceUrlField(
         fk_field="_besluit",
         url_field="_besluit_url",
         help_text="URL-referentie naar het BESLUIT (in de Besluiten API).",
@@ -1001,8 +1107,8 @@ class ZaakBesluit(models.Model):
         unique_together = ("zaak", "_besluit")
         constraints = [
             models.UniqueConstraint(
-                fields=["zaak", "_besluit_url"],
-                condition=~models.Q(_besluit_url=""),
+                fields=["zaak", "_besluit_base_url", "_besluit_relative_url"],
+                condition=models.Q(_besluit_base_url__isnull=False),
                 name="unique_zaak_and_besluit",
             )
         ]

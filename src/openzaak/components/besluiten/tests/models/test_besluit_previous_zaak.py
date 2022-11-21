@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import override_settings
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework.test import APITestCase
@@ -22,6 +22,7 @@ class BesluitPreviousZaakTestCase(APITestCase):
 
         self.assertEqual(besluit.previous_zaak, zaak_before)
 
+    @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_zaak_external(self):
         zaak_before = "https://external.documenten.nl/api/v1/zaken/19b702ce-1387-42a3-87d9-b070e8c3f43d"

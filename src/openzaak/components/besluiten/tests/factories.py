@@ -10,9 +10,10 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
 )
+from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
 
-class BesluitFactory(factory.django.DjangoModelFactory):
+class BesluitFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
     besluittype = factory.SubFactory(BesluitTypeFactory)
     datum = factory.Faker("date_this_decade")
@@ -40,7 +41,9 @@ class BesluitFactory(factory.django.DjangoModelFactory):
         )
 
 
-class BesluitInformatieObjectFactory(factory.django.DjangoModelFactory):
+class BesluitInformatieObjectFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+):
     besluit = factory.SubFactory(BesluitFactory)
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 

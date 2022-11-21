@@ -6,6 +6,8 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
@@ -69,14 +71,16 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
 
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200, text="<html></html>")
+            m.get("http://example.com/", status_code=200, text="<html></html>")
 
             response = self.client.post(
                 self.list_url,
                 {
                     "zaak": f"http://testserver{zaak_url}",
-                    "resultaattype": "http://example.com",
+                    "resultaattype": "http://example.com/",
                     "toelichting": "some desc",
                 },
             )
@@ -149,3 +153,19 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_create_external_resultaattype_fail_unknown_resource(self):
+        zaak = ZaakFactory()
+        zaak_url = reverse(zaak)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "resultaattype": "https://other-externe.catalogus.nl/api/v1/resultaattypen/1",
+                "toelichting": "some desc",
+            },
+        )
+
+        error = get_validation_errors(response, "resultaattype")
+        self.assertEqual(error["code"], "unknown-service")

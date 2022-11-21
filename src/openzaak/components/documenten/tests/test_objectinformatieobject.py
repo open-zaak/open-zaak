@@ -343,6 +343,10 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
         cls.zrc_service = Service.objects.create(
             label="Remote Zaken API",
             api_type=APITypes.zrc,

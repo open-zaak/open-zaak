@@ -20,6 +20,7 @@ import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
 from ..models import BestandsDeel
 
@@ -34,7 +35,9 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
     )
 
 
-class EnkelvoudigInformatieObjectFactory(factory.django.DjangoModelFactory):
+class EnkelvoudigInformatieObjectFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+):
     canonical = factory.SubFactory(
         EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None
     )

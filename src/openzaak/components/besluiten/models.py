@@ -7,14 +7,15 @@ from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.fields import FkOrURLField
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import UntilTodayValidator
+from zgw_consumers.models import ServiceUrlField
 
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
+from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
 from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
@@ -43,15 +44,23 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         "organisatie die het besluit heeft vastgesteld.",
         db_index=True,
     )
-
-    _besluittype_url = models.URLField(
-        _("extern besluittype"),
-        blank=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern BESLUITTYPE (in een andere Catalogi API)."
-        ),
+    _besluittype_base_url = ServiceFkField(
+        help_text="Basisdeel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
     )
+    _besluittype_relative_url = RelativeURLField(
+        _("besluittype relative url"),
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
+    )
+    _besluittype_url = ServiceUrlField(
+        base_field="_besluittype_base_url",
+        relative_field="_besluittype_relative_url",
+        blank=True,
+        null=True,
+        help_text="URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
+    )
+
     _besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.PROTECT,
@@ -59,18 +68,29 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         null=True,
         blank=True,
     )
-    besluittype = FkOrURLField(
+    besluittype = FkOrServiceUrlField(
         fk_field="_besluittype",
         url_field="_besluittype_url",
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 
-    _zaak_url = models.URLField(
-        _("externe zaak"),
+    _zaak_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+    )
+    _zaak_relative_url = RelativeURLField(
+        _("zaak relative url"),
         blank=True,
-        max_length=1000,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar de externe ZAAK (in een andere Zaken API).",
+    )
+    _zaak_url = ServiceUrlField(
+        base_field="_zaak_base_url",
+        relative_field="_zaak_relative_url",
+        blank=True,
+        null=True,
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
+
     _zaak = models.ForeignKey(
         "zaken.Zaak",
         on_delete=models.PROTECT,
@@ -78,7 +98,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         blank=True,  # een besluit kan niet bij een zaak horen
         help_text="URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is.",
     )
-    zaak = FkOrURLField(
+    zaak = FkOrServiceUrlField(
         fk_field="_zaak",
         url_field="_zaak_url",
         blank=True,
@@ -224,10 +244,20 @@ class BesluitInformatieObject(models.Model):
     besluit = models.ForeignKey(
         Besluit, on_delete=models.CASCADE, help_text="URL-referentie naar het BESLUIT."
     )
-
-    _informatieobject_url = models.URLField(
-        _("External informatieobject"),
+    _informatieobject_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_relative_url = RelativeURLField(
+        _("informatieobject relative url"),
         blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar de externe API",
+    )
+    _informatieobject_url = ServiceUrlField(
+        base_field="_informatieobject_base_url",
+        relative_field="_informatieobject_relative_url",
+        blank=True,
+        null=True,
         max_length=1000,
         help_text=_("URL to the informatieobject in an external API"),
     )
@@ -239,7 +269,7 @@ class BesluitInformatieObject(models.Model):
         help_text="URL-referentie naar het INFORMATIEOBJECT (in de Documenten "
         "API) waarin (een deel van) het besluit beschreven is.",
     )
-    informatieobject = FkOrURLField(
+    informatieobject = FkOrServiceUrlField(
         fk_field="_informatieobject",
         url_field="_informatieobject_url",
         loader=EIOLoader(),
@@ -262,8 +292,12 @@ class BesluitInformatieObject(models.Model):
         unique_together = ("besluit", "_informatieobject")
         constraints = [
             models.UniqueConstraint(
-                fields=["besluit", "_informatieobject_url"],
-                condition=~models.Q(_informatieobject_url=""),
+                fields=[
+                    "besluit",
+                    "_informatieobject_base_url",
+                    "_informatieobject_relative_url",
+                ],
+                condition=models.Q(_informatieobject_relative_url__isnull=False),
                 name="unique_besluit_and_external_document",
             )
         ]

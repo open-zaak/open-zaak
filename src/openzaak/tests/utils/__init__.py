@@ -9,6 +9,8 @@ from .cmis import (
     require_cmis,
     serialise_eio,
 )
+from .factories import FkOrServiceUrlFactoryMixin
+from .migrations import TestMigrations
 from .mocks import (
     MockSchemasMixin,
     get_eio_response,
@@ -45,4 +47,8 @@ __all__ = [
     "require_cmis",
     # oas
     "get_spec",
+    # factories
+    "FkOrServiceUrlFactoryMixin",
+    # migrations
+    "TestMigrations",
 ]

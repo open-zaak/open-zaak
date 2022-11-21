@@ -59,6 +59,9 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             label="external zaaktypen",
             auth_type=AuthTypes.no_auth,
         )
+        Service.objects.create(
+            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        )
         mock_service_oas_get(self.adapter, base_zaak, APITypes.zrc)
         mock_service_oas_get(self.adapter, base_zaaktype, APITypes.ztc)
 

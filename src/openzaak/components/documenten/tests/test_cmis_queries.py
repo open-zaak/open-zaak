@@ -19,6 +19,7 @@ class QueryTests(APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

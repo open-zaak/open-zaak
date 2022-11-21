@@ -8,6 +8,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
@@ -227,6 +229,14 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     besluit = "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
     besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/7ef7d016-b766-4456-a90c-8908eeb19b49"
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc
+        )
 
     def test_create(self):
         zaak = ZaakFactory.create()

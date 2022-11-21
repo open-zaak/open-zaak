@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
+from django.db.models import CharField, F
+from django.db.models.functions import Concat
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -68,7 +70,7 @@ class StatusForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_statustype") and not cleaned_data.get(
-            "_statustype_url"
+            "_statustype_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een statustype opgeven: "
@@ -81,7 +83,7 @@ class StatusForm(forms.ModelForm):
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
-    list_select_related = ("zaak",)
+    list_select_related = ("zaak", "_statustype", "_statustype_base_url")
     list_filter = ("datum_status_gezet",)
     search_fields = (
         "uuid",
@@ -92,7 +94,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
-    raw_id_fields = ("zaak", "_statustype")
+    raw_id_fields = ("zaak", "_statustype", "_statustype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
 
 
@@ -171,7 +173,7 @@ class ZaakEigenschapForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_eigenschap") and not cleaned_data.get(
-            "_eigenschap_url"
+            "_eigenschap_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een eigenschap opgeven: "
@@ -183,8 +185,14 @@ class ZaakEigenschapForm(forms.ModelForm):
 
 @admin.register(ZaakEigenschap)
 class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    list_display = ("zaak", "_eigenschap", "_eigenschap_url", "waarde")
-    list_select_related = ("zaak",)
+    list_display = (
+        "zaak",
+        "_eigenschap",
+        "_eigenschap_base_url",
+        "_eigenschap_relative_url",
+        "waarde",
+    )
+    list_select_related = ("zaak", "_eigenschap", "_eigenschap_base_url")
     list_filter = ("_naam",)
     search_fields = (
         "uuid",
@@ -193,8 +201,13 @@ class ZaakEigenschapAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
         "zaak__uuid",
     )
     form = ZaakEigenschapForm
-    ordering = ("zaak", "_eigenschap", "_eigenschap_url")
-    raw_id_fields = ("zaak", "_eigenschap")
+    ordering = (
+        "zaak",
+        "_eigenschap",
+        "_eigenschap_base_url",
+        "_eigenschap_relative_url",
+    )
+    raw_id_fields = ("zaak", "_eigenschap", "_eigenschap_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakEigenschapViewSet"
 
 
@@ -207,7 +220,7 @@ class ZaakInformatieObjectForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_informatieobject") and not cleaned_data.get(
-            "_informatieobject_url"
+            "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een informatieobject opgeven: "
@@ -222,12 +235,13 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
     list_display = (
         "zaak",
         "_informatieobject",
-        "_informatieobject_url",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
         "registratiedatum",
         "titel",
         "beschrijving",
     )
-    list_select_related = ("zaak", "_informatieobject")
+    list_select_related = ("zaak", "_informatieobject", "_informatieobject_base_url")
     list_filter = ("aard_relatie",)
     search_fields = (
         "uuid",
@@ -235,13 +249,31 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "zaak__uuid",
         "_informatieobject__enkelvoudiginformatieobject__uuid",
         "_informatieobject__enkelvoudiginformatieobject__identificatie",
-        "_informatieobject_url",
+        "informatieobject_url",
     )
     form = ZaakInformatieObjectForm
     date_hierarchy = "registratiedatum"
-    ordering = ("zaak", "_informatieobject", "_informatieobject_url")
-    raw_id_fields = ("zaak", "_informatieobject")
+    ordering = (
+        "zaak",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "_informatieobject_relative_url",
+    )
+    raw_id_fields = ("zaak", "_informatieobject", "_informatieobject_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            informatieobject_url=Concat(
+                F("_informatieobject_base_url__api_root"),
+                F("_informatieobject_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class ResultaatForm(forms.ModelForm):
@@ -253,7 +285,7 @@ class ResultaatForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
-            "_resultaattype_url"
+            "_resultaattype_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een resultaattype opgeven: "
@@ -266,19 +298,32 @@ class ResultaatForm(forms.ModelForm):
 @admin.register(Resultaat)
 class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "toelichting")
-    list_select_related = ("zaak", "_resultaattype")
+    list_select_related = ("zaak", "_resultaattype", "_resultaattype_base_url")
     search_fields = (
         "uuid",
         "toelichting",
         "_resultaattype__uuid",
-        "_resultaattype_url",
+        "resultaattype_url",
         "zaak__identificatie",
         "zaak__uuid",
     )
     form = ResultaatForm
     ordering = ("zaak",)
-    raw_id_fields = ("zaak", "_resultaattype")
+    raw_id_fields = ("zaak", "_resultaattype", "_resultaattype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            resultaattype_url=Concat(
+                F("_resultaattype_base_url__api_root"),
+                F("_resultaattype_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class RolForm(forms.ModelForm):
@@ -289,7 +334,9 @@ class RolForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_roltype") and not cleaned_data.get("_roltype_url"):
+        if not cleaned_data.get("_roltype") and not cleaned_data.get(
+            "_roltype_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een roltype opgeven: "
                 "selecteer een roltype uit de catalogus of vul een externe URL in."
@@ -301,7 +348,7 @@ class RolForm(forms.ModelForm):
 @admin.register(Rol)
 class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "betrokkene", "betrokkene_type")
-    list_select_related = ("zaak",)
+    list_select_related = ("zaak", "_roltype", "_roltype_base_url")
     list_filter = ("betrokkene_type", "indicatie_machtiging", "registratiedatum")
     search_fields = (
         "uuid",
@@ -314,7 +361,7 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = RolForm
     date_hierarchy = "registratiedatum"
     ordering = ("registratiedatum", "betrokkene")
-    raw_id_fields = ("zaak", "_roltype")
+    raw_id_fields = ("zaak", "_roltype", "_roltype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
     inlines = [
         NatuurlijkPersoonInline,
@@ -334,7 +381,7 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not cleaned_data.get("_relevant_zaak") and not cleaned_data.get(
-            "_relevant_zaak_url"
+            "_relevant_zaak_base_url"
         ):
             raise forms.ValidationError(
                 "Je moet een relevante zaak opgeven: "
@@ -346,19 +393,43 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
 
 @admin.register(RelevanteZaakRelatie)
 class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
-    list_display = ("zaak", "_relevant_zaak", "_relevant_zaak_url", "aard_relatie")
+    list_display = (
+        "zaak",
+        "_relevant_zaak",
+        "_relevant_zaak_base_url",
+        "_relevant_zaak_relative_url",
+        "aard_relatie",
+    )
     list_filter = ("aard_relatie",)
     search_fields = (
         "zaak__uuid",
         "zaak__identificatie",
         "_relevant_zaak__uuid",
         "_relevant_zaak__identificatie",
-        "_relevant_zaak_url",
+        "relevant_zaak_url",
     )
     form = RelevanteZaakRelatieForm
-    ordering = ("zaak", "_relevant_zaak", "_relevant_zaak_url")
-    raw_id_fields = ("zaak", "_relevant_zaak")
-    list_select_related = ("zaak", "_relevant_zaak")
+    ordering = (
+        "zaak",
+        "_relevant_zaak",
+        "_relevant_zaak_base_url",
+        "_relevant_zaak_relative_url",
+    )
+    raw_id_fields = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
+    list_select_related = ("zaak", "_relevant_zaak", "_relevant_zaak_base_url")
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            relevant_zaak_url=Concat(
+                F("_relevant_zaak_base_url__api_root"),
+                F("_relevant_zaak_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class ZaakBesluitForm(forms.ModelForm):
@@ -369,7 +440,9 @@ class ZaakBesluitForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_besluit") and not cleaned_data.get("_besluit_url"):
+        if not cleaned_data.get("_besluit") and not cleaned_data.get(
+            "_besluit_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
                 "selecteer een besluit of vul een externe URL in."
@@ -380,20 +453,33 @@ class ZaakBesluitForm(forms.ModelForm):
 
 @admin.register(ZaakBesluit)
 class ZaakBesluitAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
-    list_display = ("zaak", "_besluit", "_besluit_url")
-    list_select_related = ("zaak", "_besluit")
+    list_display = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
+    list_select_related = ("zaak", "_besluit", "_besluit_base_url")
     search_fields = (
         "uuid",
         "zaak__uuid",
         "zaak__identificatie",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_url",
+        "besluit_url",
     )
     form = ZaakBesluitForm
-    ordering = ("zaak", "_besluit", "_besluit_url")
-    raw_id_fields = ("zaak", "_besluit")
+    ordering = ("zaak", "_besluit", "_besluit_base_url", "_besluit_relative_url")
+    raw_id_fields = ("zaak", "_besluit", "_besluit_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakBesluitViewSet"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            besluit_url=Concat(
+                F("_besluit_base_url__api_root"),
+                F("_besluit_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 @admin.register(ZaakContactMoment)
@@ -499,7 +585,9 @@ class ZaakForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_zaaktype") and not cleaned_data.get("_zaaktype_url"):
+        if not cleaned_data.get("_zaaktype") and not cleaned_data.get(
+            "_zaaktype_base_url"
+        ):
             raise forms.ValidationError(
                 "Je moet een zaaktype opgeven: "
                 "selecteer een zaaktype of vul een externe URL in."
@@ -519,10 +607,11 @@ class ZaakAdmin(
         "einddatum",
         "archiefstatus",
     )
+    list_select_related = ("_zaaktype", "_zaaktype_base_url")
     search_fields = (
         "identificatie",
         "uuid",
-        "_zaaktype_url",
+        "zaaktype_url",
         "_zaaktype__identificatie",
     )
     form = ZaakForm
@@ -542,7 +631,7 @@ class ZaakAdmin(
         ZaakBesluitInline,
         KlantContactInline,
     ]
-    raw_id_fields = ("_zaaktype", "hoofdzaak")
+    raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
 
     def get_object_actions(self, obj):
@@ -556,4 +645,17 @@ class ZaakAdmin(
             link_to_related_objects(KlantContact, obj),
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
+        )
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            zaaktype_url=Concat(
+                F("_zaaktype_base_url__api_root"),
+                F("_zaaktype_relative_url"),
+                output_field=CharField(),
+            )
         )

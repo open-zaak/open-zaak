@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -115,6 +117,9 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_besluittype_invalid(self):
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="https://example.com/zrc/"
+        )
         list_url = reverse("besluit-list")
 
         with requests_mock.Mocker() as m:
@@ -250,7 +255,11 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_informatieobject_invalid(self):
+        Service.objects.create(
+            api_type=APITypes.drc, api_root="https://foo.bar/",
+        )
         besluit = BesluitFactory.create()
         besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
         url = reverse("besluitinformatieobject-list")

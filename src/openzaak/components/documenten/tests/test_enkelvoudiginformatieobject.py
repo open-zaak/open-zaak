@@ -13,6 +13,8 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
@@ -782,6 +784,14 @@ class InformatieobjectCreateExternalURLsTests(
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     mocker_attr = "requests_mock"
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
@@ -851,8 +861,9 @@ class InformatieobjectCreateExternalURLsTests(
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
+        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
         self.requests_mock.get(
-            "http://example.com", status_code=200, text="<html></html>"
+            "http://example.com/", status_code=200, text="<html></html>"
         )
 
         response = self.client.post(
@@ -869,7 +880,7 @@ class InformatieobjectCreateExternalURLsTests(
                 "inhoud": b64encode(b"some file content").decode("utf-8"),
                 "link": "http://een.link",
                 "beschrijving": "test_beschrijving",
-                "informatieobjecttype": "http://example.com",
+                "informatieobjecttype": "http://example.com/",
                 "vertrouwelijkheidaanduiding": "openbaar",
             },
         )

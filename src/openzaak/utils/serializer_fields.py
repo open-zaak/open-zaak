@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from vng_api_common.validators import URLValidator
@@ -48,3 +49,23 @@ class LengthHyperlinkedRelatedField(
     LengthValidationMixin, serializers.HyperlinkedRelatedField
 ):
     pass
+
+
+class FKOrServiceUrlValidator(FKOrURLValidator):
+    def __call__(self, url: str, serializer_field):
+        try:
+            super().__call__(url, serializer_field)
+
+        except ValueError as exc:
+            raise serializers.ValidationError(
+                _("The service for this url is unknown"), code="unknown-service"
+            ) from exc
+
+
+class FKOrServiceUrlField(FKOrURLField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # replace FKOrURLValidator with FKOrServiceUrlValidator
+        self.validators = [v for v in self.validators if type(v) != FKOrURLValidator]
+        self.validators += [FKOrServiceUrlValidator()]

@@ -32,17 +32,20 @@ from .utils import get_operation_url
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    base = "https://externe.catalogus.nl/api/v1/"
+    base = "https://externe.zaken.nl/api/v1/"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
 
-        Service.objects.create(
+        cls.zaken_service = Service.objects.create(
             api_type=APITypes.zrc,
             api_root=cls.base,
             label="external zaken",
             auth_type=AuthTypes.no_auth,
+        )
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://testserver/catalogi/api/v1/"
         )
 
     def _create_besluit(self, zaak: str) -> Besluit:

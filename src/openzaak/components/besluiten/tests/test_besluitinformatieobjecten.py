@@ -207,17 +207,21 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     base = "https://external.documenten.nl/api/v1/"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
 
-        Service.objects.create(
+        cls.drc_service = Service.objects.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
+            oas=f"{cls.base}schema/openapi.yaml?v3",
         )
 
     def test_create_bio_external_document(self):
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        )
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
@@ -234,6 +238,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker() as m:
                 mock_drc_oas_get(m)
+                mock_drc_oas_get(m, oas_url=self.drc_service.oas)
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -276,7 +281,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             )
 
             self.assertEqual(
-                list_response.status_code, status.HTTP_200_OK, response.data
+                list_response.status_code, status.HTTP_200_OK, list_response.data
             )
             data = list_response.json()
 
@@ -297,9 +302,14 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_create_bio_fail_not_json(self, m):
+        Service.objects.create(
+            api_type=APITypes.drc,
+            api_root="http://example.com/",
+            auth_type=AuthTypes.no_auth,
+        )
         besluit = BesluitFactory.create(besluittype__concept=False)
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
-        data = {"besluit": besluit_url, "informatieobject": "http://example.com"}
+        data = {"besluit": besluit_url, "informatieobject": "http://example.com/"}
         m.get("http://example.com", status_code=200, text="<html></html>")
 
         response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
@@ -310,6 +320,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_bio_fail_invalid_schema(self):
+        Service.objects.create(
+            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        )
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
@@ -342,6 +355,24 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "informatieobject")
         self.assertEqual(error["code"], "invalid-resource")
 
+    def test_create_bio_fail_unknown_service(self):
+        document = f"https://other.documenten.nl/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit_url = f"http://openzaak.nl{reverse(besluit)}"
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=besluit.besluittype.catalogus, concept=False
+        )
+        informatieobjecttype.besluittypen.add(besluit.besluittype)
+
+        response = self.client.post(
+            self.list_url, {"besluit": besluit_url, "informatieobject": document},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "informatieobject")
+        self.assertEqual(error["code"], "unknown-service")
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
@@ -366,7 +397,9 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
         self.setUpTestData()
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
-        besluit = BesluitFactory.create(besluittype__concept=False)
+        besluit = BesluitFactory.create(
+            besluittype__concept=False, local_host="http://openzaak.nl/"
+        )
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
@@ -428,6 +461,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
+        Service.objects.create(api_type=APITypes.ztc, api_root="http://openbesluit.nl/")
 
     def test_besluittype_internal_iotype_internal_fail(self):
         besluit = BesluitFactory.create()
@@ -465,6 +499,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker() as m:
             mock_drc_oas_get(m)
+            mock_drc_oas_get(m, oas_url=f"{self.base}schema/openapi.yaml?v=3")
             m.get(besluittype, json=besluittype_data)
             m.get(
                 informatieobjecttype,
@@ -625,7 +660,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=204)
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
+                local_host="http://openzaak.nl",
             )
             bio_url = reverse(bio)
 
@@ -659,7 +696,9 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=404, text="Not found")
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
+                local_host="http://openzaak.nl",
             )
             bio_url = reverse(bio)
 

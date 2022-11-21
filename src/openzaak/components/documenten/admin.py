@@ -3,6 +3,8 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import CharField, F
+from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
@@ -74,7 +76,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         if (
             object_type == ObjectInformatieObjectTypes.zaak
             and not cleaned_data.get("_zaak")
-            and not cleaned_data.get("_zaak_url")
+            and not cleaned_data.get("_zaak_base_url")
         ):
             raise forms.ValidationError(
                 "Je moet een zaak opgeven: "
@@ -84,7 +86,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
         if (
             object_type == ObjectInformatieObjectTypes.besluit
             and not cleaned_data.get("_besluit")
-            and not cleaned_data.get("_besluit_url")
+            and not cleaned_data.get("_besluit_base_url")
         ):
             raise forms.ValidationError(
                 "Je moet een besluit opgeven: "
@@ -108,27 +110,39 @@ class ObjectInformatieObjectAdmin(
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
-    list_select_related = ("informatieobject", "_zaak", "_besluit")
+    list_select_related = ("informatieobject", "_zaak", "_besluit", "_object_base_url")
     search_fields = (
         "uuid",
         "informatieobject__enkelvoudiginformatieobject__uuid",
         "informatieobject__enkelvoudiginformatieobject__identificatie",
         "_zaak__uuid",
         "_zaak__identificatie",
-        "_zaak_url",
         "_besluit__uuid",
         "_besluit__identificatie",
-        "_besluit_url",
+        "object_url",
         "verzoek",
     )
     ordering = ("informatieobject",)
-    raw_id_fields = ("informatieobject", "_zaak", "_besluit")
+    raw_id_fields = ("informatieobject", "_zaak", "_besluit", "_object_base_url")
     viewset = viewsets.ObjectInformatieObject
 
     def get_object_display(self, obj):
-        return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
+        return obj._zaak or obj._besluit or obj._object_url
 
     get_object_display.short_description = "object"
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            object_url=Concat(
+                F("_object_base_url__api_root"),
+                F("_object_relative_url"),
+                output_field=CharField(),
+            )
+        )
 
 
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
@@ -210,7 +224,11 @@ class EnkelvoudigInformatieObjectAdmin(
     search_fields = ("identificatie", "uuid")
     ordering = ("-begin_registratie",)
     date_hierarchy = "creatiedatum"
-    raw_id_fields = ("canonical", "_informatieobjecttype")
+    raw_id_fields = (
+        "canonical",
+        "_informatieobjecttype",
+        "_informatieobjecttype_base_url",
+    )
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
@@ -232,7 +250,13 @@ class EnkelvoudigInformatieObjectAdmin(
         ),
         (
             _("Typering"),
-            {"fields": ("_informatieobjecttype_url", "_informatieobjecttype",)},
+            {
+                "fields": (
+                    "_informatieobjecttype_base_url",
+                    "_informatieobjecttype_relative_url",
+                    "_informatieobjecttype",
+                )
+            },
         ),
         (
             _("Documentgegevens"),

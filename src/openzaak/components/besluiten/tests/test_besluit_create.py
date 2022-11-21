@@ -9,6 +9,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -208,8 +210,11 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_create_external_besluittype(self):
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        catalogi_api = "https://externe.catalogus.nl/api/v1/"
+        catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        Service.objects.create(api_type=APITypes.ztc, api_root=catalogi_api)
+
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
@@ -274,17 +279,19 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_besluittype_fail_not_json_url(self):
+        Service.objects.create(api_type=APITypes.ztc, api_root="http://example.com")
+
         url = reverse(Besluit)
 
         with requests_mock.Mocker() as m:
-            m.get("http://example.com", status_code=200)
+            m.get("http://example.com/some-type", status_code=200)
 
             response = self.client.post(
                 url,
                 {
                     "verantwoordelijke_organisatie": "517439943",  # RSIN
                     "identificatie": "123123",
-                    "besluittype": "http://example.com",
+                    "besluittype": "http://example.com/some-type",
                     "datum": "2018-09-06",
                     "toelichting": "Vergunning verleend.",
                     "ingangsdatum": "2018-10-01",
@@ -299,8 +306,11 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_external_besluittype_fail_invalid_schema(self):
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        catalogi_api = "https://externe.catalogus.nl/api/v1/"
+        catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        Service.objects.create(api_type=APITypes.ztc, api_root=catalogi_api)
+
         url = get_operation_url("besluit_create")
 
         with requests_mock.Mocker() as m:
@@ -346,3 +356,25 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "besluittype")
         self.assertEqual(error["code"], "invalid-resource")
+
+    def test_create_external_besluittype_fail_not_service_found(self):
+        url = get_operation_url("besluit_create")
+
+        response = self.client.post(
+            url,
+            {
+                "verantwoordelijke_organisatie": "517439943",  # RSIN
+                "identificatie": "123123",
+                "besluittype": "https://externe.catalogus.nl/api/v1/besluittypen/1",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "unknown-service")

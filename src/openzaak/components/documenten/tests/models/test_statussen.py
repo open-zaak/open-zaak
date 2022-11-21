@@ -18,11 +18,6 @@ class StatusTests(TestCase):
             eio = EnkelvoudigInformatieObjectFactory.create(
                 ontvangstdatum=None, status=""
             )
-            # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
-            # 'testserver', which doesn't match the regex of the URLValidator.
-            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
-                "testserver", "example.com"
-            )
             eio.full_clean()
         except ValidationError:
             self.fail("Empty status and ontvangstdatum should be possible")
@@ -31,11 +26,6 @@ class StatusTests(TestCase):
         try:
             eio = EnkelvoudigInformatieObjectFactory.create(
                 ontvangstdatum=date(2018, 12, 24), status=""
-            )
-            # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
-            # 'testserver', which doesn't match the regex of the URLValidator.
-            eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
-                "testserver", "example.com"
             )
             eio.full_clean()
         except ValidationError:
@@ -46,11 +36,6 @@ class StatusTests(TestCase):
             with self.subTest(status=invalid_status):
                 eio = EnkelvoudigInformatieObjectFactory.create(
                     ontvangstdatum=date(2018, 12, 24), status=invalid_status
-                )
-                # The request parameter in the EnkelvoudigInformatieObjectFactory.create() makes the domain name
-                # 'testserver', which doesn't match the regex of the URLValidator.
-                eio._informatieobjecttype_url = eio._informatieobjecttype_url.replace(
-                    "testserver", "example.com"
                 )
                 with self.assertRaises(ValidationError) as exc_context:
                     eio.full_clean()

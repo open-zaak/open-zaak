@@ -3,12 +3,23 @@
 from django import forms
 from django.test import TestCase
 
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.documenten.admin import ObjectInformatieObjectForm
 
 from ...constants import ObjectInformatieObjectTypes
 
 
 class TestObjectInformatieObjectForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.service = Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
     def test_objectinformationobject_form_clean_does_not_throw_exception_if_zaak_is_given(
         self,
     ):
@@ -28,7 +39,8 @@ class TestObjectInformatieObjectForm(TestCase):
         form = ObjectInformatieObjectForm()
         form.cleaned_data = {
             "object_type": ObjectInformatieObjectTypes.zaak,
-            "_zaak_url": "https://testserver",
+            "_zaak_base_url": self.service.id,
+            "_zaak_relative_url": "zaken/1",
         }
         try:
             form.clean()
@@ -62,7 +74,8 @@ class TestObjectInformatieObjectForm(TestCase):
         form = ObjectInformatieObjectForm()
         form.cleaned_data = {
             "object_type": ObjectInformatieObjectTypes.besluit,
-            "_besluit_url": "https://testserver",
+            "_besluit_base_url": self.service.id,
+            "_besluit_relative_url": "besluiten/1",
         }
         try:
             form.clean()

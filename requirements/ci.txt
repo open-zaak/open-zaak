@@ -98,6 +98,7 @@ django==3.2.15
     #   django-relativedelta
     #   django-rest-framework-condition
     #   django-sendfile2
+    #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
     #   djangorestframework
@@ -121,6 +122,7 @@ django-better-admin-arrayfield==1.4.2
 django-choices==1.7.2
     # via
     #   -r requirements/base.txt
+    #   django-simple-certmanager
     #   drc-cmis
     #   vng-api-common
     #   zgw-consumers
@@ -150,7 +152,7 @@ django-ordered-model==3.5
 django-privates==1.3.0
     # via
     #   -r requirements/base.txt
-    #   zgw-consumers
+    #   django-simple-certmanager
 django-redis==5.2.0
     # via -r requirements/base.txt
 django-relativedelta==1.1.2
@@ -165,6 +167,10 @@ django-sendfile2==0.7.0
     # via
     #   -r requirements/base.txt
     #   django-privates
+django-simple-certmanager==1.0.0
+    # via
+    #   -r requirements/base.txt
+    #   zgw-consumers
 django-sniplates==0.7.0
     # via -r requirements/base.txt
 django-solo==2.0.0
@@ -338,6 +344,7 @@ pyjwt==2.4.0
 pyopenssl==21.0.0
     # via
     #   -r requirements/base.txt
+    #   django-simple-certmanager
     #   josepy
     #   zgw-consumers
 pyparsing==3.0.7
@@ -467,7 +474,7 @@ wrapt==1.14.0
     # via
     #   -r requirements/base.txt
     #   deprecated
-zgw-consumers==0.19.0
+zgw-consumers==0.23.1
     # via
     #   -r requirements/base.txt
     #   notifications-api-common

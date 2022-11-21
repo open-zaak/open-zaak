@@ -12,6 +12,8 @@ from django.test import override_settings
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -34,6 +36,9 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         """
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")
@@ -96,6 +101,9 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         )
 
     def test_create_enkelvoudiginformatieobject_without_identificatie(self):
+        Service.objects.create(
+            api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         url = get_operation_url("enkelvoudiginformatieobject_create")
