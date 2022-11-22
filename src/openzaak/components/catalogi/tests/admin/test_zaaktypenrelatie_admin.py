@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.urls import reverse
 
@@ -16,14 +14,13 @@ from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
 
 
-@override_settings(ALLOWED_HOSTS=["testserver", "example.com"])
+@override_settings(IS_HTTPS=False)
 class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
         cls.user = SuperUserFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
 
     def setUp(self):
         super().setUp()
@@ -33,9 +30,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     def test_zaaktypenrelatie_create_with_gerelateerd_zaaktype_internal(self):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2)
 
-        protocol = "https" if settings.IS_HTTPS else "http"
-        domain = Site.objects.get_current().domain
-        zaaktype_url = f"{protocol}://{domain}{_reverse(zaaktype1)}"
+        zaaktype_url = f"http://testserver{_reverse(zaaktype1)}"
 
         url = reverse("admin:catalogi_zaaktypenrelatie_add")
 
@@ -70,11 +65,8 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
         self.assertEqual(relatie.zaaktype, zaaktype2)
 
     def test_zaaktypenrelatie_create_with_gerelateerd_zaaktype_external(self):
-        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2)
-
-        protocol = "https" if settings.IS_HTTPS else "http"
-        domain = Site.objects.get_current().domain
-        zaaktype_url = f"{protocol}://{domain}{_reverse(zaaktype1)}"
+        zaaktype = ZaakTypeFactory.create()
+        external_zt_url = "https://example.com/catalogi/api/v1/zaaktypen/68209b74-b5fe-4a8e-855f-7a6a9ba7056b"
 
         url = reverse("admin:catalogi_zaaktypenrelatie_add")
 
@@ -85,16 +77,15 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
         related_zaaktype = response.html.find(
             "div", {"class": "field-gerelateerd_zaaktype"}
         )
-
         inputs = related_zaaktype.find_all("input")
 
         self.assertEqual(len(inputs), 2)
 
         form = response.form
 
-        form["gerelateerd_zaaktype_1"] = zaaktype_url
+        form["gerelateerd_zaaktype_1"] = external_zt_url
         form["aard_relatie"] = AardRelatieChoices.vervolg
-        form["zaaktype"] = zaaktype2.pk
+        form["zaaktype"] = zaaktype.pk
 
         response = form.submit()
 
@@ -104,18 +95,16 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
         relatie = ZaakTypenRelatie.objects.get()
 
-        self.assertEqual(relatie.gerelateerd_zaaktype, zaaktype_url)
+        self.assertEqual(relatie.gerelateerd_zaaktype, external_zt_url)
         self.assertEqual(relatie.aard_relatie, AardRelatieChoices.vervolg)
-        self.assertEqual(relatie.zaaktype, zaaktype2)
+        self.assertEqual(relatie.zaaktype, zaaktype)
 
     def test_zaaktypenrelatie_create_with_gerelateerd_zaaktype_both_internal_and_external_error(
         self,
     ):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2)
 
-        protocol = "https" if settings.IS_HTTPS else "http"
-        domain = Site.objects.get_current().domain
-        zaaktype_url = f"{protocol}://{domain}{_reverse(zaaktype1)}"
+        zaaktype_url = f"http://testserver{_reverse(zaaktype1)}"
 
         url = reverse("admin:catalogi_zaaktypenrelatie_add")
 
@@ -153,9 +142,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     def test_zaaktypenrelatie_detail_concept(self):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2)
 
-        protocol = "https" if settings.IS_HTTPS else "http"
-        domain = Site.objects.get_current().domain
-        zaaktype_url = f"{protocol}://{domain}{_reverse(zaaktype1)}"
+        zaaktype_url = f"http://testserver{_reverse(zaaktype1)}"
 
         relatie = ZaakTypenRelatieFactory.create(
             gerelateerd_zaaktype=zaaktype_url, zaaktype=zaaktype2
@@ -189,9 +176,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     def test_zaaktypenrelatie_detail_not_concept(self):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, concept=False)
 
-        protocol = "https" if settings.IS_HTTPS else "http"
-        domain = Site.objects.get_current().domain
-        zaaktype_url = f"{protocol}://{domain}{_reverse(zaaktype1)}"
+        zaaktype_url = f"http://testserver{_reverse(zaaktype1)}"
 
         relatie = ZaakTypenRelatieFactory.create(
             gerelateerd_zaaktype=zaaktype_url, zaaktype=zaaktype2

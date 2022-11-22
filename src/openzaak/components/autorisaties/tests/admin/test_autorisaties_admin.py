@@ -9,12 +9,13 @@ from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import TransactionTestCase, override_settings, tag
+from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
+from furl import furl
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
@@ -122,27 +123,30 @@ class ApplicatieInlinesAdminTests(WebTest):
 
 
 @tag("admin-autorisaties")
-class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
-    def setUp(self):
-        super().setUp()
+class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
 
-        user = UserFactory.create(is_staff=True)
+        cls.user = user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
             "change_applicatie", "authorizations", "applicatie"
         )
         user.user_permissions.add(perm)
-        self.applicatie = ApplicatieFactory.create()
-        self.client.force_login(user)
+        cls.applicatie = ApplicatieFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.force_login(self.user)
         self.url = reverse(
             "admin:authorizations_applicatie_autorisaties",
             kwargs={"object_id": self.applicatie.pk},
         )
-
-        self._configure_notifications()
 
     def test_page_returns_on_get(self):
         # set up some initial data
@@ -223,13 +227,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Autorisatie.objects.exists())
 
         # create a ZaakType - this should trigger a new autorisatie being installed
-        ZaakTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
     def test_noop_all_current_and_future_zaaktypen(self):
@@ -253,13 +259,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
         # create a ZaakType - this should trigger a new autorisatie being installed
-        ZaakTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
     def test_add_autorisatie_all_current_informatieobjecttypen(self):
@@ -320,13 +328,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Autorisatie.objects.exists())
 
         # create a informatieobjecttype - this should trigger a new autorisatie being installed
-        InformatieObjectTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
     def test_noop_all_current_and_future_informatieobjecttypen(self):
@@ -350,14 +360,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
         # create a InformatieObjectType - this should trigger a new autorisatie
         # being installed
-        InformatieObjectTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
     def test_add_autorisatie_all_current_besluittypen(self):
@@ -375,7 +387,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Autorisatie.objects.count(), 2)
@@ -409,13 +422,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Autorisatie.objects.exists())
 
         # create a besluittype - this should trigger a new autorisatie being installed
-        BesluitTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            BesluitTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
     def test_noop_all_current_and_future_besluittypen(self):
@@ -438,21 +453,25 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
         # create a InformatieObjectType - this should trigger a new autorisatie
         # being installed
-        BesluitTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            BesluitTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
         # creating other types should not trigger anything, nor error
-        ZaakTypeFactory.create()
-        InformatieObjectTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            ZaakTypeFactory.create()
+            InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
+    @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_no_changes_no_notifications(self, m):
         zt = ZaakTypeFactory.create()
@@ -476,7 +495,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(m.called)
@@ -509,10 +529,51 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(m.called)
+
+    @override_settings(
+        NOTIFICATIONS_DISABLED=False,
+        OPENZAAK_DOMAIN="openzaak.example.com",
+        OPENZAAK_REWRITE_HOST=True,
+        ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
+    )
+    @requests_mock.Mocker()
+    def test_changes_send_notifications_with_openzaak_domain_setting(self, m):
+        mock_nrc_oas_get(m)
+        m.post(
+            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+        )
+        zt = ZaakTypeFactory.create()
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen", "zaken.bijwerken"],  # modified
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zt.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        url = m.last_request.json()["hoofdObject"]
+        self.assertEqual(furl(url).netloc, "openzaak.example.com")
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
@@ -533,16 +594,31 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
-        response = self.client.post(self.url, data)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Autorisatie.objects.exists())
         self.assertFalse(m.called)
 
         # create a ZaakType - this should trigger a new autorisatie being installed
-        ZaakTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.captureOnCommitCallbacks(execute=True):
+                ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
         self.assertTrue(m.called)
+
+        with self.subTest("OPENZAAK_DOMAIN setting"):
+            with override_settings(
+                OPENZAAK_DOMAIN="openzaak.example.com",
+                ALLOWED_HOSTS=["openzaak.example.com", "testserver"],
+            ):
+                with self.captureOnCommitCallbacks(execute=True):
+                    with self.captureOnCommitCallbacks(execute=True):
+                        ZaakTypeFactory.create()
+
+                url = m.last_request.json()["hoofdObject"]
+                self.assertEqual(furl(url).netloc, "openzaak.example.com")
 
     @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
     @requests_mock.Mocker()
@@ -558,7 +634,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TransactionTestCase):
             scopes=["documenten.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        InformatieObjectTypeFactory.create()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.captureOnCommitCallbacks(execute=True):
+                InformatieObjectTypeFactory.create()
 
         self.assertTrue(m.called)
         body = m.last_request.json()

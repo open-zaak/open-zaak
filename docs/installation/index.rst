@@ -67,5 +67,6 @@ Reference
    reference/cli
    reference/logging
    reference/containers
+   reference/fq-urls
    reference/time
    reference/1-5_upgrade

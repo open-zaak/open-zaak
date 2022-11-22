@@ -165,6 +165,7 @@ INSTALLED_APPS = [
 ] + PLUGIN_INSTALLED_APPS
 
 MIDDLEWARE = [
+    "openzaak.utils.middleware.OverrideHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "openzaak.utils.middleware.LogHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -442,6 +443,11 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 #
 PROJECT_NAME = "Open Zaak"
 SITE_TITLE = "API dashboard"
+
+# if specified, this replaces the host information in the requests, and it is used
+# to build absolute URLs.
+OPENZAAK_DOMAIN = config("OPENZAAK_DOMAIN", "")
+OPENZAAK_REWRITE_HOST = config("OPENZAAK_REWRITE_HOST", False)
 
 ENVIRONMENT = config("ENVIRONMENT", "")
 ENVIRONMENT_SHOWN_IN_ADMIN = True
