@@ -26,8 +26,8 @@ PROCESTYPE_URL = "https://selectielijst.openzaak.nl/api/v1/procestypen/{uuid}"
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch("openzaak.utils.validators.fetcher")
+@patch("openzaak.utils.validators.obj_has_shape", return_value=True)
 class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCase):
     """
     Test the validation on Resultaattype.selectielijstklasse.
@@ -159,8 +159,8 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch("openzaak.utils.validators.fetcher")
+@patch("openzaak.utils.validators.obj_has_shape", return_value=True)
 class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
     SelectieLijstMixin, TestCase
 ):
@@ -372,8 +372,8 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch("openzaak.utils.validators.fetcher")
+@patch("openzaak.utils.validators.obj_has_shape", return_value=True)
 class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
     SelectieLijstMixin, TestCase
 ):

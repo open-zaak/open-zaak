@@ -67,8 +67,8 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         self.app.set_user(self.user)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("openzaak.utils.validators.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
     def test_export_import_catalogus_relations_generate_new_uuids(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
@@ -202,8 +202,8 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertNotEqual(eigenschap.uuid, eigenschap_uuid)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("openzaak.utils.validators.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
     def test_export_import_catalogus_relations_use_existing_uuids(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(

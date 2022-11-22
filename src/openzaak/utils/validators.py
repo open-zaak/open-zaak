@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import json
+import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -13,13 +15,15 @@ from rest_framework.validators import (
 )
 from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
-from vng_api_common.validators import IsImmutableValidator
+from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.config.models import FeatureFlags
 
 from ..loaders import AuthorizedRequestsLoader
 from .serializer_fields import FKOrServiceUrlValidator
+
+logger = logging.getLogger(__name__)
 
 
 class PublishValidator(FKOrServiceUrlValidator):
@@ -211,3 +215,47 @@ class UniqueTogetherValidator(_UniqueTogetherValidator):
         has to be done.
         """
         return "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))
+
+
+class ResourceValidator(URLValidator):
+    """
+    Implement remote API resource validation.
+
+    This is an alternative for :class:`vng_api_common.validators.ResourceValidator`
+    leveraging local schema references before fetching them from public internet URLs.
+    """
+
+    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
+        self.resource = resource
+        self.oas_schema = oas_schema
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, url: str):
+        response = super().__call__(url)
+
+        err_message = _(
+            "The URL {url} resource did not look like a(n) `{resource}`. "
+            "Please provide a valid URL."
+        )
+        error = serializers.ValidationError(
+            err_message.format(url=url, resource=self.resource), code="invalid-resource"
+        )
+
+        # at this point, we know the URL actually exists
+        try:
+            obj = response.json()
+        except json.JSONDecodeError:
+            logger.info(
+                "URL %s doesn't seem to point to a JSON endpoint", url, exc_info=True
+            )
+            raise error
+
+        # check if the shape matches
+        schema = fetcher.fetch(self.oas_schema)
+        if not obj_has_shape(obj, schema, self.resource):
+            logger.info(
+                "URL %s doesn't seem to point to a valid shape", url, exc_info=True
+            )
+            raise error
+
+        return obj

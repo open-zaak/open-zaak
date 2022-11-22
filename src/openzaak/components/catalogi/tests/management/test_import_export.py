@@ -272,8 +272,8 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("openzaak.utils.validators.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
     def test_import_catalogus_with_relations(self, m, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000")
         zaaktype = ZaakTypeFactory.create(
@@ -414,8 +414,8 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("openzaak.utils.validators.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
     def test_import_request_caching(self, m, *mocks):
         """
         Assert that when running imports, external requests are cached to improve import performance

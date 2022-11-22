@@ -14,9 +14,8 @@ from vng_api_common.serializers import (
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
-from vng_api_common.validators import ResourceValidator
 
-from openzaak.utils.validators import UniqueTogetherValidator
+from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
 from ...models import ResultaatType
 from ..validators import (
