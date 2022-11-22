@@ -71,6 +71,11 @@ class ZaakTypenRelatieAdmin(ReadOnlyPublishedZaaktypeMixin, admin.ModelAdmin):
     )
     raw_id_fields = ("zaaktype",)
 
+    def save_model(self, request, obj, form, change):
+        form.normalize_data(request, obj)
+        # make URL field absolute using the request
+        super().save_model(request, obj, form, change)
+
 
 class StatusTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = StatusType

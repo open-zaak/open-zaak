@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from urllib.parse import urlsplit
+
 from django import forms
 from django.conf import settings
 from django.contrib.admin.sites import site
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError as _ValidationError
 from django.urls import reverse
 from django.utils.html import format_html
@@ -24,6 +25,7 @@ from zgw_consumers.models import Service
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.utils import build_absolute_url
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import (
@@ -636,10 +638,7 @@ class RelatedZaakTypeMultiValueField(forms.MultiValueField):
             raise _ValidationError(_("Kies óf een intern, óf een extern zaaktype"))
 
         if data_list[0]:
-            protocol = "https" if settings.IS_HTTPS else "http"
-            domain = domain = Site.objects.get_current().domain
-            path = _reverse(ZaakType.objects.get(pk=data_list[0]))
-            return f"{protocol}://{domain}{path}"
+            return _reverse(ZaakType.objects.get(pk=data_list[0]))
         elif data_list[1]:
             return data_list[1]
 
@@ -667,3 +666,15 @@ class ZaakTypenRelatieAdminForm(forms.ModelForm):
     class Meta:
         fields = "__all__"
         model = ZaakTypenRelatie
+
+    def _get_validation_exclusions(self):
+        extra = ["gerelateerd_zaaktype"]
+        return super()._get_validation_exclusions() + extra
+
+    def normalize_data(self, request, obj):
+        bits = urlsplit(obj.gerelateerd_zaaktype)
+        if bits.scheme and bits.netloc:
+            return
+        obj.gerelateerd_zaaktype = build_absolute_url(
+            obj.gerelateerd_zaaktype, request=request
+        )
