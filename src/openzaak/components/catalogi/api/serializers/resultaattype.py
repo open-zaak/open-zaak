@@ -79,7 +79,7 @@ class ResultaatTypeSerializer(
                 "validators": [
                     ResourceValidator(
                         "ResultaattypeOmschrijvingGeneriek",
-                        settings.REFERENTIELIJSTEN_API_SPEC,
+                        settings.SELECTIELIJST_API_STANDARD,
                     )
                 ]
             },

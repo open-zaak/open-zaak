@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 import logging
+from typing import Union
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -17,6 +18,7 @@ from vng_api_common.oas import fetcher, obj_has_shape
 from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
+from openzaak.api_standards import APIStandard
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.config.models import FeatureFlags
 
@@ -225,9 +227,11 @@ class ResourceValidator(URLValidator):
     leveraging local schema references before fetching them from public internet URLs.
     """
 
-    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
+    def __init__(
+        self, resource: str, api_standard: Union[str, APIStandard], *args, **kwargs
+    ):
         self.resource = resource
-        self.oas_schema = oas_schema
+        self.api_standard = api_standard
         super().__init__(*args, **kwargs)
 
     def __call__(self, url: str):
@@ -250,8 +254,13 @@ class ResourceValidator(URLValidator):
             )
             raise error
 
+        # obtain schema for shape matching
+        if isinstance(self.api_standard, str):
+            schema = fetcher.fetch(self.api_standard)
+        else:
+            schema = self.api_standard.download_schema(fetcher.fetch)
+
         # check if the shape matches
-        schema = fetcher.fetch(self.oas_schema)
         if not obj_has_shape(obj, schema, self.resource):
             logger.info(
                 "URL %s doesn't seem to point to a valid shape", url, exc_info=True

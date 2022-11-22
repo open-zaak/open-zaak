@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
+from openzaak.api_standards import APIStandard
+
 # Remove the reference - we don't have a single API version.
 del API_VERSION  # noqa
 
@@ -56,13 +58,24 @@ SWAGGER_SETTINGS.update(
 
 GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
+#
+# API's Open Zaak interacts with that have a defined standard (or community-accepted
+# one when there's no official standard)
+#
+
 # TODO: deduplicate
 repo = "vng-Realisatie/vng-referentielijsten"
 commit = "4533cc71dcd17e997fce9e31445db852b7540321"
 REFERENTIELIJSTEN_API_SPEC = (
     f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
 )
+
 VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
+
+SELECTIELIJST_API_STANDARD = APIStandard(
+    alias="selectielijst-1.0.0",
+    oas_url="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+)
 
 ztc_repo = "vng-Realisatie/catalogi-api"
 ztc_commit = "1.0.0.post5"
