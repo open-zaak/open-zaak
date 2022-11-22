@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import json
-import os
 import zipfile
+from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.sites.models import Site
@@ -40,18 +40,34 @@ from ..factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 
-PATH = os.path.abspath(os.path.dirname(__file__))
+PATH = Path(__file__).parent.resolve()
 
 
-class ExportCatalogiTests(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.filepath = os.path.join(PATH, "export_test.zip")
+class ImportExportMixin:
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-        self.addCleanup(lambda: os.remove(self.filepath))
 
+    def setUp(self):
+        super().setUp()
+
+        Site.objects.clear_cache()
+
+        self.filepath = PATH / "export_test.zip"
+
+        def rmfile():
+            if not self.filepath.exists():
+                return
+            self.filepath.unlink()
+
+        self.addCleanup(rmfile)
+
+
+class ExportCatalogiTests(ImportExportMixin, TestCase):
     def test_export_catalogus(self):
         catalogus = CatalogusFactory.create()
 
@@ -192,12 +208,12 @@ class ExportCatalogiTests(TestCase):
 
 
 @tag("catalogi-import")
-class ImportCatalogiTests(TestCase):
+class ImportCatalogiTests(ImportExportMixin, TestCase):
     base = "https://selectielijst.openzaak.nl/api/v1/"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
         Service.objects.update_or_create(
             api_root=cls.base,
             defaults=dict(
@@ -205,13 +221,6 @@ class ImportCatalogiTests(TestCase):
                 label="external selectielijst",
                 auth_type=AuthTypes.no_auth,
             ),
-        )
-
-    def setUp(self):
-        super().setUp()
-        self.filepath = os.path.join(PATH, "export_test.zip")
-        self.addCleanup(
-            lambda: os.remove(self.filepath) if os.path.exists(self.filepath) else None
         )
 
     def test_import_catalogus(self):
