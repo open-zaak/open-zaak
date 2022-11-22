@@ -26,6 +26,12 @@ def mock_selectielijst_oas_get(m: Mocker) -> None:
     mock_service_oas_get(
         m, url="", service="selectielijst", oas_url=settings.REFERENTIELIJSTEN_API_SPEC
     )
+    mock_service_oas_get(
+        m,
+        url="",
+        service="selectielijst",
+        oas_url=settings.SELECTIELIJST_API_STANDARD.oas_url,
+    )
 
 
 def mock_resource_list(
