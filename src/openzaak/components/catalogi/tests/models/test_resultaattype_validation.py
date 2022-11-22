@@ -112,6 +112,7 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
     def test_selectielijstklasse_url_pointing_to_incorrect_resource_raises_error(
         self, mock_has_shape, mock_fetcher
     ):
+        mock_has_shape.return_value = False
         procestype = PROCESTYPE_URL.format(uuid="e1b73b12-b2f6-4c4e-8929-94f84dd2a57d")
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype)
 
