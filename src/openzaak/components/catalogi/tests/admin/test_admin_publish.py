@@ -112,10 +112,13 @@ class ZaaktypeAdminTests(
         self.assertIsNotNone(publish_button)
 
         # Verify notification is sent
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        notif_request = m.last_request
+        self.assertEqual(notif_request.method, "POST")
+        self.assertEqual(
+            notif_request.url, "https://notificaties-api.vng.cloud/api/v1/notificaties"
         )
+        notification = notif_request.json()
+        self.assertEqual(notification["actie"], "update")
 
     def test_publish_besluittype(self, m):
         besluittype = BesluitTypeFactory.create(concept=True)

@@ -102,10 +102,16 @@ class NotificationSideEffect(SideEffectBase):
         viewset = viewset_cls()
 
         send_notification = False
-        if not self.original.pk or "_addversion" in self.request.POST:
+        is_create = (
+            (not self.change)
+            or not self.original.pk
+            or "_addversion" in self.request.POST
+        )
+        is_update = self.form.has_changed() or "_publish" in self.request.POST
+        if is_create:
             send_notification = True
             viewset.action = "create"
-        elif self.form.has_changed() or "_publish" in self.request.POST:
+        elif is_update:
             send_notification = True
             viewset.action = "update"
 

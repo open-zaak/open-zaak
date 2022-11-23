@@ -488,7 +488,7 @@ regex==2022.3.15
     # via
     #   -r requirements/ci.txt
     #   black
-requests==2.27.1
+requests==2.28.1
     # via
     #   -r requirements/ci.txt
     #   coreapi
@@ -603,7 +603,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/ci.txt
     #   requests-cache
-urllib3==1.26.9
+urllib3==1.26.12
     # via
     #   -r requirements/ci.txt
     #   kubernetes
