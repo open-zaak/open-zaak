@@ -220,10 +220,13 @@ class ZaaktypeAdminTests(
         self.assertEqual(zaaktype_new.zaak_set.count(), 0)
 
         # Verify notification is sent
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        notif_request = m.last_request
+        self.assertEqual(notif_request.method, "POST")
+        self.assertEqual(
+            notif_request.url, "https://notificaties-api.vng.cloud/api/v1/notificaties"
         )
+        notification = notif_request.json()
+        self.assertEqual(notification["actie"], "create")
 
     def test_create_new_version_fail_no_datum_einde_geldigheid(self, m):
         mock_selectielijst_oas_get(m)
