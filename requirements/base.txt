@@ -265,7 +265,7 @@ pyyaml==6.0
     #   vng-api-common
 redis==4.1.4
     # via django-redis
-requests==2.27.1
+requests==2.28.1
     # via
     #   -r requirements/base.in
     #   coreapi
@@ -308,7 +308,7 @@ uritemplate==4.1.1
     #   drf-yasg
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.9
+urllib3==1.26.12
     # via
     #   requests
     #   requests-cache
