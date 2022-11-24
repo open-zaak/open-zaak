@@ -252,9 +252,9 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 #
 # LOGGING
 #
-LOG_STDOUT = config("LOG_STDOUT", default=False)
-LOG_LEVEL = config("LOG_LEVEL", default="WARNING")
-LOG_QUERIES = config("LOG_QUERIES", default=False)
+LOG_STDOUT = config("LOG_STDOUT", default=DEBUG)
+LOG_LEVEL = config("LOG_LEVEL", default="DEBUG" if DEBUG else "WARNING")
+LOG_QUERIES = config("LOG_QUERIES", default=DEBUG)
 if LOG_QUERIES and not DEBUG:
     warnings.warn(
         "Requested LOG_QUERIES=1 but DEBUG is false, no query logs will be emited.",
@@ -347,6 +347,7 @@ LOGGING = {
             "propagate": True,
         },
         "mozilla_django_oidc": {"handlers": _root_handlers, "level": LOG_LEVEL,},
+        "mozilla_django_oidc_db": {"handlers": _root_handlers, "level": LOG_LEVEL,},
         "openzaak.utils.middleware": {
             "handlers": _root_handlers,
             "level": LOG_LEVEL,
