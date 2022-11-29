@@ -66,15 +66,16 @@ GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 # TODO: deduplicate
 repo = "vng-Realisatie/vng-referentielijsten"
 commit = "4533cc71dcd17e997fce9e31445db852b7540321"
-REFERENTIELIJSTEN_API_SPEC = (
-    f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
+REFERENTIELIJSTEN_API_STANDARD = APIStandard(
+    alias=f"vrl-{commit}",
+    oas_url=f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml",
+    is_standardized=False,
 )
-
-VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
 
 SELECTIELIJST_API_STANDARD = APIStandard(
     alias="selectielijst-1.0.0",
     oas_url="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+    is_standardized=False,
 )
 
 ztc_repo = "vng-Realisatie/catalogi-api"

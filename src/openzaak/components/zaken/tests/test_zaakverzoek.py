@@ -24,8 +24,8 @@ def mock_verzoeken_oas_get(m, base):
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch("openzaak.utils.validators.fetcher")
+@patch("openzaak.utils.validators.obj_has_shape", return_value=True)
 class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

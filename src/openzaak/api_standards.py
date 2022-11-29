@@ -18,6 +18,10 @@ SPECIFICATIONS = {}
 class APIStandard:
     alias: str  # unique alias
     oas_url: str  # URL to download the API spec from if it doesn't exist in cache
+    is_standardized: bool = True
+    """
+    Track whether an API "standard" is actually an official VNG standard.
+    """
 
     def __post_init__(self):
         self._register()
