@@ -184,7 +184,7 @@ class ZaakTypeSerializer(
             "producten_of_diensten": {"required": True},
             "selectielijst_procestype": {
                 "validators": [
-                    ResourceValidator("ProcesType", settings.REFERENTIELIJSTEN_API_SPEC)
+                    ResourceValidator("ProcesType", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
             "deelzaaktypen": {"lookup_field": "uuid"},

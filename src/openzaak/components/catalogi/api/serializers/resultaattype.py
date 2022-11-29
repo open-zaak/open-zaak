@@ -92,7 +92,7 @@ class ResultaatTypeSerializer(
             "zaaktype": {"lookup_field": "uuid", "label": _("is van")},
             "selectielijstklasse": {
                 "validators": [
-                    ResourceValidator("Resultaat", settings.REFERENTIELIJSTEN_API_SPEC)
+                    ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
         }

@@ -308,7 +308,7 @@ class ResultaatTypeForm(forms.ModelForm):
             err = forms.ValidationError(msg, code="invalid")
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
 
-        validator = ResourceValidator("Resultaat", settings.VRL_API_SPEC)
+        validator = ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
         try:
             # Check whether the url points to a Resultaat
             validator(selectielijstklasse)
