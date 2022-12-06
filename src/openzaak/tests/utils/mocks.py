@@ -41,6 +41,12 @@ mock_vrc_oas_get = partial(
     service="vrc",
     oas_url=settings.VRC_API_STANDARD.oas_url,
 )
+mock_cmc_oas_get = partial(
+    mock_service_oas_get,
+    url="",
+    service="contactmomenten",
+    oas_url=settings.CMC_API_STANDARD.oas_url,
+)
 
 
 def mock_nrc_oas_get(m: Mocker) -> None:

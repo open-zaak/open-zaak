@@ -8,12 +8,14 @@ Utilities to deal with OpenAPI 3 specifications.
 """
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict
 
+import requests
 import yaml
 
 __all__ = ["SPECIFICATIONS", "APIStandard"]
 
-SPECIFICATIONS = {}
+SPECIFICATIONS: Dict[str, "APIStandard"] = {}
 
 
 @dataclass
@@ -41,6 +43,15 @@ class APIStandard:
 
         cache_dir = Path(settings.BASE_DIR) / "cache"
         return cache_dir / f"{self.alias}.yaml"
+
+    def write_cache(self) -> None:
+        """
+        Retrieve the API specs and write to the cache path.
+        """
+        response = requests.get(self.oas_url)
+        response.raise_for_status()
+        cache_path = self._get_cache_path()
+        cache_path.write_bytes(response.content)
 
     @property
     def schema(self) -> dict:
