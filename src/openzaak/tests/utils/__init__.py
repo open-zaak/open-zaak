@@ -20,6 +20,7 @@ from .mocks import (
     mock_vrc_oas_get,
     mock_zrc_oas_get,
     mock_ztc_oas_get,
+    patch_resource_validator,
 )
 from .oas import get_spec
 
@@ -33,6 +34,7 @@ __all__ = [
     "mock_nrc_oas_get",
     "MockSchemasMixin",
     "get_eio_response",
+    "patch_resource_validator",
     # auth
     "JWTAuthMixin",
     "generate_jwt_auth",

@@ -22,6 +22,7 @@ from zgw_consumers.models import Service
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.tests.utils import patch_resource_validator
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -174,8 +175,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(brondatumArchiefprocedure["procestermijn"], "P5Y")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     @requests_mock.Mocker()
     def test_create_resultaattype(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
@@ -222,8 +222,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     @requests_mock.Mocker()
     def test_create_resultaattype_brondatum_archiefprocedure_null(
         self, mock_shape, mock_fetch, m
@@ -279,8 +278,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     @requests_mock.Mocker()
     def test_create_resultaattype_brondatum_archiefprocedure_null_with_vernietigen(
         self, mock_shape, mock_fetch, m
@@ -337,8 +335,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         )
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     @requests_mock.Mocker()
     def test_create_resultaattype_fail_not_concept_zaaktype(
         self, mock_shape, mock_fetch, m
@@ -406,8 +403,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_derive_archiefactiedatum_from_selectielijstklasse(self, *mocks):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
@@ -446,8 +442,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["archiefactietermijn"], "P5Y")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_update_resultaattype(self, *mocks):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse(zaaktype)
@@ -489,8 +484,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["omschrijving"], "aangepast")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_update_resultaattype_fail_not_concept_zaaktype(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
@@ -536,8 +530,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], "non-concept-zaaktype")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_update_resultaattype_add_relation_to_non_concept_zaaktype_fails(
         self, *mocks
     ):
@@ -622,8 +615,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], "non-concept-zaaktype")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_partial_update_resultaattype_add_relation_to_non_concept_zaaktype_fails(
         self, *mocks
     ):
@@ -652,8 +644,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], "non-concept-zaaktype")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_update_resultaattype_omschrijving_generiek(self, *mocks):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse(zaaktype)
@@ -857,7 +848,7 @@ class ResultaatTypeValidationTests(APITestCase):
             selectielijstklasse = SELECTIELIJSTKLASSE_URL
         return selectielijstklasse
 
-    @patch("openzaak.utils.validators.fetcher.fetch", return_value={})
+    @patch("openzaak.utils.validators.ResourceValidatorMixin._resolve_schema")
     @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
     def test_validate_wrong_resultaattypeomschrijving(self, mock_shape, mock_fetch):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -1013,8 +1004,7 @@ class ResultaatTypeValidationTests(APITestCase):
         self.assertEqual(error["code"], "invalid-afleidingswijze-for-procestermijn")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_procestermijn_empty_and_afleidingswijze_afgehandeld(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1098,8 +1088,7 @@ class ResultaatTypeValidationTests(APITestCase):
         self.assertEqual(error["code"], "invalid-afleidingswijze-for-procestermijn")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_procestermijn_empty_and_afleidingswijze_niet_termijn(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1139,8 +1128,7 @@ class ResultaatTypeValidationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_value_for_datumkenmerk(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1185,8 +1173,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     self.assertEqual(error["code"], "must-be-empty")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_datumkenmerk_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1231,8 +1218,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     ResultaatType.objects.get().delete()
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_einddatum_bekend_true(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1276,8 +1262,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     ResultaatType.objects.get().delete()
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_einddatum_bekend_false(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1310,8 +1295,7 @@ class ResultaatTypeValidationTests(APITestCase):
                 ResultaatType.objects.get().delete()
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_value_for_objecttype(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1355,8 +1339,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     self.assertEqual(error["code"], "must-be-empty")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_objecttype_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1400,8 +1383,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     ResultaatType.objects.get().delete()
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_value_for_registratie(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1442,8 +1424,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     self.assertEqual(error["code"], "must-be-empty")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_registratie_empty(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1484,8 +1465,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     ResultaatType.objects.get().delete()
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_value_for_procestermijn(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
@@ -1526,8 +1506,7 @@ class ResultaatTypeValidationTests(APITestCase):
                     self.assertEqual(error["code"], "must-be-empty")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_procestermijn_null(self, *mocks):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True

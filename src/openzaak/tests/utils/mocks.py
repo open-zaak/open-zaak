@@ -3,6 +3,7 @@
 import uuid
 from datetime import date
 from functools import partial
+from unittest.mock import patch
 
 from django.conf import settings
 from django.utils import timezone
@@ -101,3 +102,9 @@ def get_eio_response(url, **overrides):
         eio["informatieobjecttype"] = overrides.get("_informatieobjecttype_url")
 
     return eio
+
+
+def patch_resource_validator(func):
+    patch1 = patch("openzaak.utils.validators.ResourceValidatorMixin._resolve_schema")
+    patch2 = patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    return patch1(patch2(func))

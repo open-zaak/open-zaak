@@ -15,6 +15,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.tests.utils import patch_resource_validator
 
 from ...models import (
     BesluitType,
@@ -67,8 +68,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         self.app.set_user(self.user)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_export_import_catalogus_relations_generate_new_uuids(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
@@ -202,8 +202,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertNotEqual(eigenschap.uuid, eigenschap_uuid)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("openzaak.utils.validators.fetcher")
-    @patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_export_import_catalogus_relations_use_existing_uuids(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
