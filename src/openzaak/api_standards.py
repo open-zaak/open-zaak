@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2022 Dimpact
 """
 Utilities to deal with OpenAPI 3 specifications.
 
@@ -7,6 +7,9 @@ Utilities to deal with OpenAPI 3 specifications.
    or anything else that requires django to be configured first.
 """
 from dataclasses import dataclass
+from pathlib import Path
+
+import yaml
 
 __all__ = ["SPECIFICATIONS", "APIStandard"]
 
@@ -33,14 +36,32 @@ class APIStandard:
             raise ValueError(f"Non-unique alias '{self.alias}' given.")
         SPECIFICATIONS[self.alias] = self
 
+    def _get_cache_path(self) -> Path:
+        from django.conf import settings
+
+        cache_dir = Path(settings.BASE_DIR) / "cache"
+        return cache_dir / f"{self.alias}.yaml"
+
     @property
     def schema(self) -> dict:
         """
         Download the (cached) schema.
         """
-        return self.download_schema()
-
-    def download_schema(self) -> dict:
         from vng_api_common.oas import fetcher
 
+        # check the existing fetcher cache, as it's (usually) in-memory and therefore
+        # the fastest since we avoid disk IO
+        if self.oas_url in fetcher.cache:
+            return fetcher.cache[self.oas_url]
+
+        # check the on-disk cache before hitting the network
+        cache_path = self._get_cache_path()
+        if cache_path.exists() and cache_path.is_file():
+            with cache_path.open("rb") as infile:
+                spec = yaml.safe_load(infile)
+
+            # cache the result
+            fetcher.cache[self.oas_url] = spec
+
+        # fallback to downloading from the web
         return fetcher.fetch(self.oas_url)
