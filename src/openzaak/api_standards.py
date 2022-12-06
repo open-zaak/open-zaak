@@ -7,7 +7,6 @@ Utilities to deal with OpenAPI 3 specifications.
    or anything else that requires django to be configured first.
 """
 from dataclasses import dataclass
-from typing import Callable
 
 __all__ = ["SPECIFICATIONS", "APIStandard"]
 
@@ -35,11 +34,13 @@ class APIStandard:
         SPECIFICATIONS[self.alias] = self
 
     @property
-    def schema(self):
+    def schema(self) -> dict:
         """
-        Download the cached schema.
+        Download the (cached) schema.
         """
-        raise NotImplementedError()
+        return self.download_schema()
 
-    def download_schema(self, fetch: Callable[[str], dict]) -> dict:
-        return fetch(self.oas_url)
+    def download_schema(self) -> dict:
+        from vng_api_common.oas import fetcher
+
+        return fetcher.fetch(self.oas_url)

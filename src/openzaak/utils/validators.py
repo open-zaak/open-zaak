@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 import logging
-from typing import Union
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -14,7 +13,7 @@ from rest_framework.utils.representation import smart_repr
 from rest_framework.validators import (
     UniqueTogetherValidator as _UniqueTogetherValidator,
 )
-from vng_api_common.oas import fetcher, obj_has_shape
+from vng_api_common.oas import obj_has_shape
 from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
@@ -113,19 +112,13 @@ class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
 
 
 class ResourceValidatorMixin:
-    def __init__(
-        self, resource: str, api_standard: Union[str, APIStandard], *args, **kwargs
-    ):
+    def __init__(self, resource: str, api_standard: APIStandard, *args, **kwargs):
         self.resource = resource
         self.api_standard = api_standard
         super().__init__(*args, **kwargs)
 
     def _resolve_schema(self) -> dict:
-        if isinstance(self.api_standard, str):
-            schema = fetcher.fetch(self.api_standard)
-        else:
-            schema = self.api_standard.download_schema(fetcher.fetch)
-        return schema
+        return self.api_standard.schema
 
 
 class LooseFkResourceValidator(ResourceValidatorMixin, FKOrServiceUrlValidator):
