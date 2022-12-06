@@ -125,7 +125,9 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)],
+                "validators": [
+                    LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
+                ],
             },
         }
 

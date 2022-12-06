@@ -96,10 +96,13 @@ DRC_API_STANDARD = APIStandard(
     ),
 )
 
-zrc_repo = "vng-Realisatie/zaken-api"
-zrc_commit = "1.0.3"
-ZRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
+zrc_ref = "1.0.3"
+ZRC_API_STANDARD = APIStandard(
+    alias=f"zaken-{zrc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/zaken-api/{zrc_ref}/src/openapi.yaml"
+    ),
 )
 
 brc_repo = "vng-Realisatie/besluiten-api"

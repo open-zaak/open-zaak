@@ -900,7 +900,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"
             object_field.validators.append(
-                LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+                LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
             )
         elif object_type == ObjectInformatieObjectTypes.verzoek:
             object_field.source = "verzoek"
