@@ -124,9 +124,15 @@ CMC_API_STANDARD = APIStandard(
     is_standardized=False,
 )
 
-vrc_repo = "VNG-Realisatie/verzoeken-api"
-vrc_commit = "57c83f6799df482f5c7fc70813d59264b9979619"
-VRC_API_SPEC = f"https://raw.githubusercontent.com/{vrc_repo}/{vrc_commit}/src/openapi.yaml"  # noqa
+vrc_ref = "57c83f6799df482f5c7fc70813d59264b9979619"
+VRC_API_STANDARD = APIStandard(
+    alias="verzoeken-2021-06-21",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/verzoeken-api/{vrc_ref}/src/openapi.yaml"
+    ),
+    is_standardized=False,
+)
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 

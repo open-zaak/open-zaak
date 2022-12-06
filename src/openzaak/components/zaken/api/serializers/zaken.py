@@ -900,7 +900,7 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             "verzoek": {
                 "validators": [
                     ResourceValidator(
-                        "Verzoek", settings.VRC_API_SPEC, get_auth=get_auth
+                        "Verzoek", settings.VRC_API_STANDARD, get_auth=get_auth
                     )
                 ]
             },

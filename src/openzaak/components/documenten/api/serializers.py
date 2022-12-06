@@ -30,7 +30,6 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import ResourceValidator
 
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
@@ -39,6 +38,7 @@ from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
     PublishValidator,
+    ResourceValidator,
 )
 
 from ..constants import (
@@ -905,7 +905,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         elif object_type == ObjectInformatieObjectTypes.verzoek:
             object_field.source = "verzoek"
             object_field.validators.append(
-                ResourceValidator("Verzoek", settings.VRC_API_SPEC)
+                ResourceValidator("Verzoek", settings.VRC_API_STANDARD)
             )
 
     def to_internal_value(self, data):
