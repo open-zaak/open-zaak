@@ -846,7 +846,7 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
             "contactmoment": {
                 "validators": [
                     ResourceValidator(
-                        "ContactMoment", settings.CMC_API_SPEC, get_auth=get_auth
+                        "ContactMoment", settings.CMC_API_STANDARD, get_auth=get_auth
                     )
                 ]
             },

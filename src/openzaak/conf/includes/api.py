@@ -114,9 +114,15 @@ BRC_API_STANDARD = APIStandard(
     ),
 )
 
-cmc_repo = "VNG-Realisatie/contactmomenten-api"
-cmc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
-CMC_API_SPEC = f"https://raw.githubusercontent.com/{cmc_repo}/{cmc_commit}/src/openapi.yaml"  # noqa
+cmc_ref = "20f149a66163047b6ae3719709a600285fbb1c36"
+CMC_API_STANDARD = APIStandard(
+    alias="contactmomenten-2021-09-13",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/contactmomenten-api/{cmc_ref}/src/openapi.yaml"
+    ),
+    is_standardized=False,
+)
 
 vrc_repo = "VNG-Realisatie/verzoeken-api"
 vrc_commit = "57c83f6799df482f5c7fc70813d59264b9979619"
