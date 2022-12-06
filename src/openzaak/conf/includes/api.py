@@ -87,10 +87,13 @@ ZTC_API_STANDARD = APIStandard(
     ),
 )
 
-drc_repo = "vng-Realisatie/documenten-api"
-drc_commit = "1.0.1.post1"
-DRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
+drc_ref = "1.0.1.post1"
+DRC_API_STANDARD = APIStandard(
+    alias=f"documenten-{drc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/documenten-api/{drc_ref}/src/openapi.yaml"
+    ),
 )
 
 zrc_repo = "vng-Realisatie/zaken-api"

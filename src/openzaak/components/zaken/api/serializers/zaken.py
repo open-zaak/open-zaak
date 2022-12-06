@@ -538,7 +538,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         validators=[
             LooseFkIsImmutableValidator(instance_path="canonical"),
             LooseFkResourceValidator(
-                "EnkelvoudigInformatieObject", settings.DRC_API_SPEC
+                "EnkelvoudigInformatieObject", settings.DRC_API_STANDARD
             ),
         ],
         max_length=1000,
