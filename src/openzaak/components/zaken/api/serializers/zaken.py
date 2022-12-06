@@ -31,6 +31,7 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.api import (
     create_remote_objectcontactmoment,
     create_remote_objectverzoek,
@@ -897,13 +898,7 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "verzoek": {
-                "validators": [
-                    ResourceValidator(
-                        "Verzoek", settings.VRC_API_STANDARD, get_auth=get_auth
-                    )
-                ]
-            },
+            "verzoek": {"validators": [verzoek_validator]},
         }
 
     def create(self, validated_data):
