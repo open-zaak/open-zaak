@@ -105,10 +105,13 @@ ZRC_API_STANDARD = APIStandard(
     ),
 )
 
-brc_repo = "vng-Realisatie/besluiten-api"
-brc_commit = "1.0.1.post0"
-BRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
+brc_ref = "1.0.1.post0"
+BRC_API_STANDARD = APIStandard(
+    alias=f"besluiten-{brc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/besluiten-api/{brc_ref}/src/openapi.yaml"
+    ),
 )
 
 cmc_repo = "VNG-Realisatie/contactmomenten-api"

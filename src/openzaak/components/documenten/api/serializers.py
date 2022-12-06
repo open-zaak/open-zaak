@@ -895,7 +895,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
             object_field.validators.append(
-                LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
+                LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD)
             )
         elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"

@@ -825,7 +825,7 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC),
+                    LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD),
                 ],
             },
         }

@@ -11,7 +11,10 @@ from requests_mock import Mocker
 from zgw_consumers.test import mock_service_oas_get
 
 mock_brc_oas_get = partial(
-    mock_service_oas_get, url="", service="brc", oas_url=settings.BRC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="brc",
+    oas_url=settings.BRC_API_STANDARD.oas_url,
 )
 mock_drc_oas_get = partial(
     mock_service_oas_get,
