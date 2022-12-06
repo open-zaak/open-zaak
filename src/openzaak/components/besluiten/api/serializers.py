@@ -66,7 +66,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],

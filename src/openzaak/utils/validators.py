@@ -112,16 +112,27 @@ class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
             )
 
 
-class LooseFkResourceValidator(FKOrServiceUrlValidator):
+class ResourceValidatorMixin:
+    def __init__(
+        self, resource: str, api_standard: Union[str, APIStandard], *args, **kwargs
+    ):
+        self.resource = resource
+        self.api_standard = api_standard
+        super().__init__(*args, **kwargs)
+
+    def _resolve_schema(self) -> dict:
+        if isinstance(self.api_standard, str):
+            schema = fetcher.fetch(self.api_standard)
+        else:
+            schema = self.api_standard.download_schema(fetcher.fetch)
+        return schema
+
+
+class LooseFkResourceValidator(ResourceValidatorMixin, FKOrServiceUrlValidator):
     resource_message = _(
         "The URL {url} resource did not look like a(n) `{resource}`. Please provide a valid URL."
     )
     resource_code = "invalid-resource"
-
-    def __init__(self, resource: str, oas_schema: str, *args, **kwargs):
-        self.resource = resource
-        self.oas_schema = oas_schema
-        super().__init__(*args, **kwargs)
 
     def __call__(self, value: str, serializer_field):
         # not to double FKOrURLValidator
@@ -140,7 +151,7 @@ class LooseFkResourceValidator(FKOrServiceUrlValidator):
         obj = AuthorizedRequestsLoader.fetch_object(value, do_underscoreize=False)
 
         # check if the shape matches
-        schema = fetcher.fetch(self.oas_schema)
+        schema = self._resolve_schema()
         if not obj_has_shape(obj, schema, self.resource):
             raise serializers.ValidationError(
                 self.resource_message.format(url=value, resource=self.resource),
@@ -219,20 +230,13 @@ class UniqueTogetherValidator(_UniqueTogetherValidator):
         return "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))
 
 
-class ResourceValidator(URLValidator):
+class ResourceValidator(ResourceValidatorMixin, URLValidator):
     """
     Implement remote API resource validation.
 
     This is an alternative for :class:`vng_api_common.validators.ResourceValidator`
     leveraging local schema references before fetching them from public internet URLs.
     """
-
-    def __init__(
-        self, resource: str, api_standard: Union[str, APIStandard], *args, **kwargs
-    ):
-        self.resource = resource
-        self.api_standard = api_standard
-        super().__init__(*args, **kwargs)
 
     def __call__(self, url: str):
         response = super().__call__(url)
@@ -255,10 +259,7 @@ class ResourceValidator(URLValidator):
             raise error
 
         # obtain schema for shape matching
-        if isinstance(self.api_standard, str):
-            schema = fetcher.fetch(self.api_standard)
-        else:
-            schema = self.api_standard.download_schema(fetcher.fetch)
+        schema = self._resolve_schema()
 
         # check if the shape matches
         if not obj_has_shape(obj, schema, self.resource):

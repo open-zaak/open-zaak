@@ -290,7 +290,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),
         validators=[
-            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_SPEC),
+            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
             LooseFkIsImmutableValidator(),
             PublishValidator(),
         ],
@@ -355,7 +355,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator(
-                        "InformatieObjectType", settings.ZTC_API_SPEC
+                        "InformatieObjectType", settings.ZTC_API_STANDARD
                     ),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),

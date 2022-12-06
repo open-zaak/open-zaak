@@ -78,10 +78,13 @@ SELECTIELIJST_API_STANDARD = APIStandard(
     is_standardized=False,
 )
 
-ztc_repo = "vng-Realisatie/catalogi-api"
-ztc_commit = "1.0.0.post5"
-ZTC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
+ztc_ref = "1.0.1"
+ZTC_API_STANDARD = APIStandard(
+    alias=f"catalogi-{ztc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/catalogi-api/{ztc_ref}/src/openapi.yaml"
+    ),
 )
 
 drc_repo = "vng-Realisatie/documenten-api"

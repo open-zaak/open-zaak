@@ -18,6 +18,7 @@ from django_webtest import WebTest
 from furl import furl
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from zgw_consumers.test import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.catalogi.models.informatieobjecttype import (
@@ -29,7 +30,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import mock_nrc_oas_get
+from openzaak.tests.utils import mock_nrc_oas_get, mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
@@ -655,10 +656,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         }
         self.assertEqual(body, expected)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_add_autorisatie_external_zaaktypen(self, *mocks):
+    @requests_mock.Mocker()
+    def test_add_autorisatie_external_zaaktypen(self, m):
+        mock_ztc_oas_get(m)
+        zt1 = generate_oas_component("ztc", "schemas/ZaakType", url=ZAAKTYPE1)
+        zt2 = generate_oas_component("ztc", "schemas/ZaakType", url=ZAAKTYPE2)
+        m.get(ZAAKTYPE1, json=zt1)
+        m.get(ZAAKTYPE2, json=zt2)
+
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -682,10 +687,18 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(autorisatie1.zaaktype, ZAAKTYPE1)
         self.assertEqual(autorisatie2.zaaktype, ZAAKTYPE2)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_add_autorisatie_external_iotypen(self, *mocks):
+    @requests_mock.Mocker()
+    def test_add_autorisatie_external_iotypen(self, m):
+        mock_ztc_oas_get(m)
+        iot1 = generate_oas_component(
+            "ztc", "schemas/InformatieObjectType", url=IOTYPE1
+        )
+        iot2 = generate_oas_component(
+            "ztc", "schemas/InformatieObjectType", url=IOTYPE2
+        )
+        m.get(IOTYPE1, json=iot1)
+        m.get(IOTYPE2, json=iot2)
+
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -709,10 +722,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(autorisatie1.informatieobjecttype, IOTYPE1)
         self.assertEqual(autorisatie2.informatieobjecttype, IOTYPE2)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
-    def test_add_autorisatie_external_besluittypen(self, *mocks):
+    @requests_mock.Mocker()
+    def test_add_autorisatie_external_besluittypen(self, m):
+        mock_ztc_oas_get(m)
+        bt1 = generate_oas_component("ztc", "schemas/BesluitType", url=BESLUITTYPE1)
+        bt2 = generate_oas_component("ztc", "schemas/BesluitType", url=BESLUITTYPE2)
+        m.get(BESLUITTYPE1, json=bt1)
+        m.get(BESLUITTYPE2, json=bt2)
+
         data = {
             # management form
             "form-TOTAL_FORMS": 1,

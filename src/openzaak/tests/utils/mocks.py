@@ -20,7 +20,10 @@ mock_zrc_oas_get = partial(
     mock_service_oas_get, url="", service="zrc", oas_url=settings.ZRC_API_SPEC
 )
 mock_ztc_oas_get = partial(
-    mock_service_oas_get, url="", service="ztc", oas_url=settings.ZTC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="ztc",
+    oas_url=settings.ZTC_API_STANDARD.oas_url,
 )
 mock_vrc_oas_get = partial(
     mock_service_oas_get, url="", service="vrc", oas_url=settings.VRC_API_SPEC

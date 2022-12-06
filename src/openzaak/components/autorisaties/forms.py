@@ -18,7 +18,6 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import SCOPE_REGISTRY
-from vng_api_common.validators import ResourceValidator
 
 from openzaak.components.catalogi.models import (
     BesluitType,
@@ -26,6 +25,7 @@ from openzaak.components.catalogi.models import (
     ZaakType,
 )
 from openzaak.utils.auth import get_auth
+from openzaak.utils.validators import ResourceValidator
 
 from .constants import RelatedTypeSelectionMethods
 from .utils import (
@@ -313,7 +313,7 @@ class AutorisatieForm(forms.Form):
             return
 
         validator = ResourceValidator(
-            _field_info["resource_name"], settings.ZTC_API_SPEC, get_auth=get_auth
+            _field_info["resource_name"], settings.ZTC_API_STANDARD, get_auth=get_auth
         )
         for _type in external_typen:
             try:

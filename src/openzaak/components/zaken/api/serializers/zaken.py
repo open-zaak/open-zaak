@@ -265,7 +265,7 @@ class ZaakSerializer(
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
@@ -422,7 +422,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("StatusType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
                 ],
             },
         }
@@ -649,7 +649,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                 ],
             },
@@ -733,7 +733,7 @@ class RolSerializer(PolymorphicSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("RolType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("RolType", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                 ],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
@@ -795,7 +795,9 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ResultaatType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator(
+                        "ResultaatType", settings.ZTC_API_STANDARD
+                    ),
                     LooseFkIsImmutableValidator(),
                 ],
             },
