@@ -55,6 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+COPY ./cache /app/cache
 COPY ./bin/docker_start.sh /start.sh
 COPY ./bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./bin/uninstall_adfs.sh ./bin/uninstall_django_auth_adfs_db.sql /app/bin/
