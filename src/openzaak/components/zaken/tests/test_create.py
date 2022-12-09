@@ -482,6 +482,19 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_create_zaak_local_zaaktype(self, m):
+        """
+        Assert that the POST /api/v1/zaken does not do too many queries.
+
+        Breakdown of expected queries:
+
+         1 - 4: OpenIDConnectConfig (savepoint, SELECT, INSERT and savepoint release)
+             5: Consult own internal service config (SELECT FROM config_internalservice)
+             6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
+         7 - 8: Application/Autorisatie lookup for permission checks
+             9: Begin transaction (savepoint)
+            10: Lookup zaaktype for validation
+        ...
+        """
         EXPECTED_NUM_QUERIES = (
             10  # arbitrary for now - outputs the queries performed so we get insight
         )

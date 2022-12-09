@@ -94,19 +94,17 @@ class ZaakTypeViewSet(
     Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
     """
 
-    queryset = (
-        ZaakType.objects.select_related("catalogus")
-        .prefetch_related(
-            "statustypen",
-            "zaaktypenrelaties",
-            "informatieobjecttypen",
-            "resultaattypen",
-            "eigenschap_set",
-            "roltype_set",
-            "besluittypen",
-        )
-        .order_by("-pk")
-    )
+    queryset = ZaakType.objects.prefetch_related(
+        # prefetch catalogus rather than select related -> far fewer catalogi, so less data to transfer
+        "catalogus",
+        "statustypen",
+        "zaaktypenrelaties",
+        "informatieobjecttypen",
+        "resultaattypen",
+        "eigenschap_set",
+        "roltype_set",
+        "besluittypen",
+    ).order_by("-pk")
     serializer_class = ZaakTypeSerializer
     lookup_field = "uuid"
     filterset_class = ZaakTypeFilter
@@ -123,6 +121,20 @@ class ZaakTypeViewSet(
     }
     notifications_kanaal = KANAAL_ZAAKTYPEN
     concept_related_fields = ["besluittypen", "informatieobjecttypen"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # codepath via the the `get_viewset_for_path` utilities in various libraries
+        # does not always initialize a request, which causes self.action to not be set.
+        # FIXME: extract that utility into a separate library to unify it
+        action = getattr(self, "action", None)
+        if action != "list":
+            # ⚡️ drop the prefetches when only selecting a single record. If the data
+            # is needed, the queries will be done during serialization and the amount
+            # of queries will be the same.
+            qs = qs.prefetch_related(None)
+        return qs
 
     def perform_update(self, serializer):
 
