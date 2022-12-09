@@ -9,10 +9,12 @@ from unittest.mock import patch
 from django.db import close_old_connections, transaction
 from django.test import override_settings, tag
 
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
+    ComponentTypes,
     RolOmschrijving,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
@@ -25,8 +27,11 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
+from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
+from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
 from ..api.viewsets import ZaakViewSet
 from ..models import KlantContact, Rol, Status, Zaak, ZaakIdentificatie, ZaakObject
 from .factories import ZaakFactory
@@ -458,3 +463,46 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
         zaken = Zaak.objects.all()
         self.assertEqual(zaken.count(), 7)  # 2 new zaken created
         self.assertEqual(zaken.filter(identificatie=next_identification).count(), 1)
+
+
+class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
+    """
+    Tests specifically looking at performance.
+    """
+
+    scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_ALLES_LEZEN]
+    component = ComponentTypes.zrc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+
+        super().setUpTestData()
+
+    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @requests_mock.Mocker()
+    def test_create_zaak_local_zaaktype(self, m):
+        EXPECTED_NUM_QUERIES = (
+            10  # arbitrary for now - outputs the queries performed so we get insight
+        )
+
+        mock_nrc_oas_get(m)
+        mock_notification_send(m, status_code=201)
+        zaaktype_url = reverse(self.zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "bronorganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2018-06-11",
+            "startdatum": "2018-06-11",
+        }
+
+        with self.assertNumQueries(EXPECTED_NUM_QUERIES):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(
+                len(m.request_history), 2
+            )  # API schema + POST to publish notif
