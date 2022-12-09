@@ -45,9 +45,10 @@ class PublishValidator(FKOrServiceUrlValidator):
                 super().__call__(value, serializer_field)
             except serializers.ValidationError:
                 return
-            host = serializer_field.context["request"].get_host()
-            resolver = serializer_field.context["resolver"]
-            value = resolver.resolve(host, value)
+
+            # the super class has added the resolved instance to the context
+            context_key = self.get_context_cache_key(serializer_field)
+            value = serializer_field.context[context_key]
 
         if value.concept:
             raise serializers.ValidationError(
@@ -81,9 +82,9 @@ class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
             except serializers.ValidationError:
                 return
 
-            host = serializer_field.context["request"].get_host()
-            resolver = serializer_field.context["resolver"]
-            new_value = resolver.resolve(host, new_value)
+            # the super class has added the resolved instance to the context
+            context_key = self.get_context_cache_key(serializer_field)
+            new_value = serializer_field.context[context_key]
 
         if isinstance(current_value, EnkelvoudigInformatieObject) and isinstance(
             new_value, EnkelvoudigInformatieObject
@@ -134,13 +135,16 @@ class LooseFkResourceValidator(ResourceValidatorMixin, FKOrServiceUrlValidator):
         except serializers.ValidationError:
             return
 
+        # the super class has added the resolved instance to the context
+        context_key = self.get_context_cache_key(serializer_field)
+        resolved_instance = serializer_field.context[context_key]
+        is_local = not isinstance(resolved_instance, ProxyMixin)
         # if local - do nothing
-        parsed = urlparse(value)
-        host = serializer_field.context["request"].get_host()
-        is_local = parsed.netloc == host
         if is_local:
             return
 
+        # TODO: we can probably use the underlying data directly instead of doing
+        # another lookup
         obj = AuthorizedRequestsLoader.fetch_object(value, do_underscoreize=False)
 
         # check if the shape matches

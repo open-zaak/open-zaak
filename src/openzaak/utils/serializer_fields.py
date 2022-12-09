@@ -52,14 +52,40 @@ class LengthHyperlinkedRelatedField(
 
 
 class FKOrServiceUrlValidator(FKOrURLValidator):
+    # TODO: move this to validators.py
+    RESOLVED_INSTANCE_CONTEXT_KEY = "_resolved_instance"
+
     def __call__(self, url: str, serializer_field):
+        # ⚡️ the field context is the same as the serializer context, so once one
+        # validator subclassing `FKOrServiceUrlValidator` has resolved the instance, we
+        # can use the cached result to avoid repeating the same queries/network calls
+        # over and over again.
+        context_key = self.get_context_cache_key(serializer_field)
+        if serializer_field.context.get(context_key) is not None:
+            return
+
         try:
             super().__call__(url, serializer_field)
-
         except ValueError as exc:
             raise serializers.ValidationError(
                 _("The service for this url is unknown"), code="unknown-service"
             ) from exc
+
+        # if there are no validation errors, the parent class has added the resolver
+        # to the serializer context - we can use this to resolve the object and cache
+        # it for other validators to skip some DB queries
+        resolver = serializer_field.context["resolver"]
+        host = serializer_field.context["request"].get_host()
+        resolved_instance = resolver.resolve(host, url)
+        serializer_field.context[context_key] = resolved_instance
+
+    @staticmethod
+    def get_context_cache_key(field):
+        field_names = [field.field_name]
+        while (field := field.parent) and field.field_name:
+            field_names.append(field.field_name)
+        names = "__".join(field_names)
+        return f"_resolved_{names}"
 
 
 class FKOrServiceUrlField(FKOrURLField):

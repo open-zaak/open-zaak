@@ -465,6 +465,7 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(zaken.filter(identificatie=next_identification).count(), 1)
 
 
+@tag("performance")
 class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     """
     Tests specifically looking at performance.
@@ -491,8 +492,11 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
              5: Consult own internal service config (SELECT FROM config_internalservice)
              6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
          7 - 8: Application/Autorisatie lookup for permission checks
-             9: Begin transaction (savepoint)
-            10: Lookup zaaktype for validation
+             9: Begin transaction (savepoint) (from NotificationsCreateMixin)
+         10-11: Lookup zaaktype for validation and cache it in serializer context
+         12-15: Check feature flag config (PublishValidator) (savepoint, select, insert
+                and savepoint release)
+            16: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
         ...
         """
         EXPECTED_NUM_QUERIES = (
