@@ -497,6 +497,26 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
          12-15: Check feature flag config (PublishValidator) (savepoint, select, insert
                 and savepoint release)
             16: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            17: transaction savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
+            18: query existing identification pattern (Zaak.save, generate_unique_identification)
+         19-20: introspect postgres/postgis version
+            21: insert zaken_zaak record
+         22-27: query related objects for etag update that may be affected (should be
+                skipped, it's create of root resource!) vng_api_common.caching.signals
+            28: update query from NestedGegevensGroepMixin.create obj.save call
+         29-33: query related objects for etag update that may be affected (should be
+                skipped, it's create of root resource!) vng_api_common.caching.signals
+                (again)
+            34: release savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
+            35: serializing, query deelzaken
+            36: serializing, query relevante_andere_zaken
+            37: serializing, query eigenschappen
+            38: serializing, query latest status (none, because just created)
+            39: serializing, query kenmerken
+         40-47: audit trails -> figure out how to optimize, serialized data is duplicated
+         48-55: notifications -> figure out how to optimize, serialized data is duplicated
+            56: release savepoint (from NotificationsCreateMixin)
+         57-68: execution of transaction.on_commit ETag handlers
         ...
         """
         EXPECTED_NUM_QUERIES = (
