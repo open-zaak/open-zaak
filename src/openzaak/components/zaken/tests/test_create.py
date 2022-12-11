@@ -513,10 +513,10 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             37: serializing, query eigenschappen
             38: serializing, query latest status (none, because just created)
             39: serializing, query kenmerken
-         40-47: audit trails -> figure out how to optimize, serialized data is duplicated
-         48-55: notifications -> figure out how to optimize, serialized data is duplicated
-            56: release savepoint (from NotificationsCreateMixin)
-         57-68: execution of transaction.on_commit ETag handlers
+         40-41: audit trails, select created zaak + insert audit trail
+         42-43: notifications, select created zaak (?), notifs config
+            44: release savepoint (from NotificationsCreateMixin)
+         45-56: execution of transaction.on_commit ETag handlers
         ...
         """
         EXPECTED_NUM_QUERIES = (
