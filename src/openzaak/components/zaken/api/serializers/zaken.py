@@ -60,6 +60,7 @@ from ...models import (
     ZaakBesluit,
     ZaakContactMoment,
     ZaakEigenschap,
+    ZaakIdentificatie,
     ZaakInformatieObject,
     ZaakKenmerk,
     ZaakVerzoek,
@@ -137,6 +138,22 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
 
         value_display_mapping = add_choice_values_help_text(AardZaakRelatie)
         self.fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
+
+
+class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
+    startdatum = serializers.DateField()
+
+    class Meta:
+        model = ZaakIdentificatie
+        fields = ("bronorganisatie", "startdatum")
+
+    def create(self, validated_data):
+        return self.Meta.model.objects.generate(
+            validated_data["bronorganisatie"], validated_data["startdatum"],
+        )
+
+    def update(self, instance, data):  # pragma:nocover
+        raise NotImplementedError("Updating is not supported in this serializer")
 
 
 class ZaakSerializer(
@@ -383,6 +400,15 @@ class ZaakSerializer(
             validated_data[
                 "vertrouwelijkheidaanduiding"
             ] = zaaktype.vertrouwelijkheidaanduiding
+
+        # set by the ZaakViewSet via create and get_serializer_context
+        if (generated_identificatie := self.context["generated_identificatie"]) :
+            validated_data.update(
+                {
+                    "identificatie_ptr": generated_identificatie,
+                    "identificatie": generated_identificatie.identificatie,
+                }
+            )
 
         return super().create(validated_data)
 
