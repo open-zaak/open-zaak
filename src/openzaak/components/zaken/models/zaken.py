@@ -25,7 +25,6 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
-from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
@@ -372,9 +371,11 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     def save(self, *args, **kwargs):
         if not self.identificatie:
-            self.identificatie = generate_unique_identification(
-                self, "registratiedatum"
+            assert not self.identificatie_ptr_id
+            self.identificatie_ptr = ZaakIdentificatie.objects.generate(
+                organisation=self.bronorganisatie, date=self.registratiedatum,
             )
+            self.identificatie = self.identificatie_ptr.identificatie
 
         if (
             self.betalingsindicatie == BetalingsIndicatie.nvt

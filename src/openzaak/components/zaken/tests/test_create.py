@@ -6,7 +6,7 @@ import uuid
 from datetime import date
 from unittest.mock import patch
 
-from django.db import close_old_connections
+from django.db import close_old_connections, transaction
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
@@ -28,7 +28,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.viewsets import ZaakViewSet
-from ..models import KlantContact, Rol, Status, Zaak, ZaakObject
+from ..models import KlantContact, Rol, Status, Zaak, ZaakIdentificatie, ZaakObject
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
@@ -338,6 +338,40 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
     def setUp(self):
         self.setUpTestData()
         super().setUp()
+
+    @tag("gh-1271")
+    def test_pure_race_condition_prevented(self):
+        def create_zaak1():
+            try:
+                # starts first, but commits last
+                with transaction.atomic():
+                    ZaakIdentificatie.objects.generate(
+                        VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
+                    )
+                    time.sleep(0.1)
+            finally:
+                close_old_connections()
+
+        def create_zaak2():
+            try:
+                with transaction.atomic():
+                    ZaakIdentificatie.objects.generate(
+                        VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
+                    )
+            finally:
+                close_old_connections()
+
+        t1 = threading.Thread(target=create_zaak1)
+        t2 = threading.Thread(target=create_zaak2)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+        identifications = ZaakIdentificatie.objects.all()
+        self.assertEqual(identifications.count(), 2)
+        id1, id2 = identifications
+        self.assertNotEqual(id1.identificatie, id2.identificatie)
 
     @tag("gh-1271")
     def test_create_with_duplicate_identifications(self):
