@@ -29,14 +29,22 @@ class ZaakIdentificatie(models.Model):
 
     identificatie = models.CharField(
         _("value"),
+        blank=True,  # okay, since we have unique and check constraint
         max_length=40,
         help_text=_(
-            "Unique identification (within an organisation). Open Zaak generates "
-            "this number uniquely even across organisation identifiers."
+            "De unieke identificatie van de ZAAK binnen de organisatie "
+            "die verantwoordelijk is voor de behandeling van de ZAAK."
         ),
         db_index=True,
     )
-    bronorganisatie = RSINField()
+    bronorganisatie = RSINField(
+        help_text=_(
+            "Het RSIN van de Niet-natuurlijk persoon zijnde de "
+            "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
+            "RSIN zijn van 9 nummers en voldoen aan "
+            "https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef"
+        ),
+    )
 
     objects = ZaakIdentificatieManager()
     IDENTIFICATIE_PREFIX = "ZAAK"
@@ -50,6 +58,9 @@ class ZaakIdentificatie(models.Model):
             models.UniqueConstraint(
                 fields=("identificatie", "bronorganisatie"),
                 name="unique_bronorganisation_identification",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(identificatie=""), name="identificatie_not_empty"
             ),
         ]
 

@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.apps import AppConfig
+from django.db import models
 from django.db.models.signals import post_migrate
 
-from django_loose_fk.virtual_models import HANDLERS
+from django_loose_fk.virtual_models import HANDLERS, FKHandler
 from rest_framework import serializers
 
 
@@ -22,3 +23,6 @@ class UtilsConfig(AppConfig):
 
         # register FkServiceHandler django-loose-fk handler
         HANDLERS[fields.ServiceFkField] = handlers.FkServiceHandler
+
+        # register one-to-one field (for multi-table inheritance of Zaak)
+        HANDLERS[models.OneToOneField] = FKHandler

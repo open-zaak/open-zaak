@@ -276,7 +276,11 @@ class ZaakSerializer(
             "zaakgeometrie": {
                 "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
             },
-            "identificatie": {"validators": [IsImmutableValidator()]},
+            "identificatie": {
+                "required": False,
+                "label": _("Identificatie"),
+                "validators": [IsImmutableValidator()],
+            },
             "einddatum": {"read_only": True, "allow_null": True},
             "communicatiekanaal": {
                 "validators": [
