@@ -99,6 +99,17 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         ),
     )
 
+    identificatie_ptr = models.OneToOneField(
+        "ZaakIdentificatie",
+        on_delete=models.PROTECT,
+        null=True,
+        verbose_name=_("Zaak identification details"),
+        help_text=_(
+            "Zaak identification details are tracked in a separate table so numbers "
+            "can be generated/reserved before the zaak is actually created."
+        ),
+    )
+
     identificatie = models.CharField(
         max_length=40,
         blank=True,
