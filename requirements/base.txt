@@ -22,7 +22,7 @@ boltons==21.0.0
     #   glom
 cattrs==1.10.0
     # via requests-cache
-certifi==2021.10.8
+certifi==2022.12.7
     # via
     #   requests
     #   self-certifi

@@ -52,7 +52,7 @@ cattrs==1.10.0
     # via
     #   -r requirements/ci.txt
     #   requests-cache
-certifi==2021.10.8
+certifi==2022.12.7
     # via
     #   -r requirements/ci.txt
     #   kubernetes
