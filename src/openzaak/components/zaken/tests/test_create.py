@@ -330,6 +330,18 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    @tag("gh-1271")
+    def test_unexpected_request_bodies(self):
+        url = get_operation_url("zaak_create")
+        bad_data = ["null", "[]", "{}", ""]
+        for data in bad_data:
+            with self.subTest(request_body=data):
+                response = self.client.post(
+                    url, data, content_type="application/json", **ZAAK_WRITE_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
