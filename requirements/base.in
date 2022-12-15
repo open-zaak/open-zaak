@@ -40,7 +40,7 @@ django-filter
 djangorestframework-camel-case~=1.2.0
 drf-yasg
 drf-writable-nested
-vng-api-common
+commonground-api-common
 humanize
 drc-cmis
 
