@@ -24,7 +24,16 @@ def mock_selectielijst_oas_get(m: Mocker) -> None:
     base_url = _get_base_url()
     mock_service_oas_get(m, url=base_url, service="selectielijst")
     mock_service_oas_get(
-        m, url="", service="selectielijst", oas_url=settings.REFERENTIELIJSTEN_API_SPEC
+        m,
+        url="",
+        service="selectielijst",
+        oas_url=settings.REFERENTIELIJSTEN_API_STANDARD.oas_url,
+    )
+    mock_service_oas_get(
+        m,
+        url="",
+        service="selectielijst",
+        oas_url=settings.SELECTIELIJST_API_STANDARD.oas_url,
     )
 
 

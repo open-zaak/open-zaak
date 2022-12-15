@@ -28,13 +28,10 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import (
-    IsImmutableValidator,
-    ResourceValidator,
-    UntilNowValidator,
-)
+from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.api import (
     create_remote_objectcontactmoment,
     create_remote_objectverzoek,
@@ -47,6 +44,7 @@ from openzaak.utils.validators import (
     LooseFkResourceValidator,
     ObjecttypeInformatieobjecttypeRelationValidator,
     PublishValidator,
+    ResourceValidator,
     UniqueTogetherValidator,
 )
 
@@ -128,7 +126,9 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
                 "lookup_field": "uuid",
                 "max_length": 1000,
                 "min_length": 1,
-                "validators": [LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)],
+                "validators": [
+                    LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
+                ],
             },
         }
 
@@ -268,7 +268,7 @@ class ZaakSerializer(
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("ZaakType", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
@@ -281,7 +281,7 @@ class ZaakSerializer(
             "communicatiekanaal": {
                 "validators": [
                     ResourceValidator(
-                        "CommunicatieKanaal", settings.REFERENTIELIJSTEN_API_SPEC
+                        "CommunicatieKanaal", settings.REFERENTIELIJSTEN_API_STANDARD
                     )
                 ]
             },
@@ -299,7 +299,7 @@ class ZaakSerializer(
                 "validators": [
                     ResourceValidator(
                         "Resultaat",
-                        settings.REFERENTIELIJSTEN_API_SPEC,
+                        settings.SELECTIELIJST_API_STANDARD,
                         get_auth=get_auth,
                     )
                 ]
@@ -425,7 +425,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("StatusType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
                 ],
             },
         }
@@ -541,7 +541,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         validators=[
             LooseFkIsImmutableValidator(instance_path="canonical"),
             LooseFkResourceValidator(
-                "EnkelvoudigInformatieObject", settings.DRC_API_SPEC
+                "EnkelvoudigInformatieObject", settings.DRC_API_STANDARD
             ),
         ],
         max_length=1000,
@@ -652,7 +652,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("Eigenschap", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                 ],
             },
@@ -736,7 +736,7 @@ class RolSerializer(PolymorphicSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("RolType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator("RolType", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                 ],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
@@ -798,7 +798,9 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("ResultaatType", settings.ZTC_API_SPEC),
+                    LooseFkResourceValidator(
+                        "ResultaatType", settings.ZTC_API_STANDARD
+                    ),
                     LooseFkIsImmutableValidator(),
                 ],
             },
@@ -824,7 +826,7 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC),
+                    LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD),
                 ],
             },
         }
@@ -845,7 +847,7 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
             "contactmoment": {
                 "validators": [
                     ResourceValidator(
-                        "ContactMoment", settings.CMC_API_SPEC, get_auth=get_auth
+                        "ContactMoment", settings.CMC_API_STANDARD, get_auth=get_auth
                     )
                 ]
             },
@@ -896,13 +898,7 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid"},
-            "verzoek": {
-                "validators": [
-                    ResourceValidator(
-                        "Verzoek", settings.VRC_API_SPEC, get_auth=get_auth
-                    )
-                ]
-            },
+            "verzoek": {"validators": [verzoek_validator]},
         }
 
     def create(self, validated_data):

@@ -24,6 +24,9 @@ docs/_build
 /docker/volumes/
 !/docker/volumes/.gitkeep
 
+/cache/
+!/cache/README.md
+
 # Coverage reports
 /reports/
 /htmlcov/

@@ -14,9 +14,8 @@ from vng_api_common.serializers import (
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
-from vng_api_common.validators import ResourceValidator
 
-from openzaak.utils.validators import UniqueTogetherValidator
+from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
 from ...models import ResultaatType
 from ..validators import (
@@ -80,7 +79,7 @@ class ResultaatTypeSerializer(
                 "validators": [
                     ResourceValidator(
                         "ResultaattypeOmschrijvingGeneriek",
-                        settings.REFERENTIELIJSTEN_API_SPEC,
+                        settings.REFERENTIELIJSTEN_API_STANDARD,
                     )
                 ]
             },
@@ -93,7 +92,7 @@ class ResultaatTypeSerializer(
             "zaaktype": {"lookup_field": "uuid", "label": _("is van")},
             "selectielijstklasse": {
                 "validators": [
-                    ResourceValidator("Resultaat", settings.REFERENTIELIJSTEN_API_SPEC)
+                    ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
         }

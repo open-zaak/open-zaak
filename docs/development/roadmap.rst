@@ -156,22 +156,6 @@ manual for day-to-day administrators managing the content of catalogi.
 Technical debt / clean-up / codebase quality
 --------------------------------------------
 
-**Inclusion of API specs for validation**
-
-Currently, OAS specs are linked to (raw.github.com) for validation of remote resources.
-Instead of requiring an open internet connection to github, we should fetch these specs
-at build time and include them as static files in the Docker image. This is good for
-performance, security and reliability.
-
-See https://github.com/open-zaak/open-zaak/issues/644
-
-*Impact*
-
-- affects system/network administrators
-- allows firewalls to (stay or) be more strict
-- small performance improvement
-- sizing: small
-
 **Check if we can change the API timezone to UTC and interface TZ to Europe/Amsterdam**
 
 This would display the correct local times for users browsing in the admin interface,

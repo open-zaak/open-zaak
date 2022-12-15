@@ -10,6 +10,66 @@
         }
     },
     {
+        "model": "datamodel.kanaal",
+        "pk": 2,
+        "fields": {
+            "uuid": "7cc1195e-1856-48ef-b4e6-329b26d0d24d",
+            "naam": "zaken",
+            "documentatie_link": "",
+            "filters": "[\"bronorganisatie\",\"zaaktype\",\"vertrouwelijkheidaanduiding\"]"
+        }
+    },
+    {
+        "model": "datamodel.kanaal",
+        "pk": 3,
+        "fields": {
+            "uuid": "ff2612de-de98-4a1a-8084-451a628acce7",
+            "naam": "documenten",
+            "documentatie_link": "",
+            "filters": "[\"bronorganisatie\",\"informatieobjecttype\",\"vertrouwelijkheidaanduiding\"]"
+        }
+    },
+    {
+        "model": "datamodel.kanaal",
+        "pk": 4,
+        "fields": {
+            "uuid": "4f28f1af-a4c3-4ca4-a073-7e565bf69723",
+            "naam": "besluiten",
+            "documentatie_link": "",
+            "filters": "[\"verantwoordelijke_organisatie\",\"besluittype\"]"
+        }
+    },
+    {
+        "model": "datamodel.kanaal",
+        "pk": 5,
+        "fields": {
+            "uuid": "59c6ae28-3c39-42a0-8347-03ed9d1466e2",
+            "naam": "zaaktypen",
+            "documentatie_link": "",
+            "filters": "[]"
+        }
+    },
+    {
+        "model": "datamodel.kanaal",
+        "pk": 6,
+        "fields": {
+            "uuid": "299db45f-65ee-41aa-9d5f-a530fcbfdbf1",
+            "naam": "informatieobjecttypen",
+            "documentatie_link": "",
+            "filters": "[]"
+        }
+    },
+    {
+        "model": "datamodel.kanaal",
+        "pk": 7,
+        "fields": {
+            "uuid": "c460c669-25c6-4479-b062-c32c1743df88",
+            "naam": "besluittypen",
+            "documentatie_link": "",
+            "filters": "[]"
+        }
+    },
+    {
         "model": "authorizations.authorizationsconfig",
         "pk": 1,
         "fields": {

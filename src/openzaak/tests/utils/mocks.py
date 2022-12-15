@@ -3,6 +3,7 @@
 import uuid
 from datetime import date
 from functools import partial
+from unittest.mock import patch
 
 from django.conf import settings
 from django.utils import timezone
@@ -11,19 +12,40 @@ from requests_mock import Mocker
 from zgw_consumers.test import mock_service_oas_get
 
 mock_brc_oas_get = partial(
-    mock_service_oas_get, url="", service="brc", oas_url=settings.BRC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="brc",
+    oas_url=settings.BRC_API_STANDARD.oas_url,
 )
 mock_drc_oas_get = partial(
-    mock_service_oas_get, url="", service="drc", oas_url=settings.DRC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="drc",
+    oas_url=settings.DRC_API_STANDARD.oas_url,
 )
 mock_zrc_oas_get = partial(
-    mock_service_oas_get, url="", service="zrc", oas_url=settings.ZRC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="zrc",
+    oas_url=settings.ZRC_API_STANDARD.oas_url,
 )
 mock_ztc_oas_get = partial(
-    mock_service_oas_get, url="", service="ztc", oas_url=settings.ZTC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="ztc",
+    oas_url=settings.ZTC_API_STANDARD.oas_url,
 )
 mock_vrc_oas_get = partial(
-    mock_service_oas_get, url="", service="vrc", oas_url=settings.VRC_API_SPEC
+    mock_service_oas_get,
+    url="",
+    service="vrc",
+    oas_url=settings.VRC_API_STANDARD.oas_url,
+)
+mock_cmc_oas_get = partial(
+    mock_service_oas_get,
+    url="",
+    service="contactmomenten",
+    oas_url=settings.CMC_API_STANDARD.oas_url,
 )
 
 
@@ -86,3 +108,9 @@ def get_eio_response(url, **overrides):
         eio["informatieobjecttype"] = overrides.get("_informatieobjecttype_url")
 
     return eio
+
+
+def patch_resource_validator(func):
+    patch1 = patch("openzaak.utils.validators.ResourceValidatorMixin._resolve_schema")
+    patch2 = patch("openzaak.utils.validators.obj_has_shape", return_value=True)
+    return patch1(patch2(func))

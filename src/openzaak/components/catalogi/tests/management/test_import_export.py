@@ -16,6 +16,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.selectielijst.tests import mock_resource_get, mock_selectielijst_oas_get
+from openzaak.tests.utils import patch_resource_validator
 
 from ...models import (
     BesluitType,
@@ -272,8 +273,7 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_import_catalogus_with_relations(self, m, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000")
         zaaktype = ZaakTypeFactory.create(
@@ -414,8 +414,7 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @requests_mock.Mocker()
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_import_request_caching(self, m, *mocks):
         """
         Assert that when running imports, external requests are cached to improve import performance

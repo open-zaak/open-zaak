@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from vng_api_common.conf.api import *  # noqa - imports white-listed
 
+from openzaak.api_standards import APIStandard
+
 # Remove the reference - we don't have a single API version.
 del API_VERSION  # noqa
 
@@ -56,45 +58,83 @@ SWAGGER_SETTINGS.update(
 
 GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
+#
+# API's Open Zaak interacts with that have a defined standard (or community-accepted
+# one when there's no official standard)
+#
+
 # TODO: deduplicate
-repo = "vng-Realisatie/vng-referentielijsten"
-commit = "4533cc71dcd17e997fce9e31445db852b7540321"
-REFERENTIELIJSTEN_API_SPEC = (
-    f"https://raw.githubusercontent.com/{repo}/{commit}/src/openapi.yaml"
-)
-VRL_API_SPEC = "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml?v=3"
-
-ztc_repo = "vng-Realisatie/catalogi-api"
-ztc_commit = "1.0.0.post5"
-ZTC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{ztc_repo}/{ztc_commit}/src/openapi.yaml"
+vrl_ref = "4533cc71dcd17e997fce9e31445db852b7540321"
+REFERENTIELIJSTEN_API_STANDARD = APIStandard(
+    alias="vrl-0.5.6",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/vng-referentielijsten/{vrl_ref}/src/openapi.yaml"
+    ),
+    is_standardized=False,
 )
 
-drc_repo = "vng-Realisatie/documenten-api"
-drc_commit = "1.0.1.post1"
-DRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{drc_repo}/{drc_commit}/src/openapi.yaml"
+SELECTIELIJST_API_STANDARD = APIStandard(
+    alias="selectielijst-1.0.0",
+    oas_url="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+    is_standardized=False,
 )
 
-zrc_repo = "vng-Realisatie/zaken-api"
-zrc_commit = "1.0.3"
-ZRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{zrc_repo}/{zrc_commit}/src/openapi.yaml"
+ztc_ref = "1.0.1"
+ZTC_API_STANDARD = APIStandard(
+    alias=f"catalogi-{ztc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/catalogi-api/{ztc_ref}/src/openapi.yaml"
+    ),
 )
 
-brc_repo = "vng-Realisatie/besluiten-api"
-brc_commit = "1.0.1.post0"
-BRC_API_SPEC = (
-    f"https://raw.githubusercontent.com/{brc_repo}/{brc_commit}/src/openapi.yaml"
+drc_ref = "1.0.1.post1"
+DRC_API_STANDARD = APIStandard(
+    alias=f"documenten-{drc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/documenten-api/{drc_ref}/src/openapi.yaml"
+    ),
 )
 
-cmc_repo = "VNG-Realisatie/contactmomenten-api"
-cmc_commit = "20f149a66163047b6ae3719709a600285fbb1c36"
-CMC_API_SPEC = f"https://raw.githubusercontent.com/{cmc_repo}/{cmc_commit}/src/openapi.yaml"  # noqa
+zrc_ref = "1.0.3"
+ZRC_API_STANDARD = APIStandard(
+    alias=f"zaken-{zrc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/zaken-api/{zrc_ref}/src/openapi.yaml"
+    ),
+)
 
-vrc_repo = "VNG-Realisatie/verzoeken-api"
-vrc_commit = "57c83f6799df482f5c7fc70813d59264b9979619"
-VRC_API_SPEC = f"https://raw.githubusercontent.com/{vrc_repo}/{vrc_commit}/src/openapi.yaml"  # noqa
+brc_ref = "1.0.1.post0"
+BRC_API_STANDARD = APIStandard(
+    alias=f"besluiten-{brc_ref}",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/besluiten-api/{brc_ref}/src/openapi.yaml"
+    ),
+)
+
+cmc_ref = "20f149a66163047b6ae3719709a600285fbb1c36"
+CMC_API_STANDARD = APIStandard(
+    alias="contactmomenten-2021-09-13",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/contactmomenten-api/{cmc_ref}/src/openapi.yaml"
+    ),
+    is_standardized=False,
+)
+
+vrc_ref = "57c83f6799df482f5c7fc70813d59264b9979619"
+VRC_API_STANDARD = APIStandard(
+    alias="verzoeken-2021-06-21",
+    oas_url=(
+        "https://raw.githubusercontent.com/"
+        f"vng-Realisatie/verzoeken-api/{vrc_ref}/src/openapi.yaml"
+    ),
+    is_standardized=False,
+)
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 

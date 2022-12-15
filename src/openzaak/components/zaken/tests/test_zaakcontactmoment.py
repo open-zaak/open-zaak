@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from unittest.mock import patch
-
 from django.test import override_settings
 
 import requests_mock
@@ -11,6 +9,8 @@ from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+
+from openzaak.tests.utils import patch_resource_validator
 
 from ..models import ZaakContactMoment
 from .factories import ZaakContactMomentFactory, ZaakFactory
@@ -24,8 +24,7 @@ def mock_contactmomenten_oas_get(m, base: str):
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch_resource_validator
 class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

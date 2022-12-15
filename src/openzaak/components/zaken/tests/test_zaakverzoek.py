@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from unittest.mock import patch
-
 from django.test import override_settings
 
 import requests_mock
@@ -14,6 +12,7 @@ from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.factories import ZaakFactory, ZaakVerzoekFactory
+from openzaak.tests.utils import patch_resource_validator
 
 VERZOEKEN_BASE = "https://verzoeken.nl/api/v1/"
 VERZOEK = f"{VERZOEKEN_BASE}verzoeken/1234"
@@ -24,8 +23,7 @@ def mock_verzoeken_oas_get(m, base):
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch_resource_validator
 class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

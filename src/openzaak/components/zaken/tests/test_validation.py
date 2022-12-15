@@ -17,11 +17,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import get_validation_errors, reverse
-from vng_api_common.validators import (
-    IsImmutableValidator,
-    ResourceValidator,
-    URLValidator,
-)
+from vng_api_common.validators import IsImmutableValidator, URLValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -170,24 +166,21 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         good_casing = get_validation_errors(response, "verantwoordelijkeOrganisatie")
         self.assertIsNotNone(good_casing)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
-    def test_validate_communicatiekanaal_invalid_resource(self, *mocks):
-        url = reverse("zaak-list")
+    @requests_mock.Mocker()
+    def test_validate_communicatiekanaal_invalid_resource(self, m):
+        mock_selectielijst_oas_get(m)
         communicatiekanaal_url = (
             "https://referentielijsten-api.cloud/api/v1/communicatiekanalen/123"
         )
+        m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
+        url = reverse("zaak-list")
         body = {"communicatiekanaal": communicatiekanaal_url}
 
-        with requests_mock.Mocker() as m:
-            mock_selectielijst_oas_get(m)
-            m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
-
-            response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "communicatiekanaal")
-        self.assertEqual(error["code"], ResourceValidator._ResourceValidator__code)
+        self.assertEqual(error["code"], "invalid-resource")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_404")
     def test_validate_communicatiekanaal_bad_url(self):
@@ -200,13 +193,15 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "communicatiekanaal")
         self.assertEqual(error["code"], URLValidator.code)
 
-    def test_validate_communicatiekanaal_valid(self):
+    @requests_mock.Mocker()
+    def test_validate_communicatiekanaal_valid(self, m):
+        mock_selectielijst_oas_get(m)
+        m.get("https://example.com/dummy", json={"dummy": "json"})
         url = reverse("zaak-list")
         body = {"communicatiekanaal": "https://example.com/dummy"}
 
-        with override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"):
-            with patch("vng_api_common.validators.obj_has_shape", return_value=True):
-                response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+        with patch("openzaak.utils.validators.obj_has_shape", return_value=True):
+            response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "communicatiekanaal")
@@ -363,10 +358,9 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "selectielijstklasse")
         self.assertEqual(validation_error["code"], "bad-url")
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
     @requests_mock.Mocker()
-    def test_validate_selectielijstklasse_invalid_resource(self, m, mock_has_shape):
+    def test_validate_selectielijstklasse_invalid_resource(self, m):
+        mock_selectielijst_oas_get(m)
         m.get("https://ztc.com/resultaten/1234", json={"some": "incorrect property"})
         url = reverse("zaak-list")
 

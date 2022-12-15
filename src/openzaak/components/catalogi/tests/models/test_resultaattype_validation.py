@@ -16,6 +16,7 @@ from vng_api_common.constants import (
 )
 
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
+from openzaak.tests.utils import patch_resource_validator
 
 from ...admin.forms import ResultaatTypeForm
 from ...constants import SelectielijstKlasseProcestermijn as Procestermijn
@@ -26,8 +27,7 @@ PROCESTYPE_URL = "https://selectielijst.openzaak.nl/api/v1/procestypen/{uuid}"
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch_resource_validator
 class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCase):
     """
     Test the validation on Resultaattype.selectielijstklasse.
@@ -112,6 +112,7 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
     def test_selectielijstklasse_url_pointing_to_incorrect_resource_raises_error(
         self, mock_has_shape, mock_fetcher
     ):
+        mock_has_shape.return_value = False
         procestype = PROCESTYPE_URL.format(uuid="e1b73b12-b2f6-4c4e-8929-94f84dd2a57d")
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype)
 
@@ -159,8 +160,7 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch_resource_validator
 class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
     SelectieLijstMixin, TestCase
 ):
@@ -372,8 +372,7 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
 
 
 @tag("resultaattype")
-@patch("vng_api_common.validators.fetcher")
-@patch("vng_api_common.validators.obj_has_shape", return_value=True)
+@patch_resource_validator
 class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
     SelectieLijstMixin, TestCase
 ):

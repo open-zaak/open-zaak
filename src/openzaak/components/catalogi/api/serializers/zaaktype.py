@@ -15,7 +15,8 @@ from vng_api_common.serializers import (
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
-from vng_api_common.validators import ResourceValidator
+
+from openzaak.utils.validators import ResourceValidator
 
 from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
@@ -183,7 +184,7 @@ class ZaakTypeSerializer(
             "producten_of_diensten": {"required": True},
             "selectielijst_procestype": {
                 "validators": [
-                    ResourceValidator("ProcesType", settings.REFERENTIELIJSTEN_API_SPEC)
+                    ResourceValidator("ProcesType", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
             "deelzaaktypen": {"lookup_field": "uuid"},

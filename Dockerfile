@@ -55,6 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+COPY ./cache /app/cache
 COPY ./bin/docker_start.sh /start.sh
 COPY ./bin/reset_migrations.sh /app/bin/reset_migrations.sh
 COPY ./bin/uninstall_adfs.sh ./bin/uninstall_django_auth_adfs_db.sql /app/bin/
@@ -97,9 +98,14 @@ LABEL org.label-schema.vcs-ref=$COMMIT_HASH \
       org.label-schema.version=$RELEASE \
       org.label-schema.name="Open Zaak"
 
-# Run collectstatic, so the result is already included in the image
+# Run management commands:
+# * collectstatic -> bake the static assets into the image
+# * compilemessages -> ensure the translation catalog binaries are present
+# * warm_cache -> writes to the filesystem cache so that orgs don't need to open the
+#   firewall to github
 RUN python src/manage.py collectstatic --noinput \
-    && python src/manage.py compilemessages
+    && python src/manage.py compilemessages \
+    && python src/manage.py warm_cache
 
 EXPOSE 8000
 CMD ["/start.sh"]

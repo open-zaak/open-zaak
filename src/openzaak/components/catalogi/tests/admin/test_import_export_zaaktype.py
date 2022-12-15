@@ -19,6 +19,7 @@ from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_resource_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
+from openzaak.tests.utils import patch_resource_validator
 
 from ...models import (
     BesluitType,
@@ -94,8 +95,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.app.set_user(self.user)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_export_import_zaaktype_with_relations(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
@@ -214,8 +214,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch_resource_validator
     def test_export_import_zaaktype_to_different_catalogus(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(

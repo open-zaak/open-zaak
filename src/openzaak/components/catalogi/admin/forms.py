@@ -18,7 +18,6 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.tests import reverse as _reverse
-from vng_api_common.validators import ResourceValidator
 from zds_client import ClientError
 from zgw_consumers.models import Service
 
@@ -26,6 +25,7 @@ from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils import build_absolute_url
+from openzaak.utils.validators import ResourceValidator
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import (
@@ -308,7 +308,7 @@ class ResultaatTypeForm(forms.ModelForm):
             err = forms.ValidationError(msg, code="invalid")
             raise forms.ValidationError({"selectielijstklasse": err}) from exc
 
-        validator = ResourceValidator("Resultaat", settings.VRL_API_SPEC)
+        validator = ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
         try:
             # Check whether the url points to a Resultaat
             validator(selectielijstklasse)

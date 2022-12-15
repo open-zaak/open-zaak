@@ -30,8 +30,8 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import ResourceValidator
 
+from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
@@ -290,7 +290,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),
         validators=[
-            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_SPEC),
+            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
             LooseFkIsImmutableValidator(),
             PublishValidator(),
         ],
@@ -355,7 +355,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator(
-                        "InformatieObjectType", settings.ZTC_API_SPEC
+                        "InformatieObjectType", settings.ZTC_API_STANDARD
                     ),
                     LooseFkIsImmutableValidator(),
                     PublishValidator(),
@@ -895,18 +895,16 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
             object_field.validators.append(
-                LooseFkResourceValidator("Besluit", settings.BRC_API_SPEC)
+                LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD)
             )
         elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"
             object_field.validators.append(
-                LooseFkResourceValidator("Zaak", settings.ZRC_API_SPEC)
+                LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
             )
         elif object_type == ObjectInformatieObjectTypes.verzoek:
             object_field.source = "verzoek"
-            object_field.validators.append(
-                ResourceValidator("Verzoek", settings.VRC_API_SPEC)
-            )
+            object_field.validators.append(verzoek_validator)
 
     def to_internal_value(self, data):
         object_type = data["object_type"]

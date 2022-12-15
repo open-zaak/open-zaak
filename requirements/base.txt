@@ -260,7 +260,7 @@ python-decouple==3.6
     #   drc-cmis
 python-dotenv==0.19.2
     # via -r requirements/base.in
-pytz==2021.3
+pytz==2022.6
     # via django
 pyyaml==6.0
     # via
