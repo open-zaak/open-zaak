@@ -505,27 +505,21 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
          19-22: Check feature flag config (PublishValidator) (savepoint, select, insert
                 and savepoint release)
             23: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            24: transaction savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
-            25: update zaakidentificatie record (from serializer context and earlier
+            24: update zaakidentificatie record (from serializer context and earlier
                 generation)
-         16-27: introspect postgres/postgis version
-            28: insert zaken_zaak record
-         29:34: query related objects for etag update that may be affected (should be
+         25-26: introspect postgres/postgis version
+            27: insert zaken_zaak record
+         28-33: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
-         35-36: update queries from NestedGegevensGroepMixin.create obj.save call
-         37-41: query related objects for etag update that may be affected (should be
-                skipped, it's create of root resource!) vng_api_common.caching.signals
-                (again)
-            42: release savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
-            43: serializing, query deelzaken
-            44: serializing, query relevante_andere_zaken
-            45: serializing, query eigenschappen
-            46: serializing, query latest status (none, because just created)
-            47: serializing, query kenmerken
-            48:  insert audit trail
-         49-50: notifications, select created zaak (?), notifs config
-            51: release savepoint (from NotificationsCreateMixin)
-         52-63: execution of transaction.on_commit ETag handlers
+            34: serializing, query deelzaken
+            35: serializing, query relevante_andere_zaken
+            36: serializing, query eigenschappen
+            37: serializing, query latest status (none, because just created)
+            38: serializing, query kenmerken
+            39: insert audit trail
+         40-41: notifications, select created zaak (?), notifs config
+            42: release savepoint (from NotificationsCreateMixin)
+         43-54: execution of transaction.on_commit ETag handlers
         ...
         """
         EXPECTED_NUM_QUERIES = (
