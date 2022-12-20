@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import logging
+from typing import Optional
 
 from django.db import models, transaction
 from django.db.models import Q
@@ -52,6 +53,7 @@ from ..models import (
     ZaakBesluit,
     ZaakContactMoment,
     ZaakEigenschap,
+    ZaakIdentificatie,
     ZaakInformatieObject,
     ZaakObject,
     ZaakVerzoek,
@@ -81,6 +83,7 @@ from .scopes import (
     SCOPEN_ZAKEN_HEROPENEN,
 )
 from .serializers import (
+    GenerateZaakIdentificatieSerializer,
     KlantContactSerializer,
     ResultaatSerializer,
     RolSerializer,
@@ -253,6 +256,7 @@ class ZaakViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+    _generated_identificatie: Optional[ZaakIdentificatie] = None
 
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):
@@ -280,6 +284,32 @@ class ZaakViewSet(
         return self.get_search_output(queryset)
 
     _zoek.is_search_action = True
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        return {
+            **context,
+            "generated_identificatie": self._generated_identificatie,
+        }
+
+    def create(self, request, *args, **kwargs):
+        # Override the parent create to generate an identification _if needed_. The
+        # super create call runs in its own transaction (from NotificationViewSetMixin)
+        # and if needed, we run the identification generation in a separate DB
+        # transaction to mitigate race conditions.
+
+        if not request.data.get("identificatie") and request.data.get(
+            "bronorganisatie"
+        ):
+            self._generate_zaakidentificatie(request.data)
+
+        return super().create(request, *args, **kwargs)
+
+    @transaction.atomic()
+    def _generate_zaakidentificatie(self, data: dict):
+        serializer = GenerateZaakIdentificatieSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self._generated_identificatie = serializer.save()
 
     def perform_update(self, serializer):
         """

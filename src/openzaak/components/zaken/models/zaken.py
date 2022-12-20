@@ -25,7 +25,6 @@ from vng_api_common.constants import (
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
-from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
@@ -45,6 +44,7 @@ from ..query import (
     ZaakQuerySet,
     ZaakRelatedQuerySet,
 )
+from .identification import ZaakIdentificatie
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ __all__ = [
 ]
 
 
-class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
+class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     """
     Modelleer de structuur van een ZAAK.
 
@@ -74,8 +74,39 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     bewaakt moeten worden.
     """
 
+    # acts as the primary key - the (data) migrations ensure that the references
+    # are correct
+    identificatie_ptr = models.OneToOneField(
+        ZaakIdentificatie,
+        on_delete=models.PROTECT,
+        parent_link=True,
+        primary_key=True,
+        verbose_name=_("Zaak identification details"),
+        help_text=_(
+            "Zaak identification details are tracked in a separate table so numbers "
+            "can be generated/reserved before the zaak is actually created."
+        ),
+    )
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
+
+    # old fields, to be dropped in a future patch
+    _id = models.IntegerField(db_column="id", null=True)
+    _identificatie = models.CharField(
+        db_column="identificatie",
+        max_length=40,
+        blank=True,
+        help_text="De unieke identificatie van de ZAAK binnen de organisatie "
+        "die verantwoordelijk is voor de behandeling van de ZAAK.",
+        db_index=True,
+    )
+    _bronorganisatie = RSINField(
+        db_column="bronorganisatie",
+        help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
+        "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
+        "RSIN zijn van 9 nummers en voldoen aan "
+        "https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef",
     )
 
     # Relate 'is_deelzaak_van'
@@ -99,19 +130,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         ),
     )
 
-    identificatie = models.CharField(
-        max_length=40,
-        blank=True,
-        help_text="De unieke identificatie van de ZAAK binnen de organisatie "
-        "die verantwoordelijk is voor de behandeling van de ZAAK.",
-        db_index=True,
-    )
-    bronorganisatie = RSINField(
-        help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
-        "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
-        "RSIN zijn van 9 nummers en voldoen aan "
-        "https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef"
-    )
     omschrijving = models.CharField(
         max_length=80, blank=True, help_text="Een korte omschrijving van de zaak."
     )
@@ -347,16 +365,17 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     class Meta:
         verbose_name = "zaak"
         verbose_name_plural = "zaken"
-        unique_together = ("bronorganisatie", "identificatie")
 
     def __str__(self):
         return self.identificatie
 
     def save(self, *args, **kwargs):
         if not self.identificatie:
-            self.identificatie = generate_unique_identification(
-                self, "registratiedatum"
+            assert not self.identificatie_ptr_id
+            self.identificatie_ptr = ZaakIdentificatie.objects.generate(
+                organisation=self.bronorganisatie, date=self.registratiedatum,
             )
+            self.identificatie = self.identificatie_ptr.identificatie
 
         if (
             self.betalingsindicatie == BetalingsIndicatie.nvt

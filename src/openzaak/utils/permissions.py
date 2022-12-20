@@ -14,7 +14,7 @@ from django.db.models import ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework import permissions
+from rest_framework import exceptions, permissions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
@@ -39,6 +39,8 @@ class AuthRequired(permissions.BasePermission):
         return view.queryset.model._meta.app_label
 
     def get_fields(self, data):
+        if not isinstance(data, dict):
+            raise exceptions.ParseError()
         return {field: data.get(field) for field in self.permission_fields}
 
     def format_data(self, obj, request) -> dict:

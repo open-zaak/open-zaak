@@ -1,19 +1,24 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import threading
+import time
 import uuid
 from datetime import date
+from unittest.mock import patch
 
-from django.test import override_settings
+from django.db import close_old_connections, transaction
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
     RolOmschrijving,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
 from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.utils import generate_unique_identification
 
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
@@ -22,7 +27,8 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..models import KlantContact, Rol, Status, Zaak, ZaakObject
+from ..api.viewsets import ZaakViewSet
+from ..models import KlantContact, Rol, Status, Zaak, ZaakIdentificatie, ZaakObject
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
@@ -323,3 +329,132 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
         response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @tag("gh-1271")
+    def test_unexpected_request_bodies(self):
+        url = get_operation_url("zaak_create")
+        bad_data = ["null", "[]", "{}", ""]
+        for data in bad_data:
+            with self.subTest(request_body=data):
+                response = self.client.post(
+                    url, data, content_type="application/json", **ZAAK_WRITE_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
+
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        self.setUpTestData()
+        super().setUp()
+
+    @tag("gh-1271")
+    def test_pure_race_condition_prevented(self):
+        def create_zaak1():
+            try:
+                # starts first, but commits last
+                with transaction.atomic():
+                    ZaakIdentificatie.objects.generate(
+                        VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
+                    )
+                    time.sleep(0.1)
+            finally:
+                close_old_connections()
+
+        def create_zaak2():
+            try:
+                with transaction.atomic():
+                    ZaakIdentificatie.objects.generate(
+                        VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
+                    )
+            finally:
+                close_old_connections()
+
+        t1 = threading.Thread(target=create_zaak1)
+        t2 = threading.Thread(target=create_zaak2)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+        identifications = ZaakIdentificatie.objects.all()
+        self.assertEqual(identifications.count(), 2)
+        id1, id2 = identifications
+        self.assertNotEqual(id1.identificatie, id2.identificatie)
+
+    @tag("gh-1271")
+    def test_create_with_duplicate_identifications(self):
+        """
+        Assert that two racing threads create different zaak identifications.
+
+        Regression test for #1271 where transactions take too much time, causing
+        multiple concurrent requests attempting to insert a zaak with the same
+        generated identificatie, which violates the unique constraint.
+        """
+        # simulate some existing data
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakFactory.create_batch(
+            5,
+            registratiedatum=date(2022, 12, 12),
+            zaaktype=zaaktype,
+            bronorganisatie=VERANTWOORDELIJKE_ORGANISATIE,
+        )
+        zaaktype_url = reverse(zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "bronorganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2022-12-13",
+            "startdatum": "2018-06-11",
+        }
+        next_identification = generate_unique_identification(
+            Zaak(registratiedatum=date(2022, 12, 13)), "registratiedatum"
+        )
+        assert next_identification.startswith("ZAAK-2022-")  # sanity check
+
+        def race_condition():
+            # force a collision by executing this BEFORE the API call to create a
+            # zaak.
+            time.sleep(0.1)
+            try:
+                ZaakFactory.create(
+                    registratiedatum=date(2022, 12, 13),
+                    zaaktype=zaaktype,
+                    bronorganisatie=VERANTWOORDELIJKE_ORGANISATIE,
+                )
+            finally:
+                close_old_connections()
+
+        original_perform_create = ZaakViewSet().perform_create
+
+        def delayed_create(serializer):
+            result = original_perform_create(serializer)
+            time.sleep(0.3)
+            return result
+
+        def create_zaak():
+            with patch(
+                "openzaak.components.zaken.api.viewsets.ZaakViewSet.perform_create",
+                side_effect=delayed_create,
+            ):
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+            close_old_connections()
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        race_condition_thread = threading.Thread(target=race_condition)
+        create_zaak_thread = threading.Thread(target=create_zaak)
+
+        # start and wait for threads to finish
+        create_zaak_thread.start()
+        race_condition_thread.start()
+        create_zaak_thread.join()
+        race_condition_thread.join()
+
+        zaken = Zaak.objects.all()
+        self.assertEqual(zaken.count(), 7)  # 2 new zaken created
+        self.assertEqual(zaken.filter(identificatie=next_identification).count(), 1)

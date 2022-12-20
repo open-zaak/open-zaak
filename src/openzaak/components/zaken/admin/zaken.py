@@ -581,6 +581,7 @@ class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
         fields = "__all__"
+        exclude = ("_id", "_bronorganisatie", "_identificatie")  # legacy fields
 
     def clean(self):
         cleaned_data = super().clean()
