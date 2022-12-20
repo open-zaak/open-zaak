@@ -499,8 +499,8 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             13: insert new zaakidentificatie
             14: release savepoint
             15: release savepoint (commit zaakidentificatie transaction)
-            16: savepoint for zaak creation
 
+            16: savepoint for zaak creation
          17-18: Lookup zaaktype for validation and cache it in serializer context
          19-22: Check feature flag config (PublishValidator) (savepoint, select, insert
                 and savepoint release)
@@ -522,10 +522,10 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             45: serializing, query eigenschappen
             46: serializing, query latest status (none, because just created)
             47: serializing, query kenmerken
-         48-49: audit trails, select created zaak + insert audit trail
-         50-51: notifications, select created zaak (?), notifs config
-            52: release savepoint (from NotificationsCreateMixin)
-         53-64: execution of transaction.on_commit ETag handlers
+            48:  insert audit trail
+         49-50: notifications, select created zaak (?), notifs config
+            51: release savepoint (from NotificationsCreateMixin)
+         52-63: execution of transaction.on_commit ETag handlers
         ...
         """
         EXPECTED_NUM_QUERIES = (
