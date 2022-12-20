@@ -519,7 +519,9 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             39: insert audit trail
          40-41: notifications, select created zaak (?), notifs config
             42: release savepoint (from NotificationsCreateMixin)
-         43-54: execution of transaction.on_commit ETag handlers
+            43: savepoint create transaction.on_commit ETag handler (start new transaction)
+            44: update ETag column of zaak
+            45: release savepoint (commit transaction)
         ...
         """
         EXPECTED_NUM_QUERIES = (

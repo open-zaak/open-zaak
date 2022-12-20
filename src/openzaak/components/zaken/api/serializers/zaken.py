@@ -14,6 +14,7 @@ from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -410,7 +411,9 @@ class ZaakSerializer(
                 }
             )
 
-        return super().create(validated_data)
+        obj = super().create(validated_data)
+        track_object_serializer(obj, self)
+        return obj
 
 
 class GeoWithinSerializer(serializers.Serializer):
