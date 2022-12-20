@@ -6,7 +6,7 @@ import warnings
 
 class FailedNotificationFilter(logging.Filter):
     def filter(self, record):
-        if hasattr(record, "notification_msg") and hasattr(record, "final_try"):
+        if hasattr(record, "notification_msg") and getattr(record, "final_try", False):
             warnings.warn(
                 "Support for FailedNotification logging is deprecated",
                 DeprecationWarning,
