@@ -21,6 +21,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.utils import generate_unique_identification
+from zds_client.oas import schema_fetcher
 
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
@@ -29,7 +30,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils import ClearCachesMixin, JWTAuthMixin
 
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
 from ..api.viewsets import ZaakViewSet
@@ -466,7 +467,9 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
 
 @tag("performance")
-class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
+class PerformanceTests(
+    NotificationsConfigMixin, JWTAuthMixin, ClearCachesMixin, APITestCase
+):
     """
     Tests specifically looking at performance.
     """
@@ -479,6 +482,12 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
 
         super().setUpTestData()
+
+    def setUp(self):
+        super().setUp()
+
+        schema_fetcher.cache.clear()
+        self.addCleanup(schema_fetcher.cache.clear)
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
@@ -507,21 +516,24 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             23: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
             24: update zaakidentificatie record (from serializer context and earlier
                 generation)
-         25-26: introspect postgres/postgis version
-            27: insert zaken_zaak record
-         28-33: query related objects for etag update that may be affected (should be
+            25: insert zaken_zaak record
+         26-31: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
-            34: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            35: select zaak kenmerken (nested inline create, can't avoid this)
-            36: insert audit trail
-         37-38: notifications, select created zaak (?), notifs config
-            39: release savepoint (from NotificationsCreateMixin)
-            40: savepoint create transaction.on_commit ETag handler (start new transaction)
-            41: update ETag column of zaak
-            42: release savepoint (commit transaction)
+            32: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            33: select zaak kenmerken (nested inline create, can't avoid this)
+            34: insert audit trail
+         35-36: notifications, select created zaak (?), notifs config
+            37: release savepoint (from NotificationsCreateMixin)
+            38: savepoint create transaction.on_commit ETag handler (start new transaction)
+            39: update ETag column of zaak
+            30: release savepoint (commit transaction)
         ...
         """
-        EXPECTED_NUM_QUERIES = 42
+        # create a random zaak to get some other initial setup queries out of the way
+        # (most notable figuring out the PG/postgres version)
+        ZaakFactory.create()
+
+        EXPECTED_NUM_QUERIES = 40
 
         mock_nrc_oas_get(m)
         mock_notification_send(m, status_code=201)
