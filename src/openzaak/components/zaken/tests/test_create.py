@@ -493,30 +493,39 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
              6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
          7 - 8: Application/Autorisatie lookup for permission checks
              9: Begin transaction (savepoint) (from NotificationsCreateMixin)
-         10-11: Lookup zaaktype for validation and cache it in serializer context
-         12-15: Check feature flag config (PublishValidator) (savepoint, select, insert
+            10: Savepoint for zaakidentificatie generation
+            11: advisory lock for zaakidentificatie generation
+            12: Query highest zaakidentificatie number at the moment
+            13: insert new zaakidentificatie
+            14: release savepoint
+            15: release savepoint (commit zaakidentificatie transaction)
+            16: savepoint for zaak creation
+
+         17-18: Lookup zaaktype for validation and cache it in serializer context
+         19-22: Check feature flag config (PublishValidator) (savepoint, select, insert
                 and savepoint release)
-            16: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            17: transaction savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
-            18: query existing identification pattern (Zaak.save, generate_unique_identification)
-         19-20: introspect postgres/postgis version
-            21: insert zaken_zaak record
-         22-27: query related objects for etag update that may be affected (should be
+            23: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            24: transaction savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
+            25: update zaakidentificatie record (from serializer context and earlier
+                generation)
+         16-27: introspect postgres/postgis version
+            28: insert zaken_zaak record
+         29:34: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
-            28: update query from NestedGegevensGroepMixin.create obj.save call
-         29-33: query related objects for etag update that may be affected (should be
+         35-36: update queries from NestedGegevensGroepMixin.create obj.save call
+         37-41: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
                 (again)
-            34: release savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
-            35: serializing, query deelzaken
-            36: serializing, query relevante_andere_zaken
-            37: serializing, query eigenschappen
-            38: serializing, query latest status (none, because just created)
-            39: serializing, query kenmerken
-         40-41: audit trails, select created zaak + insert audit trail
-         42-43: notifications, select created zaak (?), notifs config
-            44: release savepoint (from NotificationsCreateMixin)
-         45-56: execution of transaction.on_commit ETag handlers
+            42: release savepoint (from NestedGegevensGroepMixin in ZaakSerializer)
+            43: serializing, query deelzaken
+            44: serializing, query relevante_andere_zaken
+            45: serializing, query eigenschappen
+            46: serializing, query latest status (none, because just created)
+            47: serializing, query kenmerken
+         48-49: audit trails, select created zaak + insert audit trail
+         50-51: notifications, select created zaak (?), notifs config
+            52: release savepoint (from NotificationsCreateMixin)
+         53-64: execution of transaction.on_commit ETag handlers
         ...
         """
         EXPECTED_NUM_QUERIES = (
