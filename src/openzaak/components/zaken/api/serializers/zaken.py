@@ -341,17 +341,19 @@ class ZaakSerializer(
             HoofdZaaktypeRelationValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(BetalingsIndicatie)
-        self.fields["betalingsindicatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["betalingsindicatie"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(Archiefstatus)
-        self.fields["archiefstatus"].help_text += f"\n\n{value_display_mapping}"
+        fields["archiefstatus"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(Archiefnominatie)
-        self.fields["archiefnominatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["archiefnominatie"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         super().validate(attrs)
@@ -413,6 +415,27 @@ class ZaakSerializer(
 
         obj = super().create(validated_data)
         track_object_serializer(obj, self)
+
+        # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
+        # by assigning the descriptor already
+        obj.resultaat = None
+        # ⚡️ - avoid status query for just created zaak
+        obj.current_status_uuid = None
+
+        # ⚡️ - on create, we _know_ that there are no existing relations yet (i.e.
+        # objects that are related TO the zaak being created), so we can avoid doing
+        # the queries to look up related objects for serialization by doing a .none()
+        # query.
+        empty_relation_fields = (
+            "eigenschappen",
+            "kenmerken",
+            "deelzaken",
+            "relevante_andere_zaken",
+        )
+        for field in empty_relation_fields:
+            # point to the .none() queryset for output serialization
+            self.fields[field].source_attrs.append("none")
+
         return obj
 
 

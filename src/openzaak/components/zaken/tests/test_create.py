@@ -511,17 +511,12 @@ class PerformanceTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             27: insert zaken_zaak record
          28-33: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
-            34: serializing, query deelzaken
-            35: serializing, query relevante_andere_zaken
-            36: serializing, query eigenschappen
-            37: serializing, query latest status (none, because just created)
-            38: serializing, query kenmerken
-            39: insert audit trail
-         40-41: notifications, select created zaak (?), notifs config
-            42: release savepoint (from NotificationsCreateMixin)
-            43: savepoint create transaction.on_commit ETag handler (start new transaction)
-            44: update ETag column of zaak
-            45: release savepoint (commit transaction)
+            34: insert audit trail
+         45-36: notifications, select created zaak (?), notifs config
+            37: release savepoint (from NotificationsCreateMixin)
+            38: savepoint create transaction.on_commit ETag handler (start new transaction)
+            39: update ETag column of zaak
+            40: release savepoint (commit transaction)
         ...
         """
         EXPECTED_NUM_QUERIES = (
