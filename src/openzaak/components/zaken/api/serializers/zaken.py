@@ -425,12 +425,11 @@ class ZaakSerializer(
         # ⚡️ - on create, we _know_ that there are no existing relations yet (i.e.
         # objects that are related TO the zaak being created), so we can avoid doing
         # the queries to look up related objects for serialization by doing a .none()
-        # query.
+        # query. kenmerken & relevant_andere_zaken can be written as inline resources,
+        # so we can't guarantee these would be empty
         empty_relation_fields = (
             "eigenschappen",
-            "kenmerken",
             "deelzaken",
-            "relevante_andere_zaken",
         )
         for field in empty_relation_fields:
             # point to the .none() queryset for output serialization
