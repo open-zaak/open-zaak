@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 import logging
+import warnings
 
 from django.utils import timezone
 
@@ -24,6 +25,8 @@ def resend_notification(notification: FailedNotification) -> None:
     fail, they are logged again with the same original logger, making them
     available for future retries.
     """
+    warnings.warn("Support for notification resend through admin", DeprecationWarning)
+
     assert notification.retried_at is None, "Can only resend not-retried notifications"
     config = NotificationsConfig.get_solo()
     client = config.get_client()
@@ -35,11 +38,7 @@ def resend_notification(notification: FailedNotification) -> None:
             "Could not deliver message to %s",
             client.base_url,
             exc_info=True,
-            extra={
-                "notification_msg": notification.message,
-                "status_code": notification.status_code,
-                "final_try": True,
-            },
+            extra={"notification_msg": notification.message, "final_try": True,},
         )
         raise ResendFailure from error
     finally:

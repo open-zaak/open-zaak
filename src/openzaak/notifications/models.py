@@ -18,6 +18,8 @@ class FailedNotification(StatusLog):
     status_code = models.IntegerField(
         _("status_code"),
         help_text=_("Status code received from the Notifications API."),
+        null=True,
+        blank=True,
     )
     message = models.JSONField(
         _("notification message"),

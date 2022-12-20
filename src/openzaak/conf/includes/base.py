@@ -373,7 +373,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "notifications_api_common.viewsets": {
+        "notifications_api_common.tasks": {
             "handlers": [
                 "failed_notification",  # always log this to the database!
                 *_root_handlers,

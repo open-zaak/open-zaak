@@ -27,7 +27,6 @@ class DatabaseLogHandler(logging.Handler):
             "level": record.levelno,
             "msg": record.getMessage(),
             "trace": trace,
-            "status_code": record.status_code,
             "message": record.notification_msg,
         }
 

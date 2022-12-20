@@ -62,3 +62,10 @@ class OpenZaakClient(ZGWClient):
         self.client_certificate_path = client_certificate_path
         self.client_private_key_path = client_private_key_path
         self.server_certificate_path = server_certificate_path
+
+    @property
+    def api_root(self) -> str:
+        """
+        work-around for libs which use new client
+        """
+        return self.base_url
