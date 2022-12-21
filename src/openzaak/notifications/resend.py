@@ -10,7 +10,7 @@ from zds_client import ClientError
 
 from .models import FailedNotification
 
-notifs_logger = logging.getLogger("notifications_api_common.viewsets")
+notifs_logger = logging.getLogger("notifications_api_common.tasks")
 
 
 class ResendFailure(Exception):

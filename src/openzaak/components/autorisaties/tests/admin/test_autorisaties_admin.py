@@ -15,8 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from django_webtest import WebTest
-from furl import furl
-from notifications_api_common.tests.utils import mock_notify
+from freezegun import freeze_time
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from zgw_consumers.test import generate_oas_component
@@ -31,7 +30,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import mock_nrc_oas_get, mock_ztc_oas_get
+from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
@@ -125,6 +124,7 @@ class ApplicatieInlinesAdminTests(WebTest):
 
 
 @tag("admin-autorisaties")
+@freeze_time("2022-01-01")
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -148,6 +148,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.url = reverse(
             "admin:authorizations_applicatie_autorisaties",
             kwargs={"object_id": self.applicatie.pk},
+        )
+        self.applicatie_url = reverse(
+            "applicatie-detail", kwargs={"version": 1, "uuid": self.applicatie.uuid}
         )
 
     def test_page_returns_on_get(self):
@@ -505,16 +508,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    @patch(
-        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-        side_effect=mock_notify,
-    )
-    def test_changes_send_notifications(self, m, mock_notif):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_changes_send_notifications(self, mock_notif):
         zt = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
@@ -540,7 +535,18 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(m.called)
+
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"http://testserver{self.applicatie_url}",
+                "resource": "applicatie",
+                "resourceUrl": f"http://testserver{self.applicatie_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
 
     @override_settings(
         NOTIFICATIONS_DISABLED=False,
@@ -548,12 +554,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         OPENZAAK_REWRITE_HOST=True,
         ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
     )
-    @requests_mock.Mocker()
-    def test_changes_send_notifications_with_openzaak_domain_setting(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_changes_send_notifications_with_openzaak_domain_setting(self, mock_notif):
         zt = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
@@ -579,21 +581,23 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
-        url = m.last_request.json()["hoofdObject"]
-        self.assertEqual(furl(url).netloc, "openzaak.example.com")
+
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
+                "resource": "applicatie",
+                "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    @patch(
-        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-        side_effect=mock_notify,
-    )
-    def test_new_zt_all_current_and_future_send_notifications(self, m, mock_notif):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_new_zt_all_current_and_future_send_notifications(self, mock_notif):
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -611,14 +615,24 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Autorisatie.objects.exists())
-        self.assertFalse(m.called)
 
         # create a ZaakType - this should trigger a new autorisatie being installed
         with self.captureOnCommitCallbacks(execute=True):
             with self.captureOnCommitCallbacks(execute=True):
                 ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
-        self.assertTrue(m.called)
+
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"http://testserver{self.applicatie_url}",
+                "resource": "applicatie",
+                "resourceUrl": f"http://testserver{self.applicatie_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
 
         with self.subTest("OPENZAAK_DOMAIN setting"):
             with override_settings(
@@ -629,22 +643,22 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                     with self.captureOnCommitCallbacks(execute=True):
                         ZaakTypeFactory.create()
 
-                url = m.last_request.json()["hoofdObject"]
-                self.assertEqual(furl(url).netloc, "openzaak.example.com")
-
+                mock_notif.assert_called_with(
+                    {
+                        "kanaal": "autorisaties",
+                        "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
+                        "resource": "applicatie",
+                        "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
+                        "actie": "update",
+                        "aanmaakdatum": "2022-01-01T00:00:00Z",
+                        "kenmerken": {},
+                    }
+                )
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
-    @requests_mock.Mocker()
-    @patch(
-        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-        side_effect=mock_notify,
-    )
-    def test_notification_body_current_and_future(self, m, mock_notif):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_notification_body_current_and_future(self, mock_notif):
         applicatie = ApplicatieFactory.create()
         AutorisatieSpecFactory.create(
             applicatie=applicatie,
@@ -656,22 +670,20 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             with self.captureOnCommitCallbacks(execute=True):
                 InformatieObjectTypeFactory.create()
 
-        self.assertTrue(m.called)
-        body = m.last_request.json()
-        del body["aanmaakdatum"]
-
         path = reverse(
             "applicatie-detail", kwargs={"version": 1, "uuid": applicatie.uuid}
         )
-        expected = {
-            "kanaal": "autorisaties",
-            "hoofdObject": f"https://testserver{path}",
-            "resource": "applicatie",
-            "resourceUrl": f"https://testserver{path}",
-            "actie": "update",
-            "kenmerken": {},
-        }
-        self.assertEqual(body, expected)
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"https://testserver{path}",
+                "resource": "applicatie",
+                "resourceUrl": f"https://testserver{path}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
 
     @requests_mock.Mocker()
     def test_add_autorisatie_external_zaaktypen(self, m):

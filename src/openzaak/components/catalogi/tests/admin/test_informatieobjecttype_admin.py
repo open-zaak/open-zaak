@@ -1,18 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from unittest.mock import patch
+
 from django.test import override_settings
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.utils.translation import ngettext_lazy
 
-import requests_mock
 from django_webtest import WebTest
+from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import mock_nrc_oas_get
 
-from ...models import ZaakType, ZaakTypeInformatieObjectType
+from ...models import InformatieObjectType, ZaakType, ZaakTypeInformatieObjectType
 from ..factories import (
     CatalogusFactory,
     InformatieObjectTypeFactory,
@@ -237,14 +238,11 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
         cls.user = SuperUserFactory.create()
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    def test_create_notification_actie(self, m):
+    @freeze_time("2022-01-01")
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_create_notification_actie(self, mock_notif):
         catalogus = CatalogusFactory.create()
         self.app.set_user(self.user)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
 
         response = self.app.get(self.url)
 
@@ -259,5 +257,21 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
 
         self.assertEqual(response.status_code, 302)
 
-        notification = m.last_request.json()
-        self.assertEqual(notification["actie"], "create")
+        iotype = InformatieObjectType.objects.get()
+        iotype_url = reverse(
+            "informatieobjecttype-detail", kwargs={"uuid": iotype.uuid, "version": 1}
+        )
+        catalogus_url = reverse(
+            "catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "hoofdObject": f"http://testserver{iotype_url}",
+                "kanaal": "informatieobjecttypen",
+                "resource": "informatieobjecttype",
+                "resourceUrl": f"http://testserver{iotype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
+            }
+        )

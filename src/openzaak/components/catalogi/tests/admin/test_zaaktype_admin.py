@@ -11,7 +11,6 @@ import requests_mock
 from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from freezegun import freeze_time
-from notifications_api_common.tests.utils import mock_notify
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -141,10 +140,7 @@ class ZaaktypeAdminTests(
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
-    @patch(
-        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-        side_effect=mock_notify,
-    )
+    @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_new_version(self, m, mock_notif):
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
@@ -226,13 +222,24 @@ class ZaaktypeAdminTests(
         self.assertEqual(zaaktype_new.zaak_set.count(), 0)
 
         # Verify notification is sent
-        notif_request = m.last_request
-        self.assertEqual(notif_request.method, "POST")
-        self.assertEqual(
-            notif_request.url, "https://notificaties-api.vng.cloud/api/v1/notificaties"
+        zaaktype_new_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
         )
-        notification = notif_request.json()
-        self.assertEqual(notification["actie"], "create")
+        catalogus_url = reverse(
+            "catalogus-detail",
+            kwargs={"uuid": zaaktype_new.catalogus.uuid, "version": 1},
+        )
+        mock_notif.assert_called_with(
+            {
+                "aanmaakdatum": "2019-11-01T00:00:00Z",
+                "actie": "create",
+                "hoofdObject": f"http://testserver{zaaktype_new_url}",
+                "kanaal": "zaaktypen",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_new_url}",
+                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
+            }
+        )
 
     def test_create_new_version_fail_no_datum_einde_geldigheid(self, m):
         mock_selectielijst_oas_get(m)

@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 import requests_mock
 from django_webtest import WebTest
-from notifications_api_common.tests.utils import mock_notify
+from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -20,7 +20,7 @@ from openzaak.selectielijst.tests import (
     mock_selectielijst_oas_get,
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
+from openzaak.tests.utils import ClearCachesMixin
 
 from ..factories import (
     BesluitTypeFactory,
@@ -56,10 +56,8 @@ class ZaaktypeAdminTests(
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @patch(
-        "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-        side_effect=mock_notify,
-    )
+    @freeze_time("2022-01-01")
+    @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_publish_zaaktype(self, m, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
@@ -73,10 +71,6 @@ class ZaaktypeAdminTests(
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
         mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
 
         zaaktype = ZaakTypeFactory.create(
             concept=True,
@@ -120,13 +114,23 @@ class ZaaktypeAdminTests(
         self.assertIsNotNone(publish_button)
 
         # Verify notification is sent
-        notif_request = m.last_request
-        self.assertEqual(notif_request.method, "POST")
-        self.assertEqual(
-            notif_request.url, "https://notificaties-api.vng.cloud/api/v1/notificaties"
+        zaaktype_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
-        notification = notif_request.json()
-        self.assertEqual(notification["actie"], "update")
+        catalogus_url = reverse(
+            "catalogus-detail", kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
+        )
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "zaaktypen",
+                "hoofdObject": f"http://testserver{zaaktype_url}",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}"},
+            }
+        )
 
     def test_publish_besluittype(self, m):
         besluittype = BesluitTypeFactory.create(concept=True)
