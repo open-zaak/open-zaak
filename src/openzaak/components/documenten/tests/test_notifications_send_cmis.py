@@ -80,7 +80,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
 
 
 @tag("notifications", "DEPRECIATED")
-@requests_mock.Mocker(real_http=True)  #  for CMIS requests
+@requests_mock.Mocker(real_http=True)  # for CMIS requests
 @require_cmis
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
