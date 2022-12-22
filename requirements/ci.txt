@@ -45,7 +45,9 @@ cattrs==1.10.0
     #   -r requirements/base.txt
     #   requests-cache
 celery==5.2.7
-    # via -r requirements/base.txt
+    # via
+    #   -r requirements/base.txt
+    #   notifications-api-common
 certifi==2022.12.7
     # via
     #   -r requirements/base.txt
@@ -341,7 +343,7 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.txt
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@feature/retry-notifs
+notifications-api-common==0.2.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -503,10 +505,6 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-vng-api-common==1.9.0
-    # via
-    #   -r requirements/base.txt
-    #   drc-cmis
 waitress==2.1.2
     # via webtest
 wcwidth==0.2.5
