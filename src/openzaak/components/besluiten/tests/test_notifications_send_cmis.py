@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import json
 from unittest.mock import patch
 
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
-from notifications_api_common.tasks import NotificationException
-from notifications_api_common.tests.utils import mock_notify
+from notifications_api_common.tasks import NotificationException, send_notification
 from rest_framework import status
 from vng_api_common.tests import reverse
 
@@ -17,6 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.models import FailedNotification
+from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -29,10 +29,7 @@ from .utils import get_operation_url
 @require_cmis
 @freeze_time("2018-09-07T00:00:00Z")
 @override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
-@patch(
-    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-    side_effect=mock_notify,
-)
+@patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
@@ -47,51 +44,37 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         bio_path = reverse(bio)
 
-        # Has to be caught, because the task is not being run async
-        with self.assertRaises(NotificationException):
-            with self.captureOnCommitCallbacks(execute=True):
-                response = self.client.delete(bio_path)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(bio_path)
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-        notificaties_requests = []
-        for request in self.adapter.request_history:
-            if request.path == "/api/v1/notificaties":
-                notificaties_requests.append(request)
-
-        self.assertEqual(len(notificaties_requests), 1)
-        notificatie_request = json.loads(notificaties_requests[0].text)
-
-        expected_data = {
-            "kanaal": "besluiten",
-            "hoofdObject": f"http://testserver{reverse(bio.besluit)}",
-            "resource": "besluitinformatieobject",
-            "resourceUrl": f"http://testserver{bio_path}",
-            "actie": "destroy",
-            "aanmaakdatum": "2018-09-07T00:00:00Z",
-            "kenmerken": {
-                "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
-                "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
-            },
-        }
-
-        for key, value in expected_data.items():
-            self.assertIn(key, notificatie_request)
-            self.assertEqual(value, notificatie_request[key])
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "besluiten",
+                "hoofdObject": f"http://testserver{reverse(bio.besluit)}",
+                "resource": "besluitinformatieobject",
+                "resourceUrl": f"http://testserver{bio_path}",
+                "actie": "destroy",
+                "aanmaakdatum": "2018-09-07T00:00:00Z",
+                "kenmerken": {
+                    "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
+                    "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
+                },
+            }
+        )
 
 
-@tag("notifications")
+@tag("notifications", "DEPRECIATED")
+@requests_mock.Mocker(real_http=True)  # for CMIS requests
 @require_cmis
 @freeze_time("2019-01-01T12:00:00Z")
 @override_settings(
     NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
 )
-@patch(
-    "notifications_api_common.viewsets.NotificationViewSetMixin.send_notification.delay",
-    side_effect=mock_notify,
-)
+@patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationCMISTests(
     NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase
 ):
@@ -107,7 +90,7 @@ class FailedNotificationCMISTests(
         site.save()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
-        self, mock_notif
+        self, m, mock_notif
     ):
         url = get_operation_url("besluitinformatieobject_create")
 
@@ -124,19 +107,13 @@ class FailedNotificationCMISTests(
             "besluit": f"http://testserver{besluit_url}",
         }
 
-        # Has to be caught, because the task is not being run async
-        with self.assertRaises(NotificationException):
-            with self.captureOnCommitCallbacks(execute=True):
-                response = self.client.post(url, data)
+        # 1. check that notification task is called
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         data = response.json()
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
@@ -150,11 +127,25 @@ class FailedNotificationCMISTests(
             "resourceUrl": data["url"],
         }
 
+        mock_notif.assert_called_with(message)
+
+        # 2. check that if task is failed, celery retry is called
+        mock_nrc_oas_get(m)
+        mock_notification_send(m, status_code=403)
+
+        with self.assertRaises(NotificationException):
+            send_notification(message)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
+
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
 
     def test_besluitinformatieobject_delete_fail_send_notification_create_db_entry(
-        self, mock_notif
+        self, m, mock_notif
     ):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
@@ -162,17 +153,12 @@ class FailedNotificationCMISTests(
         bio = BesluitInformatieObjectFactory.create(informatieobject=eio_url)
         url = reverse(bio)
 
-        # Has to be caught, because the task is not being run async
-        with self.assertRaises(NotificationException):
-            with self.captureOnCommitCallbacks(execute=True):
-                response = self.client.delete(url)
+        # 1. check that notification task is called
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
@@ -185,6 +171,19 @@ class FailedNotificationCMISTests(
             "resource": "besluitinformatieobject",
             "resourceUrl": f"http://testserver{url}",
         }
+        mock_notif.assert_called_with(message)
+
+        # 2. check that if task is failed, celery retry is called
+        mock_nrc_oas_get(m)
+        mock_notification_send(m, status_code=403)
+
+        with self.assertRaises(NotificationException):
+            send_notification(message)
+
+        self.assertEqual(StatusLog.objects.count(), 1)
+
+        logged_warning = StatusLog.objects.get()
+        failed = FailedNotification.objects.get()
 
         self.assertEqual(failed.statuslog_ptr, logged_warning)
         self.assertEqual(failed.message, message)
