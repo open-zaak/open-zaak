@@ -59,6 +59,17 @@ services:
       - db
       - redis
 
+  celery-flower:
+    build: .
+    image: openzaak/open-zaak:latest
+    environment: *app-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery
+
   nginx:
     image: nginx
     volumes:

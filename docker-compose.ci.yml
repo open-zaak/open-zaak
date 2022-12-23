@@ -101,3 +101,13 @@ services:
     depends_on:
       - db
       - redis
+
+  celery-flower:
+    build: .
+    environment: *openzaak-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery

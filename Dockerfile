@@ -79,6 +79,7 @@ COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/
 COPY ./config /app/config
 COPY ./src /app/src
 COPY ./bin/celery_worker.sh /celery_worker.sh
+COPY ./bin/celery_flower.sh /celery_flower.sh
 COPY ./bin/wait_for_db.sh /wait_for_db.sh
 
 RUN groupadd -g 1000 openzaak \

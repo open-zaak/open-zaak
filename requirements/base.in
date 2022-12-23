@@ -50,3 +50,4 @@ drc-cmis
 # WSGI servers & monitoring - production oriented
 uwsgi
 sentry_sdk # error monitoring sentry
+flower # task monitoring
