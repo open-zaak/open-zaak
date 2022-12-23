@@ -200,7 +200,7 @@ non-exhaustive list of options you may need with Open Zaak.
 
 ### Celery
 
-* `CELERY_BROKER_URL`: the URL of the broker that will be used to actually send the notifications (default: `amqp://127.0.0.1:5672//`).
+* `CELERY_BROKER_URL`: the URL of the broker that will be used to actually send the notifications (default: `redis://localhost:6379/1`).
 
 * `CELERY_RESULT_BACKEND`: the backend where the results of tasks will be stored (default: `redis://localhost:6379/1`)
 

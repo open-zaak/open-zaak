@@ -17,16 +17,10 @@ services:
     ports:
       - "11234:5432"
 
-  rabbitmq:
-    image: rabbitmq:3.9-alpine
-    # environment:
-    #   - RABBITMQ_DEFAULT_USER=guest
-    #   - RABBITMQ_DEFAULT_PASS=guest
-
   redis:
     image: redis
 
-  celery:
+  web:
     build: .
     image: openzaak/open-zaak:latest
     environment: &app-env
@@ -42,29 +36,27 @@ services:
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
       - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
-    command: /celery_worker.sh
-    volumes:
-      - ./media:/app/media  # Shared media volume to get access to saved OAS files
-    depends_on:
-      - db
-      - rabbitmq
-      - redis
-
-  web:
-    build: .
-    image: openzaak/open-zaak:latest
-    environment: *app-env
     ports:
       - 8000:8000
     volumes:
       - ./media:/app/media
     depends_on:
       - db
-      - rabbitmq
+      - redis
+
+  celery:
+    build: .
+    image: openzaak/open-zaak:latest
+    environment: *app-env
+    command: /celery_worker.sh
+    volumes:
+      - ./media:/app/media  # Shared media volume to get access to saved OAS files
+    depends_on:
+      - db
       - redis
 
   nginx:

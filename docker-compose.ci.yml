@@ -40,7 +40,7 @@ services:
       - rabbitmq
       - redis
 
-  celery:
+  celery_notifications:
     image: openzaak/open-notificaties
     environment: *notifications-env
     command: /celery_worker.sh
@@ -69,7 +69,7 @@ services:
       - 9000:80
       - 9001:443
 
-  celery-openzaak:
+  web:
     build: .
     environment: &openzaak-env
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
@@ -80,26 +80,24 @@ services:
       - CACHE_AXES=redis:6379/0
       - SENDFILE_BACKEND=django_sendfile.backends.simple
       - DEBUG=yes
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
-    command: /celery_worker.sh
-    volumes:
-      - ./fixtures:/app/fixtures
-    depends_on:
-      - db
-      - rabbitmq
-      - redis
-
-  web:
-    build: .
-    environment: *openzaak-env
     volumes:
       - ./fixtures:/app/fixtures
     ports:
       - 8000:8000
     depends_on:
       - db
-      - rabbitmq
+      - redis
+
+  celery:
+    build: .
+    environment: *openzaak-env
+    command: /celery_worker.sh
+    volumes:
+      - ./fixtures:/app/fixtures
+    depends_on:
+      - db
       - redis

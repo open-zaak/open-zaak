@@ -632,7 +632,7 @@ if SENTRY_DSN:
 #
 # CELERY
 #
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", "amqp://127.0.0.1:5672//")
+CELERY_BROKER_URL = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
 
 
