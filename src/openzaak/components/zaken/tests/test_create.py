@@ -526,8 +526,7 @@ class PerformanceTests(
             37: release savepoint (from NotificationsCreateMixin)
             38: savepoint create transaction.on_commit ETag handler (start new transaction)
             39: update ETag column of zaak
-            30: release savepoint (commit transaction)
-        ...
+            40: release savepoint (commit transaction)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
