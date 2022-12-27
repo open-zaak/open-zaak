@@ -82,7 +82,18 @@ The configuration steps below need to be performed in Open Zaak itself.
    a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
    b. Select the service from the previous step in the **Notifications api service**
       dropdown.
-   c. Click **Opslaan**.
+   c. Sending notifications support autoretry mechanism, which can be also configured here.
+      Fill out the following properties:
+
+      - **Notification delivery max retries**: the maximum number of retries the task queue
+        will do if sending a notification failed. Default is ``5``.
+      - **Notification delivery retry backoff**: a boolean or a number. If this option is set to
+        ``True``, autoretries will be delayed following the rules of exponential backoff. If
+        this option is set to a number, it is used as a delay factor. Default is ``3``.
+      - **Notification delivery retry backoff max**: an integer, specifying number of seconds.
+        If ``Notification delivery retry backoff`` is enabled, this option will set a maximum
+        delay in seconds between task autoretries. Default is ``48`` seconds.
+   d. Click **Opslaan**.
 
 
 **The Notificaties API consumes Open Zaak's Autorisaties API**
