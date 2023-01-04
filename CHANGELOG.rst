@@ -1,8 +1,146 @@
 Changelog
 =========
 
-1.8.0 (2022-12-??)
+1.8.0 (2023-01-09)
 ------------------
+
+Open Zaak 1.8.0 is a long-awaited feature release.
+
+The notable new features are:
+
+* Updated Zaken API from 1.1.2 to 1.2.0
+* Updated Documenten API from to 1.1.0 (support for chunked uploads)
+* Assured-delivery for notifications (see the release notes below)
+* Better support for updating pointers to data in external systems that change base URL
+
+**New features**
+
+* [#1218] `Zaken API 1.2 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+  features implemented
+
+    - ``ZaakObject.objectTypeOverigeDefinitie`` which can refer to object type and
+      object registrations not part of (existing) standards while ensuring strict
+      schema validation / information for clients to visualize the data.
+
+    - Added PUT, PATCH and DELETE operations to ``ZaakEigenschap`` and ``ZaakObject``
+      resources
+
+* [#1223] `Documenten API 1.1 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+  features implemented
+
+    - Added support for "large file uploads" via file chunking
+    - Added HTTP cache-related ``ETag`` header support
+    - Added ``verzoek`` type for ``ObjectInformatieObject`` object types enum
+    - Remaining patches from upstream standard (see their changelog)
+
+* [#1204] Implemented assured-delivery for notifications
+
+    - API (and catalogus admin) actions trigger notifications that other parties may be
+      subscribed to
+    - Delivery of the notification to the configured Notifications API is now retried
+      if it does not initially succeed
+    - The amount of retries and exponential backoff parameters can be configured in the
+      admin
+    - Notification publishing is now async, which requires deploying background task
+      worker containers (see below).
+
+* [#1209] URL references to external data (e.g. external documenten API) are now normalized:
+
+    - You must define an external ``Service`` for each external API that is used
+    - If the external service changes their base URL, you only need to update the service
+    - Provides foundation for future support for mTLS-based services
+
+* [#1215] Added ``bin/dump_configuration.sh`` script to dump the runtime configuration
+  which can then be loaded into another instance.
+* [#669] Re-implemented the ``setup_configuration`` management command:
+
+    - Added extensive command line self-documentation (available via ``--help`` flag)
+    - Command actions now self-test their outcome and report problems
+    - Command can be run headless for fully automated Open Zaak installations (
+      deployment + runtime configuration)
+
+* [#1280] Allow providing the ``ENVIRONMENT`` via envvar to Sentry
+* [#1020] Added support for API gateways (like NLX) where Open Zaak has no publicly
+  available URL. Through ``OPENZAAK_DOMAIN`` and ``OPENZAAK_REWRITE_HOST`` you can now
+  configure the canonical domain without exposing internal service DNS names.
+* [#621] Open Zaak no longer requires a network connection to
+  ``raw.githubusercontent.com``
+* [#1271] Substantially improved performance of zaak-create endpoint
+
+**Bugfixes**
+
+* [#1213] Ensured that the zaak status ordering is explicitly defined (most recent first)
+* [#1227] Added missing validation for remote side of ``ObjectInformatieObject`` relation
+* [#1233] Fixed broken OIDC session refresh
+* Fixed exports of large catalogi again by reverting #998
+* [#1228] return null for empty verlenging information instead of object with empty fields
+* [#1247] Fixed visual regression hiding the datepicker calendar in the admin
+* [#1198] Fixed broken ordering filter in the ``zaak_zoek`` operations
+* [#1264] Fixed saving einddatum for published zaaktypen
+* [#621] Added envvar support for the ``NOTIFICATIONS_DISABLED`` configuration parameter.
+  Note that disabling notifications makes you *not compliant* with the upstream standard.
+* Fixed crash for audittrail representation generation exceeding maximum allowed length
+* The admin index fixture is now loaded after every migrate action, fixing missing menu
+  entries in upgraded installations.
+* [#1275] Fixed publishing of objects with duration widgets via the admin
+* [#1281] Fixed selectielijst year in zaaktype form not being used correctly in the admin
+* [#1056] Fixed incorrect notification action for IOType create
+* [#1271] Fixed race condition during concurrent ``zaak.identificatie`` generation
+  operations
+
+**Documentation**
+
+* Fixed deprecated VNG standaarden links in docs/API schemas a couple of times
+* [#669] Added documentation for the ``setup_configuration`` management command and
+  favour this approach over point-and-click configuration in the admin.
+* [#644] Removed completed items from roadmap
+
+**Project maintenance**
+
+* Swapped out vng-api-common for commonground-api-common and implemented some cleanups
+  there
+* Extracted notifications tooling into notifications-api-common and added the dependency
+* Bumped django and django-sendfile2 to latest available security patches
+* Updated some other third party dependencies to newer versions
+* Cleaned up test suite utilities by centralizing them in the correct package
+* Added ``cmis_required`` decorator for CMIS-related tests, which automatically skips
+  them if the CMIS provider is not available.
+* [#1139] Removed ``django-auth-adfs*`` dependencies, finalizing the replacement started
+  in 1.7.0
+* Upgraded CodeQL to v2 in CI
+* Show docker logs if postman tests fail in CI
+* Updated notificationsconfig fixture for CI
+* Refactored templates/URL structure for component landing pages
+* Removed obsolete pep8/pylint config files
+* Update to Standard for Public Code 0.4.0
+* Don't measure the coverage of tests themselves
+
+.. warning::
+
+   Deployment tooling updates required - additional containers needed.
+
+   The publishing of notifications by Open Zaak to the Notifications API is now done
+   via a task queue and background workers. You need to update your deployment tooling
+   to start (and monitor) these background workers.
+
+   An example docker-compose entry (taken from our ``docker-compose.yml`` in
+   github.com/open-zaak/open-zaak):
+
+   .. code-block:: yaml
+
+       # existing containers
+       # ...
+
+       # new container
+       services:
+         celery:
+           image: openzaak/open-zaak:latest
+           environment: *app-env
+           command: /celery_worker.sh
+           volumes: *app-volumes
+           depends_on:
+             - db
+             - redis
 
 .. warning::
 
