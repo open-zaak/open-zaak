@@ -36,10 +36,10 @@ Postgis 3.2  V            V            V            V            V
 Redis
 -----
 
-Open Zaak uses Redis as a cache backend, especially relevant for admin sessions, and a task
-queue broker.
+Open Zaak uses Redis as a cache backend, especially relevant for admin sessions, and as
+task queue broker.
 
-Supported versions: 5, 6
+Supported versions: 5, 6, 7.
 
 Reverse proxy (nGINX)
 ---------------------
@@ -57,16 +57,3 @@ documentation for available backends.
 
 .. note:: If you are not using the Open Zaak Documents API, but an alternative
    implementation, then this requirement becomes obsolete.
-
-
-Background tasks
-----------------
-
-Open Zaak uses `Celery`_ an asynchronous task queue to send notifications. If sending
-notifications is turned on, the task workers should be run. Each worker can be run in
-a separate container.
-
-The ``docker-compose.yml`` in the root of the repository includes the example of Celery
-worker container.
-
-.. _Celery: https://docs.celeryq.dev/en/stable/
