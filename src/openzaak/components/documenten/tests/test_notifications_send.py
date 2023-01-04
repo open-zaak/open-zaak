@@ -78,7 +78,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
 
-@tag("notifications", "DEPRECIATED")
+@tag("notifications", "DEPRECATED")
 @requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")

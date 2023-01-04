@@ -23,7 +23,7 @@ from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakType
 from .utils import get_operation_url
 
 
-@tag("notifications", "DEPRECIATED")
+@tag("notifications", "DEPRECATED")
 @requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")

@@ -79,7 +79,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
         )
 
 
-@tag("notifications", "DEPRECIATED")
+@tag("notifications", "DEPRECATED")
 @requests_mock.Mocker(real_http=True)  # for CMIS requests
 @require_cmis
 @override_settings(
