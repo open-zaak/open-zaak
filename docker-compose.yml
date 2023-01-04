@@ -42,8 +42,9 @@ services:
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
     ports:
       - 8000:8000
-    volumes:
-      - ./media:/app/media
+    volumes: &app-volumes
+      - media:/app/media  # Shared media volume to get access to saved OAS files
+      - private-media:/app/private-media
     depends_on:
       - db
       - redis
@@ -53,8 +54,7 @@ services:
     image: openzaak/open-zaak:latest
     environment: *app-env
     command: /celery_worker.sh
-    volumes:
-      - ./media:/app/media  # Shared media volume to get access to saved OAS files
+    volumes: *app-volumes
     depends_on:
       - db
       - redis
@@ -81,3 +81,5 @@ services:
 
 volumes:
   db:
+  media:
+  private-media:
