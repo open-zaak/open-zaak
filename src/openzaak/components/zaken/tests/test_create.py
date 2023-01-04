@@ -9,7 +9,6 @@ from unittest.mock import patch
 from django.db import close_old_connections, transaction
 from django.test import override_settings, tag
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -28,7 +27,6 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import ClearCachesMixin, JWTAuthMixin
 
@@ -490,8 +488,8 @@ class PerformanceTests(
         self.addCleanup(schema_fetcher.cache.clear)
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    def test_create_zaak_local_zaaktype(self, m):
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_create_zaak_local_zaaktype(self, mock_notif):
         """
         Assert that the POST /api/v1/zaken does not do too many queries.
 
@@ -534,8 +532,6 @@ class PerformanceTests(
 
         EXPECTED_NUM_QUERIES = 40
 
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=201)
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
         data = {
@@ -551,6 +547,4 @@ class PerformanceTests(
                 response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.assertEqual(
-                len(m.request_history), 2
-            )  # API schema + POST to publish notif
+            mock_notif.assert_called_once()
