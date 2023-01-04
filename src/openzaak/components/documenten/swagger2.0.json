@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.0.1"
+        "version": "1.1.0"
     },
     "basePath": "/documenten/api/v1",
     "consumes": [
@@ -531,18 +531,6 @@
                 "summary": "Een specifiek (ENKELVOUDIG) INFORMATIEOBJECT opvragen.",
                 "description": "Het object bevat metadata over het document en de downloadlink (`inhoud`)\nnaar de binary data. Dit geeft standaard de laatste versie van het\n(ENKELVOUDIG) INFORMATIEOBJECT. Specifieke versies kunnen middels\nquery-string parameters worden opgevraagd.",
                 "parameters": [
-                    {
-                        "name": "versie",
-                        "in": "query",
-                        "description": "Het (automatische) versienummer van het INFORMATIEOBJECT.",
-                        "type": "integer"
-                    },
-                    {
-                        "name": "registratieOp",
-                        "in": "query",
-                        "description": "Een datumtijd in ISO8601 formaat. De versie van het INFORMATIEOBJECT die qua `begin_registratie` het kortst hiervoor zit wordt opgehaald.",
-                        "type": "string"
-                    },
                     {
                         "name": "If-None-Match",
                         "in": "header",
