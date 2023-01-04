@@ -1,23 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import override_settings
+from unittest.mock import patch
+
+from django.test import override_settings, tag
 from django.urls import reverse
 
-import requests_mock
 from django_webtest import WebTest
+from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
-from openzaak.selectielijst.tests import (
-    mock_resource_get,
-    mock_resource_list,
-    mock_selectielijst_oas_get,
-)
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
-from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
+from openzaak.tests.utils import ClearCachesMixin
 
-from ...models import ZaakType
+from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
     BesluitTypeFactory,
     CatalogusFactory,
@@ -26,8 +23,10 @@ from ..factories import (
 )
 
 
+@tag("notifications")
 @override_settings(NOTIFICATIONS_DISABLED=False)
-@requests_mock.Mocker()
+@freeze_time("2022-01-01")
+@patch("notifications_api_common.viewsets.send_notification.delay")
 class NotificationAdminTests(
     NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
 ):
@@ -46,15 +45,13 @@ class NotificationAdminTests(
     def setUp(self):
         super().setUp()
         self.catalogus = CatalogusFactory.create()
+        self.catalogus_url = reverse(
+            "catalogus-detail", kwargs={"uuid": self.catalogus.uuid, "version": 1}
+        )
 
         self.app.set_user(self.user)
 
-    def test_informatieobjecttype_notify_on_create(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
+    def test_informatieobjecttype_notify_on_create(self, mock_notif):
         url = reverse("admin:catalogi_informatieobjecttype_add")
 
         response = self.app.get(url)
@@ -68,19 +65,28 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        iotype = InformatieObjectType.objects.get()
+        iotype_url = reverse(
+            "informatieobjecttype-detail", kwargs={"uuid": iotype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{iotype_url}",
+                "kanaal": "informatieobjecttypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "informatieobjecttype",
+                "resourceUrl": f"http://testserver{iotype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_informatieobjecttype_notify_on_change(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
+    def test_informatieobjecttype_notify_on_change(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            concept=True, omschrijving="test", vertrouwelijkheidaanduiding="openbaar"
+            concept=True,
+            omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            catalogus=self.catalogus,
         )
         url = reverse(
             "admin:catalogi_informatieobjecttype_change",
@@ -94,17 +100,23 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        iotype_url = reverse(
+            "informatieobjecttype-detail",
+            kwargs={"uuid": informatieobjecttype.uuid, "version": 1},
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{iotype_url}",
+                "kanaal": "informatieobjecttypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "update",
+                "resource": "informatieobjecttype",
+                "resourceUrl": f"http://testserver{iotype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_no_informatieobjecttype_notify_on_no_change(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
+    def test_no_informatieobjecttype_notify_on_no_change(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=True, omschrijving="test", vertrouwelijkheidaanduiding="openbaar"
         )
@@ -119,19 +131,12 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        self.assertFalse(m.called)
+        mock_notif.assert_not_called()
 
-    def test_besluittype_notify_on_create(self, m):
+    def test_besluittype_notify_on_create(self, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
-        )
-        mock_selectielijst_oas_get(m)
-        mock_resource_list(m, "procestypen")
-        mock_resource_get(m, "procestypen", procestype_url)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
         )
 
         url = reverse("admin:catalogi_besluittype_add")
@@ -155,19 +160,27 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        besluittype = BesluitType.objects.get()
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{besluittype_url}",
+                "kanaal": "besluittypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "besluittype",
+                "resourceUrl": f"http://testserver{besluittype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_besluit_notify_on_change(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
+    def test_besluit_notify_on_change(self, mock_notif):
+        besluittype = BesluitTypeFactory.create(
+            concept=True, omschrijving="test", catalogus=self.catalogus
         )
-
-        besluit = BesluitTypeFactory.create(concept=True, omschrijving="test")
-        url = reverse("admin:catalogi_besluittype_change", args=(besluit.pk,))
+        url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
 
         response = self.app.get(url)
         form = response.forms["besluittype_form"]
@@ -176,17 +189,22 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        besluittype_url = reverse(
+            "besluittype-detail", kwargs={"uuid": besluittype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{besluittype_url}",
+                "kanaal": "besluittypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "update",
+                "resource": "besluittype",
+                "resourceUrl": f"http://testserver{besluittype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_besluit_no_notify_on_no_change(self, m):
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
+    def test_besluit_no_notify_on_no_change(self, mock_notif):
         besluit = BesluitTypeFactory.create(concept=True, omschrijving="test")
         url = reverse("admin:catalogi_besluittype_change", args=(besluit.pk,))
 
@@ -196,16 +214,9 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        self.assertFalse(m.called)
+        mock_notif.assert_not_called()
 
-    def test_zaaktype_notify_on_create(self, m):
-        mock_selectielijst_oas_get(m)
-        mock_resource_list(m, "procestypen")
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
+    def test_zaaktype_notify_on_create(self, mock_notif):
         url = reverse("admin:catalogi_zaaktype_add")
 
         response = self.app.get(url)
@@ -230,24 +241,27 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        zaaktype = ZaakType.objects.get()
+        zaaktype_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_zaaktype_notify_on_change(self, m):
+    def test_zaaktype_notify_on_change(self, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_selectielijst_oas_get(m)
-        mock_resource_list(m, "procestypen")
-        mock_resource_get(m, "procestypen", procestype_url)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
         zaaktype = ZaakTypeFactory.create(
             concept=True,
             zaaktype_omschrijving="test",
@@ -255,6 +269,7 @@ class NotificationAdminTests(
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype=procestype_url,
+            catalogus=self.catalogus,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
@@ -265,24 +280,26 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
+        zaaktype_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "update",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )
 
-    def test_zaaktype_no_notify_on_no_change(self, m):
+    def test_zaaktype_no_notify_on_no_change(self, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_selectielijst_oas_get(m)
-        mock_resource_list(m, "procestypen")
-        mock_resource_get(m, "procestypen", procestype_url)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
         zaaktype = ZaakTypeFactory.create(
             concept=True,
             zaaktype_omschrijving="test",
@@ -299,24 +316,13 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertNotIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
-        )
+        mock_notif.assert_not_called()
 
-    def test_zaaktype_notify_correct_resource_url_on_new_version(self, m):
+    def test_zaaktype_notify_correct_resource_url_on_new_version(self, mock_notif):
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_selectielijst_oas_get(m)
-        mock_resource_list(m, "procestypen")
-        mock_resource_get(m, "procestypen", procestype_url)
-        mock_nrc_oas_get(m)
-        m.post(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
-        )
-
         zaaktype_old = ZaakTypeFactory.create(
             concept=True,
             zaaktype_omschrijving="test",
@@ -324,6 +330,7 @@ class NotificationAdminTests(
             trefwoorden=["test"],
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype=procestype_url,
+            catalogus=self.catalogus,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype_old.pk,))
 
@@ -334,18 +341,20 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_addversion")
 
-        called_urls = [item.url for item in m.request_history]
-        self.assertIn(
-            "https://notificaties-api.vng.cloud/api/v1/notificaties", called_urls
-        )
-
         zaaktype_old.refresh_from_db()
-
         zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
 
-        last_request = m.request_history[-1]
-        last_request_data = last_request.json()
-        self.assertEqual(
-            f"http://testserver{zaaktype_new.get_absolute_api_url()}",
-            last_request_data["resourceUrl"],
+        zaaktype_new_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
+        )
+        mock_notif.assert_called_with(
+            {
+                "hoofdObject": f"http://testserver{zaaktype_new_url}",
+                "kanaal": "zaaktypen",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "actie": "create",
+                "resource": "zaaktype",
+                "resourceUrl": f"http://testserver{zaaktype_new_url}",
+                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+            }
         )

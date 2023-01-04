@@ -209,3 +209,28 @@ All settings for the project can be found in
 ``src/openzaak/conf``.
 The file ``includes/local.py`` overwrites settings from the base configuration,
 and is only loaded for the dev settings.
+
+
+Running background tasks
+=====================================
+
+We use `Celery`_ as background task queue.
+
+You can run celery worker(s) in a shell to activate the asynchronous task
+queue processing.
+
+To start the background workers executing tasks:
+
+.. code-block:: bash
+
+   $ ./bin/celery_worker.sh
+
+
+To start flower for task monitoring:
+
+.. code-block:: bash
+
+   $ ./bin/celery_flower.sh
+
+
+.. _Celery: https://docs.celeryq.dev/en/stable/

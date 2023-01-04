@@ -23,7 +23,7 @@ services:
   web:
     build: .
     image: openzaak/open-zaak:latest
-    environment:
+    environment: &app-env
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - DB_NAME=openzaak
@@ -36,10 +36,39 @@ services:
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
       - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
     ports:
       - 8000:8000
+    volumes: &app-volumes
+      - media:/app/media  # Shared media volume to get access to saved OAS files
+      - private-media:/app/private-media
     depends_on:
       - db
+      - redis
+
+  celery:
+    build: .
+    image: openzaak/open-zaak:latest
+    environment: *app-env
+    command: /celery_worker.sh
+    volumes: *app-volumes
+    depends_on:
+      - db
+      - redis
+
+  celery-flower:
+    build: .
+    image: openzaak/open-zaak:latest
+    environment: *app-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery
 
   nginx:
     image: nginx
@@ -52,3 +81,5 @@ services:
 
 volumes:
   db:
+  media:
+  private-media:

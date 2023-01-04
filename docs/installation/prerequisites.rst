@@ -36,9 +36,10 @@ Postgis 3.2  V            V            V            V            V
 Redis
 -----
 
-Open Zaak uses Redis as a cache backend, especially relevant for admin sessions.
+Open Zaak uses Redis as a cache backend, especially relevant for admin sessions, and as
+task queue broker.
 
-Supported versions: 5, 6
+Supported versions: 5, 6, 7.
 
 Reverse proxy (nGINX)
 ---------------------

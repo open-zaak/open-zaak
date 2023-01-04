@@ -73,3 +73,18 @@ volumes are writable by the Open Zaak container user.
 
 
 .. _pod security context: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+
+.. _installation_reference_containers_celery:
+
+Background tasks
+----------------
+
+Open Zaak uses `Celery`_ (an asynchronous task queue) to publish notifications. If
+sending notifications is enabled (the default), then the task workers need to be running.
+
+You can horizontally scale the workers by deploying more worker containers.
+
+The ``docker-compose.yml`` in the root of the repository includes the example of Celery
+worker container configuration.
+
+.. _Celery: https://docs.celeryq.dev/en/stable/

@@ -4,6 +4,10 @@
 #
 #    ./bin/compile_dependencies.sh
 #
+amqp==5.1.1
+    # via
+    #   -r requirements/base.txt
+    #   kombu
 appdirs==1.4.4
     # via
     #   -r requirements/base.txt
@@ -23,6 +27,10 @@ attrs==21.4.0
     #   requests-cache
 beautifulsoup4==4.10.0
     # via webtest
+billiard==3.6.4.0
+    # via
+    #   -r requirements/base.txt
+    #   celery
 black==19.10b0
     # via -r requirements/test-tools.in
 bleach==4.1.0
@@ -36,6 +44,11 @@ cattrs==1.10.0
     # via
     #   -r requirements/base.txt
     #   requests-cache
+celery==5.2.7
+    # via
+    #   -r requirements/base.txt
+    #   flower
+    #   notifications-api-common
 certifi==2022.12.7
     # via
     #   -r requirements/base.txt
@@ -52,8 +65,25 @@ charset-normalizer==2.0.12
     #   requests
 click==8.0.4
     # via
+    #   -r requirements/base.txt
     #   -r requirements/test-tools.in
     #   black
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.0
+    # via
+    #   -r requirements/base.txt
+    #   celery
+click-plugins==1.1.1
+    # via
+    #   -r requirements/base.txt
+    #   celery
+click-repl==0.2.0
+    # via
+    #   -r requirements/base.txt
+    #   celery
 cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
@@ -231,6 +261,8 @@ faker==13.3.2
     #   zgw-consumers
 flake8==3.8.3
     # via -r requirements/test-tools.in
+flower==1.2.0
+    # via -r requirements/base.txt
 freezegun==1.2.1
     # via -r requirements/test-tools.in
 furl==2.1.3
@@ -252,7 +284,9 @@ httplib2==0.20.4
     #   -r requirements/base.txt
     #   cmislib-maykin
 humanize==4.0.0
-    # via -r requirements/base.txt
+    # via
+    #   -r requirements/base.txt
+    #   flower
 idna==3.3
     # via
     #   -r requirements/base.txt
@@ -296,6 +330,10 @@ jq==1.2.2
     # via -r requirements/base.txt
 jsonschema==4.7.2
     # via -r requirements/base.txt
+kombu==5.2.4
+    # via
+    #   -r requirements/base.txt
+    #   celery
 markdown==3.3.6
     # via -r requirements/base.txt
 markupsafe==2.1.1
@@ -310,7 +348,7 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.txt
-notifications-api-common==0.1.0
+notifications-api-common==0.2.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -330,6 +368,14 @@ packaging==21.3
     #   redis
 pathspec==0.9.0
     # via black
+prometheus-client==0.15.0
+    # via
+    #   -r requirements/base.txt
+    #   flower
+prompt-toolkit==3.0.31
+    # via
+    #   -r requirements/base.txt
+    #   click-repl
 psycopg2==2.9.3
     # via -r requirements/base.txt
 pycodestyle==2.6.0
@@ -375,7 +421,9 @@ python-dotenv==0.19.2
 pytz==2022.6
     # via
     #   -r requirements/base.txt
+    #   celery
     #   django
+    #   flower
 pyyaml==6.0
     # via
     #   -r requirements/base.txt
@@ -421,6 +469,7 @@ six==1.16.0
     # via
     #   -r requirements/base.txt
     #   bleach
+    #   click-repl
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
@@ -441,6 +490,10 @@ tblib==1.7.0
     # via -r requirements/test-tools.in
 toml==0.10.2
     # via black
+tornado==6.2
+    # via
+    #   -r requirements/base.txt
+    #   flower
 typed-ast==1.5.2
     # via black
 uritemplate==4.1.1
@@ -460,8 +513,18 @@ urllib3==1.26.12
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/base.txt
+vine==5.0.0
+    # via
+    #   -r requirements/base.txt
+    #   amqp
+    #   celery
+    #   kombu
 waitress==2.1.2
     # via webtest
+wcwidth==0.2.5
+    # via
+    #   -r requirements/base.txt
+    #   prompt-toolkit
 webencodings==0.5.1
     # via
     #   -r requirements/base.txt

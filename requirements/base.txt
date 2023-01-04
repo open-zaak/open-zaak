@@ -4,6 +4,8 @@
 #
 #    ./bin/compile_dependencies.sh
 #
+amqp==5.1.1
+    # via kombu
 appdirs==1.4.4
     # via requests-cache
 asgiref==3.5.0
@@ -14,6 +16,8 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
+billiard==3.6.4.0
+    # via celery
 bleach==4.1.0
     # via -r requirements/base.in
 boltons==21.0.0
@@ -22,6 +26,11 @@ boltons==21.0.0
     #   glom
 cattrs==1.10.0
     # via requests-cache
+celery==5.2.7
+    # via
+    #   -r requirements/base.in
+    #   flower
+    #   notifications-api-common
 certifi==2022.12.7
     # via
     #   requests
@@ -31,6 +40,19 @@ cffi==1.15.0
     # via cryptography
 charset-normalizer==2.0.12
     # via requests
+click==8.0.4
+    # via
+    #   -r requirements/base.in
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.0
+    # via celery
+click-plugins==1.1.1
+    # via celery
+click-repl==0.2.0
+    # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
 commonground-api-common==1.9.0
@@ -174,6 +196,8 @@ face==20.1.1
     # via glom
 faker==13.3.2
     # via zgw-consumers
+flower==1.2.0
+    # via -r requirements/base.in
 furl==2.1.3
     # via drc-cmis
 gemma-zds-client==1.0.1
@@ -186,7 +210,9 @@ glom==22.1.0
 httplib2==0.20.4
     # via cmislib-maykin
 humanize==4.0.0
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   flower
 idna==3.3
     # via requests
 importlib-metadata==4.11.3
@@ -211,6 +237,8 @@ jq==1.2.2
     # via -r requirements/base.in
 jsonschema==4.7.2
     # via -r requirements/base.in
+kombu==5.2.4
+    # via celery
 markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
@@ -219,8 +247,10 @@ mozilla-django-oidc==2.0.0
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.in
-notifications-api-common==0.1.0
-    # via commonground-api-common
+notifications-api-common==0.2.0
+    # via
+    #   -r requirements/base.in
+    #   commonground-api-common
 orderedmultidict==1.0.1
     # via furl
 oyaml==1.0
@@ -230,6 +260,10 @@ packaging==21.3
     #   bleach
     #   drf-yasg
     #   redis
+prometheus-client==0.15.0
+    # via flower
+prompt-toolkit==3.0.31
+    # via click-repl
 psycopg2==2.9.3
     # via -r requirements/base.in
 pycparser==2.21
@@ -261,7 +295,10 @@ python-decouple==3.6
 python-dotenv==0.19.2
     # via -r requirements/base.in
 pytz==2022.6
-    # via django
+    # via
+    #   celery
+    #   django
+    #   flower
 pyyaml==6.0
     # via
     #   commonground-api-common
@@ -294,6 +331,7 @@ sentry-sdk==1.5.8
 six==1.16.0
     # via
     #   bleach
+    #   click-repl
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
@@ -306,6 +344,8 @@ six==1.16.0
     #   url-normalize
 sqlparse==0.4.2
     # via django
+tornado==6.2
+    # via flower
 uritemplate==4.1.1
     # via
     #   coreapi
@@ -319,6 +359,13 @@ urllib3==1.26.12
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/base.in
+vine==5.0.0
+    # via
+    #   amqp
+    #   celery
+    #   kombu
+wcwidth==0.2.5
+    # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
 wrapt==1.14.0

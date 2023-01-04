@@ -18,6 +18,9 @@ This page will indicate whether certain settings are properly configured:
 To verify that notifications can be received by the URL as defined
 in the configuration, send a test notification using the following command:
 
+.. note:: Ensure that the :ref:`background workers <installation_reference_containers_celery>`
+   are running.
+
 .. code-block:: shell
 
     python src/manage.py send_test_notification

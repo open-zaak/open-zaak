@@ -40,7 +40,7 @@ services:
       - rabbitmq
       - redis
 
-  celery:
+  celery_notifications:
     image: openzaak/open-notificaties
     environment: *notifications-env
     command: /celery_worker.sh
@@ -71,7 +71,7 @@ services:
 
   web:
     build: .
-    environment:
+    environment: &openzaak-env
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - IS_HTTPS=no
@@ -80,9 +80,34 @@ services:
       - CACHE_AXES=redis:6379/0
       - SENDFILE_BACKEND=django_sendfile.backends.simple
       - DEBUG=yes
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
     volumes:
       - ./fixtures:/app/fixtures
     ports:
       - 8000:8000
     depends_on:
       - db
+      - redis
+
+  celery:
+    build: .
+    environment: *openzaak-env
+    command: /celery_worker.sh
+    volumes:
+      - ./fixtures:/app/fixtures
+    depends_on:
+      - db
+      - redis
+
+  celery-flower:
+    build: .
+    environment: *openzaak-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery

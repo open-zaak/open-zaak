@@ -198,6 +198,12 @@ non-exhaustive list of options you may need with Open Zaak.
   within this timeout, then uWSGI will error out. This has been observed with certain
   CMIS implementations causing slow requests where 60s is not sufficient.
 
+### Celery
+
+* `CELERY_BROKER_URL`: the URL of the broker that will be used to actually send the notifications (default: `redis://localhost:6379/1`).
+
+* `CELERY_RESULT_BACKEND`: the backend where the results of tasks will be stored (default: `redis://localhost:6379/1`)
+
 ### Cross-Origin-Resource-Sharing
 
 The following parameters control the CORS policy.

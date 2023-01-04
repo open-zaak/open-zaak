@@ -6,6 +6,10 @@
 #
 alabaster==0.7.12
     # via sphinx
+amqp==5.1.1
+    # via
+    #   -r requirements/ci.txt
+    #   kombu
 ansible==4.2.0
     # via -r requirements/../deployment/requirements.in
 ansible-core==2.11.8
@@ -35,6 +39,10 @@ beautifulsoup4==4.10.0
     # via
     #   -r requirements/ci.txt
     #   webtest
+billiard==3.6.4.0
+    # via
+    #   -r requirements/ci.txt
+    #   celery
 black==19.10b0
     # via -r requirements/ci.txt
 bleach==4.1.0
@@ -52,6 +60,11 @@ cattrs==1.10.0
     # via
     #   -r requirements/ci.txt
     #   requests-cache
+celery==5.2.7
+    # via
+    #   -r requirements/ci.txt
+    #   flower
+    #   notifications-api-common
 certifi==2022.12.7
     # via
     #   -r requirements/ci.txt
@@ -71,7 +84,23 @@ click==8.0.4
     # via
     #   -r requirements/ci.txt
     #   black
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
     #   pip-tools
+click-didyoumean==0.3.0
+    # via
+    #   -r requirements/ci.txt
+    #   celery
+click-plugins==1.1.1
+    # via
+    #   -r requirements/ci.txt
+    #   celery
+click-repl==0.2.0
+    # via
+    #   -r requirements/ci.txt
+    #   celery
 cmislib-maykin==0.7.4
     # via
     #   -r requirements/ci.txt
@@ -267,6 +296,8 @@ faker==13.3.2
     #   zgw-consumers
 flake8==3.8.3
     # via -r requirements/ci.txt
+flower==1.2.0
+    # via -r requirements/ci.txt
 freezegun==1.2.1
     # via -r requirements/ci.txt
 furl==2.1.3
@@ -296,7 +327,9 @@ httplib2==0.20.4
     #   -r requirements/ci.txt
     #   cmislib-maykin
 humanize==4.0.0
-    # via -r requirements/ci.txt
+    # via
+    #   -r requirements/ci.txt
+    #   flower
 idna==3.3
     # via
     #   -r requirements/ci.txt
@@ -349,6 +382,10 @@ jsonschema==4.7.2
     # via
     #   -r requirements/ci.txt
     #   kubernetes-validate
+kombu==5.2.4
+    # via
+    #   -r requirements/ci.txt
+    #   celery
 kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
@@ -371,7 +408,7 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/ci.txt
-notifications-api-common==0.1.0
+notifications-api-common==0.2.0
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
@@ -405,6 +442,14 @@ pep517==0.10.0
     # via pip-tools
 pip-tools==6.6.2
     # via -r requirements/dev.in
+prometheus-client==0.15.0
+    # via
+    #   -r requirements/ci.txt
+    #   flower
+prompt-toolkit==3.0.31
+    # via
+    #   -r requirements/ci.txt
+    #   click-repl
 psycopg2==2.9.3
     # via -r requirements/ci.txt
 pyasn1==0.4.8
@@ -470,8 +515,10 @@ pytz==2022.6
     # via
     #   -r requirements/ci.txt
     #   babel
+    #   celery
     #   django
     #   django-silk
+    #   flower
 pyyaml==6.0
     # via
     #   -r requirements/../deployment/requirements.in
@@ -535,6 +582,7 @@ six==1.16.0
     # via
     #   -r requirements/ci.txt
     #   bleach
+    #   click-repl
     #   cmislib-maykin
     #   django-choices
     #   django-db-logger
@@ -594,6 +642,10 @@ toml==0.10.2
     #   -r requirements/ci.txt
     #   black
     #   pep517
+tornado==6.2
+    # via
+    #   -r requirements/ci.txt
+    #   flower
 typed-ast==1.5.2
     # via
     #   -r requirements/ci.txt
@@ -616,10 +668,20 @@ urllib3==1.26.12
     #   sentry-sdk
 uwsgi==2.0.20
     # via -r requirements/ci.txt
+vine==5.0.0
+    # via
+    #   -r requirements/ci.txt
+    #   amqp
+    #   celery
+    #   kombu
 waitress==2.1.2
     # via
     #   -r requirements/ci.txt
     #   webtest
+wcwidth==0.2.5
+    # via
+    #   -r requirements/ci.txt
+    #   prompt-toolkit
 webencodings==0.5.1
     # via
     #   -r requirements/ci.txt

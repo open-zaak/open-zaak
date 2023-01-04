@@ -1,4 +1,6 @@
 # Core python libraries
+celery
+click<8.1.0  # click>=8.1.0 causes issues with black https://github.com/psf/black/issues/2964
 jq
 jsonschema
 dictdiffer # Used to show diffs for audittrails in admin
@@ -41,9 +43,11 @@ djangorestframework-camel-case~=1.2.0
 drf-yasg
 drf-writable-nested
 commonground-api-common
+notifications-api-common
 humanize
 drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi
 sentry_sdk # error monitoring sentry
+flower # task monitoring

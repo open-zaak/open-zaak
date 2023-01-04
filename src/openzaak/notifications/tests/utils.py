@@ -19,7 +19,7 @@ LOGGING_SETTINGS = {
         },
     },
     "loggers": {
-        "notifications_api_common.viewsets": {
+        "notifications_api_common.tasks": {
             "handlers": ["failed_notification"],
             "level": "WARNING",
             "propagate": False,
