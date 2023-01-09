@@ -57,9 +57,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY ./cache /app/cache
 COPY ./bin/docker_start.sh /start.sh
+COPY ./bin/wait_for_db.sh /wait_for_db.sh
+COPY ./bin/celery_worker.sh /celery_worker.sh
+COPY ./bin/celery_flower.sh /celery_flower.sh
 COPY ./bin/reset_migrations.sh /app/bin/reset_migrations.sh
-COPY ./bin/uninstall_adfs.sh ./bin/uninstall_django_auth_adfs_db.sql /app/bin/
-
+COPY ./bin/uninstall_adfs.sh \
+    ./bin/uninstall_django_auth_adfs_db.sql \
+    ./bin/dump_configuration.sh \
+    /app/bin/
 
 RUN mkdir /app/log /app/config /app/media /app/private-media
 # prevent writing to the container layer, which would degrade performance.
@@ -77,9 +82,6 @@ COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/
 # Stage 3.2 - Copy source code
 COPY ./config /app/config
 COPY ./src /app/src
-COPY ./bin/celery_worker.sh /celery_worker.sh
-COPY ./bin/celery_flower.sh /celery_flower.sh
-COPY ./bin/wait_for_db.sh /wait_for_db.sh
 
 RUN groupadd -g 1000 openzaak \
     && useradd -M -u 1000 -g 1000 openzaak \

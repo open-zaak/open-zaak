@@ -49,7 +49,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.1
+  version: 1.1.0
 security:
 - JWT-Claims: []
 paths:
@@ -293,7 +293,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
         '415':
@@ -608,7 +608,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
         '415':
@@ -690,7 +690,7 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Fout'
         '415':

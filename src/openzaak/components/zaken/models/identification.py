@@ -49,7 +49,7 @@ class ZaakIdentificatie(models.Model):
     """
 
     identificatie = models.CharField(
-        _("value"),
+        _("identification number"),
         blank=True,  # okay, since we have unique and check constraint
         max_length=40,
         help_text=_(
