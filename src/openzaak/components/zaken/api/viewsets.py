@@ -258,6 +258,19 @@ class ZaakViewSet(
     audit = AUDIT_ZRC
     _generated_identificatie: Optional[ZaakIdentificatie] = None
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # codepath via the the `get_viewset_for_path` utilities in various libraries
+        # does not always initialize a request, which causes self.action to not be set.
+        # FIXME: extract that utility into a separate library to unify it
+        action = getattr(self, "action", None)
+        if action not in ["list", "_zoek"]:
+            # ⚡️ drop the prefetches when only selecting a single record. If the data
+            # is needed, the queries will be done during serialization and the amount
+            # of queries will be the same.
+            qs = qs.prefetch_related(None)
+        return qs
+
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):
         """

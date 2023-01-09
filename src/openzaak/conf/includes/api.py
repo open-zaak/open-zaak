@@ -58,6 +58,8 @@ SWAGGER_SETTINGS.update(
 
 GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
+COMMONGROUND_API_COMMON_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
+
 #
 # API's Open Zaak interacts with that have a defined standard (or community-accepted
 # one when there's no official standard)

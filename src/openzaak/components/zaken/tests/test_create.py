@@ -13,20 +13,24 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
+    ComponentTypes,
     RolOmschrijving,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.utils import generate_unique_identification
+from zds_client.oas import schema_fetcher
 
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.tests.utils import ClearCachesMixin, JWTAuthMixin
 
+from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
 from ..api.viewsets import ZaakViewSet
 from ..models import KlantContact, Rol, Status, Zaak, ZaakIdentificatie, ZaakObject
 from .factories import ZaakFactory
@@ -458,3 +462,89 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
         zaken = Zaak.objects.all()
         self.assertEqual(zaken.count(), 7)  # 2 new zaken created
         self.assertEqual(zaken.filter(identificatie=next_identification).count(), 1)
+
+
+@tag("performance")
+class PerformanceTests(
+    NotificationsConfigMixin, JWTAuthMixin, ClearCachesMixin, APITestCase
+):
+    """
+    Tests specifically looking at performance.
+    """
+
+    scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_ALLES_LEZEN]
+    component = ComponentTypes.zrc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create(concept=False)
+
+        super().setUpTestData()
+
+    def setUp(self):
+        super().setUp()
+
+        schema_fetcher.cache.clear()
+        self.addCleanup(schema_fetcher.cache.clear)
+
+    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_create_zaak_local_zaaktype(self, mock_notif):
+        """
+        Assert that the POST /api/v1/zaken does not do too many queries.
+
+        Breakdown of expected queries:
+
+         1 - 4: OpenIDConnectConfig (savepoint, SELECT, INSERT and savepoint release)
+             5: Consult own internal service config (SELECT FROM config_internalservice)
+             6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
+         7 - 8: Application/Autorisatie lookup for permission checks
+             9: Begin transaction (savepoint) (from NotificationsCreateMixin)
+            10: Savepoint for zaakidentificatie generation
+            11: advisory lock for zaakidentificatie generation
+            12: Query highest zaakidentificatie number at the moment
+            13: insert new zaakidentificatie
+            14: release savepoint
+            15: release savepoint (commit zaakidentificatie transaction)
+
+            16: savepoint for zaak creation
+         17-18: Lookup zaaktype for validation and cache it in serializer context
+         19-22: Check feature flag config (PublishValidator) (savepoint, select, insert
+                and savepoint release)
+            23: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            24: update zaakidentificatie record (from serializer context and earlier
+                generation)
+            25: insert zaken_zaak record
+         26-31: query related objects for etag update that may be affected (should be
+                skipped, it's create of root resource!) vng_api_common.caching.signals
+            32: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            33: select zaak kenmerken (nested inline create, can't avoid this)
+            34: insert audit trail
+         35-36: notifications, select created zaak (?), notifs config
+            37: release savepoint (from NotificationsCreateMixin)
+            38: savepoint create transaction.on_commit ETag handler (start new transaction)
+            39: update ETag column of zaak
+            40: release savepoint (commit transaction)
+        """
+        # create a random zaak to get some other initial setup queries out of the way
+        # (most notable figuring out the PG/postgres version)
+        ZaakFactory.create()
+
+        EXPECTED_NUM_QUERIES = 40
+
+        zaaktype_url = reverse(self.zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "bronorganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2018-06-11",
+            "startdatum": "2018-06-11",
+        }
+
+        with self.assertNumQueries(EXPECTED_NUM_QUERIES):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mock_notif.assert_called_once()

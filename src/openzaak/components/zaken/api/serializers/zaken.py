@@ -14,6 +14,7 @@ from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
@@ -340,17 +341,19 @@ class ZaakSerializer(
             HoofdZaaktypeRelationValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(BetalingsIndicatie)
-        self.fields["betalingsindicatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["betalingsindicatie"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(Archiefstatus)
-        self.fields["archiefstatus"].help_text += f"\n\n{value_display_mapping}"
+        fields["archiefstatus"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(Archiefnominatie)
-        self.fields["archiefnominatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["archiefnominatie"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         super().validate(attrs)
@@ -410,7 +413,29 @@ class ZaakSerializer(
                 }
             )
 
-        return super().create(validated_data)
+        obj = super().create(validated_data)
+        track_object_serializer(obj, self)
+
+        # ⚡️ - a just created zaak cannot have a result, so we can avoid this DB query
+        # by assigning the descriptor already
+        obj.resultaat = None
+        # ⚡️ - avoid status query for just created zaak
+        obj.current_status_uuid = None
+
+        # ⚡️ - on create, we _know_ that there are no existing relations yet (i.e.
+        # objects that are related TO the zaak being created), so we can avoid doing
+        # the queries to look up related objects for serialization by doing a .none()
+        # query. kenmerken & relevant_andere_zaken can be written as inline resources,
+        # so we can't guarantee these would be empty
+        empty_relation_fields = (
+            "eigenschappen",
+            "deelzaken",
+        )
+        for field in empty_relation_fields:
+            # point to the .none() queryset for output serialization
+            self.fields[field].source_attrs.append("none")
+
+        return obj
 
 
 class GeoWithinSerializer(serializers.Serializer):

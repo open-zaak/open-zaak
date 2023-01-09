@@ -3,6 +3,8 @@
 import logging
 import uuid
 from datetime import date
+from typing import Optional
+from uuid import UUID
 
 from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
@@ -362,6 +364,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     objects = ZaakQuerySet.as_manager()
 
+    _current_status_uuid: Optional[UUID]
+
     class Meta:
         verbose_name = "zaak"
         verbose_name_plural = "zaken"
@@ -395,8 +399,14 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         #
         # The Status.Meta is also set to order by descending datum_status_gezet so that
         # this code works correctly even when not doing prefetches.
+        if hasattr(self, "_current_status_uuid"):
+            return self._current_status_uuid
         status = self.status_set.first()
         return status.uuid if status else None
+
+    @current_status_uuid.setter
+    def current_status_uuid(self, value: Optional[UUID]):
+        self._current_status_uuid = value
 
     @property
     def is_closed(self) -> bool:

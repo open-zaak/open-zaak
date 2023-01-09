@@ -3,6 +3,7 @@
 from functools import partial
 from typing import Optional, Set
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 
@@ -35,6 +36,14 @@ class CMISETagMixin:
     To prevent storing ETag values for Documenten API resources in an external DMS,
     we store them in the cache.
     """
+
+    def __hash__(self):
+        if not settings.CMIS_ENABLED:
+            return super().__hash__()
+
+        # cmis model instances don't have a PK, but they should have a proper UUID
+        assert self.pk is None
+        return hash(self.uuid)
 
     @property
     def _etag(self):
