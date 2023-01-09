@@ -532,6 +532,18 @@
                 "description": "Het object bevat metadata over het document en de downloadlink (`inhoud`)\nnaar de binary data. Dit geeft standaard de laatste versie van het\n(ENKELVOUDIG) INFORMATIEOBJECT. Specifieke versies kunnen middels\nquery-string parameters worden opgevraagd.",
                 "parameters": [
                     {
+                        "name": "versie",
+                        "in": "query",
+                        "description": "Het (automatische) versienummer van het INFORMATIEOBJECT.",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "registratieOp",
+                        "in": "query",
+                        "description": "Een datumtijd in ISO8601 formaat. De versie van het INFORMATIEOBJECT die qua `begin_registratie` het kortst hiervoor zit wordt opgehaald.",
+                        "type": "string"
+                    },
+                    {
                         "name": "If-None-Match",
                         "in": "header",
                         "description": "Voer een voorwaardelijk verzoek uit. Deze header moet \u00e9\u00e9n of meerdere ETag-waardes bevatten van resources die de consumer gecached heeft. Indien de waarde van de ETag van de huidige resource voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer informatie.",

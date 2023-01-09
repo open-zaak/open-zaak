@@ -426,6 +426,17 @@ paths:
 
         query-string parameters worden opgevraagd.'
       parameters:
+      - name: versie
+        in: query
+        description: Het (automatische) versienummer van het INFORMATIEOBJECT.
+        schema:
+          type: integer
+      - name: registratieOp
+        in: query
+        description: Een datumtijd in ISO8601 formaat. De versie van het INFORMATIEOBJECT
+          die qua `begin_registratie` het kortst hiervoor zit wordt opgehaald.
+        schema:
+          type: string
       - name: If-None-Match
         in: header
         description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\

@@ -47,6 +47,7 @@ def cache_uuid(key, timeout):
 def convert_cmis_adapter_exceptions(function):
     """Convert exceptions raised by the CMIS-adapter to avoid 500 responses"""
 
+    @wraps(function)
     def convert_exceptions(*args, **kwargs):
         try:
             response = function(*args, **kwargs)
