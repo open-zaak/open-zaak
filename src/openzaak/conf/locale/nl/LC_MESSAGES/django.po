@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-09 10:22+0000\n"
+"POT-Creation-Date: 2023-01-09 11:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2256,11 +2256,15 @@ msgstr ""
 
 #: src/openzaak/components/documenten/api/serializers.py:418
 msgid "The size of upload file should match the 'bestandsomvang' field"
-msgstr "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-veld"
+msgstr ""
+"De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
+"veld"
 
 #: src/openzaak/components/documenten/api/serializers.py:436
 msgid "The size of upload file should match bestandsomvang field"
-msgstr "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-veld"
+msgstr ""
+"De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
+"veld"
 
 #: src/openzaak/components/documenten/api/serializers.py:632
 msgid "Unlocked document can't be modified"
@@ -2276,9 +2280,9 @@ msgid ""
 "updating the document. Documents with base64 encoded files are created "
 "without lock"
 msgstr ""
-"Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt moet worden bij "
-"document updates. Documenten met base64-encoded bestandsdata worden zonder lock "
-"aangemaakt."
+"Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt moet worden "
+"bij document updates. Documenten met base64-encoded bestandsdata worden "
+"zonder lock aangemaakt."
 
 #: src/openzaak/components/documenten/api/serializers.py:702
 msgid "The document is already locked"
@@ -2796,6 +2800,7 @@ msgid ""
 msgstr ""
 
 #: src/openzaak/components/zaken/api/validators.py:365
+#, python-format
 msgid "One of %(fields)s must be provided"
 msgstr "Je moet één van de velden %(fields)s opgeven"
 
@@ -3008,8 +3013,8 @@ msgid "medewerkers"
 msgstr ""
 
 #: src/openzaak/components/zaken/models/identification.py:52
-msgid "value"
-msgstr "waarde"
+msgid "identification number"
+msgstr "zaakidentificatie"
 
 #: src/openzaak/components/zaken/models/identification.py:56
 msgid ""
@@ -3230,8 +3235,9 @@ msgid ""
 "Zaak identification details are tracked in a separate table so numbers can "
 "be generated/reserved before the zaak is actually created."
 msgstr ""
-"Zaakidentificatiedetails worden in een aparte tabel bijgehouden zodat nummers "
-"gegenereerd/gereserveerd kunnen worden voor de daadwerkelijke zaak aangemaakt wordt."
+"Zaakidentificatiedetails worden in een aparte tabel bijgehouden zodat "
+"nummers gegenereerd/gereserveerd kunnen worden voor de daadwerkelijke zaak "
+"aangemaakt wordt."
 
 #: src/openzaak/components/zaken/models/zaken.py:129
 msgid ""
