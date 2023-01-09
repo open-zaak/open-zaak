@@ -696,7 +696,7 @@ webtest==3.0.0
     # via
     #   -r requirements/ci.txt
     #   django-webtest
-wheel==0.37.1
+wheel==0.38.4
     # via pip-tools
 whitenoise==6.0.0
     # via -r requirements/dev.in
