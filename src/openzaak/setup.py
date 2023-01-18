@@ -34,6 +34,25 @@ def setup_env():
 
 
 def load_self_signed_certs() -> None:
+    """
+    Load self-signed/private CA bundles in an idempotent manner.
+
+    :func:`setup_env` is called multiple times in Celery setups. self-certifi
+    works by setting the ``REQUESTS_CA_BUNDLE`` envvar and errors out if this envvar
+    is already set (as it conflicts with the way it operates). If the setup function
+    runs multiple times, the envvar set by self-certifi would trip self-certifi in the
+    second run.
+
+    The guard clauses here ensure that loading the self-signed certs is done only once.
+    """
+    needs_extra_verify_certs = os.environ.get(EXTRA_CERTS_ENVVAR)
+    if not needs_extra_verify_certs:
+        return
+
+    _certs_initialized = bool(os.environ.get("REQUESTS_CA_BUNDLE"))
+    if _certs_initialized:
+        return
+
     # create target directory for resulting combined certificate file
     target_dir = tempfile.mkdtemp()
     _load_self_signed_certs(target_dir)
