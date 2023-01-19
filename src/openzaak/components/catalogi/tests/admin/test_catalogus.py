@@ -34,3 +34,25 @@ class CatalogusAdminTests(WebTest):
 
         admin_name = response.html.find("th", {"class": "field-get_admin_name"})
         self.assertEqual(admin_name.text, "(onbekend)")
+
+    def test_related_object_links(self):
+        """
+        test that links to related objects in admin list page are valid
+        """
+        CatalogusFactory.create(_admin_name="test")
+        list_url = reverse("admin:catalogi_catalogus_changelist")
+
+        response = self.app.get(list_url)
+
+        self.assertEqual(response.status_code, 200)
+        rel_object_links = (
+            response.html.find(id="result_list")
+            .find(class_="field-_get_object_actions")
+            .find_all("a")
+        )
+        self.assertEqual(len(rel_object_links), 3)
+        for link in rel_object_links:
+            url = link["href"]
+            with self.subTest(url):
+                response = self.app.get(url)
+                self.assertEqual(response.status_code, 200)
