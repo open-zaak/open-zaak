@@ -40,7 +40,8 @@ def link_to_related_objects(
     else:
         relation_field = model._meta.get_field(rel_field_name)
 
-    query = {f"{relation_field.name}__id__exact": obj.pk}
+    relation_id_field = relation_field.target_field.name
+    query = {f"{relation_field.name}__{relation_id_field}__exact": obj.pk}
     view_name = f"admin:{model._meta.app_label}_{model._meta.model_name}_changelist"
     changelist_url = f"{reverse(view_name)}?{urlencode(query)}"
     return (
