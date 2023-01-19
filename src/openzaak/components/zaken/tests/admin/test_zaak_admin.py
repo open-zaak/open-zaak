@@ -78,3 +78,25 @@ class ZaakAdminTests(WebTest):
         submit_response = response.form.submit()
 
         self.assertEqual(submit_response.status_code, 302)
+
+    def test_related_object_links(self):
+        """
+        test that links to related objects in admin list page are valid
+        """
+        ZaakFactory.create(identificatie="some")
+        zaak_list_url = reverse("admin:zaken_zaak_changelist")
+
+        response = self.app.get(zaak_list_url)
+
+        self.assertEqual(response.status_code, 200)
+        rel_object_links = (
+            response.html.find(id="result_list")
+            .find(class_="field-_get_object_actions")
+            .find_all("a")
+        )
+        self.assertEqual(len(rel_object_links), 9)
+        for link in rel_object_links:
+            url = link["href"]
+            with self.subTest(url):
+                response = self.app.get(url)
+                self.assertEqual(response.status_code, 200)

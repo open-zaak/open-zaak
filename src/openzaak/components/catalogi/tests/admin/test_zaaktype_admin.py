@@ -1050,3 +1050,25 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertNotContains(change_page, "relativedelta")
         self.assertEqual(zaaktype.doorlooptijd_behandeling, relativedelta())
         self.assertEqual(zaaktype.servicenorm_behandeling, None)
+
+    def test_related_object_links(self):
+        """
+        test that links to related objects in admin list page are valid
+        """
+        ZaakTypeFactory.create(identificatie="some")
+        list_url = reverse("admin:catalogi_zaaktype_changelist")
+
+        response = self.app.get(list_url)
+
+        self.assertEqual(response.status_code, 200)
+        rel_object_links = (
+            response.html.find(id="result_list")
+            .find(class_="field-_get_object_actions")
+            .find_all("a")
+        )
+        self.assertEqual(len(rel_object_links), 5)
+        for link in rel_object_links:
+            url = link["href"]
+            with self.subTest(url):
+                response = self.app.get(url)
+                self.assertEqual(response.status_code, 200)
