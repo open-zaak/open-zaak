@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.8.1 (2023-01-19)
+------------------
+
+Fixed some regressions introduced in 1.8.0
+
+* Fix EXTRA_CERTS_ENVVAR crash due to multiple imports
+* [#1314] Fixed broken "Show <related objects>" links in Zaken admin
+
 1.8.0 (2023-01-09)
 ------------------
 
