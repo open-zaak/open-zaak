@@ -37,6 +37,30 @@ creation and for sending of notifications about it.
 .. _Celery: https://docs.celeryq.dev/en/stable/
 
 
+Automatic retry for notifications
+---------------------------------
 
+Sending notifications can be done with automatic retry, i.e. if the notification task was failed it
+will be autoretried the configured number of times. We measure how autoretry works with increasing downtime
+of the notification service.
 
+**Test specifications:**
 
+* 1 celery worker
+* 10 concurrent users
+* no waiting time between requests for 1 user
+* all users send requests to create zaak (``POST /api/v1/zaken``)
+* requests are send during 1 min
+* auto retry settings are default (5 maximum attempts per task)
+
+.. csv-table:: Notification autoretries per downtime
+   :header-rows: 1
+
+    Notification downtime (s),Request Count,Failure Count,Notifications failed,Notifications retried,Notifications processed
+    10,1486,0,0,919,2114
+    60,1478,0,0,3729,5195
+    300,1509,0,1276,6380,7908
+
+According to the result if the notification server is down for less than 1 min, then all notifications
+would be eventually send. If it's expected that the notification service is down for longer time
+the autoretry configuration should be adjusted in the admin.
