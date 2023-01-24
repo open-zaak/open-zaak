@@ -143,11 +143,13 @@ class IntegriteitSerializer(GegevensGroepSerializer):
         model = EnkelvoudigInformatieObject
         gegevensgroep = "integriteit"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(ChecksumAlgoritmes)
-        self.fields["algoritme"].help_text += f"\n\n{value_display_mapping}"
+        fields["algoritme"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class OndertekeningSerializer(GegevensGroepSerializer):
@@ -155,11 +157,13 @@ class OndertekeningSerializer(GegevensGroepSerializer):
         model = EnkelvoudigInformatieObject
         gegevensgroep = "ondertekening"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(OndertekeningSoorten)
-        self.fields["soort"].help_text += f"\n\n{value_display_mapping}"
+        fields["soort"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelatedField):
@@ -368,18 +372,20 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             UniekeIdentificatieValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(
             VertrouwelijkheidsAanduiding
         )
-        self.fields[
+        fields[
             "vertrouwelijkheidaanduiding"
         ].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(Statussen)
-        self.fields["status"].help_text += f"\n\n{value_display_mapping}"
+        fields["status"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate_indicatie_gebruiksrecht(self, indicatie):
         if self.instance and not indicatie and self.instance.has_gebruiksrechten():
@@ -883,11 +889,13 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         }
         validators = [InformatieObjectUniqueValidator()]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(ObjectInformatieObjectTypes)
-        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+        fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def set_object_properties(self, object_type: str) -> None:
         object_field = self.fields["object"]

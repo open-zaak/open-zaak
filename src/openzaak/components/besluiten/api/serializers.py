@@ -85,11 +85,13 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
         }
         validators = [UniekeIdentificatieValidator(), BesluittypeZaaktypeValidator()]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(VervalRedenen)
-        self.fields["vervalreden"].help_text += f"\n\n{value_display_mapping}"
+        fields["vervalreden"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]

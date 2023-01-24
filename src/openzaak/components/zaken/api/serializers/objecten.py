@@ -65,11 +65,13 @@ class ObjectInrichtingselementSerializer(serializers.ModelSerializer):
         model = Inrichtingselement
         fields = ("type", "identificatie", "naam")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(TyperingInrichtingselement)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
+        fields["type"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class ObjectKunstwerkdeelSerializer(serializers.ModelSerializer):
@@ -77,11 +79,13 @@ class ObjectKunstwerkdeelSerializer(serializers.ModelSerializer):
         model = Kunstwerkdeel
         fields = ("type", "identificatie", "naam")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(TyperingKunstwerk)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
+        fields["type"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class ObjectMaatschappelijkeActiviteitSerializer(serializers.ModelSerializer):
@@ -107,11 +111,13 @@ class ObjectSpoorbaandeelSerializer(serializers.ModelSerializer):
         model = Spoorbaandeel
         fields = ("type", "identificatie", "naam")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(TypeSpoorbaan)
-        self.fields["type"].help_text += f"\n\n{value_display_mapping}"
+        fields["type"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class ObjectTerreindeelSerializer(serializers.ModelSerializer):
@@ -125,11 +131,13 @@ class ObjectWaterdeelSerializer(serializers.ModelSerializer):
         model = Waterdeel
         fields = ("type_waterdeel", "identificatie", "naam")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(TyperingWater)
-        self.fields["type_waterdeel"].help_text += f"\n\n{value_display_mapping}"
+        fields["type_waterdeel"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class ObjectWegdeelSerializer(serializers.ModelSerializer):

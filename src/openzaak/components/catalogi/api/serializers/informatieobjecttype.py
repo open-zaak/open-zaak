@@ -39,12 +39,14 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
             M2MConceptUpdateValidator(["besluittypen", "zaaktypen"]),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(
             VertrouwelijkheidsAanduiding
         )
-        self.fields[
+        fields[
             "vertrouwelijkheidaanduiding"
         ].help_text += f"\n\n{value_display_mapping}"
+
+        return fields

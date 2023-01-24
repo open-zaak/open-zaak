@@ -33,16 +33,16 @@ class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
 
         extra_kwargs = {"procestermijn": {"allow_null": True}}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(Afleidingswijze)
-        self.fields["afleidingswijze"].help_text += "\n\n{}".format(
-            value_display_mapping
-        )
+        fields["afleidingswijze"].help_text += "\n\n{}".format(value_display_mapping)
 
         value_display_mapping = add_choice_values_help_text(ZaakobjectTypes)
-        self.fields["objecttype"].help_text += "\n\n{}".format(value_display_mapping)
+        fields["objecttype"].help_text += "\n\n{}".format(value_display_mapping)
+
+        return fields
 
 
 class ResultaatTypeSerializer(
@@ -107,10 +107,10 @@ class ResultaatTypeSerializer(
             ZaakTypeConceptValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(Archiefnominatie)
-        self.fields["archiefnominatie"].help_text += "\n\n{}".format(
-            value_display_mapping
-        )
+        fields["archiefnominatie"].help_text += "\n\n{}".format(value_display_mapping)
+
+        return fields
