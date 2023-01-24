@@ -105,6 +105,8 @@ if "test" in sys.argv:
 
     warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")
 
+ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True)
+
 # Override settings with local settings.
 try:
     from .includes.local import *  # noqa

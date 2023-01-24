@@ -52,6 +52,7 @@ celery==5.2.7
 certifi==2022.12.7
     # via
     #   -r requirements/base.txt
+    #   elastic-apm
     #   requests
     #   self-certifi
     #   sentry-sdk
@@ -248,6 +249,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
+elastic-apm==6.13.2
+    # via -r requirements/base.txt
 face==20.1.1
     # via
     #   -r requirements/base.txt
@@ -508,6 +511,7 @@ url-normalize==1.4.3
 urllib3==1.26.12
     # via
     #   -r requirements/base.txt
+    #   elastic-apm
     #   requests
     #   requests-cache
     #   sentry-sdk
@@ -533,10 +537,11 @@ webob==1.8.7
     # via webtest
 webtest==3.0.0
     # via django-webtest
-wrapt==1.14.0
+wrapt==1.14.1
     # via
     #   -r requirements/base.txt
     #   deprecated
+    #   elastic-apm
 zgw-consumers==0.23.1
     # via
     #   -r requirements/base.txt

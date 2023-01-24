@@ -51,3 +51,4 @@ drc-cmis
 uwsgi
 sentry_sdk # error monitoring sentry
 flower # task monitoring
+elastic-apm  # Elastic APM integration
