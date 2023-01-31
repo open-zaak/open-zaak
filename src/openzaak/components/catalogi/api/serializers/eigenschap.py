@@ -16,11 +16,13 @@ class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
         model = EigenschapSpecificatie
         fields = ("groep", "formaat", "lengte", "kardinaliteit", "waardenverzameling")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(FormaatChoices)
-        self.fields["formaat"].help_text += f"\n\n{value_display_mapping}"
+        fields["formaat"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         instance = EigenschapSpecificatie(**attrs)

@@ -19,8 +19,10 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
         }
         validators = [ZaakTypeConceptValidator()]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(RolOmschrijving)
-        self.fields["omschrijving_generiek"].help_text += f"\n\n{value_display_mapping}"
+        fields["omschrijving_generiek"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields

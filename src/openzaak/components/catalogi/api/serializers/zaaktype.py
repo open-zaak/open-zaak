@@ -43,11 +43,13 @@ class ZaakTypenRelatieSerializer(ModelSerializer):
         fields = ("zaaktype", "aard_relatie", "toelichting")
         extra_kwargs = {"zaaktype": {"source": "gerelateerd_zaaktype"}}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(AardRelatieChoices)
-        self.fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class ZaakTypeSerializer(
@@ -200,17 +202,17 @@ class ZaakTypeSerializer(
             VerlengingsValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(
             VertrouwelijkheidsAanduiding
         )
-        self.fields[
+        fields[
             "vertrouwelijkheidaanduiding"
         ].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(RichtingChoices)
-        self.fields[
-            "indicatie_intern_of_extern"
-        ].help_text += f"\n\n{value_display_mapping}"
+        fields["indicatie_intern_of_extern"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields

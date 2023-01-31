@@ -178,11 +178,13 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             ObjectTypeOverigeDefinitieValidator(),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(ZaakobjectTypes)
-        self.fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+        fields["object_type"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)

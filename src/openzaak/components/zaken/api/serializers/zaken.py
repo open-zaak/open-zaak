@@ -134,11 +134,13 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
             },
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(AardZaakRelatie)
-        self.fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
+        fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
 
 class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
@@ -798,17 +800,19 @@ class RolSerializer(PolymorphicSerializer):
             },
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(IndicatieMachtiging)
-        self.fields["indicatie_machtiging"].help_text += f"\n\n{value_display_mapping}"
+        fields["indicatie_machtiging"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(RolTypes)
-        self.fields["betrokkene_type"].help_text += f"\n\n{value_display_mapping}"
+        fields["betrokkene_type"].help_text += f"\n\n{value_display_mapping}"
 
         value_display_mapping = add_choice_values_help_text(RolOmschrijving)
-        self.fields["omschrijving_generiek"].help_text += f"\n\n{value_display_mapping}"
+        fields["omschrijving_generiek"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)

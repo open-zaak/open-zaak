@@ -43,11 +43,13 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             ),
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_fields(self):
+        fields = super().get_fields()
 
         value_display_mapping = add_choice_values_help_text(RichtingChoices)
-        self.fields["richting"].help_text += f"\n\n{value_display_mapping}"
+        fields["richting"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
 
     def validate(self, attrs):
         super().validate(attrs)
