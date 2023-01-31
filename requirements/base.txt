@@ -33,6 +33,7 @@ celery==5.2.7
     #   notifications-api-common
 certifi==2022.12.7
     # via
+    #   elastic-apm
     #   requests
     #   self-certifi
     #   sentry-sdk
@@ -192,6 +193,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   commonground-api-common
+elastic-apm==6.13.2
+    # via -r requirements/base.in
 face==20.1.1
     # via glom
 faker==13.3.2
@@ -354,6 +357,7 @@ url-normalize==1.4.3
     # via requests-cache
 urllib3==1.26.12
     # via
+    #   elastic-apm
     #   requests
     #   requests-cache
     #   sentry-sdk
@@ -368,8 +372,10 @@ wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
-wrapt==1.14.0
-    # via deprecated
+wrapt==1.14.1
+    # via
+    #   deprecated
+    #   elastic-apm
 zgw-consumers==0.23.1
     # via
     #   -r requirements/base.in

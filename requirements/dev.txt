@@ -68,6 +68,7 @@ celery==5.2.7
 certifi==2022.12.7
     # via
     #   -r requirements/ci.txt
+    #   elastic-apm
     #   kubernetes
     #   requests
     #   self-certifi
@@ -283,6 +284,8 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
+elastic-apm==6.13.2
+    # via -r requirements/ci.txt
 face==20.1.1
     # via
     #   -r requirements/ci.txt
@@ -662,6 +665,7 @@ url-normalize==1.4.3
 urllib3==1.26.12
     # via
     #   -r requirements/ci.txt
+    #   elastic-apm
     #   kubernetes
     #   requests
     #   requests-cache
@@ -700,10 +704,11 @@ wheel==0.38.4
     # via pip-tools
 whitenoise==6.0.0
     # via -r requirements/dev.in
-wrapt==1.14.0
+wrapt==1.14.1
     # via
     #   -r requirements/ci.txt
     #   deprecated
+    #   elastic-apm
 zgw-consumers==0.23.1
     # via
     #   -r requirements/ci.txt
