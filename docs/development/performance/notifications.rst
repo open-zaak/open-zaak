@@ -3,18 +3,22 @@
 Notifications performance
 =========================
 
-Open Zaak sends notifications using `Celery`_ as a task queue.
-Since sending notifications is asynchronous we use auto retry in case the tasks have failed.
+Open Zaak sends notifications using `Celery`_ as an asynchronous task queue. Notification delivery
+failure to the Notifications API/service may happen, which is why we leverage "autoretry" for
+these failed tasks.
 
-Below we analyze the reliability and performance of sending notifications about
-the creation of the zaak.
+The reliability and performance of sending notifications was analyzed and the results are reported
+below. In this test case, we observed the behaviour of notifications triggered by "case create" 
+events.
 
 
 Sending notifications under burst load
 --------------------------------------
 
-We measure the notifications median time and failure rate under the increasing
-amount of concurrent users.
+We measure the notifications median time and failure rate under an increasing
+amount of concurrent users. The goal is to observe the reliability of notification
+delivery and delay between notification scheduling and it actually arriving at the
+Notifications API.
 
 **Test specifications:**
 
@@ -31,8 +35,12 @@ amount of concurrent users.
     20,1479,25.034,0,740,0,83.922
     40,1429,24.189,0,1200,0,86.557
 
-The results of the burst load test are promising. We have 0 failure rate both for zaak
-creation and for sending of notifications about it.
+The data suggests no reliability issues, even with only a single Celery worker, as the failure
+rates are 0 for both the API operation and notification delivery.
+
+Note that the worker containers can scale horizontally and we recommend deploying at 
+least two worker containers, ideally distributed over different hardware instances for 
+high-available set-ups.
 
 .. _Celery: https://docs.celeryq.dev/en/stable/
 
@@ -40,9 +48,12 @@ creation and for sending of notifications about it.
 Automatic retry for notifications
 ---------------------------------
 
-Sending notifications can be done with automatic retry, i.e. if the notification task was failed it
-will be autoretried the configured number of times. We measure how autoretry works with increasing downtime
-of the notification service.
+By default, sending notifications has automatic retry behaviour, i.e. if the notification
+publishing task hasfailed, it will automatically be scheduled/tried again until the maximum
+retry limit has been reached.
+
+In this scenario, we measure how autoretry behaves with increasing downtime durations of 
+the notification service.
 
 **Test specifications:**
 
@@ -50,8 +61,8 @@ of the notification service.
 * 10 concurrent users
 * no waiting time between requests for 1 user
 * all users send requests to create zaak (``POST /api/v1/zaken``)
-* requests are send during 1 min
-* auto retry settings are default (5 maximum attempts per task)
+* requests are sent for a total duration of 1 min
+* auto retry settings: default (5 maximum attempts per task)
 
 .. csv-table:: Notification autoretries per downtime
    :header-rows: 1
