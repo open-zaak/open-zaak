@@ -135,7 +135,7 @@ deprecated==1.2.13
     #   redis
 dictdiffer==0.9.0
     # via -r requirements/ci.txt
-django==3.2.16
+django==3.2.17
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
