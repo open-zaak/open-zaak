@@ -103,7 +103,7 @@ coreschema==0.0.4
     #   drf-yasg
 coverage==6.3.2
     # via -r requirements/test-tools.in
-cryptography==3.4.8
+cryptography==39.0.1
     # via
     #   -r requirements/base.txt
     #   josepy
@@ -391,7 +391,7 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==21.0.0
+pyopenssl==23.0.0
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
@@ -476,7 +476,6 @@ six==1.16.0
     #   furl
     #   isodate
     #   orderedmultidict
-    #   pyopenssl
     #   python-dateutil
     #   requests-mock
     #   url-normalize

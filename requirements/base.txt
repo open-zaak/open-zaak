@@ -65,7 +65,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==3.4.8
+cryptography==39.0.1
     # via
     #   josepy
     #   mozilla-django-oidc
@@ -272,7 +272,7 @@ pyjwt==2.4.0
     # via
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==21.0.0
+pyopenssl==23.0.0
     # via
     #   django-simple-certmanager
     #   josepy
@@ -338,7 +338,6 @@ six==1.16.0
     #   furl
     #   isodate
     #   orderedmultidict
-    #   pyopenssl
     #   python-dateutil
     #   requests-mock
     #   url-normalize
