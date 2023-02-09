@@ -57,6 +57,7 @@ Guides
    self_signed
    post_install
    updating
+   external_components
 
 Reference
 ---------
