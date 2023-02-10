@@ -549,6 +549,47 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         self.assertEqual(first_version.versie, 1)
         self.assertEqual(first_version.beschrijving, "beschrijving1")
 
+    def test_eio_update_with_empty_content(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="beschrijving1", informatieobjecttype__concept=False
+        )
+
+        eio_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        eio_data["lock"] = lock
+        for i in ["integriteit", "ondertekening", "inhoud", "bestandsomvang"]:
+            eio_data.pop(i)
+
+        response = self.client.put(eio_url, eio_data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()
+
+        self.assertIsNone(response_data["inhoud"])
+        self.assertIsNone(response_data["bestandsomvang"])
+
+        eios = EnkelvoudigInformatieObject.objects.filter(uuid=eio.uuid).order_by(
+            "-versie"
+        )
+
+        self.assertEqual(len(eios), 2)
+
+        latest_version = eios.first()
+        self.assertEqual(latest_version.versie, 2)
+        self.assertEqual(str(latest_version.inhoud), "")
+        self.assertIsNone(latest_version.bestandsomvang)
+
+        first_version = eios[1]
+        self.assertEqual(first_version.versie, 1)
+        self.assertNotEqual(str(first_version.inhoud), "")
+        self.assertIsNotNone(first_version.bestandsomvang)
+
     def test_eio_partial_update(self):
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
