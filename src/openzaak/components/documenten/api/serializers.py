@@ -548,6 +548,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             ):
                 validated_data[field.name] = getattr(instance, field.name)
 
+        # add vertrouwelijkheidaanduiding
+        validated_data["vertrouwelijkheidaanduiding"] = validated_data.get(
+            "vertrouwelijkheidaanduiding", instance.vertrouwelijkheidaanduiding
+        )
         validated_data["pk"] = None
         validated_data["versie"] += 1
 
