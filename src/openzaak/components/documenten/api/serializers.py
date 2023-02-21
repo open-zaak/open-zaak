@@ -413,7 +413,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         valid_attrs = super().validate(attrs)
 
         # check if file.size equal bestandsomvang
-        if self.instance is None:  # create
+        if self.instance is None or not self.partial:  # create and update PUT
             if (
                 valid_attrs.get("inhoud") is not None
                 and "bestandsomvang" in valid_attrs
@@ -432,7 +432,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 and "bestandsomvang" not in valid_attrs
             ):
                 valid_attrs["bestandsomvang"] = valid_attrs["inhoud"].size
-        else:  # update
+        else:  # update PATCH
             inhoud = get_from_serializer_data_or_instance("inhoud", valid_attrs, self)
             bestandsomvang = get_from_serializer_data_or_instance(
                 "bestandsomvang", valid_attrs, self
@@ -543,11 +543,21 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         )  # integriteit and ondertekening can also be set to None
         ondertekening = validated_data.pop("ondertekening", {}) or {}
 
+        # populate new version with previous version data only for PATCH
         validated_data_field_names = validated_data.keys()
+        updatable_field_names = [
+            k for k, v in self.get_fields().items() if not v.read_only
+        ]
         for field in instance._meta.get_fields():
-            if field.name not in validated_data_field_names:
+            if field.name not in validated_data_field_names and (
+                self.partial or field.name not in updatable_field_names
+            ):
                 validated_data[field.name] = getattr(instance, field.name)
 
+        # add vertrouwelijkheidaanduiding
+        validated_data["vertrouwelijkheidaanduiding"] = validated_data.get(
+            "vertrouwelijkheidaanduiding", instance.vertrouwelijkheidaanduiding
+        )
         validated_data["pk"] = None
         validated_data["versie"] += 1
 
