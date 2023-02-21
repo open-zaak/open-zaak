@@ -152,7 +152,7 @@ class FkOrServiceUrlField(FkOrURLField):
 def validate_relative_url(value):
     message = _("Enter a valid relative URL.")
 
-    if value.startswith("https://", "http://", "fps://", "ftps://", "/"):
+    if value.startswith(("https://", "http://", "fps://", "ftps://", "/")):
         raise exceptions.ValidationError(
             message, code="invalid", params={"value": value}
         )
