@@ -5,6 +5,7 @@ from django.urls import reverse
 
 import requests_mock
 from django_webtest import WebTest
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -100,3 +101,24 @@ class ZaakAdminTests(WebTest):
             with self.subTest(url):
                 response = self.app.get(url)
                 self.assertEqual(response.status_code, 200)
+
+    def test_create_with_external_zaaktype(self):
+        """
+        Add a zaak with an external zaaktype
+        """
+        zaak_add_url = reverse("admin:zaken_zaak_add")
+
+        response = self.app.get(zaak_add_url)
+
+        form = response.form
+        form["_zaaktype_base_url"] = self.service.pk
+        form["_zaaktype_relative_url"] = "zaken/c10edbb4-d038-4333-a9ba-bbccfc8fa8bd"
+        form["vertrouwelijkheidaanduiding"] = VertrouwelijkheidsAanduiding.openbaar
+        form["bronorganisatie"] = "517439943"
+        form["verantwoordelijke_organisatie"] = "517439943"
+        form["startdatum"] = "2023-01-01"
+        form["registratiedatum"] = "2023-01-01"
+
+        submit_response = form.submit()
+
+        self.assertEqual(submit_response.status_code, 302)
