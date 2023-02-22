@@ -247,7 +247,7 @@ mozilla-django-oidc==2.0.0
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.in
-notifications-api-common==0.2.0
+notifications-api-common==0.2.1
     # via
     #   -r requirements/base.in
     #   commonground-api-common
