@@ -1,6 +1,6 @@
 {
   "name": "openzaak",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Open Zaak",
   "main": "src/index.js",
   "directories": {

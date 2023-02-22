@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.8.2 (2023-02-22)
+------------------
+
+* [#1333] Fixed crash in relative URL validation in the admin
+* [#1335] Fixed crash in PUT of documenten without size/content in the body
+* [#1321] Fixed bug causing failed notifications to not be logged in the database anymore
+* Bumped dependencies with latest (security) patches
+
 1.8.1 (2023-01-19)
 ------------------
 
