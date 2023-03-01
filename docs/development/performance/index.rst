@@ -13,3 +13,4 @@ Performance is measured using different types of scenarios.
    profiling
    scenarios
    apachebench
+   notifications
