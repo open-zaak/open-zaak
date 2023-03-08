@@ -1,7 +1,7 @@
-# Open-Zaak and the Standard for Public Code version 0.4.0
+# Open-Zaak and the Standard for Public Code version 0.5.0
 
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
-<!-- # Copyright (C) 2020 - 2022 Dimpact -->
+<!-- # Copyright (C) 2020 - 2023 Dimpact -->
 
 Link to commitment to meet the Standard for Public Code: [CONTRIBUTING](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md)
 
@@ -23,8 +23,8 @@ Documenting which source code or policy underpins any specific interaction the g
 
 Requirement | meets | links and notes
 -----|-----|-----
-A codebase MUST include the policy that the source code is based on. | yes | [API specs embeded in the codebase](https://github.com/open-zaak/open-zaak/blob/main/src/openzaak/components/zaken/openapi.yaml), and linked from [documentation](https://github.com/open-zaak/open-zaak)
-A codebase MUST include all source code that the policy is based on, unless used for fraud detection. |  | "yes" or "not applicable", do we consider it based on the API?
+The codebase MUST include the policy that the source code is based on. | yes | [API specs embeded in the codebase](https://github.com/open-zaak/open-zaak/blob/main/src/openzaak/components/zaken/openapi.yaml), and linked from [documentation](https://github.com/open-zaak/open-zaak)
+The codebase MUST include all source code that the policy is based on, unless used for fraud detection. |  | "yes" or "not applicable", do we consider it based on the API?
 Policy SHOULD be provided in machine readable and unambiguous formats. | yes | OpenAPI is in machine readable yaml format
 Continuous integration tests SHOULD validate that the source code and the policy are executed coherently. | yes | [GitHub workflow](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml), [API Test Platform](https://api-test.nl/server/1/6b5fe675-694d-4948-8896-5eae88d30ef0/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 
@@ -76,7 +76,7 @@ The documentation SHOULD include instructions for how to report potentially secu
 Requirement | meets | links and notes
 -----|-----|-----
 The community MUST have a way to maintain version control for the code. | yes | [GitHub](https://github.com/open-zaak/open-zaak)
-All files in a codebase MUST be version controlled. | yes | [git](https://github.com/open-zaak/open-zaak/)
+All files in the codebase MUST be version controlled. | yes | [git](https://github.com/open-zaak/open-zaak/)
 All decisions MUST be documented in commit messages. | yes | Commit messages are sufficiently detailed or contain links to detail; the repo has a [policy](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md#making-the-changes) and a `pull_request_template.md` which encourages referencing an issue and describing the changes @ericherman 2022-0321
 Every commit message MUST link to discussions and issues wherever possible. | yes | for non-trivial [commits](https://github.com/open-zaak/open-zaak/commits/main)
 The codebase SHOULD be maintained in a distributed version control system. | yes | git
@@ -126,7 +126,6 @@ The documentation of the codebase SHOULD contain examples for all functionality.
 The documentation SHOULD describe the key components or modules of the codebase and their relationships, for example as a high level architectural diagram. |  | basics about the Frontend and Backend described in [principles](https://open-zaak.readthedocs.io/en/stable/development/principles.html)
 There SHOULD be continuous integration tests for the quality of the documentation. | yes | link checks, build checks, [GitHub Actions](https://github.com/open-zaak/open-zaak/blob/main/.github/workflows/ci.yml#L184-L194)
 Including examples that make users want to immediately start using the codebase in the documentation of the codebase is OPTIONAL. |  |
-Testing the code by using examples in the documentation is OPTIONAL. |  |
 
 ## [Use plain English](https://standard.publiccode.net/criteria/understandable-english-first.html)
 
@@ -139,7 +138,6 @@ All code MUST be in English, except where policy is machine interpreted as code.
 All bundled policy not available in English MUST have an accompanying summary in English. |  |
 Any translation MUST be up to date with the English version and vice versa. |  | TODO: add translations of user-facing texts (NL -> EN) (makemessages)
 There SHOULD be no acronyms, abbreviations, puns or legal/non-English/domain specific terms in the codebase without an explanation preceding it or a link to an explanation. |  | Domain specific Dutch terms could be in a glossary which is also translated in English.
-The name of the codebase SHOULD be descriptive and free from acronyms, abbreviations, puns or organizational branding. | yes |
 Documentation SHOULD aim for a lower secondary education reading level, as recommended by the [Web Content Accessibility Guidelines 2](https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=315#readable). |  | Would be good to get an evaluation of this prior to investing in translation.
 Providing a translation of any code, documentation or tests is OPTIONAL. |  |
 
@@ -149,12 +147,13 @@ Providing a translation of any code, documentation or tests is OPTIONAL. |  |
 
 Requirement | meets | links and notes
 -----|-----|-----
-For features of a codebase that facilitate the exchange of data the codebase MUST use an open standard that meets the [Open Source Initiative Open Standard Requirements](https://opensource.org/osr). | yes | The [Zaakgericht Werken in het Gemeentelijk Gegevenslandschap](https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf) meets the 5 criteria of the [Open Standards Requirement for Software](https://opensource.org/osr)
+For features of the codebase that facilitate the exchange of data the codebase MUST use an open standard that meets the [Open Source Initiative Open Standard Requirements](https://opensource.org/osr). | yes | The [Zaakgericht Werken in het Gemeentelijk Gegevenslandschap](https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf) meets the 5 criteria of the [Open Standards Requirement for Software](https://opensource.org/osr)
 Any non-open standards used MUST be recorded clearly as such in the documentation. | n/a |
 Any standard chosen for use within the codebase MUST be listed in the documentation with a link to where it is available. | yes | [API-specifications](https://open-zaak.readthedocs.io/en/stable/api/index.html#api-index)
 Any non-open standards chosen for use within the codebase MUST NOT hinder collaboration and reuse. | n/a |
 If no existing open standard is available, effort SHOULD be put into developing one. | n/a |
-Standards that are machine testable SHOULD be preferred over those that are not. | yes | e.g.: [Zaken API](https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/index)
+Open standards that are machine testable SHOULD be preferred over open standards that are not. | yes | e.g.: [Zaken API](https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/index)
+Non-open standards that are machine testable SHOULD be preferred over non-open standards that are not. | N/A |
 
 ## [Use continuous integration](https://standard.publiccode.net/criteria/continuous-integration.html)
 
@@ -165,11 +164,12 @@ Requirement | meets | links and notes
 All functionality in the source code MUST have automated tests. |  | 96% [codecoverage](https://codecov.io/gh/open-zaak/open-zaak), small amount of admin UI code not tested
 Contributions MUST pass all automated tests before they are admitted into the codebase. | yes | github checks
 The codebase MUST have guidelines explaining how to structure contributions. | yes | [CONTRIBUTING](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md)
-The codebase MUST have active contributors. | yes | [pulse](https://github.com/open-zaak/open-zaak/pulse)
+The codebase MUST have active contributors who can review contributions. | yes | [pulse](https://github.com/open-zaak/open-zaak/pulse)
 The codebase guidelines SHOULD state that each contribution should focus on a single issue. |  | single PR to solve a single issue could be clearer in guidelines
 Source code test and documentation coverage SHOULD be monitored. | yes |
 Testing policy and documentation for consistency with the source and vice versa is OPTIONAL. | yes |
 Testing policy and documentation for style and broken links is OPTIONAL. | yes | [docs tests](https://github.com/open-zaak/open-zaak/blob/main/docs/check_sphinx.py), flake8/isort/black
+Testing the code by using examples in the documentation is OPTIONAL. |  |
 
 ## [Publish with an open license](https://standard.publiccode.net/criteria/open-licenses.html)
 
@@ -192,6 +192,7 @@ Requirement | meets | links and notes
 -----|-----|-----
 The codebase MUST be findable using a search engine by describing the problem it solves in natural language. |  | <!-- need to check -->
 The codebase MUST be findable using a search engine by codebase name. | yes |
+The name of the codebase SHOULD be descriptive and free from acronyms, abbreviations, puns or organizational branding. | yes |
 Maintainers SHOULD submit the codebase to relevant software catalogs. |  |
 The codebase SHOULD have a website which describes the problem the codebase solves using the preferred jargon of different potential users of the codebase (including technologists, policy experts and managers). | yes | [openzaak.org](https://openzaak.org/)
 The codebase SHOULD have a unique and persistent identifier where the entry mentions the major contributors, repository location and website. |  |
@@ -205,10 +206,10 @@ Regular presentations at conferences by the community are OPTIONAL. |  |
 
 Requirement | meets | links and notes
 -----|-----|-----
-Contributions MUST adhere to either a coding or writing style guide, either the codebase community's own or an existing one that is advertised in or part of the codebase. | yes | [Style guides](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md)
+The codebase MUST use a coding or writing style guide, either the codebase community's own or an existing one referred to in the codebase. | yes | [Style guides](https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md)
 Contributions SHOULD pass automated tests on style. | yes |
-The codebase SHOULD include inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
-Including sections on [understandable English](https://standard.publiccode.net/criteria/understandable-english-first.html) in the style guide is OPTIONAL. |  |
+The style guide SHOULD include expectations for inline comments and documentation for non-trivial sections. | yes | add to contributing guidelines
+Including expectations for [understandable English](https://standard.publiccode.net/criteria/understandable-english-first.html) in the style guide is OPTIONAL. |  |
 
 ## [Document codebase maturity](https://standard.publiccode.net/criteria/document-maturity.html)
 
@@ -217,6 +218,7 @@ Including sections on [understandable English](https://standard.publiccode.net/c
 Requirement | meets | links and notes
 -----|-----|-----
 A codebase MUST be versioned. | yes | [version list](https://open-zaak.readthedocs.io/en/latest/development/index.html)
-A codebase that is ready to use MUST only depend on other codebases that are also ready to use. | yes | [Open source dependencies](https://github.com/open-zaak/open-zaak/blob/main/docs/introduction/open-source/dependencies.rst)
-A codebase that is not yet ready to use MUST have one of the labels: prototype, alpha, beta or pre-release version. | N/A | Is ready
+The codebase MUST prominently document whether or not there are versions of the codebase that are ready to use. | yes |
+Codebase versions that are ready to use MUST only depend on versions of other codebases that are also ready to use. | yes | [Open source dependencies](https://github.com/open-zaak/open-zaak/blob/main/docs/introduction/open-source/dependencies.rst)
 A codebase SHOULD contain a log of changes from version to version, for example in the `CHANGELOG`. | yes | [changelog](https://open-zaak.readthedocs.io/en/latest/development/changelog.html)
+It is OPTIONAL to use semantic versioning. | yes | Not explicitly documented as following semantic versioning
