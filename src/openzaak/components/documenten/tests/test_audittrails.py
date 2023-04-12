@@ -59,6 +59,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         return response.data
 
     def test_create_enkelvoudiginformatieobject_audittrail(self):
+        """test auditrails"""
         informatieobject_data = self._create_enkelvoudiginformatieobject()
         informatieobject_url = informatieobject_data["url"]
 
