@@ -178,7 +178,7 @@ jobs:
           docker ps -q | xargs  docker stats --no-stream
 
       - name: Install dependencies
-        run: pip install -r requirements/ci.txt codecov
+        run: pip install -r requirements/ci.txt
 
       - name: Build frontend
         run: |
