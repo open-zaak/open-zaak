@@ -72,6 +72,7 @@ from .filters import (
 )
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin
+from .pagination import ZaakPagination
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -242,7 +243,7 @@ class ZaakViewSet(
     filterset_class = ZaakFilter
     ordering_fields = ("startdatum",)
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = ZaakPagination
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {
