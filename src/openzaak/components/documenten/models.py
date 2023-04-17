@@ -557,6 +557,7 @@ class BestandsDeel(models.Model):
         blank=True,
         help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
     )
+    _voltooid = models.BooleanField(default=False)
     datetime_created = models.DateTimeField(_("datetime created"), auto_now_add=True)
 
     objects = BestandsDeelQuerySet.as_manager()
@@ -607,8 +608,16 @@ class BestandsDeel(models.Model):
         informatieobject = self.get_informatieobject()
         return informatieobject.canonical.lock
 
+    def save(self, *args, **kwargs) -> None:
+        if bool(self.inhoud.name):
+            self._voltooid = self.inhoud.size == self.omvang
+        return super().save(*args, **kwargs)
+
     @property
     def voltooid(self) -> bool:
+        if self._voltooid is not None:
+            return self._voltooid
+
         if not bool(self.inhoud.name):
             return False
 
