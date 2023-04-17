@@ -187,6 +187,7 @@ class EnkelvoudigInformatieObjectViewSet(
         EnkelvoudigInformatieObject.objects.select_related(
             "canonical", "_informatieobjecttype"
         )
+        .prefetch_related("canonical__bestandsdelen")
         .order_by("canonical", "-versie")
         .distinct("canonical")
     )
