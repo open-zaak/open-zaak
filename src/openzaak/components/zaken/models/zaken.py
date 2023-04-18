@@ -517,7 +517,7 @@ class Status(ETagMixin, models.Model):
 
     # extra informatie
     datum_status_gezet = models.DateTimeField(
-        help_text="De datum waarop de ZAAK de status heeft verkregen."
+        db_index=True, help_text="De datum waarop de ZAAK de status heeft verkregen."
     )
     statustoelichting = models.TextField(
         max_length=1000,
