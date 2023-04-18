@@ -131,7 +131,8 @@ class LooseFkAuthorizationsFilterMixin:
     def ids_by_auth(self, scope, authorizations, local=True) -> models.QuerySet:
         filters = self.get_filters(scope, authorizations, local)
         queryset = self.build_queryset(filters)
-        return queryset.values_list("pk", flat=True)
+        # We don't care about ordering, this only slows down the query
+        return queryset.order_by().values_list("pk", flat=True)
 
     def filter_for_authorizations(
         self, scope: Scope, authorizations: models.QuerySet
