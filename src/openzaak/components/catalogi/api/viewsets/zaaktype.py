@@ -103,6 +103,7 @@ class ZaakTypeViewSet(
         "resultaattypen",
         "eigenschap_set",
         "roltype_set",
+        "deelzaaktypen",
         "besluittypen",
     ).order_by("-pk")
     serializer_class = ZaakTypeSerializer
