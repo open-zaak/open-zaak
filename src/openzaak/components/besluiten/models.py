@@ -34,6 +34,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         "identificatie",
         max_length=50,
         blank=True,
+        db_index=True,
         help_text="Identificatie van het besluit binnen de organisatie die "
         "het besluit heeft vastgesteld. Indien deze niet opgegeven is, "
         "dan wordt die gegenereerd.",
