@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
+from cachalot.api import cachalot_disabled
 from django_webtest import WebTest
 from freezegun import freeze_time
 from vng_api_common.authorizations.models import Autorisatie
@@ -219,6 +220,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 self.assertEqual(parsed.netloc, "testserver")
                 self.assertIn(parsed.path, urls)
 
+    @cachalot_disabled()
     def test_add_autorisatie_all_current_and_future_zaaktypen(self):
         data = {
             # management form
@@ -243,6 +245,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             ZaakTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
+    @cachalot_disabled()
     def test_noop_all_current_and_future_zaaktypen(self):
         zt = ZaakTypeFactory.create()
         Autorisatie.objects.create(
@@ -320,6 +323,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 self.assertEqual(parsed.netloc, "testserver")
                 self.assertIn(parsed.path, urls)
 
+    @cachalot_disabled()
     def test_add_autorisatie_all_current_and_future_informatieobjecttypen(self):
         data = {
             # management form
@@ -344,6 +348,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
+    @cachalot_disabled()
     def test_noop_all_current_and_future_informatieobjecttypen(self):
         iot = InformatieObjectTypeFactory.create()
         Autorisatie.objects.create(
@@ -415,6 +420,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 self.assertEqual(parsed.netloc, "testserver")
                 self.assertIn(parsed.path, urls)
 
+    @cachalot_disabled()
     def test_add_autorisatie_all_current_and_future_besluittypen(self):
         data = {
             # management form
@@ -438,6 +444,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             BesluitTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 1)
 
+    @cachalot_disabled()
     def test_noop_all_current_and_future_besluittypen(self):
         bt = BesluitTypeFactory.create()
         Autorisatie.objects.create(
@@ -597,6 +604,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
+    @cachalot_disabled()
     def test_new_zt_all_current_and_future_send_notifications(self, mock_notif):
         data = {
             # management form

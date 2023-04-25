@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.test import override_settings, tag
 from django.urls import reverse
 
+from cachalot.api import cachalot_disabled
 from django_webtest import WebTest
 from freezegun import freeze_time
 
@@ -176,6 +177,7 @@ class NotificationAdminTests(
             }
         )
 
+    @cachalot_disabled()
     def test_besluit_notify_on_change(self, mock_notif):
         besluittype = BesluitTypeFactory.create(
             concept=True, omschrijving="test", catalogus=self.catalogus

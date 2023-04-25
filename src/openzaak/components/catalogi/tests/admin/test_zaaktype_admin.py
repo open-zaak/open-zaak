@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext, ngettext_lazy, ugettext_lazy as _
 
 import requests_mock
+from cachalot.api import cachalot_disabled
 from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from freezegun import freeze_time
@@ -140,6 +141,7 @@ class ZaaktypeAdminTests(
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
+    @cachalot_disabled()
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_new_version(self, m, mock_notif):
         mock_selectielijst_oas_get(m)
