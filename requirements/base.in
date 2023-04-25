@@ -18,6 +18,7 @@ bleach
 # Framework libraries
 django
 django-axes
+django-cachalot
 django-choices
 django-cors-headers
 django-db-logger

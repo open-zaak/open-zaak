@@ -142,6 +142,7 @@ django==3.2.18
     #   commonground-api-common
     #   django-admin-index
     #   django-axes
+    #   django-cachalot
     #   django-choices
     #   django-cors-headers
     #   django-db-logger
@@ -177,6 +178,8 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
+django-cachalot==2.5.3
+    # via -r requirements/ci.txt
 django-choices==1.7.2
     # via
     #   -r requirements/ci.txt
