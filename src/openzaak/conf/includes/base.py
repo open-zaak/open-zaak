@@ -128,6 +128,7 @@ INSTALLED_APPS = [
     "axes",
     "django_filters",
     "django_db_logger",
+    "cachalot",
     "corsheaders",
     "extra_views",
     "vng_api_common",  # before drf_yasg to override the management command
@@ -666,6 +667,22 @@ else:
     INSTALLED_APPS = INSTALLED_APPS + [
         "elasticapm.contrib.django",
     ]
+
+#
+# Cachalot
+#
+CACHALOT_ENABLED = True
+CACHALOT_CACHE = "default"
+CACHALOT_DATABASES = "supported_only"
+# Caching this table seems to cause unexpected behaviour, such as repeated identifications
+CACHALOT_UNCACHABLE_TABLES = ["zaken_zaakidentificatie"]
+CACHALOT_ONLY_CACHABLE_APPS = [
+    "zaken",
+    "documenten",
+    "autorisaties",
+    "besluiten",
+    "catalogi",
+]
 
 #
 # OpenZaak configuration
