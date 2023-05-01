@@ -371,16 +371,17 @@ CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with redoc.
 # Cachalot
 #
 CACHALOT_ENABLED = True
+CACHALOT_TIMEOUT = 60 * 30  # persist cache keys for half an hour
 CACHALOT_CACHE = "default"
 CACHALOT_DATABASES = "supported_only"
-# Caching this table seems to cause unexpected behaviour, such as repeated identifications
-CACHALOT_UNCACHABLE_TABLES = ["zaken_zaakidentificatie"]
 CACHALOT_ONLY_CACHABLE_APPS = [
     "zaken",
-    "documenten",
+    # "documenten",
     "autorisaties",
-    "besluiten",
+    # "besluiten",
     "catalogi",
+    "vng_api_common",
+    "authorizations",
 ]
 
 #

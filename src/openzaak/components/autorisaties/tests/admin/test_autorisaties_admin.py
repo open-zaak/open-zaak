@@ -1266,6 +1266,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
         # Load the page again to check if the initial data is as expected
+        import pdb; pdb.set_trace()
+
         response = self.client.get(self.url)
 
         expected_initial = [
