@@ -82,7 +82,7 @@
         "fields":{
             "label":"referentielijsten",
             "api_type":"orc",
-            "api_root":"https://selectielijst.openzaak.nl/api/v1/",
+            "api_root":"http://referentielijsten-api.vng.cloud/api/v1/",
             "client_id": "",
             "secret":"",
             "auth_type": "no_auth",
