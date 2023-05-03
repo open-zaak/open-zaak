@@ -182,34 +182,34 @@ class Command(BaseCommand):
             "--partition",
             type=int,
             default=10000,
-            help="Number of objects in python lists to prevent OOM killer",
+            help="Number of objects to create at a time to prevent OOM killer",
         )
         parser.add_argument(
             "--zaken",
-            dest="zaak_number",
+            dest="zaken_amount",
             type=int,
             default=1000000,
             help="Number of zaken, besluiten and documents to generate. Should be a multiple of 'zaaktypen'",
         )
         parser.add_argument(
             "--zaaktypen",
-            dest="zaaktype_number",
+            dest="zaaktypen_amount",
             type=int,
             default=100,
-            help="Number of zaaktypen, besluittypen and informatieobjecttypen to generate. Sh9",
+            help="Number of zaaktypen, besluittypen and informatieobjecttypen to generate.",
         )
 
     def handle(self, *args, **options):
         self.partition = options["partition"]
-        self.zaak_number = options["zaak_number"]
-        self.zaaktype_number = options["zaaktype_number"]
+        self.zaken_amount = options["zaken_amount"]
+        self.zaaktypen_amount = options["zaaktypen_amount"]
 
         confirm = input(
-            "Data generation should be used only for test purposes and must not be run in production. "
-            "Are you sure you want to do this? Type 'yes' to continue, or 'no' to cancel:"
+            "Data generation should only be used for test purposes and should not be run in production.\n"
+            "Are you sure you want to do this? Type 'yes' to continue, or 'no' to cancel: "
         )
         if confirm != "yes":
-            raise CommandError("Collecting static files cancelled.")
+            raise CommandError("Data generation cancelled.")
 
         self.generate_catalogi()
         self.generate_zaken()
@@ -218,14 +218,16 @@ class Command(BaseCommand):
         self.generate_relations()
 
     def log_created(self, objs):
-        self.stdout.write(f"{len(objs)} {objs[0]._meta.model.__name__} created")
+        self.stdout.write(
+            f"{len(objs)} {objs[0]._meta.verbose_name_plural.lower()} created"
+        )
 
     def bulk_create(self, model, objs):
         obj_name_plural = model._meta.verbose_name_plural
         for i, objs_batch in enumerate(split_every(self.partition, objs)):
             model.objects.bulk_create(objs_batch)
-            self.stdout.write(f"create {obj_name_plural} for {i + 1} partition")
-        self.stdout.write(f"finish creating {obj_name_plural}")
+            self.stdout.write(f"Creating {obj_name_plural} for partition {i + 1}")
+        self.stdout.write(f"Finished creating {obj_name_plural}")
 
     def generate_catalogi(self):
         #  catalog - 1
@@ -234,7 +236,7 @@ class Command(BaseCommand):
 
         # zaaktype - 100
         zaaktypen = ZaakTypeFactory.build_batch(
-            self.zaaktype_number, catalogus=catalog, concept=False
+            self.zaaktypen_amount, catalogus=catalog, concept=False
         )
         zaaktypen = ZaakType.objects.bulk_create(zaaktypen)
         self.log_created(zaaktypen)
@@ -269,7 +271,7 @@ class Command(BaseCommand):
 
         # informatieobjecttypen - 100
         iotypen = InformatieObjectTypeFactory.build_batch(
-            self.zaaktype_number, catalogus=catalog, concept=False
+            self.zaaktypen_amount, catalogus=catalog, concept=False
         )
         iotypen = InformatieObjectType.objects.bulk_create(iotypen)
         self.log_created(iotypen)
@@ -301,9 +303,12 @@ class Command(BaseCommand):
 
     def generate_zaken(self):
         # 1mln zaken
-        zaken_per_zaaktype = self.zaak_number // self.zaaktype_number
+        zaken_per_zaaktype = self.zaken_amount // self.zaaktypen_amount
         zaaktypen = ZaakType.objects.order_by("id").all()
         for i, zaaktype in enumerate(zaaktypen):
+            self.stdout.write(
+                f"Creating {zaken_per_zaaktype} zaken for zaaktype {i+1} / {self.zaaktypen_amount}"
+            )
             ZaakBulkFactory.reset_sequence(zaaktype.id * zaken_per_zaaktype)
             zaken = ZaakBulkFactory.build_batch(
                 zaken_per_zaaktype,
@@ -312,8 +317,8 @@ class Command(BaseCommand):
             )
 
             ZaakBulk.objects_bulk.bulk_create(zaken)
-            self.stdout.write(f"create zaken for {i} zaaktype")
-        self.stdout.write("finish creating zaken")
+
+        self.stdout.write("Adding more metadata to zaken...")
 
         zaken = Zaak.objects.order_by("id").all()
 
@@ -396,34 +401,42 @@ class Command(BaseCommand):
         )
         self.bulk_create(ZaakObject, zaakobject_generator)
 
+        self.stdout.write("Finished creating zaken")
+
     def generate_besluiten(self):
-        besluiten_per_besluittype = self.zaak_number // self.zaaktype_number
+        besluiten_per_besluittype = self.zaken_amount // self.zaaktypen_amount
         besluittypen = BesluitType.objects.order_by("id").all()
         for i, besluittype in enumerate(besluittypen):
+            self.stdout.write(
+                f"Creating {besluiten_per_besluittype} besluiten for besluittype {i+1} / {len(besluittypen)}"
+            )
             ZaakBulkFactory.reset_sequence(besluittype.id * besluiten_per_besluittype)
             besluiten = BesluitBulkFactory.build_batch(
                 besluiten_per_besluittype, besluittype=besluittype
             )
             BesluitBulk.objects_bulk.bulk_create(besluiten)
-            self.stdout.write(f"create besluiten for {i} besluittype")
-        self.stdout.write("finish creating besluiten")
+
+        self.stdout.write("Finished creating besluiten")
 
     def generate_documenten(self):
         # documenten - 1 mln
-        for i in range(self.zaak_number // self.partition):
+        for i in range(self.zaken_amount // self.partition):
+            self.stdout.write(
+                f"Creating {self.partition} documenten for partition {i+1}"
+            )
             eios_canonical = EnkelvoudigInformatieObjectCanonicalFactory.build_batch(
                 self.partition, latest_version=None
             )
             EnkelvoudigInformatieObjectCanonical.objects.bulk_create(eios_canonical)
-            self.stdout.write(f"create documenten canonical for {i+1} partition")
 
-        remainder = self.zaak_number % self.partition
+        self.stdout.write("Adding content and more metadata to documenten...")
+
+        remainder = self.zaken_amount % self.partition
         if remainder:
             eios_canonical = EnkelvoudigInformatieObjectCanonicalFactory.build_batch(
                 remainder, latest_version=None
             )
             EnkelvoudigInformatieObjectCanonical.objects.bulk_create(eios_canonical)
-        self.stdout.write("finish creating documenten canonical")
 
         def generate_enkelvoudiginformatieobjecten():
             eios_canonical = EnkelvoudigInformatieObjectCanonical.objects.order_by(
@@ -431,13 +444,15 @@ class Command(BaseCommand):
             ).iterator()
             iotypen = InformatieObjectType.objects.order_by("id").all()
             for iotype in iotypen:
-                for i in range(self.zaak_number // self.zaaktype_number):
+                for i in range(self.zaken_amount // self.zaaktypen_amount):
                     yield EnkelvoudigInformatieObjectFactory.build(
                         informatieobjecttype=iotype, canonical=next(eios_canonical)
                     )
 
         documenten_generator = generate_enkelvoudiginformatieobjecten()
         self.bulk_create(EnkelvoudigInformatieObject, documenten_generator)
+
+        self.stdout.write("Finished creating documenten")
 
     def generate_relations(self):
         documenten = EnkelvoudigInformatieObjectCanonical.objects.order_by("id")
