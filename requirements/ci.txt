@@ -89,7 +89,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common==1.10.1
+commonground-api-common==1.10.2
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -351,7 +351,7 @@ mozilla-django-oidc==2.0.0
     #   mozilla-django-oidc-db
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.txt
-notifications-api-common==0.2.1
+notifications-api-common==0.2.2
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
