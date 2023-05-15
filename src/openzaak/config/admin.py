@@ -21,7 +21,10 @@ class InternalServiceAdmin(admin.ModelAdmin):
 
 @admin.register(FeatureFlags)
 class FeatureFlagsAdmin(SingletonModelAdmin):
-    list_display = ("allow_unpublished_typen",)
+    list_display = (
+        "allow_unpublished_typen",
+        "improved_pagination_performance",
+    )
 
 
 # Replace the CMISConfigAdmin with our own.

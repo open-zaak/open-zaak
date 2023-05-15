@@ -54,6 +54,14 @@ class FeatureFlags(SingletonModel):
             "enable this in production."
         ),
     )
+    improved_pagination_performance = models.BooleanField(
+        _("improved API pagination performance"),
+        default=False,
+        help_text=_(
+            "Improve performance for paginated API endpoints by disabling exact counts,"
+            "this causes an extra attribute to be set in the API responses (`countExact`)."
+        ),
+    )
 
     class Meta:
         verbose_name = _("feature flags")
