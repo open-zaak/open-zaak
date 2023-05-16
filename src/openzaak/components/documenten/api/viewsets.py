@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
@@ -194,7 +195,6 @@ class EnkelvoudigInformatieObjectViewSet(
     )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
-    pagination_class = CustomPagination
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -209,6 +209,12 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
+
+    @property
+    def pagination_class(self):
+        if settings.CMIS_ENABLED:
+            return PageNumberPagination
+        return CustomPagination
 
     @property
     def swagger_schema(self):
