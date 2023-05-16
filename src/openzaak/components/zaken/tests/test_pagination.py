@@ -48,7 +48,7 @@ class ZaakPaginationTestCase(JWTAuthMixin, APITestCase):
 
 
 @patch(
-    "openzaak.components.zaken.api.pagination.FeatureFlags.get_solo",
+    "openzaak.utils.pagination.FeatureFlags.get_solo",
     return_value=FeatureFlags(improved_pagination_performance=True),
 )
 class ZaakPaginationImprovedPerformanceFeatureFlagTestCase(JWTAuthMixin, APITestCase):
@@ -61,8 +61,8 @@ class ZaakPaginationImprovedPerformanceFeatureFlagTestCase(JWTAuthMixin, APITest
 
         ZaakFactory.create_batch(11)
 
-    @patch("openzaak.components.zaken.api.pagination.PAGINATION_COUNT_LIMIT", 10)
-    @patch("openzaak.components.zaken.api.pagination.ZaakPagination.page_size", 5)
+    @patch("openzaak.utils.pagination.PAGINATION_COUNT_LIMIT", 10)
+    @patch("openzaak.utils.pagination.CustomPagination.page_size", 5)
     def test_pagination_page_param_improved_performance_count_not_exact(self, *m):
         list_url = reverse(Zaak)
 
@@ -80,8 +80,8 @@ class ZaakPaginationImprovedPerformanceFeatureFlagTestCase(JWTAuthMixin, APITest
         # Because the real count exceeds the limit, the count is not exact
         self.assertFalse(response_data["countExact"])
 
-    @patch("openzaak.components.zaken.api.pagination.PAGINATION_COUNT_LIMIT", 10)
-    @patch("openzaak.components.zaken.api.pagination.ZaakPagination.page_size", 5)
+    @patch("openzaak.utils.pagination.PAGINATION_COUNT_LIMIT", 10)
+    @patch("openzaak.utils.pagination.CustomPagination.page_size", 5)
     def test_pagination_page_param_improved_performance_last_page(self, *m):
         list_url = reverse(Zaak)
 

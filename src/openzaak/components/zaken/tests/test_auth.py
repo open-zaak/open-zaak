@@ -20,6 +20,7 @@ from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
 )
+from openzaak.config.models import FeatureFlags
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import (
@@ -175,6 +176,10 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        # Call this to ensure that it is already inserted into the database.
+        # Otherwise the first call to the endpoint will cause extra queries
+        FeatureFlags.get_solo()
+
         # we're managing those directly in the test itself
         cls.autorisatie.delete()
         # strip out some queries that we don't normally have to run
@@ -197,7 +202,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
         the amount of zaaktypen involved in the permissions.
         """
         # queries not directly involved with this endpoint in particular
-        BASE_NUM_QUERIES = 4
+        BASE_NUM_QUERIES = 6
         # queries because of the permission checks
         PERMISSION_CHECK_NUM_QUERIES = 2
         # queries because of the list endpoint itself
