@@ -24,6 +24,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
+from openzaak.utils.pagination import CustomPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
@@ -193,7 +194,7 @@ class EnkelvoudigInformatieObjectViewSet(
     )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
-    pagination_class = EnkelvoudigInformatieObjectPagination
+    pagination_class = CustomPagination
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,

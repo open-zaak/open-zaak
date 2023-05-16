@@ -7,9 +7,10 @@ from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.viewsets import CheckQueryParamsMixin
+
+from openzaak.utils.pagination import CustomPagination
 
 from ._schema_overrides import ApplicatieConsumerAutoSchema
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
@@ -105,7 +106,7 @@ class ApplicatieViewSet(
     )
     serializer_class = ApplicatieSerializer
     _filterset_class = ApplicatieFilter
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     lookup_field = "uuid"
     permission_classes = (AutorisatiesAuthRequired,)
     required_scopes = {

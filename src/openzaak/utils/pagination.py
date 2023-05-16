@@ -14,7 +14,7 @@ from openzaak.config.models import FeatureFlags
 PAGINATION_COUNT_LIMIT = 500
 
 
-class ZaakPaginator(DjangoPaginator):
+class CustomPaginator(DjangoPaginator):
     @cached_property
     def count(self):
         """
@@ -29,8 +29,8 @@ class ZaakPaginator(DjangoPaginator):
         return self.object_list.values("pk").count()
 
 
-class ZaakPagination(PageNumberPagination):
-    django_paginator_class = ZaakPaginator
+class CustomPagination(PageNumberPagination):
+    django_paginator_class = CustomPaginator
 
     def get_paginated_response(self, data):
         response_data = [

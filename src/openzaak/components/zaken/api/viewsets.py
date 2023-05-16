@@ -17,7 +17,6 @@ from notifications_api_common.viewsets import (
 from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
@@ -41,6 +40,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.filters import SearchOrderingFilter
+from openzaak.utils.pagination import CustomPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
@@ -72,7 +72,6 @@ from .filters import (
 )
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin
-from .pagination import ZaakPagination
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -243,7 +242,7 @@ class ZaakViewSet(
     filterset_class = ZaakFilter
     ordering_fields = ("startdatum",)
     lookup_field = "uuid"
-    pagination_class = ZaakPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {
@@ -428,7 +427,7 @@ class StatusViewSet(
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -545,7 +544,7 @@ class ZaakObjectViewSet(
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -816,7 +815,7 @@ class KlantContactViewSet(
     serializer_class = KlantContactSerializer
     filterset_class = KlantContactFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -886,7 +885,7 @@ class RolViewSet(
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -956,7 +955,7 @@ class ResultaatViewSet(
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"

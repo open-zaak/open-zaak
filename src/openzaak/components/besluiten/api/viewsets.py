@@ -11,7 +11,6 @@ from notifications_api_common.viewsets import (
 )
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.pagination import PageNumberPagination
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -24,6 +23,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.pagination import CustomPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import Besluit, BesluitInformatieObject
@@ -115,7 +115,7 @@ class BesluitViewSet(
     serializer_class = BesluitSerializer
     filter_class = BesluitFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     permission_classes = (BesluitAuthRequired,)
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,
