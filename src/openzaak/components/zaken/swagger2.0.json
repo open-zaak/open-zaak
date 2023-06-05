@@ -84,6 +84,11 @@
                                     "items": {
                                         "$ref": "#/definitions/KlantContact"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -395,6 +400,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Resultaat"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -1133,6 +1143,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Rol"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -1573,6 +1588,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Status"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -2920,6 +2940,11 @@
                                     "items": {
                                         "$ref": "#/definitions/ZaakObject"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -3993,6 +4018,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -4264,6 +4294,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Zaak"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },

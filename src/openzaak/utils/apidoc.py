@@ -35,3 +35,11 @@ UNIX-timestamp die aangeeft op welk moment het token gegenereerd is.
 vrije velden met als enige beperking dat de lengte maximaal de lengte van
 de overeenkomstige velden in de audit trail resources is (zie rest API spec).
 """
+
+
+def mark_oas_difference(help_text):
+    """
+    Indicate in help_text that the feature is a deviation from the reference
+    API specification
+    """
+    return f"***AFWIJKING:** {help_text}"

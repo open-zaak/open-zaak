@@ -2719,9 +2719,9 @@ components:
           readOnly: true
         lock:
           title: Lock
-          description: Lock id generated if the large file is created and should be
-            used while updating the document. Documents with base64 encoded files
-            are created without lock
+          description: Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt
+            moet worden bij document updates. Documenten met base64-encoded bestandsdata
+            worden zonder lock aangemaakt.
           type: string
           readOnly: true
           minLength: 1

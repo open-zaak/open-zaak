@@ -91,6 +91,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Applicatie"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },

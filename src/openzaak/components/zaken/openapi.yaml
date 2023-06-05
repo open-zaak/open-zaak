@@ -104,6 +104,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/KlantContact'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -327,6 +333,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Resultaat'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -877,6 +889,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Rol'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -1196,6 +1214,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Status'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -2188,6 +2212,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ZaakObject'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -2983,6 +3013,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3198,6 +3234,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Zaak'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':

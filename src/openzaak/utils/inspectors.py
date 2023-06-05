@@ -5,7 +5,9 @@ import logging
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector
+from drf_yasg.inspectors.query import DjangoRestResponsePagination
 
+from .apidoc import mark_oas_difference
 from .serializer_fields import LengthHyperlinkedRelatedField
 
 logger = logging.getLogger(__name__)
@@ -35,3 +37,24 @@ class LengthHyperlinkedRelatedFieldInspector(FieldInspector):
             return res
 
         return NotHandled
+
+
+class FuzzyPaginationInspector(DjangoRestResponsePagination):
+    def get_paginated_response(self, paginator, response_schema):
+        from .pagination import FuzzyPagination
+
+        paged_schema = super().get_paginated_response(paginator, response_schema)
+
+        if not isinstance(paginator, FuzzyPagination):
+            return paged_schema
+
+        paged_schema.properties["countExact"] = openapi.Schema(
+            type=openapi.TYPE_BOOLEAN,
+            x_nullable=True,
+            description=mark_oas_difference(
+                "Geeft aan of de `count` exact is, of dat deze wegens "
+                "performance doeleinden niet exact berekend is."
+            ),
+        )
+
+        return paged_schema
