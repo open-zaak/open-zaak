@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -51,7 +51,19 @@ class LooseFkAuthorizationsFilterMixin:
             "" if not self.authorizations_lookup else f"{self.authorizations_lookup}__"
         )
 
-    def build_queryset(self, filters) -> models.QuerySet:
+    def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
+        if not self.vertrouwelijkheidaanduiding_use:
+            del local_filters["_va_order__lte"]
+            del external_filters["_va_order__lte"]
+
+        _local_filters = Q()
+        for k, v in local_filters.items():
+            _local_filters &= Q(**{k: v})
+
+        _external_filters = Q()
+        for k, v in external_filters.items():
+            _external_filters &= Q(**{k: v})
+
         if self.vertrouwelijkheidaanduiding_use:
             # annotate the queryset so we can map a string value to a logical number
             order_case = VertrouwelijkheidsAanduiding.get_order_expression(
@@ -59,11 +71,12 @@ class LooseFkAuthorizationsFilterMixin:
             )
             annotations = {"_va_order": order_case}
             # bring it all together now to build the resulting queryset
-            queryset = self.annotate(**annotations).filter(**filters)
+            queryset = self.annotate(**annotations).filter(
+                _local_filters | _external_filters
+            )
 
         else:
-            del filters["_va_order__lte"]
-            queryset = self.filter(**filters)
+            queryset = self.filter(_local_filters | _external_filters)
         return queryset
 
     def get_filters(self, scope, authorizations, local=True) -> dict:
@@ -128,20 +141,9 @@ class LooseFkAuthorizationsFilterMixin:
         }
         return filters
 
-    def ids_by_auth(self, scope, authorizations, local=True) -> models.QuerySet:
-        filters = self.get_filters(scope, authorizations, local)
-        queryset = self.build_queryset(filters)
-        # We don't care about ordering, this only slows down the query
-        return queryset.order_by().values_list("pk", flat=True)
-
-    def filter_for_authorizations(
-        self, scope: Scope, authorizations: models.QuerySet
-    ) -> models.QuerySet:
-
-        # todo implement error if no loose-fk field
-
+    def get_authorizations(self, scope: Scope, authorizations: models.QuerySet):
         authorizations_local = []
-        authorizarions_external = []
+        authorizations_external = []
         allowed_hosts = settings.ALLOWED_HOSTS
 
         for auth in authorizations:
@@ -153,10 +155,21 @@ class LooseFkAuthorizationsFilterMixin:
             if validate_host(loose_fk_host, allowed_hosts):
                 authorizations_local.append(auth)
             else:
-                authorizarions_external.append(auth)
+                authorizations_external.append(auth)
 
-        ids_local = self.ids_by_auth(scope, authorizations_local, local=True)
-        ids_external = self.ids_by_auth(scope, authorizarions_external, local=False)
-        queryset = self.filter(pk__in=ids_local.union(ids_external))
+        return authorizations_local, authorizations_external
 
-        return queryset
+    def filter_for_authorizations(
+        self, scope: Scope, authorizations: models.QuerySet
+    ) -> models.QuerySet:
+
+        # todo implement error if no loose-fk field
+
+        authorizations_local, authorizations_external = self.get_authorizations(
+            scope, authorizations
+        )
+
+        local_filters = self.get_filters(scope, authorizations_local, True)
+        external_filters = self.get_filters(scope, authorizations_external, False)
+
+        return self.build_queryset(local_filters, external_filters)
