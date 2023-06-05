@@ -25,7 +25,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
@@ -214,7 +214,7 @@ class EnkelvoudigInformatieObjectViewSet(
     def pagination_class(self):
         if settings.CMIS_ENABLED:
             return PageNumberPagination
-        return CustomPagination
+        return FuzzyPagination
 
     @property
     def swagger_schema(self):

@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import ResultaatType
@@ -67,7 +67,7 @@ class ResultaatTypeViewSet(
     serializer_class = ResultaatTypeSerializer
     filter_class = ResultaatTypeFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,

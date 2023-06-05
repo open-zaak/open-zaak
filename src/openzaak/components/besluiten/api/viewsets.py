@@ -23,7 +23,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import Besluit, BesluitInformatieObject
@@ -115,7 +115,7 @@ class BesluitViewSet(
     serializer_class = BesluitSerializer
     filter_class = BesluitFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
     permission_classes = (BesluitAuthRequired,)
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,

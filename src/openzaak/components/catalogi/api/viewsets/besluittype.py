@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
@@ -87,7 +87,7 @@ class BesluitTypeViewSet(
     serializer_class = BesluitTypeSerializer
     filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,

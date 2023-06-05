@@ -10,7 +10,7 @@ from rest_framework.generics import get_object_or_404
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 
 from ._schema_overrides import ApplicatieConsumerAutoSchema
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
@@ -106,7 +106,7 @@ class ApplicatieViewSet(
     )
     serializer_class = ApplicatieSerializer
     _filterset_class = ApplicatieFilter
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
     lookup_field = "uuid"
     permission_classes = (AutorisatiesAuthRequired,)
     required_scopes = {

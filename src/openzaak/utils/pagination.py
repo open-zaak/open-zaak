@@ -29,7 +29,7 @@ class CustomPaginator(DjangoPaginator):
         return self.object_list.values("pk").count()
 
 
-class CustomPagination(PageNumberPagination):
+class FuzzyPagination(PageNumberPagination):
     django_paginator_class = CustomPaginator
 
     def get_paginated_response(self, data):

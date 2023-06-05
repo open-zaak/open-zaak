@@ -62,7 +62,7 @@ class ZaakPaginationImprovedPerformanceFeatureFlagTestCase(JWTAuthMixin, APITest
         ZaakFactory.create_batch(11)
 
     @patch("openzaak.utils.pagination.PAGINATION_COUNT_LIMIT", 10)
-    @patch("openzaak.utils.pagination.CustomPagination.page_size", 5)
+    @patch("openzaak.utils.pagination.FuzzyPagination.page_size", 5)
     def test_pagination_page_param_improved_performance_count_not_exact(self, *m):
         list_url = reverse(Zaak)
 
@@ -81,7 +81,7 @@ class ZaakPaginationImprovedPerformanceFeatureFlagTestCase(JWTAuthMixin, APITest
         self.assertFalse(response_data["countExact"])
 
     @patch("openzaak.utils.pagination.PAGINATION_COUNT_LIMIT", 10)
-    @patch("openzaak.utils.pagination.CustomPagination.page_size", 5)
+    @patch("openzaak.utils.pagination.FuzzyPagination.page_size", 5)
     def test_pagination_page_param_improved_performance_last_page(self, *m):
         list_url = reverse(Zaak)
 

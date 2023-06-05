@@ -40,7 +40,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.filters import SearchOrderingFilter
-from openzaak.utils.pagination import CustomPagination
+from openzaak.utils.pagination import FuzzyPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
@@ -242,7 +242,7 @@ class ZaakViewSet(
     filterset_class = ZaakFilter
     ordering_fields = ("startdatum",)
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {
@@ -427,7 +427,7 @@ class StatusViewSet(
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -544,7 +544,7 @@ class ZaakObjectViewSet(
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -815,7 +815,7 @@ class KlantContactViewSet(
     serializer_class = KlantContactSerializer
     filterset_class = KlantContactFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -885,7 +885,7 @@ class RolViewSet(
     serializer_class = RolSerializer
     filterset_class = RolFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -955,7 +955,7 @@ class ResultaatViewSet(
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"
-    pagination_class = CustomPagination
+    pagination_class = FuzzyPagination
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
