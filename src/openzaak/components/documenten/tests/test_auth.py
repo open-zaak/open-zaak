@@ -8,6 +8,7 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
@@ -24,6 +25,7 @@ from ..models import ObjectInformatieObject
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7634cc6-b312-4d75-ba4d-a12e1fdb1dee"
 
 
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
@@ -384,6 +386,62 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             results[0]["informatieobjecttype"],
             f"http://testserver{reverse(self.informatieobjecttype)}",
+        )
+
+    def test_eio_list_internal_and_external_with_filtering(self):
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes or [],
+            zaaktype="",
+            informatieobjecttype=IOTYPE_EXTERNAL,
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            bronorganisatie="000000000",
+        )
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=IOTYPE_EXTERNAL,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            bronorganisatie="000000000",
+        )
+
+        # Should not show up due to filtering
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            bronorganisatie="123456789",
+        )
+        # Should not show up due to lacking permissions
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=IOTYPE_EXTERNAL,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+            bronorganisatie="000000000",
+        )
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=IOTYPE_EXTERNAL2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            bronorganisatie="000000000",
+        )
+        url = reverse("enkelvoudiginformatieobject-list")
+
+        response = self.client.get(url, {"bronorganisatie": "000000000"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(
+            results[0]["informatieobjecttype"],
+            f"http://testserver{reverse(self.informatieobjecttype)}",
+        )
+        self.assertEqual(
+            results[1]["informatieobjecttype"], IOTYPE_EXTERNAL,
         )
 
     def test_eio_retreive(self):

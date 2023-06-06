@@ -10,6 +10,7 @@ from django.test import override_settings, tag
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
@@ -746,18 +747,106 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         super().setUpTestData()
 
-    def test_zaak_list(self):
+    def test_zaak_list_internal_and_external(self):
+        external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        external_zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/d530aa07-3e4e-42ff-9be8-3247b3a6e7e3"
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes or [],
+            zaaktype=external_zaaktype1,
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        # Should show up
         ZaakFactory.create(
             zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ZaakFactory.create(
-            zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a",
+            zaaktype=external_zaaktype1,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Should not show up, because there should be no overlap between the local and
+        # external filters
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        ZaakFactory.create(
+            zaaktype=external_zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        ZaakFactory.create(
+            zaaktype=external_zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
         url = reverse("zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["zaaktype"], external_zaaktype1)
+        self.assertEqual(
+            results[1]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
+        )
+
+    def test_zaak_list_with_filtering(self):
+        """
+        Assert that filtering still works when a non superuser application is used
+        """
+        external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        external_zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/d530aa07-3e4e-42ff-9be8-3247b3a6e7e3"
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes or [],
+            zaaktype=external_zaaktype1,
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        # Should show up
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            bronorganisatie="000000000",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Should not show up due to filtering
+        ZaakFactory.create(
+            zaaktype=external_zaaktype1,
+            bronorganisatie="736160221",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Should not show up due to lacking permissions
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        ZaakFactory.create(
+            zaaktype=external_zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        ZaakFactory.create(
+            zaaktype=external_zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        url = reverse("zaak-list")
+
+        response = self.client.get(
+            url, {"bronorganisatie": "000000000"}, **ZAAK_READ_KWARGS
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
