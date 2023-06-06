@@ -11,3 +11,4 @@ of topics.
    :maxdepth: 2
 
    dependencies
+   data_generation
