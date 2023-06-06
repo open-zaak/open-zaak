@@ -45,7 +45,6 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
-from .pagination import EnkelvoudigInformatieObjectPagination
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
 from .scopes import (
