@@ -12,7 +12,6 @@ from drf_yasg.utils import swagger_auto_schema
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
@@ -44,6 +43,7 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
+from .pagination import EnkelvoudigInformatieObjectPagination
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
 from .scopes import (
@@ -187,12 +187,13 @@ class EnkelvoudigInformatieObjectViewSet(
         EnkelvoudigInformatieObject.objects.select_related(
             "canonical", "_informatieobjecttype"
         )
+        .prefetch_related("canonical__bestandsdelen")
         .order_by("canonical", "-versie")
         .distinct("canonical")
     )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = EnkelvoudigInformatieObjectPagination
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
