@@ -197,8 +197,12 @@ elastic-apm==6.13.2
     # via -r requirements/base.in
 face==20.1.1
     # via glom
+factory-boy==3.2.1
+    # via -r requirements/base.in
 faker==13.3.2
-    # via zgw-consumers
+    # via
+    #   factory-boy
+    #   zgw-consumers
 flower==1.2.0
     # via -r requirements/base.in
 furl==2.1.3

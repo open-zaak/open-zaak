@@ -291,7 +291,9 @@ face==20.1.1
     #   -r requirements/ci.txt
     #   glom
 factory-boy==3.2.1
-    # via -r requirements/ci.txt
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/dev.in
 faker==13.3.2
     # via
     #   -r requirements/ci.txt

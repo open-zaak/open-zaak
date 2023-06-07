@@ -52,3 +52,6 @@ uwsgi
 sentry_sdk # error monitoring sentry
 flower # task monitoring
 elastic-apm  # Elastic APM integration
+
+# Required for generate_data command
+factory-boy

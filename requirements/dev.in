@@ -16,6 +16,10 @@ recommonmark
 sphinx-markdown-tables
 sphinx-tabs
 
+# Required for generate_data command
+# Has to be added explicitly to pass CI requirements_check
+factory-boy
+
 # Deployment
 
 -r ../deployment/requirements.in
