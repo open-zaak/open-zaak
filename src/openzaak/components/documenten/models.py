@@ -785,6 +785,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         source_field=_object_url,
         allow_write_when=lambda instance: instance.object_type
         == ObjectInformatieObjectTypes.verzoek,
+        blank=True,
     )
 
     _zaak = models.ForeignKey(
