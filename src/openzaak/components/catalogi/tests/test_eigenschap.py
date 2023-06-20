@@ -377,6 +377,33 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
 
+    def test_create_eigenschap_with_space_in_specificatie_group(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "specificatie": {
+                "groep": "test 1",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        eigenschap = Eigenschap.objects.get()
+        specificatie = eigenschap.specificatie_van_eigenschap
+
+        self.assertEqual(specificatie.groep, "test 1")
+
     def test_delete_eigenschap(self):
         eigenschap = EigenschapFactory.create()
         eigenschap_url = reverse("eigenschap-detail", kwargs={"uuid": eigenschap.uuid})
