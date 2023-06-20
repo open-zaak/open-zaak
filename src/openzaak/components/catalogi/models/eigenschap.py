@@ -13,7 +13,7 @@ from vng_api_common.caching import ETagMixin
 from ..constants import FormaatChoices
 from .validators import (
     validate_kardinaliteit,
-    validate_letters_numbers_underscores,
+    validate_letters_numbers_underscores_spaces,
     validate_zaaktype_concept,
 )
 
@@ -30,7 +30,7 @@ class EigenschapSpecificatie(models.Model):
         _("groep"),
         max_length=32,
         blank=True,
-        validators=[validate_letters_numbers_underscores],
+        validators=[validate_letters_numbers_underscores_spaces],
         help_text=_(
             "Benaming van het object of groepattribuut waarvan de EIGENSCHAP een "
             "inhoudelijk gegeven specificeert."
