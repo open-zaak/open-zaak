@@ -24,4 +24,5 @@ class ReferentieLijstConfig(ClientConfig):
             "een procestype bij een zaaktype."
         ),
         null=True,
+        default=2020,
     )

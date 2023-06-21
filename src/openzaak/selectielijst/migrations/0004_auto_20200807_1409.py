@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             model_name="referentielijstconfig",
             name="default_year",
             field=models.PositiveIntegerField(
-                default=2017,
+                default=2020,
                 help_text="Het jaartal dat standaard geselecteerd is bij het kiezen van een procestype bij een zaaktype.",
             ),
             preserve_default=False,
