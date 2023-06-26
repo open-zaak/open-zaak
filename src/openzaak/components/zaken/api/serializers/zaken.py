@@ -5,6 +5,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.db import transaction
+from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
@@ -556,7 +557,16 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # 1. zaak.einddatum, which may be relevant for archiving purposes
         # 2. zaak.archiefactiedatum, if not explicitly filled in
         if is_eindstatus:
-            zaak.einddatum = validated_data["datum_status_gezet"].date()
+            # zaak.einddatum is date, but status.datum_status_gezet is a datetime with tz support
+            # durin validation step 'datum_status_gezet' was already converted to the
+            # default timezone (UTC).
+            # We want to take into consideration the client timezone before saving 'zaak.einddatum',
+            # therefore we convert 'datum_status_gezet' back to the client timezone before taking its
+            # date part.
+            local_datum_status_gezet = parse_datetime(
+                self.initial_data["datum_status_gezet"]
+            )
+            zaak.einddatum = local_datum_status_gezet.date()
         else:
             zaak.einddatum = None
         _zaak_fields_changed.append("einddatum")

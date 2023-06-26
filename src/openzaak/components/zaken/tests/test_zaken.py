@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from copy import copy
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
@@ -41,7 +41,7 @@ from ..api.scopes import (
 from ..constants import BetalingsIndicatie
 from ..models import Medewerker, NatuurlijkPersoon, OrganisatorischeEenheid, Zaak
 from .constants import POLYGON_AMSTERDAM_CENTRUM
-from .factories import RolFactory, StatusFactory, ZaakFactory
+from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
@@ -171,6 +171,43 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             zaak.archiefactiedatum, zaak.einddatum + relativedelta(years=10)
         )
+
+    def test_close_zaak_not_in_utc(self):
+        """
+        imagine that the client timezone is +2:00 and we create and close
+        zaak at ~2023-01-01T00:00:00+2:00
+        freeze_gun is not used here, because it doesn't seem to work correctly
+        with timezones
+        """
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaak = ZaakFactory.create(zaaktype=zaaktype, startdatum="2023-01-01")
+        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            archiefactietermijn=relativedelta(years=10),
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+        ResultaatFactory(zaak=zaak, resultaattype=resultaattype)
+        statustype_url = reverse(statustype)
+        status_list_url = reverse("status-list")
+
+        response = self.client.post(
+            status_list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": f"http://testserver{statustype_url}",
+                "datumStatusGezet": datetime.fromisoformat("2023-01-01 00:00:00+02:00"),
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_201_CREATED, response.content
+        )
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.einddatum, date(2023, 1, 1))
 
 
 class ZakenTests(JWTAuthMixin, APITestCase):
