@@ -895,7 +895,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
     @tag("gh-1080")
-    def test_autorisaties_visible_even_if_only_a_spec_exists(self):
+    def test_autorisaties_visible_even_if_only_a_spec_exists_brc(self):
         """
         Assert that the initial form data contains autorisatiespecs if only the spec exists.
 
@@ -919,6 +919,58 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             RelatedTypeSelectionMethods.all_current_and_future,
         )
         self.assertEqual(form_data["values"]["scopes"], ["besluiten.lezen"])
+
+    def test_autorisaties_visible_even_if_only_a_spec_exists_zrc(self):
+        """
+        Assert that the initial form data contains autorisatiespecs if only the spec exists.
+
+        Regression test for Github issue #978.
+        """
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        initial_data = response.context["formdata"]
+        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
+        form_data = initial_data[0]
+
+        self.assertEqual(form_data["values"]["component"], ComponentTypes.zrc)
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(form_data["values"]["scopes"], ["zaken.lezen"])
+
+    def test_autorisaties_visible_even_if_only_a_spec_exists_drc(self):
+        """
+        Assert that the initial form data contains autorisatiespecs if only the spec exists.
+
+        Regression test for Github issue #978.
+        """
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        initial_data = response.context["formdata"]
+        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
+        form_data = initial_data[0]
+
+        self.assertEqual(form_data["values"]["component"], ComponentTypes.drc)
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(form_data["values"]["scopes"], ["documenten.lezen"])
 
     @tag("gh-1081")
     def test_remove_iotype_with_autorisaties_linked(self):
