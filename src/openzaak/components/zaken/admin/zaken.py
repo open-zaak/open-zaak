@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
+from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
 
@@ -599,7 +600,7 @@ class ZaakForm(forms.ModelForm):
 
 @admin.register(Zaak)
 class ZaakAdmin(
-    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, OSMGeoAdmin
 ):
     list_display = (
         "identificatie",
