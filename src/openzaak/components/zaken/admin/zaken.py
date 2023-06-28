@@ -6,6 +6,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
 
+from openzaak.forms.widgets import AuthorityAxisOrderOLWidget
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -635,6 +636,7 @@ class ZaakAdmin(
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
+    widget = AuthorityAxisOrderOLWidget
 
     def get_object_actions(self, obj):
         return (
