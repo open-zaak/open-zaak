@@ -8,7 +8,7 @@ failure to the Notifications API/service may happen, which is why we leverage "a
 these failed tasks.
 
 The reliability and performance of sending notifications was analyzed and the results are reported
-below. In this test case, we observed the behaviour of notifications triggered by "case create" 
+below. In this test case, we observed the behaviour of notifications triggered by "case create"
 events.
 
 
@@ -39,8 +39,8 @@ Notifications API.
 The data suggests no reliability issues, even with only a single Celery worker, as the failure
 rates are 0 for both the API operation and notification delivery.
 
-Note that the worker containers can scale horizontally and we recommend deploying at 
-least two worker containers, ideally distributed over different hardware instances for 
+Note that the worker containers can scale horizontally and we recommend deploying at
+least two worker containers, ideally distributed over different hardware instances for
 high-available set-ups.
 
 .. _Celery: https://docs.celeryq.dev/en/stable/
@@ -56,13 +56,22 @@ retry limit has been reached.
 Autoretry explanation and configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Retry behaviour is implemented using binary exponential backoff with a delay factor,
+the formula to calculate the time to wait until the next retry is as follows:
+
+.. math::
+
+    t = \text{backoff_factor} * 2^c
+
+where `c` is the number of retries that have been performed already.
+
 In **Configuratie > Notificatiescomponentconfiguratie** admin page the autoretry settings
 can be configured:
 
 * **Notification delivery max retries**: the maximum number of retries the task queue
   will do if sending a notification failed. Default is ``5``.
 * **Notification delivery retry backoff**: a boolean or a number. If this option is set to
-  ``True``, autoretries will be delayed following the rules of exponential backoff. If
+  ``True``, autoretries will be delayed following the rules of binary exponential backoff. If
   this option is set to a number, it is used as a delay factor. Default is ``3``.
 * **Notification delivery retry backoff max**: an integer, specifying number of seconds.
   If ``Notification delivery retry backoff`` is enabled, this option will set a maximum
@@ -73,8 +82,8 @@ tasks schedule with the default configurations:
 
 1. At 0s the request to create a zaak is made, the notification task is scheduled, picked up
    by worker and failed
-2. At 3s with 3s delay the first retry happens (1s * ``Notification delivery retry backoff``)
-3. At 9s with 6s delay - the second retry
+2. At 3s with 3s delay the first retry happens (``2^0`` * ``Notification delivery retry backoff``)
+3. At 9s with 6s delay - the second retry (``2^1`` * ``Notification delivery retry backoff``)
 4. At 21s with 12s delay - the third retry
 5. At 45s with 24s delay - the fourth retry
 6. At 1m33s with 48s delay - the fifth retry, which is the last one.
@@ -85,7 +94,7 @@ automatically.
 Autoretry test with default configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this scenario, we measure how autoretry behaves with increasing downtime durations of 
+In this scenario, we measure how autoretry behaves with increasing downtime durations of
 the notification service and with the default autoretry configuration.
 
 **Test specifications:**
