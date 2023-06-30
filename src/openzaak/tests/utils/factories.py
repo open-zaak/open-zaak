@@ -10,10 +10,7 @@ from openzaak.utils.fields import FkOrServiceUrlField
 class FkOrServiceUrlFactoryMixin:
     """
     create service instances for composite url fields
-    create service for provided parameter 'local_host'
     """
-
-    local_host = "http://testserver/"  # use to create service for local api
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -38,12 +35,6 @@ class FkOrServiceUrlFactoryMixin:
             # create Service instance for composite field
             base_url = furl(value).origin
             services.append(Service(api_root=base_url, api_type=APITypes.orc))
-            # service, created = Service.objects.get_or_create(api_root=base_url, defaults={"api_type": APITypes.orc})
-
-        # if local host specified create service for it
-        local_host = kwargs.pop("local_host", cls.local_host)
-        if local_host:
-            services.append(Service(api_root=local_host, api_type=APITypes.orc))
 
         Service.objects.bulk_create(services, ignore_conflicts=True)
 
