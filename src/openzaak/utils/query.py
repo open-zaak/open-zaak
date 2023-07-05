@@ -106,15 +106,16 @@ class LooseFkAuthorizationsFilterMixin:
             loose_fk_objecten.append(loose_fk_object)
 
             # extract the order and map it to the database value
-            choice_item = VertrouwelijkheidsAanduiding.get_choice(
-                authorization.max_vertrouwelijkheidaanduiding
-            )
-            vertrouwelijkheidaanduiding_whens.append(
-                When(
-                    **{f"{prefix}{loose_fk_field}": loose_fk_object},
-                    then=Value(choice_item.order),
+            if authorization.max_vertrouwelijkheidaanduiding:
+                choice_item = VertrouwelijkheidsAanduiding.get_choice(
+                    authorization.max_vertrouwelijkheidaanduiding
                 )
-            )
+                vertrouwelijkheidaanduiding_whens.append(
+                    When(
+                        **{f"{prefix}{loose_fk_field}": loose_fk_object},
+                        then=Value(choice_item.order),
+                    )
+                )
 
         # filtering:
         # * only allow the white-listed loose-fk objects, explicitly
