@@ -61,7 +61,9 @@ commonground-api-common==1.10.2
     #   -r requirements/base.in
     #   drc-cmis
 coreapi==2.3.3
-    # via drf-yasg
+    # via
+    #   django-loose-fk
+    #   drf-yasg
 coreschema==0.0.4
     # via
     #   coreapi
@@ -133,7 +135,7 @@ django-filter==21.1
     #   django-loose-fk
 django-ipware==4.0.2
     # via django-axes
-django-loose-fk==1.0.2
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk@feature/descriptor-set-local-url
     # via -r requirements/base.in
 django-markup==1.5
     # via -r requirements/base.in
