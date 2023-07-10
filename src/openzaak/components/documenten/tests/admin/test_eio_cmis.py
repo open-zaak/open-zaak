@@ -100,3 +100,14 @@ class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
         response = self.client.get(change_url)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_view_documents_cmis(self):
+        changelist_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_changelist"
+        )
+
+        response = self.client.get(changelist_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.template_name, "admin/documenten/cmis.html")
+        self.assertNotIn("cl", response.context)

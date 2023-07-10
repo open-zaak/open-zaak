@@ -4,8 +4,10 @@ from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.module_loading import import_string
@@ -416,6 +418,19 @@ class CMISAdminMixin:
             return False
         else:
             return super().has_change_permission(request, obj)
+
+    def changelist_view(self, request, extra_context=None):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
+
+        if settings.CMIS_ENABLED:
+            context = {
+                **self.admin_site.each_context(request),
+                "module_name": str(self.model._meta.verbose_name_plural),
+            }
+            return TemplateResponse(request, "admin/documenten/cmis.html", context)
+
+        return super().changelist_view(request, extra_context)
 
 
 class AdminContextMixin:
