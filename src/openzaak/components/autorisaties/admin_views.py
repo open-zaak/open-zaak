@@ -99,6 +99,11 @@ def get_initial_for_component(
                 autorisatie
             )
 
+        # if spec is created but no records exist
+        # we need to add the spec here
+        if spec and spec.max_vertrouwelijkheidaanduiding not in grouped_by_va:
+            grouped_by_va[spec.max_vertrouwelijkheidaanduiding] = []
+
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
@@ -140,6 +145,11 @@ def get_initial_for_component(
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
+
+        # if spec is created but no records exist
+        # we need to add the spec here
+        if spec and spec.max_vertrouwelijkheidaanduiding not in grouped_by_va:
+            grouped_by_va[spec.max_vertrouwelijkheidaanduiding] = []
 
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
