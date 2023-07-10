@@ -572,7 +572,7 @@ The biggest changes are:
    nlx-url-rewriter package to zgw-consumers. In 1.4.0, the nlx-url-rewriter package
    is dropped and no longer present.
 
-.. _1.0.3 changelog: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/CHANGELOG.rst#user-content-103-2021-03-29
+.. _1.0.3 changelog: https://github.com/VNG-Realisatie/zaken-api/blob/stable/1.0.x/CHANGELOG.rst
 
 1.3.5 (2021-03-25)
 ------------------
