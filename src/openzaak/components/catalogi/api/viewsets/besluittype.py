@@ -4,10 +4,10 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
@@ -87,7 +87,7 @@ class BesluitTypeViewSet(
     serializer_class = BesluitTypeSerializer
     filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = OptimizedPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,

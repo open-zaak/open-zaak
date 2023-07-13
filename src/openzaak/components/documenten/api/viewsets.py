@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
@@ -24,6 +25,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
+from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
 
@@ -43,7 +45,6 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
-from .pagination import EnkelvoudigInformatieObjectPagination
 from .permissions import InformationObjectAuthRequired
 from .renderers import BinaryFileRenderer
 from .scopes import (
@@ -193,7 +194,6 @@ class EnkelvoudigInformatieObjectViewSet(
     )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
-    pagination_class = EnkelvoudigInformatieObjectPagination
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -255,6 +255,12 @@ class EnkelvoudigInformatieObjectViewSet(
         elif action == "create":
             return EnkelvoudigInformatieObjectCreateLockSerializer
         return super().get_serializer_class()
+
+    @property
+    def pagination_class(self):
+        if settings.CMIS_ENABLED:
+            return PageNumberPagination
+        return OptimizedPagination
 
     @swagger_auto_schema(
         manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM]

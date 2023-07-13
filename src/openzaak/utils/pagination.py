@@ -6,7 +6,7 @@ from django.utils.functional import cached_property
 from rest_framework.pagination import PageNumberPagination
 
 
-class ZaakPaginator(DjangoPaginator):
+class OptimizedPaginator(DjangoPaginator):
     @cached_property
     def count(self):
         """
@@ -15,5 +15,5 @@ class ZaakPaginator(DjangoPaginator):
         return self.object_list.values("pk").count()
 
 
-class ZaakPagination(PageNumberPagination):
-    django_paginator_class = ZaakPaginator
+class OptimizedPagination(PageNumberPagination):
+    django_paginator_class = OptimizedPaginator

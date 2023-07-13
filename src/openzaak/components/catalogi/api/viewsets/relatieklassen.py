@@ -5,10 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.pagination import PageNumberPagination
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import AutoSchema
 
@@ -96,7 +96,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
     serializer_class = ZaakTypeInformatieObjectTypeSerializer
     filterset_class = ZaakTypeInformatieObjectTypeFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = OptimizedPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
