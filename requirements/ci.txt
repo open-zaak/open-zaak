@@ -177,7 +177,7 @@ django-ipware==4.0.2
     # via
     #   -r requirements/base.txt
     #   django-axes
-django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk@feature/descriptor-set-local-url
+django-loose-fk==1.0.3
     # via -r requirements/base.txt
 django-markup==1.5
     # via -r requirements/base.txt
