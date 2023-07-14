@@ -245,9 +245,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zio_type = ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype__concept=False, zaaktype__concept=False
         )
-        zaak = ZaakFactory.create(
-            zaaktype=zio_type.zaaktype, local_host="http://openzaak.nl"
-        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
         zaak_url = f"http://openzaak.nl{reverse(zaak)}"
 
         eio1_response = get_eio_response(

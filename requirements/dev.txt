@@ -115,6 +115,7 @@ commonmark==0.9.1
 coreapi==2.3.3
     # via
     #   -r requirements/ci.txt
+    #   django-loose-fk
     #   drf-yasg
 coreschema==0.0.4
     # via
@@ -203,7 +204,7 @@ django-ipware==4.0.2
     # via
     #   -r requirements/ci.txt
     #   django-axes
-django-loose-fk==1.0.2
+django-loose-fk==1.0.3
     # via -r requirements/ci.txt
 django-markup==1.5
     # via -r requirements/ci.txt

@@ -13,6 +13,10 @@ from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
+from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response
 
 from ..models import (
@@ -137,20 +141,25 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_zaak_delete_oio_removed(self, m):
-        mock_service_oas_get(m, self.base, APITypes.drc)
-        document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
-        eio_response = get_eio_response(
-            document,
-            informatieobjecttype="http://testserver/catalogi/api/v1/iot/dummy",
+        # setup resources amd mocks
+        document_url = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+        zaaktype = ZaakTypeFactory()
+        iotype = InformatieObjectTypeFactory(
+            zaaktypen=[zaaktype], catalogus=zaaktype.catalogus
         )
-        m.get(document, json=eio_response)
-        zaak = ZaakFactory.create()
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        mock_service_oas_get(m, self.base, APITypes.drc)
+        document_data = get_eio_response(
+            document_url, informatieobjecttype=f"http://testserver{reverse(iotype)}"
+        )
+        m.get(document_url, json=document_data)
         zio = ZaakInformatieObjectFactory.create(
             zaak=zaak,
-            informatieobject=document,
+            informatieobject=document_url,
             _objectinformatieobject_url=f"{self.base}_objectinformatieobjecten/{uuid.uuid4()}",
         )
         m.delete(zio._objectinformatieobject_url, status_code=204)
+
         zaak_delete_url = get_operation_url("zaak_delete", uuid=zaak.uuid)
 
         with self.captureOnCommitCallbacks(execute=True):

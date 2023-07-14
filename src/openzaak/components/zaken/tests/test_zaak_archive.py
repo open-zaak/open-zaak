@@ -1028,7 +1028,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
         """
-        zaak = ZaakFactory.create(local_host="http://testserver.com")
+        zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         zaaktype_url = f"http://testserver.com{reverse(zaak.zaaktype)}"
 

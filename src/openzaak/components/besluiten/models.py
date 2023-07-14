@@ -7,6 +7,7 @@ from django.apps import apps
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.fields import RSINField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
@@ -195,10 +196,12 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         super().__init__(*args, **kwargs)
 
         # save previous zaak for triggers
-        # self._previous_zaak = self.zaak
-
-        self._previous_zaak = self._zaak
-        self._previous_zaak_url = self._zaak_url
+        # for virtual models we can't use FK field because of handler assertions
+        if isinstance(self, ProxyMixin):
+            self._previous_zaak = self.zaak
+        else:
+            self._previous_zaak = self._zaak
+            self._previous_zaak_url = self._zaak_url
 
     def __str__(self):
         return f"{self.verantwoordelijke_organisatie} - {self.identificatie}"
