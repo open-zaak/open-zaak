@@ -73,6 +73,28 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
         )
 
+    def test_besluit_list_empty_max_vertrouwelijkheidaanduiding(self):
+        """
+        max_vertrouwelijkheidaanduiding is not used for besluiten
+        """
+        self.autorisatie.max_vertrouwelijkheidaanduiding = ""
+        self.autorisatie.save()
+
+        BesluitFactory.create(besluittype=self.besluittype)
+        BesluitFactory.create()
+        url = reverse("besluit-list")
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
+        )
+
     def test_besluit_retreive(self):
         """
         Assert you can only read BESLUITen of the besluittypes of your authorization
