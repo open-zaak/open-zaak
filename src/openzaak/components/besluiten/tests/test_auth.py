@@ -7,7 +7,8 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
@@ -22,6 +23,9 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 BESLUITTYPE_EXTERNAL = (
     "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
+)
+BESLUITTYPE_EXTERNAL2 = (
+    "https://externe.catalogus.nl/api/v1/besluiten/77792ada-3a7b-45a4-9239-f2532b61ad35"
 )
 
 
@@ -201,6 +205,47 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
+        )
+
+    def test_besluit_list_internal_and_external_with_filtering(self):
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes or [],
+            zaaktype="",
+            informatieobjecttype="",
+            besluittype=BESLUITTYPE_EXTERNAL,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Should show up
+        BesluitFactory.create(
+            besluittype=self.besluittype, verantwoordelijke_organisatie="000000000"
+        )
+        BesluitFactory.create(
+            besluittype=BESLUITTYPE_EXTERNAL, verantwoordelijke_organisatie="000000000"
+        )
+
+        # Should not show up due to filtering
+        BesluitFactory.create(
+            besluittype=self.besluittype, verantwoordelijke_organisatie="123456789"
+        )
+        # Should not show up due to lacking permissions
+        BesluitFactory.create(
+            besluittype=BESLUITTYPE_EXTERNAL2, verantwoordelijke_organisatie="000000000"
+        )
+        url = reverse("besluit-list")
+
+        response = self.client.get(url, {"verantwoordelijkeOrganisatie": "000000000"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["besluittype"], BESLUITTYPE_EXTERNAL)
+        self.assertEqual(
+            results[1]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
         )
 
     def test_besluit_retrieve(self):

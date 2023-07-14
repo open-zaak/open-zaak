@@ -116,6 +116,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Besluit'
+                  countExact:
+                    description: '***AFWIJKING:** Geeft aan of de `count` exact is,
+                      of dat deze wegens performance doeleinden niet exact berekend
+                      is.'
+                    type: boolean
+                    nullable: true
         '400':
           $ref: '#/components/responses/400'
         '401':

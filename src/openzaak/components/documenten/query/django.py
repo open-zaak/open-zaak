@@ -8,6 +8,7 @@ from django.db import models
 
 from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.scopes import Scope
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
@@ -50,7 +51,46 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
     def prefix(self):
         return ""
 
-    def build_queryset(self, filters) -> models.QuerySet:
+    def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
+        _local_filters = models.Q()
+        for k, v in local_filters.items():
+            _local_filters &= models.Q(**{k: v})
+
+        _external_filters = models.Q()
+        for k, v in external_filters.items():
+            _external_filters &= models.Q(**{k: v})
+
+        order_case = VertrouwelijkheidsAanduiding.get_order_expression(
+            "vertrouwelijkheidaanduiding"
+        )
+        annotations = {"_va_order": order_case}
+
+        if self.authorizations_lookup:
+            # If the current queryset is not an InformatieObjectQuerySet, first
+            # retrieve the canonical IDs of EnkelvoudigInformatieObjects
+            # for which the user is authorized and then return the objects
+            # related to those EnkelvoudigInformatieObjectCanonicals
+            model = apps.get_model("documenten", "EnkelvoudigInformatieObject")
+            if settings.CMIS_ENABLED:
+                filtered = model.objects.annotate(**annotations).filter(
+                    _local_filters | _external_filters
+                )
+            else:
+                filtered = (
+                    model.objects.annotate(**annotations)
+                    .filter(_local_filters | _external_filters)
+                    .values("canonical")
+                )
+            queryset = self.filter(informatieobject__in=filtered)
+            # bring it all together now to build the resulting queryset
+        else:
+            queryset = self.annotate(**annotations).filter(
+                _local_filters | _external_filters
+            )
+
+        return queryset
+
+    def build_queryset_cmis(self, filters) -> models.QuerySet:
         order_case = VertrouwelijkheidsAanduiding.get_order_expression(
             "vertrouwelijkheidaanduiding"
         )
@@ -75,6 +115,28 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
         else:
             queryset = self.annotate(**annotations).filter(**filters)
 
+        return queryset
+
+    def ids_by_auth(self, scope, authorizations, local=True) -> models.QuerySet:
+        filters = self.get_filters(scope, authorizations, local)
+        queryset = self.build_queryset_cmis(filters)
+        return queryset.values_list("pk", flat=True)
+
+    def filter_for_authorizations(
+        self, scope: Scope, authorizations: models.QuerySet
+    ) -> models.QuerySet:
+        if not settings.CMIS_ENABLED:
+            return super().filter_for_authorizations(scope, authorizations)
+
+        # todo implement error if no loose-fk field
+
+        authorizations_local, authorizations_external = self.get_authorizations(
+            scope, authorizations
+        )
+
+        ids_local = self.ids_by_auth(scope, authorizations_local, local=True)
+        ids_external = self.ids_by_auth(scope, authorizations_external, local=False)
+        queryset = self.filter(pk__in=ids_local.union(ids_external))
         return queryset
 
 

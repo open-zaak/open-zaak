@@ -53,6 +53,12 @@ SWAGGER_SETTINGS.update(
             "django_loose_fk.inspectors.query.FilterInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FILTER_INSPECTORS"],
+        "DEFAULT_PAGINATOR_INSPECTORS": (
+            "openzaak.utils.inspectors.FuzzyPaginationInspector",
+            # The base Swagger settings do not include DEFAULT_PAGINATOR_INSPECTORS,
+            # so we manually add this
+            "drf_yasg.inspectors.query.CoreAPICompatInspector",
+        ),
     }
 )
 

@@ -110,6 +110,11 @@
                                     "items": {
                                         "$ref": "#/definitions/BesluitType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -802,6 +807,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Catalogus"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -1158,6 +1168,11 @@
                                     "items": {
                                         "$ref": "#/definitions/Eigenschap"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -1741,6 +1756,11 @@
                                     "items": {
                                         "$ref": "#/definitions/InformatieObjectType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -2409,6 +2429,11 @@
                                     "items": {
                                         "$ref": "#/definitions/ResultaatType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -3009,6 +3034,11 @@
                                     "items": {
                                         "$ref": "#/definitions/RolType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -3591,6 +3621,11 @@
                                     "items": {
                                         "$ref": "#/definitions/StatusType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -4189,6 +4224,11 @@
                                     "items": {
                                         "$ref": "#/definitions/ZaakTypeInformatieObjectType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
@@ -4794,6 +4834,11 @@
                                     "items": {
                                         "$ref": "#/definitions/ZaakType"
                                     }
+                                },
+                                "countExact": {
+                                    "description": "***AFWIJKING:** Geeft aan of de `count` exact is, of dat deze wegens performance doeleinden niet exact berekend is.",
+                                    "type": "boolean",
+                                    "x-nullable": true
                                 }
                             }
                         },
