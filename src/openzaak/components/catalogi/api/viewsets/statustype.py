@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import viewsets
-from rest_framework.pagination import PageNumberPagination
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ...models import StatusType
@@ -71,7 +71,7 @@ class StatusTypeViewSet(
     serializer_class = StatusTypeSerializer
     filterset_class = StatusTypeFilter
     lookup_field = "uuid"
-    pagination_class = PageNumberPagination
+    pagination_class = OptimizedPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
