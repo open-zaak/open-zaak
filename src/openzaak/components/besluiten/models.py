@@ -200,7 +200,7 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
         if isinstance(self, ProxyMixin):
             self._previous_zaak = self.zaak
         else:
-            self._previous_zaak = self._zaak
+            self._previous_zaak_id = self._zaak_id
             self._previous_zaak_url = self._zaak_url
 
     def __str__(self):
@@ -217,10 +217,15 @@ class Besluit(AuditTrailMixin, APIMixin, models.Model):
 
     @property
     def previous_zaak(self):
-        if self._previous_zaak:
+        from openzaak.components.zaken.models import Zaak
+
+        if getattr(self, "_previous_zaak", None):
             return self._previous_zaak
 
-        if self._previous_zaak_url:
+        if getattr(self, "_previous_zaak_id", None):
+            return Zaak.objects.get(pk=self._previous_zaak_id)
+
+        if getattr(self, "_previous_zaak_url", None):
             remote_model = apps.get_model("zaken", "Zaak")
             return AuthorizedRequestsLoader().load(
                 url=self._previous_zaak_url, model=remote_model
