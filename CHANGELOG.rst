@@ -1,6 +1,51 @@
 Changelog
 =========
 
+1.9.0 (2023-07-17)
+------------------
+
+Open Zaak 1.9.0 is a release focused on bugfixes, performance and quality of life.
+
+**New features**
+
+* [#1310] add support for Elastic APM
+* [#1345] make '2020' a default year for `ReferentieLijstConfig`
+
+**Performance**
+
+* [#1344] add management command to generate large amount of data for performance test
+* [#1361, #1363, #1365] optimize list endpoints with more efficient `count` calculation and
+  authorization filtering
+* [#1370] optimize `GET zaaktypen` endpoint adding `deelzaaktypen` to `prefetch_related`
+* [#1367] optimize `GET statussen` endpoint adding index for `datum_status_gezet`
+* [#1400] optimize `GET besluiten` endpoint removing excessive DB hits for `Besluit.previous_zaak`
+* [#1374] optimize `POST besluiten` endpoint adding index for `identificatie` field
+
+**Bugfixes**
+
+* [#1326] fix regression which appeared after URL references to external data (e.g. external
+  documenten API) have been normalized in Open Zaak 1.8. Due to this regression the additional
+  configuration for local services had to be introduced. Now it is resolved for all cases except
+  CMIS usage.
+* [#1354] make `ObjectInformatieObject.verzoek` field optional in the admin
+* [#1341] support spaces in `Eigenschap.specificatie.group`
+* [#959] support client timezone when closing zaak and setting `Zaak.einddatum`
+* [#1060] fix mad widget for `Zaak.zaakgeometrie` in the admin
+* [#1258] fix 500 error when accessing documents in the admin with enabled CMIS.
+  The user is notified that the documents should be accessed in the DMS
+* [#1392] show autorisatie in the admin even if zaaktypen are not created yet
+
+**Documentation**
+
+* [#1309, #1383] Added performance report for sending notifications and its auto-retry mechanism
+* [#1327] Document external services configuration
+
+**Project maintenance**
+
+* [#1307] Move serializer field descriptions from `__init__` to `get_fields` method
+* [#1349] Update Standard for Public Code assessment to 0.5.0
+* [#1359] Update Postman tests reference and mocks
+
 1.8.2 (2023-02-22)
 ------------------
 
