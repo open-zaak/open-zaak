@@ -14,7 +14,10 @@ Open Zaak 1.9.0 is a release focused on bugfixes, performance and quality of lif
 **Performance**
 
 * [#1344] Added management command to generate large amount of data for performance test
-* [#1361, #1363, #1365] Optimized list endpoints with more efficient `count` calculation and
+* [#1361] Optimized `GET zaken` endpoint with more efficient pagination calculation
+* [#1363] Optimized `GET enkelvoudiginformatieobjecten` endpoint removing excessive DB queries for
+  `BestandsDeel` objecten and calculating pagination count more efficient
+* [#1365] Optimized list endpoints with more efficient pagination calculation and speeding up
   authorization filtering
 * [#1370] Optimized `GET zaaktypen` endpoint adding `deelzaaktypen` to `prefetch_related`
 * [#1367] Optimized `GET statussen` endpoint adding index for `datum_status_gezet`
