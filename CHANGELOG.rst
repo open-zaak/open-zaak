@@ -1,6 +1,54 @@
 Changelog
 =========
 
+1.9.0 (2023-07-17)
+------------------
+
+Open Zaak 1.9.0 is a release focused on bugfixes, performance and quality of life.
+
+**New features**
+
+* [#1310] Added support for Elastic APM
+* [#1345] Made '2020' a default year for `ReferentieLijstConfig`
+
+**Performance**
+
+* [#1344] Added management command to generate large amount of data for performance test
+* [#1361] Optimized `GET zaken` endpoint with more efficient pagination calculation
+* [#1363] Optimized `GET enkelvoudiginformatieobjecten` endpoint removing excessive DB queries for
+  `BestandsDeel` objecten and calculating pagination count more efficient
+* [#1365] Optimized list endpoints with more efficient pagination calculation and speeding up
+  authorization filtering
+* [#1370] Optimized `GET zaaktypen` endpoint adding `deelzaaktypen` to `prefetch_related`
+* [#1367] Optimized `GET statussen` endpoint adding index for `datum_status_gezet`
+* [#1400] Optimized `GET besluiten` endpoint removing excessive DB hits for `Besluit.previous_zaak`
+* [#1374] Optimized `POST besluiten` endpoint adding index for `identificatie` field
+
+**Bugfixes**
+
+* [#1326] Fixed regression which appeared after URL references to external data (e.g. external
+  documenten API) have been normalized in Open Zaak 1.8. Due to this regression the additional
+  configuration for local services had to be introduced. Now it is resolved for all cases except
+  CMIS usage.
+* [#1354] Made `ObjectInformatieObject.verzoek` field optional in the admin
+* [#1341] Supported spaces in `Eigenschap.specificatie.group`
+* [#959] support client timezone when closing zaak and setting `Zaak.einddatum`
+* [#1060] Fixed mad widget for `Zaak.zaakgeometrie` in the admin
+* [#1258] Fixed 500 error when accessing documents in the admin with enabled CMIS.
+  The user is notified that the documents should be accessed in the DMS
+* [#1392] Showed autorisatie in the admin even if zaaktypen were not created yet
+
+**Documentation**
+
+* [#1309, #1383] Added performance report for sending notifications and its auto-retry mechanism
+* [#1327] Documented external services configuration
+
+**Project maintenance**
+
+* [#1307] Moved serializer field descriptions from `__init__` to `get_fields` method
+* [#1349] Updated Standard for Public Code assessment to 0.5.0
+* [#1359] Updated Postman tests reference and mocks
+
 1.8.2 (2023-02-22)
 ------------------
 
