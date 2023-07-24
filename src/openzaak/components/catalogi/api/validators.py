@@ -10,6 +10,7 @@ from vng_api_common.constants import (
 )
 
 from openzaak.client import fetch_object
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_FORCED_WRITE
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
@@ -288,6 +289,14 @@ class DeelzaaktypeCatalogusValidator:
             raise ValidationError({"deelzaaktypen": self.message}, code=self.code)
 
 
+def is_force_write(serializer) -> bool:
+    request = serializer.context["request"]
+    return request.jwt_auth.has_auth(
+        scopes=SCOPE_CATALOGI_FORCED_WRITE,
+        init_component=serializer._meta.model.app_label,
+    )
+
+
 class ConceptUpdateValidator:
     message = _("Het is niet toegestaan om een non-concept object bij te werken")
     code = "non-concept-object"
@@ -298,6 +307,10 @@ class ConceptUpdateValidator:
         instance = getattr(serializer, "instance", None)
 
         if not instance:
+            return
+
+        # New in Catalogi 1.2: allow concept update for a specific scope
+        if is_force_write(serializer):
             return
 
         # updating eindeGeldigheid is allowed through patch requests
@@ -327,6 +340,7 @@ class ZaakTypeConceptValidator:
         "Updating an object that has a relation to a non-concept zaaktype is forbidden"
     )
     code = "non-concept-zaaktype"
+    requires_context = True
 
     def set_context(self, serializer):
         """
@@ -336,7 +350,11 @@ class ZaakTypeConceptValidator:
         # Determine the existing instance, if this is an update operation.
         self.instance = getattr(serializer, "instance", None)
 
-    def __call__(self, attrs):
+    def __call__(self, attrs, serializer):
+        # New in Catalogi 1.2: allow concept update for a specific scope
+        if is_force_write(serializer):
+            return
+
         if self.instance:
             zaaktype = self.instance.zaaktype
             if not zaaktype.concept:
@@ -367,6 +385,10 @@ class M2MConceptCreateValidator:
         if instance:
             return
 
+        # New in Catalogi 1.2: allow concept create for a specific scope
+        if is_force_write(serializer):
+            return
+
         for field_name in self.concept_related_fields:
             field = attrs.get(field_name, [])
             for related_object in field:
@@ -394,6 +416,10 @@ class M2MConceptUpdateValidator:
         instance = getattr(serializer, "instance", None)
         request = serializer.context["request"]
         if not instance:
+            return
+
+        # New in Catalogi 1.2: allow concept update for a specific scope
+        if is_force_write(serializer):
             return
 
         einde_geldigheid = attrs.get("datum_einde_geldigheid")
