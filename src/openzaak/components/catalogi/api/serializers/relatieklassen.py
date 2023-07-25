@@ -66,7 +66,7 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
 
         # New in Catalogi 1.2: allow concept update for a specific scope
         if is_force_write(self):
-            return
+            return attrs
 
         if self.instance:
             zaaktype = attrs.get("zaaktype") or self.instance.zaaktype

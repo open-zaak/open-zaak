@@ -291,9 +291,14 @@ class DeelzaaktypeCatalogusValidator:
 
 def is_force_write(serializer) -> bool:
     request = serializer.context["request"]
+
+    # if no jwt_auth -> it's used in the admin of the management command
+    if not hasattr(request, "jwt_auth"):
+        return True
+
     return request.jwt_auth.has_auth(
         scopes=SCOPE_CATALOGI_FORCED_WRITE,
-        init_component=serializer._meta.model.app_label,
+        init_component=serializer.Meta.model._meta.app_label,
     )
 
 
