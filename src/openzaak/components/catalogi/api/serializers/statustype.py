@@ -3,6 +3,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
+from vng_api_common.utils import get_help_text
 
 from ...models import StatusType
 from ..validators import ZaakTypeConceptValidator
@@ -17,6 +18,13 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "met het hoogste volgnummer."
         ),
     )
+    catalogus = serializers.HyperlinkedRelatedField(
+        view_name="catalogus-detail",
+        source="zaaktype.catalogus",
+        read_only=True,
+        lookup_field="uuid",
+        help_text=get_help_text("catalogi.ZaakType", "catalogus"),
+    )
 
     class Meta:
         model = StatusType
@@ -29,6 +37,7 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "volgnummer",
             "is_eindstatus",
             "informeren",
+            "catalogus",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

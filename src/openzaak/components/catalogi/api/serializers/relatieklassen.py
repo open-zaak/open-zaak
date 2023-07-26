@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.utils import get_help_text
 
 from openzaak.utils.validators import UniqueTogetherValidator
 
@@ -19,6 +20,14 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
     Relatie met informatieobjecttype dat relevant is voor zaaktype.
     """
 
+    catalogus = serializers.HyperlinkedRelatedField(
+        view_name="catalogus-detail",
+        source="zaaktype.catalogus",
+        read_only=True,
+        lookup_field="uuid",
+        help_text=get_help_text("catalogi.ZaakType", "catalogus"),
+    )
+
     class Meta:
         model = ZaakTypeInformatieObjectType
         fields = (
@@ -28,6 +37,7 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "volgnummer",
             "richting",
             "statustype",
+            "catalogus",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

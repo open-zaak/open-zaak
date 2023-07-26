@@ -14,6 +14,7 @@ from vng_api_common.serializers import (
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
+from vng_api_common.utils import get_help_text
 
 from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
@@ -58,6 +59,13 @@ class ResultaatTypeSerializer(
             "start van de Archiefactietermijn (=brondatum) van het zaakdossier."
         ),
     )
+    catalogus = serializers.HyperlinkedRelatedField(
+        view_name="catalogus-detail",
+        source="zaaktype.catalogus",
+        read_only=True,
+        lookup_field="uuid",
+        help_text=get_help_text("catalogi.ZaakType", "catalogus"),
+    )
 
     class Meta:
         model = ResultaatType
@@ -72,6 +80,7 @@ class ResultaatTypeSerializer(
             "archiefnominatie",
             "archiefactietermijn",
             "brondatum_archiefprocedure",
+            "catalogus",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

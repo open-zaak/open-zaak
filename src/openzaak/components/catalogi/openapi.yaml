@@ -4550,6 +4550,12 @@ components:
           type: string
           maxLength: 20
           minLength: 1
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
         definitie:
           title: Definitie
           description: De beschrijving van de betekenis van deze EIGENSCHAP
