@@ -63,7 +63,9 @@ class RolTypeViewSet(
     concept betreft.
     """
 
-    queryset = RolType.objects.select_related("zaaktype").order_by("-pk")
+    queryset = RolType.objects.select_related(
+        "zaaktype", "zaaktype__catalogus"
+    ).order_by("-pk")
     serializer_class = RolTypeSerializer
     filterset_class = RolTypeFilter
     lookup_field = "uuid"

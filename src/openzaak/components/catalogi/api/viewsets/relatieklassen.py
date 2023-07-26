@@ -90,7 +90,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
 
     queryset = (
         ZaakTypeInformatieObjectType.objects.all()
-        .select_related("zaaktype", "informatieobjecttype")
+        .select_related("zaaktype", "informatieobjecttype", "zaaktype__catalogus")
         .order_by("-pk")
     )
     serializer_class = ZaakTypeInformatieObjectTypeSerializer

@@ -63,7 +63,7 @@ class StatusTypeViewSet(
     """
 
     queryset = (
-        StatusType.objects.select_related("zaaktype")
+        StatusType.objects.select_related("zaaktype", "zaaktype__catalogus")
         .prefetch_related("zaaktype__statustypen")
         .order_by("-pk")
         .all()
