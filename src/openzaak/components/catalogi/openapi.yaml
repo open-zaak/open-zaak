@@ -4550,12 +4550,6 @@ components:
           type: string
           maxLength: 20
           minLength: 1
-        catalogus:
-          title: Catalogus
-          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
-          type: string
-          format: uri
-          readOnly: true
         definitie:
           title: Definitie
           description: De beschrijving van de betekenis van deze EIGENSCHAP
@@ -4576,6 +4570,12 @@ components:
             EIGENSCHAP van belang is.
           type: string
           format: uri
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     InformatieObjectType:
       required:
       - catalogus
@@ -4930,6 +4930,12 @@ components:
           nullable: true
         brondatumArchiefprocedure:
           $ref: '#/components/schemas/BrondatumArchiefprocedure'
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     RolType:
       required:
       - zaaktype
@@ -4983,6 +4989,12 @@ components:
           - klantcontacter
           - zaakcoordinator
           - mede_initiator
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     StatusType:
       required:
       - omschrijving
@@ -5043,6 +5055,12 @@ components:
           description: "Aanduiding die aangeeft of na het zetten van een STATUS van\
             \ dit STATUSTYPE de Initiator moet worden ge\xEFnformeerd over de statusovergang."
           type: boolean
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     ZaakTypeInformatieObjectType:
       required:
       - zaaktype
@@ -5103,6 +5121,12 @@ components:
           type: string
           format: uri
           nullable: true
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
     ReferentieProces:
       description: Het Referentieproces dat ten grondslag ligt aan dit ZAAKTYPE.
       required:
