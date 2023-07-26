@@ -58,6 +58,7 @@ class StatusTypeAPITests(APITestCase):
             "volgnummer": statustype.statustypevolgnummer,
             "isEindstatus": True,
             "informeren": False,
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
         }
 
         self.assertEqual(expected, response.json())

@@ -105,6 +105,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                     "lengte": "255",
                     "waardenverzameling": ["boot", "zwerfvuil"],
                 },
+                "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
             },
         )
 
@@ -156,6 +157,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             },
             "toelichting": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
         }
         self.assertEqual(expected, response.json())
 

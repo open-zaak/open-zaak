@@ -143,6 +143,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                     "registratie": "",
                     "procestermijn": None,
                 },
+                "catalogus": f"http://testserver{reverse(resultaattype.zaaktype.catalogus)}",
             },
         )
 

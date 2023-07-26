@@ -54,6 +54,7 @@ class RolTypeAPITests(APITestCase):
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
+            "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
         }
         self.assertEqual(expected, response.json())
 
