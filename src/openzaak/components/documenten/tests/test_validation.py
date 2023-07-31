@@ -288,6 +288,43 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 error = get_validation_errors(response, "status")
                 self.assertEqual(error["code"], "invalid_for_received")
 
+    def test_update_definitief_status_fail(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"aaaaa"), "bestandsomvang": 5, "lock": lock,}
+        )
+        for i in ["integriteit", "ondertekening"]:
+            eio_data.pop(i)
+
+        response = self.client.put(eio_url, eio_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "modify-status-definitief")
+
+    def test_patch_definitief_status_fail(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+
+        response = self.client.patch(
+            eio_url, {"lock": lock, "beschrijving": "updated",}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "modify-status-definitief")
+
 
 @tag("oio")
 class FilterValidationTests(JWTAuthMixin, APITestCase):
