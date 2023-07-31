@@ -660,7 +660,13 @@ class EnkelvoudigInformatieObjectWithLockSerializer(
                 _("Lock id is not correct"), code="incorrect-lock-id"
             )
 
-        if self.instance.canonical.latest_version.status == Statussen.definitief:
+        # for CMIS just use this instance
+        latest_version = (
+            self.instance
+            if settings.CMIS_ENABLED
+            else self.instance.canonical.latest_version
+        )
+        if latest_version.status == Statussen.definitief:
             raise serializers.ValidationError(
                 _(
                     "Het bijwerken van Informatieobjecten met status `definitief` is niet toegestaan"
