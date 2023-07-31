@@ -234,6 +234,16 @@ class EnkelvoudigInformatieObjectViewSet(
                 code="pending-relations",
             )
 
+        if instance.canonical.lock:
+            raise ValidationError(
+                {
+                    api_settings.NON_FIELD_ERRORS_KEY: _(
+                        "Locked objects cannot be destroyed"
+                    )
+                },
+                code="destroy-locked",
+            )
+
         instance.destroy()
 
     @property
