@@ -396,6 +396,18 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "pending-relations")
 
+    def test_destroy_locked_not_allowed(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(eio)
+        self.client.post(f"{url}/lock")
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "destroy-locked")
+        self.assertTrue(EnkelvoudigInformatieObject.objects.filter(id=eio.id).exists())
+
     def test_validate_unknown_query_params(self):
         EnkelvoudigInformatieObjectFactory.create_batch(2)
         url = reverse(EnkelvoudigInformatieObject)
@@ -627,6 +639,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
