@@ -331,7 +331,7 @@ class EnkelvoudigInformatieObject(
     taal = models.CharField(
         max_length=3,
         help_text="Een ISO 639-2/B taalcode waarin de inhoud van het "
-        "INFORMATIEOBJECT is vastgelegd. Voorbeeld: `nld`. Zie: "
+        "INFORMATIEOBJECT is vastgelegd. Voorbeeld: `dut`. Zie: "
         "https://www.iso.org/standard/4767.html",
     )
 
