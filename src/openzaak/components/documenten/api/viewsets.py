@@ -21,6 +21,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
+from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
@@ -57,6 +58,7 @@ from .scopes import (
 )
 from .serializers import (
     BestandsDeelSerializer,
+    EIOZoekSerializer,
     EnkelvoudigInformatieObjectCreateLockSerializer,
     EnkelvoudigInformatieObjectSerializer,
     EnkelvoudigInformatieObjectWithLockSerializer,
@@ -88,6 +90,7 @@ class EnkelvoudigInformatieObjectViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
+    SearchMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
@@ -194,6 +197,7 @@ class EnkelvoudigInformatieObjectViewSet(
     )
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
+    search_input_serializer_class = EIOZoekSerializer
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -205,6 +209,7 @@ class EnkelvoudigInformatieObjectViewSet(
         "download": SCOPE_DOCUMENTEN_ALLES_LEZEN,
         "lock": SCOPE_DOCUMENTEN_LOCK,
         "unlock": SCOPE_DOCUMENTEN_LOCK | SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+        "_zoek": SCOPE_DOCUMENTEN_ALLES_LEZEN,
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
@@ -352,6 +357,33 @@ class EnkelvoudigInformatieObjectViewSet(
         unlock_serializer.is_valid(raise_exception=True)
         unlock_serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @swagger_auto_schema(request_body=EIOZoekSerializer)
+    @action(methods=["post"], detail=False)
+    def _zoek(self, request, *args, **kwargs):
+        """
+        Voer een zoekopdracht uit op (ENKELVOUDIG) INFORMATIEOBJECTen .
+
+        Zoeken/filteren gaat normaal via de `list` operatie, deze is echter
+        niet geschikt voor zoekopdrachten met UUIDs.
+        """
+
+        # this method is not marked as is_search_action, because the DRC standard
+        # doesn't include LIST query params as possible request data attributes here
+        # The related issue which highlights it https://github.com/VNG-Realisatie/gemma-zaken/issues/2294
+        #
+        # For now we support only 'uuid__in' input parameter here to adhere to the standard OAS
+        # Even if the DRC reference implementation doesn't do it
+
+        search_input = self.get_search_input()
+        queryset = self.get_queryset()
+
+        for name, value in search_input.items():
+            queryset = queryset.filter(**{name: value})
+
+        return self.get_search_output(queryset)
+
+    _zoek.is_page_action = True
 
 
 @cmis_conditional_retrieve()

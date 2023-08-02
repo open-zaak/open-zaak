@@ -829,6 +829,13 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         return self.instance
 
 
+class EIOZoekSerializer(serializers.Serializer):
+    uuid__in = serializers.ListField(
+        child=serializers.UUIDField(),
+        help_text=_("Array of unieke resource identifiers (UUID4)"),
+    )
+
+
 class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
