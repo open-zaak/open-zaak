@@ -30,8 +30,13 @@ IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7
 
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_io_without_correct_scope(self):
-        url = reverse("enkelvoudiginformatieobject-list")
-        self.assertForbidden(url, method="post")
+        urls = [
+            reverse("enkelvoudiginformatieobject-list"),
+            reverse("enkelvoudiginformatieobject--zoek"),
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertForbidden(url, method="post")
 
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
