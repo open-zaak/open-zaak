@@ -66,3 +66,13 @@ class ObjectInformatieObjectTypes(DjangoChoices):
     besluit = constants.BESLUIT_CHOICE
     zaak = constants.ZAAK_CHOICE
     verzoek = constants.VERZOEK_CHOICE
+
+
+class AfzenderTypes(DjangoChoices):
+    afzender = ChoiceItem("afzender", _("Afzender"))
+    geadresseerde = ChoiceItem("geadresseerde", _("Geadresseerde"))
+
+
+class PostAdresTypes(DjangoChoices):
+    antwoordnummer = ChoiceItem("antwoordnummer", _("Antwoordnummer"))
+    postbusnummer = ChoiceItem("postbusnummer", _("Postbusnummer"))
