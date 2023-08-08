@@ -14,6 +14,7 @@ from .viewsets import (
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
     ObjectInformatieObjectViewSet,
+    VerzendingViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -26,6 +27,7 @@ router.register(
 router.register("gebruiksrechten", GebruiksrechtenViewSet)
 router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
+router.register("verzendingen", VerzendingViewSet)
 
 
 # set the path to schema file

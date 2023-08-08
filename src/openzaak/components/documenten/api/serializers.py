@@ -25,7 +25,7 @@ from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.serializers import (
+from vng_api_common.serializers import (  # FIXME NestedGegevensGroepMixin,
     GegevensGroepSerializer,
     add_choice_values_help_text,
 )
@@ -52,6 +52,7 @@ from ..models import (
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
+    Verzending,
 )
 from ..query.cmis import flatten_gegevens_groep
 from ..query.django import InformatieobjectRelatedQuerySet
@@ -991,3 +992,95 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
         oio = super().create(validated_data)
         return oio
+
+
+# Verzending
+class BinnenlandsCorrespondentieadresVerzendingSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Verzending
+        gegevensgroep = "binnenlands_correspondentieadres"
+
+
+class BuitenlandsCorrespondentieadresVerzendingSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Verzending
+        gegevensgroep = "buitenlands_correspondentieadres"
+
+
+class BuitenlandsCorrespondentiepostadresVerzendingSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Verzending
+        gegevensgroep = "correspondentie_postadres"
+
+
+class VerzendingSerializer(
+    # NestedGegevensGroepMixin,
+    # NestedCreateMixin,
+    # NestedUpdateMixin,
+    serializers.HyperlinkedModelSerializer,
+):
+    informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
+        view_name="enkelvoudiginformatieobject-detail",
+        lookup_field="uuid",
+        queryset=EnkelvoudigInformatieObject.objects,
+        help_text=get_help_text("documenten.Verzending", "informatieobject"),
+    )
+
+    binnenlands_correspondentieadres = BinnenlandsCorrespondentieadresVerzendingSerializer(
+        required=False,
+        allow_null=True,
+        help_text=_(
+            "Het correspondentieadres, betreffende een adresseerbaar object,"
+            " van de BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld"
+            " in het ontvangen of verzonden INFORMATIEOBJECT indien dat afwijkt"
+            " van het reguliere binnenlandse correspondentieadres van BETROKKENE."
+        ),
+    )
+
+    buitenlands_correspondentieadres = BuitenlandsCorrespondentieadresVerzendingSerializer(
+        required=False,
+        allow_null=True,
+        help_text=_(
+            "De gegevens van het adres in het buitenland van BETROKKENE, zijnde"
+            " afzender of geadresseerde, zoals vermeld in het ontvangen of"
+            " verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere"
+            " correspondentiegegevens van BETROKKENE."
+        ),
+    )
+
+    correspondentie_postadres = BuitenlandsCorrespondentiepostadresVerzendingSerializer(
+        required=False,
+        allow_null=True,
+        help_text=_(
+            "De gegevens die tezamen een postbusadres of antwoordnummeradres"
+            " vormen van BETROKKENE, zijnde afzender of geadresseerde, zoals"
+            " vermeld in het ontvangen of verzonden INFORMATIEOBJECT en dat"
+            " afwijkt van de reguliere correspondentiegegevens van BETROKKENE."
+        ),
+    )
+
+    class Meta:
+        model = Verzending
+        fields = (
+            "url",
+            "betrokkene",
+            "informatieobject",
+            "aard_relatie",
+            "toelichting",
+            "ontvangstdatum",
+            "verzenddatum",
+            "contact_persoon",
+            "contactpersoonnaam",
+            "binnenlands_correspondentieadres",
+            "buitenlands_correspondentieadres",
+            "correspondentie_postadres",
+            "faxnummer",
+            "emailadres",
+            "mijn_overheid",
+            "telefoonnummer",
+        )
+
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid", "read_only": True},
+        }
+        # todo address validator

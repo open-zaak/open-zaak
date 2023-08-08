@@ -3,7 +3,7 @@
 from typing import Callable, List
 
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
-from django.core import checks, exceptions
+from django.core import checks, exceptions, validators
 from django.db import models
 from django.db.models.base import Options
 from django.utils.translation import gettext_lazy as _
@@ -183,3 +183,24 @@ class ServiceFkField(models.ForeignKey):
         kwargs.setdefault("blank", True)
 
         super().__init__(**kwargs)
+
+
+class NLPostcodeValidator(validators.RegexValidator):
+    """
+    Validation for Dutch postcodes.
+    """
+
+    error_message = _("Enter a valid postcode.")
+    regex = r"^[1-9][0-9]{3} ?[A-Z]{2}$"
+
+
+class NLPostcodeField(models.CharField):
+    """
+    Model field for NL postcodes with build-in regex validator
+    """
+
+    default_validators = [NLPostcodeValidator()]
+
+    def __init__(self, verbose_name=None, name=None, **kwargs):
+        kwargs.setdefault("max_length", 6)
+        super().__init__(verbose_name, name, **kwargs)

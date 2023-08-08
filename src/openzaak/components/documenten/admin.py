@@ -146,6 +146,85 @@ class ObjectInformatieObjectAdmin(
         )
 
 
+@admin.register(Verzending)
+class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "uuid",
+        "aard_relatie",
+        "contactpersoonnaam",
+        "verzenddatum",
+        "ontvangstdatum",
+    )
+    list_filter = (
+        "aard_relatie",
+        "informatieobject",
+    )
+    ordering = (
+        "-verzenddatum",
+        "-ontvangstdatum",
+    )
+    search_fields = (
+        "contactpersoonnaam",
+        "uuid",
+    )
+    raw_id_fields = ("informatieobject",)
+
+    readonly_fields = ("uuid",)
+
+    fieldsets = (
+        (
+            _("Algemeen"),
+            {
+                "fields": (
+                    "uuid",
+                    "aard_relatie",
+                    "toelichting",
+                    "verzenddatum",
+                    "ontvangstdatum",
+                    "betrokkene",
+                    "informatieobject",
+                ),
+            },
+        ),
+        (_("Contactpersoon"), {"fields": ("contact_persoon", "contactpersoonnaam",),},),
+        (
+            _("Afwijkend binnenlands correspondentieadres verzending"),
+            {
+                "fields": (
+                    "binnenlands_correspondentieadres_huisletter",
+                    "binnenlands_correspondentieadres_huisnummer",
+                    "binnenlands_correspondentieadres_huisnummer_toevoeging",
+                    "binnenlands_correspondentieadres_naam_openbare_ruimte",
+                    "binnenlands_correspondentieadres_postcode",
+                    "binnenlands_correspondentieadres_woonplaats",
+                ),
+            },
+        ),
+        (
+            _("Afwijkend buitenlands correspondentieadres verzending"),
+            {
+                "fields": (
+                    "buitenlands_correspondentieadres_adres_buitenland_1",
+                    "buitenlands_correspondentieadres_adres_buitenland_2",
+                    "buitenlands_correspondentieadres_adres_buitenland_3",
+                    "buitenlands_correspondentieadres_land_postadres",
+                ),
+            },
+        ),
+        (
+            _("Afwijkend correspondentie postadres verzending"),
+            {
+                "fields": (
+                    "buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer",
+                    "buitenlands_correspondentiepostadres_postadres_postcode",
+                    "buitenlands_correspondentiepostadres_postadrestype",
+                    "buitenlands_correspondentiepostadres_woonplaats",
+                ),
+            },
+        ),
+    )
+
+
 class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
     model = Gebruiksrechten
     fields = GebruiksrechtenAdmin.list_display
@@ -167,7 +246,7 @@ class ObjectInformatieObjectInline(
 
 class VerzendingInline(EditInlineAdminMixin, admin.TabularInline):
     model = Verzending
-    fields = Verzending.list_display
+    fields = VerzendingAdmin.list_display
     fk_name = "informatieobject"
 
 
@@ -261,6 +340,7 @@ class EnkelvoudigInformatieObjectAdmin(
     private_media_view_class = PrivateMediaView
     private_media_file_widget = PrivateFileWidget
     form = EnkelvoudigInformatieObjectForm
+    list_select_related = ("canonical",)
 
     fieldsets = (
         (
@@ -358,82 +438,3 @@ class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
     )
     list_filter = ("informatieobject",)
     private_media_fields = ("inhoud",)
-
-
-@admin.register(Verzending)
-class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
-    list_display = (
-        "uuid",
-        "aard_relatie",
-        "contactpersoonnaam",
-        "verzenddatum",
-        "ontvangstdatum",
-    )
-    list_filter = (
-        "aard_relatie",
-        "informatieobject",
-    )
-    ordering = (
-        "-verzenddatum",
-        "-ontvangstdatum",
-    )
-    search_fields = (
-        "contactpersoonnaam",
-        "uuid",
-    )
-    raw_id_fields = ("informatieobject",)
-
-    readonly_fields = ("uuid",)
-
-    fieldsets = (
-        (
-            _("Algemeen"),
-            {
-                "fields": (
-                    "uuid",
-                    "aard_relatie",
-                    "toelichting",
-                    "verzenddatum",
-                    "ontvangstdatum",
-                    "betrokkene",
-                    "informatieobject",
-                ),
-            },
-        ),
-        (_("Contactpersoon"), {"fields": ("contact_persoon", "contactpersoonnaam",),},),
-        (
-            _("Afwijkend binnenlands correspondentieadres verzending"),
-            {
-                "fields": (
-                    "binnenlands_correspondentieadres_huisletter",
-                    "binnenlands_correspondentieadres_huisnummer",
-                    "binnenlands_correspondentieadres_huisnummer_toevoeging",
-                    "binnenlands_correspondentieadres_naam_openbare_ruimte",
-                    "binnenlands_correspondentieadres_postcode",
-                    "binnenlands_correspondentieadres_woonplaats",
-                ),
-            },
-        ),
-        (
-            _("Afwijkend buitenlands correspondentieadres verzending"),
-            {
-                "fields": (
-                    "buitenlands_correspondentieadres_adres_buitenland_1",
-                    "buitenlands_correspondentieadres_adres_buitenland_2",
-                    "buitenlands_correspondentieadres_adres_buitenland_3",
-                    "buitenlands_correspondentieadres_land_postadres",
-                ),
-            },
-        ),
-        (
-            _("Afwijkend correspondentie postadres verzending"),
-            {
-                "fields": (
-                    "buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer",
-                    "buitenlands_correspondentiepostadres_postadres_postcode",
-                    "buitenlands_correspondentiepostadres_postadrestype",
-                    "buitenlands_correspondentiepostadres_woonplaats",
-                ),
-            },
-        ),
-    )

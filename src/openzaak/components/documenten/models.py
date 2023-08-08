@@ -25,6 +25,7 @@ from zgw_consumers.models import ServiceUrlField
 from openzaak.utils.fields import (
     AliasServiceUrlField,
     FkOrServiceUrlField,
+    NLPostcodeField,
     RelativeURLField,
     ServiceFkField,
 )
@@ -963,7 +964,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(CMISETagMixin, models.Model):
+class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,
@@ -1117,9 +1118,8 @@ class Verzending(CMISETagMixin, models.Model):
         max_length=80,
         blank=True,
     )
-    binnenlands_correspondentieadres_postcode = models.CharField(
+    binnenlands_correspondentieadres_postcode = NLPostcodeField(
         _("postcode"),
-        max_length=6,
         help_text=_(
             "De door TNT Post vastgestelde code behorende bij een bepaalde combinatie"
             " van een naam van een woonplaats, naam van een openbare ruimte en een huisnummer."
@@ -1204,9 +1204,8 @@ class Verzending(CMISETagMixin, models.Model):
         blank=True,
         null=True,
     )
-    buitenlands_correspondentiepostadres_postadres_postcode = models.CharField(
+    buitenlands_correspondentiepostadres_postadres_postcode = NLPostcodeField(
         _("postadres postcode"),
-        max_length=6,
         help_text=_(
             "De officiële Nederlandse PTT codering, bestaande uit een numerieke"
             " woonplaatscode en een alfabetische lettercode."
@@ -1239,9 +1238,36 @@ class Verzending(CMISETagMixin, models.Model):
         required=False,
     )
 
-    def __str__(self):
-        return _("Verzending %(uuid)s") % {"uuid": str(self.uuid)}
-
     class Meta:
         verbose_name = _("Verzending")
         verbose_name_plural = _("Verzendingen")
+
+    def __str__(self):
+        return _("Verzending %(uuid)s") % {"uuid": str(self.uuid)}
+
+    # TODO save() for CMIS
+
+    def get_informatieobject_url(self):
+        """
+        Retrieves the EnkelvoudigInformatieObject url from Alfresco
+        """
+        cmis_verzending = self.cmis_client.get_content_object(
+            self.uuid, object_type="verzending"
+        )
+        return cmis_verzending.informatieobject
+
+    def get_informatieobject(self, permission_main_object=None):
+        # TDO refactor with mixin
+        """
+        Retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
+        """
+        if settings.CMIS_ENABLED:
+            # Get the uuid of the object and retrieve it from alfresco
+            eio_url = self.get_informatieobject_url()
+            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
+            eio_uuid = eio_url.split("/")[-1]
+            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+        elif permission_main_object:
+            return getattr(self, permission_main_object).latest_version
+        else:
+            return self.informatieobject.latest_version

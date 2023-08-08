@@ -36,6 +36,7 @@ from ..models import (
     EnkelvoudigInformatieObject,
     Gebruiksrechten,
     ObjectInformatieObject,
+    Verzending,
 )
 from .audits import AUDIT_DRC
 from .filters import (
@@ -43,6 +44,7 @@ from .filters import (
     EnkelvoudigInformatieObjectListFilter,
     GebruiksrechtenFilter,
     ObjectInformatieObjectFilter,
+    VerzendingFilter
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
@@ -67,6 +69,7 @@ from .serializers import (
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
+    VerzendingSerializer,
 )
 from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
 
@@ -634,4 +637,68 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     permission_main_object = "informatieobject"
     required_scopes = {
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
+    }
+
+
+@cmis_conditional_retrieve()
+class VerzendingViewSet(
+    CMISConnectionPoolMixin,
+    ConvertCMISAdapterExceptions,
+    CheckQueryParamsMixin,
+    NotificationViewSetMixin,
+    ListFilterByAuthorizationsMixin,
+    # in the OAS there are no additional audittrail endpoints for verzending
+    # AuditTrailViewsetMixin,
+    viewsets.ModelViewSet,
+):
+    """
+    Opvragen en bewerken van VERZENDINGen.
+
+    create:
+    Maak een VERZENDING aan.
+
+    Voeg VERZENDINGen toe voor een INFORMATIEOBJECT en een BETROKKENE.
+
+    list:
+    Alle VERZENDINGen opvragen.
+
+    Deze lijst kan gefilterd wordt met query-string parameters.
+
+    retrieve:
+    Een specifieke VERZENDING opvragen.
+
+    Een specifieke VERZENDING opvragen.
+
+    update:
+    Werk een VERZENDING in zijn geheel bij.
+
+    Werk een VERZENDING in zijn geheel bij.
+
+    partial_update:
+    Werk een VERZENDING relatie deels bij.
+
+    Werk een VERZENDING relatie deels bij.
+
+    destroy:
+    Verwijder een VERZENDING.
+
+    Verwijder een VERZENDING.
+    """
+
+    queryset = Verzending.objects.select_related("informatieobject")
+    serializer_class = VerzendingSerializer
+    pagination_class = PageNumberPagination
+    filterset_class = VerzendingFilter
+    lookup_field = "uuid"
+    notifications_kanaal = KANAAL_DOCUMENTEN
+    notifications_main_resource_key = "informatieobject"
+    permission_classes = (InformationObjectAuthRequired,)
+    permission_main_object = "informatieobject"
+    required_scopes = {
+        "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        "retrieve": SCOPE_DOCUMENTEN_ALLES_LEZEN,
+        "create": SCOPE_DOCUMENTEN_AANMAKEN,
+        "destroy": SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+        "update": SCOPE_DOCUMENTEN_BIJWERKEN,
+        "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
