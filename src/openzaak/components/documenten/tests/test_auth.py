@@ -22,7 +22,11 @@ from openzaak.tests.utils import JWTAuthMixin
 from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
-from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
+from .factories import (
+    EnkelvoudigInformatieObjectFactory,
+    GebruiksrechtenFactory,
+    VerzendingFactory,
+)
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7634cc6-b312-4d75-ba4d-a12e1fdb1dee"
@@ -33,6 +37,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
         urls = [
             reverse("enkelvoudiginformatieobject-list"),
             reverse("enkelvoudiginformatieobject--zoek"),
+            reverse("verzending-list"),
         ]
         for url in urls:
             with self.subTest(url=url):
@@ -43,6 +48,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
         gebruiksrechten = GebruiksrechtenFactory.create()
         ZaakInformatieObjectFactory.create()
         oio = ObjectInformatieObject.objects.get()
+        verzending = VerzendingFactory.create()
         urls = [
             reverse("enkelvoudiginformatieobject-list"),
             reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
@@ -50,6 +56,8 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
             reverse(gebruiksrechten),
             reverse("objectinformatieobject-list"),
             reverse(oio),
+            reverse("verzending-list"),
+            reverse(verzending),
         ]
 
         for url in urls:
@@ -653,3 +661,89 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+        super().setUpTestData()
+
+    def test_list_verzendingen_limited_to_authorized_io(self):
+        url = reverse("verzending-list")
+        # must show up
+        verzending = VerzendingFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        VerzendingFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        # must not show up
+        VerzendingFactory.create(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()
+        self.assertEqual(response_data["count"], 1)
+        self.assertEqual(
+            response_data["results"][0]["url"],
+            f"http://testserver{reverse(verzending)}",
+        )
+
+    def test_read_verzending_limited_to_authorized_io(self):
+        verzending1 = VerzendingFactory(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        verzending2 = VerzendingFactory(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response1 = self.client.get(reverse(verzending1))
+        response2 = self.client.get(reverse(verzending2))
+
+        self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+    def test_list_superuser(self):
+        """
+        superuser read everything
+        """
+        self.applicatie.heeft_alle_autorisaties = True
+        self.applicatie.save()
+
+        VerzendingFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        VerzendingFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        VerzendingFactory.create(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        VerzendingFactory.create(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        url = reverse("verzending-list")
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response_data = response.json()
+        self.assertEqual(response_data["count"], 4)

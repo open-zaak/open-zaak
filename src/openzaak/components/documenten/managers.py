@@ -7,6 +7,7 @@ from .query.cmis import (
     CMISQuerySet,
     GebruiksrechtenQuerySet,
     ObjectInformatieObjectCMISQuerySet,
+    VerzendingCMISQuerySet,
 )
 from .query.django import (
     DjangoQuerySet,
@@ -51,3 +52,15 @@ class ObjectInformatieObjectAdapterManager(models.Manager):
 
     def delete_for(self, relation):
         return self.get_queryset().delete_for(relation)
+
+
+class VerzendingAdapterManager(models.Manager):
+    def get_queryset(self):
+        if settings.CMIS_ENABLED:
+            return VerzendingCMISQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )
+        else:
+            return InformatieobjectRelatedQuerySet(
+                model=self.model, using=self._db, hints=self._hints
+            )

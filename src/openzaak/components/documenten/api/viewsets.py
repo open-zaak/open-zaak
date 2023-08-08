@@ -44,7 +44,7 @@ from .filters import (
     EnkelvoudigInformatieObjectListFilter,
     GebruiksrechtenFilter,
     ObjectInformatieObjectFilter,
-    VerzendingFilter
+    VerzendingFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
@@ -685,7 +685,7 @@ class VerzendingViewSet(
     Verwijder een VERZENDING.
     """
 
-    queryset = Verzending.objects.select_related("informatieobject")
+    queryset = Verzending.objects.select_related("informatieobject").order_by("-pk")
     serializer_class = VerzendingSerializer
     pagination_class = PageNumberPagination
     filterset_class = VerzendingFilter

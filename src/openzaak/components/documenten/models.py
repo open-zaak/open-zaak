@@ -46,6 +46,7 @@ from .managers import (
     AdapterManager,
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
+    VerzendingAdapterManager,
 )
 from .query.django import BestandsDeelQuerySet, InformatieobjectQuerySet
 from .utils import private_media_storage_cmis
@@ -1194,7 +1195,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
         optional=("adres_buitenland_2", "adres_buitenland_3",),
     )
 
-    buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer = models.PositiveIntegerField(
+    correspondentie_postadres_postbus_of_antwoord_nummer = models.PositiveIntegerField(
         _("postbus-of antwoordnummer"),
         validators=[MinValueValidator(1), MaxValueValidator(9999)],
         help_text=_(
@@ -1204,7 +1205,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
         blank=True,
         null=True,
     )
-    buitenlands_correspondentiepostadres_postadres_postcode = NLPostcodeField(
+    correspondentie_postadres_postcode = NLPostcodeField(
         _("postadres postcode"),
         help_text=_(
             "De officiële Nederlandse PTT codering, bestaande uit een numerieke"
@@ -1212,14 +1213,14 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
         ),
         blank=True,
     )
-    buitenlands_correspondentiepostadres_postadrestype = models.CharField(
+    correspondentie_postadres_postadrestype = models.CharField(
         _("postadrestype"),
         max_length=255,
         choices=PostAdresTypes.choices,
         help_text=_("Aanduiding van het soort postadres."),
         blank=True,
     )
-    buitenlands_correspondentiepostadres_woonplaats = models.CharField(
+    correspondentie_postadres_woonplaats = models.CharField(
         _("woonplaatsnaam"),
         max_length=80,
         help_text=_(
@@ -1230,13 +1231,15 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
     )
     correspondentie_postadres = GegevensGroepType(
         {
-            "post_bus_of_antwoordnummer": buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer,
-            "postadres_postcode": buitenlands_correspondentiepostadres_postadres_postcode,
-            "postadres_type": buitenlands_correspondentiepostadres_postadrestype,
-            "woonplaatsnaam": buitenlands_correspondentiepostadres_woonplaats,
+            "post_bus_of_antwoordnummer": correspondentie_postadres_postbus_of_antwoord_nummer,
+            "postadres_postcode": correspondentie_postadres_postcode,
+            "postadres_type": correspondentie_postadres_postadrestype,
+            "woonplaatsnaam": correspondentie_postadres_woonplaats,
         },
         required=False,
     )
+
+    objects = VerzendingAdapterManager()
 
     class Meta:
         verbose_name = _("Verzending")
