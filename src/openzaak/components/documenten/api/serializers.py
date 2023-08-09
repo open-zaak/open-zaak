@@ -25,8 +25,9 @@ from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.serializers import (  # FIXME NestedGegevensGroepMixin,
+from vng_api_common.serializers import (
     GegevensGroepSerializer,
+    NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
@@ -1014,10 +1015,7 @@ class BuitenlandsCorrespondentiepostadresVerzendingSerializer(GegevensGroepSeria
 
 
 class VerzendingSerializer(
-    # NestedGegevensGroepMixin,
-    # NestedCreateMixin,
-    # NestedUpdateMixin,
-    serializers.HyperlinkedModelSerializer,
+    NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer,
 ):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
