@@ -65,6 +65,7 @@ from .validators import (
     InformatieObjectUniqueValidator,
     StatusValidator,
     UniekeIdentificatieValidator,
+    VerzendingAddressValidator,
 )
 
 
@@ -1008,7 +1009,7 @@ class BuitenlandsCorrespondentieadresVerzendingSerializer(GegevensGroepSerialize
         gegevensgroep = "buitenlands_correspondentieadres"
 
 
-class BuitenlandsCorrespondentiepostadresVerzendingSerializer(GegevensGroepSerializer):
+class CorrespondentiePostadresVerzendingSerializer(GegevensGroepSerializer):
     class Meta:
         model = Verzending
         gegevensgroep = "correspondentie_postadres"
@@ -1046,7 +1047,7 @@ class VerzendingSerializer(
         ),
     )
 
-    correspondentie_postadres = BuitenlandsCorrespondentiepostadresVerzendingSerializer(
+    correspondentie_postadres = CorrespondentiePostadresVerzendingSerializer(
         required=False,
         allow_null=True,
         help_text=_(
@@ -1081,4 +1082,4 @@ class VerzendingSerializer(
         extra_kwargs = {
             "url": {"lookup_field": "uuid", "read_only": True},
         }
-        # todo address validator
+        validators = [VerzendingAddressValidator()]

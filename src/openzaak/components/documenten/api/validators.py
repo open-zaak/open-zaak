@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 from collections import OrderedDict
+from typing import Union
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -16,6 +17,7 @@ from zds_client import ClientError
 from zgw_consumers.models import Service
 
 from openzaak.utils import build_absolute_url
+from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
@@ -194,3 +196,89 @@ class CreateRemoteRelationValidator:
 
         if not len(remote_relations):
             raise serializers.ValidationError(self.message, self.code)
+
+
+def is_not_empty(value: Union[str, int, bool, dict]) -> bool:
+    if isinstance(value, dict):
+        return any(value.values())
+
+    return bool(value)
+
+
+class VerzendingAddressValidator:
+    """
+    Check that Verzending can have only one attribute filled of the following:
+    * binnenlands_correspondentieadres
+    * buitenlands_correspondentieadres
+    * correspondentie_postadres
+    * telefoonnummer
+    * emailadres
+    * mijn_overheid
+    * faxnummer
+
+    This logic is not described in DRC OAS, and this validator is based
+    on the DRC reference implementation
+
+    The question about this logic and its absence in the OAS -
+    https://github.com/VNG-Realisatie/gemma-zaken/issues/2297
+    """
+
+    requires_context = True
+    message = _("Verzending must contain precisely one correspondentieadress")
+    code = "invalid-address"
+
+    def __call__(self, attrs: dict, serializer: serializers.Serializer):
+        # for POST and PUT we just check that the contact channel attribute is the only one
+        non_empty_count = (
+            is_not_empty(attrs.get("binnenlands_correspondentieadres"))
+            + is_not_empty(attrs.get("buitenlands_correspondentieadres"))
+            + is_not_empty(attrs.get("correspondentie_postadres"))
+            + is_not_empty(attrs.get("telefoonnummer"))
+            + is_not_empty(attrs.get("emailadres"))
+            + is_not_empty(attrs.get("mijn_overheid"))
+            + is_not_empty(attrs.get("telefoonnummer"))
+        )
+
+        if non_empty_count != 1:
+            raise serializers.ValidationError(detail=self.message, code=self.code)
+
+        # for PATCH we check that if the instance has one contact attribute filled
+        # another contact attribute can't be patched
+        if not serializer.partial:
+            return
+
+        non_empty_partial_count = (
+            is_not_empty(
+                get_from_serializer_data_or_instance(
+                    "binnenlands_correspondentieadres", attrs, serializer
+                )
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance(
+                    "buitenlands_correspondentieadres", attrs, serializer
+                )
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance(
+                    "correspondentie_postadres", attrs, serializer
+                )
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance(
+                    "telefoonnummer", attrs, serializer
+                )
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance("emailadres", attrs, serializer)
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance("mijn_overheid", attrs, serializer)
+            )
+            + is_not_empty(
+                get_from_serializer_data_or_instance(
+                    "telefoonnummer", attrs, serializer
+                )
+            )
+        )
+        if non_empty_partial_count != 1:
+            raise serializers.ValidationError(detail=self.message, code=self.code)
