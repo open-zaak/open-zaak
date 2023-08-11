@@ -307,6 +307,47 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(verzending.correspondentie_postadres_woonplaats, "Amsterdam")
 
+    def test_create_no_address_fail(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.afzender,
+            "toelichting": "post shipment",
+            "contactPersoon": "http://example.com/contactperson/1",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-address")
+
+    def test_create_more_than_one_address_fail(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(Verzending)
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.afzender,
+            "toelichting": "post shipment",
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+            "correspondentiePostadres": {
+                "postBusOfAntwoordnummer": 1,
+                "postadresPostcode": "1010AA",
+                "postadresType": PostAdresTypes.antwoordnummer,
+                "woonplaatsnaam": "Amsterdam",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-address")
+
     def test_update(self):
         verzending = VerzendingFactory.create(has_inner_address=True, toelichting="old")
         url = reverse(verzending)
@@ -354,6 +395,49 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
             verzending.binnenlands_correspondentieadres_woonplaats, "Amsterdam"
         )
 
+    def test_update_no_address_fail(self):
+        verzending = VerzendingFactory.create(has_inner_address=True, toelichting="old")
+        url = reverse(verzending)
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.afzender,
+            "toelichting": "new",
+            "contactPersoon": "http://example.com/contactperson/1",
+        }
+
+        response = self.client.put(url, data)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-address")
+
+    def test_update_more_than_one_address_fail(self):
+        verzending = VerzendingFactory.create(has_inner_address=True, toelichting="old")
+        url = reverse(verzending)
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        data = {
+            "betrokkene": "http://example.com/betrokkene/1",
+            "informatieobject": f"http://testserver{reverse(eio)}",
+            "aardRelatie": AfzenderTypes.afzender,
+            "toelichting": "new",
+            "contactPersoon": "http://example.com/contactperson/1",
+            "mijnOverheid": True,
+            "binnenlandsCorrespondentieadres": {
+                "huisletter": "A",
+                "huisnummer": 10,
+                "huisnummerToevoeging": "1",
+                "naamOpenbareRuimte": "Amsterdam ruimte",
+                "postcode": "1010AA",
+                "woonplaatsnaam": "Amsterdam",
+            },
+        }
+
+        response = self.client.put(url, data)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-address")
+
     def test_partial_update(self):
         verzending = VerzendingFactory.create(has_inner_address=True, toelichting="old")
         url = reverse(verzending)
@@ -365,6 +449,53 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         verzending = Verzending.objects.get()
 
         self.assertEqual(verzending.toelichting, "new")
+
+    def test_partial_update_same_address(self):
+        verzending = VerzendingFactory.create(has_inner_address=True)
+        url = reverse(verzending)
+
+        response = self.client.patch(
+            url,
+            {
+                "binnenlandsCorrespondentieadres": {
+                    "huisletter": "A",
+                    "huisnummer": 10,
+                    "huisnummerToevoeging": "1",
+                    "naamOpenbareRuimte": "new ruimte",
+                    "postcode": "1010AA",
+                    "woonplaatsnaam": "Amsterdam",
+                },
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        verzending = Verzending.objects.get()
+
+        self.assertEqual(
+            verzending.binnenlands_correspondentieadres_naam_openbare_ruimte,
+            "new ruimte",
+        )
+
+    def test_partial_update_other_address_fail(self):
+        verzending = VerzendingFactory.create(has_inner_address=True)
+        url = reverse(verzending)
+
+        response = self.client.patch(
+            url,
+            {
+                "correspondentiePostadres": {
+                    "postBusOfAntwoordnummer": 1,
+                    "postadresPostcode": "1010AA",
+                    "postadresType": PostAdresTypes.antwoordnummer,
+                    "woonplaatsnaam": "Amsterdam",
+                },
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-address")
 
     def test_delete(self):
         verzending = VerzendingFactory.create(has_inner_address=True, toelichting="old")

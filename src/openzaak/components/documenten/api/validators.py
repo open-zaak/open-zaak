@@ -229,56 +229,59 @@ class VerzendingAddressValidator:
 
     def __call__(self, attrs: dict, serializer: serializers.Serializer):
         # for POST and PUT we just check that the contact channel attribute is the only one
-        non_empty_count = (
-            is_not_empty(attrs.get("binnenlands_correspondentieadres"))
-            + is_not_empty(attrs.get("buitenlands_correspondentieadres"))
-            + is_not_empty(attrs.get("correspondentie_postadres"))
-            + is_not_empty(attrs.get("telefoonnummer"))
-            + is_not_empty(attrs.get("emailadres"))
-            + is_not_empty(attrs.get("mijn_overheid"))
-            + is_not_empty(attrs.get("telefoonnummer"))
-        )
-
-        if non_empty_count != 1:
-            raise serializers.ValidationError(detail=self.message, code=self.code)
-
-        # for PATCH we check that if the instance has one contact attribute filled
-        # another contact attribute can't be patched
         if not serializer.partial:
-            return
+            non_empty_count = (
+                is_not_empty(attrs.get("binnenlands_correspondentieadres"))
+                + is_not_empty(attrs.get("buitenlands_correspondentieadres"))
+                + is_not_empty(attrs.get("correspondentie_postadres"))
+                + is_not_empty(attrs.get("telefoonnummer"))
+                + is_not_empty(attrs.get("emailadres"))
+                + is_not_empty(attrs.get("mijn_overheid"))
+                + is_not_empty(attrs.get("telefoonnummer"))
+            )
 
-        non_empty_partial_count = (
-            is_not_empty(
-                get_from_serializer_data_or_instance(
-                    "binnenlands_correspondentieadres", attrs, serializer
+            if non_empty_count != 1:
+                raise serializers.ValidationError(detail=self.message, code=self.code)
+
+        else:
+            # for PATCH we check that if the instance has one contact attribute filled
+            # another contact attribute can't be patched
+            non_empty_partial_count = (
+                is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "binnenlands_correspondentieadres", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "buitenlands_correspondentieadres", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "correspondentie_postadres", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "telefoonnummer", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "emailadres", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "mijn_overheid", attrs, serializer
+                    )
+                )
+                + is_not_empty(
+                    get_from_serializer_data_or_instance(
+                        "telefoonnummer", attrs, serializer
+                    )
                 )
             )
-            + is_not_empty(
-                get_from_serializer_data_or_instance(
-                    "buitenlands_correspondentieadres", attrs, serializer
-                )
-            )
-            + is_not_empty(
-                get_from_serializer_data_or_instance(
-                    "correspondentie_postadres", attrs, serializer
-                )
-            )
-            + is_not_empty(
-                get_from_serializer_data_or_instance(
-                    "telefoonnummer", attrs, serializer
-                )
-            )
-            + is_not_empty(
-                get_from_serializer_data_or_instance("emailadres", attrs, serializer)
-            )
-            + is_not_empty(
-                get_from_serializer_data_or_instance("mijn_overheid", attrs, serializer)
-            )
-            + is_not_empty(
-                get_from_serializer_data_or_instance(
-                    "telefoonnummer", attrs, serializer
-                )
-            )
-        )
-        if non_empty_partial_count != 1:
-            raise serializers.ValidationError(detail=self.message, code=self.code)
+            if non_empty_partial_count != 1:
+                raise serializers.ValidationError(detail=self.message, code=self.code)
