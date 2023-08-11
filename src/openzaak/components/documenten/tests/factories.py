@@ -127,7 +127,7 @@ class VerzendingFactory(factory.django.DjangoModelFactory):
             binnenlands_correspondentieadres_naam_openbare_ruimte=factory.Faker(
                 "city", locale="nl_NL"
             ),
-            binnenlands_correspondentieadres_woonplaats=factory.Faker(
+            binnenlands_correspondentieadres_woonplaatsnaam=factory.Faker(
                 "city", locale="nl_NL"
             ),
         )
@@ -147,5 +147,7 @@ class VerzendingFactory(factory.django.DjangoModelFactory):
             correspondentie_postadres_postadrestype=factory.fuzzy.FuzzyChoice(
                 PostAdresTypes.values
             ),
-            correspondentie_postadres_woonplaats=factory.Faker("city", locale="nl_NL"),
+            correspondentie_postadres_woonplaatsnaam=factory.Faker(
+                "city", locale="nl_NL"
+            ),
         )

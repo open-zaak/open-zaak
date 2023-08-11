@@ -1127,7 +1127,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
         ),
         blank=True,
     )
-    binnenlands_correspondentieadres_woonplaats = models.CharField(
+    binnenlands_correspondentieadres_woonplaatsnaam = models.CharField(
         _("woonplaatsnaam"),
         help_text=(
             "De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS toegekende"
@@ -1143,7 +1143,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
             "huisnummer_toevoeging": binnenlands_correspondentieadres_huisnummer_toevoeging,
             "naam_openbare_ruimte": binnenlands_correspondentieadres_naam_openbare_ruimte,
             "postcode": binnenlands_correspondentieadres_postcode,
-            "woonplaatsnaam": binnenlands_correspondentieadres_woonplaats,
+            "woonplaatsnaam": binnenlands_correspondentieadres_woonplaatsnaam,
         },
         required=False,
         optional=("huisletter", "huisnummer_toevoeging", "postcode",),
@@ -1220,7 +1220,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
         help_text=_("Aanduiding van het soort postadres."),
         blank=True,
     )
-    correspondentie_postadres_woonplaats = models.CharField(
+    correspondentie_postadres_woonplaatsnaam = models.CharField(
         _("woonplaatsnaam"),
         max_length=80,
         help_text=_(
@@ -1234,7 +1234,7 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
             "post_bus_of_antwoordnummer": correspondentie_postadres_postbus_of_antwoord_nummer,
             "postadres_postcode": correspondentie_postadres_postcode,
             "postadres_type": correspondentie_postadres_postadrestype,
-            "woonplaatsnaam": correspondentie_postadres_woonplaats,
+            "woonplaatsnaam": correspondentie_postadres_woonplaatsnaam,
         },
         required=False,
     )

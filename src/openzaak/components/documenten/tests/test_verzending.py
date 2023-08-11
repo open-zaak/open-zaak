@@ -68,7 +68,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
                     "huisnummerToevoeging": verzending.binnenlands_correspondentieadres_huisnummer_toevoeging,
                     "naamOpenbareRuimte": verzending.binnenlands_correspondentieadres_naam_openbare_ruimte,
                     "postcode": verzending.binnenlands_correspondentieadres_postcode,
-                    "woonplaatsnaam": verzending.binnenlands_correspondentieadres_woonplaats,
+                    "woonplaatsnaam": verzending.binnenlands_correspondentieadres_woonplaatsnaam,
                 },
                 "buitenlandsCorrespondentieadres": {
                     "adresBuitenland_1": "",
