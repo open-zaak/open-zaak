@@ -4,12 +4,14 @@ import uuid
 from base64 import b64encode
 from copy import deepcopy
 
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 import requests_mock
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes
@@ -18,6 +20,12 @@ from zgw_consumers.models import Service
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
 
+from ..api.scopes import (
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
+    SCOPE_DOCUMENTEN_LOCK,
+)
 from ..constants import OndertekeningSoorten, Statussen
 from .factories import EnkelvoudigInformatieObjectFactory
 
@@ -287,6 +295,113 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 error = get_validation_errors(response, "status")
                 self.assertEqual(error["code"], "invalid_for_received")
+
+
+class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+        super().setUpTestData()
+
+    def test_update_definitief_status_fail(self):
+        self.autorisatie.scopes = [
+            SCOPE_DOCUMENTEN_ALLES_LEZEN,
+            SCOPE_DOCUMENTEN_BIJWERKEN,
+            SCOPE_DOCUMENTEN_LOCK,
+        ]
+        self.autorisatie.save()
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"aaaaa"), "bestandsomvang": 5, "lock": lock,}
+        )
+        for i in ["integriteit", "ondertekening"]:
+            eio_data.pop(i)
+
+        response = self.client.put(eio_url, eio_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "modify-status-definitief")
+
+    def test_patch_definitief_status_fail(self):
+        self.autorisatie.scopes = [
+            SCOPE_DOCUMENTEN_ALLES_LEZEN,
+            SCOPE_DOCUMENTEN_BIJWERKEN,
+            SCOPE_DOCUMENTEN_LOCK,
+        ]
+        self.autorisatie.save()
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+
+        response = self.client.patch(
+            eio_url, {"lock": lock, "beschrijving": "updated",}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "modify-status-definitief")
+
+    def test_update_definitief_status_force(self):
+        self.autorisatie.scopes = [
+            SCOPE_DOCUMENTEN_ALLES_LEZEN,
+            SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
+            SCOPE_DOCUMENTEN_LOCK,
+        ]
+        self.autorisatie.save()
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+
+        eio_response = self.client.get(eio_url)
+        eio_data = eio_response.data
+
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+        eio_data.update(
+            {"inhoud": b64encode(b"aaaaa"), "bestandsomvang": 5, "lock": lock,}
+        )
+        for i in ["integriteit", "ondertekening"]:
+            eio_data.pop(i)
+
+        response = self.client.put(eio_url, eio_data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_patch_definitief_status_force(self):
+        self.autorisatie.scopes = [
+            SCOPE_DOCUMENTEN_ALLES_LEZEN,
+            SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
+            SCOPE_DOCUMENTEN_LOCK,
+        ]
+        self.autorisatie.save()
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
+        )
+        eio_url = reverse(eio)
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
+
+        response = self.client.patch(
+            eio_url, {"lock": lock, "beschrijving": "updated",}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 @tag("oio")
