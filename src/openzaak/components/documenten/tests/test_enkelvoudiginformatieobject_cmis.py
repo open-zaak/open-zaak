@@ -622,6 +622,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
+        self.client.post(f"{eio_url}/unlock", {"lock": lock})
 
         response = self.client.delete(eio_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

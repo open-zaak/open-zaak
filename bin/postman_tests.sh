@@ -2,7 +2,7 @@
 
 set -x
 
-POSTMAN_TESTS_REF=fb877260d421a4b909fb8b46884174ddd3633b90
+POSTMAN_TESTS_REF=0fb70d0e38d91db1697ca6d4801e039e839579e6
 
 # These client IDs and secrets are dummy variables that are only used by
 # the Docker build in Travis, so they can be public
@@ -31,7 +31,7 @@ until [ "$status" = "200" ]; do
 done
 
 # Download and execute the ZGW postman tests
-wget https://raw.githubusercontent.com/VNG-Realisatie/gemma-postman-tests/$POSTMAN_TESTS_REF/$1 -O $1
+wget https://raw.githubusercontent.com/annashamray/gemma-postman-tests/$POSTMAN_TESTS_REF/$1 -O $1
 
 # Run the tests using the newman library for nodejs
 node bin/newman_tests.js \
