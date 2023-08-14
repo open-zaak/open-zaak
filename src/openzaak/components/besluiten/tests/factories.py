@@ -2,8 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import timedelta
 
-from django.utils import timezone
-
 import factory
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
@@ -27,14 +25,16 @@ class BesluitFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFacto
                 "openzaak.components.zaken.tests.factories.ZaakFactory"
             )
         )
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
 
     @factory.lazy_attribute
     def ingangsdatum(self):
         _ingangsdatum = factory.Faker(
-            "date_time_between",
+            "date_between",
             start_date=self.datum,
             end_date=self.datum + timedelta(days=180),
-            tzinfo=timezone.utc,
         )
         return _ingangsdatum.evaluate(
             self, None, {"locale": _ingangsdatum._defaults["locale"]}
@@ -49,3 +49,8 @@ class BesluitInformatieObjectFactory(
 
     class Meta:
         model = "besluiten.BesluitInformatieObject"
+
+    class Params:
+        with_etag = factory.Trait(
+            _etag=factory.PostGenerationMethodCall("calculate_etag_value")
+        )
