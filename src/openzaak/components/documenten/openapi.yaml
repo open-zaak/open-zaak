@@ -308,6 +308,71 @@ paths:
       - JWT-Claims:
         - documenten.aanmaken
     parameters: []
+  /enkelvoudiginformatieobjecten/_zoek:
+    post:
+      operationId: enkelvoudiginformatieobject__zoek
+      summary: Voer een zoekopdracht uit op (ENKELVOUDIG) INFORMATIEOBJECTen .
+      description: 'Zoeken/filteren gaat normaal via de `list` operatie, deze is echter
+
+        niet geschikt voor zoekopdrachten met UUIDs.'
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      - name: page
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        required: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EIOZoek'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EnkelvoudigInformatieObjectData'
+      tags:
+      - enkelvoudiginformatieobjecten
+      security:
+      - JWT-Claims:
+        - documenten.lezen
+    parameters: []
   /enkelvoudiginformatieobjecten/{enkelvoudiginformatieobject_uuid}/audittrail:
     get:
       operationId: audittrail_list
@@ -2725,6 +2790,242 @@ components:
           type: string
           readOnly: true
           minLength: 1
+    EIOZoek:
+      required:
+      - uuid__in
+      type: object
+      properties:
+        uuid__in:
+          description: Lijst van unieke resource identifiers (UUID4)
+          type: array
+          items:
+            type: string
+            format: uuid
+    EnkelvoudigInformatieObjectData:
+      required:
+      - bronorganisatie
+      - creatiedatum
+      - titel
+      - auteur
+      - taal
+      - informatieobjecttype
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        identificatie:
+          title: Identificatie
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+          type: string
+          maxLength: 40
+        bronorganisatie:
+          title: Bronorganisatie
+          description: "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie\
+            \ die het informatieobject heeft gecre\xEBerd of heeft ontvangen en als\
+            \ eerste in een samenwerkingsketen heeft vastgelegd."
+          type: string
+          maxLength: 9
+          minLength: 1
+        creatiedatum:
+          title: Creatiedatum
+          description: Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.
+          type: string
+          format: date
+        titel:
+          title: Titel
+          description: De naam waaronder het INFORMATIEOBJECT formeel bekend is.
+          type: string
+          maxLength: 200
+          minLength: 1
+        vertrouwelijkheidaanduiding:
+          title: Vertrouwelijkheidaanduiding
+          description: 'Aanduiding van de mate waarin het INFORMATIEOBJECT voor de
+            openbaarheid bestemd is.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `openbaar` - Openbaar
+
+            * `beperkt_openbaar` - Beperkt openbaar
+
+            * `intern` - Intern
+
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+
+            * `vertrouwelijk` - Vertrouwelijk
+
+            * `confidentieel` - Confidentieel
+
+            * `geheim` - Geheim
+
+            * `zeer_geheim` - Zeer geheim'
+          type: string
+          enum:
+          - openbaar
+          - beperkt_openbaar
+          - intern
+          - zaakvertrouwelijk
+          - vertrouwelijk
+          - confidentieel
+          - geheim
+          - zeer_geheim
+        auteur:
+          title: Auteur
+          description: "De persoon of organisatie die in de eerste plaats verantwoordelijk\
+            \ is voor het cre\xEBren van de inhoud van het INFORMATIEOBJECT."
+          type: string
+          maxLength: 200
+          minLength: 1
+        status:
+          title: Status
+          description: 'Aanduiding van de stand van zaken van een INFORMATIEOBJECT.
+            De waarden ''in bewerking'' en ''ter vaststelling'' komen niet voor als
+            het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van
+            de Status in ''gearchiveerd'' impliceert dat het informatieobject een
+            duurzaam, niet-wijzigbaar Formaat dient te hebben.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar
+            moet nog vastgesteld worden.
+
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand
+            vastgesteld dan wel ontvangen.
+
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar
+            gemaakt; een gearchiveerd informatie-element.'
+          type: string
+          enum:
+          - in_bewerking
+          - ter_vaststelling
+          - definitief
+          - gearchiveerd
+        formaat:
+          title: Formaat
+          description: 'Het "Media Type" (voorheen "MIME type") voor de wijze waaropde
+            inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand.
+            Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml'
+          type: string
+          maxLength: 255
+        taal:
+          title: Taal
+          description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
+            is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html'
+          type: string
+          maxLength: 3
+          minLength: 3
+        versie:
+          title: Versie
+          description: Het (automatische) versienummer van het INFORMATIEOBJECT. Deze
+            begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.
+          type: integer
+          readOnly: true
+        beginRegistratie:
+          title: Begin registratie
+          description: Een datumtijd in ISO8601 formaat waarop deze versie van het
+            INFORMATIEOBJECT is aangemaakt of gewijzigd.
+          type: string
+          format: date-time
+          readOnly: true
+        bestandsnaam:
+          title: Bestandsnaam
+          description: De naam van het fysieke bestand waarin de inhoud van het informatieobject
+            is vastgelegd, inclusief extensie.
+          type: string
+          maxLength: 255
+        inhoud:
+          title: Inhoud
+          description: "Binaire inhoud, in base64 ge\xEBncodeerd."
+          type: string
+          format: bytes
+          nullable: true
+        bestandsomvang:
+          title: Bestandsomvang
+          description: Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.
+          type: integer
+          minimum: 0
+          nullable: true
+        link:
+          title: Link
+          description: De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen
+            is.
+          type: string
+          format: uri
+          maxLength: 200
+        beschrijving:
+          title: Beschrijving
+          description: Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.
+          type: string
+          maxLength: 1000
+        ontvangstdatum:
+          title: Ontvangstdatum
+          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
+            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
+            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
+            aan documenten die van of naar andere personen ontvangen of verzonden
+            zijn waarbij die personen niet deel uit maken van de behandeling van de
+            zaak waarin het document een rol speelt.
+          type: string
+          format: date
+          nullable: true
+        verzenddatum:
+          title: Verzenddatum
+          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
+            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
+            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
+            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
+            documenten die van of naar andere personen ontvangen of verzonden zijn
+            waarbij die personen niet deel uit maken van de behandeling van de zaak
+            waarin het document een rol speelt.
+          type: string
+          format: date
+          nullable: true
+        indicatieGebruiksrecht:
+          title: Indicatie gebruiksrecht
+          description: Indicatie of er beperkingen gelden aangaande het gebruik van
+            het informatieobject anders dan raadpleging. Dit veld mag `null` zijn
+            om aan te geven dat de indicatie nog niet bekend is. Als de indicatie
+            gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen
+            via de GEBRUIKSRECHTen resource.
+          type: boolean
+          nullable: true
+        ondertekening:
+          $ref: '#/components/schemas/Ondertekening'
+        integriteit:
+          $ref: '#/components/schemas/Integriteit'
+        informatieobjecttype:
+          title: Informatieobjecttype
+          description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
+            API).
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        locked:
+          title: geblokkeerd
+          description: Geeft aan of het document gelocked is. Alleen als een document
+            gelocked is, mogen er aanpassingen gemaakt worden.
+          type: boolean
+          readOnly: true
+        bestandsdelen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BestandsDeel'
+          readOnly: true
     Wijzigingen:
       type: object
       properties:

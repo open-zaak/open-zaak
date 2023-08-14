@@ -120,3 +120,31 @@ class AutoSchema(_AutoSchema):
     def is_deprecated(self):
         deprecation_message = getattr(self.view, "deprecation_message", None)
         return bool(deprecation_message) or super().is_deprecated()
+
+    def get_default_responses(self) -> OrderedDict:
+        """
+        Workaround for EnkelvoudigInformatieObject/_zoek endpoint, which can't be marked as `is_search_action`
+        But still needs pagination
+        """
+        if self._is_page_view:
+            return self._get_search_responses()
+
+        return super().get_default_responses()
+
+    def should_page(self):
+        """
+        Workaround for EnkelvoudigInformatieObject/_zoek endpoint, which can't be marked as `is_search_action`
+        But still needs pagination
+        """
+        if self._is_page_view:
+            return hasattr(self.view, "paginator")
+
+        return super().should_page()
+
+    @property
+    def _is_page_view(self) -> bool:
+        if not getattr(self.view, "action", None):
+            return False
+
+        action = getattr(self.view, self.view.action)
+        return getattr(action, "is_page_action", False)
