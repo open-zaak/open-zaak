@@ -72,6 +72,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | definitie | De beschrijving van de betekenis van deze EIGENSCHAP | string | ja | C​R​U​D |
 | toelichting | Een toelichting op deze EIGENSCHAP en het belang hiervan voor zaken van dit ZAAKTYPE. | string | nee | C​R​U​D |
 | zaaktype | URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is. | string | ja | C​R​U​D |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## InformatieObjectType
 
@@ -118,6 +119,7 @@ Uitleg bij mogelijke waarden:
 * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
 * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden. | string | nee | C​R​U​D |
 | archiefactietermijn | De termijn, na het vervallen van het bedrjfsvoeringsbelang, waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen) van een ZAAK met een resultaat van dit RESULTAATTYPE vernietigd of overgebracht (naar een archiefbewaarplaats) moet worden. Voor te vernietigen dossiers betreft het de in die Selectielijst genoemde bewaartermjn. Voor blijvend te bewaren zaakdossiers betreft het de termijn vanaf afronding van de zaak tot overbrenging (de procestermijn is dan nihil). | string | nee | C​R​U​D |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## RolType
 
@@ -140,6 +142,7 @@ Uitleg bij mogelijke waarden:
 * `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..
 * `zaakcoordinator` - (Zaakcoördinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.
 * `mede_initiator` - Mede-initiator | string | ja | C​R​U​D |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## StatusType
 
@@ -155,6 +158,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | volgnummer | Een volgnummer voor statussen van het STATUSTYPE binnen een zaak. | integer | ja | C​R​U​D |
 | isEindstatus | Geeft aan dat dit STATUSTYPE een eindstatus betreft. Dit gegeven is afgeleid uit alle STATUSTYPEn van dit ZAAKTYPE met het hoogste volgnummer. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
 | informeren | Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang. | boolean | nee | C​R​U​D |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ZaakTypeInformatieObjectType
 
@@ -174,6 +178,7 @@ Uitleg bij mogelijke waarden:
 * `intern` - Intern
 * `uitgaand` - Uitgaand | string | ja | C​R​U​D |
 | statustype | URL-referentie naar het STATUSTYPE waarbij deze INFORMATIEOBJECTTYPEn verplicht aanwezig moeten zijn. | string | nee | C​R​U​D |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ZaakTypenRelatie
 

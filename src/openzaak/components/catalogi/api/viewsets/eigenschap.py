@@ -65,7 +65,9 @@ class EigenschapViewSet(
 
     queryset = (
         Eigenschap.objects.all()
-        .select_related("specificatie_van_eigenschap", "zaaktype")
+        .select_related(
+            "specificatie_van_eigenschap", "zaaktype", "zaaktype__catalogus"
+        )
         .order_by("-pk")
     )
     serializer_class = EigenschapSerializer

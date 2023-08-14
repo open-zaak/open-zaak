@@ -5825,6 +5825,13 @@
                     "description": "URL-referentie naar het ZAAKTYPE van de ZAAKen waarvoor deze EIGENSCHAP van belang is.",
                     "type": "string",
                     "format": "uri"
+                },
+                "catalogus": {
+                    "title": "Catalogus",
+                    "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true
                 }
             }
         },
@@ -6060,6 +6067,13 @@
                 },
                 "brondatumArchiefprocedure": {
                     "$ref": "#/definitions/BrondatumArchiefprocedure"
+                },
+                "catalogus": {
+                    "title": "Catalogus",
+                    "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true
                 }
             }
         },
@@ -6107,6 +6121,13 @@
                         "zaakcoordinator",
                         "mede_initiator"
                     ]
+                },
+                "catalogus": {
+                    "title": "Catalogus",
+                    "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true
                 }
             }
         },
@@ -6169,6 +6190,13 @@
                     "title": "Informeren",
                     "description": "Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden ge\u00efnformeerd over de statusovergang.",
                     "type": "boolean"
+                },
+                "catalogus": {
+                    "title": "Catalogus",
+                    "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true
                 }
             }
         },
@@ -6225,6 +6253,13 @@
                     "type": "string",
                     "format": "uri",
                     "x-nullable": true
+                },
+                "catalogus": {
+                    "title": "Catalogus",
+                    "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true
                 }
             }
         },
