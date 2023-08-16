@@ -3544,6 +3544,11 @@
                     "type": "boolean",
                     "x-nullable": true
                 },
+                "verschijningsvorm": {
+                    "title": "Verschijningsvorm",
+                    "description": "De essenti\u00eble opmaakaspecten van een INFORMATIEOBJECT.",
+                    "type": "string"
+                },
                 "ondertekening": {
                     "$ref": "#/definitions/Ondertekening"
                 },
@@ -3731,6 +3736,11 @@
                     "type": "boolean",
                     "x-nullable": true
                 },
+                "verschijningsvorm": {
+                    "title": "Verschijningsvorm",
+                    "description": "De essenti\u00eble opmaakaspecten van een INFORMATIEOBJECT.",
+                    "type": "string"
+                },
                 "ondertekening": {
                     "$ref": "#/definitions/Ondertekening"
                 },
@@ -3870,7 +3880,7 @@
                 },
                 "taal": {
                     "title": "Taal",
-                    "description": "Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html",
+                    "description": "Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html",
                     "type": "string",
                     "maxLength": 3,
                     "minLength": 3
@@ -3940,6 +3950,11 @@
                     "description": "Indicatie of er beperkingen gelden aangaande het gebruik van het informatieobject anders dan raadpleging. Dit veld mag `null` zijn om aan te geven dat de indicatie nog niet bekend is. Als de indicatie gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen via de GEBRUIKSRECHTen resource.",
                     "type": "boolean",
                     "x-nullable": true
+                },
+                "verschijningsvorm": {
+                    "title": "Verschijningsvorm",
+                    "description": "De essenti\u00eble opmaakaspecten van een INFORMATIEOBJECT.",
+                    "type": "string"
                 },
                 "ondertekening": {
                     "$ref": "#/definitions/Ondertekening"
@@ -4269,6 +4284,11 @@
                     "description": "Indicatie of er beperkingen gelden aangaande het gebruik van het informatieobject anders dan raadpleging. Dit veld mag `null` zijn om aan te geven dat de indicatie nog niet bekend is. Als de indicatie gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen via de GEBRUIKSRECHTen resource.",
                     "type": "boolean",
                     "x-nullable": true
+                },
+                "verschijningsvorm": {
+                    "title": "Verschijningsvorm",
+                    "description": "De essenti\u00eble opmaakaspecten van een INFORMATIEOBJECT.",
+                    "type": "string"
                 },
                 "ondertekening": {
                     "$ref": "#/definitions/Ondertekening"

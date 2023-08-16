@@ -347,6 +347,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "ontvangstdatum",
             "verzenddatum",
             "indicatie_gebruiksrecht",
+            "verschijningsvorm",
             "ondertekening",
             "integriteit",
             "informatieobjecttype",  # van-relatie,

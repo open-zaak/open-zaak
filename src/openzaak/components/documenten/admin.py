@@ -381,6 +381,7 @@ class EnkelvoudigInformatieObjectAdmin(
                     "inhoud",
                     "link",
                     "indicatie_gebruiksrecht",
+                    "verschijningsvorm",
                 )
             },
         ),

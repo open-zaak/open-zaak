@@ -2950,6 +2950,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -3175,6 +3179,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -3340,7 +3348,7 @@ components:
         taal:
           title: Taal
           description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
-            is vastgelegd. Voorbeeld: `nld`. Zie: https://www.iso.org/standard/4767.html'
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
           type: string
           maxLength: 3
           minLength: 3
@@ -3419,6 +3427,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
@@ -3806,6 +3818,10 @@ components:
             via de GEBRUIKSRECHTen resource.
           type: boolean
           nullable: true
+        verschijningsvorm:
+          title: Verschijningsvorm
+          description: "De essenti\xEBle opmaakaspecten van een INFORMATIEOBJECT."
+          type: string
         ondertekening:
           $ref: '#/components/schemas/Ondertekening'
         integriteit:
