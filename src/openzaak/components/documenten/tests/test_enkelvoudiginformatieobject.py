@@ -60,6 +60,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "beschrijving": "test_beschrijving",
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
             "vertrouwelijkheidaanduiding": "openbaar",
+            "verschijningsvorm": "Vorm A",
         }
 
         # Send to the API
@@ -87,6 +88,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.beschrijving, "test_beschrijving")
         self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
+        self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -113,6 +115,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "status": "",
                 "locked": False,
                 "lock": "",
+                "verschijningsvorm": "Vorm A",
             }
         )
 
@@ -259,6 +262,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "integriteit": {"algoritme": "", "waarde": "", "datum": None},
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
+            "verschijningsvorm": "",
         }
 
         response_data = response.json()
