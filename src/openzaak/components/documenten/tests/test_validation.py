@@ -13,7 +13,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
-from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 

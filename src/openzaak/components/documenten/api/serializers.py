@@ -36,7 +36,6 @@ from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
     IsImmutableValidator,
-    LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
     PublishValidator,
 )
