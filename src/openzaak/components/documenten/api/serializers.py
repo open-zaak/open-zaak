@@ -296,7 +296,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ),
         validators=[
             LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
-            LooseFkIsImmutableValidator(),
             PublishValidator(),
         ],
     )
@@ -362,7 +361,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     LooseFkResourceValidator(
                         "InformatieObjectType", settings.ZTC_API_STANDARD
                     ),
-                    LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
             },
