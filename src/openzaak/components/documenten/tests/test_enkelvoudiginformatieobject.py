@@ -516,10 +516,14 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
     heeft_alle_autorisaties = True
 
     def test_eio_update(self):
+        iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(2, concept=False)
         eio = EnkelvoudigInformatieObjectFactory.create(
-            beschrijving="beschrijving1", informatieobjecttype__concept=False
+            beschrijving="beschrijving1", informatieobjecttype=iotype1
         )
 
+        iotype2_url = reverse(
+            "informatieobjecttype-detail", kwargs={"uuid": iotype2.uuid}
+        )
         eio_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
@@ -534,6 +538,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
                 "inhoud": b64encode(b"aaaaa"),
                 "bestandsomvang": 5,
                 "lock": lock,
+                "informatieobjecttype": f"http://testserver{iotype2_url}",
             }
         )
 
@@ -556,10 +561,12 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         latest_version = eios.first()
         self.assertEqual(latest_version.versie, 2)
         self.assertEqual(latest_version.beschrijving, "beschrijving2")
+        self.assertEqual(latest_version.informatieobjecttype, iotype2)
 
         first_version = eios[1]
         self.assertEqual(first_version.versie, 1)
         self.assertEqual(first_version.beschrijving, "beschrijving1")
+        self.assertEqual(first_version.informatieobjecttype, iotype1)
 
     def test_eio_update_with_empty_content(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
