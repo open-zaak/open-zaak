@@ -472,7 +472,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -556,7 +556,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -1295,7 +1295,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -1520,7 +1520,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -1604,7 +1604,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -2103,7 +2103,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -2187,7 +2187,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -2546,7 +2546,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -2771,7 +2771,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -2855,7 +2855,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -3146,7 +3146,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -3371,7 +3371,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -3455,7 +3455,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -3728,7 +3728,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -3953,7 +3953,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -4037,7 +4037,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -4551,7 +4551,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -4635,7 +4635,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -5156,7 +5156,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -5240,7 +5240,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]

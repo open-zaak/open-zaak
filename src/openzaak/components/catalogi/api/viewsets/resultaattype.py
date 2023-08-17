@@ -11,6 +11,7 @@ from ...models import ResultaatType
 from ..filters import ResultaatTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
+    SCOPE_CATALOGI_FORCED_WRITE,
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
@@ -76,8 +77,8 @@ class ResultaatTypeViewSet(
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
         "retrieve": SCOPE_CATALOGI_READ,
-        "create": SCOPE_CATALOGI_WRITE,
-        "update": SCOPE_CATALOGI_WRITE,
-        "partial_update": SCOPE_CATALOGI_WRITE,
+        "create": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
+        "update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
+        "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }

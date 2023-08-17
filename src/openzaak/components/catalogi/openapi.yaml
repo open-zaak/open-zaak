@@ -373,7 +373,7 @@ paths:
       - besluittypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: besluittype_partial_update
       summary: Werk een BESLUITTYPE deels bij.
@@ -427,7 +427,7 @@ paths:
       - besluittypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: besluittype_delete
       summary: Verwijder een BESLUITTYPE.
@@ -966,7 +966,7 @@ paths:
       - eigenschappen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     parameters: []
   /eigenschappen/{uuid}:
     get:
@@ -1131,7 +1131,7 @@ paths:
       - eigenschappen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: eigenschap_partial_update
       summary: Werk een EIGENSCHAP deels bij.
@@ -1186,7 +1186,7 @@ paths:
       - eigenschappen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: eigenschap_delete
       summary: Verwijder een EIGENSCHAP.
@@ -1547,7 +1547,7 @@ paths:
       - informatieobjecttypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: informatieobjecttype_partial_update
       summary: Werk een INFORMATIEOBJECTTYPE deels bij.
@@ -1603,7 +1603,7 @@ paths:
       - informatieobjecttypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: informatieobjecttype_delete
       summary: Verwijder een INFORMATIEOBJECTTYPE.
@@ -1866,7 +1866,7 @@ paths:
       - resultaattypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     parameters: []
   /resultaattypen/{uuid}:
     get:
@@ -2032,7 +2032,7 @@ paths:
       - resultaattypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: resultaattype_partial_update
       summary: Werk een RESULTAATTYPE deels bij.
@@ -2087,7 +2087,7 @@ paths:
       - resultaattypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: resultaattype_delete
       summary: Verwijder een RESULTAATTYPE.
@@ -2300,7 +2300,7 @@ paths:
       - roltypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     parameters: []
   /roltypen/{uuid}:
     get:
@@ -2465,7 +2465,7 @@ paths:
       - roltypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: roltype_partial_update
       summary: Werk een ROLTYPE deels bij.
@@ -2520,7 +2520,7 @@ paths:
       - roltypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: roltype_delete
       summary: Verwijder een ROLTYPE.
@@ -2717,7 +2717,7 @@ paths:
       - statustypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     parameters: []
   /statustypen/{uuid}:
     get:
@@ -2882,7 +2882,7 @@ paths:
       - statustypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: statustype_partial_update
       summary: Werk een STATUSTYPE deels bij.
@@ -2937,7 +2937,7 @@ paths:
       - statustypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: statustype_delete
       summary: Verwijder een STATUSTYPE.
@@ -3324,7 +3324,7 @@ paths:
       - zaaktype-informatieobjecttypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: zaakinformatieobjecttype_partial_update
       summary: Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
@@ -3385,7 +3385,7 @@ paths:
       - zaaktype-informatieobjecttypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: zaakinformatieobjecttype_delete
       summary: Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
@@ -3777,7 +3777,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     patch:
       operationId: zaaktype_partial_update
       summary: Werk een ZAAKTYPE deels bij.
@@ -3836,7 +3836,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     delete:
       operationId: zaaktype_delete
       summary: Verwijder een ZAAKTYPE.

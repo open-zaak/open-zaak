@@ -10,7 +10,7 @@ from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import RichtingChoices
 from ...models import ZaakTypeInformatieObjectType
-from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator
+from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator, is_force_write
 
 
 class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,6 +63,10 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
 
     def validate(self, attrs):
         super().validate(attrs)
+
+        # New in Catalogi 1.2: allow concept update for a specific scope
+        if is_force_write(self):
+            return attrs
 
         if self.instance:
             zaaktype = attrs.get("zaaktype") or self.instance.zaaktype

@@ -26,6 +26,16 @@ SCOPE_CATALOGI_WRITE = Scope(
 """,
 )
 
+SCOPE_CATALOGI_FORCED_WRITE = Scope(
+    "catalogi.geforceerd-schrijven",
+    description="""
+**Laat toe om**:
+
+* Gepubliceerde types geforceerd te schrijven. Alle resources zijn beschikbaar.
+""",
+)
+
+
 SCOPE_CATALOGI_FORCED_DELETE = Scope(
     "catalogi.geforceerd-verwijderen",
     description="""
