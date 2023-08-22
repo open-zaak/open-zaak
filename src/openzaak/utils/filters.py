@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 
 from django_filters import filters
-
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 
