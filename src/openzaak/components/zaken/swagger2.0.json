@@ -4085,19 +4085,27 @@
                     {
                         "name": "ordering",
                         "in": "query",
-                        "description": "*Het veld waarop de resultaten geordend worden.",
+                        "description": "Het veld waarop de resultaten geordend worden.",
                         "required": false,
-                        "type": "string",
-                        "enum": [
-                            "startdatum",
-                            "-startdatum",
-                            "einddatum",
-                            "-einddatum",
-                            "publicatiedatum",
-                            "-publicatiedatum",
-                            "archiefactiedatum",
-                            "-archiefactiedatum"
-                        ]
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "startdatum",
+                                    "-startdatum",
+                                    "einddatum",
+                                    "-einddatum",
+                                    "publicatiedatum",
+                                    "-publicatiedatum",
+                                    "archiefactiedatum",
+                                    "-archiefactiedatum"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     },
                     {
                         "name": "page",
@@ -9424,7 +9432,7 @@
                 },
                 "ordering": {
                     "title": "Ordering",
-                    "description": "*Het veld waarop de resultaten geordend worden.\n\nUitleg bij mogelijke waarden:\n\n* `startdatum` - Startdatum\n* `-startdatum` - Startdatum (descending)\n* `einddatum` - Einddatum\n* `-einddatum` - Einddatum (descending)\n* `publicatiedatum` - Publicatiedatum\n* `-publicatiedatum` - Publicatiedatum (descending)\n* `archiefactiedatum` - Archiefactiedatum\n* `-archiefactiedatum` - Archiefactiedatum (descending)",
+                    "description": "Het veld waarop de resultaten geordend worden.\n\nUitleg bij mogelijke waarden:\n\n* `startdatum` - Startdatum\n* `-startdatum` - Startdatum (descending)\n* `einddatum` - Einddatum\n* `-einddatum` - Einddatum (descending)\n* `publicatiedatum` - Publicatiedatum\n* `-publicatiedatum` - Publicatiedatum (descending)\n* `archiefactiedatum` - Archiefactiedatum\n* `-archiefactiedatum` - Archiefactiedatum (descending)",
                     "type": "string",
                     "enum": [
                         "startdatum",
