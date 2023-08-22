@@ -40,7 +40,6 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 
-from openzaak.utils.filters import SearchOrderingFilter
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 
@@ -242,7 +241,7 @@ class ZaakViewSet(
     )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
-    filter_backends = (Backend, SearchOrderingFilter)
+    filter_backends = (Backend,)
     filterset_class = ZaakFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
