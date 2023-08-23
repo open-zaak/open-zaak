@@ -237,7 +237,10 @@ Uitleg bij mogelijke waarden:
 | deelzaken | URL-referenties naar deel ZAAKen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | relevanteAndereZaken | Een lijst van relevante andere zaken. | array | nee | C​R​U​D |
 | eigenschappen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| rollen | URL-referenties naar ROLLen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | status | Indien geen status bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaakinformatieobjecten | URL-referenties naar ZAAKINFORMATIEOBJECTen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaakobjecten | URL-referenties naar ZAAKOBJECTen. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | kenmerken | Lijst van kenmerken. Merk op dat refereren naar gerelateerde objecten beter kan via `ZaakObject`. | array | nee | C​R​U​D |
 | archiefnominatie | Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
 
