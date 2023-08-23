@@ -114,6 +114,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         modified_data = deepcopy(zaak_data)
         url = modified_data.pop("url")
         modified_data.pop("verlenging")
+        modified_data.pop("processobject")
         modified_data["toelichting"] = "aangepast"
 
         response = self.client.put(url, modified_data, **ZAAK_WRITE_KWARGS)

@@ -574,6 +574,39 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             response.json()["verlenging"], {"reden": "Een reden", "duur": "P5D"}
         )
 
+    def test_create_zaak_with_processobject(self):
+        url = reverse(Zaak)
+        zaak_data = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "517439943",
+            "registratiedatum": "2018-12-24",
+            "startdatum": "2018-12-24",
+            "processobjectaard": "test object",
+            "resultaattoelichting": "test result",
+            "startdatumBewaartermijn": "2019-08-24",
+            "processobject": {
+                "datumkenmerk": "test data",
+                "identificatie": "12345",
+                "objecttype": "test type",
+                "registratie": "test registration",
+            },
+        }
+
+        response = self.client.post(url, zaak_data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak = Zaak.objects.get()
+
+        self.assertEqual(zaak.processobjectaard, "test object")
+        self.assertEqual(zaak.resultaattoelichting, "test result")
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2019, 8, 24))
+        self.assertEqual(zaak.processobject_datumkenmerk, "test data")
+        self.assertEqual(zaak.processobject_identificatie, "12345")
+        self.assertEqual(zaak.processobject_objecttype, "test type")
+        self.assertEqual(zaak.processobject_registratie, "test registration")
+
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
 

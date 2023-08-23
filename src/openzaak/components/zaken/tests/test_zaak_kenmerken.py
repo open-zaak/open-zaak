@@ -106,6 +106,7 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         data["kenmerken"].append({"kenmerk": "kenmerk 2", "bron": "bron 2"})
         data["verlenging"] = None
         data["opschorting"] = None
+        data["processobject"] = None
 
         response = self.client.put(zaak_update_url, data, **ZAAK_WRITE_KWARGS)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -207,14 +208,10 @@ class US153TestCase(JWTAuthMixin, APITestCase):
         data = zaak.copy()
         data["verlenging"] = None
         data["opschorting"] = None
+        data["processobject"] = None
         data["einddatumGepland"] = (
             end_date_planned + datetime.timedelta(days=14)
         ).strftime("%Y-%m-%d")
 
         response = self.client.put(zaak_update_url, data, **ZAAK_WRITE_KWARGS)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # Voeg documenten toe...
-        # self.client.post(...)
-        # Koppel documenten aan Zaak
-        # self.client.post(...)
