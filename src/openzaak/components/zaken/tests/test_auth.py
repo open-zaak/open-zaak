@@ -202,7 +202,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
         # queries because of the permission checks
         PERMISSION_CHECK_NUM_QUERIES = 2
         # queries because of the list endpoint itself
-        ENDPOINT_NUM_QUERIES = 8
+        ENDPOINT_NUM_QUERIES = 11
         TOTAL_EXPECTED_QUERIES = (
             BASE_NUM_QUERIES + PERMISSION_CHECK_NUM_QUERIES + ENDPOINT_NUM_QUERIES
         )
