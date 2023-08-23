@@ -362,6 +362,71 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         blank=True,
     )
 
+    processobjectaard = models.CharField(
+        _("procesobjectaard"),
+        max_length=200,
+        blank=True,
+        help_text=_(
+            "Omschrijving van het object, subject of gebeurtenis waarop, vanuit"
+            " archiveringsoptiek, de zaak betrekking heeft."
+        ),
+    )
+
+    resultaattoelichting = models.TextField(
+        _("resultaattoelichting"),
+        max_length=1000,
+        blank=True,
+        help_text=_("Een toelichting op wat het resultaat van de zaak inhoudt."),
+    )
+
+    startdatum_bewaartermijn = models.DateField(
+        _("startdatum bewaartermijn"),
+        null=True,
+        blank=True,
+        help_text=_(
+            "De datum die de start markeert van de termijn waarop het zaakdossier"
+            " vernietigd moet worden."
+        ),
+    )
+
+    processobject_datumkenmerk = models.CharField(
+        _("datumkenmerk"),
+        max_length=250,
+        blank=True,
+        help_text=_(
+            "De naam van de attribuutsoort van het procesobject dat bepalend is "
+            "voor het einde van de procestermijn."
+        ),
+    )
+    processobject_identificatie = models.CharField(
+        _("identificatie"),
+        max_length=250,
+        blank=True,
+        help_text=_("De unieke aanduiding van het procesobject."),
+    )
+    processobject_objecttype = models.CharField(
+        _("objecttype"),
+        max_length=250,
+        blank=True,
+        help_text=_("Het soort object dat het procesobject representeert."),
+    )
+    processobject_registratie = models.CharField(
+        _("registratie"),
+        max_length=250,
+        blank=True,
+        help_text=_(
+            "De naam van de registratie waarvan het procesobject deel uit maakt."
+        ),
+    )
+    processobject = GegevensGroepType(
+        {
+            "datumkenmerk": processobject_datumkenmerk,
+            "identificatie": processobject_identificatie,
+            "objecttype": processobject_objecttype,
+            "registratie": processobject_registratie,
+        },
+    )
+
     objects = ZaakQuerySet.as_manager()
 
     _current_status_uuid: Optional[UUID]

@@ -256,6 +256,9 @@ Uitleg bij mogelijke waarden:
 | archiefactiedatum | De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg. | string | nee | C​R​U​D |
 | resultaat | URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde &#x27;null&#x27; | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | opdrachtgevendeOrganisatie | De krachtens publiekrecht ingestelde rechtspersoon dan wel ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling geeft. | string | nee | C​R​U​D |
+| processobjectaard | Omschrijving van het object, subject of gebeurtenis waarop, vanuit archiveringsoptiek, de zaak betrekking heeft. | string | nee | C​R​U​D |
+| resultaattoelichting | Een toelichting op wat het resultaat van de zaak inhoudt. | string | nee | C​R​U​D |
+| startdatumBewaartermijn | De datum die de start markeert van de termijn waarop het zaakdossier vernietigd moet worden. | string | nee | C​R​U​D |
 
 ## AuditTrail
 

@@ -6815,6 +6815,44 @@ components:
           type: string
           maxLength: 40
           minLength: 1
+    Processobject:
+      description: Specificatie van de attribuutsoort van het object, subject of gebeurtenis  waarop,
+        vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend is voor
+        de start van de archiefactietermijn.
+      required:
+      - datumkenmerk
+      - identificatie
+      - objecttype
+      - registratie
+      type: object
+      properties:
+        datumkenmerk:
+          title: Datumkenmerk
+          description: De naam van de attribuutsoort van het procesobject dat bepalend
+            is voor het einde van de procestermijn.
+          type: string
+          maxLength: 250
+          minLength: 1
+        identificatie:
+          title: Identificatie
+          description: De unieke aanduiding van het procesobject.
+          type: string
+          maxLength: 250
+          minLength: 1
+        objecttype:
+          title: Objecttype
+          description: Het soort object dat het procesobject representeert.
+          type: string
+          maxLength: 250
+          minLength: 1
+        registratie:
+          title: Registratie
+          description: De naam van de registratie waarvan het procesobject deel uit
+            maakt.
+          type: string
+          maxLength: 250
+          minLength: 1
+      nullable: true
     Zaak:
       required:
       - bronorganisatie
@@ -7114,6 +7152,26 @@ components:
             geeft.
           type: string
           maxLength: 9
+        processobjectaard:
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, de zaak betrekking heeft.
+          type: string
+          maxLength: 200
+        resultaattoelichting:
+          title: Resultaattoelichting
+          description: Een toelichting op wat het resultaat van de zaak inhoudt.
+          type: string
+          maxLength: 1000
+        startdatumBewaartermijn:
+          title: Startdatum bewaartermijn
+          description: De datum die de start markeert van de termijn waarop het zaakdossier
+            vernietigd moet worden.
+          type: string
+          format: date
+          nullable: true
+        processobject:
+          $ref: '#/components/schemas/Processobject'
     GeoWithin:
       type: object
       properties:
