@@ -6,7 +6,7 @@ Authentication and authorization
 All endpoints are authorization protected, per the upstream `Standard`_.
 
 Open Zaak uses the described authentication and authorization mechanism based on
-JSON Web Tokens (JTW in short). You can read more about JWT's on https://jwt.io
+JSON Web Tokens (JWT in short). You can read more about JWT's on https://jwt.io
 
 To connect to Open Zaak, you have received a Client ID and a Secret, which you must use
 to build a JWT.
