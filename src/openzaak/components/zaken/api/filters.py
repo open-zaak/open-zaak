@@ -57,12 +57,16 @@ class ZaakFilter(FilterSet):
         model = Zaak
         fields = {
             "identificatie": ["exact"],
-            "bronorganisatie": ["exact"],
+            "bronorganisatie": ["exact", "in"],
             "zaaktype": ["exact"],
             "archiefnominatie": ["exact", "in"],
-            "archiefactiedatum": ["exact", "lt", "gt"],
+            "archiefactiedatum": ["exact", "lt", "gt", "isnull"],
             "archiefstatus": ["exact", "in"],
             "startdatum": ["exact", "gt", "gte", "lt", "lte"],
+            "registratiedatum": ["exact", "gt", "lt"],
+            "einddatum": ["exact", "gt", "lt", "isnull"],
+            "einddatum_gepland": ["exact", "gt", "lt"],
+            "uiterlijke_einddatum_afdoening": ["exact", "gt", "lt"],
             # filters for werkvoorraad
             "rol__betrokkene_type": ["exact"],
             "rol__betrokkene": ["exact"],
