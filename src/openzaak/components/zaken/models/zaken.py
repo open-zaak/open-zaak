@@ -41,6 +41,7 @@ from openzaak.utils.mixins import AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 from ..query import (
+    StatusQuerySet,
     ZaakBesluitQuerySet,
     ZaakInformatieObjectQuerySet,
     ZaakQuerySet,
@@ -590,8 +591,16 @@ class Status(ETagMixin, models.Model):
         help_text="Een, voor de initiator van de zaak relevante, toelichting "
         "op de status van een zaak.",
     )
+    gezetdoor = models.URLField(
+        _("gezet door"),
+        help_text=_(
+            "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd "
+            "dat STATUSsen in die ZAAK bereikt zijn."
+        ),
+        blank=True,
+    )
 
-    objects = ZaakRelatedQuerySet.as_manager()
+    objects = StatusQuerySet.as_manager()
 
     class Meta:
         verbose_name = "status"
@@ -604,6 +613,14 @@ class Status(ETagMixin, models.Model):
 
     def unique_representation(self):
         return f"({self.zaak.unique_representation()}) - {self.datum_status_gezet}"
+
+    @property
+    def indicatie_laatst_gezette_status(self) -> bool:
+        """⚡️ use annotated field when possible """
+        if hasattr(self, "max_datum_status_gezet"):
+            return self.max_datum_status_gezet == self.datum_status_gezet
+
+        return self.zaak.current_status_uuid == self.uuid
 
 
 class Resultaat(ETagMixin, models.Model):
@@ -1038,7 +1055,29 @@ class ZaakInformatieObject(ETagMixin, models.Model):
     _objectinformatieobject_url = models.URLField(
         blank=True,
         max_length=1000,
-        help_text="URL of related IbjectInformatieObject object in the other API",
+        help_text="URL of related ObjectInformatieObject object in the other API",
+    )
+    vernietigingsdatum = models.DateTimeField(
+        _("vernietigingsdatum"),
+        help_text=_(
+            "De datum waarop het informatieobject uit het zaakdossier verwijderd "
+            "moet worden."
+        ),
+        null=True,
+        blank=True,
+    )
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.CASCADE,
+        verbose_name=_("status"),
+        related_name="zaakinformatieobjecten",
+        help_text=_(
+            "De bij de desbetreffende ZAAK behorende STATUS waarvoor het "
+            "ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken "
+            "van die STATUS en/of de communicatie daarover."
+        ),
+        blank=True,
+        null=True,
     )
 
     objects = ZaakInformatieObjectQuerySet.as_manager()

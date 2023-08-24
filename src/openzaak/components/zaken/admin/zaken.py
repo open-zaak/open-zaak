@@ -243,7 +243,12 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "titel",
         "beschrijving",
     )
-    list_select_related = ("zaak", "_informatieobject", "_informatieobject_base_url")
+    list_select_related = (
+        "zaak",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "status",
+    )
     list_filter = ("aard_relatie",)
     search_fields = (
         "uuid",
@@ -261,7 +266,12 @@ class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.Mode
         "_informatieobject_base_url",
         "_informatieobject_relative_url",
     )
-    raw_id_fields = ("zaak", "_informatieobject", "_informatieobject_base_url")
+    raw_id_fields = (
+        "zaak",
+        "_informatieobject",
+        "_informatieobject_base_url",
+        "status",
+    )
     viewset = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
 
     def get_queryset(self, request):

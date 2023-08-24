@@ -5435,6 +5435,28 @@ components:
             de status van een zaak.
           type: string
           maxLength: 1000
+        indicatieLaatstGezetteStatus:
+          title: Indicatie laatst gezette status
+          description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+            Datum status gezet van van alle statussen bij de desbetreffende zaak.
+          type: boolean
+          readOnly: true
+        gezetdoor:
+          title: Gezet door
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          type: string
+          format: uri
+          maxLength: 200
+        zaakinformatieobjecten:
+          description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+          type: array
+          items:
+            description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
     ZaakContactMoment:
       required:
       - zaak
@@ -5528,6 +5550,21 @@ components:
           type: string
           format: date-time
           readOnly: true
+        vernietigingsdatum:
+          title: Vernietigingsdatum
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          title: Status
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          type: string
+          format: uri
+          nullable: true
     ObjectTypeOverigeDefinitie:
       description: 'Verwijzing naar het schema van het type OBJECT als `objectType`
         de waarde "overige" heeft.

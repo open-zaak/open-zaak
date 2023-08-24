@@ -422,8 +422,10 @@ class StatusViewSet(
 
     """
 
-    queryset = Status.objects.select_related("_statustype", "zaak").order_by(
-        "-datum_status_gezet", "-pk"
+    queryset = (
+        Status.objects.select_related("_statustype", "zaak")
+        .annotate_with_max_datum_status_gezet()
+        .order_by("-datum_status_gezet", "-pk")
     )
     serializer_class = StatusSerializer
     filterset_class = StatusFilter
