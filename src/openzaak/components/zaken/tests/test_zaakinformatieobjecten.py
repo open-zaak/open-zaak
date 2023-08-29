@@ -36,7 +36,7 @@ from openzaak.components.documenten.tests.utils import (
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
 
 from ..models import Zaak, ZaakInformatieObject
-from .factories import ZaakFactory, ZaakInformatieObjectFactory
+from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 from .utils import get_zaaktype_response
 
 
@@ -57,6 +57,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
+        status_ = StatusFactory.create(zaak=zaak)
+        status_url = reverse(status_)
 
         titel = "some titel"
         beschrijving = "some beschrijving"
@@ -66,6 +68,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "titel": titel,
             "beschrijving": beschrijving,
             "aardRelatieWeergave": "bla",  # Should be ignored by the API
+            "status": f"http://testserver{status_url}",
+            "vernietigingsdatum": "2023-01-02T00:00",
         }
 
         # Send to the API
@@ -79,6 +83,10 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         stored_object = ZaakInformatieObject.objects.get()
         self.assertEqual(stored_object.zaak, zaak)
         self.assertEqual(stored_object.aard_relatie, RelatieAarden.hoort_bij)
+        self.assertEqual(stored_object.status, status_)
+        self.assertEqual(
+            stored_object.vernietigingsdatum.isoformat(), "2023-01-02T00:00:00+00:00"
+        )
 
         expected_url = reverse(stored_object)
 
@@ -91,6 +99,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "beschrijving": beschrijving,
                 "registratiedatum": "2018-09-19T10:25:19Z",
                 "aardRelatieWeergave": RelatieAarden.labels[RelatieAarden.hoort_bij],
+                "vernietigingsdatum": "2023-01-02T00:00:00Z",
             }
         )
 
@@ -191,6 +200,8 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "titel": "",
             "beschrijving": "",
             "registratiedatum": "2018-09-20T12:00:00Z",
+            "status": None,
+            "vernietigingsdatum": None,
         }
 
         self.assertEqual(response.json(), expected)

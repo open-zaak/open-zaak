@@ -8,7 +8,7 @@ from django.utils import timezone
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -262,3 +262,67 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "statustype")
         self.assertEqual(error["code"], "unknown-service")
+
+
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+class IsLastStatusTests(JWTAuthMixin, APITestCase):
+    """
+    test status.indicatieLaatstGezetteStatus
+    """
+
+    heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.status11 = StatusFactory.create(datum_status_gezet=timezone.now())
+        cls.status12 = StatusFactory.create(
+            zaak=cls.status11.zaak, datum_status_gezet=timezone.now()
+        )
+        cls.status21 = StatusFactory.create(datum_status_gezet=timezone.now())
+        cls.status22 = StatusFactory.create(
+            zaak=cls.status21.zaak, datum_status_gezet=timezone.now()
+        )
+
+    def test_read_last_status(self):
+        for first_status in [self.status11, self.status21]:
+            with self.subTest(first_status):
+                response = self.client.get(reverse(first_status))
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertFalse(response.json()["indicatieLaatstGezetteStatus"])
+
+        for last_status in [self.status12, self.status22]:
+            with self.subTest(first_status):
+                response = self.client.get(reverse(last_status))
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertTrue(response.json()["indicatieLaatstGezetteStatus"])
+
+    def test_filter_last_status(self):
+        url = reverse_lazy("status-list")
+
+        with self.subTest("indicatieLaatstGezetteStatus=True"):
+            response = self.client.get(url, {"indicatieLaatstGezetteStatus": True})
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.json()["count"], 2)
+            self.assertEqual(
+                response.json()["results"][0]["uuid"], str(self.status22.uuid)
+            )
+            self.assertEqual(
+                response.json()["results"][1]["uuid"], str(self.status12.uuid)
+            )
+
+        with self.subTest("indicatieLaatstGezetteStatus=False"):
+            response = self.client.get(url, {"indicatieLaatstGezetteStatus": False})
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.json()["count"], 2)
+            self.assertEqual(
+                response.json()["results"][0]["uuid"], str(self.status21.uuid)
+            )
+            self.assertEqual(
+                response.json()["results"][1]["uuid"], str(self.status11.uuid)
+            )
