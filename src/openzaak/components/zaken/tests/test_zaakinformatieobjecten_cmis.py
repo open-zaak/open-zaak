@@ -21,7 +21,7 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ...documenten.models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from ..models import Zaak, ZaakInformatieObject
-from .factories import ZaakFactory, ZaakInformatieObjectFactory
+from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 
 
 @require_cmis
@@ -43,6 +43,8 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
+        status_ = StatusFactory.create(zaak=zaak)
+        status_url = reverse(status_)
 
         titel = "some titel"
         beschrijving = "some beschrijving"
@@ -52,6 +54,8 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             "titel": titel,
             "beschrijving": beschrijving,
             "aardRelatieWeergave": "bla",  # Should be ignored by the API
+            "vernietigingsdatum": "2023-01-02T00:00:00Z",
+            "status": f"http://testserver{status_url}",
         }
 
         # Send to the API
@@ -201,6 +205,8 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             "titel": "",
             "beschrijving": "",
             "registratiedatum": "2018-09-20T12:00:00Z",
+            "status": None,
+            "vernietigingsdatum": None,
         }
 
         self.assertEqual(response.json(), expected)
