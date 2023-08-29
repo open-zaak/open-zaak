@@ -1538,6 +1538,13 @@
                         "format": "uri"
                     },
                     {
+                        "name": "indicatieLaatstGezetteStatus",
+                        "in": "query",
+                        "description": "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status gezet van van alle statussen bij de desbetreffende zaak.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
