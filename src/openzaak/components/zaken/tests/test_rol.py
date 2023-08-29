@@ -47,6 +47,11 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             omschrijving="Beslisser",
             omschrijving_generiek="Beslisser",
             indicatie_machtiging=IndicatieMachtiging.gemachtigde,
+            afwijkende_naam_betrokkene="Another name",
+            contactpersoon_rol_emailadres="test@mail.nl",
+            contactpersoon_rol_functie="test function",
+            contactpersoon_rol_naam="test name",
+            contactpersoon_rol_telefoonnummer="061234567890",
         )
         naturlijkperson = NatuurlijkPersoon.objects.create(
             rol=rol, anp_identificatie="12345", inp_a_nummer="1234567890"
@@ -81,6 +86,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "url": f"http://testserver{url}",
                 "uuid": str(rol.uuid),
                 "zaak": f"http://testserver{zaak_url}",
+                "afwijkendeNaamBetrokkene": "Another name",
                 "betrokkene": BETROKKENE,
                 "betrokkeneType": RolTypes.natuurlijk_persoon,
                 "roltype": f"http://testserver{roltype_url}",
@@ -116,6 +122,12 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                         "subAdresBuitenland_2": "",
                         "subAdresBuitenland_3": "",
                     },
+                },
+                "contactpersoonRol": {
+                    "emailadres": "test@mail.nl",
+                    "functie": "test function",
+                    "naam": "test name",
+                    "telefoonnummer": "061234567890",
                 },
             },
         )
@@ -156,6 +168,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "url": f"http://testserver{url}",
                 "uuid": str(rol.uuid),
                 "zaak": f"http://testserver{zaak_url}",
+                "afwijkendeNaamBetrokkene": "",
                 "betrokkene": BETROKKENE,
                 "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
                 "roltype": f"http://testserver{roltype_url}",
@@ -178,6 +191,12 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                         "subAdresBuitenland_3": "",
                     },
                 },
+                "contactpersoonRol": {
+                    "emailadres": "",
+                    "functie": "",
+                    "naam": "",
+                    "telefoonnummer": "",
+                },
             },
         )
 
@@ -192,7 +211,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             omschrijving_generiek="Beslisser",
             indicatie_machtiging=IndicatieMachtiging.gemachtigde,
         )
-        vestiging = Vestiging.objects.create(rol=rol, vestigings_nummer="123456")
+        vestiging = Vestiging.objects.create(
+            rol=rol, vestigings_nummer="123456", kvk_nummer="12345678"
+        )
         Adres.objects.create(
             vestiging=vestiging,
             identificatie="123",
@@ -223,6 +244,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "url": f"http://testserver{url}",
                 "uuid": str(rol.uuid),
                 "zaak": f"http://testserver{zaak_url}",
+                "afwijkendeNaamBetrokkene": "",
                 "betrokkene": BETROKKENE,
                 "betrokkeneType": RolTypes.vestiging,
                 "roltype": f"http://testserver{roltype_url}",
@@ -234,6 +256,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "betrokkeneIdentificatie": {
                     "vestigingsNummer": "123456",
                     "handelsnaam": [],
+                    "kvkNummer": "12345678",
                     "verblijfsadres": {
                         "aoaIdentificatie": "123",
                         "wplWoonplaatsNaam": "test city",
@@ -251,6 +274,12 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                         "subAdresBuitenland_2": "",
                         "subAdresBuitenland_3": "",
                     },
+                },
+                "contactpersoonRol": {
+                    "emailadres": "",
+                    "functie": "",
+                    "naam": "",
+                    "telefoonnummer": "",
                 },
             },
         )
@@ -478,6 +507,39 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             err = get_validation_errors(response, "nonFieldErrors")
             self.assertEqual(err["code"], "unknown-parameters")
+
+    def test_create_rol_with_contactpersoon(self):
+        url = get_operation_url("rol_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene": BETROKKENE,
+            "betrokkene_type": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "contactpersoonRol": {
+                "emailadres": "test@mail.nl",
+                "functie": "test function",
+                "naam": "test name",
+                "telefoonnummer": "061234567890",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Rol.objects.count(), 1)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.betrokkene, BETROKKENE)
+        self.assertEqual(rol.contactpersoon_rol_emailadres, "test@mail.nl")
+        self.assertEqual(rol.contactpersoon_rol_functie, "test function")
+        self.assertEqual(rol.contactpersoon_rol_naam, "test name")
+        self.assertEqual(rol.contactpersoon_rol_telefoonnummer, "061234567890")
 
 
 @tag("external-urls")
