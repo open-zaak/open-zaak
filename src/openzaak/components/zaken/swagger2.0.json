@@ -6331,6 +6331,42 @@
                 }
             }
         },
+        "ContactPersoonRol": {
+            "description": "De gegevens van de persoon die anderen desgevraagd in contact brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.",
+            "required": [
+                "naam"
+            ],
+            "type": "object",
+            "properties": {
+                "emailadres": {
+                    "title": "Email",
+                    "description": "Elektronich postadres waaronder de contactpersoon in de regel bereikbaar is.",
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                },
+                "functie": {
+                    "title": "Functie",
+                    "description": "De aanduiding van de taken, rechten en plichten die de contactpersoon heeft binnen de organisatie van BETROKKENE. ",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "telefoonnummer": {
+                    "title": "Telefoonnummer",
+                    "description": "Telefoonnummer waaronder de contactpersoon in de regel bereikbaar is.",
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "naam": {
+                    "title": "Naam",
+                    "description": "De opgemaakte naam van de contactpersoon namens de BETROKKENE.",
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                }
+            },
+            "x-nullable": true
+        },
         "Rol": {
             "required": [
                 "zaak",
@@ -6381,6 +6417,12 @@
                         "medewerker"
                     ]
                 },
+                "afwijkendeNaamBetrokkene": {
+                    "title": "Afwijkende naam betrokkene",
+                    "description": "De naam van de betrokkene waaronder deze in relatie tot de zaak aangesproken wil worden.",
+                    "type": "string",
+                    "maxLength": 625
+                },
                 "roltype": {
                     "title": "Roltype",
                     "description": "URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.",
@@ -6424,6 +6466,9 @@
                         "gemachtigde",
                         "machtiginggever"
                     ]
+                },
+                "contactpersoonRol": {
+                    "$ref": "#/definitions/ContactPersoonRol"
                 }
             },
             "discriminator": "betrokkeneType"
@@ -6712,6 +6757,12 @@
                 },
                 "subVerblijfBuitenland": {
                     "$ref": "#/definitions/SubVerblijfBuitenland"
+                },
+                "kvkNummer": {
+                    "title": "Kvk nummer",
+                    "description": "Een uniek nummer gekoppeld aan de onderneming.",
+                    "type": "string",
+                    "maxLength": 8
                 }
             }
         },

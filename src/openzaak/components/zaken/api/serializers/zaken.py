@@ -828,6 +828,12 @@ class KlantContactSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class ContactPersoonRolSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Rol
+        gegevensgroep = "contactpersoon_rol"
+
+
 class RolSerializer(PolymorphicSerializer):
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
@@ -841,6 +847,16 @@ class RolSerializer(PolymorphicSerializer):
         group_field="betrokkene_identificatie",
         same_model=False,
     )
+    contactpersoon_rol = ContactPersoonRolSerializer(
+        allow_null=True,
+        required=False,
+        help_text=_(
+            "De gegevens van de persoon die anderen desgevraagd in contact brengt "
+            "met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of "
+            "VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde "
+            ", vanuit het belang van BETROKKENE in haar ROL bij een ZAAK."
+        ),
+    )
 
     class Meta:
         model = Rol
@@ -850,12 +866,14 @@ class RolSerializer(PolymorphicSerializer):
             "zaak",
             "betrokkene",
             "betrokkene_type",
+            "afwijkende_naam_betrokkene",
             "roltype",
             "omschrijving",
             "omschrijving_generiek",
             "roltoelichting",
             "registratiedatum",
             "indicatie_machtiging",
+            "contactpersoon_rol",
         )
         validators = [
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
@@ -909,6 +927,8 @@ class RolSerializer(PolymorphicSerializer):
     @transaction.atomic
     def create(self, validated_data):
         group_data = validated_data.pop("betrokkene_identificatie", None)
+        contactpersoon_rol = validated_data.pop("contactpersoon_rol", None)
+
         rol = super().create(validated_data)
 
         if group_data:
@@ -918,6 +938,10 @@ class RolSerializer(PolymorphicSerializer):
             serializer = group_serializer.get_fields()["betrokkene_identificatie"]
             group_data["rol"] = rol
             serializer.create(group_data)
+
+        if contactpersoon_rol:
+            rol.contactpersoon_rol = contactpersoon_rol
+            rol.save()
 
         return rol
 

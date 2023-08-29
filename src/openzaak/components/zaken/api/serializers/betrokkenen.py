@@ -121,6 +121,7 @@ class RolVestigingSerializer(serializers.ModelSerializer):
             "handelsnaam",
             "verblijfsadres",
             "sub_verblijf_buitenland",
+            "kvk_nummer",
         )
 
     def create(self, validated_data):
