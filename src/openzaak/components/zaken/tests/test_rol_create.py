@@ -77,6 +77,7 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "telefoonnummer": "",
                     "naam": "",
                 },
+                "statussen": [],
             },
         )
 

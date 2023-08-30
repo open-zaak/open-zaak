@@ -24,7 +24,7 @@ from ..models import (
     SubVerblijfBuitenland,
     Vestiging,
 )
-from .factories import RolFactory, ZaakFactory
+from .factories import RolFactory, StatusFactory, ZaakFactory
 from .utils import get_operation_url, get_roltype_response, get_zaaktype_response
 
 BETROKKENE = (
@@ -69,6 +69,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             lnd_landcode="UK",
             lnd_landnaam="United Kingdom",
             sub_adres_buitenland_1="some uk adres",
+        )
+        status_ = StatusFactory.create(
+            zaak=zaak, statustype__zaaktype=zaak.zaaktype, gezetdoor=rol
         )
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         roltype_url = reverse(rol.roltype)
@@ -129,6 +132,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "test name",
                     "telefoonnummer": "061234567890",
                 },
+                "statussen": [f"http://testserver{reverse(status_)}"],
             },
         )
 
@@ -197,6 +201,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "",
                     "telefoonnummer": "",
                 },
+                "statussen": [],
             },
         )
 
@@ -281,6 +286,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "",
                     "telefoonnummer": "",
                 },
+                "statussen": [],
             },
         )
 
