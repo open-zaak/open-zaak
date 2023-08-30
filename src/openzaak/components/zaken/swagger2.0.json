@@ -6884,7 +6884,7 @@
                     "description": "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat STATUSsen in die ZAAK bereikt zijn.",
                     "type": "string",
                     "format": "uri",
-                    "maxLength": 200
+                    "x-nullable": true
                 },
                 "zaakinformatieobjecten": {
                     "description": "URL-referenties naar ZAAKINFORMATIEOBJECTen.",

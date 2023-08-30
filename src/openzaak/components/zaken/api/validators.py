@@ -493,3 +493,17 @@ class ObjectTypeOverigeDefinitieValidator:
                 {"object": _("The object data does not match the specified schema.")},
                 code="invalid-schema",
             )
+
+
+class StatusRolValidator:
+    code = "zaak-mismatch"
+    message = _("De 'gezetdoor' rol hoort niet bij het zaak.")
+
+    def __call__(self, attrs):
+        gezetdoor = attrs.get("gezetdoor")
+        zaak = attrs.get("zaak")
+        if not gezetdoor:
+            return
+
+        if gezetdoor.zaak != zaak:
+            raise serializers.ValidationError(self.message, code=self.code)

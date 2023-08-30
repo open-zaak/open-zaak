@@ -591,13 +591,17 @@ class Status(ETagMixin, models.Model):
         help_text="Een, voor de initiator van de zaak relevante, toelichting "
         "op de status van een zaak.",
     )
-    gezetdoor = models.URLField(
-        _("gezet door"),
+    gezetdoor = models.ForeignKey(
+        "zaken.Rol",
+        on_delete=models.CASCADE,
+        verbose_name=_("gezet door"),
+        related_name="statussen",
+        blank=True,
+        null=True,
         help_text=_(
             "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd "
             "dat STATUSsen in die ZAAK bereikt zijn."
         ),
-        blank=True,
     )
 
     objects = StatusQuerySet.as_manager()

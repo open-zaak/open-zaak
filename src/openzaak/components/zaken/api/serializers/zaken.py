@@ -76,6 +76,7 @@ from ..validators import (
     HoofdzaakValidator,
     NotSelfValidator,
     RolOccurenceValidator,
+    StatusRolValidator,
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
 )
@@ -522,6 +523,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
+            StatusRolValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -543,6 +545,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                     "status gezet van van alle statussen bij de desbetreffende zaak."
                 ),
             },
+            "gezetdoor": {"lookup_field": "uuid"},
             "zaakinformatieobjecten": {
                 "lookup_field": "uuid",
                 "read_only": True,

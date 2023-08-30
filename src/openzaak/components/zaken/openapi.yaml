@@ -5454,7 +5454,7 @@ components:
             dat STATUSsen in die ZAAK bereikt zijn.
           type: string
           format: uri
-          maxLength: 200
+          nullable: true
         zaakinformatieobjecten:
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
           type: array
