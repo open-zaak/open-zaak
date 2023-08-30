@@ -152,7 +152,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
                 "datumStatusGezet": "2018-06-06T17:23:43Z",  # UTC
                 "statustoelichting": "",
                 "indicatieLaatstGezetteStatus": True,
-                "gezetdoor": "",
+                "gezetdoor": None,
                 "zaakinformatieobjecten": [],
             },
         )
