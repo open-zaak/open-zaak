@@ -501,6 +501,11 @@ class ZaakZoekSerializer(serializers.Serializer):
         required=False,
         help_text=_("Array of unieke resource identifiers (UUID4)"),
     )
+    zaaktype__in = serializers.ListField(
+        child=serializers.URLField(),
+        required=False,
+        help_text=_("Array van zaaktypen."),
+    )
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
