@@ -874,6 +874,7 @@ class RolSerializer(PolymorphicSerializer):
             "registratiedatum",
             "indicatie_machtiging",
             "contactpersoon_rol",
+            "statussen",
         )
         validators = [
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
@@ -894,6 +895,14 @@ class RolSerializer(PolymorphicSerializer):
                     LooseFkIsImmutableValidator(),
                 ],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
+            },
+            "statussen": {
+                "lookup_field": "uuid",
+                "read_only": True,
+                "help_text": _(
+                    "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd "
+                    "dat STATUSsen in die ZAAK bereikt zijn."
+                ),
             },
         }
 

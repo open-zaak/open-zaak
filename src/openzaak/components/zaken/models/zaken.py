@@ -834,17 +834,6 @@ class Rol(ETagMixin, models.Model):
         optional=("emailadres", "functie", "telefoonnummer",),
     )
 
-    statussen = models.ManyToManyField(
-        Status,
-        verbose_name=_("statussen"),
-        help_text=_(
-            "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd "
-            "dat STATUSsen in die ZAAK bereikt zijn."
-        ),
-        related_name="rollen",
-        blank=True,
-    )
-
     objects = ZaakRelatedQuerySet.as_manager()
 
     class Meta:
