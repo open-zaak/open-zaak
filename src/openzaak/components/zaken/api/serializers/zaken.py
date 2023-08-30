@@ -1008,10 +1008,10 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 "min_length": 1,
                 "validators": [
                     LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD),
-                    ZaakArchiefStatusValidator(),
                 ],
             },
         }
+        validator = [ZaakArchiefStatusValidator()]
 
     def create(self, validated_data):
         validated_data["zaak"] = self.context["parent_object"]
