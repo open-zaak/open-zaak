@@ -12,7 +12,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie,
+    Archiefstatus,
     BrondatumArchiefprocedureAfleidingswijze,
+    RolTypes,
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
@@ -22,6 +24,7 @@ from zgw_consumers.models import Service
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ResultaatTypeFactory,
+    RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
@@ -29,7 +32,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
 
 from ..models import ZaakInformatieObject
 from .factories import (
@@ -126,6 +129,27 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         validation_error = get_validation_errors(response, "informatieobject")
         self.assertEqual(validation_error["code"], IsImmutableValidator.code)
+
+    def test_zaak_is_archived(self):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        io = EnkelvoudigInformatieObjectFactory.create()
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
+        )
+        url = reverse(ZaakInformatieObject)
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "informatieobject": f"http://testserver{reverse(io)}",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
 
 
 class StatusValidationTests(JWTAuthMixin, APITestCase):
@@ -329,6 +353,26 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_zaak_is_archived(self):
+        zaak = ZaakFactory.create(
+            archiefstatus=Archiefstatus.gearchiveerd, zaaktype=self.zaaktype
+        )
+        url = reverse("status-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "statustype": f"http://testserver{self.statustype_url}",
+                "datumStatusGezet": isodatetime(2018, 10, 1, 10, 00, 00),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
+
 
 class ResultaatValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -408,6 +452,25 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(validation_error["code"], "zaaktype-mismatch")
+
+    def test_zaak_is_archived(self):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        url = reverse("resultaat-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "resultaattype": f"http://testserver{reverse(resultaattype)}",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
 
 
 class KlantContactValidationTests(JWTAuthMixin, APITestCase):
@@ -510,6 +573,26 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "eigenschap")
         self.assertEqual(validation_error["code"], "invalid-resource")
 
+    def test_zaak_is_archived(self):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
+
+        url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "eigenschap": f"http://testserver{reverse(eigenschap)}",
+                "waarde": "test",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
+
 
 class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -553,3 +636,102 @@ class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "object")
         self.assertEqual(validation_error["code"], "bad-url")
+
+    @requests_mock.Mocker()
+    def test_zaak_is_archived(self, m):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        m.get(
+            "http://some-api.com/objecten/1234",
+            json={"url": "http://some-api.com/objecten/1234"},
+        )
+        url = reverse("zaakobject-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "object": "http://some-api.com/objecten/1234",
+                "objectType": "adres",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
+
+
+class RolValidationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_zaak_is_archived(self):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        url = reverse("rol-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "roltype": f"http://testserver{reverse(roltype)}",
+                "betrokkene": "http://www.example.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd",
+                "betrokkene_type": RolTypes.natuurlijk_persoon,
+                "roltoelichting": "test",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
+
+
+class ZaakContactMomentValidationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_zaak_is_archived(self, *mocks):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        contactmoment = "https://contactmomenten.nl/api/v1/contactmomenten/1234"
+        url = reverse("zaakcontactmoment-list")
+
+        with requests_mock.Mocker() as m:
+            m.get(contactmoment, json={"url": contactmoment})
+
+            response = self.client.post(
+                url,
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "contactmoment": contactmoment,
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
+
+
+class ZaakVerzoekValidationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_zaak_is_archived(self, *mocks):
+        zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
+        verzoek = "https://verzoeken.nl/api/v1/verzoeken/1234"
+        url = reverse("zaakverzoek-list")
+
+        with requests_mock.Mocker() as m:
+            m.get(verzoek, json={"url": verzoek})
+
+            response = self.client.post(
+                url, {"zaak": f"http://testserver{reverse(zaak)}", "verzoek": verzoek,},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(validation_error["code"], "zaak-archiefstatus-invalid")
