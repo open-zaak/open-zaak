@@ -3082,6 +3082,10 @@ paths:
             - -publicatiedatum
             - archiefactiedatum
             - -archiefactiedatum
+            - registratiedatum
+            - -registratiedatum
+            - identificatie
+            - -identificatie
         style: form
         explode: false
       - name: page
@@ -7828,7 +7832,15 @@ components:
 
             * `archiefactiedatum` - Archiefactiedatum
 
-            * `-archiefactiedatum` - Archiefactiedatum (descending)'
+            * `-archiefactiedatum` - Archiefactiedatum (descending)
+
+            * `registratiedatum` - Registratiedatum
+
+            * `-registratiedatum` - Registratiedatum (descending)
+
+            * `identificatie` - Identificatie
+
+            * `-identificatie` - Identificatie (descending)'
           type: string
           enum:
           - startdatum
@@ -7839,6 +7851,10 @@ components:
           - -publicatiedatum
           - archiefactiedatum
           - -archiefactiedatum
+          - registratiedatum
+          - -registratiedatum
+          - identificatie
+          - -identificatie
     Wijzigingen:
       type: object
       properties:

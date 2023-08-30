@@ -87,7 +87,14 @@ class ZaakFilter(FilterSet):
         help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
     )
     ordering = filters.OrderingFilter(
-        fields=("startdatum", "einddatum", "publicatiedatum", "archiefactiedatum",),
+        fields=(
+            "startdatum",
+            "einddatum",
+            "publicatiedatum",
+            "archiefactiedatum",
+            "registratiedatum",
+            "identificatie",
+        ),
         help_text=_("Het veld waarop de resultaten geordend worden."),
     )
 
