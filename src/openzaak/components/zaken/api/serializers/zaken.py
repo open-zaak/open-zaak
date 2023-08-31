@@ -41,6 +41,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
+from openzaak.utils.serializer_fields import FKOrServiceUrlField
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -502,10 +503,14 @@ class ZaakZoekSerializer(serializers.Serializer):
         help_text=_("Array of unieke resource identifiers (UUID4)"),
     )
     zaaktype__in = serializers.ListField(
-        child=serializers.URLField(),
+        source="zaaktype",
+        child=FKOrServiceUrlField(),
         required=False,
         help_text=_("Array van zaaktypen."),
     )
+
+    class Meta:
+        model = Zaak
 
 
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
