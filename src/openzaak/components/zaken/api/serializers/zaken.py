@@ -503,7 +503,6 @@ class ZaakZoekSerializer(serializers.Serializer):
         help_text=_("Array of unieke resource identifiers (UUID4)"),
     )
     zaaktype__in = serializers.ListField(
-        source="zaaktype",
         child=FKOrServiceUrlField(),
         required=False,
         help_text=_("Array van zaaktypen."),

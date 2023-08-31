@@ -107,5 +107,7 @@ class FKOrServiceUrlField(FKOrURLField):
         model_class = parent.Meta.model
 
         source = self.source or self.parent.source
+        # remove filters if present
+        source = source.split("__")[0]
         model_field = model_class._meta.get_field(source)
         return model_class, model_field
