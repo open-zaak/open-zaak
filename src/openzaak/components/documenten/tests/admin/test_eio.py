@@ -48,3 +48,28 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
 
         response = form.submit(name="_continue")
         self.assertEqual(response.status_code, 200)
+
+    def test_create_without_iotype(self):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1441
+        """
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
+
+        response = self.app.get(add_url)
+        form = response.form
+
+        form["canonical"] = canonical.pk
+        form["bronorganisatie"] = "000000000"
+        form["creatiedatum"] = "2010-01-01"
+        form["titel"] = "test"
+        form["auteur"] = "test"
+        form["taal"] = "nld"
+        form["inhoud"] = Upload("stuff.txt", b"some content")
+
+        response = form.submit(name="_save")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Je moet een informatieobjecttype opgeven", response.text)
