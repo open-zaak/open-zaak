@@ -9245,8 +9245,7 @@
                     "type": "array",
                     "items": {
                         "type": "string",
-                        "format": "uri",
-                        "minLength": 1
+                        "format": "uri"
                     }
                 },
                 "identificatie": {

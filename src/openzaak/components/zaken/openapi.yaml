@@ -7476,7 +7476,6 @@ components:
           items:
             type: string
             format: uri
-            minLength: 1
         identificatie:
           title: Identificatie
           description: De unieke identificatie van de ZAAK binnen de organisatie die
