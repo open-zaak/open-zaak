@@ -120,13 +120,13 @@ class LooseFkAuthorizationsFilterMixin:
 
             # extract the order and map it to the database value
             if authorization.max_vertrouwelijkheidaanduiding:
-                choice_item = VertrouwelijkheidsAanduiding.get_choice(
+                choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
                     authorization.max_vertrouwelijkheidaanduiding
                 )
                 vertrouwelijkheidaanduiding_whens.append(
                     When(
                         **{f"{prefix}{loose_fk_field}": loose_fk_object},
-                        then=Value(choice_item.order),
+                        then=Value(choice_item_order),
                     )
                 )
 

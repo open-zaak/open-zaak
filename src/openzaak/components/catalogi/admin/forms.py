@@ -376,7 +376,10 @@ class ResultaatTypeForm(forms.ModelForm):
             procestermijn in MAPPING and afleidingswijze != MAPPING[procestermijn]
         )
         if forward_not_ok:
-            value_label = Afleidingswijze.labels[MAPPING[procestermijn]]
+            afleidingswijze_labels = dict(
+                zip(Afleidingswijze.names, Afleidingswijze.labels)
+            )
+            value_label = afleidingswijze_labels[MAPPING[procestermijn]]
             msg = (
                 _(
                     "Invalide afleidingswijze gekozen, volgens de selectielijst moet dit %s zijn"
@@ -439,7 +442,10 @@ class ResultaatTypeForm(forms.ModelForm):
         if not error:
             return
 
-        afleidingswijze_label = Afleidingswijze.labels[afleidingswijze]
+        afleidingswijze_labels = dict(
+            zip(Afleidingswijze.names, Afleidingswijze.labels)
+        )
+        afleidingswijze_label = afleidingswijze_labels[afleidingswijze]
         MSG_FIELD_FORBIDDEN = "Het veld '{verbose_name}' mag niet ingevuld zijn als de afleidingswijze '{value}' is"
         MSG_FIELD_REQUIRED = (
             "Het veld '{verbose_name}' is verplicht als de afleidingswijze '{value}' is"

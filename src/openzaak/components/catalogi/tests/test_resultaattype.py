@@ -1137,7 +1137,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["datumkenmerk"] = "identificatie"
@@ -1182,7 +1182,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["datumkenmerk"] = ""
@@ -1227,7 +1227,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["einddatumBekend"] = True
@@ -1271,7 +1271,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["einddatumBekend"] = False
@@ -1304,7 +1304,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["objecttype"] = "pand"
@@ -1348,7 +1348,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["objecttype"] = ""
@@ -1392,7 +1392,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["registratie"] = "test"
@@ -1433,7 +1433,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["registratie"] = ""
@@ -1474,7 +1474,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["procestermijn"] = "P5M"
@@ -1515,7 +1515,7 @@ class ResultaatTypeValidationTests(APITestCase):
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
-        for afleidingswijze in Afleidingswijze.labels:
+        for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
                 archiefprocedure = deepcopy(MAPPING[afleidingswijze])
                 archiefprocedure["procestermijn"] = None

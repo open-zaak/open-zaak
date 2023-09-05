@@ -22,5 +22,5 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
             self._field_name
         )
         qs = qs.annotate(**{self.field_name: order_expression})
-        numeric_value = VertrouwelijkheidsAanduiding.get_choice(value).order
+        numeric_value = VertrouwelijkheidsAanduiding.get_choice_order(value)
         return super().filter(qs, numeric_value)
