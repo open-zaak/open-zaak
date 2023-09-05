@@ -90,7 +90,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common==1.10.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/remove-django-choices
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -122,7 +122,6 @@ dictdiffer==0.9.0
 django==3.2.18
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   django-admin-index
     #   django-axes
     #   django-choices
@@ -135,7 +134,6 @@ django==3.2.18
     #   django-privates
     #   django-redis
     #   django-relativedelta
-    #   django-rest-framework-condition
     #   django-sendfile2
     #   django-simple-certmanager
     #   django-sniplates
@@ -143,7 +141,6 @@ django==3.2.18
     #   djangorestframework
     #   drc-cmis
     #   drf-extra-fields
-    #   drf-nested-routers
     #   drf-yasg
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
@@ -158,10 +155,7 @@ django-better-admin-arrayfield==1.4.2
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
 django-choices==1.7.2
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
-    #   drc-cmis
+    # via -r requirements/base.txt
 django-cors-headers==3.11.0
     # via -r requirements/base.txt
 django-db-logger==0.1.12
@@ -171,7 +165,6 @@ django-extra-views==0.14.0
 django-filter==21.1
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   django-loose-fk
 django-ipware==4.0.2
     # via
@@ -195,10 +188,6 @@ django-relativedelta==2.0.0
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
-django-rest-framework-condition==0.1.1
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 django-sendfile2==0.7.0
     # via
     #   -r requirements/base.txt
@@ -212,7 +201,6 @@ django-sniplates==0.7.0
 django-solo==2.0.0
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   drc-cmis
     #   mozilla-django-oidc-db
     #   notifications-api-common
@@ -222,34 +210,25 @@ django-webtest==1.9.10
 djangorestframework==3.12.4
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   django-loose-fk
     #   djangorestframework-gis
     #   drf-extra-fields
-    #   drf-nested-routers
     #   drf-yasg
     #   notifications-api-common
 djangorestframework-camel-case==1.2.0
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   notifications-api-common
 djangorestframework-gis==0.18
     # via -r requirements/base.txt
-drc-cmis==1.7.0
+drc-cmis @ git+https://github.com/open-zaak/cmis-adapter@feature/remove-django-choices
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt
-drf-nested-routers==0.93.4
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 drf-writable-nested==0.6.3
     # via -r requirements/base.txt
 drf-yasg==1.20.0
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
+    # via -r requirements/base.txt
 elastic-apm==6.13.2
     # via -r requirements/base.txt
 face==20.1.1
@@ -276,7 +255,6 @@ furl==2.1.3
 gemma-zds-client==1.0.1
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   notifications-api-common
     #   zgw-consumers
 glom==22.1.0
@@ -303,19 +281,11 @@ inflection==0.5.1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
-iso-639==0.4.5
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 iso8601==1.0.2
     # via
     #   -r requirements/base.txt
     #   cmislib-maykin
     #   drc-cmis
-isodate==0.6.1
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 isort==5.0.7
     # via -r requirements/test-tools.in
 itypes==1.2.0
@@ -353,17 +323,11 @@ mozilla-django-oidc==2.0.0
 mozilla-django-oidc-db==0.11.0
     # via -r requirements/base.txt
 notifications-api-common==0.2.2
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
+    # via -r requirements/base.txt
 orderedmultidict==1.0.1
     # via
     #   -r requirements/base.txt
     #   furl
-oyaml==1.0
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 packaging==21.3
     # via
     #   -r requirements/base.txt
@@ -393,7 +357,6 @@ pyflakes==2.2.0
 pyjwt==2.4.0
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   gemma-zds-client
 pyopenssl==23.0.0
     # via
@@ -431,9 +394,7 @@ pytz==2022.6
 pyyaml==6.0
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   gemma-zds-client
-    #   oyaml
 redis==4.1.4
     # via
     #   -r requirements/base.txt
@@ -443,7 +404,6 @@ regex==2022.3.15
 requests==2.28.1
     # via
     #   -r requirements/base.txt
-    #   commonground-api-common
     #   coreapi
     #   gemma-zds-client
     #   mozilla-django-oidc
@@ -478,7 +438,6 @@ six==1.16.0
     #   django-choices
     #   django-db-logger
     #   furl
-    #   isodate
     #   orderedmultidict
     #   python-dateutil
     #   requests-mock
