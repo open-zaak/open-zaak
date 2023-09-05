@@ -18,7 +18,6 @@ bleach
 # Framework libraries
 django
 django-axes
-django-choices
 django-cors-headers
 django-db-logger
 django-extra-views

@@ -124,7 +124,6 @@ django==3.2.18
     #   -r requirements/base.txt
     #   django-admin-index
     #   django-axes
-    #   django-choices
     #   django-cors-headers
     #   django-db-logger
     #   django-extra-views
@@ -154,8 +153,6 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
-django-choices==1.7.2
-    # via -r requirements/base.txt
 django-cors-headers==3.11.0
     # via -r requirements/base.txt
 django-db-logger==0.1.12
@@ -435,7 +432,6 @@ six==1.16.0
     #   bleach
     #   click-repl
     #   cmislib-maykin
-    #   django-choices
     #   django-db-logger
     #   furl
     #   orderedmultidict
