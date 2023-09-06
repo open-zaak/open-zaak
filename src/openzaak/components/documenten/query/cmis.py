@@ -1063,10 +1063,9 @@ def get_object_url(
 
 
 def get_doc_va_order(django_doc):
-    choice_item = VertrouwelijkheidsAanduiding.get_choice(
+    return VertrouwelijkheidsAanduiding.get_choice_order(
         django_doc.vertrouwelijkheidaanduiding
     )
-    return choice_item.order
 
 
 def build_filter(filter_name, filter_value):
