@@ -217,6 +217,16 @@ class ResultaatType(ETagMixin, models.Model):
         ),
     )
 
+    zaakobjecttypen = models.ManyToManyField(
+        "ZaakObjectType",
+        related_name="resultaattypen",
+        help_text=_(
+            "De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan "
+            "ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE "
+            "kan worden gezet."
+        ),
+    )
+
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
         verbose_name = _("resultaattype")

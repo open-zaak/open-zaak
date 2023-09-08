@@ -45,7 +45,7 @@ class StatusTypeAdmin(
                 )
             },
         ),
-        (_("Relaties"), {"fields": ("zaaktype",)}),
+        (_("Relaties"), {"fields": ("zaaktype", "zaakobjecttype")}),
     )
-    raw_id_fields = ("zaaktype",)
+    raw_id_fields = ("zaaktype", "zaakobjecttype")
     readonly_fields = ("uuid",)
