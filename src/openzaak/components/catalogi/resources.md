@@ -160,6 +160,22 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | informeren | Aanduiding die aangeeft of na het zetten van een STATUS van dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang. | boolean | nee | C​R​U​D |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
+## ZaakObjectType
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakobjecttype)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| anderObjecttype | Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een ander, niet in RSGB en RGBZ voorkomend, objecttype betreft. | boolean | ja | C​R​U​D |
+| objecttype | URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE behoort. | string | ja | C​R​U​D |
+| relatieOmschrijving | Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE. | string | ja | C​R​U​D |
+| zaaktype | URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort. | string | ja | C​R​U​D |
+| zaaktypeIdentificatie | Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| resultaattypen | URL-referenties naar de RESULTAATTYPEN. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| statustypen | URL-referenties naar de STATUSTYPEN. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+
 ## ZaakTypeInformatieObjectType
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaaktypeinformatieobjecttype)

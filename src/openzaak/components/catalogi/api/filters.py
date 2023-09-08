@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework as filters
 from djchoices import ChoiceItem, DjangoChoices
 from vng_api_common.filtersets import FilterSet
-from vng_api_common.utils import get_resource_for_path
+from vng_api_common.utils import get_help_text, get_resource_for_path
 
 from ..models import (
     BesluitType,
@@ -20,6 +20,7 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
+    ZaakObjectType,
     ZaakType,
     ZaakTypeInformatieObjectType,
 )
@@ -199,3 +200,26 @@ class CatalogusFilter(FilterSet):
     class Meta:
         model = Catalogus
         fields = {"domein": ["exact", "in"], "rsin": ["exact", "in"]}
+
+
+class ZaakObjectTypeFilter(FilterSet):
+    catalogus = filters.CharFilter(
+        field_name="zaaktype__catalogus",
+        validators=[URLValidator()],
+        help_text=get_help_text("catalogi.ZaakType", "catalogus"),
+    )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
+
+    class Meta:
+        model = ZaakObjectType
+        fields = (
+            "ander_objecttype",
+            "catalogus",
+            "objecttype",
+            "relatie_omschrijving",
+            "zaaktype",
+            "zaaktype_identificatie",
+        )

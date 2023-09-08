@@ -16,6 +16,7 @@ from .viewsets import (
     ResultaatTypeViewSet,
     RolTypeViewSet,
     StatusTypeViewSet,
+    ZaakObjectTypeViewSet,
     ZaakTypeInformatieObjectTypeViewSet,
     ZaakTypeViewSet,
 )
@@ -30,6 +31,7 @@ router.register(r"informatieobjecttypen", InformatieObjectTypeViewSet)
 router.register(r"besluittypen", BesluitTypeViewSet)
 router.register(r"resultaattypen", ResultaatTypeViewSet)
 router.register(r"zaaktype-informatieobjecttypen", ZaakTypeInformatieObjectTypeViewSet)
+router.register(r"zaakobjecttypen", ZaakObjectTypeViewSet)
 
 
 # set the path to schema file
