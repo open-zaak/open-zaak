@@ -36,7 +36,6 @@ from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
     IsImmutableValidator,
-    LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
     PublishValidator,
 )
@@ -296,7 +295,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ),
         validators=[
             LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
-            LooseFkIsImmutableValidator(),
             PublishValidator(),
         ],
     )
@@ -362,7 +360,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     LooseFkResourceValidator(
                         "InformatieObjectType", settings.ZTC_API_STANDARD
                     ),
-                    LooseFkIsImmutableValidator(),
                     PublishValidator(),
                 ],
             },

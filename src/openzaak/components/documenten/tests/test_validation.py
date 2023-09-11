@@ -13,7 +13,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
-from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -145,23 +144,22 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         self.assertGegevensGroepValidation(url, "ondertekening", base_body, cases)
 
-    def test_update_informatieobjecttype_fails(self):
+    def test_update_informatieobjecttype_success(self):
+        """changed in Documenten 1.3 - eio.informatieobject is now mutable"""
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = reverse(eio)
 
-        iotype = InformatieObjectTypeFactory.create()
+        iotype = InformatieObjectTypeFactory.create(concept=False)
         iotype_url = reverse(iotype)
+        lock = self.client.post(f"{eio_url}/lock").data["lock"]
 
         response = self.client.patch(
-            eio_url, {"informatieobjecttype": f"http://testserver{iotype_url}"}
+            eio_url,
+            {"informatieobjecttype": f"http://testserver{iotype_url}", "lock": lock},
         )
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "informatieobjecttype")
-        self.assertEqual(error["code"], IsImmutableValidator.code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(eio.canonical.latest_version.informatieobjecttype, iotype)
 
     @temp_private_root()
     def test_inhoud_incorrect_padding(self):

@@ -2,7 +2,7 @@
 
 set -x
 
-POSTMAN_TESTS_REF=792d5d6a3c3548efac022275dcf4d5653db4a9b2
+POSTMAN_TESTS_REF=c2cb87f164eba56701b776ade9ab8a8e7b5c65e2
 
 # These client IDs and secrets are dummy variables that are only used by
 # the Docker build in Travis, so they can be public
