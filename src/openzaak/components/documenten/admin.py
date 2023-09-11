@@ -203,6 +203,25 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
         return None
 
 
+class EnkelvoudigInformatieObjectForm(forms.ModelForm):
+    class Meta:
+        model = EnkelvoudigInformatieObject
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_informatieobjecttype") and not cleaned_data.get(
+            "_informatieobjecttype_base_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een informatieobjecttype opgeven: "
+                "selecteer een informatieobjecttype uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
     AuditTrailAdminMixin,
@@ -233,6 +252,7 @@ class EnkelvoudigInformatieObjectAdmin(
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
     private_media_file_widget = PrivateFileWidget
+    form = EnkelvoudigInformatieObjectForm
 
     fieldsets = (
         (
