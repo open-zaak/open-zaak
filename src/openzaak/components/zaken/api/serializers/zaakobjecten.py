@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,9 +11,14 @@ from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.utils.auth import get_auth
+from openzaak.utils.validators import (
+    LooseFkIsImmutableValidator,
+    LooseFkResourceValidator,
+)
 
 from ...models import ZaakObject
 from ..validators import (
+    CorrectZaaktypeValidator,
     EitherFieldRequiredValidator,
     JQExpressionValidator,
     ObjectTypeOverigeDefinitieValidator,
@@ -154,6 +160,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             "uuid",
             "zaak",
             "object",
+            "zaakobjecttype",
             "object_type",
             "object_type_overige",
             "object_type_overige_definitie",
@@ -168,6 +175,18 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
             },
             "object_type": {"validators": [IsImmutableValidator()],},
+            "zaakobjecttype": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "allow_null": False,
+                "allow_blank": True,
+                "validators": [
+                    LooseFkResourceValidator(
+                        "ZaakObjectType", settings.ZTC_API_STANDARD
+                    ),
+                    LooseFkIsImmutableValidator(),
+                ],
+            },
         }
         validators = [
             EitherFieldRequiredValidator(
@@ -178,6 +197,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             ),
             ObjectTypeOverigeDefinitieValidator(),
             ZaakArchiefStatusValidator(),
+            CorrectZaaktypeValidator("roltype"),
         ]
 
     def get_fields(self):
