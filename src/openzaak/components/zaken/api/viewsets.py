@@ -232,6 +232,9 @@ class ZaakViewSet(
             models.Prefetch(
                 "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
             ),
+            "rol_set",
+            "zaakinformatieobject_set",
+            "zaakobject_set",
         )
         .order_by("-pk")
         .distinct()

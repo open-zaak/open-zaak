@@ -518,19 +518,22 @@ class PerformanceTests(
          26-31: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
             32: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            33: select zaak kenmerken (nested inline create, can't avoid this)
-            34: insert audit trail
-         35-36: notifications, select created zaak (?), notifs config
-            37: release savepoint (from NotificationsCreateMixin)
-            38: savepoint create transaction.on_commit ETag handler (start new transaction)
-            39: update ETag column of zaak
-            40: release savepoint (commit transaction)
+            33: select zaak rollen
+            34: select zaak zaakinformatieobjecten
+            35: select zaak zaakobjecten
+            36: select zaak kenmerken (nested inline create, can't avoid this)
+            37: insert audit trail
+         38-39: notifications, select created zaak (?), notifs config
+            40: release savepoint (from NotificationsCreateMixin)
+            41: savepoint create transaction.on_commit ETag handler (start new transaction)
+            42: update ETag column of zaak
+            43: release savepoint (commit transaction)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 40
+        EXPECTED_NUM_QUERIES = 43
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

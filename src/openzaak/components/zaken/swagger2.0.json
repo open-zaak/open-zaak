@@ -8793,6 +8793,17 @@
                     "readOnly": true,
                     "uniqueItems": true
                 },
+                "rollen": {
+                    "description": "URL-referenties naar ROLLen.",
+                    "type": "array",
+                    "items": {
+                        "description": "URL-referenties naar ROLLen.",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "readOnly": true,
+                    "uniqueItems": true
+                },
                 "status": {
                     "title": "Status",
                     "description": "Indien geen status bekend is, dan is de waarde 'null'",
@@ -8800,6 +8811,28 @@
                     "format": "uri",
                     "readOnly": true,
                     "x-nullable": true
+                },
+                "zaakinformatieobjecten": {
+                    "description": "URL-referenties naar ZAAKINFORMATIEOBJECTen.",
+                    "type": "array",
+                    "items": {
+                        "description": "URL-referenties naar ZAAKINFORMATIEOBJECTen.",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "readOnly": true,
+                    "uniqueItems": true
+                },
+                "zaakobjecten": {
+                    "description": "URL-referenties naar ZAAKOBJECTen.",
+                    "type": "array",
+                    "items": {
+                        "description": "URL-referenties naar ZAAKOBJECTen.",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "readOnly": true,
+                    "uniqueItems": true
                 },
                 "kenmerken": {
                     "description": "Lijst van kenmerken. Merk op dat refereren naar gerelateerde objecten beter kan via `ZaakObject`.",
