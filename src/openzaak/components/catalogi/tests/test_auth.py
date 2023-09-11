@@ -75,6 +75,8 @@ class ReadTests(AuthCheckMixin, _APITestCase):
             reverse("eigenschap-detail", kwargs={"uuid": dummy_uuid}),
             reverse("roltype-list"),
             reverse("roltype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("zaakobjecttype-list"),
+            reverse("zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}),
         ]
 
         for url in urls:
