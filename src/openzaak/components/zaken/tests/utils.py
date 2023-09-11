@@ -196,3 +196,21 @@ def get_eigenschap_response(eigenschap: str, zaaktype: str) -> dict:
         "toelichting": "",
         "zaaktype": zaaktype,
     }
+
+
+def get_zaakobjecttype_response(
+    zaakobjecttype: str, zaaktype: str, **overrides
+) -> dict:
+    return {
+        "url": zaakobjecttype,
+        "zaaktype": zaaktype,
+        "zaaktypeIdentificatie": "some zaak",
+        "anderObjecttype": False,
+        "objecttype": "http://example.org/objecttypen/1",
+        "relatieOmschrijving": "some description",
+        "resultaattypen": [],
+        "statustypen": [],
+        "beginGeldigheid": "2022-01-01",
+        "catalogus": "http://example.org/catalogussen/1",
+        **overrides,
+    }

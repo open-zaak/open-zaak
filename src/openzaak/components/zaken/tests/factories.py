@@ -100,7 +100,7 @@ class ZaakEigenschapFactory(
         )
 
 
-class ZaakObjectFactory(factory.django.DjangoModelFactory):
+class ZaakObjectFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     object = factory.Faker("url")
     # Excluded: overige

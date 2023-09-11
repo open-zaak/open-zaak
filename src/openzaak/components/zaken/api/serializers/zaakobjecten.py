@@ -197,7 +197,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             ),
             ObjectTypeOverigeDefinitieValidator(),
             ZaakArchiefStatusValidator(),
-            CorrectZaaktypeValidator("roltype"),
+            CorrectZaaktypeValidator("zaakobjecttype"),
         ]
 
     def get_fields(self):
