@@ -82,7 +82,7 @@ SELECTIELIJST_API_STANDARD = APIStandard(
     is_standardized=False,
 )
 
-ztc_ref = "1.0.1"
+ztc_ref = "1.2.0"
 ZTC_API_STANDARD = APIStandard(
     alias=f"catalogi-{ztc_ref}",
     oas_url=(
