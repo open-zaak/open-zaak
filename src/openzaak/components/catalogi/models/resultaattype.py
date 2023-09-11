@@ -220,6 +220,7 @@ class ResultaatType(ETagMixin, models.Model):
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",
         related_name="resultaattypen",
+        blank=True,
         help_text=_(
             "De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan "
             "ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE "

@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
             model_name="resultaattype",
             name="zaakobjecttypen",
             field=models.ManyToManyField(
+                blank=True,
                 help_text="De ZAAKOBJECTTYPEn die verplicht gerelateerd moeten zijn aan ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.",
                 related_name="resultaattypen",
                 to="catalogi.ZaakObjectType",

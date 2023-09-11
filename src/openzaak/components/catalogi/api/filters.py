@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_filters import rest_framework as filters
 from djchoices import ChoiceItem, DjangoChoices
+from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
@@ -203,9 +204,9 @@ class CatalogusFilter(FilterSet):
 
 
 class ZaakObjectTypeFilter(FilterSet):
-    catalogus = filters.CharFilter(
+    catalogus = URLModelChoiceFilter(
         field_name="zaaktype__catalogus",
-        validators=[URLValidator()],
+        queryset=Catalogus.objects.all(),
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
     zaaktype_identificatie = filters.CharFilter(
