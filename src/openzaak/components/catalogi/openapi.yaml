@@ -3004,6 +3004,7 @@ paths:
         required: false
         schema:
           type: string
+          format: uri
       - name: objecttype
         in: query
         description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE

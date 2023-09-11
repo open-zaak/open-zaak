@@ -4130,7 +4130,8 @@
                         "in": "query",
                         "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
                         "required": false,
-                        "type": "string"
+                        "type": "string",
+                        "format": "uri"
                     },
                     {
                         "name": "objecttype",
