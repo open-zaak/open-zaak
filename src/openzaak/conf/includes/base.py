@@ -70,6 +70,10 @@ DATABASES = {
     }
 }
 
+# Geospatial libraries
+GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", None)
+GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", None)
+
 # TODO: after the 3.2 upgrade at some point we'll switch this to BigAutoField which will
 # become the default in Django
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
