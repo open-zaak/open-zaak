@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0024_alter_status_datum_status_gezet"),
+        ("zaken", "0025_auto_20230823_1221"),
     ]
 
     operations = [
