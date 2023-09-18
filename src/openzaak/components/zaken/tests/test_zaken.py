@@ -614,6 +614,60 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.processobject_objecttype, "test type")
         self.assertEqual(zaak.processobject_registratie, "test registration")
 
+    def test_sort_datum_ascending(self):
+        sorting_params = [
+            "startdatum",
+            "einddatum",
+            "publicatiedatum",
+            "archiefactiedatum",
+        ]
+
+        for param in sorting_params:
+            with self.subTest(param=param):
+                Zaak.objects.all().delete()
+                ZaakFactory.create(**{param: "2019-01-01"}, zaaktype=self.zaaktype)
+                ZaakFactory.create(**{param: "2019-03-01"}, zaaktype=self.zaaktype)
+                ZaakFactory.create(**{param: "2019-02-01"}, zaaktype=self.zaaktype)
+                url = reverse("zaak-list")
+
+                response = self.client.get(url, {"ordering": param}, **ZAAK_READ_KWARGS)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                data = response.data["results"]
+
+                self.assertEqual(data[0][param], "2019-01-01")
+                self.assertEqual(data[1][param], "2019-02-01")
+                self.assertEqual(data[2][param], "2019-03-01")
+
+    def test_sort_datum_descending(self):
+        sorting_params = [
+            "startdatum",
+            "einddatum",
+            "publicatiedatum",
+            "archiefactiedatum",
+        ]
+
+        for param in sorting_params:
+            with self.subTest(param=param):
+                Zaak.objects.all().delete()
+                ZaakFactory.create(**{param: "2019-01-01"}, zaaktype=self.zaaktype)
+                ZaakFactory.create(**{param: "2019-03-01"}, zaaktype=self.zaaktype)
+                ZaakFactory.create(**{param: "2019-02-01"}, zaaktype=self.zaaktype)
+                url = reverse("zaak-list")
+
+                response = self.client.get(
+                    url, {"ordering": f"-{param}"}, **ZAAK_READ_KWARGS
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                data = response.data["results"]
+
+                self.assertEqual(data[0][param], "2019-03-01")
+                self.assertEqual(data[1][param], "2019-02-01")
+                self.assertEqual(data[2][param], "2019-01-01")
+
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
