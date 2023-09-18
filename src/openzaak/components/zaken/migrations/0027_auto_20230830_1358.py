@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0025_auto_20230824_1218"),
+        ("zaken", "0026_auto_20230824_1218"),
     ]
 
     operations = [
