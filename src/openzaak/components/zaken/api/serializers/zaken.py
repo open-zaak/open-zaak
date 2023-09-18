@@ -160,6 +160,12 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
         raise NotImplementedError("Updating is not supported in this serializer")
 
 
+class ProcessobjectSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Zaak
+        gegevensgroep = "processobject"
+
+
 class ZaakSerializer(
     NestedGegevensGroepMixin,
     NestedCreateMixin,
@@ -261,6 +267,16 @@ class ZaakSerializer(
         many=True, required=False, help_text=_("Een lijst van relevante andere zaken.")
     )
 
+    processobject = ProcessobjectSerializer(
+        required=False,
+        allow_null=True,
+        help_text=_(
+            "Specificatie van de attribuutsoort van het object, subject of gebeurtenis "
+            " waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat "
+            "bepalend is voor de start van de archiefactietermijn."
+        ),
+    )
+
     class Meta:
         model = Zaak
         fields = (
@@ -307,6 +323,10 @@ class ZaakSerializer(
             "archiefactiedatum",
             "resultaat",
             "opdrachtgevende_organisatie",
+            "processobjectaard",
+            "resultaattoelichting",
+            "startdatum_bewaartermijn",
+            "processobject",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
