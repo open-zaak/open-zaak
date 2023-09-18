@@ -16,6 +16,7 @@ from ..validators import (
     EitherFieldRequiredValidator,
     JQExpressionValidator,
     ObjectTypeOverigeDefinitieValidator,
+    ZaakArchiefStatusValidator,
 )
 from .address import ObjectAdresSerializer
 from .betrokkenen import (
@@ -176,6 +177,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 skip_for_updates=True,
             ),
             ObjectTypeOverigeDefinitieValidator(),
+            ZaakArchiefStatusValidator(),
         ]
 
     def get_fields(self):

@@ -78,6 +78,7 @@ from ..validators import (
     RolOccurenceValidator,
     StatusRolValidator,
     UniekeIdentificatieValidator,
+    ZaakArchiefStatusValidator,
     ZaakArchiveIOsArchivedValidator,
 )
 from .betrokkenen import (
@@ -524,6 +525,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
             StatusRolValidator(),
+            ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -702,6 +704,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 fields=["zaak", "informatieobject"],
             ),
             ObjecttypeInformatieobjecttypeRelationValidator(),
+            ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -793,7 +796,10 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                 ],
             },
         }
-        validators = [CorrectZaaktypeValidator("eigenschap")]
+        validators = [
+            CorrectZaaktypeValidator("eigenschap"),
+            ZaakArchiefStatusValidator(),
+        ]
 
     def validate(self, attrs):
         super().validate(attrs)
@@ -880,6 +886,7 @@ class RolSerializer(PolymorphicSerializer):
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
             RolOccurenceValidator(RolOmschrijving.zaakcoordinator, max_amount=1),
             CorrectZaaktypeValidator("roltype"),
+            ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -959,7 +966,10 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Resultaat
         fields = ("url", "uuid", "zaak", "resultaattype", "toelichting")
-        validators = [CorrectZaaktypeValidator("resultaattype")]
+        validators = [
+            CorrectZaaktypeValidator("resultaattype"),
+            ZaakArchiefStatusValidator(),
+        ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
@@ -1001,6 +1011,7 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 ],
             },
         }
+        validator = [ZaakArchiefStatusValidator()]
 
     def create(self, validated_data):
         validated_data["zaak"] = self.context["parent_object"]
@@ -1023,6 +1034,7 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
                 ]
             },
         }
+        validators = [ZaakArchiefStatusValidator()]
 
     def create(self, validated_data):
         with transaction.atomic():
@@ -1071,6 +1083,7 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             "zaak": {"lookup_field": "uuid"},
             "verzoek": {"validators": [verzoek_validator]},
         }
+        validators = [ZaakArchiefStatusValidator()]
 
     def create(self, validated_data):
         with transaction.atomic():

@@ -507,3 +507,21 @@ class StatusRolValidator:
 
         if gezetdoor.zaak != zaak:
             raise serializers.ValidationError(self.message, code=self.code)
+
+
+class ZaakArchiefStatusValidator:
+    code = "zaak-archiefstatus-invalid"
+    message = _(
+        "De huidige zaak archiefstatus staat dit request niet toe. "
+        "Archiefstatus moet gelijk zijn aan 'nog_te_archiveren'"
+    )
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        zaak = get_from_serializer_data_or_instance("zaak", attrs, serializer)
+
+        if not zaak:
+            return
+
+        if zaak.archiefstatus != Archiefstatus.nog_te_archiveren:
+            raise serializers.ValidationError(self.message, code=self.code)
