@@ -14340,7 +14340,7 @@ Uitleg\
         - roltypen
         - statustypen
         - url
-        - verantwoordelijke
+#        - verantwoordelijke question - https://github.com/VNG-Realisatie/gemma-zaken/issues/2335
         - verlengingMogelijk
         - versiedatum
         - vertrouwelijkheidaanduiding

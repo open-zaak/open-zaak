@@ -30,6 +30,9 @@ def get_besluittype_response(catalogus: str, besluittype: str) -> dict:
         "beginGeldigheid": "2018-01-01",
         "eindeGeldigheid": None,
         "concept": False,
+        "resultaattypen": [],
+        "resultaattypenOmschrijving": [],
+        "vastgelegdIn": [],
     }
 
 

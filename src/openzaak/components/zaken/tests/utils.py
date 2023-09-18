@@ -64,6 +64,7 @@ def get_zaaktype_response(catalogus: str, zaaktype: str, **overrides) -> dict:
         "deelzaaktypen": [],
         "besluittypen": [],
         "gerelateerdeZaaktypen": [],
+        "zaakobjecttypen": [],
         "beginGeldigheid": "2019-11-20",
         "versiedatum": "2019-11-20",
         "concept": False,
@@ -156,10 +157,13 @@ def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
             "objecttype": "",
             "registratie": "",
         },
+        "zaaktypeIdentificatie": "ZAAK1",
+        "besluittypeOmschrijving": [],
+        "informatieobjecttypeOmschrijving": [],
     }
 
 
-def get_statustype_response(statustype: str, zaaktype: str) -> dict:
+def get_statustype_response(statustype: str, zaaktype: str, **overrides) -> dict:
     return {
         "url": statustype,
         "omschrijving": "statustype description",
@@ -169,6 +173,9 @@ def get_statustype_response(statustype: str, zaaktype: str) -> dict:
         "volgnummer": 1,
         "isEindstatus": False,
         "informeren": False,
+        "zaaktypeIdentificatie": "ZAAK1",
+        "catalogus": "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a",
+        **overrides,
     }
 
 
@@ -178,10 +185,11 @@ def get_roltype_response(roltype: str, zaaktype: str):
         "zaaktype": zaaktype,
         "omschrijving": "some role",
         "omschrijvingGeneriek": "adviseur",
+        "zaaktypeIdentificatie": "ZAAK1",
     }
 
 
-def get_eigenschap_response(eigenschap: str, zaaktype: str) -> dict:
+def get_eigenschap_response(eigenschap: str, zaaktype: str, **overrides) -> dict:
     return {
         "url": eigenschap,
         "naam": "naam",
@@ -195,6 +203,9 @@ def get_eigenschap_response(eigenschap: str, zaaktype: str) -> dict:
         },
         "toelichting": "",
         "zaaktype": zaaktype,
+        "zaaktypeIdentificatie": "ZAAK1",
+        "catalogus": "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a",
+        **overrides,
     }
 
 
