@@ -49,6 +49,21 @@ class ZaakRelatedQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):
     authorizations_lookup = "zaak"
 
 
+class StatusQuerySet(ZaakRelatedQuerySet):
+    def annotate_with_max_datum_status_gezet(self):
+        """
+        add `max_datum_status_gezet` of all statuses grouped by zaak
+        """
+        grouped_statussen = (
+            self.filter(zaak=models.OuterRef("zaak"))
+            .order_by()
+            .values("zaak")
+            .annotate(max_datum_status_gezet=models.Max("datum_status_gezet"))
+            .values("max_datum_status_gezet")
+        )
+        return self.annotate(max_datum_status_gezet=models.Subquery(grouped_statussen))
+
+
 class ZaakInformatieObjectQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):
     def filter(self, *args, **kwargs):
         if settings.CMIS_ENABLED and "informatieobject" in kwargs:

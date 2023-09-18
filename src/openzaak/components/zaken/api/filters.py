@@ -3,6 +3,7 @@
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
@@ -166,9 +167,30 @@ class RolFilter(FilterSet):
 
 
 class StatusFilter(FilterSet):
+    indicatie_laatst_gezette_status = filters.BooleanFilter(
+        method="filter_is_last_status",
+        help_text=_(
+            "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum "
+            "status gezet van van alle statussen bij de desbetreffende zaak."
+        ),
+    )
+
     class Meta:
         model = Status
-        fields = ("zaak", "statustype")
+        fields = ("zaak", "statustype", "indicatie_laatst_gezette_status")
+
+    def filter_is_last_status(self, queryset, name, value):
+        if value is True:
+            return queryset.filter(
+                datum_status_gezet=models.F("max_datum_status_gezet")
+            )
+
+        if value is False:
+            return queryset.exclude(
+                datum_status_gezet=models.F("max_datum_status_gezet")
+            )
+
+        return queryset.none()
 
 
 class ResultaatFilter(FilterSet):

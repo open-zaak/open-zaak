@@ -76,6 +76,7 @@ from ..validators import (
     HoofdzaakValidator,
     NotSelfValidator,
     RolOccurenceValidator,
+    StatusRolValidator,
     UniekeIdentificatieValidator,
     ZaakArchiveIOsArchivedValidator,
 )
@@ -511,6 +512,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             "statustype",
             "datum_status_gezet",
             "statustoelichting",
+            "indicatie_laatst_gezette_status",
+            "gezetdoor",
+            "zaakinformatieobjecten",
         )
         validators = [
             UniqueTogetherValidator(
@@ -519,6 +523,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
+            StatusRolValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -532,6 +537,20 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
                 ],
+            },
+            "indicatie_laatst_gezette_status": {
+                "read_only": True,
+                "help_text": _(
+                    "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum "
+                    "status gezet van van alle statussen bij de desbetreffende zaak."
+                ),
+            },
+            "gezetdoor": {"lookup_field": "uuid"},
+            "zaakinformatieobjecten": {
+                "lookup_field": "uuid",
+                "read_only": True,
+                "many": True,
+                "help_text": _("URL-referenties naar ZAAKINFORMATIEOBJECTen."),
             },
         }
 
@@ -674,6 +693,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "titel",
             "beschrijving",
             "registratiedatum",
+            "vernietigingsdatum",
+            "status",
         )
         validators = [
             UniqueTogetherValidator(
@@ -686,6 +707,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "uuid"},
             "uuid": {"read_only": True},
             "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
+            "status": {"lookup_field": "uuid"},
         }
 
     def create(self, validated_data):
