@@ -3734,6 +3734,21 @@
                         "type": "string"
                     },
                     {
+                        "name": "bronorganisatie__in",
+                        "in": "query",
+                        "description": "Multiple values may be separated by commas.",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "zaaktype",
                         "in": "query",
                         "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
@@ -3783,6 +3798,13 @@
                     },
                     {
                         "name": "archiefactiedatum__gt",
+                        "in": "query",
+                        "description": "De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "archiefactiedatum__isnull",
                         "in": "query",
                         "description": "De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg.",
                         "required": false,
@@ -3848,6 +3870,97 @@
                         "name": "startdatum__lte",
                         "in": "query",
                         "description": "De datum waarop met de uitvoering van de zaak is gestart",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "registratiedatum",
+                        "in": "query",
+                        "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "registratiedatum__gt",
+                        "in": "query",
+                        "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "registratiedatum__lt",
+                        "in": "query",
+                        "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatum",
+                        "in": "query",
+                        "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatum__gt",
+                        "in": "query",
+                        "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatum__lt",
+                        "in": "query",
+                        "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatum__isnull",
+                        "in": "query",
+                        "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatumGepland",
+                        "in": "query",
+                        "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatumGepland__gt",
+                        "in": "query",
+                        "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "einddatumGepland__lt",
+                        "in": "query",
+                        "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "uiterlijkeEinddatumAfdoening",
+                        "in": "query",
+                        "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "uiterlijkeEinddatumAfdoening__gt",
+                        "in": "query",
+                        "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "uiterlijkeEinddatumAfdoening__lt",
+                        "in": "query",
+                        "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
                         "required": false,
                         "type": "string"
                     },
@@ -9021,6 +9134,14 @@
                     "type": "string",
                     "minLength": 1
                 },
+                "bronorganisatie__in": {
+                    "description": "Multiple values may be separated by commas.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "x-nullable": true
+                    }
+                },
                 "zaaktype": {
                     "title": "Zaaktype",
                     "description": "URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
@@ -9058,6 +9179,12 @@
                 },
                 "archiefactiedatum__gt": {
                     "title": "Archiefactiedatum  gt",
+                    "description": "De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "archiefactiedatum__isnull": {
+                    "title": "Archiefactiedatum  isnull",
                     "description": "De datum waarop het gearchiveerde zaakdossier vernietigd moet worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan deze ZAAK indien nog leeg.",
                     "type": "string",
                     "minLength": 1
@@ -9108,6 +9235,84 @@
                 "startdatum__lte": {
                     "title": "Startdatum  lte",
                     "description": "De datum waarop met de uitvoering van de zaak is gestart",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "registratiedatum": {
+                    "title": "Registratiedatum",
+                    "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "registratiedatum__gt": {
+                    "title": "Registratiedatum  gt",
+                    "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "registratiedatum__lt": {
+                    "title": "Registratiedatum  lt",
+                    "description": "De datum waarop de zaakbehandelende organisatie de ZAAK heeft geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag gebruikt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatum": {
+                    "title": "Einddatum",
+                    "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatum__gt": {
+                    "title": "Einddatum  gt",
+                    "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatum__lt": {
+                    "title": "Einddatum  lt",
+                    "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatum__isnull": {
+                    "title": "Einddatum  isnull",
+                    "description": "De datum waarop de uitvoering van de zaak afgerond is.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatumGepland": {
+                    "title": "Einddatumgepland",
+                    "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatumGepland__gt": {
+                    "title": "Einddatumgepland  gt",
+                    "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "einddatumGepland__lt": {
+                    "title": "Einddatumgepland  lt",
+                    "description": "De datum waarop volgens de planning verwacht wordt dat de zaak afgerond wordt.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "uiterlijkeEinddatumAfdoening": {
+                    "title": "Uiterlijkeeinddatumafdoening",
+                    "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "uiterlijkeEinddatumAfdoening__gt": {
+                    "title": "Uiterlijkeeinddatumafdoening  gt",
+                    "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "uiterlijkeEinddatumAfdoening__lt": {
+                    "title": "Uiterlijkeeinddatumafdoening  lt",
+                    "description": "De laatste datum waarop volgens wet- en regelgeving de zaak afgerond dient te zijn.",
                     "type": "string",
                     "minLength": 1
                 },
