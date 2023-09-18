@@ -3,6 +3,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from vng_api_common import constants
+
 
 class Statussen(models.TextChoices):
     in_bewerking = "in_bewerking", _("In bewerking")
@@ -39,6 +41,6 @@ class OndertekeningSoorten(models.TextChoices):
 
 
 class ObjectInformatieObjectTypes(models.TextChoices):
-    besluit = "besluit", _("Besluit")
-    zaak = "zaak", _("Zaak")
-    verzoek = "verzoek", _("Verzoek")
+    besluit = constants.BESLUIT_CHOICE
+    zaak = constants.ZAAK_CHOICE
+    verzoek = constants.VERZOEK_CHOICE
