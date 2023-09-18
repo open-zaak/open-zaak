@@ -50,6 +50,7 @@ Uitleg bij mogelijke waarden:
 * `vestiging` - Vestiging
 * `organisatorische_eenheid` - Organisatorische eenheid
 * `medewerker` - Medewerker | string | ja | C​R​U​D |
+| afwijkendeNaamBetrokkene | De naam van de betrokkene waaronder deze in relatie tot de zaak aangesproken wil worden. | string | nee | C​R​U​D |
 | roltype | URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK. | string | ja | C​R​U​D |
 | omschrijving | Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | omschrijvingGeneriek | Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.

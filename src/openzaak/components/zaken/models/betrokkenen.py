@@ -190,6 +190,11 @@ class Vestiging(AbstractRolZaakobjectRelation):
         default=list,
         help_text="De naam van de vestiging waaronder gehandeld wordt.",
     )
+    kvk_nummer = models.CharField(
+        max_length=8,
+        blank=True,
+        help_text="Een uniek nummer gekoppeld aan de onderneming.",
+    )
 
     class Meta:
         verbose_name = _("vestiging")

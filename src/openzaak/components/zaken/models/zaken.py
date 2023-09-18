@@ -720,6 +720,15 @@ class Rol(ETagMixin, models.Model):
         help_text="Type van de `betrokkene`.",
         db_index=True,
     )
+    afwijkende_naam_betrokkene = models.TextField(
+        _("afwijkende naam betrokkene"),
+        help_text=_(
+            "De naam van de betrokkene waaronder deze in relatie tot de zaak "
+            "aangesproken wil worden."
+        ),
+        max_length=625,
+        blank=True,
+    )
 
     _roltype_base_url = ServiceFkField(
         help_text="Basis deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
@@ -782,6 +791,47 @@ class Rol(ETagMixin, models.Model):
         choices=IndicatieMachtiging.choices,
         blank=True,
         help_text="Indicatie machtiging",
+    )
+
+    contactpersoon_rol_emailadres = models.EmailField(
+        _("email"),
+        help_text=_(
+            "Elektronich postadres waaronder de contactpersoon in de regel "
+            "bereikbaar is."
+        ),
+        blank=True,
+    )
+    contactpersoon_rol_functie = models.CharField(
+        _("functie"),
+        help_text=_(
+            "De aanduiding van de taken, rechten en plichten die de contactpersoon "
+            "heeft binnen de organisatie van BETROKKENE. "
+        ),
+        max_length=50,
+        blank=True,
+    )
+    contactpersoon_rol_telefoonnummer = models.CharField(
+        _("telefoonnummer"),
+        help_text=_(
+            "Telefoonnummer waaronder de contactpersoon in de regel bereikbaar is."
+        ),
+        max_length=20,
+        blank=True,
+    )
+    contactpersoon_rol_naam = models.CharField(
+        _("naam"),
+        help_text=_("De opgemaakte naam van de contactpersoon namens de BETROKKENE."),
+        max_length=200,
+        blank=True,
+    )
+    contactpersoon_rol = GegevensGroepType(
+        {
+            "emailadres": contactpersoon_rol_emailadres,
+            "functie": contactpersoon_rol_functie,
+            "telefoonnummer": contactpersoon_rol_telefoonnummer,
+            "naam": contactpersoon_rol_naam,
+        },
+        optional=("emailadres", "functie", "telefoonnummer",),
     )
 
     objects = ZaakRelatedQuerySet.as_manager()

@@ -304,6 +304,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
                 "zaak": f"http://testserver{zaak_url}",
                 "betrokkene": betrokkene,
                 "betrokkeneType": "vestiging",
+                "afwijkendeNaamBetrokkene": "",
                 "roltype": f"http://testserver{rolltype_url}",
                 "omschrijving": RolOmschrijving.behandelaar,
                 "omschrijvingGeneriek": RolOmschrijving.behandelaar,
@@ -311,6 +312,13 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
                 "registratiedatum": "2018-01-01T00:00:00Z",
                 "indicatieMachtiging": "",
                 "betrokkeneIdentificatie": None,
+                "contactpersoonRol": {
+                    "emailadres": "",
+                    "functie": "",
+                    "telefoonnummer": "",
+                    "naam": "",
+                },
+                "statussen": [],
             },
         )
 
