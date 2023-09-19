@@ -45,9 +45,9 @@ background-color: #f6f8fa;
 </style>
 </head>
 <body>
-<h1>Open-Zaak and the Standard for Public Code version <span class="standard-version">0.7.0</span></h1>
+<h1>Open-Zaak and the Standard for Public Code version <span class="standard-version">0.7.1</span></h1>
 
-Link to commitment to meet the Standard for Public Code:
+Link to commitment to meet the Standard for Public Code: <a href="https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md">CONTRIBUTING</a>
 
 <h2><a href="https://standard.publiccode.net/criteria/code-in-the-open.html">Code in the open</a></h2>
 
@@ -173,11 +173,11 @@ Continuous integration tests SHOULD validate that the source code and the policy
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/create-reusable-and-portable-code.html">Create reusable and portable code</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/make-the-codebase-reusable-and-portable.html">Make the codebase reusable and portable</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="create-reusable-and-portable-code" style="width:100%">
+<table id="make-the-codebase-reusable-and-portable" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -196,7 +196,7 @@ Designed to be so from the start.
 yes
 </td>
 <td>
-The codebase MUST be independent from any secret, undisclosed, proprietary or non-open licensed code or services for execution and understanding.
+The codebase MUST be independent from any secret, undisclosed, proprietary or non-open licensed software or services for execution and understanding.
 </td>
 <td>
 installation supports docker, kubernetes, vmware appliances, bare-metal is possible
@@ -244,7 +244,7 @@ The technical steering has multiple parties, but the development is centered on 
 
 </td>
 <td>
-Configuration SHOULD be used to make code adapt to context specific needs.
+Configuration SHOULD be used to make source code adapt to context specific needs.
 </td>
 <td>
 
@@ -268,7 +268,7 @@ The codebase SHOULD be localizable.
 yes
 </td>
 <td>
-Code and its documentation SHOULD NOT contain situation-specific information.
+Source code and its documentation SHOULD NOT contain situation-specific information.
 </td>
 <td>
 Some GCloud examples but nothing required; no credentials and documentation suggests using secret generators
@@ -292,7 +292,7 @@ Codebase modules SHOULD be documented in such a way as to enable reuse in codeba
 yes
 </td>
 <td>
-The code SHOULD NOT require services or platforms available from only a single vendor.
+The software SHOULD NOT require services or platforms available from only a single vendor.
 </td>
 <td>
 
@@ -393,7 +393,7 @@ The codebase SHOULD publish codebase activity statistics.
 
 <tr>
 <td>
-
+yes
 </td>
 <td>
 Including a code of conduct for contributors in the codebase is OPTIONAL.
@@ -535,7 +535,7 @@ yes
 Contribution guidelines SHOULD require contributors to group relevant changes in commits.
 </td>
 <td>
-<a href="https://github.com/open-zaak/open-zaak/pulls">PRs</a>
+Implied in <a href="https://github.com/open-zaak/open-zaak/blob/main/CONTRIBUTING.md">CONTRIBUTING</a> but could be more explicit
 </td>
 </tr>
 
@@ -636,7 +636,7 @@ The review process SHOULD confirm that a contribution conforms to the standards,
 yes
 </td>
 <td>
-Reviews SHOULD include running both the code and the tests of the codebase.
+Reviews SHOULD include running both the software and the tests of the codebase.
 </td>
 <td>
 CI and manual validation required, not clearly documented yet (in handbook)
@@ -748,7 +748,7 @@ could elaborate for general public: Common Ground, data security, GDPR requests 
 yes
 </td>
 <td>
-All of the functionality of the codebase, policy as well as source, MUST be described in language clearly understandable for those that understand the purpose of the code.
+All of the functionality of the codebase, policy as well as source code, MUST be described in language clearly understandable for those that understand the purpose of the codebase.
 </td>
 <td>
 additional docs are generated from code comments
@@ -760,7 +760,7 @@ additional docs are generated from code comments
 yes
 </td>
 <td>
-The documentation of the codebase MUST contain a description of how to install and run the source code.
+The documentation of the codebase MUST contain a description of how to install and run the software.
 </td>
 <td>
 <a href="https://open-zaak.readthedocs.io/en/latest/development/getting_started.html">getting started</a>, <a href="https://open-zaak.readthedocs.io/en/latest/installation/index.html#post-install-checklist">post-install checklist</a>
@@ -876,7 +876,7 @@ All codebase documentation MUST be in English.
 
 </td>
 <td>
-All code MUST be in English, except where policy is machine interpreted as code.
+All source code MUST be in English, except where policy is machine interpreted as code.
 </td>
 <td>
 
@@ -1156,7 +1156,7 @@ Testing policy and documentation for style and broken links is OPTIONAL.
 
 </td>
 <td>
-Testing the code by using examples in the documentation is OPTIONAL.
+Testing the software by using examples in the documentation is OPTIONAL.
 </td>
 <td>
 
@@ -1176,7 +1176,7 @@ Testing the code by using examples in the documentation is OPTIONAL.
 yes
 </td>
 <td>
-All code and documentation MUST be licensed such that it may be freely reusable, changeable and redistributable.
+All source code and documentation MUST be licensed such that it may be freely reusable, changeable and redistributable.
 </td>
 <td>
 <a href="https://open-zaak.readthedocs.io/en/latest/index.html">copyright marks in the footer?</a> -> check if we can add license to footer (<a href="https://github.com/open-zaak/open-zaak/blob/main/docs/conf.py#L30">sphinx conf</a>), but explicit open license
@@ -1200,7 +1200,7 @@ EUPL 1.2 <a href="https://github.com/open-zaak/open-zaak/blob/main/LICENSE.md">L
 yes
 </td>
 <td>
-All code MUST be published with a license file.
+All source code MUST be published with a license file.
 </td>
 <td>
 <a href="https://github.com/open-zaak/open-zaak/blob/main/LICENSE.md">LICENSE</a>
@@ -1236,7 +1236,7 @@ All source code files in the codebase SHOULD include a copyright notice and a li
 
 </td>
 <td>
-Having multiple licenses for different types of code and documentation is OPTIONAL.
+Having multiple licenses for different types of source code and documentation is OPTIONAL.
 </td>
 <td>
 
