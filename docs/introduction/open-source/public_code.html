@@ -45,7 +45,7 @@ background-color: #f6f8fa;
 </style>
 </head>
 <body>
-<h1>Open-Zaak and the Standard for Public Code version <span class="standard-version">0.5.0</span></h1>
+<h1>Open-Zaak and the Standard for Public Code version <span class="standard-version">0.6.0</span></h1>
 
 Link to commitment to meet the Standard for Public Code:
 
@@ -84,7 +84,7 @@ All source code for any software in use (unless used for fraud detection) MUST b
 yes
 </td>
 <td>
-Contributors MUST NOT upload sensitive information regarding users, their organization or third parties to the repository.
+The codebase MUST NOT contain sensitive information regarding users, their organization or third parties.
 </td>
 <td>
 2020-05-12 review by @EricHerman; <a href="https://www.maykinmedia.nl/en/">ISO 27001</a>
@@ -117,11 +117,11 @@ Documenting which source code or policy underpins any specific interaction the g
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/bundle-policy-and-code.html">Bundle policy and source code</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/bundle-policy-and-source-code.html">Bundle policy and source code</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="bundle-policy-and-code" style="width:100%">
+<table id="bundle-policy-and-source-code" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -140,7 +140,7 @@ The codebase MUST include the policy that the source code is based on.
 
 </td>
 <td>
-The codebase MUST include all source code that the policy is based on, unless used for fraud detection.
+If a policy is based on source code, that source code MUST be included in the codebase, unless used for fraud detection.
 </td>
 <td>
 "yes" or "not applicable", do we consider it based on the API?
@@ -173,11 +173,11 @@ Continuous integration tests SHOULD validate that the source code and the policy
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/reusable-and-portable-codebases.html">Create reusable and portable code</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/create-reusable-and-portable-code.html">Create reusable and portable code</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="reusable-and-portable-codebases" style="width:100%">
+<table id="create-reusable-and-portable-code" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -232,6 +232,18 @@ The roadmap SHOULD be influenced by the needs of multiple parties.
 
 </td>
 <td>
+The development of the codebase SHOULD be a collaboration between multiple parties.
+</td>
+<td>
+The technical steering has multiple parties, but the development is centered on a single vendor.
+</td>
+</tr>
+
+<tr>
+<td>
+
+</td>
+<td>
 Configuration SHOULD be used to make code adapt to context specific needs.
 </td>
 <td>
@@ -275,13 +287,25 @@ Codebase modules SHOULD be documented in such a way as to enable reuse in codeba
 </td>
 </tr>
 
+<tr>
+<td>
+yes
+</td>
+<td>
+The code SHOULD NOT require services or platforms available from only a single vendor.
+</td>
+<td>
+
+</td>
+</tr>
+
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/open-to-contributions.html">Welcome contributors</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/welcome-contributors.html">Welcome contributors</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="open-to-contributions" style="width:100%">
+<table id="welcome-contributors" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -392,18 +416,6 @@ The codebase MUST have a public issue tracker that accepts suggestions from anyo
 yes
 </td>
 <td>
-The codebase MUST include instructions for how to privately report security issues for responsible disclosure.
-</td>
-<td>
-<a href="https://open-zaak.readthedocs.io/en/stable/support/security.html#reporting-security-issues">Reporting security issues</a>
-</td>
-</tr>
-
-<tr>
-<td>
-yes
-</td>
-<td>
 The documentation MUST link to both the public issue tracker and submitted codebase changes, for example in a `README` file.
 </td>
 <td>
@@ -428,7 +440,19 @@ The codebase MUST have communication channels for users and developers, for exam
 yes
 </td>
 <td>
-The documentation SHOULD include instructions for how to report potentially security sensitive issues on a closed channel.
+There MUST be a way to report security issues for responsible disclosure over a closed channel.
+</td>
+<td>
+<a href="https://open-zaak.readthedocs.io/en/stable/support/security.html#reporting-security-issues">Reporting security issues</a>
+</td>
+</tr>
+
+<tr>
+<td>
+yes
+</td>
+<td>
+The documentation MUST include instructions for how to report potentially security sensitive issues.
 </td>
 <td>
 <a href="https://github.com/open-zaak/open-zaak/blob/main/SECURITY.rst">SECURITY.rst</a>
@@ -437,24 +461,12 @@ The documentation SHOULD include instructions for how to report potentially secu
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/version-control-and-history.html">Maintain version control</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/maintain-version-control.html">Maintain version control</a></h2>
 
-&#9745;<!-- &#9745; --> criterion met.
+&#9744;<!-- &#9745; --> criterion met.
 
-<table id="version-control-and-history" style="width:100%">
+<table id="maintain-version-control" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
-<tr>
-<td>
-yes
-</td>
-<td>
-The community MUST have a way to maintain version control for the code.
-</td>
-<td>
-<a href="https://github.com/open-zaak/open-zaak/">GitHub</a>
-</td>
-</tr>
-
 <tr>
 <td>
 yes
@@ -508,7 +520,7 @@ git
 yes
 </td>
 <td>
-Contributors SHOULD group relevant changes in commits.
+Contribution guidelines SHOULD require contributors to group relevant changes in commits.
 </td>
 <td>
 <a href="https://github.com/open-zaak/open-zaak/pulls">PRs</a>
@@ -529,13 +541,13 @@ Maintainers SHOULD mark released versions of the codebase, for example using rev
 
 <tr>
 <td>
-yes
+
 </td>
 <td>
-Contributors SHOULD prefer file formats where the changes within the files can be easily viewed and understood in the version control system.
+Contribution guidelines SHOULD encourage file formats where the changes within the files can be easily viewed and understood in the version control system.
 </td>
 <td>
-mostly code and Restructured Text or Markdown
+While most files are code, Restructured Text or Markdown, nothing in the guidelines
 </td>
 </tr>
 
@@ -553,11 +565,11 @@ Commits have email addresses, release tags GPG signed
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/require-review.html">Require review of contributions</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/require-review-of-contributions.html">Require review of contributions</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="require-review" style="width:100%">
+<table id="require-review-of-contributions" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -669,11 +681,11 @@ mostly
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/document-objectives.html">Document codebase objectives</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/document-codebase-objectives.html">Document codebase objectives</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="document-objectives" style="width:100%">
+<table id="document-codebase-objectives" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -713,11 +725,11 @@ could elaborate for general public: Common Ground, data security, GDPR requests 
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/documenting.html">Document the code</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/document-the-code.html">Document the code</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="documenting" style="width:100%">
+<table id="document-the-code" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -829,11 +841,11 @@ Including examples that make users want to immediately start using the codebase 
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/understandable-english-first.html">Use plain English</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/use-plain-english.html">Use plain English</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="understandable-english-first" style="width:100%">
+<table id="use-plain-english" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -921,11 +933,11 @@ Providing a translation of any code, documentation or tests is OPTIONAL.
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/open-standards.html">Use open standards</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/use-open-standards.html">Use open standards</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="open-standards" style="width:100%">
+<table id="use-open-standards" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -1013,11 +1025,11 @@ Non-open standards that are machine testable SHOULD be preferred over non-open s
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/continuous-integration.html">Use continuous integration</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/use-continuous-integration.html">Use continuous integration</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="continuous-integration" style="width:100%">
+<table id="use-continuous-integration" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -1064,6 +1076,18 @@ The codebase MUST have active contributors who can review contributions.
 </td>
 <td>
 <a href="https://github.com/open-zaak/open-zaak/pulse">pulse</a>
+</td>
+</tr>
+
+<tr>
+<td>
+yes
+</td>
+<td>
+Automated test results for contributions SHOULD be public.
+</td>
+<td>
+
 </td>
 </tr>
 
@@ -1129,11 +1153,11 @@ Testing the code by using examples in the documentation is OPTIONAL.
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/open-licenses.html">Publish with an open license</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/publish-with-an-open-license.html">Publish with an open license</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="open-licenses" style="width:100%">
+<table id="publish-with-an-open-license" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -1209,11 +1233,11 @@ Having multiple licenses for different types of code and documentation is OPTION
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/findability.html">Make the codebase findable</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/make-the-codebase-findable.html">Make the codebase findable</a></h2>
 
 &#9744;<!-- &#9745; --> criterion met.
 
-<table id="findability" style="width:100%">
+<table id="make-the-codebase-findable" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -1325,11 +1349,11 @@ Regular presentations at conferences by the community are OPTIONAL.
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/style.html">Use a coherent style</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/use-a-coherent-style.html">Use a coherent style</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="style" style="width:100%">
+<table id="use-a-coherent-style" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
@@ -1372,7 +1396,7 @@ add to contributing guidelines
 
 </td>
 <td>
-Including expectations for <a href="https://standard.publiccode.net/criteria/understandable-english-first.html">understandable English</a> in the style guide is OPTIONAL.
+Including expectations for <a href="https://standard.publiccode.net/criteria/use-plain-english.html">understandable English</a> in the style guide is OPTIONAL.
 </td>
 <td>
 
@@ -1381,11 +1405,11 @@ Including expectations for <a href="https://standard.publiccode.net/criteria/und
 
 </table>
 
-<h2><a href="https://standard.publiccode.net/criteria/document-maturity.html">Document codebase maturity</a></h2>
+<h2><a href="https://standard.publiccode.net/criteria/document-codebase-maturity.html">Document codebase maturity</a></h2>
 
 &#9745;<!-- &#9745; --> criterion met.
 
-<table id="document-maturity" style="width:100%">
+<table id="document-codebase-maturity" style="width:100%">
 <tr><th>Meets</th><th>Requirement</th><th style="width:25%">Notes and links</th></tr>
 <tr>
 <td>
