@@ -128,6 +128,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             {
                 "url": f"http://testserver{url}",
                 "zaaktype": f"http://testserver{zaaktype_url}",
+                "zaaktypeIdentificatie": resultaattype.zaaktype.identificatie,
                 "omschrijving": resultaattype.omschrijving,
                 "resultaattypeomschrijving": resultaattype.resultaattypeomschrijving,
                 "omschrijvingGeneriek": resultaattype.omschrijving_generiek,
