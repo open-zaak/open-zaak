@@ -25,6 +25,14 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field="uuid",
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
+    zaaktype_identificatie = serializers.SlugRelatedField(
+        source="zaaktype",
+        read_only=True,
+        slug_field="identificatie",
+        help_text=_(
+            "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
+        ),
+    )
 
     class Meta:
         model = StatusType
@@ -34,6 +42,7 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "omschrijving_generiek",
             "statustekst",
             "zaaktype",
+            "zaaktype_identificatie",
             "volgnummer",
             "is_eindstatus",
             "informeren",

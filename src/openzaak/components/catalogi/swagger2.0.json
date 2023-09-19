@@ -4326,7 +4326,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.schrijven"
+                            "(catalogi.schrijven | catalogi.geforceerd-schrijven)"
                         ]
                     }
                 ]
@@ -5826,6 +5826,12 @@
                     "type": "string",
                     "format": "uri"
                 },
+                "zaaktypeIdentificatie": {
+                    "title": "Zaaktype identificatie",
+                    "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                    "type": "string",
+                    "readOnly": true
+                },
                 "catalogus": {
                     "title": "Catalogus",
                     "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
@@ -6014,6 +6020,12 @@
                     "type": "string",
                     "format": "uri"
                 },
+                "zaaktypeIdentificatie": {
+                    "title": "Zaaktype identificatie",
+                    "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                    "type": "string",
+                    "readOnly": true
+                },
                 "omschrijving": {
                     "title": "Omschrijving",
                     "description": "Omschrijving van de aard van resultaten van het RESULTAATTYPE.",
@@ -6100,6 +6112,12 @@
                     "type": "string",
                     "format": "uri"
                 },
+                "zaaktypeIdentificatie": {
+                    "title": "Zaaktype identificatie",
+                    "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                    "type": "string",
+                    "readOnly": true
+                },
                 "omschrijving": {
                     "title": "Omschrijving",
                     "description": "Omschrijving van de aard van de ROL.",
@@ -6173,6 +6191,12 @@
                     "type": "string",
                     "format": "uri"
                 },
+                "zaaktypeIdentificatie": {
+                    "title": "Zaaktype identificatie",
+                    "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                    "type": "string",
+                    "readOnly": true
+                },
                 "volgnummer": {
                     "title": "Volgnummer",
                     "description": "Een volgnummer voor statussen van het STATUSTYPE binnen een zaak.",
@@ -6223,6 +6247,12 @@
                     "description": "URL-referentie naar het ZAAKTYPE.",
                     "type": "string",
                     "format": "uri"
+                },
+                "zaaktypeIdentificatie": {
+                    "title": "Zaaktype identificatie",
+                    "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                    "type": "string",
+                    "readOnly": true
                 },
                 "informatieobjecttype": {
                     "title": "Informatie object type",

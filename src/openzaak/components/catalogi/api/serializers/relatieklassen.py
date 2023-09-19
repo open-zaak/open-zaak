@@ -27,12 +27,21 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
         lookup_field="uuid",
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
+    zaaktype_identificatie = serializers.SlugRelatedField(
+        source="zaaktype",
+        read_only=True,
+        slug_field="identificatie",
+        help_text=_(
+            "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
+        ),
+    )
 
     class Meta:
         model = ZaakTypeInformatieObjectType
         fields = (
             "url",
             "zaaktype",
+            "zaaktype_identificatie",
             "informatieobjecttype",
             "volgnummer",
             "richting",
