@@ -28,7 +28,7 @@ class Catalogus(ETagMixin, models.Model):
     KING bepaalt niet op voorhand welke waarden 'Domein' kan aannemen, maar registreert wel alle gebruikte waarden.
     """
 
-    _admin_name = models.CharField(
+    naam = models.CharField(
         _("naam"),
         max_length=100,
         help_text="Naam voor interne doeleinden. Dit attribuut wordt niet ontsloten via de API.",
@@ -88,4 +88,4 @@ class Catalogus(ETagMixin, models.Model):
         verbose_name_plural = _("catalogi")
 
     def __str__(self):
-        return self._admin_name
+        return self.naam

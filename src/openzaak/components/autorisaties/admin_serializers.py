@@ -59,7 +59,7 @@ class CatalogusSerializer(serializers.ModelSerializer):
         model = Catalogus
         fields = (
             "id",
-            "_admin_name",
+            "naam",
             "uuid",
             "domein",
             "zaaktypen",

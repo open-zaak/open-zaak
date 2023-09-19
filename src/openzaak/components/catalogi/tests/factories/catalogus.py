@@ -6,7 +6,7 @@ from ...models import Catalogus
 
 
 class CatalogusFactory(factory.django.DjangoModelFactory):
-    _admin_name = factory.Sequence(lambda n: "Catalogus {}".format(n))
+    naam = factory.Sequence(lambda n: "Catalogus {}".format(n))
     domein = factory.Sequence(
         lambda n: chr((n % 26) + 65) * 5
     )  # AAAAA, BBBBB, etc. Repeat after ZZZZZ
