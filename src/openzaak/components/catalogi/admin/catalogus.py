@@ -80,7 +80,19 @@ class CatalogusAdmin(
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("naam", "domein", "rsin", "uuid",)}),
+        (
+            _("Algemeen"),
+            {
+                "fields": (
+                    "naam",
+                    "domein",
+                    "rsin",
+                    "versie",
+                    "begindatum_versie",
+                    "uuid",
+                )
+            },
+        ),
         (
             _("Contactpersoon beheer"),
             {

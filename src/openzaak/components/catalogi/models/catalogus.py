@@ -30,8 +30,9 @@ class Catalogus(ETagMixin, models.Model):
 
     naam = models.CharField(
         _("naam"),
-        max_length=100,
-        help_text="Naam voor interne doeleinden. Dit attribuut wordt niet ontsloten via de API.",
+        blank=True,
+        max_length=200,
+        help_text=_("De benaming die is gegeven aan de zaaktypecatalogus."),
     )
 
     uuid = models.UUIDField(
@@ -79,6 +80,24 @@ class Catalogus(ETagMixin, models.Model):
         blank=True,
         help_text=_(
             "Het emailadres van de contactpersoon die verantwoordelijk is voor het beheer van de CATALOGUS."
+        ),
+    )
+
+    versie = models.CharField(
+        _("versie"),
+        blank=True,
+        max_length=20,
+        help_text=_(
+            "Versie-aanduiding van de van toepassing zijnde zaaktypecatalogus."
+        ),
+    )
+
+    begindatum_versie = models.DateField(
+        _("begindatum versie"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Datum waarop de versie van de zaaktypecatalogus van toepassing is geworden."
         ),
     )
 

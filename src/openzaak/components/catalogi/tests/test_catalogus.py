@@ -35,6 +35,9 @@ class CatalogusAPITests(APITestCase):
             "informatieobjecttypen": [],
             "zaaktypen": [],
             "besluittypen": [],
+            "naam": self.catalogus.naam,
+            "versie": "",
+            "begindatumVersie": None,
         }
         self.assertEqual(response.json(), expected)
 
