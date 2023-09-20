@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from unittest import skip
-
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
@@ -47,13 +45,14 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_get_detail(self):
         """Retrieve the details of a single `InformatieObjectType` object."""
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(
+        iotype = InformatieObjectTypeFactory.create(
             catalogus=self.catalogus,
             zaaktypen=None,
             datum_begin_geldigheid="2019-01-01",
+            trefwoord=["abc", "def"],
         )
         informatieobjecttype_detail_url = get_operation_url(
-            "informatieobjecttype_read", uuid=informatieobjecttype.uuid
+            "informatieobjecttype_read", uuid=iotype.uuid
         )
 
         response = self.client.get(informatieobjecttype_detail_url)
@@ -61,65 +60,25 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         expected = {
-            # 'categorie': 'informatieobjectcategorie',
-            # 'einddatumObject': None,
-            # 'ingangsdatumObject': '2018-01-01',
-            # 'isVastleggingVoor': [],
             "catalogus": "http://testserver{}".format(self.catalogus_detail_url),
-            # 'model': ['http://www.example.com'],
-            "omschrijving": informatieobjecttype.omschrijving,
-            # 'omschrijvingGeneriek': '',
-            # 'toelichting': None,
-            # 'trefwoord': ['abc', 'def'],
+            "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),
             "vertrouwelijkheidaanduiding": "",
-            # 'isRelevantVoor': [],
             "beginGeldigheid": "2019-01-01",
             "eindeGeldigheid": None,
             "concept": True,
+            "trefwoord": ["abc", "def"],
+            "besluittypen": [],
+            "omschrijvingGeneriek": {
+                "informatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_informatieobjecttype,
+                "definitieInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_definitie,
+                "herkomstInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_herkomst,
+                "hierarchieInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_hierarchie,
+                "opmerkingInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_opmerking,
+            }
+            # 'categorie': 'informatieobjectcategorie',
         }
         self.assertEqual(expected, response.json())
-
-    @skip("Not MVP yet")
-    def test_is_relevant_voor(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus,
-            zaaktypen=None,
-            model=["http://www.example.com"],
-            trefwoord=["abc", "def"],
-        )
-        informatieobjecttype_detail_url = get_operation_url(
-            "informatieobjecttype_read",
-            catalogus_uuid=self.catalogus.uuid,
-            uuid=informatieobjecttype.uuid,
-        )
-
-        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype,
-            informatieobjecttype=informatieobjecttype,
-            volgnummer=1,
-            richting="richting",
-        )
-
-        response = self.client.get(informatieobjecttype_detail_url)
-        self.assertEqual(response.status_code, 200)
-
-        data = response.json()
-
-        self.assertTrue("isRelevantVoor" in data)
-        self.assertEqual(len(data["isRelevantVoor"]), 1)
-        self.assertEqual(
-            data["isRelevantVoor"][0],
-            "http://testserver{}".format(
-                reverse("zktiot-detail", args=[zaaktype.pk, ziot.pk])
-            ),
-        )
-
-    @skip("Not MVP yet")
-    def test_is_vastlegging_voor(self):
-        pass
 
     def test_create_informatieobjecttype(self):
         data = {
@@ -191,6 +150,44 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "beginGeldigheid")
         self.assertEqual(error["code"], "overlap")
+
+    def test_create_informatieobject_type_with_omschrijving_generiek(self):
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "beginGeldigheid": "2019-01-01",
+            "omschrijvingGeneriek": {
+                "informatieobjecttypeOmschrijvingGeneriek": "some iotype",
+                "definitieInformatieobjecttypeOmschrijvingGeneriek": "detailed description",
+                "herkomstInformatieobjecttypeOmschrijvingGeneriek": "test",
+                "hierarchieInformatieobjecttypeOmschrijvingGeneriek": "high",
+                "opmerkingInformatieobjecttypeOmschrijvingGeneriek": "comment",
+            },
+        }
+        informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
+
+        response = self.client.post(informatieobjecttype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        informatieobjecttype = InformatieObjectType.objects.get()
+
+        self.assertEqual(informatieobjecttype.omschrijving, "test")
+        self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
+        self.assertEqual(informatieobjecttype.concept, True)
+        self.assertEqual(
+            informatieobjecttype.omschrijving_generiek_informatieobjecttype,
+            "some iotype",
+        )
+        self.assertEqual(
+            informatieobjecttype.omschrijving_generiek_definitie, "detailed description"
+        )
+        self.assertEqual(informatieobjecttype.omschrijving_generiek_herkomst, "test")
+        self.assertEqual(informatieobjecttype.omschrijving_generiek_hierarchie, "high")
+        self.assertEqual(
+            informatieobjecttype.omschrijving_generiek_opmerking, "comment"
+        )
 
     def test_publish_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()

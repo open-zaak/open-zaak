@@ -88,7 +88,11 @@ def construct_iotypen(iotypen, iotype_form_data):
                 data=imported, context={"request": REQUEST}
             )
             if deserialized.is_valid():
-                instance = InformatieObjectType(**deserialized.validated_data)
+                data = deserialized.validated_data
+                # process gegevens group
+                omschrijving_generiek = data.pop("omschrijving_generiek", {})
+                instance = InformatieObjectType(**data)
+                instance.omschrijving_generiek = omschrijving_generiek
             else:
                 raise CommandError(
                     _(
