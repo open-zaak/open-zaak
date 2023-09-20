@@ -114,6 +114,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "versiedatum": "2018-01-01",
             "concept": True,
             "deelzaaktypen": [],
+            "zaakobjecttypen": [],
         }
         self.assertEqual(response_data, expected)
 

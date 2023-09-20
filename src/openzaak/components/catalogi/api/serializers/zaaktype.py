@@ -131,6 +131,16 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
+    zaakobjecttypen = HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        source="zaakobjecttype_set",
+        view_name="zaakobjecttype-detail",
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
+        ),
+    )
 
     class Meta:
         model = ZaakType
@@ -168,6 +178,7 @@ class ZaakTypeSerializer(
             "besluittypen",
             "deelzaaktypen",
             "gerelateerde_zaaktypen",
+            "zaakobjecttypen",
             "begin_geldigheid",
             "einde_geldigheid",
             "versiedatum",
