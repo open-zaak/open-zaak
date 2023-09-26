@@ -225,4 +225,16 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Checklist items",
             },
         ),
+        migrations.AddField(
+            model_name="eigenschap",
+            name="statustype",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een STATUS van het STATUSTYPE kan worden gezet.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="eigenschappen",
+                to="catalogi.statustype",
+            ),
+        ),
     ]

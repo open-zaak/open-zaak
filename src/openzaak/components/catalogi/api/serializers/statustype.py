@@ -47,6 +47,16 @@ class StatusTypeSerializer(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         )
     )
+    eigenschappen = serializers.HyperlinkedRelatedField(
+        view_name="eigenschap-detail",
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        help_text=_(
+            "de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen, "
+            "voordat een STATUS van dit STATUSTYPE kan worden gezet."
+        ),
+    )
     checklistitem_statustype = CheckListItemSerializer(
         required=False,
         many=True,
@@ -73,6 +83,7 @@ class StatusTypeSerializer(
             "toelichting",
             "checklistitem_statustype",
             "catalogus",
+            "eigenschappen",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

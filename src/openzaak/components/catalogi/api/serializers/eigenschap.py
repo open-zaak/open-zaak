@@ -11,7 +11,7 @@ from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import FormaatChoices
 from ...models import Eigenschap, EigenschapSpecificatie
-from ..validators import ZaakTypeConceptValidator
+from ..validators import RelationZaaktypeValidator, ZaakTypeConceptValidator
 
 
 class EigenschapSpecificatieSerializer(serializers.ModelSerializer):
@@ -66,17 +66,20 @@ class EigenschapSerializer(
             "zaaktype",
             "zaaktype_identificatie",
             "catalogus",
+            "statustype",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "naam": {"source": "eigenschapnaam"},
             "zaaktype": {"lookup_field": "uuid"},
+            "statustype": {"lookup_field": "uuid"},
         }
         validators = [
             ZaakTypeConceptValidator(),
             UniqueTogetherValidator(
                 queryset=Eigenschap.objects.all(), fields=["zaaktype", "naam"],
             ),
+            RelationZaaktypeValidator("statustype"),
         ]
 
     def _get_serializer_for_field(self, field, **kwargs):

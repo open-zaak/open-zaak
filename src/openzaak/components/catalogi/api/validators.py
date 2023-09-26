@@ -470,3 +470,31 @@ class M2MConceptUpdateValidator:
                             f"Objects can't be updated with a relation to non-concept {field_name}"
                         )
                         raise ValidationError(msg, code=self.code)
+
+
+class RelationZaaktypeValidator:
+    code = "relations-incorrect-zaaktype"
+    message = _("The {} has zaaktype different from created object")
+    requires_context = True
+
+    def __init__(
+        self, relation_field: str,
+    ):
+        self.relation_field = relation_field
+
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
+        relations = attrs.get(self.relation_field)
+        zaaktype = attrs.get("zaaktype") or instance.zaaktype
+
+        if not relations:
+            return
+
+        if not isinstance(relations, list):
+            relations = [relations]
+
+        for relation in relations:
+            if relation.zaaktype != zaaktype:
+                raise ValidationError(
+                    self.message.format(self.relation_field), code=self.code
+                )

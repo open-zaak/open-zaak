@@ -10,6 +10,7 @@ from ..models import CheckListItem, StatusType
 from .base import APITestCase
 from .factories import (
     CheckListItemFactory,
+    EigenschapFactory,
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -45,6 +46,9 @@ class StatusTypeAPITests(APITestCase):
             zaaktype__catalogus=self.catalogus,
             toelichting="description",
         )
+        eigenschap = EigenschapFactory.create(
+            zaaktype=statustype.zaaktype, statustype=statustype
+        )
         statustype_detail_url = reverse(
             "statustype-detail", kwargs={"uuid": statustype.uuid}
         )
@@ -77,6 +81,7 @@ class StatusTypeAPITests(APITestCase):
                     "vraagstelling": checklistitem.vraagstelling,
                 }
             ],
+            "eigenschappen": [f"http://testserver{reverse(eigenschap)}"],
         }
 
         self.assertEqual(expected, response.json())
