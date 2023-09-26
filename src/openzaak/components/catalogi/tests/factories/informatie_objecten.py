@@ -11,6 +11,7 @@ from .relatieklassen import ZaakTypeInformatieObjectTypeFactory
 
 
 class InformatieObjectTypeFactory(factory.django.DjangoModelFactory):
+    informatieobjectcategorie = factory.Faker("word")
     omschrijving = factory.Sequence(lambda n: "Informatie object type {}".format(n))
     catalogus = factory.SubFactory(CatalogusFactory)
     zaaktypen = factory.RelatedFactory(

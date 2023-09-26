@@ -57,6 +57,7 @@ class InformatieObjectTypeSerializer(
             "einde_geldigheid",
             "concept",
             "besluittypen",
+            "informatieobjectcategorie",
             "trefwoord",
             "omschrijving_generiek",
         )

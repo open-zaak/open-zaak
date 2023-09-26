@@ -405,6 +405,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
         }
 
         response = self.client.put(informatieobjecttype_url, data)
@@ -442,6 +443,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
         }
 
         response = self.client.put(informatieobjecttype_url, data)

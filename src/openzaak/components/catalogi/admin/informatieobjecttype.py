@@ -104,6 +104,7 @@ class InformatieObjectTypeAdmin(
             _("Algemeen"),
             {
                 "fields": (
+                    "informatieobjectcategorie",
                     "omschrijving",
                     "vertrouwelijkheidaanduiding",
                     "trefwoord",

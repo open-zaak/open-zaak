@@ -75,8 +75,8 @@ class InformatieObjectTypeAPITests(APITestCase):
                 "herkomstInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_herkomst,
                 "hierarchieInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_hierarchie,
                 "opmerkingInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_opmerking,
-            }
-            # 'categorie': 'informatieobjectcategorie',
+            },
+            "informatieobjectcategorie": iotype.informatieobjectcategorie,
         }
         self.assertEqual(expected, response.json())
 
@@ -86,6 +86,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
         }
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
 
@@ -98,6 +99,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(informatieobjecttype.omschrijving, "test")
         self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
         self.assertEqual(informatieobjecttype.concept, True)
+        self.assertEqual(informatieobjecttype.informatieobjectcategorie, "main")
 
     def test_create_informatieobjecttype_with_same_omschrijving(self):
         InformatieObjectTypeFactory.create(
@@ -112,6 +114,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-02",
+            "informatieobjectcategorie": "main",
         }
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
 
@@ -142,6 +145,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-02",
+            "informatieobjectcategorie": "main",
         }
         informatieobjecttype_list_url = get_operation_url("informatieobjecttype_list")
 
@@ -154,6 +158,7 @@ class InformatieObjectTypeAPITests(APITestCase):
     def test_create_informatieobject_type_with_omschrijving_generiek(self):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "informatieobjectcategorie": "main",
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-01",
@@ -188,6 +193,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(
             informatieobjecttype.omschrijving_generiek_opmerking, "comment"
         )
+        self.assertEqual(informatieobjecttype.informatieobjectcategorie, "main")
 
     def test_publish_informatieobjecttype(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
@@ -236,6 +242,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }
@@ -255,6 +262,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }
@@ -363,6 +371,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }
@@ -386,6 +395,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }
@@ -410,6 +420,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }
@@ -437,6 +448,7 @@ class InformatieObjectTypeAPITests(APITestCase):
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
+            "informatieobjectcategorie": "main",
             "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
         }

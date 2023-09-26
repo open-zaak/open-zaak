@@ -139,6 +139,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
             "omschrijving": "test",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
         }
 
         # 1. check that notification task is called

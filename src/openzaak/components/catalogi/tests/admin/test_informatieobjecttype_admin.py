@@ -251,6 +251,7 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
         form["vertrouwelijkheidaanduiding"] = "openbaar"
         form["catalogus"] = catalogus.id
         form["datum_begin_geldigheid"] = "2021-10-20"
+        form["informatieobjectcategorie"] = "main"
 
         with self.captureOnCommitCallbacks(execute=True):
             response = form.submit()

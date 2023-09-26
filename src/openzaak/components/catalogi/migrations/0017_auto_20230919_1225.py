@@ -237,4 +237,15 @@ class Migration(migrations.Migration):
                 to="catalogi.statustype",
             ),
         ),
+        migrations.AddField(
+            model_name="informatieobjecttype",
+            name="informatieobjectcategorie",
+            field=models.CharField(
+                default="onbekend",
+                help_text="Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+                max_length=80,
+                verbose_name="categorie",
+            ),
+            preserve_default=False,
+        ),
     ]

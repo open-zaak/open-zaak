@@ -36,11 +36,11 @@ class InformatieObjectType(
             "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
-    vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
-        _("vertrouwelijkheidaanduiding"),
+    informatieobjectcategorie = models.CharField(
+        _("categorie"),
+        max_length=80,
         help_text=_(
-            "Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de "
-            "openbaarheid bestemd zijn."
+            "Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
     trefwoord = ArrayField(
@@ -50,6 +50,13 @@ class InformatieObjectType(
         help_text=_(
             "Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden "
             "gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.)"
+        ),
+    )
+    vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
+        _("vertrouwelijkheidaanduiding"),
+        help_text=_(
+            "Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de "
+            "openbaarheid bestemd zijn."
         ),
     )
 
