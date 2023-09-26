@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.utils.text import gettext_lazy as _
+
 from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
@@ -30,6 +32,35 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
+    resultaattypen = serializers.HyperlinkedRelatedField(
+        many=True,
+        source="resultaattype_set",
+        view_name="resultaattype-detail",
+        lookup_field="uuid",
+        read_only=True,
+        help_text=_(
+            "Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten"
+            " van het BESLUITTYPE."
+        ),
+    )
+    resultaattypen_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        source="resultaattype_set",
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van resultaten van het RESULTAATTYPE."),
+    )
+
+    vastgelegd_in = serializers.SlugRelatedField(
+        many=True,
+        source="informatieobjecttypen",
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
+
     class Meta:
         model = BesluitType
         extra_kwargs = {
@@ -55,6 +86,9 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             "begin_geldigheid",
             "einde_geldigheid",
             "concept",
+            "resultaattypen",
+            "resultaattypen_omschrijving",
+            "vastgelegd_in",
         )
         validators = [
             GeldigheidValidator(),
