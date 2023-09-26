@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
+from vng_api_common.fields import DaysDurationField
 
 from .validators import validate_zaaktype_concept
 
@@ -63,6 +64,16 @@ class StatusType(ETagMixin, models.Model):
             "Een volgnummer voor statussen van het STATUSTYPE binnen een zaak."
         ),
     )
+    doorlooptijd = DaysDurationField(
+        _("doorlooptijd"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "De door de zaakbehandelende organisatie(s) gestelde norm voor de"
+            " doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE"
+            " bij het desbetreffende ZAAKTYPE."
+        ),
+    )
     informeren = models.BooleanField(
         _("informeren"),
         default=False,
@@ -114,3 +125,51 @@ class StatusType(ETagMixin, models.Model):
 
     def __str__(self):
         return self.statustype_omschrijving
+
+
+class CheckListItem(models.Model):
+    """
+    Te controleren aandachtspunt voorafgaand aan het bereiken van een status van het STATUSTYPE.
+
+    Door één of meer checklistitems op te nemen bij een status, wordt een checklist verkregen met
+    punten waaraan aandacht besteed moet worden teneinde die status te bereiken.
+    """
+
+    statustype = models.ForeignKey(StatusType, on_delete=models.CASCADE,)
+    itemnaam = models.CharField(
+        _("itemnaam"),
+        max_length=30,
+        help_text=_("De betekenisvolle benaming van het checklistitem"),
+    )
+    vraagstelling = models.CharField(
+        _("vraagstelling"),
+        max_length=255,
+        help_text=_(
+            "Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt gecontroleerd moet worden."
+        ),
+    )
+    verplicht = models.BooleanField(
+        _("verplicht"),
+        default=False,
+        help_text=_(
+            "Het al dan niet verplicht zijn van controle van het "
+            "aandachtspunt voorafgaand aan het bereiken van de status "
+            "van het gerelateerde STATUSTYPE."
+        ),
+    )
+    toelichting = models.CharField(
+        _("toelichting"),
+        max_length=1000,
+        blank=True,
+        help_text=_(
+            "Beschrijving van de overwegingen bij het controleren van het aandachtspunt"
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("Checklist item")
+        verbose_name_plural = _("Checklist items")
+        ordering = ("statustype", "itemnaam")
+
+    def __str__(self):
+        return f"{self.statustype} - {self.itemnaam}"

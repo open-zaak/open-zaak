@@ -2,14 +2,28 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
+from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
-from ...models import StatusType
+from ...models import CheckListItem, StatusType
 from ..validators import ZaakTypeConceptValidator
 
 
-class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
+class CheckListItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckListItem
+        fields = (
+            "itemnaam",
+            "toelichting",
+            "vraagstelling",
+            "verplicht",
+        )
+
+
+class StatusTypeSerializer(
+    NestedCreateMixin, NestedUpdateMixin, serializers.HyperlinkedModelSerializer
+):
     is_eindstatus = serializers.BooleanField(
         read_only=True,
         help_text=_(
@@ -31,6 +45,15 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
         slug_field="identificatie",
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
+        )
+    )
+    checklistitem_statustype = CheckListItemSerializer(
+        required=False,
+        many=True,
+        source="checklistitem_set",
+        help_text=_(
+            "Te controleren aandachtspunt voorafgaand aan het bereiken "
+            "van een status van het STATUSTYPE."
         ),
     )
 
@@ -46,6 +69,9 @@ class StatusTypeSerializer(serializers.HyperlinkedModelSerializer):
             "volgnummer",
             "is_eindstatus",
             "informeren",
+            "doorlooptijd",
+            "toelichting",
+            "checklistitem_statustype",
             "catalogus",
         )
         extra_kwargs = {

@@ -5,6 +5,7 @@
 from django.db import migrations, models
 import django.contrib.postgres.fields
 import openzaak.utils.fields
+import vng_api_common.fields
 
 
 class Migration(migrations.Migration):
@@ -152,5 +153,76 @@ class Migration(migrations.Migration):
                 help_text="Het BESLUITTYPE van besluiten die gepaard gaan met resultaten van het RESULTAATTYPE.",
                 to="catalogi.BesluitType",
             ),
+        ),
+        migrations.AddField(
+            model_name="statustype",
+            name="doorlooptijd",
+            field=vng_api_common.fields.DaysDurationField(
+                blank=True,
+                help_text="De door de zaakbehandelende organisatie(s) gestelde norm voor de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij het desbetreffende ZAAKTYPE.",
+                max_duration=999,
+                min_duration=1,
+                null=True,
+                verbose_name="doorlooptijd",
+            ),
+        ),
+        migrations.CreateModel(
+            name="CheckListItem",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "itemnaam",
+                    models.CharField(
+                        help_text="De betekenisvolle benaming van het checklistitem",
+                        max_length=30,
+                        verbose_name="itemnaam",
+                    ),
+                ),
+                (
+                    "vraagstelling",
+                    models.CharField(
+                        help_text="Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt gecontroleerd moet worden.",
+                        max_length=255,
+                        verbose_name="vraagstelling",
+                    ),
+                ),
+                (
+                    "verplicht",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Het al dan niet verplicht zijn van controle van het aandachtspunt voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.",
+                        verbose_name="verplicht",
+                    ),
+                ),
+                (
+                    "toelichting",
+                    models.CharField(
+                        blank=True,
+                        help_text="Beschrijving van de overwegingen bij het controleren van het aandachtspunt",
+                        max_length=1000,
+                        verbose_name="toelichting",
+                    ),
+                ),
+                (
+                    "statustype",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalogi.statustype",
+                    ),
+                ),
+            ],
+            options={
+                "ordering": ("statustype", "itemnaam"),
+                "verbose_name": "Checklist item",
+                "verbose_name_plural": "Checklist items",
+            },
         ),
     ]

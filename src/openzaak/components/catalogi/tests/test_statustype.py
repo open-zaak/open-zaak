@@ -6,9 +6,14 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
-from ..models import StatusType
+from ..models import CheckListItem, StatusType
 from .base import APITestCase
-from .factories import RolTypeFactory, StatusTypeFactory, ZaakTypeFactory
+from .factories import (
+    CheckListItemFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
 from .utils import get_operation_url
 
 
@@ -38,10 +43,12 @@ class StatusTypeAPITests(APITestCase):
         statustype = StatusTypeFactory.create(
             statustype_omschrijving="Besluit genomen",
             zaaktype__catalogus=self.catalogus,
+            toelichting="description",
         )
         statustype_detail_url = reverse(
             "statustype-detail", kwargs={"uuid": statustype.uuid}
         )
+        checklistitem = CheckListItemFactory.create(statustype=statustype)
         zaaktype = statustype.zaaktype
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
 
@@ -60,6 +67,16 @@ class StatusTypeAPITests(APITestCase):
             "isEindstatus": True,
             "informeren": False,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+            "doorlooptijd": None,
+            "toelichting": "description",
+            "checklistitemStatustype": [
+                {
+                    "itemnaam": checklistitem.itemnaam,
+                    "toelichting": checklistitem.toelichting,
+                    "verplicht": checklistitem.verplicht,
+                    "vraagstelling": checklistitem.vraagstelling,
+                }
+            ],
         }
 
         self.assertEqual(expected, response.json())
@@ -101,6 +118,41 @@ class StatusTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_create_statustype_with_checklist(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        statustype_list_url = reverse("statustype-list")
+        data = {
+            "omschrijving": "Besluit genomen",
+            "omschrijvingGeneriek": "",
+            "statustekst": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "volgnummer": 2,
+            "checklistitemStatustype": [
+                {
+                    "itemnaam": "item 1",
+                    "toelichting": "description",
+                    "verplicht": True,
+                    "vraagstelling": "some question",
+                }
+            ],
+        }
+        response = self.client.post(statustype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        statustype = StatusType.objects.get()
+
+        self.assertEqual(statustype.statustype_omschrijving, "Besluit genomen")
+        self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertEqual(statustype.checklistitem_set.count(), 1)
+
+        checklistitem = statustype.checklistitem_set.get()
+        self.assertEqual(checklistitem.itemnaam, "item 1")
+        self.assertEqual(checklistitem.toelichting, "description")
+        self.assertTrue(checklistitem.verplicht)
+        self.assertEqual(checklistitem.vraagstelling, "some question")
 
     def test_delete_statustype(self):
         statustype = StatusTypeFactory.create()
@@ -265,6 +317,38 @@ class StatusTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_partial_update_statustype_checklist(self):
+        zaaktype = ZaakTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = reverse(statustype)
+        old_checklistitem = CheckListItemFactory.create(
+            statustype=statustype, itemnaam="old"
+        )
+
+        response = self.client.patch(
+            statustype_url,
+            {
+                "checklistitemStatustype": [
+                    {
+                        "itemnaam": "new",
+                        "toelichting": "description",
+                        "verplicht": True,
+                        "vraagstelling": "some question",
+                    }
+                ]
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        statustype.refresh_from_db()
+        self.assertEqual(statustype.checklistitem_set.count(), 1)
+
+        new_checklistitem = statustype.checklistitem_set.get()
+        self.assertEqual(new_checklistitem.itemnaam, "new")
+        self.assertNotEquals(old_checklistitem.id, new_checklistitem.id)
+        self.assertFalse(CheckListItem.objects.filter(id=old_checklistitem.id).exists())
 
 
 class StatusTypeFilterAPITests(APITestCase):

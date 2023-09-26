@@ -5,8 +5,19 @@ from django.utils.translation import ugettext_lazy as _
 
 from openzaak.utils.admin import UUIDAdminMixin
 
-from ..models import StatusType
+from ..models import CheckListItem, StatusType
 from .mixins import CatalogusContextAdminMixin, ReadOnlyPublishedZaaktypeMixin
+
+
+class ChecklistItemInline(admin.TabularInline):
+    model = CheckListItem
+    fields = (
+        "itemnaam",
+        "vraagstelling",
+        "verplicht",
+        "toelichting",
+    )
+    extra = 1
 
 
 @admin.register(StatusType)
@@ -47,5 +58,6 @@ class StatusTypeAdmin(
         ),
         (_("Relaties"), {"fields": ("zaaktype", "zaakobjecttype")}),
     )
+    inlines = [ChecklistItemInline]
     raw_id_fields = ("zaaktype", "zaakobjecttype")
     readonly_fields = ("uuid",)
