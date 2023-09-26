@@ -21,8 +21,11 @@ from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 from ...models import ResultaatType
 from ..validators import (
     BrondatumArchiefprocedureValidator,
+    M2MConceptCreateValidator,
+    M2MConceptUpdateValidator,
     ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
+    RelationCatalogValidator,
     ZaakTypeConceptValidator,
 )
 
@@ -72,6 +75,15 @@ class ResultaatTypeSerializer(
         slug_field="identificatie",
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
+        )
+    )
+    informatieobjecttype_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        source="informatieobjecttypen",
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
 
@@ -89,7 +101,12 @@ class ResultaatTypeSerializer(
             "archiefnominatie",
             "archiefactietermijn",
             "brondatum_archiefprocedure",
+            "procesobjectaard",
+            "indicatie_specifiek",
+            "procestermijn",
             "catalogus",
+            "informatieobjecttypen",
+            "informatieobjecttype_omschrijving",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -113,6 +130,7 @@ class ResultaatTypeSerializer(
                     ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
+            "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
         }
         validators = [
             UniqueTogetherValidator(
@@ -123,6 +141,11 @@ class ResultaatTypeSerializer(
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
             BrondatumArchiefprocedureValidator(),
             ZaakTypeConceptValidator(),
+            M2MConceptCreateValidator(["informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["informatieobjecttypen"]),
+            RelationCatalogValidator(
+                "informatieobjecttypen", catalogus_field="zaaktype.catalogus"
+            ),
         ]
 
     def get_fields(self):

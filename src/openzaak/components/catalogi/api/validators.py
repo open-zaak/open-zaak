@@ -74,13 +74,30 @@ class GeldigheidValidator:
             )
 
 
+def get_by_source(obj, path: str):
+    """
+    support nested path with "."
+    """
+    bits = path.split(".", maxsplit=1)
+    value = obj.get(bits[0]) if isinstance(obj, dict) else getattr(obj, bits[0], None)
+    if len(bits) == 1:
+        return value
+    return get_by_source(value, bits[1])
+
+
 class RelationCatalogValidator:
     code = "relations-incorrect-catalogus"
     message = _("The {} has catalogus different from created object")
 
-    def __init__(self, relation_field: str, catalogus_field="catalogus"):
+    def __init__(
+        self,
+        relation_field: str,
+        catalogus_field="catalogus",
+        relation_field_catalogus_path="catalogus",
+    ):
         self.relation_field = relation_field
         self.catalogus_field = catalogus_field
+        self.relation_field_catalogus_path = relation_field_catalogus_path
 
     def set_context(self, serializer):
         """
@@ -92,7 +109,9 @@ class RelationCatalogValidator:
 
     def __call__(self, attrs: dict):
         relations = attrs.get(self.relation_field)
-        catalogus = attrs.get(self.catalogus_field) or self.instance.catalogus
+        catalogus = get_by_source(attrs, self.catalogus_field) or get_by_source(
+            self.instance, self.catalogus_field
+        )
 
         if not relations:
             return
@@ -101,7 +120,10 @@ class RelationCatalogValidator:
             relations = [relations]
 
         for relation in relations:
-            if relation.catalogus != catalogus:
+            relation_catalogus = get_by_source(
+                relation, self.relation_field_catalogus_path
+            )
+            if relation_catalogus != catalogus:
                 raise ValidationError(
                     self.message.format(self.relation_field), code=self.code
                 )

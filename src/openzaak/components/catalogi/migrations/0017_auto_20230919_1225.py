@@ -4,6 +4,7 @@
 
 from django.db import migrations, models
 import django.contrib.postgres.fields
+import openzaak.utils.fields
 
 
 class Migration(migrations.Migration):
@@ -102,6 +103,45 @@ class Migration(migrations.Migration):
                 default=list,
                 help_text="Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.)",
                 size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name="resultaattype",
+            name="indicatie_specifiek",
+            field=models.BooleanField(
+                blank=True,
+                help_text="Aanduiding of het, vanuit archiveringsoptiek, een resultaattype betreft dat specifiek is voor een bepaalde procesobjectaard.",
+                null=True,
+                verbose_name="indicatie specifiek",
+            ),
+        ),
+        migrations.AddField(
+            model_name="resultaattype",
+            name="informatieobjecttypen",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet.",
+                to="catalogi.InformatieObjectType",
+            ),
+        ),
+        migrations.AddField(
+            model_name="resultaattype",
+            name="procesobjectaard",
+            field=models.CharField(
+                blank=True,
+                help_text="Omschrijving van het object, subject of gebeurtenis waarop, vanuit archiveringsoptiek, het resultaattype bij zaken van dit type betrekking heeft.",
+                max_length=200,
+                verbose_name="procesobjectaard",
+            ),
+        ),
+        migrations.AddField(
+            model_name="resultaattype",
+            name="procestermijn",
+            field=openzaak.utils.fields.DurationField(
+                blank=True,
+                help_text="De periode dat het zaakdossier na afronding van de zaak actief gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening van de organisatie.",
+                null=True,
+                verbose_name="procestermijn",
             ),
         ),
     ]
