@@ -144,4 +144,13 @@ class Migration(migrations.Migration):
                 verbose_name="procestermijn",
             ),
         ),
+        migrations.AddField(
+            model_name="resultaattype",
+            name="besluittypen",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Het BESLUITTYPE van besluiten die gepaard gaan met resultaten van het RESULTAATTYPE.",
+                to="catalogi.BesluitType",
+            ),
+        ),
     ]

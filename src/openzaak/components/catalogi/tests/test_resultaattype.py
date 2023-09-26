@@ -31,6 +31,7 @@ from ..models import ResultaatType
 from .base import APITestCase
 from .contants import BrondatumArchiefprocedureExampleMapping as MAPPING
 from .factories import (
+    BesluitTypeFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     ZaakTypeFactory,
@@ -154,6 +155,8 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "catalogus": f"http://testserver{reverse(resultaattype.zaaktype.catalogus)}",
                 "informatieobjecttypen": [],
                 "informatieobjecttypeOmschrijving": [],
+                "besluittypen": [],
+                "besluittypeOmschrijving": [],
             },
         )
 
@@ -832,6 +835,157 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             response = self.client.patch(
                 resultaattype_url,
                 {"informatieobjecttypen": [f"http://testserver{reverse(iotype)}"]},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-catalogus")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_with_besluittypen(self, mock_shape, mock_fetch, m):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        besluittype = BesluitTypeFactory.create(catalogus=zaaktype.catalogus)
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": {
+                "afleidingswijze": Afleidingswijze.afgehandeld,
+                "einddatumBekend": False,
+                "procestermijn": None,
+                "datumkenmerk": "",
+                "objecttype": "",
+                "registratie": "",
+            },
+            "besluittypen": [f"http://testserver{reverse(besluittype)}"],
+        }
+        mock_selectielijst_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        resultaattype = ResultaatType.objects.get()
+
+        self.assertEqual(resultaattype.omschrijving_generiek, "test")
+        self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertEqual(
+            resultaattype.brondatum_archiefprocedure_afleidingswijze,
+            Afleidingswijze.afgehandeld,
+        )
+        self.assertEqual(list(resultaattype.besluittypen.all()), [besluittype])
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_with_besluittype_another_catalogus_fail(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        besluittype = BesluitTypeFactory.create()
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": {
+                "afleidingswijze": Afleidingswijze.afgehandeld,
+                "einddatumBekend": False,
+                "procestermijn": None,
+                "datumkenmerk": "",
+                "objecttype": "",
+                "registratie": "",
+            },
+            "besluittypen": [f"http://testserver{reverse(besluittype)}"],
+        }
+        mock_selectielijst_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-catalogus")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_patch_resultaattype_with_besluittypen(self, mock_shape, mock_fetch, m):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        besluittype = BesluitTypeFactory.create(catalogus=zaaktype.catalogus)
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.get(resultaattypeomschrijving, json={"omschrijving": "init"})
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                archiefnominatie="blijvend_bewaren",
+            )
+            resultaattype_url = reverse(resultaattype)
+
+            response = self.client.patch(
+                resultaattype_url,
+                {"besluittypen": [f"http://testserver{reverse(besluittype)}"]},
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(list(resultaattype.besluittypen.all()), [besluittype])
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_patch_resultaattype_with_besluittype_another_catalogus_fail(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        besluittype = BesluitTypeFactory.create()
+        with requests_mock.Mocker() as m:
+            resultaattypeomschrijving = (
+                "https://example.com/resultaattypeomschrijving/1"
+            )
+            m.get(resultaattypeomschrijving, json={"omschrijving": "init"})
+            resultaattype = ResultaatTypeFactory.create(
+                zaaktype=zaaktype,
+                resultaattypeomschrijving=resultaattypeomschrijving,
+                archiefnominatie="blijvend_bewaren",
+            )
+            resultaattype_url = reverse(resultaattype)
+
+            response = self.client.patch(
+                resultaattype_url,
+                {"besluittypen": [f"http://testserver{reverse(besluittype)}"]},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

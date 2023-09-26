@@ -258,6 +258,14 @@ class ResultaatType(ETagMixin, models.Model):
             "dit RESULTAATTYPE kan worden gezet."
         ),
     )
+    besluittypen = models.ManyToManyField(
+        "BesluitType",
+        blank=True,
+        help_text=_(
+            "Het BESLUITTYPE van besluiten die gepaard gaan "
+            "met resultaten van het RESULTAATTYPE."
+        ),
+    )
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",
         related_name="resultaattypen",
