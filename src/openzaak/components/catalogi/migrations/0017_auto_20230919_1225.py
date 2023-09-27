@@ -248,4 +248,14 @@ class Migration(migrations.Migration):
             ),
             preserve_default=False,
         ),
+        migrations.AddField(
+            model_name="zaaktype",
+            name="verantwoordelijke",
+            field=models.CharField(
+                blank=True,
+                help_text="De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.",
+                max_length=50,
+                verbose_name="verantwoordelijke",
+            ),
+        ),
     ]

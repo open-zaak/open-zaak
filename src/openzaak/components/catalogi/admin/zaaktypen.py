@@ -192,6 +192,7 @@ class ZaakTypeAdmin(
                     "handeling_behandelaar",
                     "doorlooptijd_behandeling",
                     "servicenorm_behandeling",
+                    "verantwoordelijke",
                 ),
             },
         ),

@@ -183,6 +183,7 @@ class ZaakTypeSerializer(
             "einde_geldigheid",
             "versiedatum",
             "concept",
+            "verantwoordelijke",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

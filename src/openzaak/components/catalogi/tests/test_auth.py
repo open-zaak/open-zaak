@@ -768,6 +768,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -815,6 +816,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)

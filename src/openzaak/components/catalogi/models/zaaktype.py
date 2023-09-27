@@ -216,6 +216,14 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             "De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE geldig zijn geworden"
         ),
     )
+    verantwoordelijke = models.CharField(
+        _("verantwoordelijke"),
+        max_length=50,
+        help_text=_(
+            "De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor "
+            "de uitvoering van zaken van het ZAAKTYPE."
+        ),
+    )
 
     #
     # groepsattribuutsoorten

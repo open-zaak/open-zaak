@@ -238,6 +238,7 @@ class NotificationAdminTests(
         form["referentieproces_naam"] = "test"
         form["catalogus"] = self.catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
 
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
