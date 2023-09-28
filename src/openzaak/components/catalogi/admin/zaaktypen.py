@@ -29,6 +29,7 @@ from ..models import (
     ResultaatType,
     RolType,
     StatusType,
+    ZaakObjectType,
     ZaakType,
     ZaakTypenRelatie,
 )
@@ -46,6 +47,7 @@ from .mixins import (
 from .resultaattype import ResultaatTypeAdmin
 from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
+from .zaakobjecttype import ZaakObjectTypeAdmin
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +107,12 @@ class ZaakTypenRelatieInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakTypenRelatie
     fk_name = "zaaktype"
     fields = ZaakTypenRelatieAdmin.list_display
+
+
+class ZaakObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakObjectType
+    fk_name = "zaaktype"
+    fields = ZaakObjectTypeAdmin.list_display
 
 
 @admin.register(ZaakType)
@@ -232,6 +240,7 @@ class ZaakTypeAdmin(
         RolTypeInline,
         EigenschapInline,
         ResultaatTypeInline,
+        ZaakObjectTypeInline,
     )
     change_form_template = "admin/catalogi/change_form_zaaktype.html"
     exclude_copy_relation = ("zaak",)
@@ -255,7 +264,13 @@ class ZaakTypeAdmin(
         )
 
         # Resources with foreign keys to ZaakType
-        fields = ["ResultaatType", "RolType", "StatusType", "Eigenschap"]
+        fields = [
+            "ResultaatType",
+            "RolType",
+            "StatusType",
+            "Eigenschap",
+            "ZaakObjectType",
+        ]
         for field in fields:
             model = apps.get_model("catalogi", field)
             resources[field] = list(
@@ -297,6 +312,7 @@ class ZaakTypeAdmin(
             link_to_related_objects(Eigenschap, obj),
             link_to_related_objects(ResultaatType, obj),
             link_to_related_objects(ZaakTypenRelatie, obj),
+            link_to_related_objects(ZaakObjectType, obj),
         )
 
     def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):

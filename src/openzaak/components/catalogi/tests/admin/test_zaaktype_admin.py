@@ -1066,7 +1066,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
             .find(class_="field-_get_object_actions")
             .find_all("a")
         )
-        self.assertEqual(len(rel_object_links), 5)
+        self.assertEqual(len(rel_object_links), 6)
         for link in rel_object_links:
             url = link["href"]
             with self.subTest(url):

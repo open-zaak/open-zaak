@@ -2985,6 +2985,431 @@ paths:
       schema:
         type: string
         format: uuid
+  /zaakobjecttypen:
+    get:
+      operationId: zaakobjecttype_list
+      summary: Alle ZAAKOBJECTTYPEn opvragen.
+      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      parameters:
+      - name: anderObjecttype
+        in: query
+        description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
+          ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
+        required: false
+        schema:
+          type: string
+      - name: catalogus
+        in: query
+        description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: objecttype
+        in: query
+        description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
+          behoort.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: relatieOmschrijving
+        in: query
+        description: Omschrijving van de betrekking van het Objecttype op zaken van
+          het gerelateerde ZAAKTYPE.
+        required: false
+        schema:
+          type: string
+      - name: zaaktype
+        in: query
+        description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE behoort.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: zaaktypeIdentificatie
+        in: query
+        description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+          het ZAAKTYPE voorkomt.
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+    post:
+      operationId: zaakobjecttype_create
+      summary: Maak een ZAAKOBJECTTYPE aan.
+      description: Maak een ZAAKOBJECTTYPE aan.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '201':
+          description: Created
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    parameters: []
+  /zaakobjecttypen/{uuid}:
+    get:
+      operationId: zaakobjecttype_read
+      summary: Een specifieke ZAAKOBJECTTYPE opvragen.
+      description: Een specifieke ZAAKOBJECTTYPE opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+    head:
+      operationId: zaakobjecttype_headers
+      summary: De headers voor een specifiek(e) ZAAKOBJECTTYPE opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+    put:
+      operationId: zaakobjecttype_update
+      summary: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
+      description: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    patch:
+      operationId: zaakobjecttype_partial_update
+      summary: Werk een ZAAKOBJECTTYPE deels bij.
+      description: Werk een ZAAKOBJECTTYPE deels bij.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/ZaakObjectType'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakObjectType'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+    delete:
+      operationId: zaakobjecttype_delete
+      summary: Verwijder een ZAAKOBJECTTYPE.
+      description: Verwijder een ZAAKOBJECTTYPE.
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - zaakobjecttypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+    parameters:
+    - name: uuid
+      in: path
+      description: Unieke resource identifier (UUID4)
+      required: true
+      schema:
+        type: string
+        format: uuid
   /zaaktype-informatieobjecttypen:
     get:
       operationId: zaakinformatieobjecttype_list
@@ -3153,7 +3578,7 @@ paths:
       - zaaktype-informatieobjecttypen
       security:
       - JWT-Claims:
-        - catalogi.schrijven
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
     parameters: []
   /zaaktype-informatieobjecttypen/{uuid}:
     get:
@@ -3978,6 +4403,8 @@ tags:
     uitoefenen in ZAAKen van een ZAAKTYPE.'
 - name: statustypen
   description: Generieke aanduiding van de aard van een status.
+- name: zaakobjecttypen
+  description: ''
 - name: zaaktype-informatieobjecttypen
   description: 'Geeft aan welke INFORMATIEOBJECTTYPEn binnen een ZAAKTYPE mogelijk
     zijn en
@@ -4166,6 +4593,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ResultaatType'
+      required: true
+    ZaakObjectType:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ZaakObjectType'
       required: true
     ZaakTypeInformatieObjectType:
       content:
@@ -5055,6 +5488,79 @@ components:
           description: "Aanduiding die aangeeft of na het zetten van een STATUS van\
             \ dit STATUSTYPE de Initiator moet worden ge\xEFnformeerd over de statusovergang."
           type: boolean
+        catalogus:
+          title: Catalogus
+          description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
+          type: string
+          format: uri
+          readOnly: true
+    ZaakObjectType:
+      required:
+      - anderObjecttype
+      - objecttype
+      - relatieOmschrijving
+      - zaaktype
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        anderObjecttype:
+          title: Ander objecttype
+          description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
+            ander, niet in RSGB en RGBZ voorkomend, objecttype betreft.
+          type: boolean
+        objecttype:
+          title: Objecttype
+          description: URL-referentie naar de OBJECTTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        relatieOmschrijving:
+          title: Relatie omschrijving
+          description: Omschrijving van de betrekking van het Objecttype op zaken
+            van het gerelateerde ZAAKTYPE.
+          type: string
+          maxLength: 80
+          minLength: 1
+        zaaktype:
+          title: Zaaktype
+          description: URL-referentie naar de ZAAKTYPE waartoe dit ZAAKOBJECTTYPE
+            behoort.
+          type: string
+          format: uri
+        zaaktypeIdentificatie:
+          title: Zaaktype identificatie
+          description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
+            het ZAAKTYPE voorkomt.
+          type: string
+          readOnly: true
+        resultaattypen:
+          description: URL-referenties naar de RESULTAATTYPEN.
+          type: array
+          items:
+            description: URL-referenties naar de RESULTAATTYPEN.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        statustypen:
+          description: URL-referenties naar de STATUSTYPEN.
+          type: array
+          items:
+            description: URL-referenties naar de STATUSTYPEN.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.

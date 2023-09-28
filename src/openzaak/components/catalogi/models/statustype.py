@@ -87,6 +87,14 @@ class StatusType(ETagMixin, models.Model):
         null=True,
         help_text=_("Een eventuele toelichting op dit STATUSTYPE."),
     )
+    zaakobjecttype = models.ForeignKey(
+        "ZaakObjectType",
+        blank=True,
+        null=True,
+        related_name="statustypen",
+        on_delete=models.CASCADE,
+        help_text=_("URL-referentie naar het ZAAKOBJECTTYPE."),
+    )
 
     class Meta:
         unique_together = ("zaaktype", "statustypevolgnummer")
