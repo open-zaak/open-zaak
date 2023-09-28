@@ -95,3 +95,19 @@ class FKOrServiceUrlField(FKOrURLField):
         # replace FKOrURLValidator with FKOrServiceUrlValidator
         self.validators = [v for v in self.validators if type(v) != FKOrURLValidator]
         self.validators += [FKOrServiceUrlValidator()]
+
+    def _get_model_and_field(self) -> tuple:
+        # find parent serializer, if fields with nesting are used (like lists or dicts)
+        parent = self.parent
+        while hasattr(parent, "parent") and not isinstance(
+            parent, serializers.Serializer
+        ):
+            parent = parent.parent
+
+        model_class = parent.Meta.model
+
+        source = self.source or self.parent.source
+        # remove filters if present
+        source = source.split("__")[0]
+        model_field = model_class._meta.get_field(source)
+        return model_class, model_field

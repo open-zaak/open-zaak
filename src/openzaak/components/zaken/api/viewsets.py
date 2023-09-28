@@ -383,6 +383,13 @@ class ZaakViewSet(
 
         super().perform_destroy(instance)
 
+    def get_search_input(self):
+        serializer = self.get_search_input_serializer_class()(
+            data=self.request.data, context={"request": self.request}
+        )
+        serializer.is_valid(raise_exception=True)
+        return serializer.validated_data
+
 
 @conditional_retrieve()
 class StatusViewSet(

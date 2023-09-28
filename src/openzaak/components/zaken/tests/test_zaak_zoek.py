@@ -11,6 +11,7 @@ from datetime import date
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
 
+import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
@@ -153,3 +154,80 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         results = response.json()["results"]
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["identificatie"], zaak2.identificatie)
+
+    @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
+    def test_zoek_zaaktype_in_local(self):
+        zaak1, zaak2, zaak3 = ZaakFactory.create_batch(3)
+        url = get_operation_url("zaak__zoek")
+        data = {
+            "zaaktype__in": [
+                f"http://testserver.com{reverse(zaak1.zaaktype)}",
+                f"http://testserver.com{reverse(zaak2.zaaktype)}",
+            ]
+        }
+
+        response = self.client.post(
+            url, data, **ZAAK_WRITE_KWARGS, HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        data = sorted(data, key=lambda zaak: zaak["identificatie"])
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["url"], f"http://testserver.com{reverse(zaak1)}")
+        self.assertEqual(data[1]["url"], f"http://testserver.com{reverse(zaak2)}")
+
+    @tag("external-urls")
+    @requests_mock.Mocker()
+    def test_zoek_zaaktype_in_external(self, m):
+        external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        external_zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/d530aa07-3e4e-42ff-9be8-3247b3a6e7e3"
+        zaak1 = ZaakFactory.create(zaaktype=external_zaaktype1)
+        zaak2 = ZaakFactory.create(zaaktype=external_zaaktype2)
+        ZaakFactory.create()
+
+        url = get_operation_url("zaak__zoek")
+        data = {"zaaktype__in": [external_zaaktype1, external_zaaktype2]}
+        m.get(external_zaaktype1, json={"url": external_zaaktype1})
+        m.get(external_zaaktype2, json={"url": external_zaaktype2})
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        data = sorted(data, key=lambda zaak: zaak["identificatie"])
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaak1)}")
+        self.assertEqual(data[1]["url"], f"http://testserver{reverse(zaak2)}")
+
+    @tag("external-urls")
+    @requests_mock.Mocker()
+    @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
+    def test_zoek_zaaktype_in_local_and_external(self, m):
+        local_zaaktype = ZaakTypeFactory.create()
+        local_zaaktype_url = f"http://testserver.com{reverse(local_zaaktype)}"
+        external_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/d530aa07-3e4e-42ff-9be8-3247b3a6e7e3"
+        zaak1 = ZaakFactory.create(zaaktype=local_zaaktype)
+        zaak2 = ZaakFactory.create(zaaktype=external_zaaktype)
+        ZaakFactory.create()
+
+        url = get_operation_url("zaak__zoek")
+        data = {"zaaktype__in": [local_zaaktype_url, external_zaaktype]}
+        m.get(external_zaaktype, json={"url": external_zaaktype})
+
+        response = self.client.post(
+            url, data, **ZAAK_WRITE_KWARGS, HTTP_HOST="testserver.com"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        data = sorted(data, key=lambda zaak: zaak["identificatie"])
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["url"], f"http://testserver.com{reverse(zaak1)}")
+        self.assertEqual(data[1]["url"], f"http://testserver.com{reverse(zaak2)}")

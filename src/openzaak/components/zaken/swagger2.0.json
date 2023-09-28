@@ -9240,6 +9240,14 @@
                         "format": "uuid"
                     }
                 },
+                "zaaktype__in": {
+                    "description": "Array van zaaktypen.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
                 "identificatie": {
                     "title": "Identificatie",
                     "description": "De unieke identificatie van de ZAAK binnen de organisatie die verantwoordelijk is voor de behandeling van de ZAAK.",
