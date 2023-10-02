@@ -55,6 +55,7 @@ class StatusTypeAPITests(APITestCase):
             "omschrijvingGeneriek": "",
             "statustekst": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "zaaktypeIdentificatie": zaaktype.identificatie,
             "volgnummer": statustype.statustypevolgnummer,
             "isEindstatus": True,
             "informeren": False,

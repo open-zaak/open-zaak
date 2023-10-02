@@ -60,6 +60,7 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
         expected = {
             "url": f"http://testserver{url}",
             "zaaktype": f"http://testserver{zaaktype_url}",
+            "zaaktypeIdentificatie": ztiot.zaaktype.identificatie,
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
             "volgnummer": ztiot.volgnummer,
             "richting": ztiot.richting,

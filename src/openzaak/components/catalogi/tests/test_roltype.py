@@ -49,9 +49,8 @@ class RolTypeAPITests(APITestCase):
 
         expected = {
             "url": f"http://testserver{rol_type_detail_url}",
-            # 'ingangsdatumObject': '2018-01-01',
-            # 'einddatumObject': None,
             "zaaktype": f"http://testserver{zaaktype_url}",
+            "zaaktypeIdentificatie": rol_type.zaaktype.identificatie,
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",

@@ -97,6 +97,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "naam": "objecttype",
                 "definitie": "",
                 "zaaktype": f"http://testserver{zaaktype_url}",
+                "zaaktypeIdentificatie": zaaktype.identificatie,
                 "toelichting": "",
                 "specificatie": {
                     "formaat": FormaatChoices.tekst,
@@ -157,6 +158,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             },
             "toelichting": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "zaaktypeIdentificatie": zaaktype.identificatie,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
         }
         self.assertEqual(expected, response.json())
