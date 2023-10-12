@@ -75,7 +75,7 @@ class ResultaatTypeSerializer(
         slug_field="identificatie",
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
-        )
+        ),
     )
     besluittype_omschrijving = serializers.SlugRelatedField(
         many=True,

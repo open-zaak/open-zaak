@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
@@ -21,6 +21,7 @@ from openzaak.utils.fields import DurationField
 from ..constants import InternExtern
 from ..managers import SyncAutorisatieManager
 from .mixins import ConceptMixin, GeldigheidMixin
+from .validators import validate_uppercase
 
 
 class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model):
@@ -265,6 +266,70 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
     referentieproces = GegevensGroepType(
         {"naam": referentieproces_naam, "link": referentieproces_link},
         optional=("link",),
+    )
+
+    broncatalogus_url = models.URLField(
+        _("broncatalogus url"),
+        blank=True,
+        help_text=_("URL-referentie naar broncatalogus"),
+    )
+    broncatalogus_domein = models.CharField(
+        _("broncatalogus domein"),
+        max_length=5,
+        validators=[validate_uppercase],
+        blank=True,
+        help_text=_("Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend."),
+    )
+    broncatalogus_rsin = RSINField(
+        _("broncatalogus rsin"),
+        blank=True,
+        help_text=_(
+            "Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder"
+            " is van de CATALOGUS waaraan het ZAAKTYPE is ontleend."
+        ),
+    )
+    broncatalogus = GegevensGroepType(
+        {
+            "url": broncatalogus_url,
+            "domein": broncatalogus_domein,
+            "rsin": broncatalogus_rsin,
+        },
+        optional=("url",),
+        required=False,
+    )
+
+    bronzaaktype_url = models.URLField(
+        _("bronzaaktype url"),
+        blank=True,
+        help_text=_("URL-referentie naar bronzaaktype"),
+    )
+    bronzaaktype_identificatie = models.CharField(
+        _("bronzaaktype identificatie"),
+        max_length=50,
+        blank=True,
+        help_text=_(
+            "De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS."
+        ),
+        validators=[alphanumeric_excluding_diacritic],
+    )
+    bronzaaktype_omschrijving = models.CharField(
+        _("bronzaaktype omschrijving"),
+        max_length=80,
+        blank=True,
+        null=True,
+        help_text=_(
+            "De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in"
+            " de Broncatalogus."
+        ),
+    )
+    bronzaaktype = GegevensGroepType(
+        {
+            "url": bronzaaktype_url,
+            "identificatie": bronzaaktype_identificatie,
+            "omschrijving": bronzaaktype_omschrijving,
+        },
+        optional=("url",),
+        required=False,
     )
 
     #

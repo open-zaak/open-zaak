@@ -21,6 +21,7 @@ from openzaak.utils.validators import ResourceValidator
 from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
 from ..validators import (
+    BronZaakTypeValidator,
     ConceptUpdateValidator,
     DeelzaaktypeCatalogusValidator,
     GeldigheidValidator,
@@ -52,6 +53,18 @@ class ZaakTypenRelatieSerializer(ModelSerializer):
         return fields
 
 
+class BronCatalogusSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = ZaakType
+        gegevensgroep = "broncatalogus"
+
+
+class BronZaaktypeSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = ZaakType
+        gegevensgroep = "bronzaaktype"
+
+
 class ZaakTypeSerializer(
     NestedGegevensGroepMixin,
     NestedCreateMixin,
@@ -68,7 +81,18 @@ class ZaakTypeSerializer(
         source="zaaktypenrelaties",
         help_text="De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.",
     )
+    broncatalogus = BronCatalogusSerializer(
+        required=False, help_text=_("De CATALOGUS waaraan het ZAAKTYPE is ontleend.")
+    )
 
+    bronzaaktype = BronZaaktypeSerializer(
+        required=False,
+        help_text=_(
+            "Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend."
+        ),
+    )
+
+    # relations
     informatieobjecttypen = HyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -169,6 +193,14 @@ class ZaakTypeSerializer(
             "producten_of_diensten",
             "selectielijst_procestype",
             "referentieproces",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "versiedatum",
+            "concept",
+            "verantwoordelijke",
+            "broncatalogus",
+            "bronzaaktype",
+            # relations
             "catalogus",
             "statustypen",
             "resultaattypen",
@@ -179,11 +211,6 @@ class ZaakTypeSerializer(
             "deelzaaktypen",
             "gerelateerde_zaaktypen",
             "zaakobjecttypen",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "versiedatum",
-            "concept",
-            "verantwoordelijke",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -212,6 +239,7 @@ class ZaakTypeSerializer(
             M2MConceptUpdateValidator(["besluittypen"]),
             DeelzaaktypeCatalogusValidator(),
             VerlengingsValidator(),
+            BronZaakTypeValidator(),
         ]
 
     def get_fields(self):

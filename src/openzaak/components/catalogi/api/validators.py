@@ -498,3 +498,15 @@ class RelationZaaktypeValidator:
                 raise ValidationError(
                     self.message.format(self.relation_field), code=self.code
                 )
+
+
+class BronZaakTypeValidator:
+    code = "invalid-bronzaaktype-for-broncatalogus"
+    message = _("Both broncatalogus and bronzaaktype should be provided")
+
+    def __call__(self, attrs: dict):
+        broncatalogus = attrs.get("broncatalogus")
+        bronzaaktype = attrs.get("bronzaaktype")
+
+        if bool(broncatalogus) != bool(bronzaaktype):
+            raise ValidationError(self.message, code=self.code)

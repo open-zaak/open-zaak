@@ -45,7 +45,7 @@ class StatusTypeSerializer(
         slug_field="identificatie",
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
-        )
+        ),
     )
     eigenschappen = serializers.HyperlinkedRelatedField(
         view_name="eigenschap-detail",
