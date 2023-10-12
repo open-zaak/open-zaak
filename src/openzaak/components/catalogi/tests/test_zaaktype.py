@@ -116,6 +116,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "deelzaaktypen": [],
             "zaakobjecttypen": [],
             "verantwoordelijke": zaaktype.verantwoordelijke,
+            "broncatalogus": {"domein": "", "rsin": "", "url": ""},
+            "bronzaaktype": {"identificatie": "", "omschrijving": None, "url": ""},
         }
         self.assertEqual(response_data, expected)
 
@@ -420,6 +422,87 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "relations-incorrect-catalogus")
+
+    def test_create_zaaktype_with_bronzaaktype(self):
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": "ZAAK1",
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "referentieproces": {"naam": "ReferentieProces 0"},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+            "gerelateerdeZaaktypen": [],
+            "besluittypen": [],
+            "broncatalogus": {"domein": "BRON", "rsin": "517439943",},
+            "bronzaaktype": {
+                "identificatie": "BRONZAAK1",
+                "omschrijving": "bron zaak",
+            },
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaaktype = ZaakType.objects.get()
+
+        self.assertEqual(zaaktype.broncatalogus_domein, "BRON")
+        self.assertEqual(zaaktype.broncatalogus_rsin, "517439943")
+        self.assertEqual(zaaktype.bronzaaktype_identificatie, "BRONZAAK1")
+        self.assertEqual(zaaktype.bronzaaktype_omschrijving, "bron zaak")
+
+    def test_create_zaaktype_with_bronzaaktype_without_broncatalogus_fail(self):
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": "ZAAK1",
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "referentieproces": {"naam": "ReferentieProces 0"},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+            "gerelateerdeZaaktypen": [],
+            "besluittypen": [],
+            "bronzaaktype": {
+                "identificatie": "BRONZAAK1",
+                "omschrijving": "bron zaak",
+            },
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-bronzaaktype-for-broncatalogus")
 
     def test_publish_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
