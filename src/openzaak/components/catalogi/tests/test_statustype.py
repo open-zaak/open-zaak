@@ -13,6 +13,7 @@ from .factories import (
     EigenschapFactory,
     RolTypeFactory,
     StatusTypeFactory,
+    ZaakObjectTypeFactory,
     ZaakTypeFactory,
 )
 from .utils import get_operation_url
@@ -49,6 +50,9 @@ class StatusTypeAPITests(APITestCase):
         eigenschap = EigenschapFactory.create(
             zaaktype=statustype.zaaktype, statustype=statustype
         )
+        zaakobjecttype = ZaakObjectTypeFactory.create(
+            zaaktype=statustype.zaaktype, statustype=statustype
+        )
         statustype_detail_url = reverse(
             "statustype-detail", kwargs={"uuid": statustype.uuid}
         )
@@ -82,6 +86,7 @@ class StatusTypeAPITests(APITestCase):
                 }
             ],
             "eigenschappen": [f"http://testserver{reverse(eigenschap)}"],
+            "zaakobjecttypen": [f"http://testserver{reverse(zaakobjecttype)}"],
         }
 
         self.assertEqual(expected, response.json())
