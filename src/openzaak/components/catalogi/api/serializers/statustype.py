@@ -57,6 +57,16 @@ class StatusTypeSerializer(
             "voordat een STATUS van dit STATUSTYPE kan worden gezet."
         ),
     )
+    zaakobjecttypen = serializers.HyperlinkedRelatedField(
+        view_name="eigenschap-detail",
+        many=True,
+        read_only=True,
+        lookup_field="uuid",
+        help_text=_(
+            "de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben gekregen, "
+            "voordat een STATUS van dit STATUSTYPE kan worden gezet."
+        ),
+    )
     checklistitem_statustype = CheckListItemSerializer(
         required=False,
         many=True,
@@ -84,6 +94,7 @@ class StatusTypeSerializer(
             "checklistitem_statustype",
             "catalogus",
             "eigenschappen",
+            "zaakobjecttypen",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

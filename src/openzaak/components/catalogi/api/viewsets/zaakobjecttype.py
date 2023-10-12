@@ -58,8 +58,10 @@ class ZaakObjectTypeViewSet(
     """
 
     queryset = (
-        ZaakObjectType.objects.select_related("zaaktype", "zaaktype__catalogus")
-        .prefetch_related("resultaattypen", "statustypen")
+        ZaakObjectType.objects.select_related(
+            "zaaktype", "zaaktype__catalogus", "statustype"
+        )
+        .prefetch_related("resultaattypen")
         .order_by("-pk")
         .all()
     )

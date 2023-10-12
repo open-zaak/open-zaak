@@ -28,6 +28,6 @@ class ZaakObjectTypeAdmin(
             _("Algemeen"),
             {"fields": ("ander_objecttype", "objecttype", "relatie_omschrijving",)},
         ),
-        (_("Relaties"), {"fields": ("zaaktype",)}),
+        (_("Relaties"), {"fields": ("zaaktype", "statustype")}),
     )
-    raw_id_fields = ("zaaktype",)
+    raw_id_fields = ("zaaktype", "statustype")

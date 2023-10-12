@@ -56,8 +56,8 @@ class StatusTypeAdmin(
                 )
             },
         ),
-        (_("Relaties"), {"fields": ("zaaktype", "zaakobjecttype")}),
+        (_("Relaties"), {"fields": ("zaaktype",)}),
     )
     inlines = [ChecklistItemInline]
-    raw_id_fields = ("zaaktype", "zaakobjecttype")
+    raw_id_fields = ("zaaktype",)
     readonly_fields = ("uuid",)

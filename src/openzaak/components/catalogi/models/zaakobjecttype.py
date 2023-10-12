@@ -39,6 +39,14 @@ class ZaakObjectType(ETagMixin, models.Model):
             "Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE."
         ),
     )
+    statustype = models.ForeignKey(
+        "catalogi.StatusType",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="zaakobjecttypen",
+        help_text=_("URL-referentie naar het STATUSTYPE"),
+    )
 
     class Meta:
         verbose_name = _("Zaakobjecttype")
