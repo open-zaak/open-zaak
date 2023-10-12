@@ -99,7 +99,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "beschrijving": beschrijving,
                 "registratiedatum": "2018-09-19T10:25:19Z",
                 "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
-                "vernietigingsdatum": "2023-01-02T00:00:00Z"
+                "vernietigingsdatum": "2023-01-02T00:00:00Z",
             }
         )
 
