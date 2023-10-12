@@ -4717,6 +4717,33 @@ components:
             deze API.
           type: boolean
           readOnly: true
+        resultaattypen:
+          description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+            van het BESLUITTYPE.
+          type: array
+          items:
+            description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+              van het BESLUITTYPE.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        resultaattypenOmschrijving:
+          description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        vastgelegdIn:
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
     Fout:
       required:
       - code
@@ -4903,6 +4930,23 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        naam:
+          title: Naam
+          description: De benaming die is gegeven aan de zaaktypecatalogus.
+          type: string
+          maxLength: 200
+        versie:
+          title: Versie
+          description: Versie-aanduiding van de van toepassing zijnde zaaktypecatalogus.
+          type: string
+          maxLength: 20
+        begindatumVersie:
+          title: Begindatum versie
+          description: Datum waarop de versie van de zaaktypecatalogus van toepassing
+            is geworden.
+          type: string
+          format: date
+          nullable: true
     EigenschapSpecificatie:
       required:
       - formaat
@@ -5015,12 +5059,59 @@ components:
           type: string
           format: uri
           readOnly: true
+        statustype:
+          title: Statustype
+          description: Status type moet (onder andere) deze EIGENSCHAP hebben, voordat
+            een STATUS van het STATUSTYPE kan worden gezet.
+          type: string
+          format: uri
+          nullable: true
+    OmschrijvingGeneriek:
+      description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
+      required:
+      - informatieobjecttypeOmschrijvingGeneriek
+      - definitieInformatieobjecttypeOmschrijvingGeneriek
+      - herkomstInformatieobjecttypeOmschrijvingGeneriek
+      - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      type: object
+      properties:
+        informatieobjecttypeOmschrijvingGeneriek:
+          title: Informatieobjecttype omschrijving generiek
+          description: Algemeen gehanteerde omschrijving van het type informatieobject.
+          type: string
+          maxLength: 80
+          minLength: 1
+        definitieInformatieobjecttypeOmschrijvingGeneriek:
+          title: Definitie
+          description: Nauwkeurige beschrijving van het generieke type informatieobject
+          type: string
+          maxLength: 255
+          minLength: 1
+        herkomstInformatieobjecttypeOmschrijvingGeneriek:
+          title: Herkomst
+          description: De naam van de waardenverzameling, of van de beherende organisatie
+            daarvan, waaruit de waarde is overgenomen.
+          type: string
+          maxLength: 12
+          minLength: 1
+        hierarchieInformatieobjecttypeOmschrijvingGeneriek:
+          title: Hierarchie
+          description: De plaats in de rangorde van het informatieobjecttype.
+          type: string
+          maxLength: 80
+          minLength: 1
+        opmerkingInformatieobjecttypeOmschrijvingGeneriek:
+          title: Opmerking
+          description: Zinvolle toelichting bij het informatieobjecttype
+          type: string
+          maxLength: 255
     InformatieObjectType:
       required:
       - catalogus
       - omschrijving
       - vertrouwelijkheidaanduiding
       - beginGeldigheid
+      - informatieobjectcategorie
       type: object
       properties:
         url:
@@ -5096,6 +5187,33 @@ components:
             deze API.
           type: boolean
           readOnly: true
+        besluittypen:
+          description: URL-referenties naar de BESLUITTYPEN
+          type: array
+          items:
+            description: URL-referenties naar de BESLUITTYPEN
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        informatieobjectcategorie:
+          title: Categorie
+          description: Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: string
+          maxLength: 80
+          minLength: 1
+        trefwoord:
+          description: Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE
+            kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar
+            te onderscheiden.)
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 30
+            minLength: 1
+        omschrijvingGeneriek:
+          $ref: '#/components/schemas/OmschrijvingGeneriek'
     BrondatumArchiefprocedure:
       description: Specificatie voor het bepalen van de brondatum voor de start van
         de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -5105,35 +5223,29 @@ components:
       properties:
         afleidingswijze:
           title: Afleidingswijze brondatum
-          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
-            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
-            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
-            \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
-            \ in een ander datumveld dan de datumvelden waarop de overige waarden\
-            \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
-            \ en `Datumkenmerk` zijn niet leeg.\n* `eigenschap` - (Eigenschap) De\
-            \ termijn start op de datum die vermeld is in een zaaktype-specifieke\
-            \ eigenschap (zijnde een `datumveld`). `ResultaatType.ZaakType` heeft\
-            \ een `Eigenschap`; `Objecttype`, en `Datumkenmerk` zijn niet leeg.\n\
-            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
-            \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
-            \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
-            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
-            \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
-            \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
-            \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\
-            \ termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
-            \ in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitType\n*\
-            \ `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum\
-            \ waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).\n* `vervaldatum_besluit`\
-            \ - (Vervaldatum besluit) De termijn start op de dag na de datum waarop\
-            \ het besluit vervalt (`BESLUIT.Vervaldatum` in het RGBZ). ResultaatType.ZaakType\
-            \ heeft relevant BesluitType\n* `zaakobject` - (Zaakobject) De termijn\
-            \ start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking\
-            \ heeft (bijvoorbeeld de overlijdendatum van een Persoon). M.b.v. de attribuutsoort\
-            \ `Objecttype` wordt vastgelegd om welke zaakobjecttype het gaat; m.b.v.\
-            \ de attribuutsoort `Datumkenmerk` wordt vastgelegd welke datum-attribuutsoort\
-            \ van het zaakobjecttype het betreft."
+          description: 'Wijze van bepalen van de brondatum.
+
+
+            Uitleg bij mogelijke waarden:
+
+
+            * `afgehandeld` - Afgehandeld
+
+            * `ander_datumkenmerk` - Ander datumkenmerk
+
+            * `eigenschap` - Eigenschap
+
+            * `gerelateerde_zaak` - Gerelateerde zaak
+
+            * `hoofdzaak` - Hoofdzaak
+
+            * `ingangsdatum_besluit` - Ingangsdatum besluit
+
+            * `termijn` - Termijn
+
+            * `vervaldatum_besluit` - Vervaldatum besluit
+
+            * `zaakobject` - Zaakobject'
           type: string
           enum:
           - afgehandeld
@@ -5375,12 +5487,73 @@ components:
           nullable: true
         brondatumArchiefprocedure:
           $ref: '#/components/schemas/BrondatumArchiefprocedure'
+        procesobjectaard:
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, het resultaattype bij zaken van dit type betrekking
+            heeft.
+          type: string
+          maxLength: 200
+        indicatieSpecifiek:
+          title: Indicatie specifiek
+          description: Aanduiding of het, vanuit archiveringsoptiek, een resultaattype
+            betreft dat specifiek is voor een bepaalde procesobjectaard.
+          type: boolean
+          nullable: true
+        procestermijn:
+          title: Procestermijn
+          description: De periode dat het zaakdossier na afronding van de zaak actief
+            gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
+            van de organisatie.
+          type: string
+          format: duration
+          nullable: true
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
           type: string
           format: uri
           readOnly: true
+        besluittypen:
+          description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
+            van het RESULTAATTYPE.
+          type: array
+          items:
+            description: Het BESLUITTYPE van besluiten die gepaard gaan met resultaten
+              van het RESULTAATTYPE.
+            type: string
+            format: uri
+            nullable: true
+          uniqueItems: true
+        besluittypeOmschrijving:
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
+        informatieobjecttypen:
+          description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
+            in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van
+            dit RESULTAATTYPE kan worden gezet.
+          type: array
+          items:
+            description: De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn
+              in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat
+              van dit RESULTAATTYPE kan worden gezet.
+            type: string
+            format: uri
+            nullable: true
+          uniqueItems: true
+        informatieobjecttypeOmschrijving:
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: array
+          items:
+            description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+            type: string
+          readOnly: true
+          uniqueItems: true
     RolType:
       required:
       - zaaktype
@@ -5418,18 +5591,10 @@ components:
         omschrijvingGeneriek:
           title: Omschrijving generiek
           description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
-            \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
-            \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
-            \ - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van)\
-            \ een zaak.\n* `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief\
-            \ belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst\
-            \ van een zaak.\n* `beslisser` - (Beslisser) Nemen van besluiten die voor\
-            \ de uitkomst van een zaak noodzakelijk zijn.\n* `initiator` - (Initiator)\
-            \ Aanleiding geven tot de start van een zaak ..\n* `klantcontacter` -\
-            \ (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers\
-            \ en bedrijven ..\n* `zaakcoordinator` - (Zaakco\xF6rdinator) Er voor\
-            \ zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt\
-            \ conform de daarover gemaakte afspraken.\n* `mede_initiator` - Mede-initiator"
+            \nUitleg bij mogelijke waarden:\n\n* `adviseur` - Adviseur\n* `behandelaar`\
+            \ - Behandelaar\n* `belanghebbende` - Belanghebbende\n* `beslisser` -\
+            \ Beslisser\n* `initiator` - Initiator\n* `klantcontacter` - Klantcontacter\n\
+            * `zaakcoordinator` - Zaakco\xF6rdinator\n* `mede_initiator` - Mede-initiator"
           type: string
           enum:
           - adviseur
@@ -5446,6 +5611,38 @@ components:
           type: string
           format: uri
           readOnly: true
+    CheckListItem:
+      description: Te controleren aandachtspunt voorafgaand aan het bereiken van een
+        status van het STATUSTYPE.
+      required:
+      - itemnaam
+      - vraagstelling
+      type: object
+      properties:
+        itemnaam:
+          title: Itemnaam
+          description: De betekenisvolle benaming van het checklistitem
+          type: string
+          maxLength: 30
+          minLength: 1
+        toelichting:
+          title: Toelichting
+          description: Beschrijving van de overwegingen bij het controleren van het
+            aandachtspunt
+          type: string
+          maxLength: 1000
+        vraagstelling:
+          title: Vraagstelling
+          description: Een betekenisvolle vraag waaruit blijkt waarop het aandachtspunt
+            gecontroleerd moet worden.
+          type: string
+          maxLength: 255
+          minLength: 1
+        verplicht:
+          title: Verplicht
+          description: Het al dan niet verplicht zijn van controle van het aandachtspunt
+            voorafgaand aan het bereiken van de status van het gerelateerde STATUSTYPE.
+          type: boolean
     StatusType:
       required:
       - omschrijving
@@ -5512,12 +5709,54 @@ components:
           description: "Aanduiding die aangeeft of na het zetten van een STATUS van\
             \ dit STATUSTYPE de Initiator moet worden ge\xEFnformeerd over de statusovergang."
           type: boolean
+        doorlooptijd:
+          title: Doorlooptijd
+          description: De door de zaakbehandelende organisatie(s) gestelde norm voor
+            de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij
+            het desbetreffende ZAAKTYPE.
+          type: string
+          format: duration
+          nullable: true
+        toelichting:
+          title: Toelichting
+          description: Een eventuele toelichting op dit STATUSTYPE.
+          type: string
+          maxLength: 1000
+          nullable: true
+        checklistitemStatustype:
+          description: Te controleren aandachtspunt voorafgaand aan het bereiken van
+            een status van het STATUSTYPE.
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckListItem'
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
           type: string
           format: uri
           readOnly: true
+        eigenschappen:
+          description: de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen,
+            voordat een STATUS van dit STATUSTYPE kan worden gezet.
+          type: array
+          items:
+            description: de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen,
+              voordat een STATUS van dit STATUSTYPE kan worden gezet.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        zaakobjecttypen:
+          description: de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben gekregen,
+            voordat een STATUS van dit STATUSTYPE kan worden gezet.
+          type: array
+          items:
+            description: de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben
+              gekregen, voordat een STATUS van dit STATUSTYPE kan worden gezet.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
     ZaakObjectType:
       required:
       - anderObjecttype
@@ -5576,15 +5815,12 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
-        statustypen:
-          description: URL-referenties naar de STATUSTYPEN.
-          type: array
-          items:
-            description: URL-referenties naar de STATUSTYPEN.
-            type: string
-            format: uri
-          readOnly: true
-          uniqueItems: true
+        statustype:
+          title: Statustype
+          description: URL-referentie naar het STATUSTYPE
+          type: string
+          format: uri
+          nullable: true
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
@@ -5624,6 +5860,11 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           type: string
           format: uri
+        informatieobjecttypeOmschrijving:
+          title: Informatieobjecttype omschrijving
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          type: string
+          readOnly: true
         volgnummer:
           title: Volgnummer
           description: Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het
@@ -5681,6 +5922,58 @@ components:
           type: string
           format: uri
           maxLength: 200
+    BronCatalogus:
+      description: De CATALOGUS waaraan het ZAAKTYPE is ontleend.
+      required:
+      - domein
+      - rsin
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar broncatalogus
+          type: string
+          format: uri
+          maxLength: 200
+        domein:
+          title: Domein
+          description: Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          type: string
+          maxLength: 5
+          minLength: 1
+        rsin:
+          title: Rsin
+          description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
+            is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
+          type: string
+          maxLength: 9
+          minLength: 1
+    BronZaaktype:
+      description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
+      required:
+      - identificatie
+      - omschrijving
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar bronzaaktype
+          type: string
+          format: uri
+          maxLength: 200
+        identificatie:
+          title: Identificatie
+          description: De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.
+          type: string
+          maxLength: 50
+          minLength: 1
+        omschrijving:
+          title: Omschrijving
+          description: De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd
+            in de Broncatalogus.
+          type: string
+          maxLength: 80
+          minLength: 1
     ZaakTypenRelatie:
       description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.
       required:
@@ -5736,11 +6029,12 @@ components:
       - publicatieIndicatie
       - productenOfDiensten
       - referentieproces
+      - beginGeldigheid
+      - versiedatum
+      - verantwoordelijke
       - catalogus
       - besluittypen
       - gerelateerdeZaaktypen
-      - beginGeldigheid
-      - versiedatum
       type: object
       properties:
         url:
@@ -5938,6 +6232,41 @@ components:
           maxLength: 200
         referentieproces:
           $ref: '#/components/schemas/ReferentieProces'
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        versiedatum:
+          title: Versiedatum
+          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
+            geldig zijn geworden
+          type: string
+          format: date
+        concept:
+          title: Concept
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+          type: boolean
+          readOnly: true
+        verantwoordelijke:
+          title: Verantwoordelijke
+          description: De (soort) organisatorische eenheid of (functie van) medewerker
+            die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.
+          type: string
+          maxLength: 50
+          minLength: 1
+        broncatalogus:
+          $ref: '#/components/schemas/BronCatalogus'
+        bronzaaktype:
+          $ref: '#/components/schemas/BronZaaktype'
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
@@ -6026,27 +6355,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ZaakTypenRelatie'
-        beginGeldigheid:
-          title: Begin geldigheid
-          description: De datum waarop het is ontstaan.
-          type: string
-          format: date
-        eindeGeldigheid:
-          title: Einde geldigheid
-          description: De datum waarop het is opgeheven.
-          type: string
-          format: date
-          nullable: true
-        versiedatum:
-          title: Versiedatum
-          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
-            geldig zijn geworden
-          type: string
-          format: date
-        concept:
-          title: Concept
-          description: Geeft aan of het object een concept betreft. Concepten zijn
-            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
-            deze API.
-          type: boolean
+        zaakobjecttypen:
+          description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen
+            dit ZAAKTYPE.
+          type: array
+          items:
+            description: URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn
+              binnen dit ZAAKTYPE.
+            type: string
+            format: uri
           readOnly: true
+          uniqueItems: true
