@@ -107,7 +107,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/remove-django-choices
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
@@ -253,7 +253,7 @@ docutils==0.17.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
-drc-cmis @ git+https://github.com/open-zaak/cmis-adapter@feature/remove-django-choices
+drc-cmis @ git+https://github.com/open-zaak/cmis-adapter
     # via -r requirements/ci.txt
 drf-extra-fields==3.4.0
     # via -r requirements/ci.txt

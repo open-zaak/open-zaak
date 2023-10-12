@@ -90,7 +90,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/remove-django-choices
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -218,7 +218,7 @@ djangorestframework-camel-case==1.2.0
     #   notifications-api-common
 djangorestframework-gis==0.18
     # via -r requirements/base.txt
-drc-cmis @ git+https://github.com/open-zaak/cmis-adapter@feature/remove-django-choices
+drc-cmis @ git+https://github.com/open-zaak/cmis-adapter
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt
