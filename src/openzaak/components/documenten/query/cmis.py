@@ -879,10 +879,6 @@ class ObjectInformatieObjectCMISQuerySet(
         return bool(self._result_cache)
 
 
-class VerzendingCMISQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
-    pass
-
-
 # ---------------- Utility Functions --------------------
 
 

@@ -965,7 +965,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
+class Verzending(CMISETagMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,
@@ -1248,28 +1248,16 @@ class Verzending(CMISETagMixin, CMISClientMixin, models.Model):
     def __str__(self):
         return _("Verzending %(uuid)s") % {"uuid": str(self.uuid)}
 
-    # TODO save() for CMIS
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise NotImplementedError("CMIS is not supported for Verzending")
 
-    def get_informatieobject_url(self):
-        """
-        Retrieves the EnkelvoudigInformatieObject url from Alfresco
-        """
-        cmis_verzending = self.cmis_client.get_content_object(
-            self.uuid, object_type="verzending"
-        )
-        return cmis_verzending.informatieobject
+        super().save(*args, **kwargs)
 
     def get_informatieobject(self, permission_main_object=None):
-        # TDO refactor with mixin
-        """
-        Retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
-        """
         if settings.CMIS_ENABLED:
-            # Get the uuid of the object and retrieve it from alfresco
-            eio_url = self.get_informatieobject_url()
-            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
-            eio_uuid = eio_url.split("/")[-1]
-            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
+            raise NotImplementedError("CMIS is not supported for Verzending")
         elif permission_main_object:
             return getattr(self, permission_main_object).latest_version
         else:

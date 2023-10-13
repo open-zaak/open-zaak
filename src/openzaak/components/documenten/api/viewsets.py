@@ -25,6 +25,7 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -642,8 +643,6 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
 
 @cmis_conditional_retrieve()
 class VerzendingViewSet(
-    CMISConnectionPoolMixin,
-    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -702,3 +701,33 @@ class VerzendingViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    def create(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().create(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().retrieve(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().destroy(request, *args, **kwargs)
