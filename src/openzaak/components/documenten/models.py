@@ -46,9 +46,12 @@ from .managers import (
     AdapterManager,
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
-    VerzendingAdapterManager,
 )
-from .query.django import BestandsDeelQuerySet, InformatieobjectQuerySet
+from .query.django import (
+    BestandsDeelQuerySet,
+    InformatieobjectQuerySet,
+    InformatieobjectRelatedQuerySet,
+)
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
@@ -1239,7 +1242,7 @@ class Verzending(CMISETagMixin, models.Model):
         required=False,
     )
 
-    objects = VerzendingAdapterManager()
+    objects = InformatieobjectRelatedQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("Verzending")

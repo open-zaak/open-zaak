@@ -51,13 +51,3 @@ class ObjectInformatieObjectAdapterManager(models.Manager):
 
     def delete_for(self, relation):
         return self.get_queryset().delete_for(relation)
-
-
-class VerzendingAdapterManager(models.Manager):
-    def get_queryset(self):
-        if settings.CMIS_ENABLED:
-            raise NotImplementedError("CMIS is not supported for Verzending")
-        else:
-            return InformatieobjectRelatedQuerySet(
-                model=self.model, using=self._db, hints=self._hints
-            )
