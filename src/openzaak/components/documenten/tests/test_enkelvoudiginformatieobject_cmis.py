@@ -123,6 +123,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
                 "status": "",
                 "locked": False,
                 "lock": "",
+                "verschijningsvorm": "",
             }
         )
 
@@ -304,6 +305,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "integriteit": {"algoritme": "", "waarde": "", "datum": None},
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
+            "verschijningsvorm": "",
         }
 
         response_data = response.json()
