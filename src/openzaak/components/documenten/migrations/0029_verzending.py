@@ -14,7 +14,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documenten", "0027_auto_20230417_1415"),
+        ("documenten", "0028_alter_enkelvoudiginformatieobject_taal"),
     ]
 
     operations = [
