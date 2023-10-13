@@ -174,7 +174,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
                     "postBusOfAntwoordnummer": verzending.correspondentie_postadres_postbus_of_antwoord_nummer,
                     "postadresPostcode": verzending.correspondentie_postadres_postcode,
                     "postadresType": verzending.correspondentie_postadres_postadrestype,
-                    "woonplaatsnaam": verzending.correspondentie_postadres_woonplaats,
+                    "woonplaatsnaam": verzending.correspondentie_postadres_woonplaatsnaam,
                 },
                 "faxnummer": verzending.faxnummer,
                 "emailadres": verzending.emailadres,
@@ -227,7 +227,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(verzending.binnenlands_correspondentieadres_postcode, "1010AA")
         self.assertEqual(
-            verzending.binnenlands_correspondentieadres_woonplaats, "Amsterdam"
+            verzending.binnenlands_correspondentieadres_woonplaatsnaam, "Amsterdam"
         )
 
     def test_create_with_outer_address(self):
@@ -307,7 +307,9 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
             verzending.correspondentie_postadres_postadrestype,
             PostAdresTypes.antwoordnummer,
         )
-        self.assertEqual(verzending.correspondentie_postadres_woonplaats, "Amsterdam")
+        self.assertEqual(
+            verzending.correspondentie_postadres_woonplaatsnaam, "Amsterdam"
+        )
 
     def test_create_no_address_fail(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -394,7 +396,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(verzending.binnenlands_correspondentieadres_postcode, "1010AA")
         self.assertEqual(
-            verzending.binnenlands_correspondentieadres_woonplaats, "Amsterdam"
+            verzending.binnenlands_correspondentieadres_woonplaatsnaam, "Amsterdam"
         )
 
     def test_update_no_address_fail(self):
