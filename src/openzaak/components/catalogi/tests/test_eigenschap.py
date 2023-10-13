@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from datetime import date
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
@@ -36,6 +38,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 kardinaliteit="1",
                 waardenverzameling=["boot", "zwerfvuil"],
             ),
+            datum_begin_geldigheid=date(2023, 1, 1),
+            datum_einde_geldigheid=date(2023, 12, 1),
         )
         EigenschapFactory.create(
             eigenschapnaam="boot.naam",
@@ -113,6 +117,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 },
                 "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
                 "statustype": None,
+                "beginGeldigheid": "2023-01-01",
+                "eindeGeldigheid": "2023-12-01",
             },
         )
 
@@ -169,6 +175,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "zaaktypeIdentificatie": zaaktype.identificatie,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
             "statustype": f"http://testserver{reverse(statustype)}",
+            "beginGeldigheid": None,
+            "eindeGeldigheid": None,
         }
         self.assertEqual(expected, response.json())
 
@@ -188,6 +196,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "kardinaliteit": "1",
                 "waardenverzameling": [],
             },
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
         }
 
         response = self.client.post(eigenschap_list_url, data)
@@ -198,6 +208,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
         self.assertEqual(eigenschap.zaaktype, zaaktype)
+        self.assertEqual(eigenschap.datum_begin_geldigheid, date(2023, 1, 1))
+        self.assertEqual(eigenschap.datum_einde_geldigheid, date(2023, 12, 1))
 
         specificatie = eigenschap.specificatie_van_eigenschap
         self.assertEqual(specificatie.groep, "test")
@@ -471,6 +483,32 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         specificatie = eigenschap.specificatie_van_eigenschap
 
         self.assertEqual(specificatie.groep, "test 1")
+
+    def test_create_eigenschap_with_end_date_before_begin_date(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+            "beginGeldigheid": "2023-12-01",
+            "eindeGeldigheid": "2023-01-01",
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "date-mismatch")
 
     def test_delete_eigenschap(self):
         eigenschap = EigenschapFactory.create()

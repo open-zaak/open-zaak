@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from datetime import date
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
@@ -87,6 +89,8 @@ class StatusTypeAPITests(APITestCase):
             ],
             "eigenschappen": [f"http://testserver{reverse(eigenschap)}"],
             "zaakobjecttypen": [f"http://testserver{reverse(zaakobjecttype)}"],
+            "beginGeldigheid": None,
+            "eindeGeldigheid": None,
         }
 
         self.assertEqual(expected, response.json())
@@ -101,6 +105,8 @@ class StatusTypeAPITests(APITestCase):
             "statustekst": "",
             "zaaktype": "http://testserver{}".format(zaaktype_url),
             "volgnummer": 2,
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
         }
         response = self.client.post(statustype_list_url, data)
 
@@ -110,6 +116,8 @@ class StatusTypeAPITests(APITestCase):
 
         self.assertEqual(statustype.statustype_omschrijving, "Besluit genomen")
         self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertEqual(statustype.datum_begin_geldigheid, date(2023, 1, 1))
+        self.assertEqual(statustype.datum_einde_geldigheid, date(2023, 12, 1))
 
     def test_create_statustype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -163,6 +171,35 @@ class StatusTypeAPITests(APITestCase):
         self.assertEqual(checklistitem.toelichting, "description")
         self.assertTrue(checklistitem.verplicht)
         self.assertEqual(checklistitem.vraagstelling, "some question")
+
+    def test_create_statustype_with_end_date_before_start_date(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        statustype_list_url = reverse("statustype-list")
+        data = {
+            "omschrijving": "Besluit genomen",
+            "omschrijvingGeneriek": "",
+            "statustekst": "",
+            "zaaktype": "http://testserver{}".format(zaaktype_url),
+            "volgnummer": 2,
+            "checklistitemStatustype": [
+                {
+                    "itemnaam": "item 1",
+                    "toelichting": "description",
+                    "verplicht": True,
+                    "vraagstelling": "some question",
+                }
+            ],
+            "beginGeldigheid": "2023-12-01",
+            "eindeGeldigheid": "2023-01-01",
+        }
+
+        response = self.client.post(statustype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "date-mismatch")
 
     def test_delete_statustype(self):
         statustype = StatusTypeFactory.create()
