@@ -9,7 +9,7 @@ from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 
 from ...models import RolType
-from ..validators import ZaakTypeConceptValidator
+from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
 class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
@@ -38,12 +38,16 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "omschrijving",
             "omschrijving_generiek",
             "catalogus",
+            "begin_geldigheid",
+            "einde_geldigheid",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "zaaktype": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }
-        validators = [ZaakTypeConceptValidator()]
+        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
 
     def get_fields(self):
         fields = super().get_fields()

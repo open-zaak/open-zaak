@@ -26,6 +26,7 @@ from ..validators import (
     ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
     RelationCatalogValidator,
+    StartBeforeEndValidator,
     ZaakTypeConceptValidator,
 )
 
@@ -116,6 +117,8 @@ class ResultaatTypeSerializer(
             "besluittype_omschrijving",
             "informatieobjecttypen",
             "informatieobjecttype_omschrijving",
+            "begin_geldigheid",
+            "einde_geldigheid",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -141,6 +144,8 @@ class ResultaatTypeSerializer(
             },
             "besluittypen": {"lookup_field": "uuid", "required": False},
             "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }
         validators = [
             UniqueTogetherValidator(
@@ -159,6 +164,7 @@ class ResultaatTypeSerializer(
             RelationCatalogValidator(
                 "besluittypen", catalogus_field="zaaktype.catalogus"
             ),
+            StartBeforeEndValidator(),
         ]
 
     def get_fields(self):

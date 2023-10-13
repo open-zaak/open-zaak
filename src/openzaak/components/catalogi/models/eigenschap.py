@@ -11,6 +11,7 @@ from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 
 from ..constants import FormaatChoices
+from .mixins import OptionalGeldigheidMixin
 from .validators import (
     validate_kardinaliteit,
     validate_letters_numbers_underscores_spaces,
@@ -126,7 +127,7 @@ class EigenschapSpecificatie(models.Model):
                     )
 
 
-class Eigenschap(ETagMixin, models.Model):
+class Eigenschap(ETagMixin, OptionalGeldigheidMixin, models.Model):
     """
     Een relevant inhoudelijk gegeven dat bij ZAAKen van dit ZAAKTYPE geregistreerd
     moet kunnen worden en geen standaard kenmerk is van een zaak.
@@ -225,6 +226,8 @@ class Eigenschap(ETagMixin, models.Model):
         verbose_name_plural = _("Eigenschappen")
 
     def clean(self):
+        super().clean()
+
         validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):

@@ -17,10 +17,11 @@ from vng_api_common.descriptors import GegevensGroepType
 
 from openzaak.utils.fields import DurationField
 
+from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
 
 
-class ResultaatType(ETagMixin, models.Model):
+class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
     """
     Het betreft de indeling of groepering van resultaten van zaken van hetzelfde
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', et cetera.
@@ -319,6 +320,8 @@ class ResultaatType(ETagMixin, models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
+        super().clean()
+
         validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):

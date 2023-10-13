@@ -510,3 +510,33 @@ class BronZaakTypeValidator:
 
         if bool(broncatalogus) != bool(bronzaaktype):
             raise ValidationError(self.message, code=self.code)
+
+
+class StartBeforeEndValidator:
+    """
+    Validate that start date is before the end date
+    """
+
+    code = "date-mismatch"
+    message = _("{} should be before {}.")
+    requires_context = True
+
+    def __init__(
+        self, start_date_field="begin_geldigheid", end_date_field="einde_geldigheid"
+    ):
+        self.start_date_field = start_date_field
+        self.end_date_field = end_date_field
+
+    def __call__(self, attrs, serializer):
+        start_date = get_from_serializer_data_or_instance(
+            self.start_date_field, attrs, serializer
+        )
+        end_date = get_from_serializer_data_or_instance(
+            self.end_date_field, attrs, serializer
+        )
+
+        if start_date and end_date and end_date < start_date:
+            raise ValidationError(
+                self.message.format(self.start_date_field, self.end_date_field),
+                code=self.code,
+            )

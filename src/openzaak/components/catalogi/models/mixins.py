@@ -102,6 +102,41 @@ class GeldigheidMixin(models.Model):
                 )
 
 
+class OptionalGeldigheidMixin(models.Model):
+    """
+    used for sub-resources of ZaakType
+    """
+
+    # nullable datum_begin_geldigheid is weird, but it's how it is in the Standard
+    datum_begin_geldigheid = models.DateField(
+        _("datum begin geldigheid"),
+        blank=True,
+        null=True,
+        help_text=_("De datum waarop het is ontstaan."),
+    )
+    datum_einde_geldigheid = models.DateField(
+        _("datum einde geldigheid"),
+        blank=True,
+        null=True,
+        help_text=_("De datum waarop het is opgeheven."),
+    )
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+
+        if self.datum_einde_geldigheid and self.datum_begin_geldigheid:
+            if self.datum_einde_geldigheid < self.datum_begin_geldigheid:
+                raise ValidationError(
+                    _(
+                        "Datum einde geldigheid is gelijk aan of gelegen na de datum zoals opgenomen "
+                        "onder Datum begin geldigheid."
+                    )
+                )
+
+
 class ConceptMixin(models.Model):
     concept = models.BooleanField(
         _("concept"),

@@ -52,7 +52,8 @@ class StatusTypeAdmin(
                     "informeren",
                     "statustekst",
                     "toelichting",
-                    "uuid",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
                 )
             },
         ),

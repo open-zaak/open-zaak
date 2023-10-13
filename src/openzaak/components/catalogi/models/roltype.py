@@ -8,10 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import RolOmschrijving
 
+from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
 
 
-class RolType(ETagMixin, models.Model):
+class RolType(ETagMixin, OptionalGeldigheidMixin, models.Model):
     """
     Generieke aanduiding van de aard van een ROL die een BETROKKENE kan
     uitoefenen in ZAAKen van een ZAAKTYPE.
@@ -63,6 +64,8 @@ class RolType(ETagMixin, models.Model):
         verbose_name_plural = _("Roltypen")
 
     def clean(self):
+        super().clean()
+
         validate_zaaktype_concept(self.zaaktype)
 
     def __str__(self):

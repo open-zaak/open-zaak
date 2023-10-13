@@ -26,7 +26,15 @@ class ZaakObjectTypeAdmin(
     fieldsets = (
         (
             _("Algemeen"),
-            {"fields": ("ander_objecttype", "objecttype", "relatie_omschrijving",)},
+            {
+                "fields": (
+                    "ander_objecttype",
+                    "objecttype",
+                    "relatie_omschrijving",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
+                )
+            },
         ),
         (_("Relaties"), {"fields": ("zaaktype", "statustype")}),
     )

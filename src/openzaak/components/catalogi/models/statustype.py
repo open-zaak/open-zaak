@@ -9,10 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import DaysDurationField
 
+from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
 
 
-class StatusType(ETagMixin, models.Model):
+class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
     """
     Generieke aanduiding van de aard van een STATUS
 
@@ -106,6 +107,8 @@ class StatusType(ETagMixin, models.Model):
         ordering = ("zaaktype", "-statustypevolgnummer")
 
     def clean(self):
+        super().clean()
+
         validate_zaaktype_concept(self.zaaktype)
 
     def is_eindstatus(self):
