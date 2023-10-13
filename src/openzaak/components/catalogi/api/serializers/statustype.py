@@ -58,7 +58,7 @@ class StatusTypeSerializer(
         ),
     )
     zaakobjecttypen = serializers.HyperlinkedRelatedField(
-        view_name="eigenschap-detail",
+        view_name="zaakobjecttype-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",
