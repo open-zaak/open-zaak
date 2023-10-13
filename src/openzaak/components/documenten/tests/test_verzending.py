@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+import uuid
+
 from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 from ..constants import AfzenderTypes, PostAdresTypes
 from ..models import Verzending
@@ -565,3 +567,46 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+
+@require_cmis
+@override_settings(CMIS_ENABLED=True)
+class VerzendingCMISTests(JWTAuthMixin, APICMISTestCase):
+    heeft_alle_autorisaties = True
+
+    def test_verzending_cmis_not_supported(self):
+        informatieobject = EnkelvoudigInformatieObjectFactory.create()
+        uuid_ = uuid.uuid4()
+        endpoints = [
+            ("GET", reverse("verzending-list")),
+            ("PUT", reverse("verzending-detail", kwargs={"uuid": uuid_})),
+            ("PATCH", reverse("verzending-detail", kwargs={"uuid": uuid_})),
+            ("DELETE", reverse("verzending-detail", kwargs={"uuid": uuid_})),
+        ]
+
+        for method, url in endpoints:
+            with self.subTest(f"{method} {url}"):
+                response = self.client.generic(method, url)
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(response.json()["code"], "CMIS not supported")
+
+        # separate test for create because we need input data for permission check
+        url = reverse("verzending-list")
+        with self.subTest(f"POST {url}"):
+            response = self.client.post(
+                url,
+                data={
+                    "informatieobject": f"http://testserver{reverse(informatieobject)}"
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.json()["code"], "CMIS not supported")
+
+        # separate test for retrieve
+        url = reverse("verzending-detail", kwargs={"uuid": uuid_})
+        with self.subTest(f"GET {url}"):
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
