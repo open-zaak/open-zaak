@@ -5309,7 +5309,7 @@ components:
           title: Omschrijving
           description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
           type: string
-          maxLength: 20
+          maxLength: 30
           minLength: 1
         resultaattypeomschrijving:
           title: Resultaattypeomschrijving
