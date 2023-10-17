@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     "drc_cmis",
     "mozilla_django_oidc",
     "mozilla_django_oidc_db",
+    "log_outgoing_requests",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
