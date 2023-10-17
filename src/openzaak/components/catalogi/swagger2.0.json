@@ -5459,7 +5459,7 @@
             "post": {
                 "operationId": "zaaktype_create",
                 "summary": "Maak een ZAAKTYPE aan.",
-                "description": "Maak een ZAAKTYPE aan.\n\nEr wordt gevalideerd op:\n- geldigheid `catalogus` URL, dit moet een catalogus binnen dezelfde API zijn\n- Uniciteit `catalogus` en `omschrijving`. Dezelfde omeschrijving mag enkel\n  opnieuw gebruikt worden als het zaaktype een andere geldigheidsperiode\n  kent dan bestaande zaaktypen.\n- `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.",
+                "description": "Maak een ZAAKTYPE aan.\n\nEr wordt gevalideerd op:\n- geldigheid `catalogus` URL, dit moet een catalogus binnen dezelfde API zijn\n- Uniciteit `catalogus` en `identificatie`. Dezelfde identificatie mag enkel\n  opnieuw gebruikt worden als het zaaktype een andere geldigheidsperiode\n  kent dan bestaande zaaktypen.\n- `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.",
                 "parameters": [
                     {
                         "name": "Content-Type",

@@ -57,7 +57,7 @@ class ZaakTypeViewSet(
 
     Er wordt gevalideerd op:
     - geldigheid `catalogus` URL, dit moet een catalogus binnen dezelfde API zijn
-    - Uniciteit `catalogus` en `omschrijving`. Dezelfde omeschrijving mag enkel
+    - Uniciteit `catalogus` en `identificatie`. Dezelfde identificatie mag enkel
       opnieuw gebruikt worden als het zaaktype een andere geldigheidsperiode
       kent dan bestaande zaaktypen.
     - `deelzaaktypen` moeten tot dezelfde catalogus behoren als het ZAAKTYPE.

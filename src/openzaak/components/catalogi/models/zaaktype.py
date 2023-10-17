@@ -336,7 +336,7 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
     objects = SyncAutorisatieManager()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
-    omschrijving_field = "zaaktype_omschrijving"
+    omschrijving_field = "identificatie"
 
     class Meta:
         verbose_name = _("Zaaktype")

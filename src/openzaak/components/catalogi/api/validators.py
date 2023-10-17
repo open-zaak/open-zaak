@@ -48,7 +48,7 @@ class GeldigheidValidator:
             "einde_geldigheid", attrs, serializer
         )
         omschrijving = get_from_serializer_data_or_instance(
-            "omschrijving", attrs, serializer
+            self.omschrijving_field, attrs, serializer
         )
 
         if has_overlapping_objects(
