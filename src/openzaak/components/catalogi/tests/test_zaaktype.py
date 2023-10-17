@@ -116,8 +116,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "deelzaaktypen": [],
             "zaakobjecttypen": [],
             "verantwoordelijke": zaaktype.verantwoordelijke,
-            "broncatalogus": {"domein": "", "rsin": "", "url": ""},
-            "bronzaaktype": {"identificatie": "", "omschrijving": None, "url": ""},
         }
         self.assertEqual(response_data, expected)
 

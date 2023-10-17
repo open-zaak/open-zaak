@@ -66,7 +66,6 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in de Broncatalogus.",
                 max_length=80,
-                null=True,
                 verbose_name="bronzaaktype omschrijving",
             ),
         ),

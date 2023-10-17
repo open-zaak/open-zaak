@@ -288,15 +288,6 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             " is van de CATALOGUS waaraan het ZAAKTYPE is ontleend."
         ),
     )
-    broncatalogus = GegevensGroepType(
-        {
-            "url": broncatalogus_url,
-            "domein": broncatalogus_domein,
-            "rsin": broncatalogus_rsin,
-        },
-        optional=("url",),
-        required=False,
-    )
 
     bronzaaktype_url = models.URLField(
         _("bronzaaktype url"),
@@ -316,20 +307,10 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         _("bronzaaktype omschrijving"),
         max_length=80,
         blank=True,
-        null=True,
         help_text=_(
             "De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in"
             " de Broncatalogus."
         ),
-    )
-    bronzaaktype = GegevensGroepType(
-        {
-            "url": bronzaaktype_url,
-            "identificatie": bronzaaktype_identificatie,
-            "omschrijving": bronzaaktype_omschrijving,
-        },
-        optional=("url",),
-        required=False,
     )
 
     #
