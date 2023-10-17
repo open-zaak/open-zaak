@@ -163,7 +163,7 @@ class InformatieObjectTypeFilter(FilterSet):
 
     class Meta:
         model = InformatieObjectType
-        fields = ("catalogus", "status")
+        fields = ("catalogus", "status", "omschrijving")
 
 
 class BesluitTypeFilter(FilterSet):
@@ -193,7 +193,13 @@ class BesluitTypeFilter(FilterSet):
 
     class Meta:
         model = BesluitType
-        fields = ("catalogus", "zaaktypen", "informatieobjecttypen", "status")
+        fields = (
+            "catalogus",
+            "zaaktypen",
+            "informatieobjecttypen",
+            "status",
+            "omschrijving",
+        )
 
 
 class CatalogusFilter(FilterSet):

@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ConceptUpdateValidator, M2MConceptUpdateValidator
@@ -601,6 +601,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("informatieobjecttype-list")
 
     def test_filter_informatieobjecttype_status_alles(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -662,6 +663,19 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_omschrijving(self):
+        iotype = InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
+        InformatieObjectTypeFactory.create(omschrijving="other", concept=False)
+
+        response = self.client.get(self.url, {"omschrijving": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
 
 
 class InformatieObjectTypePaginationTestCase(APITestCase):

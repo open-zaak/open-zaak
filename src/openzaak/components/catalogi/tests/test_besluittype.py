@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
@@ -683,6 +683,7 @@ class BesluitTypeAPITests(APITestCase):
 
 class BesluitTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("besluittype-list")
 
     def test_filter_besluittype_status_alles(self):
         BesluitTypeFactory.create(concept=True)
@@ -775,6 +776,19 @@ class BesluitTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_omschrijving(self):
+        besluittype1 = BesluitTypeFactory.create(omschrijving="some", concept=False)
+        BesluitTypeFactory.create(omschrijving="other", concept=False)
+
+        response = self.client.get(self.url, {"omschrijving": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(besluittype1)}")
 
 
 class BesluitTypePaginationTestCase(APITestCase):
