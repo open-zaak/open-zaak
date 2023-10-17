@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 
 import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
+from log_outgoing_requests.formatters import HttpFormatter
 from notifications_api_common.settings import *  # noqa
 
 from ...utils.monitoring import filter_sensitive_data
@@ -257,6 +258,7 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 LOG_STDOUT = config("LOG_STDOUT", default=False)
 LOG_LEVEL = config("LOG_LEVEL", default="WARNING")
 LOG_QUERIES = config("LOG_QUERIES", default=False)
+LOG_REQUESTS = config("LOG_REQUESTS", default=True)
 if LOG_QUERIES and not DEBUG:
     warnings.warn(
         "Requested LOG_QUERIES=1 but DEBUG is false, no query logs will be emited.",
@@ -279,6 +281,7 @@ LOGGING = {
         "simple": {"format": "%(levelname)s  %(message)s"},
         "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
         "db": {"format": "%(asctime)s | %(message)s"},
+        "outgoing_requests": {"()": HttpFormatter},
     },
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
@@ -340,6 +343,16 @@ LOGGING = {
             "filters": ["failed_notification"],
             "class": "openzaak.notifications.handlers.DatabaseLogHandler",
         },
+        "log_outgoing_requests": {
+            "level": "DEBUG",
+            "formatter": "outgoing_requests",
+            "class": "logging.StreamHandler",  # to write to stdout
+        },
+        "save_outgoing_requests": {
+            "level": "DEBUG",
+            # enabling saving to database
+            "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
+        },
     },
     "loggers": {
         "": {"handlers": _root_handlers, "level": "ERROR", "propagate": False,},
@@ -380,6 +393,13 @@ LOGGING = {
                 *_root_handlers,
             ],
             "level": "WARNING",
+            "propagate": True,
+        },
+        "log_outgoing_requests": {
+            "handlers": ["log_outgoing_requests", "save_outgoing_requests"]
+            if LOG_REQUESTS
+            else [],
+            "level": "DEBUG",
             "propagate": True,
         },
     },
@@ -667,6 +687,12 @@ else:
     INSTALLED_APPS = INSTALLED_APPS + [
         "elasticapm.contrib.django",
     ]
+
+
+#
+# LOG OUTGOING REQUESTS
+#
+LOG_OUTGOING_REQUESTS_DB_SAVE = config("LOG_OUTGOING_REQUESTS_DB_SAVE", default=True)
 
 #
 # OpenZaak configuration
