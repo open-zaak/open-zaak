@@ -4,7 +4,7 @@ from datetime import date
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -402,6 +402,7 @@ class StatusTypeAPITests(APITestCase):
 
 class StatusTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("statustype-list")
 
     def test_filter_statustype_status_alles(self):
         StatusTypeFactory.create(zaaktype__concept=True)
@@ -457,6 +458,22 @@ class StatusTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_zaaktype_identificatie(self):
+        statustype = StatusTypeFactory.create(
+            zaaktype__identificatie="some", zaaktype__concept=False
+        )
+        StatusTypeFactory.create(
+            zaaktype__identificatie="other", zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"zaaktypeIdentificatie": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(statustype)}")
 
 
 class StatusTypePaginationTestCase(APITestCase):

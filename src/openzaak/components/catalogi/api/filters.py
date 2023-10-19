@@ -69,10 +69,19 @@ class RolTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = RolType
-        fields = ("zaaktype", "omschrijving_generiek", "status")
+        fields = (
+            "zaaktype",
+            "omschrijving_generiek",
+            "status",
+            "zaaktype_identificatie",
+        )
 
 
 class ZaakTypeInformatieObjectTypeFilter(FilterSet):
@@ -107,10 +116,14 @@ class ResultaatTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = ResultaatType
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "zaaktype_identificatie")
 
 
 class StatusTypeFilter(FilterSet):
@@ -120,10 +133,14 @@ class StatusTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = StatusType
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "zaaktype_identificatie")
 
 
 class EigenschapFilter(FilterSet):
@@ -133,10 +150,14 @@ class EigenschapFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = Eigenschap
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "zaaktype_identificatie")
 
 
 class ZaakTypeFilter(FilterSet):
