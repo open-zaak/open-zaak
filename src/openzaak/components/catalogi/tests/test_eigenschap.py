@@ -833,6 +833,24 @@ class EigenschapFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
 
+    def test_filter_geldigheid(self):
+        eigenschap = EigenschapFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            zaaktype__concept=False,
+        )
+        EigenschapFactory.create(
+            datum_begin_geldigheid=date(2020, 2, 1), zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
+
 
 class EigenschapPaginationTestCase(APITestCase):
     maxDiff = None

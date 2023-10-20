@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from datetime import date
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -674,6 +676,24 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
 
         data = response.json()["results"]
 
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
+
+    def test_filter_geldigheid(self):
+        iotype = InformatieObjectTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            concept=False,
+        )
+        InformatieObjectTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 2, 1), concept=False
+        )
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
 
