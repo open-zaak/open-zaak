@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("zgw_consumers", "0016_auto_20220818_1412"),
         ("catalogi", "0015_auto_20230908_1438"),
-        ("zaken", "0027_auto_20230830_1358"),
+        ("zaken", "0028_alter_spoorbaandeel_type"),
     ]
 
     operations = [
