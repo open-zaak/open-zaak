@@ -30,6 +30,16 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
         lookup_field="uuid",
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = ZaakObjectType
@@ -45,6 +55,8 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
             "catalogus",
             "begin_geldigheid",
             "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

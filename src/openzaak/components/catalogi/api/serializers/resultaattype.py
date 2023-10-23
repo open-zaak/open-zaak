@@ -94,6 +94,16 @@ class ResultaatTypeSerializer(
             "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = ResultaatType
@@ -119,6 +129,8 @@ class ResultaatTypeSerializer(
             "informatieobjecttype_omschrijving",
             "begin_geldigheid",
             "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

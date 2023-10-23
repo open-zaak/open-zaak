@@ -28,6 +28,16 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = RolType
@@ -40,6 +50,8 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "catalogus",
             "begin_geldigheid",
             "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

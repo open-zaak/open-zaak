@@ -91,6 +91,8 @@ class StatusTypeAPITests(APITestCase):
             "zaakobjecttypen": [f"http://testserver{reverse(zaakobjecttype)}"],
             "beginGeldigheid": None,
             "eindeGeldigheid": None,
+            "beginObject": None,
+            "eindeObject": None,
         }
 
         self.assertEqual(expected, response.json())

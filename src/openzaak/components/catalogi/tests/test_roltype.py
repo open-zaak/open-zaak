@@ -60,6 +60,8 @@ class RolTypeAPITests(APITestCase):
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
             "beginGeldigheid": "2023-01-01",
             "eindeGeldigheid": "2023-12-01",
+            "beginObject": "2023-01-01",
+            "eindeObject": "2023-12-01",
         }
         self.assertEqual(expected, response.json())
 

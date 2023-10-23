@@ -160,6 +160,8 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "besluittypeOmschrijving": [],
                 "beginGeldigheid": None,
                 "eindeGeldigheid": None,
+                "beginObject": None,
+                "eindeObject": None,
             },
         )
 

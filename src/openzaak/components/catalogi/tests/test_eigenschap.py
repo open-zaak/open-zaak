@@ -119,6 +119,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                 "statustype": None,
                 "beginGeldigheid": "2023-01-01",
                 "eindeGeldigheid": "2023-12-01",
+                "beginObject": "2023-01-01",
+                "eindeObject": "2023-12-01",
             },
         )
 
@@ -177,6 +179,8 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "statustype": f"http://testserver{reverse(statustype)}",
             "beginGeldigheid": None,
             "eindeGeldigheid": None,
+            "beginObject": None,
+            "eindeObject": None,
         }
         self.assertEqual(expected, response.json())
 
