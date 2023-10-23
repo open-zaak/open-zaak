@@ -288,7 +288,7 @@ face==20.1.1
     #   glom
 factory-boy==3.2.1
     # via -r requirements/ci.txt
-faker==13.3.2
+faker==19.11.0
     # via
     #   -r requirements/ci.txt
     #   factory-boy
@@ -549,7 +549,7 @@ requests==2.28.1
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/ci.txt
-requests-mock==1.9.3
+requests-mock==1.11.0
     # via
     #   -r requirements/ci.txt
     #   zgw-consumers
@@ -698,7 +698,7 @@ wrapt==1.14.1
     #   -r requirements/ci.txt
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.26.2
+zgw-consumers==0.27.0
     # via
     #   -r requirements/ci.txt
     #   notifications-api-common

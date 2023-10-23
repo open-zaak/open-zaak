@@ -194,7 +194,7 @@ elastic-apm==6.13.2
     # via -r requirements/base.in
 face==20.1.1
     # via glom
-faker==13.3.2
+faker==19.11.0
     # via zgw-consumers
 flower==1.2.0
     # via -r requirements/base.in
@@ -316,7 +316,7 @@ requests==2.28.1
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
-requests-mock==1.9.3
+requests-mock==1.11.0
     # via zgw-consumers
 ruamel-yaml==0.17.21
     # via drf-yasg
@@ -369,7 +369,7 @@ wrapt==1.14.1
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.26.2
+zgw-consumers==0.27.0
     # via
     #   -r requirements/base.in
     #   notifications-api-common
