@@ -28,6 +28,8 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | resultaattypen | Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten van het BESLUITTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | resultaattypenOmschrijving | Omschrijving van de aard van resultaten van het RESULTAATTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | vastgelegdIn | Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## Catalogus
 
@@ -81,6 +83,10 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | zaaktypeIdentificatie | Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | statustype | Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een STATUS van het STATUSTYPE kan worden gezet. | string | nee | C​R​U​D |
+| beginGeldigheid | De datum waarop het is ontstaan. | string | nee | C​R​U​D |
+| eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## InformatieObjectType
 
@@ -110,6 +116,8 @@ Uitleg bij mogelijke waarden:
 | informatieobjectcategorie | Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE. | string | ja | C​R​U​D |
 | trefwoord | Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.) | array | nee | C​R​U​D |
 | zaaktypen | URL-referenties naar de ZAAKTYPEN | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ResultaatType
 
@@ -140,6 +148,10 @@ Uitleg bij mogelijke waarden:
 | besluittypeOmschrijving | Omschrijving van de aard van BESLUITen van het BESLUITTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | informatieobjecttypen | De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van dit RESULTAATTYPE kan worden gezet. | array | nee | C​R​U​D |
 | informatieobjecttypeOmschrijving | Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginGeldigheid | De datum waarop het is ontstaan. | string | nee | C​R​U​D |
+| eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## RolType
 
@@ -164,6 +176,10 @@ Uitleg bij mogelijke waarden:
 * `zaakcoordinator` - Zaakcoördinator
 * `mede_initiator` - Mede-initiator | string | ja | C​R​U​D |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginGeldigheid | De datum waarop het is ontstaan. | string | nee | C​R​U​D |
+| eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## CheckListItem
 
@@ -197,6 +213,10 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | eigenschappen | de EIGENSCHAPpen die verplicht een waarde moeten hebben gekregen, voordat een STATUS van dit STATUSTYPE kan worden gezet. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | zaakobjecttypen | de ZAAKOBJECTTYPEN die verplicht een waarde moeten hebben gekregen, voordat een STATUS van dit STATUSTYPE kan worden gezet. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginGeldigheid | De datum waarop het is ontstaan. | string | nee | C​R​U​D |
+| eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ZaakObjectType
 
@@ -213,6 +233,10 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | resultaattypen | URL-referenties naar de RESULTAATTYPEN. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | statustype | URL-referentie naar het STATUSTYPE | string | nee | C​R​U​D |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| beginGeldigheid | De datum waarop het is ontstaan. | string | nee | C​R​U​D |
+| eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ZaakTypeInformatieObjectType
 
@@ -298,11 +322,13 @@ Uitleg bij mogelijke waarden:
 | verantwoordingsrelatie | De relatie tussen ZAAKen van dit ZAAKTYPE en de beleidsmatige en/of financiële verantwoording. | array | nee | C​R​U​D |
 | productenOfDiensten | Het product of de dienst die door ZAAKen van dit ZAAKTYPE wordt voortgebracht. | array | ja | C​R​U​D |
 | selectielijstProcestype | URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst API). | string | nee | C​R​U​D |
+| concept | Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
+| verantwoordelijke | De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE. | string | ja | C​R​U​D |
 | beginGeldigheid | De datum waarop het is ontstaan. | string | ja | C​R​U​D |
 | eindeGeldigheid | De datum waarop het is opgeheven. | string | nee | C​R​U​D |
 | versiedatum | De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE geldig zijn geworden | string | ja | C​R​U​D |
-| concept | Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
-| verantwoordelijke | De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE. | string | ja | C​R​U​D |
+| beginObject | De datum waarop de eerst versie van het object ontstaan is. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| eindeObject | De datum van de aller laatste versie van het object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | catalogus | URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort. | string | ja | C​R​U​D |
 | statustypen | URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | resultaattypen | URL-referenties naar de RESULTAATTYPEN die mogelijk zijn binnen dit ZAAKTYPE. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
