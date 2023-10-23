@@ -140,6 +140,7 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | zaak | URL-referentie naar de ZAAK. | string | ja | C​R​U​D |
 | object | URL-referentie naar de resource die het OBJECT beschrijft. | string | nee | C​R​U​D |
+| zaakobjecttype | URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API). | string | nee | C​R​U​D |
 | objectType | Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
 
 Uitleg bij mogelijke waarden:

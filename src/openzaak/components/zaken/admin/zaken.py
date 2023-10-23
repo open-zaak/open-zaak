@@ -113,7 +113,7 @@ class ZaakObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__uuid",
     )
     ordering = ("object_type", "object")
-    raw_id_fields = ("zaak",)
+    raw_id_fields = ("zaak", "_zaakobjecttype_base_url", "_zaakobjecttype")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakObjectViewSet"
     inlines = [
         AdresInline,

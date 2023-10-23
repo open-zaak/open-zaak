@@ -42,6 +42,9 @@ def get_informatieobjecttype_response(
         "vertrouwelijkheidaanduiding": "openbaar",
         "beginGeldigheid": "2019-11-18",
         "concept": False,
+        "zaaktypen": [],
+        "besluittypen": [],
+        "informatieobjectcategorie": "some category",
     }
 
 

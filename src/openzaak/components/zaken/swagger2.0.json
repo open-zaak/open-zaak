@@ -7143,6 +7143,13 @@
                     "format": "uri",
                     "maxLength": 1000
                 },
+                "zaakobjecttype": {
+                    "title": "Zaakobjecttype",
+                    "description": "URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).",
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 1000
+                },
                 "objectType": {
                     "title": "Object type",
                     "description": "Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.\n\nUitleg bij mogelijke waarden:\n\n* `adres` - Adres\n* `besluit` - Besluit\n* `buurt` - Buurt\n* `enkelvoudig_document` - Enkelvoudig document\n* `gemeente` - Gemeente\n* `gemeentelijke_openbare_ruimte` - Gemeentelijke openbare ruimte\n* `huishouden` - Huishouden\n* `inrichtingselement` - Inrichtingselement\n* `kadastrale_onroerende_zaak` - Kadastrale onroerende zaak\n* `kunstwerkdeel` - Kunstwerkdeel\n* `maatschappelijke_activiteit` - Maatschappelijke activiteit\n* `medewerker` - Medewerker\n* `natuurlijk_persoon` - Natuurlijk persoon\n* `niet_natuurlijk_persoon` - Niet-natuurlijk persoon\n* `openbare_ruimte` - Openbare ruimte\n* `organisatorische_eenheid` - Organisatorische eenheid\n* `pand` - Pand\n* `spoorbaandeel` - Spoorbaandeel\n* `status` - Status\n* `terreindeel` - Terreindeel\n* `terrein_gebouwd_object` - Terrein gebouwd object\n* `vestiging` - Vestiging\n* `waterdeel` - Waterdeel\n* `wegdeel` - Wegdeel\n* `wijk` - Wijk\n* `woonplaats` - Woonplaats\n* `woz_deelobject` - Woz deel object\n* `woz_object` - Woz object\n* `woz_waarde` - Woz waarde\n* `zakelijk_recht` - Zakelijk recht\n* `overige` - Overige",
