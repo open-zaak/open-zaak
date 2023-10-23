@@ -174,11 +174,14 @@ class AuditTrailAdminMixin(object):
         else:
             main_object = data[viewset.audit.main_resource]
 
+        action_labels = dict(
+            zip(CommonResourceAction.names, CommonResourceAction.labels)
+        )
         trail = AuditTrail(
             bron=viewset.audit.component_name,
             applicatie_weergave="admin",
             actie=action,
-            actie_weergave=CommonResourceAction.labels.get(action, ""),
+            actie_weergave=action_labels.get(action, ""),
             gebruikers_id=request.user.id,
             gebruikers_weergave=request.user.get_full_name(),
             resultaat=0,

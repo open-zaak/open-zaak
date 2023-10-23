@@ -98,7 +98,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "titel": titel,
                 "beschrijving": beschrijving,
                 "registratiedatum": "2018-09-19T10:25:19Z",
-                "aardRelatieWeergave": RelatieAarden.labels[RelatieAarden.hoort_bij],
+                "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
                 "vernietigingsdatum": "2023-01-02T00:00:00Z",
             }
         )
@@ -196,7 +196,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "uuid": str(zio.uuid),
             "informatieobject": f"http://testserver{io_url}",
             "zaak": f"http://testserver{zaak_url}",
-            "aardRelatieWeergave": RelatieAarden.labels[RelatieAarden.hoort_bij],
+            "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
             "titel": "",
             "beschrijving": "",
             "registratiedatum": "2018-09-20T12:00:00Z",

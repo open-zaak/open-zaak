@@ -1,92 +1,87 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from djchoices import ChoiceItem, DjangoChoices
 
-
-class BetalingsIndicatie(DjangoChoices):
-    nvt = ChoiceItem(
-        "nvt", _("Er is geen sprake van te betalen, met de zaak gemoeide, kosten.")
+class BetalingsIndicatie(models.TextChoices):
+    nvt = "nvt", _("Er is geen sprake van te betalen, met de zaak gemoeide, kosten.")
+    nog_niet = "nog_niet", _("De met de zaak gemoeide kosten zijn (nog) niet betaald.")
+    gedeeltelijk = (
+        "gedeeltelijk",
+        _("De met de zaak gemoeide kosten zijn gedeeltelijk betaald."),
     )
-    nog_niet = ChoiceItem(
-        "nog_niet", _("De met de zaak gemoeide kosten zijn (nog) niet betaald.")
-    )
-    gedeeltelijk = ChoiceItem(
-        "gedeeltelijk", _("De met de zaak gemoeide kosten zijn gedeeltelijk betaald.")
-    )
-    geheel = ChoiceItem(
-        "geheel", _("De met de zaak gemoeide kosten zijn geheel betaald.")
-    )
+    geheel = "geheel", _("De met de zaak gemoeide kosten zijn geheel betaald.")
 
 
-class GeslachtsAanduiding(DjangoChoices):
-    man = ChoiceItem("m", "Man")
-    vrouw = ChoiceItem("v", "Vrouw")
-    onbekend = ChoiceItem("o", "Onbekend")
+class GeslachtsAanduiding(models.TextChoices):
+    man = "m", _("Man")
+    vrouw = "v", _("Vrouw")
+    onbekend = "o", _("Onbekend")
 
 
-class SoortRechtsvorm(DjangoChoices):
-    besloten_vennootschap = ChoiceItem("besloten_vennootschap", "Besloten Vennootschap")
-    cooperatie_europees_economische_samenwerking = ChoiceItem(
+class SoortRechtsvorm(models.TextChoices):
+    besloten_vennootschap = "besloten_vennootschap", _("Besloten Vennootschap")
+    cooperatie_europees_economische_samenwerking = (
         "cooperatie_europees_economische_samenwerking",
-        "Cooperatie, Europees Economische Samenwerking",
+        _("Cooperatie, Europees Economische Samenwerking"),
     )
-    europese_cooperatieve_vennootschap = ChoiceItem(
-        "europese_cooperatieve_venootschap", "Europese Cooperatieve Venootschap"
+    europese_cooperatieve_vennootschap = (
+        "europese_cooperatieve_venootschap",
+        _("Europese Cooperatieve Venootschap"),
     )
-    europese_naamloze_vennootschap = ChoiceItem(
-        "europese_naamloze_vennootschap", "Europese Naamloze Vennootschap"
+    europese_naamloze_vennootschap = (
+        "europese_naamloze_vennootschap",
+        _("Europese Naamloze Vennootschap"),
     )
-    kerkelijke_organisatie = ChoiceItem(
-        "kerkelijke_organisatie", "Kerkelijke Organisatie"
+    kerkelijke_organisatie = "kerkelijke_organisatie", _("Kerkelijke Organisatie")
+    naamloze_vennootschap = "naamloze_vennootschap", _("Naamloze Vennootschap")
+    onderlinge_waarborg_maatschappij = (
+        "onderlinge_waarborg_maatschappij",
+        _("Onderlinge Waarborg Maatschappij"),
     )
-    naamloze_vennootschap = ChoiceItem("naamloze_vennootschap", "Naamloze Vennootschap")
-    onderlinge_waarborg_maatschappij = ChoiceItem(
-        "onderlinge_waarborg_maatschappij", "Onderlinge Waarborg Maatschappij"
-    )
-    overig_privaatrechtelijke_rechtspersoon = ChoiceItem(
+    overig_privaatrechtelijke_rechtspersoon = (
         "overig_privaatrechtelijke_rechtspersoon",
-        "Overig privaatrechtelijke rechtspersoon",
+        _("Overig privaatrechtelijke rechtspersoon"),
     )
-    stichting = ChoiceItem("stichting", "Stichting")
-    vereniging = ChoiceItem("vereniging", "Vereniging")
-    vereniging_van_eigenaars = ChoiceItem(
-        "vereniging_van_eigenaars", "Vereniging van Eigenaars"
+    stichting = "stichting", _("Stichting")
+    vereniging = "vereniging", _("Vereniging")
+    vereniging_van_eigenaars = "vereniging_van_eigenaars", _("Vereniging van Eigenaars")
+    publiekrechtelijke_rechtspersoon = (
+        "publiekrechtelijke_rechtspersoon",
+        _("Publiekrechtelijke Rechtspersoon"),
     )
-    publiekrechtelijke_rechtspersoon = ChoiceItem(
-        "publiekrechtelijke_rechtspersoon", "Publiekrechtelijke Rechtspersoon"
+    vennootschap_onder_firma = "vennootschap_onder_firma", _("Vennootschap onder Firma")
+    maatschap = "maatschap", _("Maatschap")
+    rederij = "rederij", _("Rederij")
+    commanditaire_vennootschap = (
+        "commanditaire_vennootschap",
+        _("Commanditaire vennootschap"),
     )
-    vennootschap_onder_firma = ChoiceItem(
-        "vennootschap_onder_firma", "Vennootschap onder Firma"
+    kapitaalvennootschap_binnen_eer = (
+        "kapitaalvennootschap_binnen_eer",
+        _("Kapitaalvennootschap binnen EER"),
     )
-    maatschap = ChoiceItem("maatschap", "Maatschap")
-    rederij = ChoiceItem("rederij", "Rederij")
-    commanditaire_vennootschap = ChoiceItem(
-        "commanditaire_vennootschap", "Commanditaire vennootschap"
-    )
-    kapitaalvennootschap_binnen_eer = ChoiceItem(
-        "kapitaalvennootschap_binnen_eer", "Kapitaalvennootschap binnen EER"
-    )
-    overige_buitenlandse_rechtspersoon_vennootschap = ChoiceItem(
+    overige_buitenlandse_rechtspersoon_vennootschap = (
         "overige_buitenlandse_rechtspersoon_vennootschap",
-        "Overige buitenlandse rechtspersoon vennootschap",
+        _("Overige buitenlandse rechtspersoon vennootschap"),
     )
-    kapitaalvennootschap_buiten_eer = ChoiceItem(
-        "kapitaalvennootschap_buiten_eer", "Kapitaalvennootschap buiten EER"
+    kapitaalvennootschap_buiten_eer = (
+        "kapitaalvennootschap_buiten_eer",
+        _("Kapitaalvennootschap buiten EER"),
     )
 
 
-class AardZaakRelatie(DjangoChoices):
-    vervolg = ChoiceItem(
+class AardZaakRelatie(models.TextChoices):
+    vervolg = (
         "vervolg",
         _("De andere zaak gaf aanleiding tot het starten van de onderhanden zaak."),
     )
-    onderwerp = ChoiceItem(
+    onderwerp = (
         "onderwerp",
         _("De andere zaak is relevant voor cq. is onderwerp van de onderhanden zaak."),
     )
-    bijdrage = ChoiceItem(
+    bijdrage = (
         "bijdrage",
         _(
             "Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage."
@@ -95,66 +90,65 @@ class AardZaakRelatie(DjangoChoices):
 
 
 # for zaaokbject models
-class TyperingInrichtingselement(DjangoChoices):
-    bak = ChoiceItem("bak", "Bak")
-    bord = ChoiceItem("bord", "Bord")
-    installatie = ChoiceItem("installatie", "Installatie")
-    kast = ChoiceItem("kast", "Kast")
-    mast = ChoiceItem("mast", "Mast")
-    paal = ChoiceItem("paal", "Paal")
-    sensor = ChoiceItem("sensor", "Sensor")
-    straatmeubilair = ChoiceItem("straatmeubilair", "Straatmeubilair")
-    waterinrichtingselement = ChoiceItem(
-        "waterinrichtingselement", "Waterinrichtingselement"
-    )
-    weginrichtingselement = ChoiceItem("weginrichtingselement", "Weginrichtingselement")
+class TyperingInrichtingselement(models.TextChoices):
+    bak = "bak", _("Bak")
+    bord = "bord", _("Bord")
+    installatie = "installatie", _("Installatie")
+    kast = "kast", _("Kast")
+    mast = "mast", _("Mast")
+    paal = "paal", _("Paal")
+    sensor = "sensor", _("Sensor")
+    straatmeubilair = "straatmeubilair", _("Straatmeubilair")
+    waterinrichtingselement = "waterinrichtingselement", _("Waterinrichtingselement")
+    weginrichtingselement = "weginrichtingselement", _("Weginrichtingselement")
 
 
-class TyperingKunstwerk(DjangoChoices):
-    keermuur = ChoiceItem("keermuur", "Keermuur")
-    overkluizing = ChoiceItem("overkluizing", "Overkluizing")
-    duiker = ChoiceItem("duiker", "Duiker")
-    faunavoorziening = ChoiceItem("faunavoorziening", "Faunavoorziening")
-    vispassage = ChoiceItem("vispassage", "Vispassage")
-    bodemval = ChoiceItem("bodemval", "Bodemval")
-    coupure = ChoiceItem("coupure", "Coupure")
-    ponton = ChoiceItem("ponton", "Ponton")
-    voorde = ChoiceItem("voorde", "Voorde")
-    hoogspanningsmast = ChoiceItem("hoogspanningsmast", "Hoogspanningsmast")
-    gemaal = ChoiceItem("gemaal", "Gemaal")
-    perron = ChoiceItem("perron", "Perron")
-    sluis = ChoiceItem("sluis", "Sluis")
-    strekdam = ChoiceItem("strekdam", "Strekdam")
-    steiger = ChoiceItem("steiger", "Steiger")
-    stuw = ChoiceItem("stuw", "Stuw")
+class TyperingKunstwerk(models.TextChoices):
+    keermuur = "keermuur", _("Keermuur")
+    overkluizing = "overkluizing", _("Overkluizing")
+    duiker = "duiker", _("Duiker")
+    faunavoorziening = "faunavoorziening", _("Faunavoorziening")
+    vispassage = "vispassage", _("Vispassage")
+    bodemval = "bodemval", _("Bodemval")
+    coupure = "coupure", _("Coupure")
+    ponton = "ponton", _("Ponton")
+    voorde = "voorde", _("Voorde")
+    hoogspanningsmast = "hoogspanningsmast", _("Hoogspanningsmast")
+    gemaal = "gemaal", _("Gemaal")
+    perron = "perron", _("Perron")
+    sluis = "sluis", _("Sluis")
+    strekdam = "strekdam", _("Strekdam")
+    steiger = "steiger", _("Steiger")
+    stuw = "stuw", _("Stuw")
 
 
-class TyperingWater(DjangoChoices):
-    zee = ChoiceItem("zee", "Zee")
-    waterloop = ChoiceItem("waterloop", "Waterloop")
-    watervlakte = ChoiceItem("watervlakte", "Watervlakte")
-    greppel_droge_sloot = ChoiceItem("greppel_droge_sloot", "Greppel, droge sloot")
+class TyperingWater(models.TextChoices):
+    zee = "zee", _("Zee")
+    waterloop = "waterloop", _("Waterloop")
+    watervlakte = "watervlakte", _("Watervlakte")
+    greppel_droge_sloot = "greppel_droge_sloot", _("Greppel, droge sloot")
 
 
-class TypeSpoorbaan(DjangoChoices):
-    breedspoor = ChoiceItem("breedspoor")
-    normaalspoor = ChoiceItem("normaalspoor")
-    smalspoor = ChoiceItem("smalspoor")
-    spoorbaan = ChoiceItem("spoorbaan")
+# openzaak.components.zaken.constants.TypeSpoorbaan
+class TypeSpoorbaan(models.TextChoices):
+    breedspoor = "breedspoor", _("Breedspoor")
+    normaalspoor = "normaalspoor", _("Normaalspoor")
+    smalspoor = "smalspoor", _("Smalspoor")
+    spoorbaan = "spoorbaan", _("Spoorbaan")
 
 
-class IndicatieMachtiging(DjangoChoices):
-    gemachtigde = ChoiceItem(
+class IndicatieMachtiging(models.TextChoices):
+    gemachtigde = (
         "gemachtigde",
         _(
             "De betrokkene in de rol bij de zaak is door een andere betrokkene bij "
             "dezelfde zaak gemachtigd om namens hem of haar te handelen"
         ),
     )
-    machtiginggever = ChoiceItem(
+    machtiginggever = (
         "machtiginggever",
         _(
-            "De betrokkene in de rol bij de zaak heeft een andere betrokkene "
-            "bij dezelfde zaak gemachtigd om namens hem of haar te handelen"
+            "De betrokkene in de rol bij de zaak heeft een andere betrokkene bij "
+            "dezelfde zaak gemachtigd om namens hem of haar te handelen"
         ),
     )

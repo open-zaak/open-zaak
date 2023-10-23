@@ -80,7 +80,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
                 "titel": titel,
                 "beschrijving": beschrijving,
                 "registratiedatum": "2018-09-19T10:25:19Z",
-                "aardRelatieWeergave": RelatieAarden.labels[RelatieAarden.hoort_bij],
+                "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
             }
         )
 
@@ -201,7 +201,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
             "uuid": str(zio.uuid),
             "informatieobject": eio_url,
             "zaak": f"http://testserver{zaak_url}",
-            "aardRelatieWeergave": RelatieAarden.labels[RelatieAarden.hoort_bij],
+            "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
             "titel": "",
             "beschrijving": "",
             "registratiedatum": "2018-09-20T12:00:00Z",
