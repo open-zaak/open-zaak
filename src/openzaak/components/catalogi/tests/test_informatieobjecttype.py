@@ -77,6 +77,7 @@ class InformatieObjectTypeAPITests(APITestCase):
                 "opmerkingInformatieobjecttypeOmschrijvingGeneriek": iotype.omschrijving_generiek_opmerking,
             },
             "informatieobjectcategorie": iotype.informatieobjectcategorie,
+            "zaaktypen": [],
         }
         self.assertEqual(expected, response.json())
 

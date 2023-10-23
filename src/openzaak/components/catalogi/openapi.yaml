@@ -5214,6 +5214,15 @@ components:
             minLength: 1
         omschrijvingGeneriek:
           $ref: '#/components/schemas/OmschrijvingGeneriek'
+        zaaktypen:
+          description: URL-referenties naar de ZAAKTYPEN
+          type: array
+          items:
+            description: URL-referenties naar de ZAAKTYPEN
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
     BrondatumArchiefprocedure:
       description: Specificatie voor het bepalen van de brondatum voor de start van
         de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -5940,14 +5949,12 @@ components:
           description: Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           type: string
           maxLength: 5
-          minLength: 1
         rsin:
           title: Rsin
           description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
             is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           type: string
           maxLength: 9
-          minLength: 1
     BronZaaktype:
       description: Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend.
       required:
@@ -5966,14 +5973,12 @@ components:
           description: De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.
           type: string
           maxLength: 50
-          minLength: 1
         omschrijving:
           title: Omschrijving
           description: De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd
             in de Broncatalogus.
           type: string
           maxLength: 80
-          minLength: 1
     ZaakTypenRelatie:
       description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.
       required:

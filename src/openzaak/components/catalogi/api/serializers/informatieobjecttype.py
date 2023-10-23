@@ -47,6 +47,12 @@ class InformatieObjectTypeSerializer(
                 "many": True,
                 "help_text": _("URL-referenties naar de BESLUITTYPEN"),
             },
+            "zaaktypen": {
+                "lookup_field": "uuid",
+                "read_only": True,
+                "many": True,
+                "help_text": _("URL-referenties naar de ZAAKTYPEN"),
+            },
         }
         fields = (
             "url",
@@ -60,6 +66,7 @@ class InformatieObjectTypeSerializer(
             "informatieobjectcategorie",
             "trefwoord",
             "omschrijving_generiek",
+            "zaaktypen",
         )
         validators = [
             GeldigheidValidator(),

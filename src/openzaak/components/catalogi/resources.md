@@ -109,6 +109,7 @@ Uitleg bij mogelijke waarden:
 | besluittypen | URL-referenties naar de BESLUITTYPEN | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 | informatieobjectcategorie | Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE. | string | ja | C​R​U​D |
 | trefwoord | Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.) | array | nee | C​R​U​D |
+| zaaktypen | URL-referenties naar de ZAAKTYPEN | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## ResultaatType
 

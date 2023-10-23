@@ -6648,6 +6648,17 @@
                 },
                 "omschrijvingGeneriek": {
                     "$ref": "#/definitions/OmschrijvingGeneriek"
+                },
+                "zaaktypen": {
+                    "description": "URL-referenties naar de ZAAKTYPEN",
+                    "type": "array",
+                    "items": {
+                        "description": "URL-referenties naar de ZAAKTYPEN",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "readOnly": true,
+                    "uniqueItems": true
                 }
             }
         },
@@ -7300,15 +7311,13 @@
                     "title": "Domein",
                     "description": "Het domein van de CATALOGUS waaraan het ZAAKTYPE is ontleend.",
                     "type": "string",
-                    "maxLength": 5,
-                    "minLength": 1
+                    "maxLength": 5
                 },
                 "rsin": {
                     "title": "Rsin",
                     "description": "Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.",
                     "type": "string",
-                    "maxLength": 9,
-                    "minLength": 1
+                    "maxLength": 9
                 }
             }
         },
@@ -7331,15 +7340,13 @@
                     "title": "Identificatie",
                     "description": "De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS.",
                     "type": "string",
-                    "maxLength": 50,
-                    "minLength": 1
+                    "maxLength": 50
                 },
                 "omschrijving": {
                     "title": "Omschrijving",
                     "description": "De Zaaktype-omschrijving van het bronzaaktype, zoals gehanteerd in de Broncatalogus.",
                     "type": "string",
-                    "maxLength": 80,
-                    "minLength": 1
+                    "maxLength": 80
                 }
             }
         },
