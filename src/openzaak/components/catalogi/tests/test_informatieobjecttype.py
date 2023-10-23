@@ -78,6 +78,8 @@ class InformatieObjectTypeAPITests(APITestCase):
             },
             "informatieobjectcategorie": iotype.informatieobjectcategorie,
             "zaaktypen": [],
+            "beginObject": "2019-01-01",
+            "eindeObject": None,
         }
         self.assertEqual(expected, response.json())
 

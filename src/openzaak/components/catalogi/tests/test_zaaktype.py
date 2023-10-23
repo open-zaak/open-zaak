@@ -116,6 +116,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "deelzaaktypen": [],
             "zaakobjecttypen": [],
             "verantwoordelijke": zaaktype.verantwoordelijke,
+            "beginObject": "2018-01-01",
+            "eindeObject": None,
         }
         self.assertEqual(response_data, expected)
 
