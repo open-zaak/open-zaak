@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documenten", "0028_alter_enkelvoudiginformatieobject_taal"),
+        ("documenten", "0029_verzending"),
     ]
 
     operations = [
