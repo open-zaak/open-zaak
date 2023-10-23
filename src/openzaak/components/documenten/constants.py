@@ -46,11 +46,11 @@ class ObjectInformatieObjectTypes(models.TextChoices):
     verzoek = constants.VERZOEK_CHOICE
 
 
-class AfzenderTypes(DjangoChoices):
-    afzender = ChoiceItem("afzender", _("Afzender"))
-    geadresseerde = ChoiceItem("geadresseerde", _("Geadresseerde"))
+class AfzenderTypes(models.TextChoices):
+    afzender = "afzender", _("Afzender")
+    geadresseerde = "geadresseerde", _("Geadresseerde")
 
 
-class PostAdresTypes(DjangoChoices):
-    antwoordnummer = ChoiceItem("antwoordnummer", _("Antwoordnummer"))
-    postbusnummer = ChoiceItem("postbusnummer", _("Postbusnummer"))
+class PostAdresTypes(models.TextChoices):
+    antwoordnummer = "antwoordnummer", _("Antwoordnummer")
+    postbusnummer = "postbusnummer", _("Postbusnummer")
