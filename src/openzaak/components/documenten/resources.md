@@ -139,5 +139,25 @@ Uitleg bij mogelijke waarden:
 * `zaak` - Zaak
 * `verzoek` - Verzoek | string | ja | C​R​U​D |
 
+## Verzending
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/verzending)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url | URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| betrokkene | URL-referentie naar de betrokkene waarvan het informatieobject is ontvangen of waaraan dit is verzonden. | string | ja | C​R​U​D |
+| informatieobject | URL-referentie naar het informatieobject dat is ontvangen of verzonden. | string | ja | C​R​U​D |
+| aardRelatie | Omschrijving van de aard van de relatie van de BETROKKENE tot het INFORMATIEOBJECT. | string | ja | C​R​U​D |
+| toelichting | Verduidelijking van de afzender- of geadresseerde-relatie. | string | nee | C​R​U​D |
+| ontvangstdatum | De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt. Vervangt het gelijknamige attribuut uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde &#x27;afzender&#x27; heeft. | string | nee | C​R​U​D |
+| verzenddatum | De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt. Vervangt het gelijknamige attribuut uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde &#x27;geadresseerde&#x27; heeft. | string | nee | C​R​U​D |
+| contactPersoon | URL-referentie naar de persoon die als aanspreekpunt fungeert voor de BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT. | string | ja | C​R​U​D |
+| contactpersoonnaam | De opgemaakte naam van de persoon die als aanspreekpunt fungeert voorde BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT. | string | nee | C​R​U​D |
+| faxnummer | faxnummer van de ontvanger of afzender. | string | nee | C​R​U​D |
+| emailadres | emailadres van de ontvanger of afzender. | string | nee | C​R​U​D |
+| mijnOverheid | is het informatieobject verzonden via mijnOverheid naar de ontvanger. | boolean | nee | C​R​U​D |
+| telefoonnummer | telefoonnummer van de ontvanger of afzender. | string | nee | C​R​U​D |
+
 
 * Create, Read, Update, Delete

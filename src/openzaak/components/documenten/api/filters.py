@@ -16,6 +16,7 @@ from ..models import (
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
+    Verzending,
 )
 from .utils import check_path
 
@@ -103,3 +104,19 @@ class ObjectInformatieObjectFilter(FilterSet):
             qs._result_cache = None
             return qs
         return super().filter_queryset(queryset)
+
+
+class VerzendingFilter(FilterSet):
+    informatieobject = URLModelChoiceFilter(
+        queryset=EnkelvoudigInformatieObjectCanonical.objects.all(),
+        instance_path="canonical",
+        help_text=get_help_text("documenten.Verzending", "informatieobject"),
+    )
+
+    class Meta:
+        model = Verzending
+        fields = {
+            "aard_relatie": ["exact"],
+            "informatieobject": ["exact"],
+            "betrokkene": ["exact"],
+        }

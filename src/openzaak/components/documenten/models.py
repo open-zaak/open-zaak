@@ -5,6 +5,7 @@ import uuid as _uuid
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -24,6 +25,7 @@ from zgw_consumers.models import ServiceUrlField
 from openzaak.utils.fields import (
     AliasServiceUrlField,
     FkOrServiceUrlField,
+    NLPostcodeField,
     RelativeURLField,
     ServiceFkField,
 )
@@ -33,9 +35,11 @@ from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
 from .caching import CMISETagMixin
 from .constants import (
+    AfzenderTypes,
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
     OndertekeningSoorten,
+    PostAdresTypes,
     Statussen,
 )
 from .managers import (
@@ -43,7 +47,11 @@ from .managers import (
     GebruiksrechtenAdapterManager,
     ObjectInformatieObjectAdapterManager,
 )
-from .query.django import BestandsDeelQuerySet, InformatieobjectQuerySet
+from .query.django import (
+    BestandsDeelQuerySet,
+    InformatieobjectQuerySet,
+    InformatieobjectRelatedQuerySet,
+)
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
@@ -957,3 +965,303 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
             return ZaakInformatieObject.objects.filter(
                 informatieobject=self.informatieobject, zaak=self.zaak
             ).exists()
+
+
+# gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
+class Verzending(CMISETagMixin, models.Model):
+    uuid = models.UUIDField(
+        unique=True,
+        default=_uuid.uuid4,
+        help_text="Unieke resource identifier (UUID4)",
+    )
+    betrokkene = models.URLField(
+        _("betrokkene"),
+        help_text=_(
+            "URL-referentie naar de betrokkene waarvan het informatieobject is"
+            " ontvangen of waaraan dit is verzonden."
+        ),
+    )
+    informatieobject = models.ForeignKey(
+        "EnkelvoudigInformatieObjectCanonical",
+        verbose_name=_("informatieobject"),
+        help_text=_(
+            "URL-referentie naar het informatieobject dat is ontvangen of verzonden."
+        ),
+        on_delete=models.CASCADE,
+        related_name="verzendingen",
+    )
+    aard_relatie = models.CharField(
+        _("aard relatie"),
+        max_length=255,
+        choices=AfzenderTypes.choices,
+        help_text=_(
+            "Omschrijving van de aard van de relatie van de BETROKKENE tot het"
+            " INFORMATIEOBJECT."
+        ),
+    )
+
+    telefoonnummer = models.CharField(
+        _("telefoonnummer"),
+        max_length=15,
+        help_text=_("telefoonnummer van de ontvanger of afzender."),
+        blank=True,
+    )
+    faxnummer = models.CharField(
+        _("faxnummer"),
+        max_length=15,
+        help_text=_("faxnummer van de ontvanger of afzender."),
+        blank=True,
+    )
+    emailadres = models.EmailField(
+        _("emailadres"),
+        max_length=100,
+        help_text=_("emailadres van de ontvanger of afzender."),
+        blank=True,
+    )
+    mijn_overheid = models.BooleanField(
+        _("mijn overheid"),
+        default=False,
+        help_text=_(
+            "is het informatieobject verzonden via mijnOverheid naar de ontvanger."
+        ),
+    )
+    toelichting = models.CharField(
+        _("toelichting"),
+        max_length=200,
+        help_text=_("Verduidelijking van de afzender- of geadresseerde-relatie."),
+        blank=True,
+    )
+
+    ontvangstdatum = models.DateField(
+        _("ontvangstdatum"),
+        help_text=_(
+            "De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te"
+            " registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende"
+            " organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden"
+            " aan documenten die van of naar andere personen ontvangen of verzonden"
+            " zijn waarbij die personen niet deel uit maken van de behandeling van"
+            " de zaak waarin het document een rol speelt. Vervangt het gelijknamige"
+            " attribuut uit Informatieobject. Verplicht gevuld wanneer aardRelatie"
+            " de waarde 'afzender' heeft."
+        ),
+        blank=True,
+        null=True,
+    )
+
+    verzenddatum = models.DateField(
+        _("verzenddatum"),
+        help_text=_(
+            "De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze"
+            " op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende"
+            " als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan"
+            " niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending"
+            " is voorbehouden aan documenten die van of naar andere personen"
+            " ontvangen of verzonden zijn waarbij die personen niet deel uit"
+            " maken van de behandeling van de zaak waarin het document een rol"
+            " speelt. Vervangt het gelijknamige attribuut uit Informatieobject."
+            " Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde' heeft."
+        ),
+        blank=True,
+        null=True,
+    )
+
+    contact_persoon = models.URLField(
+        _("contactpersoon"),
+        help_text=_(
+            "URL-referentie naar de persoon die als aanspreekpunt fungeert voor"
+            " de BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT."
+        ),
+        max_length=1000,
+    )
+    contactpersoonnaam = models.CharField(
+        _("contactpersoonnaam"),
+        help_text=_(
+            "De opgemaakte naam van de persoon die als aanspreekpunt fungeert voor"
+            "de BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT."
+        ),
+        max_length=40,
+        blank=True,
+    )
+
+    binnenlands_correspondentieadres_huisletter = models.CharField(
+        _("huisletter"),
+        help_text=(
+            "Een door of namens het bevoegd gemeentelijk orgaan ten aanzien van een"
+            " adresseerbaar object toegekende toevoeging aan een huisnummer in de"
+            " vorm van een alfanumeriek teken."
+        ),
+        max_length=1,
+        blank=True,
+    )
+    binnenlands_correspondentieadres_huisnummer = models.PositiveIntegerField(
+        _("huisnummer"),
+        help_text=(
+            "Een door of namens het bevoegd gemeentelijk orgaan ten aanzien van"
+            " een adresseerbaar object toegekende nummering."
+        ),
+        validators=[MinValueValidator(1), MaxValueValidator(99999)],
+        blank=True,
+        null=True,
+    )
+    binnenlands_correspondentieadres_huisnummer_toevoeging = models.CharField(
+        _("huisnummer toevoeging"),
+        help_text=(
+            "Een door of namens het bevoegd gemeentelijk orgaan ten aanzien van"
+            " een adresseerbaar object toegekende nadere toevoeging aan een huisnummer"
+            " of een combinatie van huisnummer en huisletter."
+        ),
+        max_length=4,
+        blank=True,
+    )
+    binnenlands_correspondentieadres_naam_openbare_ruimte = models.CharField(
+        _("naam openbare ruimte"),
+        help_text=(
+            "Een door het bevoegde gemeentelijke orgaan aan een GEMEENTELIJKE "
+            " OPENBARE RUIMTE toegekende benaming."
+        ),
+        max_length=80,
+        blank=True,
+    )
+    binnenlands_correspondentieadres_postcode = NLPostcodeField(
+        _("postcode"),
+        help_text=_(
+            "De door TNT Post vastgestelde code behorende bij een bepaalde combinatie"
+            " van een naam van een woonplaats, naam van een openbare ruimte en een huisnummer."
+        ),
+        blank=True,
+    )
+    binnenlands_correspondentieadres_woonplaatsnaam = models.CharField(
+        _("woonplaatsnaam"),
+        help_text=(
+            "De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS toegekende"
+            " benaming."
+        ),
+        max_length=80,
+        blank=True,
+    )
+    binnenlands_correspondentieadres = GegevensGroepType(
+        {
+            "huisletter": binnenlands_correspondentieadres_huisletter,
+            "huisnummer": binnenlands_correspondentieadres_huisnummer,
+            "huisnummer_toevoeging": binnenlands_correspondentieadres_huisnummer_toevoeging,
+            "naam_openbare_ruimte": binnenlands_correspondentieadres_naam_openbare_ruimte,
+            "postcode": binnenlands_correspondentieadres_postcode,
+            "woonplaatsnaam": binnenlands_correspondentieadres_woonplaatsnaam,
+        },
+        required=False,
+        optional=("huisletter", "huisnummer_toevoeging", "postcode",),
+    )
+
+    buitenlands_correspondentieadres_adres_buitenland_1 = models.CharField(
+        _("adres buitenland 1"),
+        max_length=35,
+        help_text=_(
+            "Het eerste deel dat behoort bij het afwijkend buitenlandse correspondentieadres"
+            " van de betrokkene in zijn/haar rol bij de zaak."
+        ),
+        blank=True,
+    )
+    buitenlands_correspondentieadres_adres_buitenland_2 = models.CharField(
+        _("adres buitenland 2"),
+        max_length=35,
+        help_text=_(
+            "Het tweede deel dat behoort bij het afwijkend buitenlandse correspondentieadres"
+            " van de betrokkene in zijn/haar rol bij de zaak."
+        ),
+        blank=True,
+    )
+    buitenlands_correspondentieadres_adres_buitenland_3 = models.CharField(
+        _("adres buitenland 3"),
+        max_length=35,
+        help_text=_(
+            "Het derde deel dat behoort bij het afwijkend buitenlandse correspondentieadres"
+            " van de betrokkene in zijn/haar rol bij de zaak."
+        ),
+        blank=True,
+    )
+    buitenlands_correspondentieadres_land_postadres = models.URLField(
+        _("land postadres"),
+        help_text=_(
+            "Het LAND dat behoort bij het afwijkend buitenlandse correspondentieadres"
+            " van de betrokkene in zijn/haar rol bij de zaak."
+        ),
+        blank=True,
+    )
+    buitenlands_correspondentieadres = GegevensGroepType(
+        {
+            "adres_buitenland_1": buitenlands_correspondentieadres_adres_buitenland_1,
+            "adres_buitenland_2": buitenlands_correspondentieadres_adres_buitenland_2,
+            "adres_buitenland_3": buitenlands_correspondentieadres_adres_buitenland_3,
+            "land_postadres": buitenlands_correspondentieadres_land_postadres,
+        },
+        required=False,
+        optional=("adres_buitenland_2", "adres_buitenland_3",),
+    )
+
+    correspondentie_postadres_postbus_of_antwoord_nummer = models.PositiveIntegerField(
+        _("postbus-of antwoordnummer"),
+        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        help_text=_(
+            "De numerieke aanduiding zoals deze door de Nederlandse PTT is vastgesteld"
+            " voor postbusadressen en antwoordnummeradressen."
+        ),
+        blank=True,
+        null=True,
+    )
+    correspondentie_postadres_postcode = NLPostcodeField(
+        _("postadres postcode"),
+        help_text=_(
+            "De officiële Nederlandse PTT codering, bestaande uit een numerieke"
+            " woonplaatscode en een alfabetische lettercode."
+        ),
+        blank=True,
+    )
+    correspondentie_postadres_postadrestype = models.CharField(
+        _("postadrestype"),
+        max_length=255,
+        choices=PostAdresTypes.choices,
+        help_text=_("Aanduiding van het soort postadres."),
+        blank=True,
+    )
+    correspondentie_postadres_woonplaatsnaam = models.CharField(
+        _("woonplaatsnaam"),
+        max_length=80,
+        help_text=_(
+            "De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS toegekende"
+            " benaming."
+        ),
+        blank=True,
+    )
+    correspondentie_postadres = GegevensGroepType(
+        {
+            "post_bus_of_antwoordnummer": correspondentie_postadres_postbus_of_antwoord_nummer,
+            "postadres_postcode": correspondentie_postadres_postcode,
+            "postadres_type": correspondentie_postadres_postadrestype,
+            "woonplaatsnaam": correspondentie_postadres_woonplaatsnaam,
+        },
+        required=False,
+    )
+
+    objects = InformatieobjectRelatedQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _("Verzending")
+        verbose_name_plural = _("Verzendingen")
+
+    def __str__(self):
+        return _("Verzending %(uuid)s") % {"uuid": str(self.uuid)}
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise NotImplementedError("CMIS is not supported for Verzending")
+
+        super().save(*args, **kwargs)
+
+    def get_informatieobject(self, permission_main_object=None):
+        if settings.CMIS_ENABLED:
+            raise NotImplementedError("CMIS is not supported for Verzending")
+        elif permission_main_object:
+            return getattr(self, permission_main_object).latest_version
+        else:
+            return self.informatieobject.latest_version

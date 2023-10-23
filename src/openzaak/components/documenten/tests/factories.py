@@ -11,6 +11,7 @@ Factory models for the documenten application.
     creation.
 """
 import datetime
+import string
 
 from django.test import RequestFactory
 from django.utils import timezone
@@ -22,6 +23,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
+from ..constants import AfzenderTypes, PostAdresTypes
 from ..models import BestandsDeel
 
 
@@ -106,3 +108,46 @@ class BestandsDeelFactory(factory.django.DjangoModelFactory):
             else self.informatieobject.bestandsdelen
         )
         return existing_bestandsdelen.count() + 1
+
+
+class VerzendingFactory(factory.django.DjangoModelFactory):
+    informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
+    betrokkene = factory.Faker("url")
+    aard_relatie = factory.fuzzy.FuzzyChoice(AfzenderTypes.values)
+    contact_persoon = factory.Faker("url")
+
+    class Meta:
+        model = "documenten.Verzending"
+
+    class Params:
+        has_inner_address = factory.Trait(
+            binnenlands_correspondentieadres_huisnummer=factory.fuzzy.FuzzyInteger(
+                low=1, high=100
+            ),
+            binnenlands_correspondentieadres_naam_openbare_ruimte=factory.Faker(
+                "city", locale="nl_NL"
+            ),
+            binnenlands_correspondentieadres_woonplaatsnaam=factory.Faker(
+                "city", locale="nl_NL"
+            ),
+        )
+        has_outer_address = factory.Trait(
+            buitenlands_correspondentieadres_adres_buitenland_1=factory.Faker(
+                "street_address"
+            ),
+            buitenlands_correspondentieadres_land_postadres=factory.Faker("url"),
+        )
+        has_post_address = factory.Trait(
+            correspondentie_postadres_postbus_of_antwoord_nummer=factory.fuzzy.FuzzyInteger(
+                low=1, high=9999
+            ),
+            correspondentie_postadres_postcode=factory.Faker(
+                "pystr_format", string_format="%###??", letters=string.ascii_uppercase
+            ),
+            correspondentie_postadres_postadrestype=factory.fuzzy.FuzzyChoice(
+                PostAdresTypes.values
+            ),
+            correspondentie_postadres_woonplaatsnaam=factory.Faker(
+                "city", locale="nl_NL"
+            ),
+        )

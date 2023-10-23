@@ -38,8 +38,8 @@ info:
     \ URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).\n* `vertrouwelijkheidaanduiding`:\
     \ Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd\
     \ is.\n\n**Resources en acties**\n- `enkelvoudiginformatieobject`: create, update,\
-    \ destroy\n- `gebruiksrechten`: create, update, destroy\n\n\n**Handige links**\n\
-    \n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
+    \ destroy\n- `gebruiksrechten`: create, update, destroy\n- `verzending`: create,\
+    \ update, destroy\n\n\n**Handige links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
     * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
     \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
@@ -1912,6 +1912,414 @@ paths:
       schema:
         type: string
         format: uuid
+  /verzendingen:
+    get:
+      operationId: verzending_list
+      summary: Alle VERZENDINGen opvragen.
+      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      parameters:
+      - name: aardRelatie
+        in: query
+        description: Omschrijving van de aard van de relatie van de BETROKKENE tot
+          het INFORMATIEOBJECT.
+        required: false
+        schema:
+          type: string
+          enum:
+          - afzender
+          - geadresseerde
+      - name: informatieobject
+        in: query
+        description: URL-referentie naar het informatieobject dat is ontvangen of
+          verzonden.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: betrokkene
+        in: query
+        description: URL-referentie naar de betrokkene waarvan het informatieobject
+          is ontvangen of waaraan dit is verzonden.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: page
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.lezen
+    post:
+      operationId: verzending_create
+      summary: Maak een VERZENDING aan.
+      description: Voeg VERZENDINGen toe voor een INFORMATIEOBJECT en een BETROKKENE.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '201':
+          description: Created
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.aanmaken
+    parameters: []
+  /verzendingen/{uuid}:
+    get:
+      operationId: verzending_read
+      summary: Een specifieke VERZENDING opvragen.
+      description: Een specifieke VERZENDING opvragen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.lezen
+    head:
+      operationId: verzending_headers
+      summary: De headers voor een specifiek(e) VERZENDING opvragen
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      parameters:
+      - name: If-None-Match
+        in: header
+        description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
+          n of meerdere ETag-waardes bevatten van resources die de consumer gecached\
+          \ heeft. Indien de waarde van de ETag van de huidige resource voorkomt in\
+          \ deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie\
+          \ [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)\
+          \ voor meer informatie."
+        required: false
+        examples:
+          oneValue:
+            summary: "E\xE9n ETag-waarde"
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+          multipleValues:
+            summary: Meerdere ETag-waardes
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          headers:
+            ETag:
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+              schema:
+                type: string
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.lezen
+    put:
+      operationId: verzending_update
+      summary: Werk een VERZENDING in zijn geheel bij.
+      description: Werk een VERZENDING in zijn geheel bij.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
+    patch:
+      operationId: verzending_partial_update
+      summary: Werk een VERZENDING relatie deels bij.
+      description: Werk een VERZENDING relatie deels bij.
+      parameters:
+      - name: Content-Type
+        in: header
+        description: Content type van de verzoekinhoud.
+        required: true
+        schema:
+          type: string
+          enum:
+          - application/json
+      requestBody:
+        $ref: '#/components/requestBodies/Verzending'
+      responses:
+        '200':
+          description: OK
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verzending'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.bijwerken
+    delete:
+      operationId: verzending_delete
+      summary: Verwijder een VERZENDING.
+      description: Verwijder een VERZENDING.
+      responses:
+        '204':
+          description: No content
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - verzendingen
+      security:
+      - JWT-Claims:
+        - documenten.verwijderen
+    parameters:
+    - name: uuid
+      in: path
+      description: Unieke resource identifier (UUID4)
+      required: true
+      schema:
+        type: string
+        format: uuid
 tags:
 - name: enkelvoudiginformatieobjecten
   description: ''
@@ -1922,6 +2330,8 @@ tags:
     een
 
     ZAAK in de Zaken API, en een INFORMATIEOBJECT.'
+- name: verzendingen
+  description: ''
 servers:
 - url: /documenten/api/v1
 components:
@@ -2059,6 +2469,12 @@ components:
           schema:
             $ref: '#/components/schemas/Fout'
   requestBodies:
+    Verzending:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Verzending'
+      required: true
     ObjectInformatieObject:
       content:
         application/json:
@@ -3525,3 +3941,249 @@ components:
           - besluit
           - zaak
           - verzoek
+    BinnenlandsCorrespondentieadresVerzending:
+      description: Het correspondentieadres, betreffende een adresseerbaar object,
+        van de BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het
+        ontvangen of verzonden INFORMATIEOBJECT indien dat afwijkt van het reguliere
+        binnenlandse correspondentieadres van BETROKKENE.
+      required:
+      - huisnummer
+      - naamOpenbareRuimte
+      - woonplaatsnaam
+      type: object
+      properties:
+        huisletter:
+          title: Huisletter
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende toevoeging aan een huisnummer
+            in de vorm van een alfanumeriek teken.
+          type: string
+          maxLength: 1
+        huisnummer:
+          title: Huisnummer
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende nummering.
+          type: integer
+          maximum: 99999
+          minimum: 1
+        huisnummerToevoeging:
+          title: Huisnummer toevoeging
+          description: Een door of namens het bevoegd gemeentelijk orgaan ten aanzien
+            van een adresseerbaar object toegekende nadere toevoeging aan een huisnummer
+            of een combinatie van huisnummer en huisletter.
+          type: string
+          maxLength: 4
+        naamOpenbareRuimte:
+          title: Naam openbare ruimte
+          description: Een door het bevoegde gemeentelijke orgaan aan een GEMEENTELIJKE  OPENBARE
+            RUIMTE toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+        postcode:
+          title: Postcode
+          description: De door TNT Post vastgestelde code behorende bij een bepaalde
+            combinatie van een naam van een woonplaats, naam van een openbare ruimte
+            en een huisnummer.
+          type: string
+          pattern: ^[1-9][0-9]{3} ?[A-Z]{2}$
+          maxLength: 6
+        woonplaatsnaam:
+          title: Woonplaatsnaam
+          description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
+            toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+      nullable: true
+    BuitenlandsCorrespondentieadresVerzending:
+      description: De gegevens van het adres in het buitenland van BETROKKENE, zijnde
+        afzender of geadresseerde, zoals vermeld in het ontvangen of verzonden INFORMATIEOBJECT
+        en dat afwijkt van de reguliere correspondentiegegevens van BETROKKENE.
+      required:
+      - adresBuitenland_1
+      - landPostadres
+      type: object
+      properties:
+        adresBuitenland_1:
+          title: Adres buitenland 1
+          description: Het eerste deel dat behoort bij het afwijkend buitenlandse
+            correspondentieadres van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+          minLength: 1
+        adresBuitenland_2:
+          title: Adres buitenland 2
+          description: Het tweede deel dat behoort bij het afwijkend buitenlandse
+            correspondentieadres van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+        adresBuitenland_3:
+          title: Adres buitenland 3
+          description: Het derde deel dat behoort bij het afwijkend buitenlandse correspondentieadres
+            van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          maxLength: 35
+        landPostadres:
+          title: Land postadres
+          description: Het LAND dat behoort bij het afwijkend buitenlandse correspondentieadres
+            van de betrokkene in zijn/haar rol bij de zaak.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+      nullable: true
+    BuitenlandsCorrespondentiepostadresVerzending:
+      description: De gegevens die tezamen een postbusadres of antwoordnummeradres
+        vormen van BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in
+        het ontvangen of verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere
+        correspondentiegegevens van BETROKKENE.
+      required:
+      - postBusOfAntwoordnummer
+      - postadresPostcode
+      - postadresType
+      - woonplaatsnaam
+      type: object
+      properties:
+        postBusOfAntwoordnummer:
+          title: Postbus-of antwoordnummer
+          description: De numerieke aanduiding zoals deze door de Nederlandse PTT
+            is vastgesteld voor postbusadressen en antwoordnummeradressen.
+          type: integer
+          maximum: 9999
+          minimum: 1
+        postadresPostcode:
+          title: Postadres postcode
+          description: "De offici\xEBle Nederlandse PTT codering, bestaande uit een\
+            \ numerieke woonplaatscode en een alfabetische lettercode."
+          type: string
+          pattern: ^[1-9][0-9]{3} ?[A-Z]{2}$
+          maxLength: 6
+          minLength: 1
+        postadresType:
+          title: Postadrestype
+          description: Aanduiding van het soort postadres.
+          type: string
+          enum:
+          - antwoordnummer
+          - postbusnummer
+        woonplaatsnaam:
+          title: Woonplaatsnaam
+          description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
+            toegekende benaming.
+          type: string
+          maxLength: 80
+          minLength: 1
+      nullable: true
+    Verzending:
+      required:
+      - betrokkene
+      - informatieobject
+      - aardRelatie
+      - contactPersoon
+      type: object
+      properties:
+        url:
+          title: Url
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 1000
+          minLength: 1
+        betrokkene:
+          title: Betrokkene
+          description: URL-referentie naar de betrokkene waarvan het informatieobject
+            is ontvangen of waaraan dit is verzonden.
+          type: string
+          format: uri
+          maxLength: 200
+          minLength: 1
+        informatieobject:
+          title: Informatieobject
+          description: URL-referentie naar het informatieobject dat is ontvangen of
+            verzonden.
+          type: string
+          format: uri
+        aardRelatie:
+          title: Aard relatie
+          description: Omschrijving van de aard van de relatie van de BETROKKENE tot
+            het INFORMATIEOBJECT.
+          type: string
+          enum:
+          - afzender
+          - geadresseerde
+        toelichting:
+          title: Toelichting
+          description: Verduidelijking van de afzender- of geadresseerde-relatie.
+          type: string
+          maxLength: 200
+        ontvangstdatum:
+          title: Ontvangstdatum
+          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
+            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
+            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
+            aan documenten die van of naar andere personen ontvangen of verzonden
+            zijn waarbij die personen niet deel uit maken van de behandeling van de
+            zaak waarin het document een rol speelt. Vervangt het gelijknamige attribuut
+            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'afzender'
+            heeft.
+          type: string
+          format: date
+          nullable: true
+        verzenddatum:
+          title: Verzenddatum
+          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
+            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
+            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
+            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
+            documenten die van of naar andere personen ontvangen of verzonden zijn
+            waarbij die personen niet deel uit maken van de behandeling van de zaak
+            waarin het document een rol speelt. Vervangt het gelijknamige attribuut
+            uit Informatieobject. Verplicht gevuld wanneer aardRelatie de waarde 'geadresseerde'
+            heeft.
+          type: string
+          format: date
+          nullable: true
+        contactPersoon:
+          title: Contactpersoon
+          description: URL-referentie naar de persoon die als aanspreekpunt fungeert
+            voor de BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT.
+          type: string
+          format: uri
+          maxLength: 1000
+          minLength: 1
+        contactpersoonnaam:
+          title: Contactpersoonnaam
+          description: De opgemaakte naam van de persoon die als aanspreekpunt fungeert
+            voorde BETROKKENE inzake het ontvangen of verzonden INFORMATIEOBJECT.
+          type: string
+          maxLength: 40
+        binnenlandsCorrespondentieadres:
+          $ref: '#/components/schemas/BinnenlandsCorrespondentieadresVerzending'
+        buitenlandsCorrespondentieadres:
+          $ref: '#/components/schemas/BuitenlandsCorrespondentieadresVerzending'
+        correspondentiePostadres:
+          $ref: '#/components/schemas/BuitenlandsCorrespondentiepostadresVerzending'
+        faxnummer:
+          title: Faxnummer
+          description: faxnummer van de ontvanger of afzender.
+          type: string
+          maxLength: 15
+        emailadres:
+          title: Emailadres
+          description: emailadres van de ontvanger of afzender.
+          type: string
+          format: email
+          maxLength: 100
+        mijnOverheid:
+          title: Mijn overheid
+          description: is het informatieobject verzonden via mijnOverheid naar de
+            ontvanger.
+          type: boolean
+        telefoonnummer:
+          title: Telefoonnummer
+          description: telefoonnummer van de ontvanger of afzender.
+          type: string
+          maxLength: 15
