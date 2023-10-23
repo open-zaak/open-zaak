@@ -32,6 +32,14 @@ class InformatieObjectTypeSerializer(
         required=False,
         help_text=_("Algemeen gehanteerde omschrijving van het informatieobjecttype."),
     )
+    begin_object = serializers.DateField(
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = InformatieObjectType
@@ -67,6 +75,8 @@ class InformatieObjectTypeSerializer(
             "trefwoord",
             "omschrijving_generiek",
             "zaaktypen",
+            "begin_object",
+            "einde_object",
         )
         validators = [
             GeldigheidValidator(),

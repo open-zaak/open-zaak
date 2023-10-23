@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework.serializers import (
+    DateField,
     HyperlinkedModelSerializer,
     HyperlinkedRelatedField,
     ModelSerializer,
@@ -179,6 +180,14 @@ class ZaakTypeSerializer(
             "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
+    begin_object = DateField(
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = DateField(
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = ZaakType
@@ -207,13 +216,16 @@ class ZaakTypeSerializer(
             "producten_of_diensten",
             "selectielijst_procestype",
             "referentieproces",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "versiedatum",
             "concept",
             "verantwoordelijke",
             "broncatalogus",
             "bronzaaktype",
+            # dates
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "versiedatum",
+            "begin_object",
+            "einde_object",
             # relations
             "catalogus",
             "statustypen",
