@@ -41,10 +41,10 @@ django-filter
 djangorestframework-camel-case~=1.2.0
 drf-yasg
 drf-writable-nested
-git+https://github.com/maykinmedia/commonground-api-common
+commonground-api-common
 notifications-api-common
 humanize
-git+https://github.com/open-zaak/cmis-adapter
+drc-cmis
 
 # WSGI servers & monitoring - production oriented
 uwsgi
