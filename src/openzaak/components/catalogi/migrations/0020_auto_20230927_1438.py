@@ -12,7 +12,7 @@ import vng_api_common.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("catalogi", "0018_fill_zaaktype_verantwoordelijke"),
+        ("catalogi", "0019_fill_zaaktype_verantwoordelijke"),
     ]
 
     operations = [

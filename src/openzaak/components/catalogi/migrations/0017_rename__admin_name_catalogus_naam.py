@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("catalogi", "0015_auto_20230908_1438"),
+        ("catalogi", "0016_alter_resultaattype_omschrijving"),
     ]
 
     operations = [

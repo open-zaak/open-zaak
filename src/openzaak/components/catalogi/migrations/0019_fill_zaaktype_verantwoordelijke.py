@@ -23,7 +23,7 @@ def fill_zaaktype_verantwoordelijke(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("catalogi", "0017_auto_20230919_1225"),
+        ("catalogi", "0018_auto_20230919_1225"),
     ]
 
     operations = [

@@ -11,7 +11,7 @@ import vng_api_common.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("catalogi", "0016_rename__admin_name_catalogus_naam"),
+        ("catalogi", "0017_rename__admin_name_catalogus_naam"),
     ]
 
     operations = [
