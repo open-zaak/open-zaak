@@ -413,6 +413,10 @@ class EnkelvoudigInformatieObject(
         ),
         db_index=True,
     )
+    verschijningsvorm = models.TextField(
+        blank=True,
+        help_text=_("De essentiële opmaakaspecten van een INFORMATIEOBJECT."),
+    )
 
     # When dealing with remote EIO, there is no pk or canonical instance to derive
     # the lock status from. The getters and setters then use this private attribute.
