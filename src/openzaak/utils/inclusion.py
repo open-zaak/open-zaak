@@ -18,8 +18,6 @@ from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer as _InclusionJSONRenderer,
 )
 
-from connection_pooling.connections import use_connection_pool
-
 from .serializer_fields import LooseFKHyperlinkedRelatedField
 
 
@@ -175,7 +173,6 @@ class InclusionJSONRenderer(_InclusionJSONRenderer, CamelCaseJSONRenderer):
     loader_class = InclusionLoader
     response_data_key = "results"
 
-    @use_connection_pool
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return super().render(data, accepted_media_type, renderer_context)
 

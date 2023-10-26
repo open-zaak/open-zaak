@@ -13,8 +13,6 @@ from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
 from vng_api_common.descriptors import GegevensGroepType
 
-from connection_pooling.connections import get_session
-
 
 class AuthorizedRequestsLoader(BaseLoader):
     """
@@ -30,10 +28,8 @@ class AuthorizedRequestsLoader(BaseLoader):
         client_auth_header = Service.get_auth_header(url)
         headers = client_auth_header or {}
 
-        session = get_session()
-
         try:
-            response = session.get(url, headers=headers)
+            response = requests.get(url, headers=headers)
         except requests.exceptions.RequestException as exc:
             raise FetchError(exc.args[0]) from exc
 
