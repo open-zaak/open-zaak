@@ -271,7 +271,7 @@ djangorestframework-camel-case==1.2.0
     #   notifications-api-common
 djangorestframework-gis==0.18
     # via -r requirements/ci.txt
-djangorestframework-inclusions @ git+https://github.com/isprojects/djangorestframework-inclusions.git@c2ff654254e4ef7dbadd264004b70e0efce44327
+djangorestframework-inclusions==1.2.0
     # via -r requirements/ci.txt
 docutils==0.17.1
     # via
