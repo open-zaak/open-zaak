@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.1.0"
+        "version": "1.3.0"
     },
     "basePath": "/documenten/api/v1",
     "consumes": [
@@ -3455,7 +3455,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -3648,7 +3648,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -3863,7 +3863,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -4197,7 +4197,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -4525,7 +4525,7 @@
             },
             "x-nullable": true
         },
-        "BuitenlandsCorrespondentiepostadresVerzending": {
+        "CorrespondentiePostadresVerzending": {
             "description": "De gegevens die tezamen een postbusadres of antwoordnummeradres vormen van BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen of verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere correspondentiegegevens van BETROKKENE.",
             "required": [
                 "postBusOfAntwoordnummer",
@@ -4651,7 +4651,7 @@
                     "$ref": "#/definitions/BuitenlandsCorrespondentieadresVerzending"
                 },
                 "correspondentiePostadres": {
-                    "$ref": "#/definitions/BuitenlandsCorrespondentiepostadresVerzending"
+                    "$ref": "#/definitions/CorrespondentiePostadresVerzending"
                 },
                 "faxnummer": {
                     "title": "Faxnummer",

@@ -49,7 +49,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.1.0
+  version: 1.3.0
 security:
 - JWT-Claims: []
 paths:
@@ -2844,16 +2844,13 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `in_bewerking` - In bewerking
 
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar
-            moet nog vastgesteld worden.
+            * `ter_vaststelling` - Ter vaststelling
 
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand
-            vastgesteld dan wel ontvangen.
+            * `definitief` - Definitief
 
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar
-            gemaakt; een gearchiveerd informatie-element.'
+            * `gearchiveerd` - Gearchiveerd'
           type: string
           enum:
           - in_bewerking
@@ -3074,16 +3071,13 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `in_bewerking` - In bewerking
 
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar
-            moet nog vastgesteld worden.
+            * `ter_vaststelling` - Ter vaststelling
 
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand
-            vastgesteld dan wel ontvangen.
+            * `definitief` - Definitief
 
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar
-            gemaakt; een gearchiveerd informatie-element.'
+            * `gearchiveerd` - Gearchiveerd'
           type: string
           enum:
           - in_bewerking
@@ -3322,16 +3316,13 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `in_bewerking` - In bewerking
 
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar
-            moet nog vastgesteld worden.
+            * `ter_vaststelling` - Ter vaststelling
 
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand
-            vastgesteld dan wel ontvangen.
+            * `definitief` - Definitief
 
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar
-            gemaakt; een gearchiveerd informatie-element.'
+            * `gearchiveerd` - Gearchiveerd'
           type: string
           enum:
           - in_bewerking
@@ -3713,16 +3704,13 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `in_bewerking` - In bewerking
 
-            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar
-            moet nog vastgesteld worden.
+            * `ter_vaststelling` - Ter vaststelling
 
-            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand
-            vastgesteld dan wel ontvangen.
+            * `definitief` - Definitief
 
-            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar
-            gemaakt; een gearchiveerd informatie-element.'
+            * `gearchiveerd` - Gearchiveerd'
           type: string
           enum:
           - in_bewerking
@@ -4049,7 +4037,7 @@ components:
           maxLength: 200
           minLength: 1
       nullable: true
-    BuitenlandsCorrespondentiepostadresVerzending:
+    CorrespondentiePostadresVerzending:
       description: De gegevens die tezamen een postbusadres of antwoordnummeradres
         vormen van BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in
         het ontvangen of verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere
@@ -4181,7 +4169,7 @@ components:
         buitenlandsCorrespondentieadres:
           $ref: '#/components/schemas/BuitenlandsCorrespondentieadresVerzending'
         correspondentiePostadres:
-          $ref: '#/components/schemas/BuitenlandsCorrespondentiepostadresVerzending'
+          $ref: '#/components/schemas/CorrespondentiePostadresVerzending'
         faxnummer:
           title: Faxnummer
           description: faxnummer van de ontvanger of afzender.

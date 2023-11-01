@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.1.1"
+        "version": "1.2.1"
     },
     "basePath": "/catalogi/api/v1",
     "consumes": [
@@ -73,6 +73,20 @@
                             "definitief",
                             "concept"
                         ]
+                    },
+                    {
+                        "name": "omschrijving",
+                        "in": "query",
+                        "description": "Omschrijving van de aard van BESLUITen van het BESLUITTYPE.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
                     },
                     {
                         "name": "page",
@@ -1123,6 +1137,20 @@
                         ]
                     },
                     {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zaaktypeIdentificatie",
+                        "in": "query",
+                        "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -1704,6 +1732,20 @@
                             "definitief",
                             "concept"
                         ]
+                    },
+                    {
+                        "name": "omschrijving",
+                        "in": "query",
+                        "description": "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
                     },
                     {
                         "name": "page",
@@ -2374,6 +2416,20 @@
                         ]
                     },
                     {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zaaktypeIdentificatie",
+                        "in": "query",
+                        "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -2974,6 +3030,20 @@
                         ]
                     },
                     {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zaaktypeIdentificatie",
+                        "in": "query",
+                        "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -3554,6 +3624,20 @@
                             "definitief",
                             "concept"
                         ]
+                    },
+                    {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zaaktypeIdentificatie",
+                        "in": "query",
+                        "description": "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt.",
+                        "required": false,
+                        "type": "string"
                     },
                     {
                         "name": "page",
@@ -4145,6 +4229,27 @@
                         "name": "relatieOmschrijving",
                         "in": "query",
                         "description": "Omschrijving van de betrekking van het Objecttype op zaken van het gerelateerde ZAAKTYPE.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "datumBeginGeldigheid",
+                        "in": "query",
+                        "description": "De datum waarop het is ontstaan.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "datumEindeGeldigheid",
+                        "in": "query",
+                        "description": "De datum waarop het is opgeheven.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
                         "required": false,
                         "type": "string"
                     },
@@ -5365,6 +5470,13 @@
                             "definitief",
                             "concept"
                         ]
+                    },
+                    {
+                        "name": "datumGeldigheid",
+                        "in": "query",
+                        "description": "filter objecten op hun geldigheids datum.",
+                        "required": false,
+                        "type": "string"
                     },
                     {
                         "name": "page",
