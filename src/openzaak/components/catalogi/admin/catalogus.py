@@ -72,7 +72,7 @@ class CatalogusAdmin(
     ordering = ("domein", "rsin")
     search_fields = (
         "uuid",
-        "_admin_name",
+        "naam",
         "domein",
         "rsin",
         "contactpersoon_beheer_naam",
@@ -80,7 +80,19 @@ class CatalogusAdmin(
 
     # Details
     fieldsets = (
-        (_("Algemeen"), {"fields": ("_admin_name", "domein", "rsin", "uuid",)}),
+        (
+            _("Algemeen"),
+            {
+                "fields": (
+                    "naam",
+                    "domein",
+                    "rsin",
+                    "versie",
+                    "begindatum_versie",
+                    "uuid",
+                )
+            },
+        ),
         (
             _("Contactpersoon beheer"),
             {
@@ -99,7 +111,7 @@ class CatalogusAdmin(
     resource_name = "catalogus"
 
     def get_admin_name(self, obj):
-        return obj._admin_name or "(onbekend)"
+        return obj.naam or "(onbekend)"
 
     get_admin_name.short_description = _("Naam")
 

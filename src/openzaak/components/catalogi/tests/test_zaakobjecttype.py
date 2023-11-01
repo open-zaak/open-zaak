@@ -10,7 +10,7 @@ from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
 from ..models import ZaakObjectType
 from .base import APITestCase
-from .factories import ZaakObjectTypeFactory, ZaakTypeFactory
+from .factories import StatusTypeFactory, ZaakObjectTypeFactory, ZaakTypeFactory
 
 
 class ZaakObjectTypeAPITests(APITestCase):
@@ -35,11 +35,13 @@ class ZaakObjectTypeAPITests(APITestCase):
         self.assertEqual(data[0]["url"], f"http://testserver{zaakobjecttype2_url}")
 
     def test_get_zaakobjecttype(self):
+        statustype = StatusTypeFactory.create(zaaktype__catalogus=self.catalogus)
         zaakobjecttype = ZaakObjectTypeFactory.create(
             ander_objecttype=False,
             relatie_omschrijving="test description",
-            zaaktype__catalogus=self.catalogus,
+            zaaktype=statustype.zaaktype,
             objecttype="http://example.org/objecttypen/1",
+            statustype=statustype,
         )
         zaakobjecttype_detail_url = reverse(zaakobjecttype)
 
@@ -56,7 +58,7 @@ class ZaakObjectTypeAPITests(APITestCase):
             "relatieOmschrijving": "test description",
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "resultaattypen": [],
-            "statustypen": [],
+            "statustype": f"http://testserver{reverse(statustype)}",
         }
         self.assertEqual(expected, response.json())
 
@@ -96,6 +98,43 @@ class ZaakObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_create_zaakobjecttype_with_statustype(self):
+        zaaktype = ZaakTypeFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        data = {
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "anderObjecttype": False,
+            "objecttype": "http://example.org/objecttypen/1",
+            "relatieOmschrijving": "test description",
+            "statustype": f"http://testserver{reverse(statustype)}",
+        }
+
+        response = self.client.post(zaakobjecttype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaakobjecttype = ZaakObjectType.objects.get()
+        self.assertEqual(zaakobjecttype.statustype, statustype)
+
+    def test_create_zaakobjecttype_with_statustype_another_zaaktype_fail(self):
+        zaaktype = ZaakTypeFactory.create()
+        statustype = StatusTypeFactory.create()
+        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        data = {
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "anderObjecttype": False,
+            "objecttype": "http://example.org/objecttypen/1",
+            "relatieOmschrijving": "test description",
+            "statustype": f"http://testserver{reverse(statustype)}",
+        }
+
+        response = self.client.post(zaakobjecttype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-zaaktype")
 
     def test_delete_zaakobjecttype(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()

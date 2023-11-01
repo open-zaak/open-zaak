@@ -102,7 +102,27 @@ class InformatieObjectTypeAdmin(
     fieldsets = (
         (
             _("Algemeen"),
-            {"fields": ("omschrijving", "vertrouwelijkheidaanduiding", "uuid",)},
+            {
+                "fields": (
+                    "informatieobjectcategorie",
+                    "omschrijving",
+                    "vertrouwelijkheidaanduiding",
+                    "trefwoord",
+                    "uuid",
+                )
+            },
+        ),
+        (
+            _("Omschrijving generiek"),
+            {
+                "fields": (
+                    "omschrijving_generiek_informatieobjecttype",
+                    "omschrijving_generiek_definitie",
+                    "omschrijving_generiek_herkomst",
+                    "omschrijving_generiek_hierarchie",
+                    "omschrijving_generiek_opmerking",
+                )
+            },
         ),
         (_("Relaties"), {"fields": ("catalogus",)}),
     )

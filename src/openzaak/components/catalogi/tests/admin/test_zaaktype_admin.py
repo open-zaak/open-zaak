@@ -126,6 +126,7 @@ class ZaaktypeAdminTests(
         form["referentieproces_naam"] = "test"
         form["catalogus"] = catalogus.pk
         form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
 
         response = form.submit()
 
@@ -556,6 +557,7 @@ class ZaaktypeAdminTests(
         form["doorlooptijd_behandeling_days"] = "0"
         form["referentieproces_naam"] = "Test"
         form["datum_begin_geldigheid"] = "14-11-2022"
+        form["verantwoordelijke"] = "063308836"
 
         # use non-default value
         form["selectielijst_procestype_jaar"].select("2020")

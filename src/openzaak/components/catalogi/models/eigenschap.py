@@ -207,6 +207,17 @@ class Eigenschap(ETagMixin, models.Model):
         ),
         on_delete=models.CASCADE,
     )
+    statustype = models.ForeignKey(
+        "catalogi.StatusType",
+        related_name="eigenschappen",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text=_(
+            "Status type moet (onder andere) deze EIGENSCHAP hebben, voordat een "
+            "STATUS van het STATUSTYPE kan worden gezet."
+        ),
+    )
 
     class Meta:
         unique_together = ("zaaktype", "eigenschapnaam")

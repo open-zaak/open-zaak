@@ -25,7 +25,7 @@ class EigenschapAdmin(
     list_filter = ("zaaktype", "eigenschapnaam")
     ordering = ("zaaktype", "eigenschapnaam")
     search_fields = ("uuid", "eigenschapnaam", "definitie", "toelichting")
-    raw_id_fields = ("zaaktype", "specificatie_van_eigenschap")
+    raw_id_fields = ("zaaktype", "specificatie_van_eigenschap", "statustype")
 
     # Details
     fieldsets = (
@@ -33,7 +33,10 @@ class EigenschapAdmin(
             _("Algemeen"),
             {"fields": ("eigenschapnaam", "definitie", "toelichting", "uuid",)},
         ),
-        (_("Relaties"), {"fields": ("zaaktype", "specificatie_van_eigenschap",)},),
+        (
+            _("Relaties"),
+            {"fields": ("zaaktype", "specificatie_van_eigenschap", "statustype")},
+        ),
     )
     readonly_fields = ("uuid",)
 

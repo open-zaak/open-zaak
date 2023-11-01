@@ -114,6 +114,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "versiedatum": "2018-01-01",
             "concept": True,
             "deelzaaktypen": [],
+            "zaakobjecttypen": [],
+            "verantwoordelijke": zaaktype.verantwoordelijke,
         }
         self.assertEqual(response_data, expected)
 
@@ -178,6 +180,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
         response = self.client.post(zaaktype_list_url, data)
 
@@ -228,6 +231,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
         response = self.client.post(zaaktype_list_url, data)
 
@@ -277,6 +281,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
         response = self.client.post(zaaktype_list_url, data)
 
@@ -317,6 +322,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
         response = self.client.post(zaaktype_list_url, data)
 
@@ -360,6 +366,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.post(zaaktype_list_url, data)
@@ -403,6 +410,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [f"http://testserver{besluittype_url}"],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
         response = self.client.post(zaaktype_list_url, data)
 
@@ -412,6 +420,87 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "relations-incorrect-catalogus")
+
+    def test_create_zaaktype_with_bronzaaktype(self):
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": "ZAAK1",
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "referentieproces": {"naam": "ReferentieProces 0"},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+            "gerelateerdeZaaktypen": [],
+            "besluittypen": [],
+            "broncatalogus": {"domein": "BRON", "rsin": "517439943",},
+            "bronzaaktype": {
+                "identificatie": "BRONZAAK1",
+                "omschrijving": "bron zaak",
+            },
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaaktype = ZaakType.objects.get()
+
+        self.assertEqual(zaaktype.broncatalogus_domein, "BRON")
+        self.assertEqual(zaaktype.broncatalogus_rsin, "517439943")
+        self.assertEqual(zaaktype.bronzaaktype_identificatie, "BRONZAAK1")
+        self.assertEqual(zaaktype.bronzaaktype_omschrijving, "bron zaak")
+
+    def test_create_zaaktype_with_bronzaaktype_without_broncatalogus_fail(self):
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": "ZAAK1",
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "referentieproces": {"naam": "ReferentieProces 0"},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+            "gerelateerdeZaaktypen": [],
+            "besluittypen": [],
+            "bronzaaktype": {
+                "identificatie": "BRONZAAK1",
+                "omschrijving": "bron zaak",
+            },
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-bronzaaktype-for-broncatalogus")
 
     def test_publish_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
@@ -540,6 +629,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -588,6 +678,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -639,6 +730,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -684,6 +776,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -836,6 +929,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -885,6 +979,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -934,6 +1029,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -982,6 +1078,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -1036,6 +1133,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.put(zaaktype_url, data)
@@ -1078,6 +1176,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "besluittypen": [],
             "beginGeldigheid": "2018-01-01",
             "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
         }
 
         besluittype = BesluitTypeFactory.create(catalogus=catalogus, concept=False)
@@ -1336,6 +1435,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],
             "versiedatum": "2019-02-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.post(self.url, data)
@@ -1375,6 +1475,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],
             "versiedatum": "2019-02-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.post(self.url, data)
@@ -1414,6 +1515,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
             "besluittypen": [],
             "gerelateerdeZaaktypen": [],
             "versiedatum": "2020-02-01",
+            "verantwoordelijke": "063308836",
         }
 
         response = self.client.post(self.url, data)

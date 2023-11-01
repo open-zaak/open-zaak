@@ -231,7 +231,7 @@ class Command(BaseCommand):
 
     def generate_catalogi(self):
         #  catalog - 1
-        catalog = CatalogusFactory.create(_admin_name="performance test")
+        catalog = CatalogusFactory.create(naam="performance test")
         self.log_created([catalog])
 
         # zaaktype - 100

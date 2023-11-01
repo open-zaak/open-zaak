@@ -16,6 +16,7 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -52,12 +53,8 @@ class BesluitTypeAPITests(APITestCase):
         besluittype_detail_url = reverse(
             "besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
-
-        # resultaattype_url = reverse('resultaattype-detail', kwargs={
-        #     'catalogus_uuid': self.catalogus.uuid,
-        #     'zaaktype_uuid': self.zaaktype.uuid,
-        #     'uuid': self.resultaattype.uuid,
-        # })
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
+        resultaattype.besluittypen.add(besluittype)
 
         response = self.client.get(besluittype_detail_url)
 
@@ -75,10 +72,12 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "",
             "informatieobjecttypen": [],
+            "vastgelegdIn": [],
             "beginGeldigheid": "2018-01-01",
             "eindeGeldigheid": None,
             "concept": True,
-            # 'resultaattypes': ['http://testserver{resultaattype_url}'],
+            "resultaattypen": [f"http://testserver{reverse(resultaattype)}"],
+            "resultaattypenOmschrijving": [resultaattype.omschrijving],
         }
         self.assertEqual(response.json(), expected)
 

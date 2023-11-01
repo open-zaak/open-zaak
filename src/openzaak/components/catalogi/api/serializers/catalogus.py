@@ -53,5 +53,8 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "zaaktypen",
             "besluittypen",
             "informatieobjecttypen",
+            "naam",
+            "versie",
+            "begindatum_versie",
         )
         extra_kwargs = {"url": {"lookup_field": "uuid"}}

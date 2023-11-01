@@ -217,6 +217,55 @@ class ResultaatType(ETagMixin, models.Model):
         ),
     )
 
+    procesobjectaard = models.CharField(
+        _("procesobjectaard"),
+        blank=True,
+        max_length=200,
+        help_text=_(
+            "Omschrijving van het object, subject of gebeurtenis waarop,"
+            " vanuit archiveringsoptiek, het resultaattype bij zaken van dit"
+            " type betrekking heeft."
+        ),
+    )
+
+    indicatie_specifiek = models.BooleanField(
+        _("indicatie specifiek"),
+        null=True,
+        blank=True,
+        help_text=_(
+            "Aanduiding of het, vanuit archiveringsoptiek, een resultaattype"
+            " betreft dat specifiek is voor een bepaalde procesobjectaard."
+        ),
+    )
+    procestermijn = DurationField(
+        _("procestermijn"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "De periode dat het zaakdossier na afronding van de zaak actief"
+            " gebruikt en/of geraadpleegd wordt ter ondersteuning van de"
+            " taakuitoefening van de organisatie."
+        ),
+    )
+
+    # m2m relations
+    informatieobjecttypen = models.ManyToManyField(
+        "InformatieObjectType",
+        blank=True,
+        help_text=_(
+            "De INFORMATIEOBJECTTYPEn die verplicht aanwezig moeten zijn in het "
+            "zaakdossier van ZAAKen van dit ZAAKTYPE voordat een resultaat van "
+            "dit RESULTAATTYPE kan worden gezet."
+        ),
+    )
+    besluittypen = models.ManyToManyField(
+        "BesluitType",
+        blank=True,
+        help_text=_(
+            "Het BESLUITTYPE van besluiten die gepaard gaan "
+            "met resultaten van het RESULTAATTYPE."
+        ),
+    )
     zaakobjecttypen = models.ManyToManyField(
         "ZaakObjectType",
         related_name="resultaattypen",

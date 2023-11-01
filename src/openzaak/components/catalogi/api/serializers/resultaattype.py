@@ -21,8 +21,11 @@ from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 from ...models import ResultaatType
 from ..validators import (
     BrondatumArchiefprocedureValidator,
+    M2MConceptCreateValidator,
+    M2MConceptUpdateValidator,
     ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
+    RelationCatalogValidator,
     ZaakTypeConceptValidator,
 )
 
@@ -74,6 +77,22 @@ class ResultaatTypeSerializer(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
+    besluittype_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        source="besluittypen",
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+    informatieobjecttype_omschrijving = serializers.SlugRelatedField(
+        many=True,
+        source="informatieobjecttypen",
+        read_only=True,
+        slug_field="omschrijving",
+        help_text=_(
+            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
 
     class Meta:
         model = ResultaatType
@@ -89,7 +108,14 @@ class ResultaatTypeSerializer(
             "archiefnominatie",
             "archiefactietermijn",
             "brondatum_archiefprocedure",
+            "procesobjectaard",
+            "indicatie_specifiek",
+            "procestermijn",
             "catalogus",
+            "besluittypen",
+            "besluittype_omschrijving",
+            "informatieobjecttypen",
+            "informatieobjecttype_omschrijving",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -113,6 +139,8 @@ class ResultaatTypeSerializer(
                     ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
+            "besluittypen": {"lookup_field": "uuid", "required": False},
+            "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
         }
         validators = [
             UniqueTogetherValidator(
@@ -123,6 +151,14 @@ class ResultaatTypeSerializer(
             ProcestermijnAfleidingswijzeValidator("selectielijstklasse"),
             BrondatumArchiefprocedureValidator(),
             ZaakTypeConceptValidator(),
+            M2MConceptCreateValidator(["informatieobjecttypen", "besluittypen"]),
+            M2MConceptUpdateValidator(["informatieobjecttypen", "besluittypen"]),
+            RelationCatalogValidator(
+                "informatieobjecttypen", catalogus_field="zaaktype.catalogus"
+            ),
+            RelationCatalogValidator(
+                "besluittypen", catalogus_field="zaaktype.catalogus"
+            ),
         ]
 
     def get_fields(self):

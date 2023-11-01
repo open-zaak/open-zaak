@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.conf import settings
+from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
@@ -21,6 +22,7 @@ from openzaak.utils.validators import ResourceValidator
 from ...constants import AardRelatieChoices, RichtingChoices
 from ...models import BesluitType, ZaakType, ZaakTypenRelatie
 from ..validators import (
+    BronZaakTypeValidator,
     ConceptUpdateValidator,
     DeelzaaktypeCatalogusValidator,
     GeldigheidValidator,
@@ -52,6 +54,28 @@ class ZaakTypenRelatieSerializer(ModelSerializer):
         return fields
 
 
+class BronCatalogusSerializer(ModelSerializer):
+    class Meta:
+        model = ZaakType
+        fields = ("url", "domein", "rsin")
+        extra_kwargs = {
+            "url": {"source": "broncatalogus_url"},
+            "domein": {"source": "broncatalogus_domein", "required": True},
+            "rsin": {"source": "broncatalogus_rsin", "required": True},
+        }
+
+
+class BronZaaktypeSerializer(ModelSerializer):
+    class Meta:
+        model = ZaakType
+        fields = ("url", "identificatie", "omschrijving")
+        extra_kwargs = {
+            "url": {"source": "bronzaaktype_url"},
+            "identificatie": {"source": "bronzaaktype_identificatie", "required": True},
+            "omschrijving": {"source": "bronzaaktype_omschrijving", "required": True},
+        }
+
+
 class ZaakTypeSerializer(
     NestedGegevensGroepMixin,
     NestedCreateMixin,
@@ -68,7 +92,21 @@ class ZaakTypeSerializer(
         source="zaaktypenrelaties",
         help_text="De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit ZAAKTYPE.",
     )
+    broncatalogus = BronCatalogusSerializer(
+        allow_null=False,
+        required=False,
+        help_text=_("De CATALOGUS waaraan het ZAAKTYPE is ontleend."),
+    )
 
+    bronzaaktype = BronZaaktypeSerializer(
+        allow_null=False,
+        required=False,
+        help_text=_(
+            "Het ZAAKTYPE binnen de CATALOGUS waaraan dit ZAAKTYPE is ontleend."
+        ),
+    )
+
+    # relations
     informatieobjecttypen = HyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -131,6 +169,16 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
+    zaakobjecttypen = HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        source="zaakobjecttype_set",
+        view_name="zaakobjecttype-detail",
+        lookup_field="uuid",
+        help_text=_(
+            "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
+        ),
+    )
 
     class Meta:
         model = ZaakType
@@ -159,6 +207,14 @@ class ZaakTypeSerializer(
             "producten_of_diensten",
             "selectielijst_procestype",
             "referentieproces",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "versiedatum",
+            "concept",
+            "verantwoordelijke",
+            "broncatalogus",
+            "bronzaaktype",
+            # relations
             "catalogus",
             "statustypen",
             "resultaattypen",
@@ -168,10 +224,7 @@ class ZaakTypeSerializer(
             "besluittypen",
             "deelzaaktypen",
             "gerelateerde_zaaktypen",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "versiedatum",
-            "concept",
+            "zaakobjecttypen",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -200,6 +253,7 @@ class ZaakTypeSerializer(
             M2MConceptUpdateValidator(["besluittypen"]),
             DeelzaaktypeCatalogusValidator(),
             VerlengingsValidator(),
+            BronZaakTypeValidator(),
         ]
 
     def get_fields(self):
@@ -216,3 +270,28 @@ class ZaakTypeSerializer(
         fields["indicatie_intern_of_extern"].help_text += f"\n\n{value_display_mapping}"
 
         return fields
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        broncatalogus_data = validated_data.pop("broncatalogus", None)
+        bronzaaktype_data = validated_data.pop("bronzaaktype", None)
+
+        zaaktype = super().create(validated_data)
+        if broncatalogus_data:
+            BronCatalogusSerializer().update(zaaktype, broncatalogus_data)
+        if bronzaaktype_data:
+            BronZaaktypeSerializer().update(zaaktype, bronzaaktype_data)
+
+        return zaaktype
+
+    @transaction.atomic()
+    def update(self, instance, validated_data):
+        broncatalogus_data = validated_data.pop("broncatalogus", None)
+        bronzaaktype_data = validated_data.pop("bronzaaktype", None)
+
+        zaaktype = super().update(instance, validated_data)
+        if broncatalogus_data:
+            BronCatalogusSerializer().update(zaaktype, broncatalogus_data)
+        if bronzaaktype_data:
+            BronZaaktypeSerializer().update(zaaktype, bronzaaktype_data)
+        return zaaktype

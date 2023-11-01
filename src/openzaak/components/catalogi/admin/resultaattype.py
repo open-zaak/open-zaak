@@ -85,7 +85,12 @@ class ResultaatTypeAdmin(
         ),
         (_("Relaties"), {"fields": ("zaakobjecttypen",)}),
     )
-    raw_id_fields = ("zaaktype", "zaakobjecttypen")
+    raw_id_fields = (
+        "zaaktype",
+        "zaakobjecttypen",
+        "informatieobjecttypen",
+        "besluittypen",
+    )
     readonly_fields = ("get_zaaktype_procestype", "omschrijving_generiek")
 
     def _get_zaaktype(

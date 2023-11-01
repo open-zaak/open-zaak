@@ -2,10 +2,12 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
 
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
+from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 
@@ -34,6 +36,22 @@ class InformatieObjectType(
             "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
+    informatieobjectcategorie = models.CharField(
+        _("categorie"),
+        max_length=80,
+        help_text=_(
+            "Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
+        ),
+    )
+    trefwoord = ArrayField(
+        models.CharField(_("trefwoord"), max_length=30),
+        blank=True,
+        default=list,
+        help_text=_(
+            "Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE kunnen worden "
+            "gekarakteriseerd. (Gebruik een komma om waarden van elkaar te onderscheiden.)"
+        ),
+    )
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
         _("vertrouwelijkheidaanduiding"),
         help_text=_(
@@ -41,6 +59,53 @@ class InformatieObjectType(
             "openbaarheid bestemd zijn."
         ),
     )
+
+    omschrijving_generiek_informatieobjecttype = models.CharField(
+        _("informatieobjecttype omschrijving generiek"),
+        max_length=80,
+        blank=True,
+        help_text=_("Algemeen gehanteerde omschrijving van het type informatieobject."),
+    )
+    omschrijving_generiek_definitie = models.CharField(
+        _("definitie"),
+        max_length=255,
+        blank=True,
+        help_text=_("Nauwkeurige beschrijving van het generieke type informatieobject"),
+    )
+    omschrijving_generiek_herkomst = models.CharField(
+        _("herkomst"),
+        max_length=12,
+        blank=True,
+        help_text=_(
+            "De naam van de waardenverzameling, of van de beherende "
+            "organisatie daarvan, waaruit de waarde is overgenomen."
+        ),
+    )
+    omschrijving_generiek_hierarchie = models.CharField(
+        _("hierarchie"),
+        max_length=80,
+        blank=True,
+        help_text=_("De plaats in de rangorde van het informatieobjecttype."),
+    )
+    omschrijving_generiek_opmerking = models.CharField(
+        _("opmerking"),
+        max_length=255,
+        blank=True,
+        help_text=_("Zinvolle toelichting bij het informatieobjecttype"),
+    )
+    omschrijving_generiek = GegevensGroepType(
+        {
+            "informatieobjecttype_omschrijving_generiek": omschrijving_generiek_informatieobjecttype,
+            "definitie_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_definitie,
+            "herkomst_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_herkomst,
+            "hierarchie_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_hierarchie,
+            "opmerking_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_opmerking,
+        },
+        optional=("opmerking_informatieobjecttype_omschrijving_generiek",),
+        required=False,
+    )
+
+    # relation fields
     catalogus = models.ForeignKey(
         "catalogi.Catalogus",
         # verbose_name=_("maakt deel uit van"),

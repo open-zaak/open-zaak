@@ -20,7 +20,7 @@ class CatalogusAdminTests(WebTest):
         self.app.set_user(self.user)
 
     def test_catalogus_list_name(self):
-        CatalogusFactory.create(_admin_name="test")
+        CatalogusFactory.create(naam="test")
 
         response = self.app.get(reverse("admin:catalogi_catalogus_changelist"))
 
@@ -28,7 +28,7 @@ class CatalogusAdminTests(WebTest):
         self.assertEqual(admin_name.text, "test")
 
     def test_catalogus_list_placeholder_name(self):
-        CatalogusFactory.create(_admin_name="")
+        CatalogusFactory.create(naam="")
 
         response = self.app.get(reverse("admin:catalogi_catalogus_changelist"))
 
@@ -39,7 +39,7 @@ class CatalogusAdminTests(WebTest):
         """
         test that links to related objects in admin list page are valid
         """
-        CatalogusFactory.create(_admin_name="test")
+        CatalogusFactory.create(naam="test")
         list_url = reverse("admin:catalogi_catalogus_changelist")
 
         response = self.app.get(list_url)

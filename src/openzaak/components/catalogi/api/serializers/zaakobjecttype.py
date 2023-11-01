@@ -7,7 +7,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from vng_api_common.utils import get_help_text
 
 from ...models import ZaakObjectType
-from ..validators import ZaakTypeConceptValidator
+from ..validators import RelationZaaktypeValidator, ZaakTypeConceptValidator
 
 
 class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
@@ -37,7 +37,7 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
             "zaaktype",
             "zaaktype_identificatie",
             "resultaattypen",
-            "statustypen",
+            "statustype",
             "catalogus",
         )
         extra_kwargs = {
@@ -49,12 +49,9 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
                 "many": True,
                 "help_text": _("URL-referenties naar de RESULTAATTYPEN."),
             },
-            "statustypen": {
-                "lookup_field": "uuid",
-                "read_only": True,
-                "many": True,
-                "help_text": _("URL-referenties naar de STATUSTYPEN."),
-            },
-            "catalogus": {"lookup_field": "uuid"},
+            "statustype": {"lookup_field": "uuid"},
         }
-        validators = [ZaakTypeConceptValidator()]
+        validators = [
+            ZaakTypeConceptValidator(),
+            RelationZaaktypeValidator("statustype"),
+        ]

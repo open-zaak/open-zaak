@@ -3,6 +3,7 @@
 from datetime import date
 
 import factory
+import factory.fuzzy
 
 from ...models import InformatieObjectType
 from .catalogus import CatalogusFactory
@@ -10,12 +11,17 @@ from .relatieklassen import ZaakTypeInformatieObjectTypeFactory
 
 
 class InformatieObjectTypeFactory(factory.django.DjangoModelFactory):
+    informatieobjectcategorie = factory.Faker("word")
     omschrijving = factory.Sequence(lambda n: "Informatie object type {}".format(n))
     catalogus = factory.SubFactory(CatalogusFactory)
     zaaktypen = factory.RelatedFactory(
         ZaakTypeInformatieObjectTypeFactory, "informatieobjecttype"
     )
     datum_begin_geldigheid = date(2018, 1, 1)
+    omschrijving_generiek_informatieobjecttype = factory.Faker("word")
+    omschrijving_generiek_definitie = factory.Faker("text")
+    omschrijving_generiek_herkomst = factory.fuzzy.FuzzyText(length=12)
+    omschrijving_generiek_hierarchie = factory.Faker("word")
 
     class Meta:
         model = InformatieObjectType

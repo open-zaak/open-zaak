@@ -192,6 +192,7 @@ class ZaakTypeAdmin(
                     "handeling_behandelaar",
                     "doorlooptijd_behandeling",
                     "servicenorm_behandeling",
+                    "verantwoordelijke",
                 ),
             },
         ),
@@ -220,6 +221,26 @@ class ZaakTypeAdmin(
             {"fields": ("referentieproces_naam", "referentieproces_link")},
         ),
         (_("Publicatie"), {"fields": ("publicatie_indicatie", "publicatietekst")}),
+        (
+            _("Broncatalogus"),
+            {
+                "fields": (
+                    "broncatalogus_url",
+                    "broncatalogus_domein",
+                    "broncatalogus_rsin",
+                )
+            },
+        ),
+        (
+            _("Bronzaaktype"),
+            {
+                "fields": (
+                    "bronzaaktype_url",
+                    "bronzaaktype_identificatie",
+                    "bronzaaktype_omschrijving",
+                )
+            },
+        ),
         (_("Relaties"), {"fields": ("catalogus", "deelzaaktypen")}),
         (
             _("Geldigheid"),

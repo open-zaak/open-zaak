@@ -9,7 +9,12 @@ from ..api.validators import ZaakTypeConceptValidator
 from ..constants import FormaatChoices
 from ..models import Eigenschap
 from .base import APITestCase
-from .factories import EigenschapFactory, EigenschapSpecificatieFactory, ZaakTypeFactory
+from .factories import (
+    EigenschapFactory,
+    EigenschapSpecificatieFactory,
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
 from .utils import get_operation_url
 
 
@@ -107,6 +112,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
                     "waardenverzameling": ["boot", "zwerfvuil"],
                 },
                 "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+                "statustype": None,
             },
         )
 
@@ -129,6 +135,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
     def test_get_detail(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         specificatie = EigenschapSpecificatieFactory.create(
             kardinaliteit="1", lengte="1", groep="groep"
         )
@@ -136,6 +143,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             eigenschapnaam="Beoogd product",
             zaaktype=zaaktype,
             specificatie_van_eigenschap=specificatie,
+            statustype=statustype,
         )
         eigenschap_detail_url = reverse(
             "eigenschap-detail", kwargs={"uuid": eigenschap.uuid}
@@ -160,6 +168,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
             "zaaktype": "http://testserver{}".format(zaaktype_url),
             "zaaktypeIdentificatie": zaaktype.identificatie,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
         }
         self.assertEqual(expected, response.json())
 
@@ -266,6 +275,61 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(spec.lengte, "8")
         self.assertEqual(spec.kardinaliteit, "1")
         self.assertEqual(spec.waardenverzameling, [])
+
+    def test_create_eigenschap_with_statustype(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+            "statustype": f"http://testserver{reverse(statustype)}",
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertEqual(eigenschap.eigenschapnaam, "Beoogd product")
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+        self.assertEqual(eigenschap.statustype, statustype)
+
+    def test_create_eigenschap_with_statustype_another_zaaktype_fail(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        statustype = StatusTypeFactory.create()
+        eigenschap_list_url = reverse("eigenschap-list")
+        data = {
+            "naam": "Beoogd product",
+            "definitie": "test",
+            "toelichting": "",
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "specificatie": {
+                "groep": "test",
+                "formaat": "tekst",
+                "lengte": "5",
+                "kardinaliteit": "1",
+                "waardenverzameling": [],
+            },
+            "statustype": f"http://testserver{reverse(statustype)}",
+        }
+
+        response = self.client.post(eigenschap_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-zaaktype")
 
     def test_eigenschap_specifcatie_with_formaat_getal_with_comma(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
@@ -617,6 +681,34 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_patch_eigenschap_with_statustype(self):
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+        statustype = StatusTypeFactory.create(zaaktype=eigenschap.zaaktype)
+
+        response = self.client.patch(
+            eigenschap_url, {"statustype": f"http://testserver{reverse(statustype)}"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        eigenschap.refresh_from_db()
+        self.assertEqual(eigenschap.statustype, statustype)
+
+    def test_patch_eigenschap_with_statustype_another_zaaktype_fail(self):
+        eigenschap = EigenschapFactory.create()
+        eigenschap_url = reverse(eigenschap)
+        statustype = StatusTypeFactory.create()
+
+        response = self.client.patch(
+            eigenschap_url, {"statustype": f"http://testserver{reverse(statustype)}"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "relations-incorrect-zaaktype")
 
 
 class EigenschapFilterAPITests(APITestCase):
