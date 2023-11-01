@@ -81,6 +81,10 @@
             [
                 "zgw_consumers",
                 "nlxconfig"
+            ],
+            [
+                "log_outgoing_requests",
+                "outgoingrequestslogconfig"
             ]
         ]
     }
@@ -133,6 +137,10 @@
             [
                 "notifications_log",
                 "failednotification"
+            ],
+            [
+                "log_outgoing_requests",
+                "outgoingrequestslog"
             ]
         ]
     }

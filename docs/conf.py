@@ -11,6 +11,7 @@ import sys
 # import django
 
 sys.path.insert(0, os.path.abspath("../src"))
+os.environ["LOG_REQUESTS"] = "false"
 
 import openzaak  # noqa isort:skip
 

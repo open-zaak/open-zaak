@@ -85,11 +85,13 @@ django==3.2.18
     #   -r requirements/base.in
     #   commonground-api-common
     #   django-admin-index
+    #   django-appconf
     #   django-axes
     #   django-cors-headers
     #   django-db-logger
     #   django-extra-views
     #   django-filter
+    #   django-log-outgoing-requests
     #   django-loose-fk
     #   django-markup
     #   django-privates
@@ -111,6 +113,8 @@ django==3.2.18
     #   zgw-consumers
 django-admin-index==2.0.2
     # via -r requirements/base.in
+django-appconf==1.0.5
+    # via django-log-outgoing-requests
 django-axes==5.31.0
     # via -r requirements/base.in
 django-better-admin-arrayfield==1.4.2
@@ -130,6 +134,8 @@ django-filter==21.1
     #   django-loose-fk
 django-ipware==4.0.2
     # via django-axes
+django-log-outgoing-requests==0.5.2
+    # via -r requirements/base.in
 django-loose-fk==1.0.3
     # via -r requirements/base.in
 django-markup==1.5
@@ -157,6 +163,7 @@ django-sniplates==0.7.0
 django-solo==2.0.0
     # via
     #   commonground-api-common
+    #   django-log-outgoing-requests
     #   drc-cmis
     #   mozilla-django-oidc-db
     #   notifications-api-common
@@ -309,6 +316,7 @@ requests==2.28.1
     #   -r requirements/base.in
     #   commonground-api-common
     #   coreapi
+    #   django-log-outgoing-requests
     #   gemma-zds-client
     #   mozilla-django-oidc
     #   requests-cache
