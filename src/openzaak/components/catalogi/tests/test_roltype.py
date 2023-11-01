@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from datetime import date
+
 from django.test import override_settings
 
 from rest_framework import status
@@ -38,6 +40,8 @@ class RolTypeAPITests(APITestCase):
             omschrijving="Vergunningaanvrager",
             omschrijving_generiek=RolOmschrijving.initiator,
             zaaktype__catalogus=self.catalogus,
+            datum_begin_geldigheid=date(2023, 1, 1),
+            datum_einde_geldigheid=date(2023, 12, 1),
         )
         zaaktype = rol_type.zaaktype
         rol_type_detail_url = reverse("roltype-detail", kwargs={"uuid": rol_type.uuid})
@@ -54,11 +58,12 @@ class RolTypeAPITests(APITestCase):
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
             "catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
+            "beginObject": "2023-01-01",
+            "eindeObject": "2023-12-01",
         }
         self.assertEqual(expected, response.json())
-
-    def test_mag_zetten(self):
-        pass
 
     def test_create_roltype(self):
         zaaktype = ZaakTypeFactory.create()
@@ -68,6 +73,8 @@ class RolTypeAPITests(APITestCase):
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "Vergunningaanvrager",
             "omschrijvingGeneriek": RolOmschrijving.initiator,
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
         }
 
         response = self.client.post(rol_type_list_url, data)
@@ -77,6 +84,8 @@ class RolTypeAPITests(APITestCase):
         roltype = RolType.objects.get()
         self.assertEqual(roltype.omschrijving, "Vergunningaanvrager")
         self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertEqual(roltype.datum_begin_geldigheid, date(2023, 1, 1))
+        self.assertEqual(roltype.datum_einde_geldigheid, date(2023, 12, 1))
 
     def test_create_roltype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -94,6 +103,25 @@ class RolTypeAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    def test_create_roltype_with_end_date_before_start_date(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        rol_type_list_url = reverse("roltype-list")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "Vergunningaanvrager",
+            "omschrijvingGeneriek": RolOmschrijving.initiator,
+            "beginGeldigheid": "2023-12-01",
+            "eindeGeldigheid": "2023-01-01",
+        }
+
+        response = self.client.post(rol_type_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "date-mismatch")
 
     def test_delete_roltype(self):
         roltype = RolTypeFactory.create()

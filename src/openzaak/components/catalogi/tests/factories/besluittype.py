@@ -40,12 +40,5 @@ class BesluitTypeFactory(factory.django.DjangoModelFactory):
         if not extracted:
             extracted = [ZaakTypeFactory.create(catalogus=self.catalogus)]
 
-        dates_begin_geldigheid = []
         for zaak_type in extracted:
-            dates_begin_geldigheid.append(zaak_type.datum_begin_geldigheid)
             self.zaaktypen.add(zaak_type)
-
-        # sort the list on python datetime.date(), the first element of the tuple, and then
-        # use the OnvolledigeDatum value (second element in tuple) as the value
-        dates_begin_geldigheid.sort()
-        self.datum_begin_geldigheid = dates_begin_geldigheid[0]

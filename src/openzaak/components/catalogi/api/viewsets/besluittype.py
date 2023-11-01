@@ -83,6 +83,7 @@ class BesluitTypeViewSet(
         BesluitType.objects.all()
         .select_related("catalogus")
         .prefetch_related("informatieobjecttypen", "zaaktypen")
+        .with_dates()
         .order_by("-pk")
     )
     serializer_class = BesluitTypeSerializer

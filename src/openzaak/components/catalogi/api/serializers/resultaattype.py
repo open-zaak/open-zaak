@@ -26,6 +26,7 @@ from ..validators import (
     ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
     RelationCatalogValidator,
+    StartBeforeEndValidator,
     ZaakTypeConceptValidator,
 )
 
@@ -93,6 +94,16 @@ class ResultaatTypeSerializer(
             "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
         ),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = ResultaatType
@@ -116,6 +127,10 @@ class ResultaatTypeSerializer(
             "besluittype_omschrijving",
             "informatieobjecttypen",
             "informatieobjecttype_omschrijving",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -141,6 +156,8 @@ class ResultaatTypeSerializer(
             },
             "besluittypen": {"lookup_field": "uuid", "required": False},
             "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }
         validators = [
             UniqueTogetherValidator(
@@ -159,6 +176,7 @@ class ResultaatTypeSerializer(
             RelationCatalogValidator(
                 "besluittypen", catalogus_field="zaaktype.catalogus"
             ),
+            StartBeforeEndValidator(),
         ]
 
     def get_fields(self):

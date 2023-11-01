@@ -14,6 +14,7 @@ from vng_api_common.models import APIMixin
 from openzaak.components.autorisaties.models import AutorisatieSpec
 
 from ..managers import SyncAutorisatieManager
+from ..query import GeldigheidQuerySet
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
@@ -125,7 +126,7 @@ class InformatieObjectType(
         ),
     )
 
-    objects = SyncAutorisatieManager()
+    objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     class Meta:
         verbose_name = _("Informatieobjecttype")

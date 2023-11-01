@@ -20,6 +20,7 @@ from openzaak.utils.fields import DurationField
 
 from ..constants import InternExtern
 from ..managers import SyncAutorisatieManager
+from ..query import GeldigheidQuerySet
 from .mixins import ConceptMixin, GeldigheidMixin
 from .validators import validate_uppercase
 
@@ -333,7 +334,7 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
-    objects = SyncAutorisatieManager()
+    objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
     omschrijving_field = "zaaktype_omschrijving"

@@ -149,6 +149,7 @@ class ZaaktypeAdminTests(
         m.post(
             "https://notificaties-api.vng.cloud/api/v1/notificaties", status_code=201
         )
+        startdate_old = date(2017, 1, 1)
 
         zaaktype_old = ZaakTypeFactory.create(
             zaaktype_omschrijving="test",
@@ -157,18 +158,26 @@ class ZaaktypeAdminTests(
             verantwoordingsrelatie=["bla"],
             selectielijst_procestype="",
             concept=False,
+            datum_begin_geldigheid=startdate_old,
         )
         # reverse fk relations
-        statustype_old = StatusTypeFactory.create(zaaktype=zaaktype_old)
+        statustype_old = StatusTypeFactory.create(
+            zaaktype=zaaktype_old, datum_begin_geldigheid=startdate_old
+        )
         resultaattypeomschrijving = "https://example.com/resultaattypeomschrijving/1"
         m.register_uri("GET", resultaattypeomschrijving, json={"omschrijving": "init"})
         resultaattype_old = ResultaatTypeFactory.create(
             zaaktype=zaaktype_old,
             resultaattypeomschrijving=resultaattypeomschrijving,
             selectielijstklasse="",
+            datum_begin_geldigheid=startdate_old,
         )
-        roltype_old = RolTypeFactory.create(zaaktype=zaaktype_old)
-        eigenschap_old = EigenschapFactory.create(zaaktype=zaaktype_old)
+        roltype_old = RolTypeFactory.create(
+            zaaktype=zaaktype_old, datum_begin_geldigheid=startdate_old
+        )
+        eigenschap_old = EigenschapFactory.create(
+            zaaktype=zaaktype_old, datum_begin_geldigheid=startdate_old
+        )
         zaaktypenrelatie_old = ZaakTypenRelatieFactory.create(zaaktype=zaaktype_old)
         # m2m relations
         besluittype = BesluitTypeFactory.create(zaaktypen=[zaaktype_old])
@@ -240,6 +249,19 @@ class ZaaktypeAdminTests(
                 "resourceUrl": f"http://testserver{zaaktype_new_url}",
                 "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
             }
+        )
+        # assert that sub-resources have old datum_begin_geldigheid
+        self.assertEqual(
+            zaaktype_new.statustypen.get().datum_begin_geldigheid, startdate_old
+        )
+        self.assertEqual(
+            zaaktype_new.resultaattypen.get().datum_begin_geldigheid, startdate_old
+        )
+        self.assertEqual(
+            zaaktype_new.roltype_set.get().datum_begin_geldigheid, startdate_old
+        )
+        self.assertEqual(
+            zaaktype_new.eigenschap_set.get().datum_begin_geldigheid, startdate_old
         )
 
     def test_create_new_version_fail_no_datum_einde_geldigheid(self, m):

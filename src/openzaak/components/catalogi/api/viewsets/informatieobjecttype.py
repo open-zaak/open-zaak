@@ -82,7 +82,10 @@ class InformatieObjectTypeViewSet(
     """
 
     queryset = (
-        InformatieObjectType.objects.all().select_related("catalogus").order_by("-pk")
+        InformatieObjectType.objects.all()
+        .select_related("catalogus")
+        .with_dates()
+        .order_by("-pk")
     )
     serializer_class = InformatieObjectTypeSerializer
     filterset_class = InformatieObjectTypeFilter

@@ -9,7 +9,7 @@ from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 
 from ...models import RolType
-from ..validators import ZaakTypeConceptValidator
+from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
 class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
@@ -28,6 +28,16 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = RolType
@@ -38,12 +48,18 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "omschrijving",
             "omschrijving_generiek",
             "catalogus",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
             "zaaktype": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }
-        validators = [ZaakTypeConceptValidator()]
+        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
 
     def get_fields(self):
         fields = super().get_fields()

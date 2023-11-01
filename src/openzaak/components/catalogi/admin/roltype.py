@@ -30,7 +30,14 @@ class RolTypeAdmin(
     fieldsets = (
         (
             _("Algemeen"),
-            {"fields": ("omschrijving", "omschrijving_generiek", "uuid",)},
+            {
+                "fields": (
+                    "omschrijving",
+                    "omschrijving_generiek",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
+                )
+            },
         ),
         (_("Relaties"), {"fields": ("zaaktype",)}),
     )

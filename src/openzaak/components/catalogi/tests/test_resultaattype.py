@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from copy import deepcopy
+from datetime import date
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -157,6 +158,10 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "informatieobjecttypeOmschrijving": [],
                 "besluittypen": [],
                 "besluittypeOmschrijving": [],
+                "beginGeldigheid": None,
+                "eindeGeldigheid": None,
+                "beginObject": None,
+                "eindeObject": None,
             },
         )
 
@@ -210,6 +215,8 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
                 "objecttype": "",
                 "registratie": "",
             },
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
         }
         mock_selectielijst_oas_get(m)
         m.get(
@@ -234,6 +241,8 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             resultaattype.brondatum_archiefprocedure_afleidingswijze,
             Afleidingswijze.afgehandeld,
         )
+        self.assertEqual(resultaattype.datum_begin_geldigheid, date(2023, 1, 1))
+        self.assertEqual(resultaattype.datum_einde_geldigheid, date(2023, 12, 1))
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
@@ -391,6 +400,51 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], ZaakTypeConceptValidator.code)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    @requests_mock.Mocker()
+    def test_create_resultaattype_with_end_date_before_start_date(
+        self, mock_shape, mock_fetch, m
+    ):
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "illum",
+            "resultaattypeomschrijving": resultaattypeomschrijving_url,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_URL,
+            "archiefnominatie": "blijvend_bewaren",
+            "archiefactietermijn": "P10Y",
+            "brondatumArchiefprocedure": {
+                "afleidingswijze": Afleidingswijze.afgehandeld,
+                "einddatumBekend": False,
+                "procestermijn": None,
+                "datumkenmerk": "",
+                "objecttype": "",
+                "registratie": "",
+            },
+            "beginGeldigheid": "2023-12-01",
+            "eindeGeldigheid": "2023-01-01",
+        }
+        mock_selectielijst_oas_get(m)
+        m.get(
+            SELECTIELIJSTKLASSE_URL,
+            json={
+                "url": SELECTIELIJSTKLASSE_URL,
+                "procesType": PROCESTYPE_URL,
+                "procestermijn": Procestermijn.nihil,
+            },
+        )
+        m.get(resultaattypeomschrijving_url, json={"omschrijving": "test"})
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "date-mismatch")
 
     def test_delete_resultaattype(self):
         resultaattype = ResultaatTypeFactory.create()

@@ -6151,6 +6151,20 @@
                     },
                     "readOnly": true,
                     "uniqueItems": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
                 }
             }
         },
@@ -6503,6 +6517,34 @@
                     "type": "string",
                     "format": "uri",
                     "x-nullable": true
+                },
+                "beginGeldigheid": {
+                    "title": "Begin geldigheid",
+                    "description": "De datum waarop het is ontstaan.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "eindeGeldigheid": {
+                    "title": "Einde geldigheid",
+                    "description": "De datum waarop het is opgeheven.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
                 }
             }
         },
@@ -6659,6 +6701,20 @@
                     },
                     "readOnly": true,
                     "uniqueItems": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
                 }
             }
         },
@@ -6901,6 +6957,34 @@
                     },
                     "readOnly": true,
                     "uniqueItems": true
+                },
+                "beginGeldigheid": {
+                    "title": "Begin geldigheid",
+                    "description": "De datum waarop het is ontstaan.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "eindeGeldigheid": {
+                    "title": "Einde geldigheid",
+                    "description": "De datum waarop het is opgeheven.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
                 }
             }
         },
@@ -6960,6 +7044,34 @@
                     "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
                     "type": "string",
                     "format": "uri",
+                    "readOnly": true
+                },
+                "beginGeldigheid": {
+                    "title": "Begin geldigheid",
+                    "description": "De datum waarop het is ontstaan.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "eindeGeldigheid": {
+                    "title": "Einde geldigheid",
+                    "description": "De datum waarop het is opgeheven.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
                     "readOnly": true
                 }
             }
@@ -7114,6 +7226,34 @@
                     },
                     "readOnly": true,
                     "uniqueItems": true
+                },
+                "beginGeldigheid": {
+                    "title": "Begin geldigheid",
+                    "description": "De datum waarop het is ontstaan.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "eindeGeldigheid": {
+                    "title": "Einde geldigheid",
+                    "description": "De datum waarop het is opgeheven.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
                 }
             }
         },
@@ -7190,6 +7330,34 @@
                     "description": "URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.",
                     "type": "string",
                     "format": "uri",
+                    "readOnly": true
+                },
+                "beginGeldigheid": {
+                    "title": "Begin geldigheid",
+                    "description": "De datum waarop het is ontstaan.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "eindeGeldigheid": {
+                    "title": "Einde geldigheid",
+                    "description": "De datum waarop het is opgeheven.",
+                    "type": "string",
+                    "format": "date",
+                    "x-nullable": true
+                },
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
+                    "readOnly": true
+                },
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
+                    "type": "string",
+                    "format": "date",
                     "readOnly": true
                 }
             }
@@ -7400,9 +7568,9 @@
                 "publicatieIndicatie",
                 "productenOfDiensten",
                 "referentieproces",
+                "verantwoordelijke",
                 "beginGeldigheid",
                 "versiedatum",
-                "verantwoordelijke",
                 "catalogus",
                 "besluittypen",
                 "gerelateerdeZaaktypen"
@@ -7580,6 +7748,25 @@
                 "referentieproces": {
                     "$ref": "#/definitions/ReferentieProces"
                 },
+                "concept": {
+                    "title": "Concept",
+                    "description": "Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.",
+                    "type": "boolean",
+                    "readOnly": true
+                },
+                "verantwoordelijke": {
+                    "title": "Verantwoordelijke",
+                    "description": "De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "broncatalogus": {
+                    "$ref": "#/definitions/BronCatalogus"
+                },
+                "bronzaaktype": {
+                    "$ref": "#/definitions/BronZaaktype"
+                },
                 "beginGeldigheid": {
                     "title": "Begin geldigheid",
                     "description": "De datum waarop het is ontstaan.",
@@ -7599,24 +7786,19 @@
                     "type": "string",
                     "format": "date"
                 },
-                "concept": {
-                    "title": "Concept",
-                    "description": "Geeft aan of het object een concept betreft. Concepten zijn niet-definitieve versies en zouden niet gebruikt moeten worden buiten deze API.",
-                    "type": "boolean",
+                "beginObject": {
+                    "title": "Begin object",
+                    "description": "De datum waarop de eerst versie van het object ontstaan is.",
+                    "type": "string",
+                    "format": "date",
                     "readOnly": true
                 },
-                "verantwoordelijke": {
-                    "title": "Verantwoordelijke",
-                    "description": "De (soort) organisatorische eenheid of (functie van) medewerker die verantwoordelijk is voor de uitvoering van zaken van het ZAAKTYPE.",
+                "eindeObject": {
+                    "title": "Einde object",
+                    "description": "De datum van de aller laatste versie van het object.",
                     "type": "string",
-                    "maxLength": 50,
-                    "minLength": 1
-                },
-                "broncatalogus": {
-                    "$ref": "#/definitions/BronCatalogus"
-                },
-                "bronzaaktype": {
-                    "$ref": "#/definitions/BronZaaktype"
+                    "format": "date",
+                    "readOnly": true
                 },
                 "catalogus": {
                     "title": "Catalogus",

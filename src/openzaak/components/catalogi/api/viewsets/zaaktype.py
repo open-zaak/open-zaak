@@ -95,18 +95,22 @@ class ZaakTypeViewSet(
     Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
     """
 
-    queryset = ZaakType.objects.prefetch_related(
-        # prefetch catalogus rather than select related -> far fewer catalogi, so less data to transfer
-        "catalogus",
-        "statustypen",
-        "zaaktypenrelaties",
-        "informatieobjecttypen",
-        "resultaattypen",
-        "eigenschap_set",
-        "roltype_set",
-        "deelzaaktypen",
-        "besluittypen",
-    ).order_by("-pk")
+    queryset = (
+        ZaakType.objects.prefetch_related(
+            # prefetch catalogus rather than select related -> far fewer catalogi, so less data to transfer
+            "catalogus",
+            "statustypen",
+            "zaaktypenrelaties",
+            "informatieobjecttypen",
+            "resultaattypen",
+            "eigenschap_set",
+            "roltype_set",
+            "deelzaaktypen",
+            "besluittypen",
+        )
+        .with_dates("identificatie")
+        .order_by("-pk")
+    )
     serializer_class = ZaakTypeSerializer
     lookup_field = "uuid"
     filterset_class = ZaakTypeFilter

@@ -12,6 +12,7 @@ from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
 
 from ..managers import SyncAutorisatieManager
+from ..query import GeldigheidQuerySet
 from .mixins import ConceptMixin, GeldigheidMixin
 
 
@@ -128,7 +129,7 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         ),
     )
 
-    objects = SyncAutorisatieManager()
+    objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     class Meta:
         verbose_name = _("besluittype")

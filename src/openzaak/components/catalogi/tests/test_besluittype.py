@@ -78,6 +78,8 @@ class BesluitTypeAPITests(APITestCase):
             "concept": True,
             "resultaattypen": [f"http://testserver{reverse(resultaattype)}"],
             "resultaattypenOmschrijving": [resultaattype.omschrijving],
+            "beginObject": "2018-01-01",
+            "eindeObject": None,
         }
         self.assertEqual(response.json(), expected)
 

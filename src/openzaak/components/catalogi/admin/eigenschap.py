@@ -31,7 +31,15 @@ class EigenschapAdmin(
     fieldsets = (
         (
             _("Algemeen"),
-            {"fields": ("eigenschapnaam", "definitie", "toelichting", "uuid",)},
+            {
+                "fields": (
+                    "eigenschapnaam",
+                    "definitie",
+                    "toelichting",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
+                )
+            },
         ),
         (
             _("Relaties"),

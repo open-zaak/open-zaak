@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+from datetime import date
+
 from django.test import override_settings
 
 from rest_framework import status
@@ -42,6 +44,8 @@ class ZaakObjectTypeAPITests(APITestCase):
             zaaktype=statustype.zaaktype,
             objecttype="http://example.org/objecttypen/1",
             statustype=statustype,
+            datum_begin_geldigheid=date(2023, 1, 1),
+            datum_einde_geldigheid=date(2023, 12, 1),
         )
         zaakobjecttype_detail_url = reverse(zaakobjecttype)
 
@@ -59,6 +63,10 @@ class ZaakObjectTypeAPITests(APITestCase):
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "resultaattypen": [],
             "statustype": f"http://testserver{reverse(statustype)}",
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
+            "beginObject": "2023-01-01",
+            "eindeObject": "2023-12-01",
         }
         self.assertEqual(expected, response.json())
 
@@ -70,6 +78,8 @@ class ZaakObjectTypeAPITests(APITestCase):
             "anderObjecttype": False,
             "objecttype": "http://example.org/objecttypen/1",
             "relatieOmschrijving": "test description",
+            "beginGeldigheid": "2023-01-01",
+            "eindeGeldigheid": "2023-12-01",
         }
 
         response = self.client.post(zaakobjecttype_list_url, data)
@@ -82,6 +92,8 @@ class ZaakObjectTypeAPITests(APITestCase):
         self.assertEqual(zaakobjecttype.zaaktype, zaaktype)
         self.assertFalse(zaakobjecttype.ander_objecttype)
         self.assertEqual(zaakobjecttype.relatie_omschrijving, "test description")
+        self.assertEqual(zaakobjecttype.datum_begin_geldigheid, date(2023, 1, 1))
+        self.assertEqual(zaakobjecttype.datum_einde_geldigheid, date(2023, 12, 1))
 
     def test_create_zaakobjecttype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -135,6 +147,24 @@ class ZaakObjectTypeAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "relations-incorrect-zaaktype")
+
+    def test_create_zaakobject_with_end_date_before_start_date(self):
+        zaaktype = ZaakTypeFactory.create()
+        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        data = {
+            "zaaktype": f"http://testserver{reverse(zaaktype)}",
+            "anderObjecttype": False,
+            "objecttype": "http://example.org/objecttypen/1",
+            "relatieOmschrijving": "test description",
+            "beginGeldigheid": "2023-12-01",
+            "eindeGeldigheid": "2023-01-01",
+        }
+
+        response = self.client.post(zaakobjecttype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "date-mismatch")
 
     def test_delete_zaakobjecttype(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()

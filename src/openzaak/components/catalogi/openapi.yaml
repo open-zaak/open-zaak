@@ -4744,6 +4744,18 @@ components:
             type: string
           readOnly: true
           uniqueItems: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     Fout:
       required:
       - code
@@ -5066,6 +5078,30 @@ components:
           type: string
           format: uri
           nullable: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     OmschrijvingGeneriek:
       description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
       required:
@@ -5223,6 +5259,18 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     BrondatumArchiefprocedure:
       description: Specificatie voor het bepalen van de brondatum voor de start van
         de Archiefactietermijn (=brondatum) van het zaakdossier.
@@ -5563,6 +5611,30 @@ components:
             type: string
           readOnly: true
           uniqueItems: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     RolType:
       required:
       - zaaktype
@@ -5619,6 +5691,30 @@ components:
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
           type: string
           format: uri
+          readOnly: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
           readOnly: true
     CheckListItem:
       description: Te controleren aandachtspunt voorafgaand aan het bereiken van een
@@ -5766,6 +5862,30 @@ components:
             format: uri
           readOnly: true
           uniqueItems: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
     ZaakObjectType:
       required:
       - anderObjecttype
@@ -5835,6 +5955,30 @@ components:
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
           type: string
           format: uri
+          readOnly: true
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+          nullable: true
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
           readOnly: true
     ZaakTypeInformatieObjectType:
       required:
@@ -6034,9 +6178,9 @@ components:
       - publicatieIndicatie
       - productenOfDiensten
       - referentieproces
+      - verantwoordelijke
       - beginGeldigheid
       - versiedatum
-      - verantwoordelijke
       - catalogus
       - besluittypen
       - gerelateerdeZaaktypen
@@ -6237,23 +6381,6 @@ components:
           maxLength: 200
         referentieproces:
           $ref: '#/components/schemas/ReferentieProces'
-        beginGeldigheid:
-          title: Begin geldigheid
-          description: De datum waarop het is ontstaan.
-          type: string
-          format: date
-        eindeGeldigheid:
-          title: Einde geldigheid
-          description: De datum waarop het is opgeheven.
-          type: string
-          format: date
-          nullable: true
-        versiedatum:
-          title: Versiedatum
-          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
-            geldig zijn geworden
-          type: string
-          format: date
         concept:
           title: Concept
           description: Geeft aan of het object een concept betreft. Concepten zijn
@@ -6272,6 +6399,35 @@ components:
           $ref: '#/components/schemas/BronCatalogus'
         bronzaaktype:
           $ref: '#/components/schemas/BronZaaktype'
+        beginGeldigheid:
+          title: Begin geldigheid
+          description: De datum waarop het is ontstaan.
+          type: string
+          format: date
+        eindeGeldigheid:
+          title: Einde geldigheid
+          description: De datum waarop het is opgeheven.
+          type: string
+          format: date
+          nullable: true
+        versiedatum:
+          title: Versiedatum
+          description: De datum waarop de (gewijzigde) kenmerken van het ZAAKTYPE
+            geldig zijn geworden
+          type: string
+          format: date
+        beginObject:
+          title: Begin object
+          description: De datum waarop de eerst versie van het object ontstaan is.
+          type: string
+          format: date
+          readOnly: true
+        eindeObject:
+          title: Einde object
+          description: De datum van de aller laatste versie van het object.
+          type: string
+          format: date
+          readOnly: true
         catalogus:
           title: Catalogus
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.

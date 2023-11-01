@@ -56,6 +56,8 @@ class ResultaatTypeAdmin(
                     "omschrijving",
                     "omschrijving_generiek",
                     "toelichting",
+                    "datum_begin_geldigheid",
+                    "datum_einde_geldigheid",
                 )
             },
         ),

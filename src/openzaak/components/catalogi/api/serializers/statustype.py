@@ -7,7 +7,7 @@ from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
 from ...models import CheckListItem, StatusType
-from ..validators import ZaakTypeConceptValidator
+from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
 class CheckListItemSerializer(serializers.ModelSerializer):
@@ -76,6 +76,16 @@ class StatusTypeSerializer(
             "van een status van het STATUSTYPE."
         ),
     )
+    begin_object = serializers.DateField(
+        source="datum_begin_geldigheid",
+        read_only=True,
+        help_text=_("De datum waarop de eerst versie van het object ontstaan is."),
+    )
+    einde_object = serializers.DateField(
+        source="datum_einde_geldigheid",
+        read_only=True,
+        help_text=_("De datum van de aller laatste versie van het object."),
+    )
 
     class Meta:
         model = StatusType
@@ -95,6 +105,10 @@ class StatusTypeSerializer(
             "catalogus",
             "eigenschappen",
             "zaakobjecttypen",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "begin_object",
+            "einde_object",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -102,5 +116,7 @@ class StatusTypeSerializer(
             "omschrijving_generiek": {"source": "statustype_omschrijving_generiek"},
             "volgnummer": {"source": "statustypevolgnummer"},
             "zaaktype": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }
-        validators = [ZaakTypeConceptValidator()]
+        validators = [ZaakTypeConceptValidator(), StartBeforeEndValidator()]
