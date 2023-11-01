@@ -4,7 +4,12 @@ from datetime import date
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import (
+    TypeCheckMixin,
+    get_validation_errors,
+    reverse,
+    reverse_lazy,
+)
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -755,6 +760,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
 
 class EigenschapFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("eigenschap-list")
 
     def test_filter_eigenschap_status_alles(self):
         EigenschapFactory.create(zaaktype__concept=True)
@@ -810,6 +816,40 @@ class EigenschapFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_zaaktype_identificatie(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype__identificatie="some", zaaktype__concept=False
+        )
+        EigenschapFactory.create(
+            zaaktype__identificatie="other", zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"zaaktypeIdentificatie": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
+
+    def test_filter_geldigheid(self):
+        eigenschap = EigenschapFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            zaaktype__concept=False,
+        )
+        EigenschapFactory.create(
+            datum_begin_geldigheid=date(2020, 2, 1), zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eigenschap)}")
 
 
 class EigenschapPaginationTestCase(APITestCase):

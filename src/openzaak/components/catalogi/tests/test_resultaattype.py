@@ -1050,6 +1050,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
 class ResultaatTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("resultaattype-list")
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_on_zaaktype(self):
@@ -1133,6 +1134,40 @@ class ResultaatTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_zaaktype_identificatie(self):
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__identificatie="some", zaaktype__concept=False
+        )
+        ResultaatTypeFactory.create(
+            zaaktype__identificatie="other", zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"zaaktypeIdentificatie": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(resultaattype)}")
+
+    def test_filter_geldigheid(self):
+        resultaattype = ResultaatTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            zaaktype__concept=False,
+        )
+        ResultaatTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 2, 1), zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(resultaattype)}")
 
 
 class ResultaatTypePaginationTestCase(APITestCase):

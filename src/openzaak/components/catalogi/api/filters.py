@@ -31,6 +31,7 @@ STATUS_HELP_TEXT = """filter objects depending on their concept status:
 * `concept`: Toon objecten waarvan het attribuut `concept` true is.
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 """
+DATUM_GELDIGHEID_HELP_TEXT = "filter objecten op hun geldigheids datum."
 
 
 class StatusChoices(models.TextChoices):
@@ -58,6 +59,14 @@ def m2m_filter(queryset, name, value):
     return queryset.filter(**{name: object})
 
 
+def geldigheid_filter(queryset, name, value):
+    """return objects which have geldigheid dates between certain date"""
+    return queryset.filter(datum_begin_geldigheid__lte=value).filter(
+        models.Q(datum_einde_geldigheid__gte=value)
+        | models.Q(datum_einde_geldigheid__isnull=True)
+    )
+
+
 class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
     pass
 
@@ -69,10 +78,23 @@ class RolTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = RolType
-        fields = ("zaaktype", "omschrijving_generiek", "status")
+        fields = (
+            "zaaktype",
+            "omschrijving_generiek",
+            "status",
+            "datum_geldigheid",
+            "zaaktype_identificatie",
+        )
 
 
 class ZaakTypeInformatieObjectTypeFilter(FilterSet):
@@ -107,10 +129,17 @@ class ResultaatTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = ResultaatType
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
 
 
 class StatusTypeFilter(FilterSet):
@@ -120,10 +149,17 @@ class StatusTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = StatusType
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
 
 
 class EigenschapFilter(FilterSet):
@@ -133,10 +169,17 @@ class EigenschapFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
+    zaaktype_identificatie = filters.CharFilter(
+        field_name="zaaktype__identificatie",
+        help_text=get_help_text("catalogi.ZaakType", "identificatie"),
+    )
 
     class Meta:
         model = Eigenschap
-        fields = ("zaaktype", "status")
+        fields = ("zaaktype", "status", "datum_geldigheid", "zaaktype_identificatie")
 
 
 class ZaakTypeFilter(FilterSet):
@@ -147,10 +190,19 @@ class ZaakTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
 
     class Meta:
         model = ZaakType
-        fields = ("catalogus", "identificatie", "trefwoorden", "status")
+        fields = (
+            "catalogus",
+            "identificatie",
+            "trefwoorden",
+            "status",
+            "datum_geldigheid",
+        )
 
 
 class InformatieObjectTypeFilter(FilterSet):
@@ -160,10 +212,13 @@ class InformatieObjectTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
 
     class Meta:
         model = InformatieObjectType
-        fields = ("catalogus", "status")
+        fields = ("catalogus", "status", "omschrijving", "datum_geldigheid")
 
 
 class BesluitTypeFilter(FilterSet):
@@ -190,10 +245,20 @@ class BesluitTypeFilter(FilterSet):
         help_text=STATUS_HELP_TEXT,
         choices=StatusChoices.choices,
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
 
     class Meta:
         model = BesluitType
-        fields = ("catalogus", "zaaktypen", "informatieobjecttypen", "status")
+        fields = (
+            "catalogus",
+            "zaaktypen",
+            "informatieobjecttypen",
+            "status",
+            "omschrijving",
+            "datum_geldigheid",
+        )
 
 
 class CatalogusFilter(FilterSet):
@@ -208,6 +273,9 @@ class ZaakObjectTypeFilter(FilterSet):
         queryset=Catalogus.objects.all(),
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
+    datum_geldigheid = filters.DateFilter(
+        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+    )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",
         help_text=get_help_text("catalogi.ZaakType", "identificatie"),
@@ -220,6 +288,9 @@ class ZaakObjectTypeFilter(FilterSet):
             "catalogus",
             "objecttype",
             "relatie_omschrijving",
+            "datum_begin_geldigheid",
+            "datum_einde_geldigheid",
+            "datum_geldigheid",
             "zaaktype",
             "zaaktype_identificatie",
         )

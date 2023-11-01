@@ -10,7 +10,12 @@ import requests_mock
 from rest_framework import status
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import (
+    TypeCheckMixin,
+    get_validation_errors,
+    reverse,
+    reverse_lazy,
+)
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.utils import build_absolute_url
@@ -1529,6 +1534,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
 
 class ZaakTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("zaaktype-list")
 
     def test_filter_zaaktype_status_alles(self):
         ZaakTypeFactory.create(concept=True)
@@ -1610,6 +1616,22 @@ class ZaakTypeFilterAPITests(APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
+
+    def test_filter_geldigheid(self):
+        zaaktype = ZaakTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            concept=False,
+        )
+        ZaakTypeFactory.create(datum_begin_geldigheid=date(2020, 2, 1), concept=False)
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaaktype)}")
 
 
 class ZaakTypePaginationTestCase(APITestCase):

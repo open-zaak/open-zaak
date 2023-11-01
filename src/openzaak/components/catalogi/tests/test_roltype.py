@@ -6,7 +6,7 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, RolOmschrijving
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -257,6 +257,7 @@ class FilterValidationTests(APITestCase):
 
 class RolTypeFilterAPITests(APITestCase):
     maxDiff = None
+    url = reverse_lazy("roltype-list")
 
     def test_filter_roltype_status_alles(self):
         RolTypeFactory.create(zaaktype__concept=True)
@@ -319,6 +320,38 @@ class RolTypeFilterAPITests(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://openzaak.nl{roltype1_url}")
+
+    def test_filter_zaaktype_identificatie(self):
+        roltype = RolTypeFactory.create(
+            zaaktype__identificatie="some", zaaktype__concept=False
+        )
+        RolTypeFactory.create(zaaktype__identificatie="other", zaaktype__concept=False)
+
+        response = self.client.get(self.url, {"zaaktypeIdentificatie": "some"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(roltype)}")
+
+    def test_filter_geldigheid(self):
+        roltype = RolTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+            zaaktype__concept=False,
+        )
+        RolTypeFactory.create(
+            datum_begin_geldigheid=date(2020, 2, 1), zaaktype__concept=False
+        )
+
+        response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(roltype)}")
 
 
 class RolTypePaginationTestCase(APITestCase):
