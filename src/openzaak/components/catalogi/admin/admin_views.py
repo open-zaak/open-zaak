@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -13,7 +14,11 @@ from django.views.generic import FormView, TemplateView
 
 from openzaak.utils.admin import AdminContextMixin
 
-from ..models import Catalogus
+from ..models import (
+    Catalogus,
+    BesluitType,
+    InformatieObjectType,
+)
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
     construct_besluittypen,
@@ -80,6 +85,13 @@ class CatalogusZaakTypeImportSelectView(
     permission_required = "catalogi.add_zaaktype"
     raise_exception = True
 
+    @staticmethod
+    def find_existing(model, value, catalogus):
+        try:
+            return model.objects.get(omschrijving=value, catalogus=catalogus)
+        except ObjectDoesNotExist:
+            return 0
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -89,7 +101,10 @@ class CatalogusZaakTypeImportSelectView(
         iotypen = self.request.session.get("iotypen")
         if iotypen:
             iotype_forms = InformatieObjectTypeFormSet(
-                initial=[{"new_instance": instance} for instance in iotypen],
+                initial=[
+                    {"existing": self.find_existing(InformatieObjectType, instance["omschrijving"], catalogus=catalogus)}
+                    for instance in iotypen
+                ],
                 form_kwargs={
                     "catalogus_pk": catalogus_pk,
                     "labels": [
@@ -104,7 +119,8 @@ class CatalogusZaakTypeImportSelectView(
         if besluittypen:
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
-                    {"new_instance": instance} for instance, uuids in besluittypen
+                    {"existing": self.find_existing(BesluitType, instance["omschrijving"], catalogus=catalogus)}
+                    for instance, uuids in besluittypen
                 ],
                 form_kwargs={
                     "catalogus_pk": catalogus_pk,
